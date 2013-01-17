@@ -1,0 +1,28 @@
+==============================================================================================================================================================
+=                                                                       FEATURE REQUESTS                                                                     =
+==============================================================================================================================================================
+
+001. [COMPLETE] Support for loading scripts via drag n drop		[30th May : Added main window handler for WM_DROPFILES]
+
+002. [COMPLETE] Ability to load script dependencies via the script properties window   [30th May : Added item to script dependencies context menu to invoke onDependenciesLoadSelectedScripts()]
+
+003. [COMPLETE] Ability to load multiple script dependencies via the script properties window  [7th June : Altered onDependenciesLoadSelectedScripts() to invoke commandLoadScriptDependency() for each selected item]
+
+004. [COMPLETE] A special icon for ScriptObjects or GameObjects loaded from mods  [30th May : Added 'bModContent' flag to GameStrings, set by treeprocMergeSupplementaryGameStrings(), to allow a special 'mod' icon]
+																		
+005. [COMPLETE] Ability to automatically re-open the scripts you were working on when you closed the program  [6th June : Added load/storeDocumentSession for loading/saving files to the registry]
+
+006. [COMPLETE] Ability to open the target of script-call commands through the script editor context menu  [7th June : Added item to context menu, also added commandLoadScriptDependency() which loads .pck/.xml appropriately]
+
+007. [COMPLETE] Ability to close open scripts by clicking their tab with the middle mouse button  [7th June : Added onDocumentsCtrlMiddleClick() and created closeDocumentByIndex() to streamline closure process]
+
+008. Ability to open multiple scripts at once through the 'open script' window
+
+009. Ability to use wildcard file matching in the 'open script' window
+
+010. [COMPLETE] Separate filters in the 'open script' window for .pck and .xml scripts  [20th June : Added new filter to performFileItemFilterMatch() and related places]
+
+011. [ON HOLD] Option to open all scripts called by a script when it's loaded
+
+012. [ON HOLD] Create function macros that expand into real commands when saved 																		
+																		

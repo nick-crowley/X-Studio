@@ -1,0 +1,227 @@
+==============================================================================================================================================================
+=                                                                    TASK LIST                                                                               =
+==============================================================================================================================================================
+
+
+Future
+-----------
+
+• Save the last folder used in the project dialog
+• Update Insert Arguments dialog to use Custom ComboBox
+• Add the Panda bitmap to the about dialog
+• Design icons for the Mission Hierarchy and Conversation browser toolbar buttons
+• Add exception handling to major windows that still don't have it
+
+
+• Implement the AutomaticUpdate dialog and command
+
+• [HALT] Add special type checking for commands that require objects be specified by sub-type - automatically convert a type into it's subtype, and vice-versa
+         -> I think this could cause real problems with variables. Check into it.
+
+• Play '08217.mp3' / 'MixTension' in the about box
+
+• You should lock the datafiles and catalogues from write access for the duration of the program... Someone could edit them using X-Editor 2.
+• Alternatively you could setup some sort of datafile changed notification....
+
+
+Update 13
+----------
+
+• [DONE] Completed help-file section on Projects / ProjectVariables
+• [DONE] Updated help-file page on Adv. Loading options
+• [DONE] Added feature request "automatically supply script-call arguments for 'call script' command"
+• [DONE] Add recent file list
+• [DONE] Add keyboard accelerator Ctrl+Tab for switching between open documents
+• [DONE] BUG:038. Find & Replace is case sensitive
+• [DONE] Add option for case sensitive/insensitive text search
+• [DONE] Add sub-menu to 'help' menu for manually displaying tutorial windows
+
+
+Update 12
+----------
+
+• [DONE] BUG:039. Auto-completing macros sometimes appends instead of replaces the existing command
+• [DONE] BUG:038. Cannot navigate through words in comments by holding control and using the arrow keys
+• [DONE] BUG:037. Pressing ENTER for a newline in the 'submit correction' window submits the correction
+• [DONE] BUG:036. You cannot open scripts that implement an unrecognised ship/station command
+• [DONE] BUG:035. All scripts without a ship/station command are saved as implementing COMMAND_NONE
+• [DONE] BUG:034. The first letter of comments is sometimes truncated after reloading scripts
+• [DONE] BUG:033. Helper window caption titles are truncated on some systems
+• [DONE] BUG:030. Illogical expressions are compiled instead of producing an error 
+• [DONE] Updated help-file with full list of commands that have been changed
+
+
+
+Update 10
+--------
+
+• [DONE] Updated non-clinet drawing code for captions of workspace windows
+• [DONE] Subroutine code is now indented
+• [DONE] Add 'export project files' to save all project files to a specified folder
+• [DONE] Added clearer explanation of how project variables work
+• [DONE] Investigate adding new convenience macro commands for things like custom menu PageIDs
+• [DONE] Add 'replace' functionality to FindText
+• [DONE] Use current text selection for initial search text, if possible
+• [DONE] Add a 'goto label' script document context menu item
+• [DONE] Change the script version to an optional property in terms of translation
+• [DONE] Ensure the first command expanded during macro translation isn't under a skip-if command
+• [DONE] Add custom commands file to allow users to define their own command syntax
+• [DONE] Enable reading script properties from <codearray> if they're missing from tags
+• [DONE] Generate a warning for each command ID that is overwritten by supplementary language files
+• [PARTIAL] Use game sub-paths for project files where possible
+• [DONE] Provide option to use system OpenFile dialog instead of the catalogue browser
+
+1050. [FIXED] And access violation occurs if you use an 'if' without a matching 'end'
+029. [FIXED] Web-browser XML becomes corrupted when nesting more than 10 'if' statements, preventing you from re-opening the script 
+031. [FIXED] Backspacing while displaying suggestions may cause an access violation
+
+• Extend 'dim' macro to include 'create new array' followed by 'append xx to array'
+
+• Generate a warning when necessary operators are missing from expressions
+
+• [ON HOLD] Alter size of text in helper windows -- Requires changing the icons !
+
+
+
+Update 7
+--------
+
+• [DONE] Add a 'Only display objects compatible with <game version>' checkbox to the Results dialog
+• [DONE] Added font/size preview to 'Appearance' preferences page
+• [DONE] Added non-themed drawing for all controls
+• [DONE] Added graceful handling to exceptions caught during CodeEdit inline compilation
+
+
+
+Update 6
+--------
+
+• [FIXED] 1039: You can extend the right edge of tool windows to infinity
+• [FIXED] 1040: The size of the project window was not saved between uses
+• [FIXED] 1041: The CodeEdit was not updated after adding/removing/changing script arguments
+• [FIXED] 1042: An access violation occurred after removing script arguments
+• [FIXED] 1044: Part of the CodeEdit may be obscured if enlarged while scrolled to the right
+• [FIXED] 1043: Commenting code on an empty line causes an access violation
+• [FIXED] 1048: Removing files from projects did not always mark the project as modified
+• [FIXED] 1049: Dragging the CodeEdit text selection above the window causes the selection to reverse
+
+• [DONE] Merged Close/Save/SaveAs menu items for documents and projects, they now act upon whichever is currently selected
+• [DONE] Fixed missing status bar entries in the properties window and document tab context menus
+• [DONE] Fixed missing tooltips for newer controls in the properties window
+• [DONE] Added project window menu item to add all currently open documents to the project
+• [DONE] Users no longer need to close the current project before opening another
+• [DONE] Increase speed of OpenFile dialog when only displaying .xml scripts and project files
+
+
+
+September
+------
+
+• [DONE] Add cancellation option when closing unsaved documents
+• [DONE] Define message dialog titles for messages invoked throughout the program
+• [DONE] Added tutorial dialogs to OpenFile, FileOptions and ScriptEditor
+• [DONE] Add a 'Find Text' dialog
+• [DONE] Enable/Disable find text dialog when appropriate
+• [DONE] Update icon indicies again
+• [FIXED] 001: Syntax is not highlighted when viewing scripts in a web-browser
+• [DONE] Implement project variables
+• [DONE] Implemented CodeEdit undo/redo feature
+• [DONE] Fixed the accelerators so they target the window with the keyboard focus
+• [DONE] Added wildcard pattern matching to the open file dialog
+• [DONE] Fixed multiple bugs in windows XP
+• [DONE] Changed the data file loading order according to suggestion by Jack08
+• [DONE] Changed document/project saving/closing mechanism to work in the 'standard' fashion
+
+
+August
+------
+
+• [DONE] Save the current ComboBox selection of each Results dialog on hide
+• [DONE] Save the maximised/normal state of the main window on save/load
+• [DONE] Prevent two instances of the application running. I think if you load one while closing another, shit happens
+
+• [DONE] Streamlined suggestions code to make them more reliable.
+• [DONE] Display RichText tooltips when you hover over CodeObjects
+• [DONE] Fix the GameStrings with 'hidden' brackets still in their names  
+• [DONE] Change ComboBoxes in the FileDialog to CustomComboBoxes
+• [DONE] Implement automatic script generation test code
+• [DONE] Validate the scripts in X3:TC and X3:AP
+• [DONE] Write a new operation to search the script folder for incoming script calls, with a 'report' ListView based dialog accessed from the properties dialog
+• [DONE] Validate the scripts in X3:R 
+• [DONE] Add exception handling to DocumentsCtrl 
+• [DONE] Implement the CorrectionSubmission dialog and command
+• [DONE] Add auto-complete feature to the FileDialog
+• [DONE] Added help file connection to completed pages within the help file
+
+• [PARTIAL] Write remaining tooltips
+• [PARTIAL] Add more function tracking to CodeEdit
+
+• [FAILED] Validate the scripts in X2
+  
+• [DONE] Right align buttons in NEW DOCUMENT dialog, ABOUT dialog.
+• [DONE] Add preferences for controlling tooltips and suggestions to 'General' page
+• [DONE] Move the game data language preference to the 'Folders' page. Rename it to the 'Game Data' page
+• [DONE] Adjust the size of the preferences dialog buttons to match program
+• [DONE] Hide the preferences dialog 'Apply' button
+• [DONE] Adjust the BugReport dialog to display a different introduction if invoked manually
+• [DONE] Write a description for Project context menu item 'Open selected'
+• [DONE] Adjust the project dialog so the context menu appears for the item right-clicked, not the item originally selected
+• [DONE] Add GAME_FOLDER, SCRIPT_FOLDER and X-STUDIO_FOLDER to the project dialog folder comboBox
+• [DONE] Adjust the colour of the text in the license dialog
+• [DONE] Don't prefix CodeEdit LineNumbers with zeros
+
+• [FAILED] Stop the script name being selected when 'General' page is displayed
+• [DONE] Implement the 'skip-if-not' CodeEdit preference functionality
+• [DONE] Save as PCK
+• [DONE] Add 'Comment'/'Uncomment' option to Edit menu
+• [DONE] Implement 'Select All' menu item, and design icon
+• [FIXED] 1016: Unable to display exceptions caught by the CodeEdit
+• [FIXED] 1011: Conditionals will be messed up when using Albion prelude.  Alterations must be made to translateReturnObjectToString().
+• [FIXED] 1017: FileDialog sizing box is not redrawn properly
+
+
+
+July 2012
+---------------
+
+• [DONE] Change the progress title to LOADING, SAVING or SUBMITTING
+• [DONE] Finish the NewDocument dialog
+• [DONE] Design an icon for the project explorer
+• [DONE] Reformat the InsertArgumentsDialog to use a large icon and greater spacing
+• [DONE] Add a context menu to document tabs : (Save, Close, Close except Active, Add to project, Remove from project)    
+
+• [DONE] Add a 'tutorial window' to explain basic program operation on first load:  (Design: LHS: large help icon.  RHS: custom text  BOTTOM: OK button)
+    -> preferences - explain game data
+    -> main window - explain windows
+    -> document - explain usage
+    -> properties - explain tabs
+
+• [DONE] Implement the project system
+    -> [DONE] Current project name added to title bar
+
+• [DONE] Fix the problem with creating empty ScriptFiles
+        
+        
+
+June 2012
+---------------
+
+• [DONE] Calculate the user scripts folder and enable file dialog jump-bar button
+• [DONE] Check the ModalDialogStack doesn't have any bugs
+• [DONE] Stop the properties dialog flickering when displayed
+• [DONE] Add 'Multiple file selection' feature to the OpenFile dialog
+• [DONE] Replace useless OpenFile dialog JumpBar buttons with something useful
+• [DONE] Separate the XML/PCK file dialog filters
+• [ABORTED] Add 'Wildcard matching' feature to the OpenFile dialog
+• [DONE] Recalculate the indicies of GameVersion icons for the FileDialog
+• [DONE] Design new icons for Script/Language/Mission files
+• [DONE] Assign unique icons to Mission and Language files in the FileDialog 
+• [DONE] Stop the properties dialog flickering when switching between documents 
+• [DONE] Add variables dependencies pages
+• [DONE] Find out why the FileDialog is no longer displaying icons in the ListView -- but is in the ComboBox, even though they use the same ImageList!
+• [DONE] Add GameStrings dependencies pages
+• [DONE] Prevent PreferencesDialog game data language/folder being edited while documents are modified. Add a warning static too
+• [DONE] Ensure the SearchTabDialog can handle displaying no game data (and a switch to no game data) gracefully
+
+
+

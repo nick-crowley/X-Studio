@@ -1,0 +1,199 @@
+==============================================================================================================================================================
+=                                                                OFFICIAL BUG LIST                                                                           =
+==============================================================================================================================================================
+
+INTERNAL
+--------
+
+1001. [FIXED] You can WHEEL_UP and PAGE_UP on the first line of the CodeEdit, causing invalid lines to appear. You can't select the invalid lines. You can only 
+      remove them by pressing DOWN.  You cannot cause this bug by pressing UP.	[5th May : Adjusted CodeEdit scroll handler]
+     
+1002. [FIXED] File dialog displays system files  [6th May : Added check to performFileSystemSearch()]
+
+1003. [FIXED] Script-name not displayed in 'Save As' dialog  [6th May : Added code to onMainWindowFileSaveAs()]
+
+1004. [FIXED] 'Save As' dialog does not automatically add file extension to script  [6th May : Added code to onMainWindowFileSaveAs()]
+
+1005. [FIXED] File dialog does not group folders and files 
+
+1006. [FIXED] Possible bug in 'treeprocSearchVirtualFileSystem' : if relationship == FFR_SUBFOLDER, should a new file and a new folder be created?  [1st July : Changed virtual file search algorithm]
+
+1007. [FIXED] Editing arguments doesn't modify the active document
+
+1008. [FIXED] You can rename two arguments to have the same name  [9th May : Added verification code to argument creation]
+
+1009. Scripts are not marked as 'modified' if their 'script-name' is changed to reflect their filename on load
+
+1010. [FIXED] Errors during generation are not underlined in the CodeEdit afterwards  [10th May : They had to be manually set with setCodeEditLineError()]
+
+1011. [FIXED] Conditionals will be messed up when using Albion prelude.  Alterations must be made to translateReturnObjectToString().
+
+1012. [FIXED] Alternate language ScriptObjects may not be unique (Use GameObject mangling technique)  [12th May : ScriptObject names are not mangled in the same way]
+
+1013. [FIXED] No support for commands from older versions that were changed or deleted [ 16th May : Added syntax variation and comatilbility flags ]
+
+1014. Script commands that are no longer supported are not highlighted when you change the version of the active script document
+
+1015. [FIXED] ScriptObjects from Albion Prelude are not displayed [24th May : Added support for data stored in the 'addon' subfolder]
+
+1016. [FIXED] Unable to display exceptions caught by the CodeEdit
+
+1017. [FIXED] FileDialog sizing box is not redrawn properly
+
+1018. [FIXED] Errors produced by findNextXMLToken() don't have a Line number in any of the messages   [30th May : Added some line numbers, tweaked the XML attachment, and fixed bug calculating current line in findNextXMLToken()]
+
+1019. [FIXED] All Terran Conflict game catalouges are processed in Albion Prelude mode, instead of only the first 13  [29th May : Modified generateVirtualFileSystemCatalogueList() to only load 13 X3:TC catalouges under X3:AP]
+
+1020. [FIXED] The codeEdit only displays a 3 digit line number, instead of 4 digit [29th May : Modified drawCodeEditLine() and calculateCodeEditDisplayRectangle() to assume 4 digits instead of 3]
+
+1021. [FIXED] Script dependencies ListView has an incorrect column name - second column should be "Call Count" or similar [29th May : Removed a stray comma operator in initPropertiesDialogPage()]
+
+1023. [FIXED] Incredible flickering when opening and closing loads of scripts  [14th July : Rewrote documents control to reduce overlapping show/hide commands]
+
+1024. [FIXED] An access violation occurs when loading Jack08's supplementary language file '7212-L044.xml'  [30th May : Modified removeObjectFromAVLTreeByValue() to handle removing a node from a tree with only 1 item]
+
+1025. [FIXED] Strange symbols are being appended to the input buffers of supplementary language files  [30th May : Modified utilTranslateStringToUNICODE() to truncate un-translated characters. Also added utilTranslateStringToUNICODEEx()]
+
+1026. [FIXED] File Dialog always displays X3:TC icons in the JumpBar  [9th June : Changed appendFileDialogNamespaceFolder() and initFileDialogJumpBarLocations() to display correct icons]
+
+1027. [FIXED] Unable to resolve the name of SPARE_LASER_1 and SPARE_LASER_2 [30th May : Modified generateGameObjectsFromTypeFile() to account for the fact lasers, shields, missiles and wares stored Object IDs at different indicies]
+
+1028. [FIXED] Unable to resolve the game data version even executable is present  [30th May : identifyGameFolderContents() was skipping the executable check and generateGameExecutableFilePath() was using findGameDataFileSubPathByID() in error]
+
+1029. [FIXED] Missing external scripts and any translation errors they created are not displayed in the CodeEdit after loading  [30th May : Modified translateCommandToString() to add ScriptCall errors to the output + COMMAND queues]
+
+1030. [FIXED] CodeEdit context menu item 'View Error' has the wrong icon and doesn't be reflect severity of the actual error  [30th May : Modified onScriptDocumentContextMenu() and added destroyCustomMenuItem() so custom menus can be customised]
+
+1031. [FIXED] Progress dialog is not centering itself within main window  [30th May : Modified utilCentreRectangle() to also handle parent rectangles in window co-ordinates]
+
+1032. [FIXED] The filename in the output dialog and VERBOSE doesn't always reflect the alternate extension of the file, if that was loaded instead  [30th May : loadRawFileFromFileSystemByPath() now modified the file path if alternate extension is used]
+
+1033. The <> buttons on the documents control are not moved when the window is resized
+
+1034. [FIXED] X-Universe forum name seems to be corrupted on a new install, instead of blank [10th June : Lack of brackets in cleanBugReportForumUserName() was causing random execution pattern]
+
+1035. [FXIED] Modeless dialogs are still enabled while modal dialogs are operating  [10th June : Added ModalDialogStack]
+            
+1036. [FIXED] Files added via Drag'n'Drop are always assumed to be scripts   [5th July : Modified onMainWindowShellDropFiles() to use identifyFileType() on input files]
+
+1037. [PARTIAL] The properties dialog flickers when appearing / dissapearing  [12th June : Modified onPropertiesDialogCreate() to move the dialog before display]
+      [FIXED]   Dialog still flickers when switching between documents  [14th July : Properties dialog now responds to UM_DOCUMENT_SWITCHED properly and redrawing is minimized]
+
+1038. [FIXED] Error message codes are not displayed in the error dialog for all messages [10th June : Re-organised all error handling and created ERROR_ID() macro]
+
+1039. [FIXED] You can extend the right edge of tool windows to infinity
+
+1040. [FIXED] The size of the project window was not saved between uses
+
+1041. [FIXED] The CodeEdit was not updated after adding/removing/changing script arguments
+
+1042. [FIXED] An access violation occurred after removing script arguments
+
+1043. [FIXED] Commenting code on an empty line causes an access violation
+
+1044. [FIXED] Part of the CodeEdit may be obscured if enlarged while scrolled to the right
+
+1045. Remember and solve CodeEdit errors not being displayed when you change the version, or after you save the script, or something like that.
+
+1046. Errors in command comments are underlined when a script is loaded
+
+1047. Scripts with case-sensitive duplicate variables are loaded without a warning that these are unsupported.  (Must also flag modified-on-load)
+
+1048. [FIXED] Removing files from projects did not always mark the project as modified
+
+1049. [FIXED] Dragging the CodeEdit text selection above the window causes the selection to reverse
+
+1050. [FIXED] And access violation occurs if you use an 'if' without a matching 'end'
+
+1051. You can compile empty 'if' statements successfully
+
+1052. You can use conditionals with commands with the 'retvar' only syntax
+
+1053. Can't load scripts with empty descriptions or arguments
+
+1054. Can't use 'dim' macro with numbers, strings or objects
+
+
+
+EXTERNAL
+--------
+
+038. Find & Replace is case sensitive
+
+037. [FIXED] Pressing ENTER for a newline in the 'submit correction' window submits the correction
+
+036. [FIXED] You cannot open scripts that implement an unrecognised ship/station command
+
+035. [FIXED] Add scripts without a ship/station command are saved as implementing COMMAND_NONE
+
+034. [FIXED] The first letter of comments is sometimes truncated after reloading scripts
+
+033. [FIXED] Helper window caption titles are truncated on some systems
+
+032. [IN PROGRESS] Indentation of code within subroutines is a little unpredictable
+
+031. [FIXED] Backspacing while displaying suggestions may cause an access violation
+
+030. [IN PROGRESS] Illogical expressions are compiled instead of producing an error
+
+029. [FIXED] Web-browser XML becomes corrupted when nesting more than 10 'if' statements, preventing you from re-opening the script
+
+028. [FIXED] A warning is not produced when you use variables without assigning them first
+
+027. [FIXED] An access violation may occur if you try to use skip-if on a command directly beneath another skip-if
+
+026. [FIXED] Access violations during compilation prevent you continuing to edit the script
+
+025. [FIXED] Copy/paste and undo/redo corrupts scripts by inserting hundreds of extra lines
+
+024. [FIXED] An access violation occurs if you remove script arguments
+
+023. [FIXED] An access violation occurs when you attempt to comment an empty line
+
+022. [FIXED] Text selection is lost when you right-click
+
+021. [FIXED] Zero-byte files cause an exception in the file browser
+
+020. [FIXED] Using a number for the label name causes an exception
+
+019. [FIXED] New arguments were not created
+
+018. [FIXED] Auto-complete deletes the entire line when inserting a command 
+
+---
+
+001. [FIXED] Syntax is not highlighted when viewing scripts in a web-browser
+
+002. [PARTIAL] You receieve multiple 'an unexpected close tag was detected' errors when loading scripts created by eXscriptor for the first time  [30th May : Strings containing '>' are now loaded, but the warning is still produced]
+
+003. [FIXED] App crashes when displaying the preferences dialog (if running app for the first time)	 [6th May : Prefs Folder page relied on DocumentsData before it was created]
+          
+004. [FIXED]  App crashes during loading when 'loading language strings' is displayed  [7th May : Operation ErrorQueue was being deleted twice by mergeLanguageFileIntoGameStringTrees()]
+     [UPDATE] Still happening for some reason
+
+005. [FIXED] New script arguments are not actually created  [9th May : Arguments were not given a unique ID before being added to the ScriptFile Arguments tree]
+
+006. [FIXED] Sometimes you cannot switch between documents  [9th May : Splitter control wasn't reflecting WM_NOTIFY messages]
+
+007. [FIXED] Variables switch places with each other after saving and loading a script  [9th May : Changed mechanism for holding arguments+variables during transgeneration from trees to lists to simplify indexing]
+
+008. [FIXED] Loading an already opened script results in a multiple documents being created  [10th May : implemented findDocumentByFilePath() to check for instance of the same document]
+
+009. [FIXED] Filtering the script object lists displays results from the wrong groups  [10th May : treeprocBuildSearchResultsDialogTree() was excluding the incorrect groups]
+
+010. [FIXED] An apostrophe is appended to all strings when scripts are saved  [10th May : generateParameterFromCodeObject() was capturing the final aspostrophe]
+
+011. [FIXED] If you press RETURN twice in a script, it automatically inserts the first auto-complete entry  [27th May : Changed identifyCodeEditSuggestionTypeAtCaret() to suggestion NONE if line is empty]
+
+012. [FIXED] An access violation occurs if a matching string is not found for the name of ware, missile, laser or shield  [28th May : Changed generateGameObjectWareName() to pass correct parameters to error string]
+
+013. [FIXED] XML tags cannot be placed inside comments in any XML file [27th May : Changed findNextXMLToken() to handle XML comments slightly differently to other tags]
+
+014. [FIXED] Empty string entries in supplementary language files produce a warning and are not processed  [30th May : Altered translateLanguageOrSpeechFile() so it doesn't consider the lack of text to be an error]
+
+015. [FIXED] Albion Prelude scripts with the new <sourceplaintext> tag cannot be not loaded  [30th May : Changed findScriptTranslationNodes() to search for the <codearray> by name, not index. 
+                                                                                                         Also changed findXMLTreeNodeByName() to search by immediate children or entire tree]
+
+016. [FIXED] Scrolling the mouse wheel very fast causes the script editor to 'jump'  [30th May : Changed onCodeEditMouseWheel() to only scroll by lines instead of lines or pages]
+
+017. [FIXED] Removing script arguments causes the program to crash   [10th June : removeArgumentFromScriptFileByIndex() wasn't re-indexing the argument tree]
