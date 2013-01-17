@@ -99,8 +99,13 @@ DOCUMENT_OPERATION*   createDocumentOperationData(CONST OPERATION_TYPE  eOperati
 
    // [LANGUAGE] 
    case OT_LOAD_LANGUAGE_FILE: 
+      addStageToOperationProgress(pOperationData->pProgress, IDS_PROGRESS_PARSING_LANGUAGE);
+      addStageToOperationProgress(pOperationData->pProgress, IDS_PROGRESS_TRANSLATING_LANGUAGE);
+      addStageToOperationProgress(pOperationData->pProgress, IDS_PROGRESS_PROCESSING_LANGUAGE);
+      break;
+
    case OT_SAVE_LANGUAGE_FILE: 
-      TODO("Define language file stages");   
+      TODO("Define save language file stages");   
       break;  
    }
    

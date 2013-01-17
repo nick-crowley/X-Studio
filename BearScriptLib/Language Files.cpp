@@ -476,11 +476,11 @@ OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FIL
       {
       /// [STRINGS] Convert string type. Resolve substrings. Index pages.
       case LFT_STRINGS:
-         // [CHECK] Are we converting master language file?
+         // [CHECK] Not used during loading of supplementary game LanguageFiles
          if (pProgress)
          {
             // [PROGRESS] Define progress as number of strings converted
-            ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_CONVERTING_MASTER_STRINGS);
+            advanceOperationProgressStage(pProgress);    //ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_CONVERTING_MASTER_STRINGS);
             updateOperationProgressMaximum(pProgress, getTreeNodeCount(pTargetFile->pGameStringsByID));  
          }
 
@@ -617,7 +617,7 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
    eResult = OR_SUCCESS;
    pError  = NULL;
 
-   /// Parse XML into an XML Tree
+   /// Parse XML into an XML Tree      [Requires current operation stage + Next operation stage]
    if (generateXMLTree(pTargetFile->szInputBuffer, pTargetFile->iInputSize, identifyGameFileFilename(pTargetFile), hParentWnd, pXMLTree, pProgress, pErrorQueue) == OR_SUCCESS)
    {
       // Find language node
@@ -643,7 +643,7 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
          if (pProgress)    
          {
             // [CHECK] Ensure we're dealing with the Master LanguageFile or the SpeechFile
-            ASSERT(isLanguageFileMaster(pTargetFile) OR pTargetFile->eType == LFT_SPEECH);
+            //ASSERT(isLanguageFileMaster(pTargetFile) OR pTargetFile->eType == LFT_SPEECH);    // [FIX] Now also used during loading user langauge files
 
             // [PROGRESS] Define progress based on the number of pages processed
             advanceOperationProgressStage(pProgress);
@@ -921,20 +921,41 @@ DWORD   threadprocLoadLanguageFile(VOID*  pParameter)
    LANGUAGE_FILE*        pLanguageFile;     // Operation result
    OPERATION_RESULT      eResult;           // Operation result
 
+   // [TRACKING]
+   TRACK_FUNCTION();
+   VERBOSE_LIB_COMMAND();
+   SET_THREAD_NAME("LanguageFile Parsing");
+
    // Prepare
    pOperationData = (DOCUMENT_OPERATION*)pParameter;
    pLanguageFile  = (LANGUAGE_FILE*)pOperationData->pGameFile;
 
-   /// Translate the language file
-   eResult = loadLanguageFile(getFileSystem(), pLanguageFile, TRUE, pOperationData->hParentWnd, pOperationData->pProgress, pOperationData->pErrorQueue);
-   
+   __try
+   {
+      // [INFO] Parsing XML in language file '%s'
+      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_LANGUAGE_XML), identifyGameFileFilename(pLanguageFile)));
+
+      /// Translate the language file
+      eResult = loadLanguageFile(getFileSystem(), pLanguageFile, TRUE, pOperationData->hParentWnd, pOperationData->pProgress, pOperationData->pErrorQueue);
+   }
+   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   {
+      // [FAILURE] "An unidentified and unexpected critical error has occurred while parsing the language file '%s'"
+      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_LANGUAGE_FILE), pOperationData->szFullPath);
+      eResult = OR_FAILURE;
+   }
+
    /// [FAILURE/ABORT] Destroy the LanguageFile
    if (eResult != OR_SUCCESS)
       deleteLanguageFile(pLanguageFile);
    
+   // [DEBUG] Separate previous output from further output for claritfy
+   VERBOSE_THREAD_COMPLETE("LANGUAGE-FILE PARSING WORKER THREAD COMPLETED");
+
    // Cleanup and return
    closeThreadOperation(pOperationData, eResult);
-   return 0;
+   END_TRACKING();
+   return THREAD_RETURN;
 }
 
 

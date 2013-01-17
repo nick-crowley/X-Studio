@@ -431,9 +431,11 @@
 #define IDS_EXCEPTION_SAVE_PROJECT_FILE                  707
 #define IDS_EXCEPTION_LOAD_SCRIPT_FILE                   708
 #define IDS_EXCEPTION_SAVE_SCRIPT_FILE                   709
-#define IDS_EXCEPTION_SUBMIT_REPORT                      710
-#define IDS_EXCEPTION_VALIDATE_SCRIPT_FILE               711
-#define IDS_EXCEPTION_SEARCH_SCRIPT_CALLS                712
+#define IDS_EXCEPTION_LOAD_LANGUAGE_FILE                 710
+#define IDS_EXCEPTION_SAVE_LANGUAGE_FILE                 711
+#define IDS_EXCEPTION_SUBMIT_REPORT                      712
+#define IDS_EXCEPTION_VALIDATE_SCRIPT_FILE               713
+#define IDS_EXCEPTION_SEARCH_SCRIPT_CALLS                714
 
 // Window Exception handlers
 #define IDS_EXCEPTION_MAIN_WINDOW                        720
@@ -746,10 +748,11 @@
 
 // Loading Language File
 #define IDS_OUTPUT_LANGUAGE_LOADING                      1260
+#define IDS_OUTPUT_LOADING_LANGUAGE_XML                  1261
 
-#define IDS_OUTPUT_LANGUAGE_LOAD_SUCCESS                 1261   // NB: The order of success/failure/abort is required by printOperationResultToOutputDialog
-#define IDS_OUTPUT_LANGUAGE_LOAD_FAILURE                 1262
-#define IDS_OUTPUT_LANGUAGE_LOAD_ABORTED                 1263
+#define IDS_OUTPUT_LANGUAGE_LOAD_SUCCESS                 1262   // NB: The order of success/failure/abort is required by printOperationResultToOutputDialog
+#define IDS_OUTPUT_LANGUAGE_LOAD_FAILURE                 1263
+#define IDS_OUTPUT_LANGUAGE_LOAD_ABORTED                 1264
 
 // Saving Language File
 #define IDS_OUTPUT_LANGUAGE_SAVING                       1270
@@ -853,6 +856,11 @@
 
 // External Dependencies Search
 #define IDS_PROGRESS_SEARCHING_SCRIPTS                      1378
+
+// Load LanguageFile
+#define IDS_PROGRESS_PARSING_LANGUAGE                       1380
+#define IDS_PROGRESS_TRANSLATING_LANGUAGE                   1381
+#define IDS_PROGRESS_PROCESSING_LANGUAGE                    1382
 
 /// ///////////////////////////////////////////////////////
 ///                  GENERAL STRINGS
