@@ -22,28 +22,67 @@
 ///                                       CREATION / DESTRUCTION
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : createLanguageDocumentGameStringsTree
-// Description     : Create a GameString tree containing only strings for a specified page
+/// Function name  : createLanguageDialogControls
+// Description     : Creates the Workspace and ListViews
 // 
-// LANGUAGE_DOCUMENT*  pDocument : [in] Language document data
+// LANGUAGE_DOCUMENT*  pDocument : [in] LanguaegDocument
 // 
-// Return Value   : New Binary tree, you are responsible for destroying it
+// Return Value   : TRUE if successful, otherwise FALSE
 // 
-AVL_TREE*   createLanguageDocumentGameStringsTree(LANGUAGE_DOCUMENT*   pDocument)
+BOOL   createLanguageDialogControls(LANGUAGE_DOCUMENT*  pDocument)
 {
-   AVL_TREE*  pOutputTree;
+   DWORD             dwListStyle = WS_BORDER WITH WS_CHILD WITH WS_TABSTOP WITH (LVS_OWNERDATA WITH LVS_SHOWSELALWAYS WITH LVS_REPORT WITH LVS_SINGLESEL WITH LVS_NOSORTHEADER);
+   LISTVIEW_COLUMNS  oPageListView   = { 3, IDS_LANGUAGE_PAGE_COLUMN_ID,   60, 160, 100,  NULL, NULL };
+   LISTVIEW_COLUMNS  oStringListView = { 2, IDS_LANGUAGE_STRING_COLUMN_ID, 70, 600, NULL, NULL, NULL };
+   PANE_PROPERTIES   oPaneData;       // New pane properties
+   PANE*             pTargetPane;     // Workspace pane being targetted for a split
+   RECT              rcClient;        // Dialog client rectangle
+   SIZE              siClient;        // Size of dialog rectangle
+                     
+   // Prepare
+   TRACK_FUNCTION();
+   GetClientRect(pDocument->hWnd, &rcClient);
+   utilConvertRectangleToSize(&rcClient, &siClient);
 
-   // Create COPY TREE
-   pOutputTree = createAVLTree(extractGameStringTreeNode, NULL, createAVLTreeSortKey(AK_ID, AO_ASCENDING), NULL, NULL);
+   /// [PAGE LIST] Create ListView
+   pDocument->hPageList = CreateWindow(WC_LISTVIEW, TEXT("GamePage List"), dwListStyle, 0, 0, siClient.cx, siClient.cy, pDocument->hWnd, (HMENU)IDC_PAGE_LIST, getAppInstance(), NULL);
+   ERROR_CHECK("Creating GamePage listview", pDocument->hPageList);
+   initReportModeListView(pDocument->hPageList, &oPageListView, TRUE);
 
-   // [CHECK] Ensure there is a current page
-   if (pDocument->pCurrentPage)
-      /// [SUCCESS] Copy strings with desired PageID 
-      performBinaryTreeStringPageReplication(getLanguageDocumentGameStringTree(pDocument), pDocument->pCurrentPage->iPageID, pOutputTree);
-      
-   // Index and return tree
-   performAVLTreeIndexing(pOutputTree);
-   return pOutputTree;
+   /// [STRING LIST] Create ListView
+   pDocument->hStringList = CreateWindow(WC_LISTVIEW, TEXT("GameString List"), dwListStyle, 0, 0, siClient.cx, siClient.cy, pDocument->hWnd, (HMENU)IDC_STRING_LIST, getAppInstance(), NULL);
+   ERROR_CHECK("Creating GameString listview", pDocument->hStringList);
+   initReportModeListView(pDocument->hStringList, &oStringListView, TRUE);
+
+   ///// [RICH EDIT] Create RichEdit
+   /*pDocument->hRichEdit = CreateWindow(RICHEDIT_CLASS, TEXT("Richedit"), WS_BORDER | WS_CHILD | WS_TABSTOP, 0, 0, siClient.cx, siClient.cy, pDocument->hWnd, (HMENU)IDC_EDIT_DIALOG, getAppInstance(), NULL);
+   ERROR_CHECK("Creating RichEdit", pDocument->hRichEdit);
+   SetWindowFont(pDocument->hRichEdit, GetStockFont(ANSI_VAR_FONT), FALSE);*/
+
+   /// [RICH EDIT] Create RichEdit Dialog
+   pDocument->hRichTextDialog = CreateDialogParam(getResourceInstance(), TEXT("RICHTEXT_DIALOG"), pDocument->hWnd, dlgprocRichTextDialog, (LPARAM)pDocument);
+   ERROR_CHECK("Creating RichEdit Dialog", pDocument->hRichTextDialog);
+
+   /// [WORKSPACE]
+   pDocument->hWorkspace = createWorkspace(pDocument->hWnd, &rcClient, pDocument->hPageList, IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
+
+   // Add GameString | GamePage split
+   if (findWorkspacePaneByHandle(pDocument->hWorkspace, pDocument->hPageList, NULL, NULL, pTargetPane))
+   {
+      setWorkspacePaneProperties(&oPaneData, FALSE, NULL, 0.3f);
+      insertWorkspaceWindow(pDocument->hWorkspace, pTargetPane, pDocument->hStringList, RIGHT, &oPaneData);
+
+      // Add GameString -- RichText split
+      if (findWorkspacePaneByHandle(pDocument->hWorkspace, pDocument->hStringList, NULL, NULL, pTargetPane))
+      {
+         setWorkspacePaneProperties(&oPaneData, FALSE, NULL, 0.6f);
+         insertWorkspaceWindow(pDocument->hWorkspace, pTargetPane, pDocument->hRichTextDialog, BOTTOM, &oPaneData);
+      }
+   }
+
+   // [TRACK]
+   END_TRACKING();
+   return pDocument->hWorkspace AND pDocument->hPageList AND pDocument->hStringList AND pDocument->hRichEdit;
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +101,7 @@ AVL_TREE*   createLanguageDocumentGameStringsTree(LANGUAGE_DOCUMENT*   pDocument
 BOOL  findLanguageDocumentGameStringByIndex(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iIndex, GAME_STRING* &pOutput)
 {
    // Query tree
-   return findObjectInAVLTreeByIndex(pDocument->pCurrentGameStringsByID, iIndex, (LPARAM&)pOutput);
+   return findObjectInAVLTreeByIndex(pDocument->pPageStringsByID, iIndex, (LPARAM&)pOutput);
 }
 
 
@@ -155,77 +194,84 @@ BOOL  insertLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRIN
    // Return TRUE
    return TRUE;
 }
+
+
+/// Function name  : generateLanguagePageStringsTree
+// Description     : Create a GameString tree containing only strings for a specified page
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// CONST GAME_PAGE*    pGamePage : [in] Page
+// 
+// Return Value   : New AVL tree, you are responsible for destroying it
+// 
+AVL_TREE*   generateLanguagePageStringsTree(LANGUAGE_DOCUMENT*  pDocument, CONST GAME_PAGE*  pGamePage)
+{
+   AVL_TREE*  pOutputTree;
+
+   // Create COPY TREE
+   pOutputTree = createAVLTree(extractGameStringTreeNode, NULL, createAVLTreeSortKey(AK_ID, AO_ASCENDING), NULL, NULL);
+
+   /// Replicate strings with correct PageID 
+   performBinaryTreeStringPageReplication(getLanguageDocumentGameStringTree(pDocument), pGamePage->iPageID, pOutputTree);
+      
+   // Index and return tree
+   performAVLTreeIndexing(pOutputTree);
+   return pOutputTree;
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                            FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  :  createLanguageDialogControls
-// Description     : 
+/// Function name  : displayLanguageDocumentPageString
+// Description     : Displays a string from the current page in the RichEdit dialog
 // 
-// LANGUAGE_DOCUMENT*  pDocument : [in] 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Language document
+// CONST UINT          iIndex    : [in] PageString tree index
 // 
-// Return Value   : 
-// 
-BOOL   createLanguageDialogControls(LANGUAGE_DOCUMENT*  pDocument)
-{
-   LISTVIEW_COLUMNS  oPageListView   = { 3, IDS_LANGUAGE_PAGE_COLUMN_ID,   60, 100, 100,  NULL, NULL };
-   LISTVIEW_COLUMNS  oStringListView = { 2, IDS_LANGUAGE_STRING_COLUMN_ID, 70, 600, NULL, NULL, NULL };
-   PANE_PROPERTIES   oPaneData;       // New pane properties
-   PANE*             pTargetPane;     // Workspace pane being targetted for a split
-   RECT              rcClient;        // Dialog client rectangle
-   SIZE              siClient;        // Size of dialog rectangle
-                     
-   // Prepare
-   TRACK_FUNCTION();
-   GetClientRect(pDocument->hWnd, &rcClient);
-   utilConvertRectangleToSize(&rcClient, &siClient);
-
-   /// [PAGE LIST] Create ListView
-   pDocument->hPageList = CreateWindow(WC_LISTVIEW, TEXT("GamePage List"), WS_CHILD WITH WS_TABSTOP WITH LVS_SHOWSELALWAYS WITH LVS_REPORT WITH LVS_OWNERDATA WITH LVS_SINGLESEL, 0, 0, 
-                                                                           siClient.cx, siClient.cy, pDocument->hWnd, (HMENU)IDC_PAGE_LIST, getAppInstance(), NULL);
-   ERROR_CHECK("Creating GamePage listview", pDocument->hPageList);
-   initReportModeListView(pDocument->hPageList, &oPageListView, TRUE);
-
-   /// [STRING LIST] Create ListView
-   pDocument->hStringList = CreateWindow(WC_LISTVIEW, TEXT("GameString List"), WS_CHILD WITH WS_TABSTOP WITH LVS_SHOWSELALWAYS WITH LVS_REPORT WITH LVS_OWNERDATA WITH LVS_SINGLESEL, 0, 0, 
-                                                                                siClient.cx, siClient.cy, pDocument->hWnd, (HMENU)IDC_STRING_LIST, getAppInstance(), NULL);
-   ERROR_CHECK("Creating GameString listview", pDocument->hStringList);
-   initReportModeListView(pDocument->hStringList, &oStringListView, TRUE);
-
-   /// [WORKSPACE]
-   pDocument->hWorkspace = createWorkspace(pDocument->hWnd, &rcClient, pDocument->hPageList, IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
-
-   // Search for GamePage pane
-   if (findWorkspacePaneByHandle(pDocument->hWorkspace, pDocument->hPageList, NULL, NULL, pTargetPane))
-   {
-      /// Add GameString list in horizontal split with the GamePage list
-      setWorkspacePaneProperties(&oPaneData, FALSE, 320, NULL);
-      insertWorkspaceWindow(pDocument->hWorkspace, pTargetPane, pDocument->hStringList, RIGHT, &oPaneData);
-   }
-
-   // [TRACK]
-   END_TRACKING();
-   return pDocument->hWorkspace AND pDocument->hPageList AND pDocument->hStringList;
-}
-
+//VOID  displayLanguageDocumentPageString(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iIndex)
+//{
+//   GAME_STRING*  pNewString;
+//
+//   /// Display first string (if any)
+//   if (findLanguageDocumentGameStringByIndex(pDocument, iIndex, pNewString))
+//   {
+//      // Reset message/errors
+//      if (pDocument->pCurrentMessage)
+//      {
+//         deleteLanguageMessage(pDocument->pCurrentMessage);
+//         clearErrorQueue(pDocument->pFormatErrors);
+//      }
+//
+//      // Generate RichText and display if successful
+//      if (pDocument->bFormattingError = !generateLanguageMessageFromGameString(pNewString, pDocument->pCurrentMessage, pDocument->pFormatErrors))
+//         SetWindowText(pDocument->hRichEdit, TEXT(""));
+//      else
+//         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, GTC_BLACK, FALSE);
+//
+//      // Enable/Disable window appropriately
+//      EnableWindow(pDocument->hRichEdit, !pDocument->bFormattingError);
+//   }
+//}
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                         MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : onLanguageDocumentContextMenu
+/// Function name  : onLanguageDocument_ContextMenu
 // Description     : Display the Language document popup menu
 // 
 // SCRIPT_DOCUMENT*  pDocument  : [in] ScriptDocument window data
 // CONST POINT*      ptCursor   : [in] Cursor position in screen co-ordinates
 // HWND              hCtrl      : [in] Control sending the message
 // 
-VOID   onLanguageDocumentContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT*  ptCursor, HWND  hCtrl)
+VOID   onLanguageDocument_ContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT*  ptCursor, HWND  hCtrl)
 {
    CUSTOM_MENU*    pCustomMenu;       // Popup CustomMenu
    GAME_PAGE*      pGamePage;
    UINT            iSelection,
-                   iControlID;
+                   iControlID,
+                   iVoicedIcon;
 
    // Prepare
    TRACK_FUNCTION();
@@ -250,9 +296,15 @@ VOID   onLanguageDocumentContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT*
          EnableMenuItem(pCustomMenu->hPopup, IDM_GAMEPAGE_EDIT,   iSelection != -1 ? MF_ENABLED : MF_DISABLED);
          EnableMenuItem(pCustomMenu->hPopup, IDM_GAMEPAGE_DELETE, iSelection != -1 ? MF_ENABLED : MF_DISABLED);
 
-         /// [PAGE VOICED]
+         /// [PAGE VOICED] Set Icon + Check
          if (iSelection != -1 AND findLanguageDocumentGamePageByIndex(pDocument, iSelection, pGamePage))
-            CheckMenuItem(pCustomMenu->hPopup, IDM_GAMEPAGE_VOICED, pGamePage->bVoice);
+         {
+            // Lookup and set Icon
+            iVoicedIcon = getAppImageTreeIconIndex(ITS_MEDIUM, pGamePage->bVoice ? TEXT("VOICED_YES_ICON") : TEXT("VOICED_NO_ICON"));
+            getCustomMenuItemData(pCustomMenu->hPopup, IDM_GAMEPAGE_VOICED, FALSE)->iIconIndex = iVoicedIcon;
+            // Check item
+            CheckMenuItem(pCustomMenu->hPopup, IDM_GAMEPAGE_VOICED, pGamePage->bVoice ? MF_CHECKED : MF_UNCHECKED);
+         }
       }
       else
       {
@@ -278,7 +330,7 @@ VOID   onLanguageDocumentContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT*
 }
 
 
-/// Function name  : onLanguageDocumentCommand
+/// Function name  : onLanguageDocument_Command
 // Description     : Language Document menu item processing
 //
 // LANGUAGE_DOCUMENT*  pDocument     : [in] Language document
@@ -288,7 +340,7 @@ VOID   onLanguageDocumentContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT*
 // 
 // Return type : TRUE if processed, FALSE otherwise
 //
-BOOL   onLanguageDocumentCommand(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hControl)
+BOOL   onLanguageDocument_Command(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hControl)
 {
    BOOL  bResult;
 
@@ -302,12 +354,12 @@ BOOL   onLanguageDocumentCommand(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCon
    //// [GAME PAGE EDIT] -- Edit the currently selected GamePage
    //case IDM_GAMEPAGE_EDIT:
    //   onCustomListViewItemEdit(&pDocument->oLabelData, pDocument->hPageList);
-   //   //onLanguageDocumentGamePageEdit(pDocument, pDocument->hPageList);
+   //   //onLanguageDocument_GamePageEdit(pDocument, pDocument->hPageList);
    //   break;
 
    //// [GAME PAGE ADD] -- Add a new item to the GamePage tree
    //case IDM_GAMEPAGE_INSERT:
-   //   onLanguageDocumentGamePageInsert(pDocument);
+   //   onLanguageDocument_GamePageInsert(pDocument);
    //   break;
 
    //// [GAME PAGE REMOVE] -- Not yet supported
@@ -317,13 +369,13 @@ BOOL   onLanguageDocumentCommand(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCon
 
    //// [GAME PAGE VOICED] -- Toggle the 'voiced flag'
    //case IDM_GAMEPAGE_VOICED:
-   //   onLanguageDocumentGamePageVoiceToggle(pDocument);
+   //   onLanguageDocument_GamePageVoiceToggle(pDocument);
    //   break;
 
    ///// [GAME STRINGS]
    //// [GAME STRING INSERT] -- 
    //case IDM_GAMESTRING_INSERT:
-   //   onLanguageDocumentGameStringInsert(pDocument);
+   //   onLanguageDocument_GameStringInsert(pDocument);
    //   break;
 
    //// [GAME STRING DELETE] -- Not yet supported
@@ -340,7 +392,7 @@ BOOL   onLanguageDocumentCommand(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCon
 
    //// [GAME STRING VIEW ERROR] -- Display error dialog
    //case IDM_GAMESTRING_VIEW_ERROR:
-   //   onLanguageDocumentGameStringViewError(pDocument);
+   //   onLanguageDocument_GameStringViewError(pDocument);
    //   break;
 
    //// [GAME STRING PROPERTIES] -- Invoke the document properties dialog
@@ -357,13 +409,13 @@ BOOL   onLanguageDocumentCommand(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCon
 }
 
 
-/// Function name  : onLanguageDocumentCreate
+/// Function name  : onLanguageDocument_Create
 // Description     : Initialises the LanguageDocument controls and the LanguageDocument convenience pointers.
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] LanguageDocument data
 // HWND                hWnd      : [in] Document window handle
 // 
-VOID   onLanguageDocumentCreate(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd)
+VOID   onLanguageDocument_Create(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd)
 {  
    // [TRACK]
    TRACK_FUNCTION();
@@ -374,29 +426,22 @@ VOID   onLanguageDocumentCreate(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd)
 
    // Create document convenience pointer
    pDocument->pLanguageFile = (LANGUAGE_FILE*)pDocument->pGameFile;
+   pDocument->pFormatErrors = createErrorQueue();
 
    /// Create child windows
    if (createLanguageDialogControls(pDocument))
    {
-      // Set GamePage count
-      ListView_SetItemCount(pDocument->hPageList, getTreeNodeCount(getLanguageDocumentGamePageTree(pDocument)));
+      // Ensure LanguageFile's GamePages are indexed
       performAVLTreeIndexing(getLanguageDocumentGamePageTree(pDocument));
 
-      VERBOSE("LANGUAGE_FILE: There are %d pages", getTreeNodeCount(getLanguageDocumentGamePageTree(pDocument)));
-
-      // [CHECK] Lookup first page
-      if (findLanguageDocumentGamePageByIndex(pDocument, 0, pDocument->pCurrentPage))
-      {
-         /// [FOUND] Generate and display page strings
-         pDocument->pCurrentGameStringsByID = createLanguageDocumentGameStringsTree(pDocument);
-         ListView_SetItemCount(pDocument->hStringList, getTreeNodeCount(pDocument->pCurrentGameStringsByID));
-
-         VERBOSE("LANGUAGE_FILE: There are %d strings", getTreeNodeCount(pDocument->pCurrentGameStringsByID));
-      }
+      /// Display Pages
+      ListView_SetItemCount(pDocument->hPageList, getTreeNodeCount(getLanguageDocumentGamePageTree(pDocument)));
+      ListView_SetItemState(pDocument->hPageList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);    // Causes strings to be generated + displayed
 
       // Show child windows
       ShowWindow(pDocument->hPageList, SW_SHOWNORMAL);
       ShowWindow(pDocument->hStringList, SW_SHOWNORMAL);
+      ShowWindow(pDocument->hRichEdit, SW_SHOWNORMAL);
    }
 
    // [TRACK]
@@ -404,33 +449,36 @@ VOID   onLanguageDocumentCreate(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd)
 }
 
 
-/// Function name  : onLanguageDocumentDestroy
+/// Function name  : onLanguageDocument_Destroy
 // Description     : Cleanup the language document's data
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] Language document data
 // 
-VOID   onLanguageDocumentDestroy(LANGUAGE_DOCUMENT*  pDocument)
+VOID   onLanguageDocument_Destroy(LANGUAGE_DOCUMENT*  pDocument)
 {
    // [TRACK]
    TRACK_FUNCTION();
 
    /// [GAMESTRINGS] Delete GameStrings tree
-   if (pDocument->pCurrentGameStringsByID)
-      deleteAVLTree(pDocument->pCurrentGameStringsByID);
+   if (pDocument->pPageStringsByID)
+      deleteAVLTree(pDocument->pPageStringsByID);
 
    /// [MESSAGE] Delete current message, if any
    if (pDocument->pCurrentMessage)
       deleteLanguageMessage(pDocument->pCurrentMessage);
    
-   // Destroy workspace
+   /// [CONTROLS] Destroy workspace
    utilDeleteWindow(pDocument->hWorkspace);
+
+   // ErrorQueue
+   deleteErrorQueue(pDocument->pFormatErrors);
 
    // [TRACK]
    END_TRACKING();
 }
 
 
-/// Function name  : onLanguageDocumentNotify
+/// Function name  : onLanguageDocument_Notify
 // Description     : Language document dialog WM_NOTIFY processing
 // 
 // LANGUAGE_DOCUMENT*  pDocument  : [in] Language document window data
@@ -438,9 +486,9 @@ VOID   onLanguageDocumentDestroy(LANGUAGE_DOCUMENT*  pDocument)
 // 
 // Return Value   : TRUE if message processed, FALSE if not
 // 
-BOOL   onLanguageDocumentNotify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage)
+BOOL   onLanguageDocument_Notify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage)
 {
-   //NMLISTVIEW*   pListInfo;
+   NMLISTVIEW*   pListItem;
    BOOL          bResult;
 
    // Prepare
@@ -457,8 +505,27 @@ BOOL   onLanguageDocumentNotify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage)
       {
       /// [REQUEST DATA]
       case LVN_GETDISPINFO:
-         onLanguageDocumentRequestData(pDocument, pMessage->idFrom, (NMLVDISPINFO*)pMessage);
+         onLanguageDocument_RequestData(pDocument, pMessage->idFrom, (NMLVDISPINFO*)pMessage);
          bResult = TRUE;
+         break;
+
+      /// [ITEM CHANGED]
+      case LVN_ITEMCHANGED:
+         pListItem = (NMLISTVIEW*)pMessage;
+
+         // [SELECTION CHANGED]
+         if ((pListItem->uNewState & LVIS_SELECTED) OR (pListItem->uOldState & LVIS_SELECTED))
+         {
+            if (pMessage->idFrom == IDC_PAGE_LIST)
+               onLanguageDocument_PageSelectionChanged(pDocument, pListItem->iItem, pListItem->uNewState & LVIS_SELECTED);
+            else
+               onLanguageDocument_StringSelectionChanged(pDocument, pListItem->iItem, pListItem->uNewState & LVIS_SELECTED);
+         }
+
+         //onLanguageDocument_SelectionChanged(pDocument, pMessage->idFrom, (NMLISTVIEW*)pMessage);
+
+         // Pass to CustomDraw handler
+         bResult = onCustomListViewNotify(pDocument->hWnd, FALSE, pMessage->idFrom, pMessage);
          break;
 
       /// [CUSTOM DRAW/HOVER]
@@ -474,9 +541,7 @@ BOOL   onLanguageDocumentNotify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage)
    return bResult;
 }
 
-
-
-/// Function name  : onLanguageDocumentRequestData
+/// Function name  : onLanguageDocument_RequestData
 // Description     : Supply item data for the GamePages ListView
 //
 // LANGUAGE_DOCUMENT*  pDocument  : [in]     Language document data
@@ -485,12 +550,13 @@ BOOL   onLanguageDocumentNotify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage)
 // 
 // Return type : TRUE  
 //
-BOOL  onLanguageDocumentRequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, NMLVDISPINFO*  pHeader)
+BOOL  onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, NMLVDISPINFO*  pHeader)
 {
-   LVITEM&       oOutput = pHeader->item;
+   ERROR_QUEUE*  pErrorQueue;
    GAME_PAGE*    pGamePage;
    GAME_STRING*  pGameString;
-   TCHAR*        szConverted;
+   LVITEM&       oOutput = pHeader->item;
+   TCHAR*        szConverted = NULL;
 
    // Prepare
    TRACK_FUNCTION();
@@ -503,65 +569,41 @@ BOOL  onLanguageDocumentRequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  i
       // [CHECK] Lookup item
       if (findLanguageDocumentGamePageByIndex(pDocument, oOutput.iItem, pGamePage))
       {
-         // Examine column
-         switch (oOutput.iSubItem)
-         {
-         /// [PAGE ID] -- Supply the PageID and determine the icon from whether the page is voiced or not
-         case PAGE_COLUMN_ID:
-            if (oOutput.mask INCLUDES LVIF_TEXT)
-               StringCchPrintf(oOutput.pszText, oOutput.cchTextMax, TEXT("%u"), pGamePage->iPageID);
-            if (oOutput.mask INCLUDES LVIF_IMAGE)
-               oOutput.iImage = pGamePage->bVoice;
-            if (oOutput.mask INCLUDES LVIF_INDENT)
-               oOutput.iIndent = 0;
-            break;
-         
-         /// [TITLE] Supply title
-         case PAGE_COLUMN_TITLE:
-            if (utilIncludes(oOutput.mask, LVIF_TEXT))
-            {
-               // [CHECK] Is title present?
-               if (lstrlen(pGamePage->szTitle))
-               {
-                  // [SUCCESS] Display converted title
-                  generateConvertedString(pGamePage->szTitle, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szConverted);
-                  StringCchCopy(oOutput.pszText, oOutput.cchTextMax, utilEither(szConverted, pGamePage->szTitle));
-                  // Cleanup
-                  utilSafeDeleteString(szConverted);
-               }
-               else
-               {
-                  // [FAILED] Display placeholder in grey
-                  StringCchCopy(oOutput.pszText, oOutput.cchTextMax, TEXT("[No Title]"));
-                  oOutput.lParam  = (LPARAM)GetSysColor(COLOR_GRAYTEXT);
-                  oOutput.mask   |= LVIF_COLOUR_TEXT;
-               }
-            }
-            break;
+         // [IMAGE] Provide Voiced/NotVoiced icon
+         if (oOutput.mask INCLUDES LVIF_IMAGE)
+            oOutput.iImage = getAppImageTreeIconIndex(ITS_SMALL, pGamePage->bVoice ? TEXT("VOICED_YES_ICON") : TEXT("VOICED_NO_ICON"));
 
-         /// [DESCRIPTION] Supply description
-         case PAGE_COLUMN_DESCRIPTION:
-            if (utilIncludes(oOutput.mask, LVIF_TEXT))
+         // [TEXT] Provide appropriate text
+         if (oOutput.mask INCLUDES LVIF_TEXT)
+            switch (oOutput.iSubItem)
             {
-               // [CHECK] Ensure description exists
-               if (lstrlen(pGamePage->szDescription))
+            /// [PAGE ID] -- Supply the PageID and determine the icon from whether the page is voiced or not
+            case PAGE_COLUMN_ID:
+               StringCchPrintf(oOutput.pszText, oOutput.cchTextMax, TEXT("%u"), pGamePage->iPageID);
+               break;
+
+            /// [TITLE/DESCRIPTION] Supply text or use placeholder
+            case PAGE_COLUMN_TITLE:
+            case PAGE_COLUMN_DESCRIPTION:
+               CONST TCHAR*  szText = (oOutput.iSubItem == PAGE_COLUMN_TITLE ? pGamePage->szTitle : pGamePage->szDescription);
+
+               // [CHECK] Ensure text is present
+               if (lstrlen(szText))
                {
-                  // Display converted description
-                  generateConvertedString(pGamePage->szDescription, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szConverted);
-                  StringCchCopy(oOutput.pszText, oOutput.cchTextMax, utilEither(szConverted, pGamePage->szDescription));
-                  // Cleanup
+                  // Convert + Display text
+                  generateConvertedString(szText, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szConverted);
+                  StringCchCopy(oOutput.pszText, oOutput.cchTextMax, utilEither(szConverted, szText));
                   utilSafeDeleteString(szConverted);
                }
                else
                {
                   // [FAILED] Display placeholder in grey
-                  StringCchCopy(oOutput.pszText, oOutput.cchTextMax, TEXT("[No Description]"));
+                  StringCchCopy(oOutput.pszText, oOutput.cchTextMax, TEXT("[None]"));
                   oOutput.lParam  = (LPARAM)GetSysColor(COLOR_GRAYTEXT);
                   oOutput.mask   |= LVIF_COLOUR_TEXT;
                }
+               break;
             }
-            break;
-         }
       }
       /// [ERROR] 
       else if (oOutput.mask INCLUDES LVIF_TEXT)
@@ -575,30 +617,44 @@ BOOL  onLanguageDocumentRequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  i
       // [CHECK] Lookup item
       if (findLanguageDocumentGameStringByIndex(pDocument, oOutput.iItem, pGameString))
       {
-         // Examine column
-         switch (oOutput.iSubItem)
-         {
-         /// [STRING ID] Supply the StringID and determine the icon 
-         case STRING_COLUMN_ID:
-            if (oOutput.mask INCLUDES LVIF_TEXT)
-               StringCchPrintf(oOutput.pszText, oOutput.cchTextMax, TEXT("%u"), pGameString->iID);
+         // [IMAGE] Provide string's GameVersion icon
+         if (oOutput.mask INCLUDES LVIF_IMAGE)
+            oOutput.iImage = getAppImageTreeIconIndex(ITS_SMALL, identifyGameVersionIconID(pGameString->eVersion));
 
-            if (oOutput.mask INCLUDES LVIF_IMAGE)
-               oOutput.iImage = getAppImageTreeIconIndex(ITS_SMALL, identifyGameVersionIconID(pGameString->eVersion));
-            break;
-         
-         /// [TEXT] -- Supply the title or description
-         case STRING_COLUMN_TEXT:
-            if (oOutput.mask INCLUDES LVIF_TEXT)
+         // [TEXT] Provide column text
+         if (oOutput.mask INCLUDES LVIF_TEXT)
+            switch (oOutput.iSubItem)
             {
-               //// [TEXT] Provide RichText
-               //pItem->lParam = (LPARAM)xResult.asCommandSyntax->pDisplaySyntax;
-               //pItem->mask  |= LVIF_RICHTEXT;
+            /// [ID] 
+            case STRING_COLUMN_ID:
+               StringCchPrintf(oOutput.pszText, oOutput.cchTextMax, TEXT("%u"), pGameString->iID);
+               break;
+            
+            /// [TEXT] -- Supply the title or description
+            case STRING_COLUMN_TEXT:
+               LANGUAGE_MESSAGE*  pMessage;
 
-               StringCchCopy(oOutput.pszText, oOutput.cchTextMax, pGameString->szText);
+               // [CUSTOM DRAW] Attempt to generate RichText from source         // [FIX] Do not provide RichText when LVN_GETDISPINFO does not originate from CustomDraw handler (Received from unknown window once per click)
+               if (generateLanguageMessageFromGameString(pGameString, pMessage, pErrorQueue = createErrorQueue()) AND oOutput.lParam == LVIP_CUSTOM_DRAW)   
+               {
+                  // [RICH-TEXT] Mark RichText for destruction
+                  oOutput.lParam = (LPARAM)pMessage;
+                  oOutput.mask |= LVIF_RICHTEXT | LVIF_DESTROYTEXT;
+               }
+               else
+               {
+                  // [FORMATTING ERROR] Display raw text
+                  generateConvertedString(pGameString->szText, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szConverted);
+                  StringCchCopy(oOutput.pszText, oOutput.cchTextMax, utilEither(szConverted, pGameString->szText));
+                  // Cleanup
+                  utilSafeDeleteString(szConverted);
+                  deleteLanguageMessage(pMessage);
+               }
+
+               // Cleanup
+               deleteErrorQueue(pErrorQueue);
+               break;
             }
-            break;
-         }
       }
       /// [ERROR] 
       else if (oOutput.mask INCLUDES LVIF_TEXT)
@@ -613,13 +669,13 @@ BOOL  onLanguageDocumentRequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  i
 }
 
 
-/// Function name  : onLanguageDocumentResize
+/// Function name  : onLanguageDocument_Resize
 // Description     : Resizes a language document and repositions it's child windows
 // 
 // LANGUAGE_DOCUMENT* pDocument : [in] Language document
 // CONST SIZE*        pNewSize  : [in] New window size
 // 
-VOID   onLanguageDocumentResize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNewSize)
+VOID   onLanguageDocument_Resize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNewSize)
 {
    // [TRACK]
    TRACK_FUNCTION();
@@ -629,6 +685,87 @@ VOID   onLanguageDocumentResize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNew
 
    // [TRACK]
    END_TRACKING();
+}
+
+/// Function name  : onLanguageDocument_PageSelectionChanged
+// Description     : Displays new page strings
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// CONST INT           iItem     : [in] Item index  (Only valid when bSelected == TRUE)
+// CONST BOOL          bSelected : [in] Whether selected or de-selected
+// 
+VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected)
+{
+   if (bSelected)
+   {
+      // Generate strings for new page
+      findLanguageDocumentGamePageByIndex(pDocument, iItem, pDocument->pCurrentPage);
+      pDocument->pPageStringsByID = generateLanguagePageStringsTree(pDocument, pDocument->pCurrentPage);
+
+      /// Display contents + select first
+      ListView_SetItemCount(pDocument->hStringList, getTreeNodeCount(pDocument->pPageStringsByID));
+      ListView_SetItemState(pDocument->hStringList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+   }
+   else
+   {
+      // Deselect current string, if any
+      ListView_SetItemState(pDocument->hStringList, -1, NULL, LVIS_SELECTED);
+      ListView_SetItemCount(pDocument->hStringList, 0);
+
+      // Delete existing page contents
+      deleteAVLTree(pDocument->pPageStringsByID);
+      pDocument->pCurrentPage = NULL;
+   }
+}
+
+/// Function name  : onLanguageDocument_StringSelectionChanged
+// Description     : Displays new string
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// CONST INT           iItem     : [in] Item index  (Only valid when bSelected == TRUE)
+// CONST BOOL          bSelected : [in] Whether selected or de-selected
+// 
+VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected)
+{
+   /// [SELECTED] Display string in RichEdit
+   if (bSelected)
+   {
+      // Lookup desired string
+      findLanguageDocumentGameStringByIndex(pDocument, iItem, pDocument->pCurrentString);
+     
+      // Reset message/errors
+      if (pDocument->pCurrentMessage)
+      {
+         deleteLanguageMessage(pDocument->pCurrentMessage);
+         clearErrorQueue(pDocument->pFormatErrors);
+      }
+
+      // Generate RichText + display
+      if (pDocument->bFormattingError = !generateLanguageMessageFromGameString(pDocument->pCurrentString, pDocument->pCurrentMessage, pDocument->pFormatErrors))
+         SetWindowText(pDocument->hRichEdit, TEXT(""));
+      else
+      {
+         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, GTC_BLACK, FALSE);
+         Edit_SetModify(pDocument->hRichEdit, FALSE);
+      }
+
+      // Enable/Disable window by result
+      EnableWindow(pDocument->hRichEdit, !pDocument->bFormattingError);
+   }
+   /// [UNSELECTED] Update string from RichEdit
+   else
+   {
+      // [MODIFIED + NON-VIRTUAL] Generate new source text RichEdit
+      if (!pDocument->bVirtual AND Edit_GetModify(pDocument->hRichEdit))
+      {
+         getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
+         generatePlainTextFromLanguageMessage(pDocument->pCurrentMessage, pDocument->pCurrentString);
+      }
+
+      // Disable/Clear RichEdit
+      SetWindowText(pDocument->hRichEdit, TEXT(""));
+      EnableWindow(pDocument->hRichEdit, FALSE);
+   }
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -664,28 +801,28 @@ LRESULT   wndprocLanguageDocument(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LP
          pDocument     = (LANGUAGE_DOCUMENT*)pCreationData->lpCreateParams;
 
          // Init dialog
-         onLanguageDocumentCreate(pDocument, hWnd);
+         onLanguageDocument_Create(pDocument, hWnd);
          break;
 
       /// [DESTRUCTION] 
       case WM_DESTROY:
-         onLanguageDocumentDestroy(pDocument);
+         onLanguageDocument_Destroy(pDocument);
          break;
 
       /// [COMMAND PROCESSING]
       case WM_COMMAND:
-         if (!onLanguageDocumentCommand(pDocument, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
+         if (!onLanguageDocument_Command(pDocument, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
             // [UNHANDLED] Call default window proc
             iResult = DefWindowProc(hWnd, iMessage, wParam, lParam);
          break;
 
       /// [NOTIFICATION]
       case WM_NOTIFY:
-         iResult = onLanguageDocumentNotify(pDocument, (NMHDR*)lParam);
+         if (iResult = onLanguageDocument_Notify(pDocument, (NMHDR*)lParam))
+            break;
 
-         if (!iResult)
-            // [UNHANDLED] Call default window proc
-            iResult = DefWindowProc(hWnd, iMessage, wParam, lParam);
+         // [UNHANDLED] Call default window proc
+         iResult = DefWindowProc(hWnd, iMessage, wParam, lParam);
          break;
 
       /// [RESIZE] - Resize tab to the size of the tab control
@@ -694,14 +831,14 @@ LRESULT   wndprocLanguageDocument(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LP
          siWindow.cx = LOWORD(lParam);
          siWindow.cy = HIWORD(lParam);
          // Resize
-         onLanguageDocumentResize(pDocument, &siWindow);
+         onLanguageDocument_Resize(pDocument, &siWindow);
          break;
 
       /// [CONTEXT MENU]
       case WM_CONTEXTMENU:
          ptCursor.x = GET_X_LPARAM(lParam);
          ptCursor.y = GET_Y_LPARAM(lParam);
-         onLanguageDocumentContextMenu(pDocument, &ptCursor, (HWND)wParam);
+         onLanguageDocument_ContextMenu(pDocument, &ptCursor, (HWND)wParam);
          break;
 
       /// [MENU ITEM HOVER] Forward messages from CodeEdit up the chain to the Main window

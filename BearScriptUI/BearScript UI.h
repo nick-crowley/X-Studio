@@ -354,26 +354,30 @@ INT_PTR  dlgprocInsertVariableDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Creation / Destruction
-AVL_TREE*  createLanguageDocumentGameStringsTree(LANGUAGE_DOCUMENT*   pDocument);
+BOOL       createLanguageDialogControls(LANGUAGE_DOCUMENT*  pDocument);
 
 // Helpers
 BOOL       findLanguageDocumentGameStringByIndex(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iIndex, GAME_STRING* &pOutput);
 BOOL       findLanguageDocumentGamePageByIndex(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iIndex, GAME_PAGE* &pOutput);
 AVL_TREE*  getLanguageDocumentGameStringTree(LANGUAGE_DOCUMENT*  pDocument);
 AVL_TREE*  getLanguageDocumentGamePageTree(LANGUAGE_DOCUMENT*  pDocument);
-
-// Functions
+AVL_TREE*  generateLanguagePageStringsTree(LANGUAGE_DOCUMENT*  pDocument, CONST GAME_PAGE*  pGamePage);
 BOOL       insertLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pGamePage);
 BOOL       insertLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pGameString);
 
+// Functions
+
+
 // Message Handlers
-VOID       onLanguageDocumentCreate(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd);
-VOID       onLanguageDocumentContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT*  ptCursor, HWND  hCtrl);
-BOOL       onLanguageDocumentCommand(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hControl);
-VOID       onLanguageDocumentDestroy(LANGUAGE_DOCUMENT*  pDocument);
-BOOL       onLanguageDocumentNotify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage);
-BOOL       onLanguageDocumentRequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, NMLVDISPINFO*  pHeader);
-VOID       onLanguageDocumentResize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNewSize);
+VOID       onLanguageDocument_Create(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd);
+VOID       onLanguageDocument_ContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT*  ptCursor, HWND  hCtrl);
+BOOL       onLanguageDocument_Command(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hControl);
+VOID       onLanguageDocument_Destroy(LANGUAGE_DOCUMENT*  pDocument);
+BOOL       onLanguageDocument_Notify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage);
+BOOL       onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, NMLVDISPINFO*  pHeader);
+VOID       onLanguageDocument_Resize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNewSize);
+VOID       onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
+VOID       onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
 
 LRESULT    wndprocLanguageDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
@@ -1104,13 +1108,13 @@ BOOL    createRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog
 UINT   identifyRichTextDialogToolBarCommandID(CONST UINT  iIndex);
 
 // Functions 
-BOOL   displayRichTextDialogContextMenu(HWND  hDialog, CONST UINT  iMenuIndex);
 BOOL   initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
 BOOL   updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
-BOOL   performRichEditFormatting(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iCommand);
+BOOL   performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iCommand);
 
 // Message Handlers
 BOOL   onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification);
+BOOL   onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iMenuIndex);
 BOOL   onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
 BOOL   onRichTextDialogNotify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
 BOOL   onRichTextDialogResize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iWidth, CONST UINT  iHeight);

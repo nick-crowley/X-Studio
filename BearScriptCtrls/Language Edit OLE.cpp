@@ -156,17 +156,13 @@ HRESULT   CLanguageButtonObjectCallback::QueryInterface(REFIID  iid, IInterface*
 OLE_Method 
 HRESULT    CLanguageButtonObjectCallback::GetContextMenu(WORD  iSelectionType, IOleObject*  piObject, CHARRANGE*  pSelection, HMENU*  pOutput)
 {
-   /// RESCINDED
-   return E_NOTIMPL;
-
-
    HMENU  hParentMenu;
 
-   // Load Language menu
-   hParentMenu = LoadMenu(getResourceInstance(), TEXT("LANGUAGE_MENU"));
+   BUG("Richedit provided context menu can't be custom drawn");
 
-   // Set popup menu
-   *pOutput = GetSubMenu(hParentMenu, 0);
+   // Retrieve appropriate Popup
+   hParentMenu = LoadMenu(getResourceInstance(), TEXT("LANGUAGE_MENU"));
+   *pOutput = GetSubMenu(hParentMenu, IDM_RICHEDIT_POPUP);
 
    // Return without destroying menu.
    return S_OK;

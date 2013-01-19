@@ -22,8 +22,8 @@ HINSTANCE        hLibraryInstance  = NULL;
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Size of the small/medium ImageTrees
-CONST UINT       iSmallIconCount  = 51,
-                 iMediumIconCount = 89,
+CONST UINT       iSmallIconCount  = 53,
+                 iMediumIconCount = 91,
                  iLargeIconCount  = 10;
 
 // Defines the small icons used by controls
@@ -44,6 +44,9 @@ CONST TCHAR*     szSmallIcons[iSmallIconCount] =
 
    // Project dialog
    TEXT("NEW_SCRIPT_FILE_ICON"), TEXT("NEW_LANGUAGE_FILE_ICON"),  TEXT("NEW_MISSION_FILE_ICON"),  TEXT("NEW_PROJECT_FILE_ICON"), TEXT("FOLDERS_ICON"), 
+
+   // Language Document
+   TEXT("VOICED_YES_ICON"),      TEXT("VOICED_NO_ICON"),
 
    // File Dialog
    TEXT("NEW_FILE_ICON"),        TEXT("ALL_FILES_ICON"),
@@ -90,6 +93,7 @@ CONST TCHAR*     szMediumIcons[iMediumIconCount] =
 
    // Language Document
    TEXT("EDIT_FORMATTING_ICON"),   TEXT("DELETE_PAGE_ICON"),      TEXT("EDIT_PAGE_ICON"),           TEXT("INSERT_PAGE_ICON"),    TEXT("FORMATTING_ERROR_ICON"),  
+   TEXT("VOICED_YES_ICON"),        TEXT("VOICED_NO_ICON"),
 
    // Message Dialog
    TEXT("VALID_ICON"),             TEXT("INVALID_ICON"),          TEXT("NEXT_ICON"),                TEXT("ATTACHMENT_ICON"),

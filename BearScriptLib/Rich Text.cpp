@@ -605,8 +605,8 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
 /// Function name  : generatePlainTextFromRichText
 // Description     : Generate plain text from a LanguageMessage object and store it in a GameString
 // 
-// CONST LANGUAGE_MESSAGE*  pMessage    : [in]  Language message to convert
-// GAME_STRING*             pGameString : [out] GameString to receive plain text. String type will be ST_INTERNAL
+// CONST LANGUAGE_MESSAGE*  pMessage    : [in]     Language message to convert
+// GAME_STRING*             pGameString : [in/out] GameString to receive plain text. String type will be ST_INTERNAL
 // 
 // Return Value   : TRUE
 // 
@@ -805,7 +805,7 @@ BOOL   translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUA
             eState = RTS_BUTTON_ID;
 
          // [IMAGE] properties
-         else if (utilCompareString(szToken, "type"))
+         else if (utilCompareString(szToken, "imgtype"))
             eState = RTS_IMAGE_TYPE;
          else if (utilCompareString(szToken, "id"))
             eState = RTS_IMAGE_ID;

@@ -75,8 +75,9 @@ PANE*  createWindowPane(HWND  hWorkspace, HWND  hWnd, CONST RECT*  pBorderRect)
    PANE*  pWindow = utilCreateEmptyObject(PANE);
 
    /// Set properties
-   pWindow->hWnd     = hWnd;
-   pWindow->eType    = PT_WINDOW;
+   pWindow->hWnd  = hWnd;
+   pWindow->eType = PT_WINDOW;
+   pWindow->bNew  = TRUE;
 
    // [BORDER] Set internal border, if any
    if (pBorderRect)
@@ -633,16 +634,14 @@ BOOL  insertWorkspaceWindow(HWND  hWorkspace, PANE*  pTargetPane, HWND  hWnd, CO
    case BOTTOM: pSplitterPane = createSplitterPane(pTargetPane, pWindowPane, pTargetPane->rcPane, VERTICAL, pProperties->bFixed);    break;
    }   
 
-   // [CHECK] Is the splitter fixed size?
+   /// [FIXED SIZE] Store side and size
    if (pProperties->bFixed AND pProperties->iInitialSize)
    {
-      /// [FIXED SIZE] Store side and size
       pSplitterPane->iFixedSize = pProperties->iInitialSize;
       pSplitterPane->eFixedSide = eSide;
    }
-   // [CHECK] Is the splitter a fixed ratio?
-   else if (pProperties->bFixed AND pProperties->fInitialRatio)
-      /// [FIXED RATIO] Store initial ratio
+   /// [RATIO] Store initial ratio
+   else if (pProperties->fInitialRatio)
       pSplitterPane->fRatio = max(0.05f, min(pProperties->fInitialRatio, 0.95f));
    
    /// [ADJUSTABLE] Calculate initial ratio
@@ -761,6 +760,7 @@ VOID  resizeWorkspacePaneRectangles(HDWP  hWindowPositions, PANE*  pTargetPane, 
 {
    PANE*  pChild;          // Child being updated
    SIZE   siTargetPane;    // Size of the target pane
+   POINT  ptOld;
    
    // Prepare
    utilConvertRectangleToSize(&pTargetPane->rcPane, &siTargetPane);
@@ -769,6 +769,7 @@ VOID  resizeWorkspacePaneRectangles(HDWP  hWindowPositions, PANE*  pTargetPane, 
    if (pChild = pTargetPane->pChildren[LEFT])
    {
       // Copy rectangle from pane
+      utilConvertRectangleToPoint(&pChild->rcPane, &ptOld);
       pChild->rcPane = pTargetPane->rcPane;
       
       // [CHECK] Is one pane a fixed size?
@@ -795,13 +796,14 @@ VOID  resizeWorkspacePaneRectangles(HDWP  hWindowPositions, PANE*  pTargetPane, 
          SetRect(&pChild->rcPane, pChild->rcPane.left + pChild->rcBorder.left, pChild->rcPane.top + pChild->rcBorder.top, pChild->rcPane.right - pChild->rcBorder.right, pChild->rcPane.bottom - pChild->rcBorder.bottom);
 
       /// [RECURSE] Recursively update any child panes
-      resizeWorkspacePaneRectangles(hWindowPositions, pChild, (pChild->rcPane.left != pTargetPane->rcPane.left) OR (pChild->rcPane.top != pTargetPane->rcPane.top));
+      resizeWorkspacePaneRectangles(hWindowPositions, pChild, pChild->bNew OR (pChild->rcPane.left != ptOld.x) OR (pChild->rcPane.top != ptOld.y));
    }
 
    // [RIGHT CHILD] Recalculate child's rectangle from pane and ratio
    if (pChild = pTargetPane->pChildren[RIGHT])
    {
       // Copy rectangle from pane
+      utilConvertRectangleToPoint(&pChild->rcPane, &ptOld);
       pChild->rcPane = pTargetPane->rcPane;
 
       // [CHECK] Is one pane a fixed size?
@@ -828,11 +830,12 @@ VOID  resizeWorkspacePaneRectangles(HDWP  hWindowPositions, PANE*  pTargetPane, 
          SetRect(&pChild->rcPane, pChild->rcPane.left + pChild->rcBorder.left, pChild->rcPane.top + pChild->rcBorder.top, pChild->rcPane.right - pChild->rcBorder.right, pChild->rcPane.bottom - pChild->rcBorder.bottom);
 
       /// [RECURSE] Recursively update any child panes
-      resizeWorkspacePaneRectangles(hWindowPositions, pChild, (pChild->rcPane.left != pTargetPane->rcPane.left) OR (pChild->rcPane.top != pTargetPane->rcPane.top));
+      resizeWorkspacePaneRectangles(hWindowPositions, pChild, pChild->bNew OR (pChild->rcPane.left != ptOld.x) OR (pChild->rcPane.top != ptOld.y));
    }
 
    /// [WINDOW] Resize window
    utilDeferClientRect(hWindowPositions, pTargetPane->hWnd, &pTargetPane->rcPane, bMoved, TRUE);
+   pTargetPane->bNew = FALSE;
 }
 
 

@@ -90,6 +90,24 @@ LANGUAGE_FILE*  createLanguageFile(CONST LANGUAGE_FILE_TYPE  eType, CONST TCHAR*
 }
 
 
+/// Function name  : createUserLanguageFile
+// Description     : Create a 'strings' language file with a single empty page
+// 
+// CONST TCHAR*  szFullPath     : [in] Full path
+//
+// Return Value   : New language file, you are responsible for destroying it
+// 
+BearScriptAPI
+LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath)
+{
+   LANGUAGE_FILE*  pLanguageFile = createLanguageFile(LFT_STRINGS, szFullPath, TRUE);
+
+   insertGamePageIntoLanguageFile(pLanguageFile, 1, TEXT("Title"), TEXT("Description"), FALSE);
+
+   return pLanguageFile;
+}
+
+
 /// Function name  : deleteLanguageFile
 // Description     : Delete a language file 
 // 
@@ -672,12 +690,12 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
                case LFT_DESCRIPTIONS:
                case LFT_STRINGS:
                   // Extract GamePage properties
-                  getXMLPropertyString(pPageNode,  TEXT("description"), oItemData.szDescription);
-                  getXMLPropertyString(pPageNode,  TEXT("title"),       oItemData.szTitle);
-                  getXMLPropertyInteger(pPageNode, TEXT("voiced"),      oItemData.bVoiced);
+                  getXMLPropertyString(pPageNode, TEXT("description"), oItemData.szDescription);
+                  getXMLPropertyString(pPageNode, TEXT("title"),       oItemData.szTitle);
+                  getXMLPropertyString(pPageNode, TEXT("voice"),       oItemData.szVoiced);
 
                   // Insert new GamePage
-                  insertGamePageIntoLanguageFile(pTargetFile, (UINT)oItemData.iRawPageID, oItemData.szTitle, oItemData.szDescription, oItemData.bVoiced);
+                  insertGamePageIntoLanguageFile(pTargetFile, (UINT)oItemData.iRawPageID, oItemData.szTitle, oItemData.szDescription, utilCompareString(oItemData.szVoiced, "yes"));
                   break;
                
                // [SPEECH] Insert new MediaPage into SpeechFile
@@ -946,8 +964,8 @@ DWORD   threadprocLoadLanguageFile(VOID*  pParameter)
    }
 
    /// [FAILURE/ABORT] Destroy the LanguageFile
-   if (eResult != OR_SUCCESS)
-      deleteLanguageFile(pLanguageFile);
+   /*if (eResult != OR_SUCCESS)
+      deleteLanguageFile(pLanguageFile);*/
    
    // [DEBUG] Separate previous output from further output for claritfy
    VERBOSE_THREAD_COMPLETE("LANGUAGE-FILE PARSING WORKER THREAD COMPLETED");

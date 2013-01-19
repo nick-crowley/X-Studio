@@ -458,6 +458,7 @@ BearScriptAPI VOID   debugQueryWindow(HWND  hWnd, CONST TCHAR*  szName, CONST BO
 #define       deleteErrorQueue                         deleteQueue
 
 /// Macros: Helpers
+#define       clearErrorQueue(pErrorQueue)             deleteListContents(pErrorQueue)
 #define       pushErrorQueue(pErrorQueue, pError)      pushLastQueueObject(pErrorQueue, (LPARAM)(pError))
 #define       popErrorQueue(pErrorQueue)               (ERROR_STACK*)popFirstQueueObject(pErrorQueue)
 #define       lastErrorQueue(pErrorQueue)              (ERROR_STACK*)lastObjectFromQueue(pErrorQueue)
@@ -738,6 +739,7 @@ BearScriptAPI HICON  getImageTreeIconHandle(CONST IMAGE_TREE*  pImageTree, CONST
 
 // (Export) Creation / Destruction
 BearScriptAPI LANGUAGE_FILE*  createLanguageFile(CONST LANGUAGE_FILE_TYPE  eType, CONST TCHAR*  szFullPath, CONST BOOL  bSupplementary);
+BearScriptAPI LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath);
 BearScriptAPI VOID            deleteLanguageFile(LANGUAGE_FILE*  &pLanguageFile);
 
 // Helpers

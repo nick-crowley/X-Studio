@@ -331,12 +331,32 @@ BOOL  onMainWindowCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID
 // 
 VOID   onMainWindowDataGameStrings(MAIN_WINDOW_DATA*  pWindowData)
 {
+   // Create new document, pass NULL instead of a LanguageFile.
+   //onMainWindowFileNewLanguageDocument(pWindowData, NULL);
+
+   DOCUMENT*       pDocument;
+   INT             iDocumentIndex;
+
    // [TRACK]
    TRACK_FUNCTION();
    VERBOSE_UI_COMMAND();
 
-   // Create new document, pass NULL instead of a LanguageFile.
-   onMainWindowFileNewLanguageDocument(pWindowData, NULL);
+   /// [CHECK] Is this file already open?
+   if (findDocumentIndexByPath(pWindowData->hDocumentsTab, TEXT("Game Data"), iDocumentIndex))
+      // [SUCCESS] Display already open document
+      displayDocumentByIndex(pWindowData->hDocumentsTab, iDocumentIndex);
+   else
+   {
+      /// Create Virtual Document without GameFile
+      pDocument = createDocumentByType(DT_LANGUAGE, NULL);
+      
+      // [DISPLAY] Add document and activate
+      appendDocument(pWindowData->hDocumentsTab, pDocument);
+      displayDocumentByIndex(pWindowData->hDocumentsTab, getDocumentCount() - 1);
+
+      // Update Toolbar
+      updateMainWindowToolBar(pWindowData);
+   }
 
    // [TRACK]
    END_TRACKING();
@@ -617,19 +637,22 @@ VOID  onMainWindowFileNewDocument(MAIN_WINDOW_DATA*  pWindowData)
 /// Function name  : onMainWindowFileNewLanguageDocument
 // Description     : Create an empty language document
 // 
-// MAIN_WINDOW_DATA*  pWindowData   : [in] 
+// MAIN_WINDOW_DATA*  pWindowData : [in] Window data
+// CONST TCHAR*       szFullPath  : [in] Full Path
 // 
 VOID  onMainWindowFileNewLanguageDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szFullPath)
 {
-   //LANGUAGE_FILE*  pLanguageFile;
+   LANGUAGE_FILE*  pLanguageFile;
    DOCUMENT*       pDocument;
 
    // [VERBOSE]
    VERBOSE_UI_COMMAND();
 
-   // Create LanguageFile and LanguageDocument
-   //pLanguageFile = createLanguageFile(LFT_STRINGS, szFullPath, TRUE);
-   pDocument = createDocumentByType(DT_LANGUAGE, NULL);
+   /// Create LanguageFile with single empty Page
+   pLanguageFile = createUserLanguageFile(utilEither(szFullPath, TEXT("Untitled.xml")));
+
+   /// Create LanguageDoc
+   pDocument = createDocumentByType(DT_LANGUAGE, pLanguageFile);
    
    // [DISPLAY] Add document and activate
    appendDocument(pWindowData->hDocumentsTab, pDocument);
@@ -705,6 +728,7 @@ VOID  onMainWindowFileNewScriptDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TC
    // [TRACK]
    TRACK_FUNCTION();
    VERBOSE_UI_COMMAND();
+   ASSERT(szFullPath != NULL);
    
    // Prepare
    GetDateFormat(LOCALE_USER_DEFAULT, NULL, NULL, TEXT("d MMMM yyyy"), szDate = utilCreateEmptyString(32), 32);

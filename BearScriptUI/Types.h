@@ -264,13 +264,15 @@ struct  LANGUAGE_DOCUMENT : DOCUMENT
                         hToolBar;            // RichText dialog's Toolbar window handle
 
    LISTVIEW_LABEL_DATA  oLabelData;         // In-Place Label editing data
-   GAME_PAGE*           pCurrentPage;       // Current page being displayed
+   GAME_PAGE*           pCurrentPage;       // Currently selected GamePage
+   GAME_STRING*         pCurrentString;     // Currently selected GameString
 
    BOOL                 bFormattingError;   // Indicates the current message contains a formatting error(s) [Affects how it is displayed]
-   LANGUAGE_MESSAGE*    pCurrentMessage;    // Message currently being displayed/edited
+   LANGUAGE_MESSAGE*    pCurrentMessage;    // Message currently being displayed in the RichText dialog
+   ERROR_QUEUE*         pFormatErrors;      // Formatting errors for current message
    LANGUAGE_FILE*       pLanguageFile;      // Document data
 
-   AVL_TREE*            pCurrentGameStringsByID;   // Strings in the currently selected page
+   AVL_TREE*            pPageStringsByID;   // Strings in the currently selected page
 
    CLanguageButtonObjectCallback*  pOleCallback;      // RichEdit OLE callback interface
 };

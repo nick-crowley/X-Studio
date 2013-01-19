@@ -118,6 +118,41 @@
 #define    Edit_GetSelText(hCtrl, szBuffer)                          SendMessage(hCtrl, EM_GETSELTEXT, NULL, (LPARAM)szBuffer)
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                       RICH EDIT CONTROL
+// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Macro: RichEdit_GetOLEInterface
+//  Description: Retrieves OLE Interface
+//
+//  HWND           hCtrl      : [in] RichEdit window handle
+//  IRichEditOle*  pInterface : [in] IRichEditOle* Interface
+//
+//  Return Value : TRUE/FALSE
+//
+#define    RichEdit_GetOLEInterface(hCtrl, pInterface)               SendMessage(hCtrl, EM_GETOLEINTERFACE, NULL, (LPARAM)(IRichEditOle*)(pInterface))
+
+/// Macro: RichEdit_SetCharFormat
+//  Description: Sets current character format
+//
+//  HWND         hCtrl   : [in] RichEdit window handle
+//  UINT         iFlags  : [in] Flags
+//  CHARFORMAT*  pFormat : [in] Formatting characteristics
+//
+//  Return Value : TRUE/FALSE
+//
+#define    RichEdit_SetCharFormat(hCtrl, iFlags, pFormat)            SendMessage(hCtrl, EM_SETCHARFORMAT, iFlags, (LPARAM)(CHARFORMAT*)(pFormat))
+
+/// Macro: RichEdit_SetParagraphFormat
+//  Description: Sets current paragraph format
+//
+//  HWND         hCtrl   : [in] RichEdit window handle
+//  PARAFORMAT*  pFormat : [in] Formatting characteristics
+//
+//  Return Value : TRUE/FALSE
+//
+#define    RichEdit_SetParagraphFormat(hCtrl, pFormat)               SendMessage(hCtrl, EM_SETPARAFORMAT, NULL, (LPARAM)(PARAFORMAT*)(pFormat))
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                       TOOLBAR CONTROL
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -159,6 +194,18 @@
 //  HWND  hCtrl  : [in] Toolbar window handle
 //
 #define    Toolbar_ButtonStructSize(hWnd)                            SendMessage(hWnd, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), NULL)
+
+
+/// Macro: Toolbar_CheckButton
+//  Description: Checks or unchecks a toolbar button
+//
+//  HWND  hCtrl      : [in] Toolbar window handle
+//  UINT  iButtonID  : [in] Command ID of the button to check/uncheck
+//  BOOL  bEnabled   : [in] TRUE to check, FALSE to uncheck
+//
+//  Return Value : TRUE is successful, FALSE otherwise
+//
+#define    Toolbar_CheckButton(hWnd, iButtonID, bChecked)            SendMessage(hWnd, TB_CHECKBUTTON, iButtonID, bChecked)
 
 
 /// Macro: Toolbar_EnableButton

@@ -1183,8 +1183,8 @@ struct LANGUAGE_FILE_ITEM
                  iItemID;           // [ALL]      Current item ID
 
    CONST TCHAR  *szTitle,           // [ALL]      Page title
-                *szDescription;     // [ALL]      Page description
-   BOOL          bVoiced;           // [ALL]      Page 'Voiced' property
+                *szDescription,     // [ALL]      Page description
+                *szVoiced;          // [ALL]      Page 'Voiced' property
    INT           iPosition,         // [SPEECH]   Speech clip starting position
                  iLength,           // [SPEECH]   Speech clip length
                  iParameters;       // [VARIABLE] Number of parameters in variable

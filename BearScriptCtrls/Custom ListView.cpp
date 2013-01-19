@@ -136,11 +136,13 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    for (UINT  iColumn = 0; iColumn < iColumnCount; iColumn++)
    {
       // Prepare
-      pItem->mask       = LVIF_TEXT WITH LVIF_IMAGE WITH LVIF_PARAM WITH LVIF_INDENT;
+      pItem->mask       = LVIF_TEXT WITH LVIF_PARAM WITH (iColumn == 0 ? LVIF_INDENT WITH LVIF_IMAGE : NULL);
       pItem->iItem      = pHeader->nmcd.dwItemSpec;
       pItem->iSubItem   = iColumn;
       pItem->cColumns   = DT_LEFT;
       pItem->pszText[0] = NULL;
+      pItem->lParam     = LVIP_CUSTOM_DRAW;     // Indicate to handler we're accepting enhanced mask flags: LVIF_PLAINTEXT, LVIF_RICHTEXT, LVIF_DESTROYTEXT, LVIF_COLOUR_TEXT
+      pItem->iIndent    = 0;
 
       // Manually retrieve item data  (BUGFIX: ListView_GetItem wasn't retrieving the LPARAM value)
       SendMessage(hParent, WM_NOTIFY, oDataRequest.hdr.idFrom, (LPARAM)&oDataRequest);
@@ -224,12 +226,20 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
       // [CHECK] Is RichText specified?
       if (pItem->lParam AND utilIncludes(pItem->mask, LVIF_RICHTEXT))
       {
+         RICH_TEXT*  pRichText = (RICH_TEXT*)pItem->lParam;
+
          /// [RICH-TEXT] Draw RichText, and optionally destroy
-         drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, (RICH_TEXT*)pItem->lParam, GTC_WHITE);
+         if (pRichText->eType == RTT_LANGUAGE_MESSAGE)
+            drawLanguageMessageInSingleLine(pDrawData->hdc, rcSubItem, (LANGUAGE_MESSAGE*)pRichText, GTC_WHITE);
+         else
+            drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, pRichText, GTC_WHITE);
 
          // [CHECK] Should the RichText be destroyed?
          if (utilIncludes(pItem->mask, LVIF_DESTROYTEXT))
-            deleteRichText((RICH_TEXT*&)pItem->lParam);
+         {
+            deleteRichText(pRichText);
+            pItem->lParam = NULL;
+         }
       }
       else
          /// [PLAINTEXT] Draw PlaintText

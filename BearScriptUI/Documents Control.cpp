@@ -901,8 +901,9 @@ VOID  onDocumentsControl_DocumentUpdated(DOCUMENTS_DATA*  pWindowData)
    // Prepare
    pDocument = getActiveDocument();
    
-   /// Set the 'modified' flag and update title
-   setDocumentModifiedFlag(pDocument, TRUE);
+   /// [NON-VIRTUAL] Set the 'modified' flag and update title
+   if (!pDocument->bVirtual)
+      setDocumentModifiedFlag(pDocument, TRUE);
 
    /// Inform MainWindow and PropertiesSheet
    sendDocumentUpdated(AW_PROPERTIES);

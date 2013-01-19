@@ -349,6 +349,9 @@ struct LISTVIEW_COLUMNS
 #define       LVIF_DESTROYTEXT       0x00000040      // Indicates the custom ListView should destroy the RichText object once it has been drawn
 #define       LVIF_COLOUR_TEXT       0x00000080      // Indicates lParam contains a COLORREF specifying custom text colour
 
+// Custom ListView notification ID
+#define       LVIP_CUSTOM_DRAW       0x12345678      // Indiciates LVN_GETDISPINFO has been sent by a CustomDrawn ListView, not the system
+
 // Custom Static text alignment styles  (Existing styles corrupted by SS_OWNERDRAW)
 #define       CSS_CENTRE             0x00000400
 #define       CSS_RIGHT              0x00000800
@@ -554,6 +557,7 @@ struct PANE
    PANE_TYPE eType;         // Whether window or splitter [DEBUGGING]
    RECT      rcPane;        // Pane rectangle (in workspace client co-ordinates)
    PANE*     pParent;       // Parent pane (NULL if root)
+   BOOL      bNew;          // Whether window has just been inserted, and not moved for the first time
 
 // Window Panes
    HWND      hWnd;          // Window handle

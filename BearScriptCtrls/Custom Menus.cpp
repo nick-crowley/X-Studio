@@ -415,7 +415,6 @@ VOID   drawCustomMenuItem(DRAWITEMSTRUCT*  pDrawData, CONST CUSTOM_MENU_ITEM*  p
    // Prepare a light blue brush and a dark blue pen
    hBluePen    = CreatePen(PS_SOLID, 1, clLightBlue);
    hBlueBrush  = CreateSolidBrush(clDarkBlue);
-   //HFONT hNormalFont = utilDuplicateFontEx(pDrawData->hDC, TEXT("MS Shell Dlg 2"), FALSE, FALSE, FALSE);
    hBoldFont   = utilDuplicateFont(pDrawData->hDC, TRUE, FALSE, FALSE);
    pPrevState  = utilCreateDeviceContextState(pDrawData->hDC);
 

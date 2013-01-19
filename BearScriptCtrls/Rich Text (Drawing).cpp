@@ -105,12 +105,12 @@ VOID  deleteLanguageButtonData(LANGUAGE_BUTTON*  pData)
 // HWND          hRichEdit : [in] Window handle to a RichEdit control
 // CONST TCHAR*  szText    : [in] String to append
 // 
-ControlsAPI
-VOID  appendRichEditText(HWND  hRichEdit, CONST TCHAR*  szText)
-{
-   SendMessage(hRichEdit, EM_SETSEL, 32768, 32768);
-   SendMessage(hRichEdit, EM_REPLACESEL, FALSE, (LPARAM)szText);
-}
+//ControlsAPI
+//VOID  appendRichEditText(HWND  hRichEdit, CONST TCHAR*  szText)
+//{
+//   SendMessage(hRichEdit, EM_SETSEL, 32768, 32768);
+//   SendMessage(hRichEdit, EM_REPLACESEL, FALSE, (LPARAM)szText);
+//}
 
 
 /// Function name  : calculateVisibleRichTextColour
@@ -293,93 +293,63 @@ GAME_TEXT_COLOUR   identifyGameTextColourFromRGB(CONST COLORREF  clColour)
 ///                                            FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : drawRichTextInRichEdit
-// Description     : Display a RichText object in a RichEdit control
+/// Function name  : drawLanguageMessageInSingleLine
+// Description     : Draws as much RichText as possible on a single line. Any line breaks are converted into spaces.
 // 
-// HWND                    hRichEdit   : [in] RichEdit window handle
-// CONST RICH_TEXT*        pMessage    : [in] RichText message to display
-// CONST GAME_TEXT_COLOUR  eBackground : [in] Defines the background colour. Must be GLC_BLACK or GLC_WHITE to
-//                                             indicate whether background is light or dark, even if the background
-//                                             colour isn't exactly white or black.  The default text colour
-//                                             will be chosen to contrast the background. Other colours will not be altered.
-// CONST BOOL              bAppendText : [in] Whether to append the existing RichEdit contents or replace them
+// HDC                    hDC          : [in] Device context to draw to
+// RECT                   rcDrawRect   : [in] Bounding rectangle of the desired area to draw to
+// LANGUAGE_MESSAGE*      pMessage     : [in] LanguageMessage to draw. ** The contents may be altered during drawing **
+// CONST GAME_TEXT_COLOUR eBackground  : [in] Background colour, must be GTC_BLACK, GTC_WHITE or GTC_BLUE. 
+//
+///                                             -> BLACK/WHITE - The default text colour will be altered to contrast this colour. All other colours are unchanged
+///                                             -> BLUE        - The item has a 'selected' background therefore 'inverse' text colouring should be used throughout, regardless of text colour.     
 // 
 ControlsAPI
-VOID  drawRichTextInRichEdit(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground, CONST BOOL  bAppendText)
+VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, CONST GAME_TEXT_COLOUR  eBackground)
 {
-   IRichEditOle*     pRichEditOLE;         // RichEdit control OLE interface
-   CHARFORMAT        oCharacterFormat;     // Text formatting attributes
-   PARAFORMAT        oParagraphFormat;     // Paragraph formatting attributes
-   GAME_TEXT_COLOUR  eDefaultColour;       // The 'Default' colour based on the background colour. (either BLACK or White-ish)
-   LANGUAGE_BUTTON*  pButtonData;          // Button data
-   RICH_PARAGRAPH*   pParagraph;           // Current paragraph
-   RICH_ITEM*        pItem;                // Current item
-   HBITMAP           hButtonBitmap;        // Button bitmap
+   GAME_TEXT_COLOUR   eDefaultColour;        // Colour contrasting the background used to represent the 'default' colour
+   COLORREF           clOldColour;           //
+   HFONT              hOldFont,              // 
+                      hItemFont;             // Font used to draw current item
+   SIZE               siTextSize;            // Size of individual phrases (RichText items) as they are output
 
-   // Check background colour
-   ASSERT(eBackground == GTC_BLACK OR eBackground == GTC_WHITE);
+   // [CHECK] Verify input parameters
+   ASSERT(eBackground == GTC_BLACK OR eBackground == GTC_WHITE OR eBackground == GTC_BLUE);
 
-   // Prepare
-   utilZeroObject(&oCharacterFormat, CHARFORMAT);
-   utilZeroObject(&oParagraphFormat, PARAFORMAT);
-   oCharacterFormat.cbSize = sizeof(CHARFORMAT);
-   oParagraphFormat.cbSize = sizeof(PARAFORMAT);
+   // Determine default colour
+   eDefaultColour = (eBackground == GTC_WHITE ? GTC_BLACK : GTC_DEFAULT);
+   clOldColour    = GetTextColor(hDC);
 
-   // Prepare RichEdit
-   if (!bAppendText)
-      SetWindowText(hRichEdit, TEXT(""));
-   SendMessage(hRichEdit, EM_SETSEL, 32768, 32768);
-
-   // Determine the default colour
-   eDefaultColour = (eBackground == GTC_BLACK ? GTC_DEFAULT : GTC_BLACK);
-   
-   // Set formatting that is consistent for all items
-   oCharacterFormat.dwMask  = CFM_BOLD WITH CFM_ITALIC WITH CFM_UNDERLINE WITH CFM_COLOR WITH CFM_SIZE WITH CFM_FACE;
-   oCharacterFormat.yHeight = iMessageTextSize * 20;
-   StringCchCopy(oCharacterFormat.szFaceName, LF_FACESIZE, TEXT("Arial"));
-
-   /// Iterate through each paragraph in the message
-   for (LIST_ITEM*  pParagraphIterator = getListHead(pMessage->pParagraphList); pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH); pParagraphIterator = pParagraphIterator->pNext)
+   // Iterate through author/title
+   for (int iProperty = 0; iProperty < 2; iProperty++)
    {
-      // Set paragraph alignment
-      oParagraphFormat.dwMask     = PFM_ALIGNMENT;
-      oParagraphFormat.wAlignment = pParagraph->eAlignment;
-      SendMessage(hRichEdit, EM_SETPARAFORMAT, NULL, (LPARAM)&oParagraphFormat);
+      // Set text
+      CONST TCHAR*  szText = (iProperty == 0 ? pMessage->szAuthor : pMessage->szTitle);
 
-      /// Iterate through each item in the paragraph
-      for (LIST_ITEM*  pItemIterator = getListHead(pParagraph->pItemList); pItem = extractListItemPointer(pItemIterator, RICH_ITEM); pItemIterator = pItemIterator->pNext)
+      // [CHECK] Do nothing if property is empty
+      if (lstrlen(szText))
       {
-         /// [TEXT] Display text with appropriate formatting
-         if (pItem->eType == RIT_TEXT)
-         {  
-            // Convert item attributes into character formatting
-            oCharacterFormat.dwEffects = (pItem->bBold ? CFE_BOLD : NULL) WITH (pItem->bItalic ? CFE_ITALIC : NULL) WITH (pItem->bUnderline ? CFE_UNDERLINE : NULL);
-            // Override the 'default' colour (if specified)
-            oCharacterFormat.crTextColor = clTextColours[pItem->eColour != GTC_DEFAULT ? pItem->eColour : eDefaultColour ];
-            // Set formatting and insert text.
-            SendMessage(hRichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&oCharacterFormat);
-            SendMessage(hRichEdit, EM_REPLACESEL, FALSE, (LPARAM)pItem->szText);
-         }
-         /// [BUTTON] Insert OLE object with appropriate text
-         else
-         {
-            SendMessage(hRichEdit, EM_GETOLEINTERFACE, NULL, (LPARAM)&pRichEditOLE);
-            if (pRichEditOLE)
-            {
-               // Create button bitmap and data
-               pButtonData = createLanguageButtonData(pItem->szText, pItem->szID);
-               hButtonBitmap = createLanguageButtonBitmap(hRichEdit, pItem->szText);
-               // Insert as OLE object
-               CLanguageButtonObject::InsertBitmap(pRichEditOLE, hButtonBitmap, pButtonData);
-               // Cleanup
-               pRichEditOLE->Release();
-            }
-         }
-         
-         // Move caret beyond item
-         SendMessage(hRichEdit, EM_SETSEL, 32768, 32768);
+         // Prepare
+         SetTextColor(hDC, calculateVisibleRichTextColour(GTC_BLACK, eBackground));
+         hItemFont = (iProperty == 0 ? utilDuplicateFont(hDC, TRUE, FALSE, TRUE) : utilDuplicateFont(hDC, TRUE, FALSE, FALSE));
+         hOldFont  = SelectFont(hDC, hItemFont);
+
+         // Draw text
+         DrawText(hDC, szText, lstrlen(szText), &rcDrawRect, DT_LEFT WITH DT_VCENTER WITH DT_SINGLELINE WITH DT_END_ELLIPSIS WITH DT_NOPREFIX);
+
+         // Shift draw rectangle right  (Also insert small gap)
+         GetTextExtentPoint32(hDC, szText, lstrlen(szText), &siTextSize);
+         rcDrawRect.left += siTextSize.cx + 4;
+
+         // Cleanup
+         SetTextColor(hDC, clOldColour);
+         SelectFont(hDC, hOldFont);
+         DeleteFont(hItemFont);
       }
    }
+
+   /// [TEXT] Draw remaining text
+   drawRichTextInSingleLine(hDC, rcDrawRect, pMessage, eBackground);
 }
 
 
@@ -851,8 +821,8 @@ VOID  drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CO
 }
 
 
-/// Function name  : updateRichTextFromRichEdit
-// Description     : Update a RichText object from the current contents of a RichEdit control
+/// Function name  : getRichEditText
+// Description     : Fill a RichText object from the current contents of a RichEdit control
 // 
 // HWND        hRichEdit  : [in]  Window handle of a RichEdit control, possibly containing new text
 // RICH_TEXT*  pMessage   : [out] Existing RichText object. Paragraph and item components will be overwritten.
@@ -860,7 +830,7 @@ VOID  drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CO
 // Return Value   : TRUE
 // 
 ControlsAPI
-BOOL   updateRichTextFromRichEdit(HWND  hRichEdit, RICH_TEXT*  pMessage)
+BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
 {
    RICH_PARAGRAPH*       pParagraph;          // Current paragraph being processed
    RICH_ITEM*       pItem;               // Current item of the current paragraph being processed
@@ -900,7 +870,6 @@ BOOL   updateRichTextFromRichEdit(HWND  hRichEdit, RICH_TEXT*  pMessage)
    deleteListContents(pMessage->pParagraphList);      // Delete existing paragraphs and items, but not the non-rich edit properties: Title, Author, Columns etc.
    pParagraph = createRichParagraph(oState.eAlignment);
    appendObjectToList(pMessage->pParagraphList, (LPARAM)pParagraph);
-   
 
    if (iTextLength > 0)
    {
@@ -995,3 +964,93 @@ BOOL   updateRichTextFromRichEdit(HWND  hRichEdit, RICH_TEXT*  pMessage)
 }
 
 
+/// Function name  : setRichEditText
+// Description     : Replace RichEdit text with the contents of a RichText object
+// 
+// HWND                    hRichEdit   : [in] RichEdit window handle
+// CONST RICH_TEXT*        pMessage    : [in] RichText message to display
+// CONST GAME_TEXT_COLOUR  eBackground : [in] Defines the background colour. Must be GLC_BLACK or GLC_WHITE to
+//                                             indicate whether background is light or dark, even if the background
+//                                             colour isn't exactly white or black.  The default text colour
+//                                             will be chosen to contrast the background. Other colours will not be altered.
+// CONST BOOL              bAppendText : [in] Whether to append the existing RichEdit contents or replace them
+// 
+ControlsAPI
+VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground, CONST BOOL  bAppendText)
+{
+   IRichEditOle*     pRichEditOLE;         // RichEdit control OLE interface
+   CHARFORMAT        oCharacterFormat;     // Text formatting attributes
+   PARAFORMAT        oParagraphFormat;     // Paragraph formatting attributes
+   GAME_TEXT_COLOUR  eDefaultColour;       // The 'Default' colour based on the background colour. (either BLACK or White-ish)
+   LANGUAGE_BUTTON*  pButtonData;          // Button data
+   RICH_PARAGRAPH*   pParagraph;           // Current paragraph
+   RICH_ITEM*        pItem;                // Current item
+   HBITMAP           hButtonBitmap;        // Button bitmap
+
+   // Check background colour
+   ASSERT(eBackground == GTC_BLACK OR eBackground == GTC_WHITE);
+
+   // Prepare
+   utilZeroObject(&oCharacterFormat, CHARFORMAT);
+   utilZeroObject(&oParagraphFormat, PARAFORMAT);
+   oCharacterFormat.cbSize = sizeof(CHARFORMAT);
+   oParagraphFormat.cbSize = sizeof(PARAFORMAT);
+
+   // Prepare RichEdit
+   if (!bAppendText)
+      SetWindowText(hRichEdit, TEXT(""));
+   Edit_SetSel(hRichEdit, 32768, 32768);
+
+   // Determine the default colour
+   eDefaultColour = (eBackground == GTC_BLACK ? GTC_DEFAULT : GTC_BLACK);
+   
+   // Set formatting that is consistent for all items
+   oCharacterFormat.dwMask  = CFM_BOLD WITH CFM_ITALIC WITH CFM_UNDERLINE WITH CFM_COLOR WITH CFM_SIZE WITH CFM_FACE;
+   oCharacterFormat.yHeight = iMessageTextSize * 20;
+   StringCchCopy(oCharacterFormat.szFaceName, LF_FACESIZE, TEXT("Arial"));
+
+   /// Iterate through each paragraph in the message
+   for (LIST_ITEM*  pParagraphIterator = getListHead(pMessage->pParagraphList); pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH); pParagraphIterator = pParagraphIterator->pNext)
+   {
+      // Set paragraph alignment
+      oParagraphFormat.dwMask     = PFM_ALIGNMENT;
+      oParagraphFormat.wAlignment = pParagraph->eAlignment;
+      RichEdit_SetParagraphFormat(hRichEdit, &oParagraphFormat);
+
+      /// Iterate through each item in the paragraph
+      for (LIST_ITEM*  pItemIterator = getListHead(pParagraph->pItemList); pItem = extractListItemPointer(pItemIterator, RICH_ITEM); pItemIterator = pItemIterator->pNext)
+      {
+         /// [TEXT] Display text with appropriate formatting
+         if (pItem->eType == RIT_TEXT)
+         {  
+            // Convert item attributes into character formatting
+            oCharacterFormat.dwEffects = (pItem->bBold ? CFE_BOLD : NULL) WITH (pItem->bItalic ? CFE_ITALIC : NULL) WITH (pItem->bUnderline ? CFE_UNDERLINE : NULL);
+            // Override the 'default' colour (if specified)
+            oCharacterFormat.crTextColor = clTextColours[pItem->eColour != GTC_DEFAULT ? pItem->eColour : eDefaultColour ];
+            // Set formatting and insert text.
+            RichEdit_SetCharFormat(hRichEdit, SCF_SELECTION, &oCharacterFormat);
+            Edit_ReplaceSel(hRichEdit, pItem->szText);
+         }
+         /// [BUTTON] Insert OLE object with appropriate text
+         else
+         {
+            // Retrieve COM interface
+            RichEdit_GetOLEInterface(hRichEdit, &pRichEditOLE);
+
+            if (pRichEditOLE)
+            {
+               // Create button bitmap and data
+               pButtonData   = createLanguageButtonData(pItem->szText, pItem->szID);
+               hButtonBitmap = createLanguageButtonBitmap(hRichEdit, pItem->szText);
+               // Insert as OLE object
+               CLanguageButtonObject::InsertBitmap(pRichEditOLE, hButtonBitmap, pButtonData);
+               // Cleanup
+               pRichEditOLE->Release();
+            }
+         }
+         
+         // Move caret beyond item
+         Edit_SetSel(hRichEdit, 32768, 32768);
+      }
+   }
+}

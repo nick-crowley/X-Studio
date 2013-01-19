@@ -634,24 +634,22 @@ ControlsAPI HBITMAP           createLanguageButtonBitmap(HWND  hRichEditCtrl, CO
 ControlsAPI VOID              deleteLanguageButtonData(LANGUAGE_BUTTON*  pData);
 
 // Helpers
-ControlsAPI VOID              appendRichEditText(HWND  hRichEdit, CONST TCHAR*  szText);
+//ControlsAPI VOID              appendRichEditText(HWND  hRichEdit, CONST TCHAR*  szText);
 VOID                          calculatePlainTextGenerateStateFromAttributes(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState);
 ControlsAPI COLORREF          calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST GAME_TEXT_COLOUR  eBackground);
 RICHTEXT_FORMATTING           comparePlainTextGenerationState(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState);
+ControlsAPI BOOL              findLanguageButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
 GAME_TEXT_COLOUR              identifyGameTextColourFromRGB(CONST COLORREF  clColour);
 ControlsAPI GAME_TEXT_COLOUR  identifyGameTextColourFromColourMenuID(CONST UINT  iCommandID);
 
 // Functions
-ControlsAPI BOOL              findLanguageButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
-ControlsAPI BOOL              updateRichTextFromRichEdit(HWND  hRichEdit, RICH_TEXT*  pMessage);
-ControlsAPI VOID              drawRichTextInRichEdit(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground, CONST BOOL  bAppendText);
-ControlsAPI VOID              drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText, CONST GAME_TEXT_COLOUR  eBackground);
-
-/// NEW:
-RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, CONST BOOL  bMeasurement);
-VOID              drawRichTextItemsInLine(HDC  hDC, CONST RICHTEXT_POSITION*  pStartPos, CONST RECT*  pLineRect, RICHTEXT_POSITION*  pEndPos, INT*  piRemainingWidth, INT*  piLineHeight, CONST BOOL  bMeasurement);
-ControlsAPI VOID  drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CONST UINT  iDrawFlags);
-
+ControlsAPI VOID   drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CONST UINT  iDrawFlags);
+ControlsAPI VOID   drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText, CONST GAME_TEXT_COLOUR  eBackground);
+RICHTEXT_DRAWING   drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, CONST BOOL  bMeasurement);
+VOID               drawRichTextItemsInLine(HDC  hDC, CONST RICHTEXT_POSITION*  pStartPos, CONST RECT*  pLineRect, RICHTEXT_POSITION*  pEndPos, INT*  piRemainingWidth, INT*  piLineHeight, CONST BOOL  bMeasurement);
+ControlsAPI VOID   drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, CONST GAME_TEXT_COLOUR  eBackground);
+ControlsAPI BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage);
+ControlsAPI VOID   setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground, CONST BOOL  bAppendText);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                     WORKSPACE_DATA

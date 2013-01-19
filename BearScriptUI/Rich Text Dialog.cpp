@@ -11,8 +11,8 @@
 ///                                           CONSTANTS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CONST UINT   iToolBarButtonCount    = 16,    // Number of buttons and separators in the toolbar
-             iToolBarSeparatorCount = 3,     // Number of separators in the toolbar
+CONST UINT   iToolBarButtonCount    = 17,    // Number of buttons and separators in the toolbar
+             iToolBarSeparatorCount = 4,     // Number of separators in the toolbar
              iMessageTextSize       = 8,     // Point size of message text
              iMessageTitleSize      = 11;    // Point size of message titles
 
@@ -83,7 +83,8 @@ UINT  identifyRichTextDialogToolBarCommandID(CONST UINT  iIndex)
    static UINT iButtonCommands[iToolBarButtonCount] = {
                 IDM_RICHEDIT_CUT,   IDM_RICHEDIT_COPY,   IDM_RICHEDIT_PASTE,     IDM_RICHEDIT_DELETE,
           NULL, IDM_RICHEDIT_LEFT,  IDM_RICHEDIT_CENTRE, IDM_RICHEDIT_RIGHT,     IDM_RICHEDIT_JUSTIFY,
-          NULL, IDM_RICHEDIT_BOLD,  IDM_RICHEDIT_ITALIC, IDM_RICHEDIT_UNDERLINE, IDM_RICHEDIT_COLOUR, 
+          NULL, IDM_RICHEDIT_BOLD,  IDM_RICHEDIT_ITALIC, IDM_RICHEDIT_UNDERLINE, 
+          NULL, IDM_RICHEDIT_COLOUR, 
           NULL, IDM_RICHEDIT_BUTTON };
 
    // [CHECK] Index is valid
@@ -94,31 +95,6 @@ UINT  identifyRichTextDialogToolBarCommandID(CONST UINT  iIndex)
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/// Function name  : displayRichTextDialogContextMenu
-// Description     : Display one of the popup menus used by the rich text dialog.
-///                                        TODO: Could expand this to displaying any custom popup menu.
-// HWND        hDialog     : [in] Window handle of the parent window for the popup menu
-// CONST UINT  iMenuIndex  : [in] Sub-menu index of the desired popup menu  : IDM_RICHEDIT_POPUP  or  IDM_COLOUR_POPUP
-// 
-// Return Value   : TRUE
-// 
-BOOL  displayRichTextDialogContextMenu(HWND  hDialog, CONST UINT  iMenuIndex)
-{
-   CUSTOM_MENU*  pCustomMenu;    // Custom Popup menu
-   POINT         ptCursor;       // Cursor position
-
-   // Create desired custom popup menu
-   pCustomMenu = createCustomMenu(TEXT("LANGUAGE_MENU"), TRUE, iMenuIndex);
-
-   /// Display context menu
-   GetCursorPos(&ptCursor);
-   TrackPopupMenu(pCustomMenu->hPopup, TPM_RIGHTALIGN WITH TPM_TOPALIGN WITH TPM_LEFTBUTTON, ptCursor.x, ptCursor.y, NULL, hDialog, NULL);
-
-   // Cleanup and return
-   deleteCustomMenu(pCustomMenu);
-   return TRUE;
-}
 
 /// Function name  : initRichTextDialog
 // Description     : Initialise the toolbar and RichEdit control in a RichText dialog
@@ -143,6 +119,7 @@ BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
    SendMessage(pDocument->hRichEdit, EM_SETBKGNDCOLOR, NULL, RGB(22,31,46));
    SetWindowText(pDocument->hRichEdit, TEXT(""));
    SendMessage(pDocument->hRichEdit, EM_SETEVENTMASK, NULL, ENM_UPDATE WITH ENM_SELCHANGE WITH ENM_CHANGE); 
+   Edit_SetReadOnly(pDocument->hRichEdit, pDocument->bVirtual);
 
    // Setup this OLE callback thing
    pDocument->pOleCallback = new CLanguageButtonObjectCallback();
@@ -156,7 +133,7 @@ BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 }
 
 
-/// Function name  : performRichEditFormatting
+/// Function name  : performRichEditFormatCommand
 // Description     : Perform one of the formatting commands available from the toolbar
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] Language document hosting the RichText dialog
@@ -165,7 +142,7 @@ BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 // 
 // Return Value   : TRUE
 // 
-BOOL performRichEditFormatting(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iCommand)
+BOOL performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iCommand)
 {
    CHARFORMAT   oCharacterFormat;   // Current Text attributes
    PARAFORMAT   oParagraphFormat;   // Current Paragraph attributes
@@ -196,10 +173,12 @@ BOOL performRichEditFormatting(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CON
       // Prepare
       utilZeroObject(&oCharacterFormat, CHARFORMAT);
       oCharacterFormat.cbSize = sizeof(CHARFORMAT);
-      // Get current text attributes
+
+      // Add specified property to current attributes mask
       SendMessage(pDocument->hRichEdit, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&oCharacterFormat);
-      // Change the appropriate property
       oCharacterFormat.dwMask |= iProperty;
+
+      // Set property
       switch (iCommand)
       {
       // [BOLD/ITALIC/UNDERLINE] Flip the presence of the desired property bit
@@ -215,7 +194,7 @@ BOOL performRichEditFormatting(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CON
          break;
       }
       // Save new attributes
-      SendMessage(pDocument->hRichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&oCharacterFormat);
+      RichEdit_SetCharFormat(pDocument->hRichEdit, SCF_SELECTION, &oCharacterFormat);
       break;
 
    /// [LEFT/CENTRE/RIGHT/JUSTIFY] - Change the current paragraph alignment
@@ -226,12 +205,16 @@ BOOL performRichEditFormatting(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CON
       // Prepare
       utilZeroObject(&oParagraphFormat, PARAFORMAT);
       oParagraphFormat.cbSize = sizeof(PARAFORMAT);
+
       // Set the new alignment of the current paragraph
-      oParagraphFormat.dwMask = PFM_ALIGNMENT;
+      oParagraphFormat.dwMask     = PFM_ALIGNMENT;
       oParagraphFormat.wAlignment = iProperty;
-      SendMessage(pDocument->hRichEdit, EM_SETPARAFORMAT, NULL, (LPARAM)&oParagraphFormat);
+      RichEdit_SetParagraphFormat(pDocument->hRichEdit, &oParagraphFormat);
       break;
    }
+
+   // [MODIFIED]
+   sendDocumentUpdated(AW_DOCUMENTS_CTRL);
    return TRUE;
 }
 
@@ -256,19 +239,19 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
    // Prepare
    bEditHasFocus = (GetFocus() == pDocument->hRichEdit);
 
-   /// Enable/Disable buttons based on current focus and selection
-   for (UINT i = 0; i < iToolBarButtonCount; i++)
+   /// [STATE] Enable/Disable buttons 
+   for (UINT iButton = IDM_RICHEDIT_CUT; iButton <= IDM_RICHEDIT_BUTTON; iButton++)
    {
-      /// Set the default button state to whether the edit control has focus or not
-      bButtonState = bEditHasFocus;
-      switch (identifyRichTextDialogToolBarCommandID(i))
+      // [DEFAULT] Ensure we have the input focus + doc isn't game data
+      bButtonState = bEditHasFocus AND !pDocument->bVirtual;
+
+      switch (iButton)
       {
       // [SEPARATOR] - Skip
-      case NULL:  continue;
-      // [ALIGNMENT, COLOUR and FORMATTING] - Use focus state
-      default:    break;
+      case NULL:  
+         continue;
 
-      /// [CUT/COPY/DELETE] - Enabled only if there is a selection
+      /// [CUT/COPY/DELETE] - Ensure there is a selection
       case IDM_RICHEDIT_CUT:
       case IDM_RICHEDIT_COPY:
       case IDM_RICHEDIT_DELETE:
@@ -276,54 +259,57 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
          bButtonState &= (oSelection.cpMin != oSelection.cpMax);
          break;
 
-      /// [PASTE] - Enabled if the clipboard contains text
+      /// [PASTE] - Ensure clipboard contains text
       case IDM_RICHEDIT_PASTE:
          bButtonState &= SendMessage(pDocument->hRichEdit, EM_CANPASTE, CF_UNICODETEXT, NULL) WITH SendMessage(pDocument->hRichEdit, EM_CANPASTE, CF_TEXT, NULL);
          break;
       }
-      // Set enabled state
-      SendMessage(pDocument->hToolBar, TB_ENABLEBUTTON, identifyRichTextDialogToolBarCommandID(i), bButtonState);
-      // Uncheck if disabled, otherwise the button is improperly greyed
+
+      Toolbar_EnableButton(pDocument->hToolBar, iButton, bButtonState);
+
+      // [DISABLED] Ensure unchecked, otherwise the button is improperly greyed
       if (!bButtonState)
-         SendMessage(pDocument->hToolBar, TB_CHECKBUTTON, identifyRichTextDialogToolBarCommandID(i), FALSE);
+         Toolbar_CheckButton(pDocument->hToolBar, iButton, FALSE);
    }
 
-   /// Check / Uncheck buttons based on the current line/position/selection
+   /// [CHECK] Check/Uncheck buttons
    if (bEditHasFocus)
    {
-      /// [PARAGRAPH ALIGNMENT] - Get alignment of current paragraph and check alignment buttons appropriately
+      // Get current paragraph alignment
       oParagraphFormat.cbSize = sizeof(PARAFORMAT);
       oParagraphFormat.dwMask = PFM_ALIGNMENT;
       SendMessage(pDocument->hRichEdit, EM_GETPARAFORMAT, SCF_SELECTION, (LPARAM)&oParagraphFormat);
 
-      for (UINT i = IDM_RICHEDIT_LEFT; i <= IDM_RICHEDIT_JUSTIFY; i++)
+      /// [PARAGRAPH ALIGNMENT] 
+      for (UINT iButton = IDM_RICHEDIT_LEFT; iButton <= IDM_RICHEDIT_JUSTIFY; iButton++)
       {
          // Determine whether the alignment matches the current button's command ID, then check/uncheck it appropriately
-         switch (i)
+         switch (iButton)
          {
          case IDM_RICHEDIT_LEFT:    bButtonCheck = oParagraphFormat.wAlignment == PA_LEFT;     break;
          case IDM_RICHEDIT_CENTRE:  bButtonCheck = oParagraphFormat.wAlignment == PA_CENTRE;   break;
          case IDM_RICHEDIT_RIGHT:   bButtonCheck = oParagraphFormat.wAlignment == PA_RIGHT;    break;
          case IDM_RICHEDIT_JUSTIFY: bButtonCheck = oParagraphFormat.wAlignment == PA_JUSTIFY;  break;
          }
-         SendMessage(pDocument->hToolBar, TB_CHECKBUTTON, i, bButtonCheck);
+         SendMessage(pDocument->hToolBar, TB_CHECKBUTTON, iButton, bButtonCheck);
       }
 
-      /// [TEXT FORMATTING] - Get attributes of current text selection and check formatting buttons appropriately
+      // Get current Bold/Italic/Underline state
       oCharacterFormat.cbSize = sizeof(CHARFORMAT);
       oCharacterFormat.dwMask = CFM_BOLD WITH CFM_ITALIC WITH CFM_UNDERLINE;
       SendMessage(pDocument->hRichEdit, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&oCharacterFormat);
 
-      for (UINT i = IDM_RICHEDIT_BOLD; i <= IDM_RICHEDIT_UNDERLINE; i++)
+      /// [TEXT FORMATTING] 
+      for (UINT iButton = IDM_RICHEDIT_BOLD; iButton <= IDM_RICHEDIT_UNDERLINE; iButton++)
       {
          // Check each button that matches the text's attributes
-         switch (i)
+         switch (iButton)
          {
          case IDM_RICHEDIT_BOLD:      bButtonCheck = oCharacterFormat.dwEffects INCLUDES CFE_BOLD;       break;
          case IDM_RICHEDIT_ITALIC:    bButtonCheck = oCharacterFormat.dwEffects INCLUDES CFE_ITALIC;     break;
          case IDM_RICHEDIT_UNDERLINE: bButtonCheck = oCharacterFormat.dwEffects INCLUDES CFE_UNDERLINE;  break;
          }
-         SendMessage(pDocument->hToolBar, TB_CHECKBUTTON, i, bButtonCheck);
+         SendMessage(pDocument->hToolBar, TB_CHECKBUTTON, iButton, bButtonCheck);
       }
    }
 
@@ -363,20 +349,23 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
    case IDM_COLOUR_RED:
    case IDM_COLOUR_WHITE:
    case IDM_COLOUR_YELLOW:
-      return performRichEditFormatting(pDocument, hDialog, iControlID);
+      return performRichEditFormatCommand(pDocument, hDialog, iControlID);
 
    /// [TOOLBAR COMMANDS]
    // [CLIPBOARD]
-   case IDM_RICHEDIT_CUT:        
+   case IDM_RICHEDIT_CUT: 
+      sendDocumentUpdated(AW_DOCUMENTS_CTRL);
       return SendMessage(pDocument->hRichEdit, WM_CUT,   NULL, NULL);
 
    case IDM_RICHEDIT_COPY:       
       return SendMessage(pDocument->hRichEdit, WM_COPY,  NULL, NULL);
 
-   case IDM_RICHEDIT_PASTE:      
+   case IDM_RICHEDIT_PASTE:
+      sendDocumentUpdated(AW_DOCUMENTS_CTRL);
       return SendMessage(pDocument->hRichEdit, WM_PASTE, NULL, NULL);
 
-   case IDM_RICHEDIT_DELETE:     
+   case IDM_RICHEDIT_DELETE: 
+      sendDocumentUpdated(AW_DOCUMENTS_CTRL);
       return SendMessage(pDocument->hRichEdit, WM_CLEAR, NULL, NULL);
 
    // [ALIGNMENT / FORMATTING]
@@ -388,11 +377,11 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
    case IDM_RICHEDIT_BOLD:
    case IDM_RICHEDIT_ITALIC:
    case IDM_RICHEDIT_UNDERLINE:
-      return performRichEditFormatting(pDocument, hDialog, iControlID);
+      return performRichEditFormatCommand(pDocument, hDialog, iControlID);
 
    // [COLOUR] - Display colouring menu
    case IDM_RICHEDIT_COLOUR:
-      displayRichTextDialogContextMenu(hDialog, IDM_COLOUR_POPUP);
+      onRichTextDialogContextMenu(pDocument, hDialog, IDM_COLOUR_POPUP);
       return TRUE;
 
    // [INSERT BUTTON] - Create button bitmap and Insert as OLE object
@@ -407,7 +396,7 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
          CLanguageButtonObject::InsertBitmap(pRichEditOle, hButtonBitmap, pButtonData);
          pRichEditOle->Release();
          // Update properties dialog
-         updatePropertiesDialog(getMainWindowData()->hPropertiesSheet, UN_DOCUMENT_UPDATED, NULL);
+         sendDocumentUpdated(AW_DOCUMENTS_CTRL);
       }
       return TRUE;
 
@@ -420,7 +409,7 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
       case EN_UPDATE:
       case EN_SETFOCUS:
       case EN_KILLFOCUS:
-         updatePropertiesDialog(getMainWindowData()->hPropertiesSheet, UN_DOCUMENT_UPDATED, NULL);
+         // Update toolbar
          updateRichTextDialogToolBar(pDocument, hDialog);
          break;
       }
@@ -428,6 +417,32 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
    }
 
    return FALSE;
+}
+
+
+/// Function name  : onRichTextDialogContextMenu
+// Description     : Display the colour/edit popup menu
+//
+// HWND        hDialog     : [in] Window handle of the parent window for the popup menu
+// CONST UINT  iMenuIndex  : [in] Sub-menu index of the desired popup menu  : IDM_RICHEDIT_POPUP  or  IDM_COLOUR_POPUP
+// 
+// Return Value   : TRUE
+// 
+BOOL  onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iMenuIndex)
+{
+   CUSTOM_MENU*  pCustomMenu;    // Custom Popup menu
+   POINT         ptCursor;       // Cursor position
+
+   // Create desired custom popup menu
+   pCustomMenu = createCustomMenu(TEXT("LANGUAGE_MENU"), TRUE, iMenuIndex);
+
+   /// Display context menu
+   GetCursorPos(&ptCursor);
+   TrackPopupMenu(pCustomMenu->hPopup, TPM_RIGHTALIGN WITH TPM_TOPALIGN WITH TPM_LEFTBUTTON, ptCursor.x, ptCursor.y, NULL, hDialog, NULL);
+
+   // Cleanup and return
+   deleteCustomMenu(pCustomMenu);
+   return TRUE;
 }
 
 
@@ -578,7 +593,7 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
    /// [CONTEXT MENU] - Display RichEdit popup
    case WM_CONTEXTMENU:
       if (pDocument->hRichEdit == (HWND)wParam)
-         return displayRichTextDialogContextMenu(hDialog, IDM_RICHEDIT_POPUP);
+         return onRichTextDialogContextMenu(pDocument, hDialog, IDM_RICHEDIT_POPUP);
       break;
 
    /// [MENU HOVER] -- Display description in status bar
@@ -586,15 +601,8 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
       return utilReflectMessage(hDialog, iMessage, wParam, lParam);
 
    /// [CUSTOM MENU] -- Draw custom menu
-   case WM_DRAWITEM:
-      if (wParam == 0)
-         onOwnerDrawCustomMenu((DRAWITEMSTRUCT*)lParam);
-      return TRUE;
-
-   case WM_MEASUREITEM:
-      if (wParam == 0)
-         calculateCustomMenuItemSize(hDialog, (MEASUREITEMSTRUCT*)lParam);
-      return TRUE;
+   case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                  break;
+   case WM_MEASUREITEM: onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);   break;
 
    /// [RESIZING]
    case WM_SIZE:

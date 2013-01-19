@@ -798,7 +798,7 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
       break;
 
    /// [NOT IMPLEMENTED] Always disabled
-   case IDM_FILE_NEW_LANGUAGE:
+   //case IDM_FILE_NEW_LANGUAGE:
    case IDM_FILE_NEW_MISSION:
    case IDM_HELP_UPDATES:
    case IDM_TOOLS_MISSION_HIERARCHY:
@@ -806,7 +806,7 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
    /// [RECENT PLACEHOLDER]
    case IDM_FILE_RECENT_EMPTY:
    /// [LANGUAGE/MEDIA] Temporarily disabled
-   case IDM_TOOLS_GAME_STRINGS:
+   //case IDM_TOOLS_GAME_STRINGS:
    case IDM_TOOLS_MEDIA_BROWSER:
    /// [OLD TEST STUFF] Always Disabled
    case IDM_TEST_OUTPUT_SCRIPT:
@@ -835,11 +835,12 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
       case IDM_TEST_VALIDATE_XML_SCRIPTS:
       /// [VIEW GAME DATA] Enabled
       case IDM_TOOLS_RELOAD_GAME_DATA:
-      //case IDM_TOOLS_GAME_STRINGS:
+      case IDM_TOOLS_GAME_STRINGS:
       //case IDM_TOOLS_MEDIA_BROWSER:
       /// [NEW/OPEN] Enabled
       case IDM_FILE_NEW:
       case IDM_FILE_NEW_SCRIPT:
+      case IDM_FILE_NEW_LANGUAGE:
       case IDM_FILE_OPEN:       
       case IDM_FILE_BROWSE:      
          iOutput = MF_ENABLED;                                                      
@@ -941,10 +942,10 @@ VOID   loadDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
    // Generate project sub-key
    StringCchPrintf(szSubKey, 32, TEXT("%s\\Project"), getAppRegistrySubKey(ARK_SESSION));
 
-   // [CHECK] Is there a stored project?
+   /// [PROJECT] Check for stored project
    if (hProjectKey = utilRegistryOpenAppSubKey(getAppRegistryKey(), szSubKey))
    {
-      /// [SUCCESS] Extract path and load project
+      // [SUCCESS] Extract path and load project
       utilRegistryReadString(hProjectKey, TEXT("szFullPath"), szFullPath, MAX_PATH);
       commandLoadDocument(pWindowData, FIF_PROJECT, szFullPath, FALSE, NULL);
       
@@ -1068,8 +1069,8 @@ VOID  storeDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
    /// Iterate through open documents (if any)
    for (UINT  iIndex = 0; findDocumentByIndex(pWindowData->hDocumentsTab, iIndex, pDocument); iIndex++)
    {
-      // [CHECK] Do not save 'Untitled' documents
-      if (pDocument->bUntitled)
+      // [CHECK] Do not save 'Untitled' or 'Virtual' documents
+      if (pDocument->bUntitled OR pDocument->bVirtual)
          continue;
 
       // Generate sub-key
