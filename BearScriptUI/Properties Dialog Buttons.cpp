@@ -267,13 +267,13 @@ INT_PTR   dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARA
    {
    /// [COMMANDS]
    case WM_COMMAND:
-      if (onButtonPageCommand((LANGUAGE_DOCUMENT*)pDialogData->pDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
+      if (onButtonPageCommand(pDialogData->pLanguageDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
          return TRUE;
       break;
 
    /// [NOTIFICATIONS]
    case WM_NOTIFY:
-      if (onButtonPageNotification((LANGUAGE_DOCUMENT*)pDialogData->pDocument, hDialog, (NMHDR*)lParam))
+      if (onButtonPageNotification(pDialogData->pLanguageDocument, hDialog, (NMHDR*)lParam))
          return TRUE;
       break;
 
@@ -281,7 +281,7 @@ INT_PTR   dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARA
    case WM_CONTEXTMENU:
       ptCursor.x = LOWORD(lParam);
       ptCursor.y = HIWORD(lParam);
-      return onButtonPageContextMenu((LANGUAGE_DOCUMENT*)pDialogData->pDocument, hDialog, (HWND)wParam, &ptCursor);
+      return onButtonPageContextMenu(pDialogData->pLanguageDocument, hDialog, (HWND)wParam, &ptCursor);
 
    // [CUSTOM MENU DRAWING]
    case WM_DRAWITEM:

@@ -21,13 +21,13 @@
 // 
 CONST PROPERTY_PAGE_DEFINITION  oPropertyPages[PROPERTY_PAGE_COUNT] = 
 { 
-      dlgprocGeneralPageScript,   TEXT("PROPERTIES_GENERAL_SCRIPT"),   TEXT("COMMAND_LIST_ICON"),     IDS_SCRIPT_GENERAL_PAGE_TITLE,  
+      dlgprocGeneralPageScript,   TEXT("PROPERTIES_GENERAL_SCRIPT"),   TEXT("NEW_SCRIPT_FILE_ICON"),  IDS_SCRIPT_GENERAL_PAGE_TITLE,        //COMMAND_LIST_ICON
       dlgprocArgumentPage,        TEXT("PROPERTIES_ARGUMENTS"),        TEXT("EDIT_FORMATTING_ICON"),  IDS_SCRIPT_ARGUMENTS_PAGE_TITLE,
       dlgprocDependenciesPage,    TEXT("PROPERTIES_DEPENDENCIES"),     TEXT("VARIABLE_ICON"),         IDS_SCRIPT_DEPENDENCIES_PAGE_TITLE,
       dlgprocVariablesPage,       TEXT("PROPERTIES_VARIABLES"),        TEXT("VARIABLE_ICON"),         IDS_SCRIPT_VARIABLES_PAGE_TITLE,
       dlgprocStringsPage,         TEXT("PROPERTIES_STRINGS"),          TEXT("EDIT_PAGE_ICON"),        IDS_SCRIPT_STRINGS_PAGE_TITLE,
 
-      dlgprocGeneralPageLanguage, TEXT("PROPERTIES_GENERAL_LANGUAGE"), TEXT("BEARSCRIPT"),            IDS_LANGUAGE_GENERAL_PAGE_TITLE,
+      dlgprocGeneralPageLanguage, TEXT("PROPERTIES_GENERAL_LANGUAGE"), TEXT("NEW_LANGUAGE_FILE_ICON"),IDS_LANGUAGE_GENERAL_PAGE_TITLE,
       dlgprocColumnsPage,         TEXT("PROPERTIES_COLUMNS"),          TEXT("TWO_COLUMN_ICON"),       IDS_LANGUAGE_COLUMNS_PAGE_TITLE,
       dlgprocButtonPage,          TEXT("PROPERTIES_BUTTON"),           TEXT("OUTPUT_WINDOW_ICON"),    IDS_LANGUAGE_BUTTON_PAGE_TITLE,
       dlgprocSpecialPage,         TEXT("PROPERTIES_SPECIAL"),          TEXT("PREFERENCES_ICON"),      IDS_LANGUAGE_SPECIAL_PAGE_TITLE,
@@ -72,21 +72,18 @@ HWND   createPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
    oSheetData.ppsp        = oPageData;
    oSheetData.pszCaption  = MAKEINTRESOURCE(IDS_PROPERTIES_SHEET_TITLE);
 
-   // Determine first page
+   // Determine first page + Store document pointer
    switch (pDialogData->eType)
    {
    case PDT_NO_DOCUMENT:        eInitialPage = PP_NO_DOCUMENT;       break;
-   case PDT_SCRIPT_DOCUMENT:    eInitialPage = PP_SCRIPT_GENERAL;    break;
-   case PDT_LANGUAGE_DOCUMENT:  eInitialPage = PP_LANGUAGE_GENERAL;  break;
+   case PDT_LANGUAGE_DOCUMENT:  eInitialPage = PP_LANGUAGE_GENERAL;  pDialogData->pLanguageDocument = getActiveLanguageDocument();   break;
+   case PDT_SCRIPT_DOCUMENT:    eInitialPage = PP_SCRIPT_GENERAL;    pDialogData->pScriptDocument   = getActiveScriptDocument();     break;
    }
 
    /// Define initial pages
    for (UINT  iPage = 0; iPage < oSheetData.nPages; iPage++)
       createPropertiesDialogPageData(pDialogData, &oPageData[iPage], (PROPERTY_PAGE)(eInitialPage + iPage));
 
-   // [SCRIPT DOCUMENT] Update document pointer
-   pDialogData->pScriptDocument = (SCRIPT_DOCUMENT*)getActiveDocument();
-   
    /// Create PropertySheet and store handle
    pDialogData->hSheetDlg = (HWND)PropertySheet(&oSheetData);
    ERROR_CHECK("creating document properties PropertySheet", pDialogData->hSheetDlg);
@@ -124,12 +121,6 @@ PROPERTIES_DATA*  createPropertiesDialogData()
    ImageList_AddIcon(pDialogData->hColumnIcons, LoadIcon(getResourceInstance(), TEXT("ONE_COLUMN_ICON")));
    ImageList_AddIcon(pDialogData->hColumnIcons, LoadIcon(getResourceInstance(), TEXT("TWO_COLUMN_ICON")));
    ImageList_AddIcon(pDialogData->hColumnIcons, LoadIcon(getResourceInstance(), TEXT("THREE_COLUMN_ICON")));
-
-   // Page icons
-   /*pDialogData->hPageIcons = ImageList_Create(16, 16, ILC_COLOR32 WITH ILC_MASK, 3, 1);
-   ImageList_AddIcon(pDialogData->hPageIcons, LoadIcon(getResourceInstance(), TEXT("COMMAND_LIST_ICON")));
-   ImageList_AddIcon(pDialogData->hPageIcons, LoadIcon(getResourceInstance(), TEXT("EDIT_FORMATTING_ICON")));
-   ImageList_AddIcon(pDialogData->hPageIcons, LoadIcon(getResourceInstance(), TEXT("VARIABLE_ICON")));*/
 
    // Return new object
    return pDialogData;
@@ -170,7 +161,7 @@ VOID  createPropertiesDialogPageData(PROPERTIES_DATA*  pPropertiesData, PROPSHEE
 // 
 VOID  deletePropertiesDialogData(PROPERTIES_DATA*  &pSheetData)
 {
-   // Delete Columns ImageList
+   // Delete 'Columns' ImageList
    ImageList_Destroy(pSheetData->hColumnIcons);
 
    /// Delete Depdenency pages trees
@@ -606,44 +597,6 @@ HWND  initPropertiesDialogPageTooltips(PROPERTIES_DATA*  pSheetData, HWND  hPage
    return hTooltip;
 }
 
-
-
-/// Function name  : updatePropertiesDialog
-// Description     : Pass the active document to each page in the properties propertysheet
-// 
-// HWND        hSheetDlg    : [in] Properies sheet dialog handle
-// CONST UINT  iMessage     : [in] The type of update - UN_DOCUMENT_SWITCHED or UN_DOCUMENT_UPDATED
-// DOCUMENT*   pNewDocument : [in][optional] New document for UN_DOCUMENT_SWITCHED only
-// 
-/// THIS FUNCTION HAS BEEN REMOVED. KEPT FOR COMPATIBILITY WITH OUT-OF-DATE LANGUAGE AND MEDIA DOCUMENTS.
-///
-///   USE sendDocumentUpdated AND sendDocumentSwitched FOR THE SAME FUNCTIONALITY
-//
-VOID   updatePropertiesDialog(HWND  hSheetDlg, CONST UINT  iMessage, DOCUMENT*  pNewDocument)
-{
-   TODO("This function has been removed");
-
-   // [CHECK] Validate parameters
-   ASSERT(iMessage == UN_DOCUMENT_SWITCHED OR iMessage == UN_DOCUMENT_UPDATED);
-
-   // [CHECK] Property sheet exists
-   ASSERT(hSheetDlg);
-  
-   // Examine update type
-   switch (iMessage)
-   {
-   /// [EXISTING DOCUMENT UPDATED] -- Inform every page it should refresh it's values
-   case UN_DOCUMENT_UPDATED:
-      PropSheet_QuerySiblings(hSheetDlg, UN_DOCUMENT_UPDATED, NULL);
-      break;
-
-   /// [DOCUMENT SWITCHED] -- Re-create the properties dialog 
-   case UN_DOCUMENT_SWITCHED:
-      SendMessage(PropSheet_GetCurrentPageHwnd(hSheetDlg), UN_DOCUMENT_SWITCHED, NULL, (LPARAM)pNewDocument);
-      break;
-   }
-}
-
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                     MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -789,17 +742,18 @@ VOID    onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMEN
       for (UINT  iPage = 0; iPage < identifyPropertiesDialogPageCount(pSheetData->eType); iPage++)
          PropSheet_RemovePage(pSheetData->hSheetDlg, 0, NULL);  // Remove first page each time
 
-      /// Replace document pointer
-      pSheetData->pScriptDocument = (SCRIPT_DOCUMENT*)pNewDocument;
-      pSheetData->eType           = identifyPropertiesDialogType(pNewDocument);
+      // Reset documents
+      pSheetData->pScriptDocument   = NULL;
+      pSheetData->pLanguageDocument = NULL;
 
-      // Determine ID of first new pages
-      switch (pSheetData->eType)
+      // Identify document type + first page
+      switch (pSheetData->eType = identifyPropertiesDialogType(pNewDocument))
       {
       case PDT_NO_DOCUMENT:         eInitialPage = PP_NO_DOCUMENT;       break;
-      case PDT_LANGUAGE_DOCUMENT:   eInitialPage = PP_LANGUAGE_GENERAL;  break;
-      case PDT_SCRIPT_DOCUMENT:     eInitialPage = PP_SCRIPT_GENERAL;    break;
+      case PDT_LANGUAGE_DOCUMENT:   eInitialPage = PP_LANGUAGE_GENERAL;  pSheetData->pLanguageDocument = (LANGUAGE_DOCUMENT*)pNewDocument;   break;
+      case PDT_SCRIPT_DOCUMENT:     eInitialPage = PP_SCRIPT_GENERAL;    pSheetData->pScriptDocument   = (SCRIPT_DOCUMENT*)pNewDocument;     break;
       }
+
 
       /// Create and Insert new pages
       for (UINT  iPage = 0; iPage < identifyPropertiesDialogPageCount(pSheetData->eType); iPage++)
@@ -897,7 +851,7 @@ BOOL  onPropertiesDialogNotify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPER
 
 
 /// Function name  : onPropertiesDialogPageHide
-// Description     : Hides a properties dialog page
+// Description     : Since updates are performed immediately, no action is necessary
 // 
 // PROPERTIES_DATA*     pSheetData  : [in] Properties dialog data
 // HWND                 hPage       : [in] Window handle of the page to hide
@@ -905,21 +859,21 @@ BOOL  onPropertiesDialogNotify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPER
 // 
 VOID  onPropertiesDialogPageHide(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
 {
-   // Examine page
-   switch (ePage)
-   {
-   /// [GENERAL PROPERTIES]
-   case PP_SCRIPT_GENERAL:
-      break;
+   //// Examine page
+   //switch (ePage)
+   //{
+   ///// [GENERAL PROPERTIES]
+   //case PP_SCRIPT_GENERAL:
+   //   break;
 
-   /// [SCRIPT ARGUMENTS]
-   case PP_SCRIPT_ARGUMENTS:
-      break;
+   ///// [SCRIPT ARGUMENTS]
+   //case PP_SCRIPT_ARGUMENTS:
+   //   break;
 
-   /// [EXTERNAL DEPENDENCIES]
-   case PP_SCRIPT_DEPENDENCIES:
-      break;
-   }
+   ///// [EXTERNAL DEPENDENCIES]
+   //case PP_SCRIPT_DEPENDENCIES:
+   //   break;
+   //}
 }
 
 
@@ -1019,7 +973,6 @@ VOID  onPropertiesDialogPageShow(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONS
       SendMessage(pSheetData->pLanguageDocument->hRichEdit, EM_GETOLEINTERFACE, NULL, (LPARAM)&pRichEditOLE);
       // Set ListView item count to reflect number of OLE objects in the RichEdit
       SendDlgItemMessage(hPage, IDC_BUTTONS_LIST, LVM_SETITEMCOUNT, pRichEditOLE->GetObjectCount(), NULL);
-      // Cleanup
       pRichEditOLE->Release();
       break;
 

@@ -142,7 +142,7 @@ INT_PTR   dlgprocSpecialPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
    switch (iMessage)
    {
    case WM_COMMAND:
-      if (onSpecialPageCommand((LANGUAGE_DOCUMENT*)pDialogData->pDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
+      if (onSpecialPageCommand(pDialogData->pLanguageDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
          return TRUE;
       break;
    }

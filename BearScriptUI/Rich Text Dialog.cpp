@@ -117,8 +117,9 @@ BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 
    /// Setup RichEdit control
    SendMessage(pDocument->hRichEdit, EM_SETBKGNDCOLOR, NULL, RGB(22,31,46));
-   SetWindowText(pDocument->hRichEdit, TEXT(""));
    SendMessage(pDocument->hRichEdit, EM_SETEVENTMASK, NULL, ENM_UPDATE WITH ENM_SELCHANGE WITH ENM_CHANGE); 
+   SendMessage(pDocument->hRichEdit, EM_SETFONTSIZE, 14, NULL);
+   SetWindowText(pDocument->hRichEdit, TEXT(""));
    Edit_SetReadOnly(pDocument->hRichEdit, pDocument->bVirtual);
 
    // Setup this OLE callback thing
@@ -553,7 +554,8 @@ BOOL  onRichTextDialogResize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST
    utilConvertRectangleToSize(&rcClient, &siClient);
 
    /// Stretch Edit control across non-toolbar client area
-   MoveWindow(pDocument->hRichEdit, rcClient.left, rcClient.top, siClient.cx, siClient.cy, FALSE);
+   MoveWindow(pDocument->hRichEdit, rcClient.left, rcClient.top, siClient.cx, siClient.cy, TRUE);
+   
    // Re-format the RichEdit control's text
    //updateRichEditFormatting(pDocument, hDialog);
 

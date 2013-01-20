@@ -1270,11 +1270,14 @@ VOID  onMainWindow_DocumentPropertyUpdated(MAIN_WINDOW_DATA*  pWindowData, CONST
 /// Function name  : onMainWindow_DocumentSwitched
 // Description     : Updates the Toolbar to reflect new document
 // 
-// MAIN_WINDOW_DATA*  pWindowData : [in] Main window data
-// DOCUMENT*          pNewDocument    : [in] New active document if any, otherwise NULL
+// MAIN_WINDOW_DATA*  pWindowData  : [in] Main window data
+// DOCUMENT*          pNewDocument : [in] New active document if any, otherwise NULL
 // 
 VOID  onMainWindow_DocumentSwitched(MAIN_WINDOW_DATA*  pWindowData, DOCUMENT*  pNewDocument)
 {
+   // Store/Reset RichText dialog handle
+   pWindowData->hRichTextDlg = (getActiveLanguageDocument() ? getActiveLanguageDocument()->hRichTextDialog : NULL);
+
    /// Update toolbar
    updateMainWindowToolBar(pWindowData);
 }

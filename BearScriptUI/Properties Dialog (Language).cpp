@@ -175,7 +175,7 @@ INT_PTR   dlgprocGeneralPageLanguage(HWND  hDialog, UINT  iMessage, WPARAM  wPar
    switch (iMessage)
    {
    case WM_COMMAND:
-      if (onGeneralPageCommand((LANGUAGE_DOCUMENT*)pDialogData->pDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
+      if (onGeneralPageCommand(pDialogData->pLanguageDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
          return TRUE;
       break;
    }

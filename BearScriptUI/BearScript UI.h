@@ -971,7 +971,6 @@ BOOL                 isPropertiesDialogAlreadyClosed(MAIN_WINDOW_DATA*  pMainWin
 VOID  initPropertiesDialogPage(HWND  hPage, CONST PROPERTY_PAGE  ePage, CONST PROPSHEETPAGE*  pPageData);
 VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
 HWND  initPropertiesDialogPageTooltips(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
-VOID  updatePropertiesDialog(HWND  hSheetDlg, CONST UINT  iMessage, DOCUMENT*  pNewDocument);
 
 // Message Handlers
 VOID  onPropertiesDialogActivate(HWND  hSheet, CONST UINT  iFlags);
@@ -1049,7 +1048,7 @@ INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPAR
 
 // Functions
 MESSAGE_COMPATIBILITY  calculateLanguageMessageCompatibility(CONST LANGUAGE_MESSAGE*  pMessage);
-VOID    displayColumnPageSliderText(HWND  hDialog, CONST UINT  iControlID, CONST UINT  iValue);
+VOID    displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UINT  iValue);
 VOID    performLanguageMessageCompatibilityChange(LANGUAGE_MESSAGE*  pMessage, CONST MESSAGE_COMPATIBILITY  eCompatibility);
 
 // Message Handlers
@@ -1059,16 +1058,16 @@ BOOL    onButtonPageLabelEditBegin(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog,
 BOOL    onButtonPageLabelEditEnd(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVLABELINFO*  pLabelData);
 BOOL    onButtonPageNotification(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
 BOOL    onButtonPageRequestData(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pOutput);
-BOOL    onColumnsPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
-BOOL    onColumnsPageCustomDraw(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, HIMAGELIST  hImageList, NMCUSTOMDRAW*  pDrawData);
-BOOL    onColumnsPageScrollHorizontal(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iScrollType, UINT  iPosition, HWND  hCtrl);
+BOOL    onColumnsPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
+BOOL    onColumnsPageCustomDraw(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, HIMAGELIST  hImageList, NMCUSTOMDRAW*  pDrawData);
+BOOL    onColumnsPageScrollHorizontal(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iScrollType, UINT  iPosition, HWND  hCtrl);
 BOOL    onGeneralPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
 BOOL    onSpecialPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
 
 
 // Window procedures
 INT_PTR    dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-INT_PTR    dlgprocColumnsPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+INT_PTR    dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 INT_PTR    dlgprocGeneralPageLanguage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 INT_PTR    dlgprocSpecialPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 

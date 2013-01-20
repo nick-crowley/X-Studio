@@ -731,6 +731,10 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
             else if (pMainWindowData->hProjectDlg AND (TranslateAccelerator(pMainWindowData->hProjectDlg, pMainWindowData->hAccelerators, &oMsg) OR IsDialogMessage(pMainWindowData->hProjectDlg, &oMsg)))
                continue;
 
+            /// [RICH-TEXT DIALOG] - Translate accelerators and characters messages
+            else if (pMainWindowData->hRichTextDlg AND (TranslateAccelerator(pMainWindowData->hRichTextDlg, pMainWindowData->hAccelerators, &oMsg) OR IsDialogMessage(pMainWindowData->hRichTextDlg, &oMsg)))
+               continue;
+
             /// [MODELESS PROPERTIES SHEET] - Translate accelerators and characters messages
             else if (pMainWindowData->hPropertiesSheet AND PropSheet_IsDialogMessage(pMainWindowData->hPropertiesSheet, &oMsg))
             {

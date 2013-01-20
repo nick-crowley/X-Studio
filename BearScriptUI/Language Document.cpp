@@ -751,6 +751,9 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
 
       // Enable/Disable window by result
       EnableWindow(pDocument->hRichEdit, !pDocument->bFormattingError);
+
+      // [UPDATED] Refresh properties
+      sendDocumentUpdated(AW_PROPERTIES);
    }
    /// [UNSELECTED] Update string from RichEdit
    else

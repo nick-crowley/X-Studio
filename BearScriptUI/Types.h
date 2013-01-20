@@ -308,7 +308,8 @@ struct  MAIN_WINDOW_DATA
                         hOutputDlg,                // Compiler output dialog
                         hProjectDlg,               // Project dialog
                         hProgressDlg,              // Progress dialog [or NULL]
-                        hPropertiesSheet;          // Properties PropertySheet [or NULL]
+                        hPropertiesSheet,          // Properties PropertySheet [or NULL]
+                        hRichTextDlg;              // Active RichText dialog [or NULL]
    HACCEL               hAccelerators;             // Accelerator Table
    CUSTOM_MENU*         pCustomMenu;               // Main menu
 
@@ -567,9 +568,6 @@ struct PROPERTIES_DATA
    // Language Documents
    LANGUAGE_DOCUMENT*    pLanguageDocument;                 // Document for language pages
    HIMAGELIST            hColumnIcons;                      // ImageList containing the large icons for the custom radio buttons on the 'Columns' Language page 
-   
-   /// OLD: Maintained for compatibility with old LanguageDoc code
-   DOCUMENT*             pDocument;                       
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
