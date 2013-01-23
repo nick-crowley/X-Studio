@@ -50,46 +50,6 @@ VOID  appendRichTextItemToParagraph(RICH_PARAGRAPH*  pParagraph, RICH_ITEM*  pIt
 }
 
 
-/// Function name  : identifyRichTextTag
-// Description     : Identify the specified RichText message tag
-// 
-// CONST TCHAR*  szTag : [in] String containing a RichText message tag
-// 
-// Return Value   : RichText message tag ID or RTT_NONE if the string matches no tag
-// 
-RICHTEXT_TAG  identifyRichTextTag(CONST TCHAR*  szTag)
-{
-   if (utilCompareString(szTag, "b"))                 return RTT_BOLD;
-   else if (utilCompareString(szTag, "u"))            return RTT_UNDERLINE;
-   else if (utilCompareString(szTag, "i"))            return RTT_ITALIC;
-
-   else if (utilCompareString(szTag, "article"))      return RTT_ARTICLE;
-   else if (utilCompareString(szTag, "author"))       return RTT_AUTHOR;
-   else if (utilCompareString(szTag, "title"))        return RTT_TITLE;
-   else if (utilCompareStringN(szTag, "text", 4))     return RTT_TEXT;
-   else if (utilCompareStringN(szTag, "ranking", 7))  return RTT_RANKING;
-
-   else if (utilCompareString(szTag, "blue"))         return RTT_BLUE;
-   else if (utilCompareString(szTag, "cyan"))         return RTT_CYAN;
-   else if (utilCompareString(szTag, "green"))        return RTT_GREEN;
-   else if (utilCompareString(szTag, "magenta"))      return RTT_PURPLE;
-   else if (utilCompareString(szTag, "orange"))       return RTT_ORANGE;
-   else if (utilCompareString(szTag, "red"))          return RTT_RED;
-   else if (utilCompareString(szTag, "white"))        return RTT_WHITE;
-   else if (utilCompareString(szTag, "yellow"))       return RTT_YELLOW;
-
-   else if (utilCompareString(szTag, "left"))         return RTT_LEFT;
-   else if (utilCompareString(szTag, "right"))        return RTT_RIGHT;
-   else if (utilCompareString(szTag, "center"))       return RTT_CENTRE;
-   else if (utilCompareString(szTag, "justify"))      return RTT_JUSTIFY;
-
-   else if (utilCompareStringN(szTag, "image", 5))    return RTT_IMAGE;
-
-   else if (utilCompareStringN(szTag, "select", 6))   return RTT_SELECT;
-
-   else return RTT_NONE;
-}
-
 /// Function name  : convertRichTextTagToString
 // Description     : Converts a tag ID to a string
 // 
@@ -139,6 +99,7 @@ CONST TCHAR*  convertRichTextTagToString(RICHTEXT_TAG  eTag)
    return szOutput;
 }
 
+
 /// Function name  : identifyGameTextColourFromRichTextTag
 // Description     : Convert a RichText message tag to a game text colour
 // 
@@ -166,6 +127,76 @@ GAME_TEXT_COLOUR  identifyGameTextColourFromRichTextTag(CONST RICHTEXT_TAG  eTag
    }
 
    return eOutput;
+}
+
+
+/// Function name  : identifyRichTextTag
+// Description     : Identify the specified RichText message tag
+// 
+// CONST TCHAR*  szTag : [in] String containing a RichText message tag
+// 
+// Return Value   : RichText message tag ID or RTT_NONE if the string matches no tag
+// 
+RICHTEXT_TAG  identifyRichTextTag(CONST TCHAR*  szTag)
+{
+   if (utilCompareString(szTag, "b"))                 return RTT_BOLD;
+   else if (utilCompareString(szTag, "u"))            return RTT_UNDERLINE;
+   else if (utilCompareString(szTag, "i"))            return RTT_ITALIC;
+
+   else if (utilCompareString(szTag, "article"))      return RTT_ARTICLE;
+   else if (utilCompareString(szTag, "author"))       return RTT_AUTHOR;
+   else if (utilCompareString(szTag, "title"))        return RTT_TITLE;
+   else if (utilCompareStringN(szTag, "text", 4))     return RTT_TEXT;
+   else if (utilCompareStringN(szTag, "ranking", 7))  return RTT_RANKING;
+
+   else if (utilCompareString(szTag, "blue"))         return RTT_BLUE;
+   else if (utilCompareString(szTag, "cyan"))         return RTT_CYAN;
+   else if (utilCompareString(szTag, "green"))        return RTT_GREEN;
+   else if (utilCompareString(szTag, "magenta"))      return RTT_PURPLE;
+   else if (utilCompareString(szTag, "orange"))       return RTT_ORANGE;
+   else if (utilCompareString(szTag, "red"))          return RTT_RED;
+   else if (utilCompareString(szTag, "white"))        return RTT_WHITE;
+   else if (utilCompareString(szTag, "yellow"))       return RTT_YELLOW;
+
+   else if (utilCompareString(szTag, "left"))         return RTT_LEFT;
+   else if (utilCompareString(szTag, "right"))        return RTT_RIGHT;
+   else if (utilCompareString(szTag, "center"))       return RTT_CENTRE;
+   else if (utilCompareString(szTag, "justify"))      return RTT_JUSTIFY;
+
+   else if (utilCompareStringN(szTag, "image", 5))    return RTT_IMAGE;
+
+   else if (utilCompareStringN(szTag, "select", 6))   return RTT_SELECT;
+
+   else return RTT_NONE;
+}
+
+
+/// Function name  : isRichEditButtonUnique
+// Description     : Checks whether an ID is available
+// 
+// CONST RICH_TEXT*  pRichText : [in] RichText
+// CONST TCHAR*      szID      : [in] ID to check
+// 
+// Return Value   : TRUE if ID is available, otherwise FALSE
+// 
+BearScriptAPI 
+BOOL  isRichEditButtonUnique(CONST RICH_TEXT*  pRichText, CONST TCHAR*  szID)
+{
+   RICH_PARAGRAPH*  pParagraph;
+   RICH_ITEM*       pItem;
+
+   // Iterate through paragraphs
+   for (LIST_ITEM*  pParagraphIterator = getListHead(pRichText->pParagraphList); pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH); pParagraphIterator = pParagraphIterator->pNext)
+      // Iterate through items
+      for (LIST_ITEM*  pItemIterator = getListHead(pParagraph->pItemList); pItem = extractListItemPointer(pItemIterator, RICH_ITEM); pItemIterator = pItemIterator->pNext)
+      {
+         /// [BUTTON] Ensure Button ID is not present
+         if (pItem->eType == RIT_BUTTON AND utilCompareStringVariables(pItem->szID, szID))
+            return FALSE;
+      }
+
+   // [NOT FOUND] Return TRUE
+   return TRUE;
 }
 
 
@@ -509,8 +540,12 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
          pItem->eType = RIT_BUTTON;
 
          // Parse the ID from the [select] tag
-         if (eObjectType == RTT_LANGUAGE_MESSAGE)
-            translateLanguageMessageTag(pTokeniser, NULL, pItem, pErrorQueue);
+         if (eObjectType == RTT_LANGUAGE_MESSAGE AND translateLanguageMessageTag(pTokeniser, NULL, pItem, pErrorQueue))
+         {
+            if (!isRichEditButtonUnique(pOutput, pItem->szID))
+               // [ERROR] "Duplicate button ID '%s' found in [select] tag"
+               pError = generateDualError(HERE(IDS_RICHTEXT_BUTTON_ID_DUPLICATE), pItem->szID);
+         }
          else
             // [ERROR] "Unsupported formatting tag [%s] found in toolip message: [article], [author], [title], [text] and [ranking] are not supported"
             pError = generateDualError(HERE(IDS_RICHTEXT_UNSUPPORTED_LANGUAGE_TAG), convertRichTextTagToString(pTokeniser->eTag));

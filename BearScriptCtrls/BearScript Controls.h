@@ -470,6 +470,17 @@ ControlsAPI BOOL   setCustomMenuItemText(HMENU  hMenu, CONST UINT  iItem, CONST 
 // Message Handlers
 ControlsAPI BOOL   onOwnerDrawCustomMenu(DRAWITEMSTRUCT*  pDrawData);
 
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                               CUSTOM RICH EDIT
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Helpers
+ControlsAPI BOOL              findLanguageButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
+
+// Functions
+ControlsAPI BOOL              getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage);
+ControlsAPI LANGUAGE_BUTTON*  insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CONST TCHAR*  szText);
+ControlsAPI VOID              setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    GROUPED LISTVIEW 
@@ -512,20 +523,6 @@ UINT                    onGroupedListViewSetItemCount(GROUPED_LISTVIEW_DATA*  pW
 LRESULT CALLBACK        wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
-///                                    LANGUAGE BUTTON
-///
-///   Data associated with a Language Entry OLE button
-/// ////////////////////////////////////////////////////////////////////////////////////////
-
-// Data associated with each OLE button object, containing it's ID and text.
-//
-struct  LANGUAGE_BUTTON
-{
-   TCHAR   *szText,     // Button's Text, as currently displayed as a bitmap
-           *szID;       // Button's ID
-};
-
-/// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    LANGUAGE OLE
 ///
 ///   Implementation of OLE intefaces for the buttons displayed in the language message RichEdit
@@ -533,80 +530,74 @@ struct  LANGUAGE_BUTTON
 
 /// Implmentation of IRichEditOleCallback
 //
-class ControlsAPI CLanguageButtonObjectCallback : IRichEditOleCallback
+class ControlsAPI RichEditCallback : IRichEditOleCallback
 {
 public:
-   CLanguageButtonObjectCallback() : m_iReferenceCount(0) {};
-   ~CLanguageButtonObjectCallback() {};
+   RichEditCallback(HWND  hParent) : m_hParent(hParent), m_iRefCount(0)  {};
+   ~RichEditCallback() {};
 
-   // Functions: IUnknown
+   // IUnknown
    OLE_Declaration(HRESULT) QueryInterface(REFIID  iid, IInterface*  pInterface);
    OLE_Declaration(ULONG)   AddRef(VOID);
    OLE_Declaration(ULONG)   Release(VOID);
 
-   // Functions : IRichEditOleCallback
+   // IRichEditOleCallback
    OLE_Declaration(HRESULT) GetContextMenu(WORD  iSelectionType, IOleObject*  piObject, CHARRANGE*  pSelection, HMENU*  pOutput);
    OLE_Declaration(HRESULT) DeleteObject(IOleObject* pOleObject);
    OLE_Declaration(HRESULT) QueryAcceptData(IDataObject* pDataObject, CLIPFORMAT* lpcfFormat, DWORD reco, BOOL fReally, HGLOBAL hMetaPict)  { return S_OK; };
-	OLE_Declaration(HRESULT) QueryInsertObject(CLSID* pCLSID, IStorage* pStorage, LONG cp)                              { return S_OK; };
+	OLE_Declaration(HRESULT) QueryInsertObject(CLSID* pCLSID, IStorage* pStorage, LONG cp);
 
-   // IRichEditOleCallback : Not Implemented
-   OLE_Declaration(HRESULT) ContextSensitiveHelp(BOOL fEnterMode)                                                      { return E_NOTIMPL; };
-	OLE_Declaration(HRESULT) GetClipboardData(CHARRANGE* lpchrg, DWORD reco, IDataObject** ppDataObject)                { return E_NOTIMPL; };
-   OLE_Declaration(HRESULT) GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, DWORD* pdwEffect)                         { return E_NOTIMPL; };
-   OLE_Declaration(HRESULT) GetInPlaceContext(IOleInPlaceFrame** ppFrame, IOleInPlaceUIWindow** ppDoc, LPOLEINPLACEFRAMEINFO lpFrameInfo) { return E_NOTIMPL; };
-   OLE_Declaration(HRESULT) GetNewStorage(IStorage** ppStorage)                                                        { return E_NOTIMPL; };
-	OLE_Declaration(HRESULT) ShowContainerUI(BOOL fShow)                                                                { return E_NOTIMPL; };
+   // Not Implemented
+   OLE_Declaration(HRESULT) ContextSensitiveHelp(BOOL fEnterMode)                                                                            { return E_NOTIMPL; };
+	OLE_Declaration(HRESULT) GetClipboardData(CHARRANGE* lpchrg, DWORD reco, IDataObject** ppDataObject)                                      { return E_NOTIMPL; };
+   OLE_Declaration(HRESULT) GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, DWORD* pdwEffect)                                               { return E_NOTIMPL; };
+   OLE_Declaration(HRESULT) GetInPlaceContext(IOleInPlaceFrame** ppFrame, IOleInPlaceUIWindow** ppDoc, LPOLEINPLACEFRAMEINFO lpFrameInfo)    { return E_NOTIMPL; };
+   OLE_Declaration(HRESULT) GetNewStorage(IStorage** ppStorage)                                                                              { return E_NOTIMPL; };
+	OLE_Declaration(HRESULT) ShowContainerUI(BOOL fShow)                                                                                      { return E_NOTIMPL; };
    
 private:
-   INT  m_iReferenceCount;
+   INT   m_iRefCount;
+   HWND  m_hParent;
 };
 
-/// Implementation of IDataObject - Converted from code by Hani Atassi  (atassi@arabteam2000.com)
+/// Implementation of IDataObject - Based on code by Hani Atassi  (atassi@arabteam2000.com)
 //
-class ControlsAPI CLanguageButtonObject : IDataObject
+class ControlsAPI RichEditImage : IDataObject
 {
 public:
-   static VOID               InsertBitmap(IRichEditOle*  pRichEditOle, HBITMAP  hBitmap, CONST LANGUAGE_BUTTON*  pButtonProperties);
+	RichEditImage();
+	~RichEditImage();
 
-public:
-	CLanguageButtonObject();
-	~CLanguageButtonObject();
+   // Methods
+	IOleObject*               Create(IOleClientSite*  pOleClientSite, IStorage*  pStorage);
 
-   // Functions
-	VOID                      SetBitmapHandle(HBITMAP  hBitmap);
-	IOleObject*               GetOleObject(IOleClientSite*  pOleClientSite, IStorage*  pStorage);
-
-   BOOL                      checkValid();
-
-	// Interface Methods: IUnknown
+	// IUnknown
    OLE_Declaration(HRESULT)  QueryInterface(REFIID  iID, IInterface*  pInterface);
 	OLE_Declaration(ULONG)    AddRef(VOID);
 	OLE_Declaration(ULONG)    Release(VOID);
    
-   // Interface Methods: IDataObject
+   // IDataObject
+   VOID                      SetBitmap(HBITMAP  hBitmap);
    OLE_Declaration(HRESULT)  GetData(FORMATETC*  pFormat, STGMEDIUM*  pOutput);
    OLE_Declaration(HRESULT)  SetData(FORMATETC*  pFormat, STGMEDIUM*  pData, BOOL  bDataOwner);
    OLE_Declaration(HRESULT)  DAdvise(FORMATETC*  pFormat, DWORD  dwFlags, IAdviseSink*  pOutput, DWORD*  pdwConnectionID);
    OLE_Declaration(HRESULT)  DUnadvise(DWORD dwConnectionID);
 
-	// Interface Methods Not Implemented: IDataObject
+	// Not Implemented
 	OLE_Declaration(HRESULT)  EnumFormatEtc(DWORD  dwDirection , IEnumFORMATETC**  ppenumFormatEtc )      { return E_NOTIMPL; };
    OLE_Declaration(HRESULT)  EnumDAdvise(IEnumSTATDATA **ppenumAdvise)                                   { return E_NOTIMPL; };
-	
-	
    OLE_Declaration(HRESULT)  GetCanonicalFormatEtc(FORMATETC*  pformatectIn ,FORMATETC* pformatetcOut )  { return E_NOTIMPL; };
    OLE_Declaration(HRESULT)  GetDataHere(FORMATETC* pformatetc, STGMEDIUM*  pmedium)                     { return E_NOTIMPL; };
 	OLE_Declaration(HRESULT)  QueryGetData(FORMATETC*  pformatetc )                                       { return E_NOTIMPL; };
 
 private:
    // Data
-	INT	        m_iReferenceCount;
+	INT	        m_iRefCount;
 	BOOL	        m_bDataOwner;
 	STGMEDIUM     m_oData;
-	FORMATETC     m_oDataFormat;
+   FORMATETC     m_oFormat;
 
-   // OLE Gubbins
+   // Events
    IDataAdviseHolder*  m_pEvents;
 };
 
@@ -629,16 +620,12 @@ BOOL APIENTRY          DllMain(HMODULE  hModule, DWORD  dwPurpose, LPVOID  lpRes
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Creation / Destruction
-ControlsAPI LANGUAGE_BUTTON*  createLanguageButtonData(CONST TCHAR*  szText, CONST TCHAR*  szID);
-ControlsAPI HBITMAP           createLanguageButtonBitmap(HWND  hRichEditCtrl, CONST TCHAR*  szObjectText);
-ControlsAPI VOID              deleteLanguageButtonData(LANGUAGE_BUTTON*  pData);
+
 
 // Helpers
-//ControlsAPI VOID              appendRichEditText(HWND  hRichEdit, CONST TCHAR*  szText);
 VOID                          calculatePlainTextGenerateStateFromAttributes(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState);
 ControlsAPI COLORREF          calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST GAME_TEXT_COLOUR  eBackground);
 RICHTEXT_FORMATTING           comparePlainTextGenerationState(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState);
-ControlsAPI BOOL              findLanguageButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
 GAME_TEXT_COLOUR              identifyGameTextColourFromRGB(CONST COLORREF  clColour);
 ControlsAPI GAME_TEXT_COLOUR  identifyGameTextColourFromColourMenuID(CONST UINT  iCommandID);
 
@@ -648,8 +635,6 @@ ControlsAPI VOID   drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEX
 RICHTEXT_DRAWING   drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, CONST BOOL  bMeasurement);
 VOID               drawRichTextItemsInLine(HDC  hDC, CONST RICHTEXT_POSITION*  pStartPos, CONST RECT*  pLineRect, RICHTEXT_POSITION*  pEndPos, INT*  piRemainingWidth, INT*  piLineHeight, CONST BOOL  bMeasurement);
 ControlsAPI VOID   drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, CONST GAME_TEXT_COLOUR  eBackground);
-ControlsAPI BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage);
-ControlsAPI VOID   setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground, CONST BOOL  bAppendText);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                     WORKSPACE_DATA

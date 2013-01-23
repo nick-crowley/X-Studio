@@ -336,6 +336,13 @@ BOOL      onInsertArgumentDialogCommand(SCRIPT_FILE*  pScriptFile, HWND  hDialog
 INT_PTR   dlgprocInsertArgumentDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
+///                               INSERT PAGE DIALOG
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Functions
+GAME_PAGE*  displayInsertPageDialog(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPageToEdit, HWND  hParentWnd);
+
+/// ////////////////////////////////////////////////////////////////////////////////////////
 ///                               INSERT VARIABLE DIALOG
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -358,15 +365,19 @@ BOOL       createLanguageDialogControls(LANGUAGE_DOCUMENT*  pDocument);
 
 // Helpers
 BOOL       findLanguageDocumentGameStringByIndex(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iIndex, GAME_STRING* &pOutput);
+BOOL       findLanguageDocumentGamePageByID(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iPageID, GAME_PAGE* &pOutput);
 BOOL       findLanguageDocumentGamePageByIndex(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iIndex, GAME_PAGE* &pOutput);
 AVL_TREE*  getLanguageDocumentGameStringTree(LANGUAGE_DOCUMENT*  pDocument);
 AVL_TREE*  getLanguageDocumentGamePageTree(LANGUAGE_DOCUMENT*  pDocument);
+
+// Functions
+VOID       deleteLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage);
 AVL_TREE*  generateLanguagePageStringsTree(LANGUAGE_DOCUMENT*  pDocument, CONST GAME_PAGE*  pGamePage);
 BOOL       insertLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pGamePage);
 BOOL       insertLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pGameString);
-
-// Functions
-
+VOID       moveLanguageDocumentPageStrings(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage);
+VOID       treeprocDeleteGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
+VOID       treeprocModifyGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 
 // Message Handlers
 VOID       onLanguageDocument_Create(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd);
@@ -374,39 +385,23 @@ VOID       onLanguageDocument_ContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST P
 BOOL       onLanguageDocument_Command(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hControl);
 VOID       onLanguageDocument_Destroy(LANGUAGE_DOCUMENT*  pDocument);
 BOOL       onLanguageDocument_Notify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage);
+VOID       onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID);
 BOOL       onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, NMLVDISPINFO*  pHeader);
 VOID       onLanguageDocument_Resize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNewSize);
 VOID       onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
 VOID       onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
 
+// Window proc
 LRESULT    wndprocLanguageDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                LANGUAGE DOCUMENT (UI)
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-//// Functions
-//VOID   drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pLanguageMessage, CONST GAME_TEXT_COLOUR  eBackground, CONST BOOL  bDrawAuthor, CONST BOOL  bDrawTitle);
-//BOOL   displayLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iListItem);
-//BOOL   displayLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iListItem);
-//
-//// Message Handlers
-//BOOL   onInsertGamePageDialogCommand(HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
-//BOOL   onLanguageDocumentCommand(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotificationCode, HWND  hControl);
-//BOOL   onLanguageDocumentContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hCtrl, CONST UINT  iCursorX, CONST UINT  iCursorY);
-//BOOL   onLanguageDocumentGamePageInsert(LANGUAGE_DOCUMENT*  pDocument);
-//BOOL   onLanguageDocumentGamePageVoiceToggle(LANGUAGE_DOCUMENT*  pDocument);
-//BOOL   onLanguageDocumentGameStringInsert(LANGUAGE_DOCUMENT*  pDocument);
-//BOOL   onLanguageDocumentGameStringViewError(LANGUAGE_DOCUMENT*  pDocument);
-//BOOL   onLanguageDocumentLabelEditBegin(LANGUAGE_DOCUMENT*  pDocument, NMLVLABELINFO*  pLabelData);
-//BOOL   onLanguageDocumentLabelEditEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVLABELINFO*  pLabelData);
-//BOOL   onLanguageDocumentListSelectionChange(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST INT  iItem, CONST BOOL  bSelected);
-//
-//// Window procedures
-//INT_PTR  dlgprocInsertGamePageDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-//INT_PTR  dlgprocInsertGameStringDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-//
-//LRESULT  wndprocLanguageDocumentGamePageEdit(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+// Message Handlers
+VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage);
+VOID  onLanguageDocument_EditPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage);
+VOID  onLanguageDocument_InsertPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pNewPage);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                        MAIN
@@ -956,6 +951,7 @@ INT_PTR  dlgprocPreferencesSyntaxPage(HWND  hDialog, UINT  iMessage, WPARAM  wPa
 HWND              createPropertiesDialog(MAIN_WINDOW_DATA*  pMainWindowData);
 PROPERTIES_DATA*  createPropertiesDialogData();
 VOID              createPropertiesDialogPageData(PROPERTIES_DATA*  pPropertiesData, PROPSHEETPAGE*  pPageData, CONST PROPERTY_PAGE  ePage);
+HIMAGELIST  createPropertiesDialogImageList(PROPERTY_DIALOG_TYPE  eType);
 VOID              deletePropertiesDialogData(PROPERTIES_DATA*  &pDialogData);
 VOID              destroyPropertiesDialog(MAIN_WINDOW_DATA*  pMainWindowData);
 
@@ -1046,6 +1042,9 @@ INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPAR
 ///                     PROPERTIES PROPERTY SHEET (LANGUAGE PAGES)
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
+// Helpers
+LANGUAGE_MESSAGE*  getLanguageMessage(PROPERTIES_DATA*  pSheetData);
+
 // Functions
 MESSAGE_COMPATIBILITY  calculateLanguageMessageCompatibility(CONST LANGUAGE_MESSAGE*  pMessage);
 VOID    displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UINT  iValue);
@@ -1058,9 +1057,12 @@ BOOL    onButtonPageLabelEditBegin(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog,
 BOOL    onButtonPageLabelEditEnd(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVLABELINFO*  pLabelData);
 BOOL    onButtonPageNotification(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
 BOOL    onButtonPageRequestData(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pOutput);
-BOOL    onColumnsPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
-BOOL    onColumnsPageCustomDraw(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, HIMAGELIST  hImageList, NMCUSTOMDRAW*  pDrawData);
-BOOL    onColumnsPageScrollHorizontal(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iScrollType, UINT  iPosition, HWND  hCtrl);
+
+BOOL    onColumnsPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
+BOOL    onColumnsPage_DrawGroup(PROPERTIES_DATA*  pSheetData, HWND  hPage, DRAWITEMSTRUCT*  pDrawData);
+BOOL    onColumnsPage_DrawRadio(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMCUSTOMDRAW*  pDrawData);
+BOOL    onColumnsPage_Scroll(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iScrollType, UINT  iPosition, HWND  hCtrl);
+
 BOOL    onGeneralPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
 BOOL    onSpecialPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
 
@@ -1115,6 +1117,8 @@ BOOL   performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog
 BOOL   onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification);
 BOOL   onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iMenuIndex);
 BOOL   onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
+BOOL   onRichTextDialogDestroyButton(LANGUAGE_DOCUMENT*  pDocument, IOleObject*  pObject);
+BOOL   onRichTextDialogInsertButton(LANGUAGE_DOCUMENT*  pDocument);
 BOOL   onRichTextDialogNotify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
 BOOL   onRichTextDialogResize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iWidth, CONST UINT  iHeight);
 

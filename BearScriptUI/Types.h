@@ -117,7 +117,7 @@ struct  LANGUAGE_DOCUMENT : DOCUMENT
 
    AVL_TREE*          pCurrentGameStringsByID;   // Strings in the currently selected page
 
-   CLanguageButtonObjectCallback*  pOleCallback;      // RichEdit OLE callback interface
+   RichEditCallback*  pOleCallback;      // RichEdit OLE callback interface
 };
 
 struct  MEDIA_DOCUMENT : DOCUMENT
@@ -274,7 +274,8 @@ struct  LANGUAGE_DOCUMENT : DOCUMENT
 
    AVL_TREE*            pPageStringsByID;   // Strings in the currently selected page
 
-   CLanguageButtonObjectCallback*  pOleCallback;      // RichEdit OLE callback interface
+   RichEditCallback*    pOleCallback;       // [DIALOG] RichEdit callback interface
+   AVL_TREE*            pButtonsByID;       // [DIALOG] Buttons in current message
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -567,7 +568,7 @@ struct PROPERTIES_DATA
 
    // Language Documents
    LANGUAGE_DOCUMENT*    pLanguageDocument;                 // Document for language pages
-   HIMAGELIST            hColumnIcons;                      // ImageList containing the large icons for the custom radio buttons on the 'Columns' Language page 
+   HIMAGELIST            hColumnIcons;                      // Large icons for the custom radio buttons on 'Columns' page
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////

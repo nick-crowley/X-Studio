@@ -934,7 +934,7 @@ VOID  onDocumentsControl_DocumentPropertyUpdated(DOCUMENTS_DATA*  pWindowData, C
    pDocument = getActiveDocument();
 
    // [CHECK] Ensure document is modified
-   if (!isModified(pDocument) OR iControlID == IDC_SCRIPT_NAME) // [SPECIAL CASE] Always refresh title when script name changes
+   if (!pDocument->bVirtual AND (!isModified(pDocument) OR iControlID == IDC_SCRIPT_NAME)) // [SPECIAL CASE] Always refresh title when script name changes
    {
       /// [SUCCESS] Set modified and redraw the document title
       pDocument->bModified = TRUE;

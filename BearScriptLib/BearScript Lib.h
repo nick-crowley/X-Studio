@@ -734,6 +734,18 @@ BearScriptAPI UINT   getImageTreeIconIndex(CONST IMAGE_TREE*  pImageTree, CONST 
 BearScriptAPI HICON  getImageTreeIconHandle(CONST IMAGE_TREE*  pImageTree, CONST TCHAR*  szID);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                    LANGUAGE BUTTON TREE
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Creation / Destruction
+BearScriptAPI LANGUAGE_BUTTON*  createLanguageButton(HWND  hRichEdit, CONST TCHAR*  szText, CONST TCHAR*  szID);
+BearScriptAPI AVL_TREE*         createLanguageButtonTreeByID();
+BearScriptAPI VOID              deleteLanguageButton(LANGUAGE_BUTTON*  pButton);
+
+// Functions
+BearScriptAPI BOOL   findLanguageButtonByObject(AVL_TREE*  pTree, IOleObject*  pObject, LANGUAGE_BUTTON* &pOutput);
+
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                      LANGUAGE FILE
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -960,9 +972,10 @@ TESTING_ONLY(BearScriptAPI VOID   setAppPreferencesGameDataFolder(CONST TCHAR*  
 
 // Helpers
 BearScriptAPI VOID   appendRichTextItemToParagraph(RICH_PARAGRAPH*  pParagraph, RICH_ITEM*  pItem);
-RICHTEXT_TAG         identifyRichTextTag(CONST TCHAR*  szTag);
 CONST TCHAR*         convertRichTextTagToString(RICHTEXT_TAG  eTag);
 GAME_TEXT_COLOUR     identifyGameTextColourFromRichTextTag(CONST RICHTEXT_TAG  eTag);
+RICHTEXT_TAG         identifyRichTextTag(CONST TCHAR*  szTag);
+BearScriptAPI BOOL   isRichEditButtonUnique(CONST RICH_TEXT*  pRichText, CONST TCHAR*  szID);
 BearScriptAPI VOID   setRichTextParagraphAlignment(RICH_TEXT*  pRichText, CONST UINT  iIndex, CONST PARAGRAPH_ALIGNMENT  eAlignment);
 
 // Functions
@@ -979,7 +992,7 @@ BOOL                 translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTok
 
 // Creation
 BearScriptAPI RICH_PARAGRAPH*  createRichParagraph(PARAGRAPH_ALIGNMENT  eAlignment);
-RICH_ITEM*                     createRichItemButton(CONST TCHAR*  szText, CONST TCHAR*  szID);
+BearScriptAPI RICH_ITEM*       createRichItemButton(CONST TCHAR*  szText, CONST TCHAR*  szID);
 RICH_ITEM*                     createRichItemPlainText(CONST TCHAR*  szPlainText, CONST UINT  iTextLength);
 RICH_ITEM*                     createRichItemText(CONST RICH_ITEM*  pExistingItem);
 BearScriptAPI RICH_ITEM*       createRichItemTextFromEdit(HWND  hRichEdit, CONST UINT  iCharIndex, CONST UINT  iPhraseLength, RICHTEXT_ATTRIBUTES*  pState);
@@ -1495,14 +1508,14 @@ BearScriptAPI FUNCTION_CALL*   topFunctionCallByThread(CALL_STACK_LIST*  pCallSt
 
 // Creation / Destruction
 BearScriptAPI AVL_TREE*      createAVLTree(AVL_NODE_EXTRACTOR  pfnExtractValue, DESTRUCTOR  pfnDeleteNode, AVL_TREE_KEY*  pPrimaryKey, AVL_TREE_KEY*  pSecondaryKey, AVL_TREE_KEY*  pTertiaryKey);
-AVL_TREE_NODE*            createAVLTreeNode(AVL_TREE*  pTree, AVL_TREE_NODE*  pParent, LPARAM  pData);
+AVL_TREE_NODE*               createAVLTreeNode(AVL_TREE*  pTree, AVL_TREE_NODE*  pParent, LPARAM  pData);
 BearScriptAPI AVL_TREE_KEY*  createAVLTreeSortKey(CONST AVL_TREE_SORT_KEY  eSorting, CONST AVL_TREE_ORDERING  eDirection);
 BearScriptAPI AVL_TREE_KEY*  createAVLTreeSortKeyEx(CONST AVL_TREE_SORT_KEY  eSorting, CONST AVL_TREE_ORDERING  eDirection, CONST AVL_TREE_PROPERTY_TYPE  eType);
 BearScriptAPI AVL_TREE*      duplicateAVLTree(AVL_TREE*  pTree, AVL_TREE_KEY*  pNewPrimaryKey, AVL_TREE_KEY*  pNewSecondaryKey, AVL_TREE_KEY*  pNewTertiaryKey);
 
-BearScriptAPI VOID      deleteAVLTree(AVL_TREE*  &pTree);
-BearScriptAPI VOID      deleteAVLTreeContents(AVL_TREE*  &pTree);
-BearScriptAPI VOID      deleteAVLTreeNode(AVL_TREE*  pTree, AVL_TREE_NODE*  &pNode, CONST BOOL  bContents);
+BearScriptAPI VOID   deleteAVLTree(AVL_TREE*  &pTree);
+BearScriptAPI VOID   deleteAVLTreeContents(AVL_TREE*  &pTree);
+BearScriptAPI VOID   deleteAVLTreeNode(AVL_TREE*  pTree, AVL_TREE_NODE*  &pNode, CONST BOOL  bContents);
 #define             deleteAVLTreeSortKey(eSortKey)      utilDeleteObject(eSortKey)
 
 // Helpers
@@ -1513,23 +1526,23 @@ VOID                 detatchAVLTreeNode(AVL_TREE_NODE*  pNode);
 VOID                 ensureSubTreeIsBalanced(AVL_TREE*  pTree, AVL_TREE_NODE*  pSubTree, CONST AVL_TREE_CHANGE  eCause);
 BOOL                 findSubTreeMaximum(AVL_TREE_NODE*  pSubTree, AVL_TREE_NODE*  &pOutput);
 BOOL                 findSubTreeMinimum(AVL_TREE_NODE*  pSubTree, AVL_TREE_NODE*  &pOutput);
-BearScriptAPI UINT      getTreeNodeCount(CONST AVL_TREE*  pTree);
+BearScriptAPI UINT   getTreeNodeCount(CONST AVL_TREE*  pTree);
 AVL_TREE_LINKAGE     identifyAVLTreeNodeLinkage(CONST AVL_TREE_NODE*  pNode);
 AVL_TREE_PROPERTY_TYPE identifyAVLTreePropertyType(CONST AVL_TREE_SORT_KEY  eProperty);
 VOID                 swapAVLTreeNode(AVL_TREE_NODE*  pFirstNode, AVL_TREE_NODE*  pSecondNode);
-BearScriptAPI VOID      transferAVLTree(AVL_TREE*  &pSource, AVL_TREE*  &pDestination);
+BearScriptAPI VOID   transferAVLTree(AVL_TREE*  &pSource, AVL_TREE*  &pDestination);
 
 // Functions
 COMPARISON_RESULT    compareAVLTreeNodeWithValues(CONST AVL_TREE*  pTree, CONST LPARAM  pNodeData, LPARAM  xValue1, LPARAM  xValue2, LPARAM  xValue3);
-BearScriptAPI BOOL      destroyObjectInAVLTreeByIndex(AVL_TREE*  pTree, CONST UINT  iIndex);
-BearScriptAPI BOOL      destroyObjectInAVLTreeByValue(AVL_TREE*  pTree, LPARAM  pPrimaryValue, LPARAM  pSecondaryValue);
-BearScriptAPI BOOL      findObjectInAVLTreeByValue(CONST AVL_TREE*  pTree, LPARAM  pPrimaryValue, LPARAM  pSecondaryValue, LPARAM&  pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
-BearScriptAPI BOOL      findObjectInAVLTreeByIndex(CONST AVL_TREE*  pTree, CONST UINT  iIndex, LPARAM &pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
-BearScriptAPI BOOL      insertObjectIntoAVLTree(AVL_TREE*  pTree, LPARAM  pNewObject, AVL_TREE_NODE*  pCurrentNode = NULL);
+BearScriptAPI BOOL   destroyObjectInAVLTreeByIndex(AVL_TREE*  pTree, CONST UINT  iIndex);
+BearScriptAPI BOOL   destroyObjectInAVLTreeByValue(AVL_TREE*  pTree, LPARAM  pPrimaryValue, LPARAM  pSecondaryValue);
+BearScriptAPI BOOL   findObjectInAVLTreeByValue(CONST AVL_TREE*  pTree, LPARAM  pPrimaryValue, LPARAM  pSecondaryValue, LPARAM&  pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
+BearScriptAPI BOOL   findObjectInAVLTreeByIndex(CONST AVL_TREE*  pTree, CONST UINT  iIndex, LPARAM &pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
+BearScriptAPI BOOL   insertObjectIntoAVLTree(AVL_TREE*  pTree, LPARAM  pNewObject, AVL_TREE_NODE*  pCurrentNode = NULL);
 VOID                 performAVLTreeLeftRotation(AVL_TREE*  pTree, AVL_TREE_NODE*  pSubTree);
 VOID                 performAVLTreeRightRotation(AVL_TREE*  pTree, AVL_TREE_NODE*  pSubTree);
-BearScriptAPI BOOL      removeObjectFromAVLTreeByIndex(AVL_TREE*  pTree, CONST UINT  iIndex, LPARAM&  pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
-BearScriptAPI BOOL      removeObjectFromAVLTreeByValue(AVL_TREE*  pTree, LPARAM  pPrimaryValue, LPARAM  pSecondaryValue, LPARAM&  pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
+BearScriptAPI BOOL   removeObjectFromAVLTreeByIndex(AVL_TREE*  pTree, CONST UINT  iIndex, LPARAM&  pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
+BearScriptAPI BOOL   removeObjectFromAVLTreeByValue(AVL_TREE*  pTree, LPARAM  pPrimaryValue, LPARAM  pSecondaryValue, LPARAM&  pOutput, AVL_TREE_NODE*  pCurrentNode = NULL);
 VOID                 removeAVLTreePredecessorNode(AVL_TREE*  pTree, AVL_TREE_NODE*  pSubTree, AVL_TREE_NODE*  pCurrentNode = NULL);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -1555,13 +1568,13 @@ BearScriptAPI TCHAR*    analyseTreeBalance(CONST AVL_TREE_NODE*  pNode, CONST UI
 BearScriptAPI VOID      performAVLTreeIndexing(AVL_TREE*  pTree);
 BearScriptAPI VOID      performAVLTreeGroupCount(CONST AVL_TREE*  pTree, AVL_TREE_GROUP_COUNTER*  pGroupCounter, AVL_TREE_SORT_KEY  eProperty);
 BearScriptAPI BOOL      performOperationOnAVLTree(CONST AVL_TREE*  pTree, AVL_TREE_OPERATION*  pOperationData);
-BOOL                 performThreadedOperationOnAVLTree(CONST AVL_TREE*  pTree, AVL_TREE_OPERATION*  pOperationData);
+BOOL                    performThreadedOperationOnAVLTree(CONST AVL_TREE*  pTree, AVL_TREE_OPERATION*  pOperationData);
 
 // Operations
-VOID                 treeprocIndexAVLTreeNode(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
+VOID                    treeprocIndexAVLTreeNode(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 BearScriptAPI VOID      treeprocReplicateAVLTreeNode(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
-VOID                 treeprocGenerateAVLTreeNodeGroupCounts(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
-DWORD                threadprocAVLSubTreeOperation(VOID*  pParameter);
+VOID                    treeprocGenerateAVLTreeNodeGroupCounts(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
+DWORD                   threadprocAVLSubTreeOperation(VOID*  pParameter);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                   VARIABLE DEPENDENCIES

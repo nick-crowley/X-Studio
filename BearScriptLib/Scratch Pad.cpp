@@ -37,6 +37,47 @@ VOID  mutex()
    ReleaseMutex(pData->hMutex);*/
 }
 
+//
+//// Defines the magic number used to identify GZIP files
+//#define   GZIP_MAGIC_NUMBER         0x8b1f
+//
+//// Decryption keys used for virtual files
+//#define   ENCRYPTED_GZIP_KEY        0xc8
+//#define   ENCRYPTED_PLAINTEXT_KEY   0x33
+//
+//UINT   performDataFileDecryption(BYTE*  szInput, CONST UINT  iInputSize, BYTE**  szOutput)
+//{
+//   WORD*  pEncryptedHeader = (WORD*)&szInput[1];
+//   BYTE   iDecryptionByte;   // Decryption key calculated from encrypted GZIP header
+//   WORD   iDecryptionWord;   // Convenience value for expressing decryption key as a WORD
+//
+//   // Calculate decryption key from first byte
+//   iDecryptionByte = (szInput[0] ^ ENCRYPTED_GZIP_KEY);
+//   iDecryptionWord = MAKEWORD(iDecryptionByte, iDecryptionByte);
+//
+//   // [CHECK] Are the 2nd and 3rd bytes an encrypted GZIP header?
+//   if ((*pEncryptedHeader ^ iDecryptionWord) == GZIP_MAGIC_NUMBER)
+//   {
+//      // [GZIP] Decrypt remaining buffer using the decryption key above
+//      for (UINT iByte = 1; iByte < iInputSize; iByte++)
+//         szInput[iByte] ^= iDecryptionByte;
+//
+//      // NOTE: Compressed GZip Output begins at second byte
+//      *szOutput = &szInput[1];
+//      return iInputSize - 1;
+//   }
+//   else
+//   {
+//      // [PLAINTEXT] Decrypt entire using plaintext decryption key
+//      for (UINT iByte = 0; iByte < iInputSize; iByte++)
+//         szInput[iByte] ^= ENCRYPTED_PLAINTEXT_KEY;
+//
+//      // NOTE: Plaintext Output begins at first byte
+//      *szOutput = szInput;
+//      return iInputSize;
+//   }
+//}
+
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS

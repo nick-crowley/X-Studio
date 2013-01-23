@@ -41,6 +41,7 @@ RICH_PARAGRAPH*  createRichParagraph(PARAGRAPH_ALIGNMENT  eAlignment)
 // 
 // Return Value   : New button item, you are responsible for destroying it
 // 
+BearScriptAPI
 RICH_ITEM*  createRichItemButton(CONST TCHAR*  szText, CONST TCHAR*  szID)
 {
    RICH_ITEM*  pNewItem;

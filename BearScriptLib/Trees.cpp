@@ -618,18 +618,17 @@ BearScriptAPI
 BOOL   destroyObjectInAVLTreeByValue(AVL_TREE*  pTree, LPARAM  pPrimaryValue, LPARAM  pSecondaryValue)
 {
    LPARAM  pObject;     // Object being destroyed
-   BOOL    bResult;     // Operation Result
 
    // [CHECK] Ensure tree is not a copy tree
    ASSERT(pTree->pfnDeleteNode);
 
    /// Attempt to remove object from tree
-   if (bResult = removeObjectFromAVLTreeByValue(pTree, pPrimaryValue, pSecondaryValue, pObject))
-      // [FOUND] Destroy object
-      (*pTree->pfnDeleteNode)(pObject);
+   if (!removeObjectFromAVLTreeByValue(pTree, pPrimaryValue, pSecondaryValue, pObject))
+      return FALSE;
 
-   // Return result
-   return bResult;
+   // [FOUND] Destroy object
+   (*pTree->pfnDeleteNode)(pObject);
+   return TRUE;
 }
 
 

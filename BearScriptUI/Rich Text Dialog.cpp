@@ -116,16 +116,19 @@ BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
    pDocument->hRichEdit = GetDlgItem(hDialog, IDC_LANGUAGE_EDIT);
 
    /// Setup RichEdit control
-   SendMessage(pDocument->hRichEdit, EM_SETBKGNDCOLOR, NULL, RGB(22,31,46));
-   SendMessage(pDocument->hRichEdit, EM_SETEVENTMASK, NULL, ENM_UPDATE WITH ENM_SELCHANGE WITH ENM_CHANGE); 
-   SendMessage(pDocument->hRichEdit, EM_SETFONTSIZE, 14, NULL);
-   SetWindowText(pDocument->hRichEdit, TEXT(""));
+   RichEdit_SetBackgroundColour(pDocument->hRichEdit, FALSE, RGB(22,31,46));
+   RichEdit_SetEventMask(pDocument->hRichEdit, ENM_UPDATE WITH ENM_SELCHANGE WITH ENM_CHANGE); 
+   RichEdit_SetFontSize(pDocument->hRichEdit, 14);
    Edit_SetReadOnly(pDocument->hRichEdit, pDocument->bVirtual);
+   SetWindowText(pDocument->hRichEdit, TEXT(""));
 
-   // Setup this OLE callback thing
-   pDocument->pOleCallback = new CLanguageButtonObjectCallback();
+   /// Create ButtonData tree
+   pDocument->pButtonsByID = createLanguageButtonTreeByID();
+
+   /// Create RichEdit-Callback
+   pDocument->pOleCallback = new RichEditCallback(hDialog);
    pDocument->pOleCallback->QueryInterface(IID_IRichEditOleCallback, (IInterface*)&pDocument->pOleCallback);
-   SendMessage(pDocument->hRichEdit, EM_SETOLECALLBACK, NULL, (LPARAM)pDocument->pOleCallback);
+   RichEdit_SetOLECallback(pDocument->hRichEdit, pDocument->pOleCallback);
 
    // Enable/disable appropriate toolbar buttons
    updateRichTextDialogToolBar(pDocument, hDialog);
@@ -163,6 +166,11 @@ BOOL performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, 
    case IDM_RICHEDIT_JUSTIFY:    iProperty = PA_JUSTIFY;       break;
    // [COLOUR]
    default:                      iProperty = CFM_COLOR;        break;
+   // [CLIPBOARD]
+   case IDM_RICHEDIT_CUT:        return SendMessage(pDocument->hRichEdit, WM_CUT,   NULL, NULL);
+   case IDM_RICHEDIT_COPY:       return SendMessage(pDocument->hRichEdit, WM_COPY,  NULL, NULL);
+   case IDM_RICHEDIT_PASTE:      return SendMessage(pDocument->hRichEdit, WM_PASTE, NULL, NULL);
+   case IDM_RICHEDIT_DELETE:     return SendMessage(pDocument->hRichEdit, WM_CLEAR, NULL, NULL);
    }
 
    /// Alter the specified property
@@ -214,8 +222,6 @@ BOOL performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, 
       break;
    }
 
-   // [MODIFIED]
-   sendDocumentUpdated(AW_DOCUMENTS_CTRL);
    return TRUE;
 }
 
@@ -333,10 +339,9 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 // 
 BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification)
 {
-   IRichEditOle*     pRichEditOle = NULL;  // RichEdit control OLE interface
-   LANGUAGE_BUTTON*  pButtonData;
-   HBITMAP           hButtonBitmap;
+   BOOL  bResult = FALSE;
 
+   TRACK_FUNCTION();
    switch (iControlID)
    {
    /// [COLOUR POPUP MENU]
@@ -350,74 +355,52 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
    case IDM_COLOUR_RED:
    case IDM_COLOUR_WHITE:
    case IDM_COLOUR_YELLOW:
-      return performRichEditFormatCommand(pDocument, hDialog, iControlID);
-
-   /// [TOOLBAR COMMANDS]
-   // [CLIPBOARD]
-   case IDM_RICHEDIT_CUT: 
-      sendDocumentUpdated(AW_DOCUMENTS_CTRL);
-      return SendMessage(pDocument->hRichEdit, WM_CUT,   NULL, NULL);
-
-   case IDM_RICHEDIT_COPY:       
-      return SendMessage(pDocument->hRichEdit, WM_COPY,  NULL, NULL);
-
-   case IDM_RICHEDIT_PASTE:
-      sendDocumentUpdated(AW_DOCUMENTS_CTRL);
-      return SendMessage(pDocument->hRichEdit, WM_PASTE, NULL, NULL);
-
-   case IDM_RICHEDIT_DELETE: 
-      sendDocumentUpdated(AW_DOCUMENTS_CTRL);
-      return SendMessage(pDocument->hRichEdit, WM_CLEAR, NULL, NULL);
-
-   // [ALIGNMENT / FORMATTING]
+   /// [ALIGNMENT / FORMATTING]
    case IDM_RICHEDIT_LEFT:
    case IDM_RICHEDIT_CENTRE:
    case IDM_RICHEDIT_RIGHT:
    case IDM_RICHEDIT_JUSTIFY:
-
    case IDM_RICHEDIT_BOLD:
    case IDM_RICHEDIT_ITALIC:
    case IDM_RICHEDIT_UNDERLINE:
-      return performRichEditFormatCommand(pDocument, hDialog, iControlID);
+   /// [CLIPBOARD]
+   case IDM_RICHEDIT_CUT:    
+   case IDM_RICHEDIT_COPY:   
+   case IDM_RICHEDIT_PASTE:  
+   case IDM_RICHEDIT_DELETE: 
+      bResult = performRichEditFormatCommand(pDocument, hDialog, iControlID);
+      break;
 
-   // [COLOUR] - Display colouring menu
+   /// [COLOUR] - Display colouring menu
    case IDM_RICHEDIT_COLOUR:
-      onRichTextDialogContextMenu(pDocument, hDialog, IDM_COLOUR_POPUP);
-      return TRUE;
+      bResult = onRichTextDialogContextMenu(pDocument, hDialog, IDM_COLOUR_POPUP);
+      break;
 
-   // [INSERT BUTTON] - Create button bitmap and Insert as OLE object
+   /// [INSERT BUTTON] - Create button bitmap and Insert as OLE object
    case IDM_RICHEDIT_BUTTON:
-      SendMessage(pDocument->hRichEdit, EM_GETOLEINTERFACE, NULL, (LPARAM)&pRichEditOle);
-      if (pRichEditOle)
-      {
-         // Create button bitmap and data
-         pButtonData = createLanguageButtonData(TEXT("Button1"), TEXT("ID1"));
-         hButtonBitmap = createLanguageButtonBitmap(pDocument->hRichEdit, TEXT("Button1"));
-         // Insert as an OLE object and cleanup
-         CLanguageButtonObject::InsertBitmap(pRichEditOle, hButtonBitmap, pButtonData);
-         pRichEditOle->Release();
-         // Update properties dialog
-         sendDocumentUpdated(AW_DOCUMENTS_CTRL);
-      }
-      return TRUE;
+      bResult = onRichTextDialogInsertButton(pDocument);
+      break;
 
-   /// [EDIT NOTIFICATIONS]
+   // [EDIT NOTIFICATIONS]
    case IDC_LANGUAGE_EDIT:
       switch (iNotification)
       {
-      //case EN_CHANGE:
-         //updateRichEditFormatting(pDocument, hDialog);
-      case EN_UPDATE:
+      /// [TEXT CHANGED] Update document
+      case EN_CHANGE:
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControlID);
+         // Fall through..
+
+      /// [TEXT/FOCUS CHANGED] Update toolbar
       case EN_SETFOCUS:
       case EN_KILLFOCUS:
-         // Update toolbar
          updateRichTextDialogToolBar(pDocument, hDialog);
          break;
       }
       break;
    }
 
-   return FALSE;
+   END_TRACKING();
+   return bResult;
 }
 
 
@@ -457,41 +440,93 @@ BOOL  onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, 
 // 
 BOOL  onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 {
-   IRichEditOle*  pRichEditOle;  // RichEdit control OLE interface
-   REOBJECT       oImageObject;  // RichEdit control OLE object attributes
+   IRichEditOle*  pRichEdit;  // RichEdit control OLE interface
+   REOBJECT       oImage;     // RichEdit control OLE object attributes
+
+   TRACK_FUNCTION();
 
    /// Destroy ToolBar + it's child combo
    if (pDocument->hToolBar)
       utilDeleteWindow(pDocument->hToolBar);
    
    // Get RichEdit OLE interface
-   SendMessage(pDocument->hRichEdit, EM_GETOLEINTERFACE, NULL, (LPARAM)&pRichEditOle);
-   oImageObject.cbStruct = sizeof(REOBJECT);
+   RichEdit_GetOLEInterface(pDocument->hRichEdit, &pRichEdit);
 
    /// Destroy any OLE objects within the document (Ripped from MSDN)
-   for (INT i = pRichEditOle->GetObjectCount() - 1; i >= 0; i--)
+   for (INT iIndex = pRichEdit->GetObjectCount() - 1; iIndex >= 0; iIndex--)
    {
-      // Get object properties and delete associated button data
-      pRichEditOle->GetObject(i, &oImageObject, REO_GETOBJ_POLEOBJ);
-      deleteLanguageButtonData((LANGUAGE_BUTTON*)oImageObject.dwUser);
+      // Prepare
+      utilZeroObject(&oImage, REOBJECT);
+      oImage.cbStruct = sizeof(REOBJECT);
 
-      // Deactivate active object, if present
-      if (oImageObject.dwFlags INCLUDES REO_INPLACEACTIVE)
-         pRichEditOle->InPlaceDeactivate();
+      // Lookup object
+      if (pRichEdit->GetObject(iIndex, &oImage, REO_GETOBJ_POLEOBJ) == S_OK)
+      {
+         // Deactivate if necessary
+         if (oImage.dwFlags INCLUDES REO_INPLACEACTIVE)
+            pRichEdit->InPlaceDeactivate();
 
-      // Close current object
-      if (oImageObject.dwFlags INCLUDES REO_OPEN)
-         oImageObject.poleobj->Close(OLECLOSE_NOSAVE);
+         // Close
+         if (oImage.dwFlags INCLUDES REO_OPEN)
+            oImage.poleobj->Close(OLECLOSE_NOSAVE);
 
-      // Cleanup
-      utilReleaseInterface(oImageObject.poleobj);
+         // Cleanup
+         utilReleaseInterface(oImage.poleobj);
+      }
    }
    
-   /// Destroy OLE document and callback interfaces
-   utilReleaseInterface(pRichEditOle);
-   utilReleaseInterface(pDocument->pOleCallback)
+   /// Destroy any remaining button data
+   deleteAVLTree(pDocument->pButtonsByID);
+
+   // Release interfaces
+   utilReleaseInterface(pRichEdit);
+   utilReleaseInterface(pDocument->pOleCallback);
+   END_TRACKING();
+   return TRUE;
+}
+
+
+/// Function name  : onRichTextDialogDestroyButton
+// Description     : Called when a Languagebutton is being destroyed by the RichEdit
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// IOleObject*         pObject   : [in] Button being destroyed
+// 
+// Return Value   : 
+// 
+BOOL  onRichTextDialogDestroyButton(LANGUAGE_DOCUMENT*  pDocument, IOleObject*  pObject)
+{
+   LANGUAGE_BUTTON*  pButton;
+
+   // Lookup + destroy associated button data
+   if (findLanguageButtonByObject(pDocument->pButtonsByID, pObject, pButton))
+      destroyObjectInAVLTreeByValue(pDocument->pButtonsByID, (LPARAM)pButton->szID, NULL);
 
    return TRUE;
+}
+
+
+/// Function name  : onRichTextDialogInsertButton
+// Description     : Inserts a new OLE Button Picture 
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Lanaguage document hosting the RichText dialog
+// 
+// Return Value   : TRUE if successful, FALSE if not
+// 
+BOOL  onRichTextDialogInsertButton(LANGUAGE_DOCUMENT*  pDocument)
+{
+   LANGUAGE_BUTTON*  pButton;
+
+   // [CHECK] Ensure button ID is unique
+   if (!isRichEditButtonUnique(pDocument->pCurrentMessage, TEXT("NewID")))
+      return FALSE;
+
+   // [CHECK] Attempt to insert new button + store data
+   if (pButton = insertRichEditButton(pDocument->hRichEdit, TEXT("NewID"), TEXT("New Button")))
+      insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pButton);
+
+   // Return TRUE if successful
+   return pButton != NULL;
 }
 
 
@@ -502,22 +537,28 @@ BOOL  onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 // HWND                hDialog   : [in] RichText dialog window handle
 // NMHDR*              pMessage  : [in] WM_NOTIFY message data
 // 
-/// Return Value   : TRUE if processed, FALSE otherwise
+// Return Value   : TRUE if processed, FALSE otherwise
 // 
 BOOL   onRichTextDialogNotify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage)
 {
+   BOOL  bResult = FALSE;
+
+   TRACK_FUNCTION();
    switch (pMessage->code)
    {
    // [TOOLBAR REQUESTING TOOLTIP]
    case TTN_GETDISPINFO:
-      return onTooltipRequestText((NMTTDISPINFO*)pMessage);
+      bResult = onTooltipRequestText((NMTTDISPINFO*)pMessage);
+      break;
 
    // [EDIT SELECTION CHANGED/CARET MOVED]
    case EN_SELCHANGE:
-      return updateRichTextDialogToolBar(pDocument, hDialog);
+      bResult = updateRichTextDialogToolBar(pDocument, hDialog);
+      break;
    }
 
-   return FALSE;
+   END_TRACKING();
+   return bResult;
 }
 
 /// Function name  : onRichTextDialogResize
@@ -614,6 +655,10 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORSTATIC:
       return (INT_PTR)GetStockObject(WHITE_BRUSH);
+
+   // [OBJECT DESTROYED]
+   case UN_OBJECT_DESTROYED:
+      return onRichTextDialogDestroyButton(pDocument, (IOleObject*)lParam);
    }
 
    return FALSE;

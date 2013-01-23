@@ -993,7 +993,7 @@ VOID  onScriptDocumentTextChange(SCRIPT_DOCUMENT*  pDocument)
 
 
 /// Function name  : onScriptDocumentPropertyChanged
-// Description     : Nothing
+// Description     : Refresh CodeEdit when arguments change
 //
 // SCRIPT_DOCUMENT*  pDocument  : [in] Document that has been updated
 // CONST UINT        iControlID : [in] ID of the control responsible for the change

@@ -154,9 +154,20 @@
 //
 // Return Value : TRUE if document is a ScriptDocument, otherwise FALSE
 //
-#define     UM_GET_SCRIPT_VERSION                                    (UM_XSTUDIO + 20)
+#define     UM_GET_SCRIPT_VERSION                                    (UM_XSTUDIO + 19)
 //
 #define     Document_GetScriptVersion(hWnd, pVersion)                SendMessage(hWnd, UM_GET_SCRIPT_VERSION, NULL, (LPARAM)(pVersion))
+
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                                  LANGUAGE DOCUMENT
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+/// Name: UN_OBJECT_DESTROYED
+// Description: Notification that a language button is being destroyed
+//
+// LPARAM : IOleObject* : [in] OLE interface of object being destroyed
+//
+#define     UN_OBJECT_DESTROYED                                      (UM_XSTUDIO + 20)
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                     CODE EDIT

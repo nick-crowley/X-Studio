@@ -104,6 +104,21 @@ BOOL  findLanguageDocumentGameStringByIndex(LANGUAGE_DOCUMENT*  pDocument, CONST
    return findObjectInAVLTreeByIndex(pDocument->pPageStringsByID, iIndex, (LPARAM&)pOutput);
 }
 
+/// Function name  : findLanguageDocumentGamePageByID
+// Description     : Find the GamePage object for an item a language document's list of game string pages
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in]  Language document data
+// CONST UINT          iIndex    : [in]  PageID of the desired GameString
+// GAME_PAGE*         &pOutput   : [out] GamePage, if found
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BOOL  findLanguageDocumentGamePageByID(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iPageID, GAME_PAGE* &pOutput)
+{
+   // Query tree
+   return findObjectInAVLTreeByValue(getLanguageDocumentGamePageTree(pDocument), iPageID, NULL, (LPARAM&)pOutput);
+}
+
 
 /// Function name  : findLanguageDocumentGamePageByIndex
 // Description     : Find the GamePage object for an item a language document's list of game string pages
@@ -147,6 +162,64 @@ AVL_TREE*   getLanguageDocumentGamePageTree(LANGUAGE_DOCUMENT*  pDocument)
    return pDocument->pLanguageFile ? pDocument->pLanguageFile->pGamePagesByID : getGameData()->pGamePagesByID;
 }
 
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                            FUNCTIONS
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : deleteLanguageDocumentGamePage
+// Description     : Destroys the specified GamePage and all strings with it's PageID
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in]     Document
+// GAME_PAGE*          pPage     : [in/out] GamePage to destroy
+// 
+VOID  deleteLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage)
+{
+   AVL_TREE_OPERATION*  pOperation   = createAVLTreeOperation(treeprocDeleteGameStringPageID, ATT_PREORDER);
+   AVL_TREE*            pPageStrings = generateLanguagePageStringsTree(pDocument, pPage);
+
+   /// Delete all strings with input PageID
+   pOperation->pOutputTree = getLanguageDocumentGameStringTree(pDocument);
+   performOperationOnAVLTree(pPageStrings, pOperation);
+
+   /// Delete GamePage
+   destroyObjectInAVLTreeByValue(getLanguageDocumentGamePageTree(pDocument), pPage->iPageID, NULL);
+
+   // Re-Index affected trees
+   performAVLTreeIndexing(getLanguageDocumentGamePageTree(pDocument));
+   performAVLTreeIndexing(getLanguageDocumentGameStringTree(pDocument));
+
+   // Update PageList Count
+   ListView_SetItemCount(pDocument->hPageList, getTreeNodeCount(getLanguageDocumentGamePageTree(pDocument)));
+
+   // Cleanup
+   deleteAVLTree(pPageStrings);
+   deleteAVLTreeOperation(pOperation);
+}
+
+
+/// Function name  : generateLanguagePageStringsTree
+// Description     : Create a GameString tree containing only strings for a specified page
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// CONST GAME_PAGE*    pGamePage : [in] Page
+// 
+// Return Value   : New AVL tree, you are responsible for destroying it
+// 
+AVL_TREE*   generateLanguagePageStringsTree(LANGUAGE_DOCUMENT*  pDocument, CONST GAME_PAGE*  pGamePage)
+{
+   AVL_TREE*  pOutputTree;
+
+   // Create shallow copy
+   pOutputTree = createAVLTree(extractGameStringTreeNode, NULL, createAVLTreeSortKey(AK_ID, AO_ASCENDING), NULL, NULL);
+
+   /// Replicate strings with correct PageID 
+   performBinaryTreeStringPageReplication(getLanguageDocumentGameStringTree(pDocument), pGamePage->iPageID, pOutputTree);
+      
+   // Index and return tree
+   performAVLTreeIndexing(pOutputTree);
+   return pOutputTree;
+}
+
 
 /// Function name  : insertLanguageDocumentGamePage
 // Description     : Add a new GamePage to a Language document's LanguageFile and GamePage ListView
@@ -188,7 +261,7 @@ BOOL  insertLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRIN
    insertObjectIntoAVLTree(pGameStringTree, (LPARAM)pGameString);
    performAVLTreeIndexing(pGameStringTree);
 
-   // Update the GameString ListView item count
+   // Update the string List count
    ListView_SetItemCount(pDocument->hStringList, getTreeNodeCount(pGameStringTree));
 
    // Return TRUE
@@ -196,63 +269,80 @@ BOOL  insertLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRIN
 }
 
 
-/// Function name  : generateLanguagePageStringsTree
-// Description     : Create a GameString tree containing only strings for a specified page
+/// Function name  : moveLanguageDocumentPageStrings
+// Description     : Changes the PageID of all strings within a specified page.  If successful, the input Page is destroyed
 // 
-// LANGUAGE_DOCUMENT*  pDocument : [in] Document
-// CONST GAME_PAGE*    pGamePage : [in] Page
+// LANGUAGE_DOCUMENT*  pDocument : [in]     Document
+// GAME_PAGE*          pOldPage  : [in/out] Current Page
+// GAME_PAGE*          pNewPage  : [in]     New Page to store strings under
 // 
-// Return Value   : New AVL tree, you are responsible for destroying it
-// 
-AVL_TREE*   generateLanguagePageStringsTree(LANGUAGE_DOCUMENT*  pDocument, CONST GAME_PAGE*  pGamePage)
+VOID  moveLanguageDocumentPageStrings(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage)
 {
-   AVL_TREE*  pOutputTree;
+   AVL_TREE_OPERATION*  pOperation   = createAVLTreeOperation(treeprocModifyGameStringPageID, ATT_PREORDER);
+   AVL_TREE*            pPageStrings = generateLanguagePageStringsTree(pDocument, pOldPage);
 
-   // Create COPY TREE
-   pOutputTree = createAVLTree(extractGameStringTreeNode, NULL, createAVLTreeSortKey(AK_ID, AO_ASCENDING), NULL, NULL);
+   // Prepare
+   pOperation->xFirstInput = pNewPage->iPageID;
+   pOperation->pOutputTree = getLanguageDocumentGameStringTree(pDocument);
 
-   /// Replicate strings with correct PageID 
-   performBinaryTreeStringPageReplication(getLanguageDocumentGameStringTree(pDocument), pGamePage->iPageID, pOutputTree);
-      
-   // Index and return tree
-   performAVLTreeIndexing(pOutputTree);
-   return pOutputTree;
+   /// Move those strings with unique IDs into the new Page
+   if (performOperationOnAVLTree(pPageStrings, pOperation) == 0)
+      // [ALL MOVED] Delete old Page
+      destroyObjectInAVLTreeByValue(getLanguageDocumentGamePageTree(pDocument), pOldPage->iPageID, NULL);
+
+   // Re-index strings tree
+   performAVLTreeIndexing(getLanguageDocumentGameStringTree(pDocument));
+   
+   /// Insert new Page 
+   insertLanguageDocumentGamePage(pDocument, pNewPage);  // Updates PageList Count / Re-indexes PageList tree
+
+   // Cleanup
+   deleteAVLTree(pPageStrings);
+   deleteAVLTreeOperation(pOperation);
 }
 
-/// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                            FUNCTIONS
-/// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : displayLanguageDocumentPageString
-// Description     : Displays a string from the current page in the RichEdit dialog
+/// Function name  : treeprocDeleteGameStringPageID
+// Description     : Destroys the equivilent GameString in the source tree
 // 
-// LANGUAGE_DOCUMENT*  pDocument : [in] Language document
-// CONST UINT          iIndex    : [in] PageString tree index
+// AVL_TREE_NODE*       pNode   : [in] GameString in copy tree
+// AVL_TREE_OPERATION*  pData   : [in] pOutputTree : source tree
 // 
-//VOID  displayLanguageDocumentPageString(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iIndex)
-//{
-//   GAME_STRING*  pNewString;
-//
-//   /// Display first string (if any)
-//   if (findLanguageDocumentGameStringByIndex(pDocument, iIndex, pNewString))
-//   {
-//      // Reset message/errors
-//      if (pDocument->pCurrentMessage)
-//      {
-//         deleteLanguageMessage(pDocument->pCurrentMessage);
-//         clearErrorQueue(pDocument->pFormatErrors);
-//      }
-//
-//      // Generate RichText and display if successful
-//      if (pDocument->bFormattingError = !generateLanguageMessageFromGameString(pNewString, pDocument->pCurrentMessage, pDocument->pFormatErrors))
-//         SetWindowText(pDocument->hRichEdit, TEXT(""));
-//      else
-//         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, GTC_BLACK, FALSE);
-//
-//      // Enable/Disable window appropriately
-//      EnableWindow(pDocument->hRichEdit, !pDocument->bFormattingError);
-//   }
-//}
+VOID  treeprocDeleteGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData)
+{
+   GAME_STRING*  pString = extractPointerFromTreeNode(pNode, GAME_STRING);
+   
+   /// Destroy string
+   destroyObjectInAVLTreeByValue(pData->pOutputTree, pString->iPageID, pString->iID);
+}
+
+
+/// Function name  : treeprocModifyGameStringPageID
+// Description     : Re-Inserts a GameString under a new PageID
+// 
+// AVL_TREE_NODE*       pNode   : [in] GameString in copy tree
+// AVL_TREE_OPERATION*  pData   : [in] xFirstInput : new PageID
+//                                     pOutputTree : source tree
+// 
+VOID  treeprocModifyGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData)
+{
+   GAME_STRING*  pString    = extractPointerFromTreeNode(pNode, GAME_STRING);
+   UINT          iNewPageID = pData->xFirstInput;
+
+   // Create copy with new PageID
+   GAME_STRING*  pNewString = createGameString(pString->szText, pString->iID, iNewPageID, pString->eType);
+   
+   /// Attempt to insert copy
+   if (insertObjectIntoAVLTree(pData->pOutputTree, (LPARAM)pNewString))
+      // [SUCCESS] Remove original
+      destroyObjectInAVLTreeByValue(pData->pOutputTree, pString->iPageID, pString->iID);
+   else
+   {
+      // [FAILED] Delete copy
+      deleteGameString(pNewString);
+      pData->bResult++;
+   }
+}
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                         MESSAGE HANDLERS
@@ -342,30 +432,38 @@ VOID   onLanguageDocument_ContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST POINT
 //
 BOOL   onLanguageDocument_Command(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hControl)
 {
+   GAME_PAGE*  pNewPage;
    BOOL  bResult;
 
    // Prepare
    bResult = TRUE;
 
-   //// Examine source
-   //switch (iControlID)
-   //{
-   ///// [GAME PAGES]
-   //// [GAME PAGE EDIT] -- Edit the currently selected GamePage
-   //case IDM_GAMEPAGE_EDIT:
-   //   onCustomListViewItemEdit(&pDocument->oLabelData, pDocument->hPageList);
-   //   //onLanguageDocument_GamePageEdit(pDocument, pDocument->hPageList);
-   //   break;
+   // Examine source
+   switch (iControlID)
+   {
+   /// [EDIT PAGE] Edit selected Page
+   case IDM_GAMEPAGE_EDIT:
+      if (pNewPage = displayInsertPageDialog(pDocument, pDocument->pCurrentPage, getAppWindow()))
+      {
+         onLanguageDocument_EditPage(pDocument, pDocument->pCurrentPage, pNewPage);
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_PAGE_LIST);
+      }
+      break;
 
-   //// [GAME PAGE ADD] -- Add a new item to the GamePage tree
-   //case IDM_GAMEPAGE_INSERT:
-   //   onLanguageDocument_GamePageInsert(pDocument);
-   //   break;
+   /// [INSERT PAGE] Create/Insert new Page
+   case IDM_GAMEPAGE_INSERT:
+      if (pNewPage = displayInsertPageDialog(pDocument, NULL, getAppWindow()))
+      {
+         onLanguageDocument_InsertPage(pDocument, pNewPage);
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_PAGE_LIST);
+      }
+      break;
 
-   //// [GAME PAGE REMOVE] -- Not yet supported
-   //case IDM_GAMEPAGE_DELETE:
-   //   MessageBox(pDocument->hWnd, TEXT("Requires removing items from a binary tree"), TEXT("None"), MB_OK);
-   //   break;
+   /// [DELETE PAGE]
+   case IDM_GAMEPAGE_DELETE:
+      onLanguageDocument_DeletePage(pDocument, pDocument->pCurrentPage);
+      sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_PAGE_LIST);
+      break;
 
    //// [GAME PAGE VOICED] -- Toggle the 'voiced flag'
    //case IDM_GAMEPAGE_VOICED:
@@ -400,9 +498,9 @@ BOOL   onLanguageDocument_Command(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCo
    //   utilReflectMessage(pDocument->hWnd, WM_COMMAND, MAKE_LONG(IDM_VIEW_DOCUMENT_PROPERTIES, 0), NULL);
    //   break;
 
-   //default:
-   //   return FALSE;
-   //}
+   default:
+      return FALSE;
+   }
 
    // Return result
    return bResult;
@@ -472,7 +570,7 @@ VOID   onLanguageDocument_Destroy(LANGUAGE_DOCUMENT*  pDocument)
 
    // ErrorQueue
    deleteErrorQueue(pDocument->pFormatErrors);
-
+   
    // [TRACK]
    END_TRACKING();
 }
@@ -540,6 +638,41 @@ BOOL   onLanguageDocument_Notify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage
    END_TRACKING();
    return bResult;
 }
+
+
+/// Function name  : onLanguageDocument_PropertyChanged
+// Description     : Refresh current string when data changes
+//
+// LANGUAGE_DOCUMENT*  pDocument  : [in] Document 
+// CONST UINT          iControlID : [in] ID of the control responsible for the change
+// 
+VOID  onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID)
+{
+   INT  iSelected;
+
+   switch (iControlID)
+   {
+   case IDC_AUTHOR_EDIT:
+   case IDC_TITLE_EDIT:
+   case IDC_LANGUAGE_EDIT:
+      // [NON-VIRTUAL] Update current string from current message
+      if (!pDocument->bVirtual)
+      {
+         getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
+         generatePlainTextFromLanguageMessage(pDocument->pCurrentMessage, pDocument->pCurrentString);
+      }
+
+      // Redraw current string
+      iSelected = ListView_GetNextItem(pDocument->hStringList, -1, LVNI_ALL | LVNI_SELECTED);
+      ListView_RedrawItems(pDocument->hStringList, iSelected, iSelected);
+
+      // [TEXT-CHANGED] Refresh Properties
+      if (iControlID == IDC_LANGUAGE_EDIT)
+         sendDocumentUpdated(AW_PROPERTIES);
+      break;
+   }
+}
+
 
 /// Function name  : onLanguageDocument_RequestData
 // Description     : Supply item data for the GamePages ListView
@@ -698,6 +831,9 @@ VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CO
 {
    if (bSelected)
    {
+      // [CHECK] Ensure Page + PageStrings do not exist
+      ASSERT(!pDocument->pCurrentPage AND !pDocument->pPageStringsByID);
+
       // Generate strings for new page
       findLanguageDocumentGamePageByIndex(pDocument, iItem, pDocument->pCurrentPage);
       pDocument->pPageStringsByID = generateLanguagePageStringsTree(pDocument, pDocument->pCurrentPage);
@@ -708,6 +844,9 @@ VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CO
    }
    else
    {
+      // [CHECK] Ensure Page + PageStrings exist
+      ASSERT(pDocument->pCurrentPage AND pDocument->pPageStringsByID);
+
       // Deselect current string, if any
       ListView_SetItemState(pDocument->hStringList, -1, NULL, LVIS_SELECTED);
       ListView_SetItemCount(pDocument->hStringList, 0);
@@ -727,6 +866,12 @@ VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CO
 // 
 VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected)
 {
+   IRichEditOle*  pRichEdit;  // RichEdit control OLE interface
+   REOBJECT       oImage;     // RichEdit control OLE object attributes
+
+   // Disable EN_CHANGE notifications
+   INT  iOldMask = RichEdit_SetEventMask(pDocument->hRichEdit, RichEdit_GetEventMask(pDocument->hRichEdit) ^ ENM_CHANGE);
+
    /// [SELECTED] Display string in RichEdit
    if (bSelected)
    {
@@ -745,8 +890,21 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
          SetWindowText(pDocument->hRichEdit, TEXT(""));
       else
       {
-         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, GTC_BLACK, FALSE);
+         // Prepare
+         utilZeroObject(&oImage, REOBJECT);
+         oImage.cbStruct = sizeof(REOBJECT);
+         RichEdit_GetOLEInterface(pDocument->hRichEdit, &pRichEdit);
+
+         // Insert text + buttons
+         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, GTC_BLACK);
          Edit_SetModify(pDocument->hRichEdit, FALSE);
+
+         // Store button data
+         for (INT iIndex = 0; pRichEdit->GetObject(iIndex, &oImage, REO_GETOBJ_POLEOBJ) == S_OK; iIndex--)
+            insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)(LANGUAGE_BUTTON*)oImage.dwUser);
+         
+         // Cleanup
+         utilReleaseInterface(pRichEdit);
       }
 
       // Enable/Disable window by result
@@ -758,7 +916,7 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
    /// [UNSELECTED] Update string from RichEdit
    else
    {
-      // [MODIFIED + NON-VIRTUAL] Generate new source text RichEdit
+      // [MODIFIED + NON-VIRTUAL] Generate new source-text from RichEdit
       if (!pDocument->bVirtual AND Edit_GetModify(pDocument->hRichEdit))
       {
          getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
@@ -769,6 +927,9 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
       SetWindowText(pDocument->hRichEdit, TEXT(""));
       EnableWindow(pDocument->hRichEdit, FALSE);
    }
+
+   // Re-Enable EN_CHANGE
+   RichEdit_SetEventMask(pDocument->hRichEdit, iOldMask);
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -853,6 +1014,11 @@ LRESULT   wndprocLanguageDocument(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LP
       case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                  break;
       case WM_MEASUREITEM: onWindow_MeasureItem(hWnd, (MEASUREITEMSTRUCT*)lParam);      break;
       case WM_DELETEITEM:  onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);              break;
+
+      /// [DOCUMENT PROPERTY CHANGED]
+      case UN_PROPERTY_UPDATED:
+         onLanguageDocument_PropertyChanged(pDocument, wParam);
+         break;
 
       // [UNHANDLED]
       default:

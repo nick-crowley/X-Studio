@@ -1089,6 +1089,7 @@ typedef  OBJECT_NAME    SCRIPT_OBJECT;
 
 // ReturnObject:
 //
+//     HI                                       LO
 //  ---------------------------------------------------
 // :             :                   :                 :
 // : RETURN TYPE : DESTINATION INDEX : CONDITIONAL ID  :
@@ -1140,6 +1141,22 @@ struct JUMP_STACK_ITEM
 // Placeholders used for processing before jump/variable calculations
 #define    EMPTY_JUMP              0xFFFF
 #define    EMPTY_VARIABLE          0xFFFF
+
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                                    LANGUAGE BUTTON
+///
+///   Data associated with a Language Entry OLE button
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Data associated with each OLE button object, containing it's ID and text.
+//
+struct  LANGUAGE_BUTTON
+{
+   TCHAR       *szText,     // Button's Text, as currently displayed as a bitmap
+               *szID;       // Button's ID
+   HBITMAP      hBitmap;    // Button bitmap;
+   IOleObject*  pObject;    // OLE Object
+};
 
 /// //////////////////////////////////////////////////////////////////////////////////////////
 ///                                  LANGUAGE FILE

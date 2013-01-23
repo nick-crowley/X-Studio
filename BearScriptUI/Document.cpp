@@ -365,7 +365,7 @@ CONST TCHAR*  identifyDocumentTypeIcon(CONST DOCUMENT_TYPE  eType)
 // 
 BOOL  isModified(CONST DOCUMENT*  pDocument)
 {
-   return pDocument AND pDocument->bModified;
+   return pDocument AND pDocument->bModified; 
 }
 
 

@@ -117,9 +117,53 @@
 //
 #define    Edit_GetSelText(hCtrl, szBuffer)                          SendMessage(hCtrl, EM_GETSELTEXT, NULL, (LPARAM)szBuffer)
 
+/// Macro: Edit_GetSelEx
+//  Description: Retrieves selection position
+//
+//  HWND   hCtrl  : [in] Edit window handle
+//  ULONG* pStart : [in] Index of start of selection
+//  ULONG* pEnd   : [in] Index of end of selection
+//
+//  Return Value : pStart and pEnd packed together
+//
+#define    Edit_GetSelEx(hCtrl, pStart, pEnd)                        SendMessage(hCtrl, EM_GETSEL, (WPARAM)(pStart), (LPARAM)(pEnd))
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                         LISTVIEW
+// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Macro: ListView_GetSelected
+//  Description: Retrieves index of first selected item
+//
+//  HWND   hCtrl  : [in] ListView
+//
+//  Return Value : Item Index, or -1
+//
+#define    ListView_GetSelected(hCtrl)                               ListView_GetNextItem(hCtrl, -1, LVNI_ALL | LVNI_SELECTED)
+
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                       RICH EDIT CONTROL
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Macro: RichEdit_GetCharFormat
+//  Description: Gets current character format
+//
+//  HWND         hCtrl   : [in] RichEdit window handle
+//  UINT         iFlags  : [in] Flags
+//  CHARFORMAT*  pFormat : [in] Formatting characteristics
+//
+//  Return Value : Value of dwMask memeber
+//
+#define    RichEdit_GetCharFormat(hCtrl, iFlags, pFormat)            SendMessage(hCtrl, EM_GETCHARFORMAT, iFlags, (LPARAM)(CHARFORMAT*)(pFormat))
+
+/// Macro: RichEdit_GetEventMask
+//  Description: Gets the notifications sent by a RichEdit
+//
+//  HWND   hCtrl : [in] RichEdit window handle
+//
+//  Return Value : Previous event mask
+//
+#define    RichEdit_GetEventMask(hCtrl)                              SendMessage(hCtrl, EM_GETEVENTMASK, NULL, NULL)
 
 /// Macro: RichEdit_GetOLEInterface
 //  Description: Retrieves OLE Interface
@@ -131,6 +175,35 @@
 //
 #define    RichEdit_GetOLEInterface(hCtrl, pInterface)               SendMessage(hCtrl, EM_GETOLEINTERFACE, NULL, (LPARAM)(IRichEditOle*)(pInterface))
 
+/// Macro: RichEdit_GetParagraphFormat
+//  Description: Gets current paragraph format
+//
+//  HWND         hCtrl   : [in] RichEdit window handle
+//  PARAFORMAT*  pFormat : [in] Formatting characteristics
+//
+//  Return Value : Value of dwMask memeber
+//
+#define    RichEdit_GetParagraphFormat(hCtrl, pFormat)               SendMessage(hCtrl, EM_GETPARAFORMAT, NULL, (LPARAM)(PARAFORMAT*)(pFormat))
+
+/// Macro: RichEdit_HideSelection
+//  Description: Shows/Hides the current selection
+//
+//  HWND   hCtrl : [in] RichEdit window handle
+//  BOOL   bHide : [in] TRUE to hide, FALSE to reveal
+//
+#define    RichEdit_HideSelection(hCtrl, bHide)                       SendMessage(hCtrl, EM_HIDESELECTION, bHide, NULL)
+
+/// Macro: RichEdit_SetBackgroundColour
+//  Description: Sets background colour
+//
+//  HWND      hCtrl    : [in] RichEdit window handle
+//  BOOL      bSystem  : [in] TRUE to use system default, FALSE to use custom
+//  COLORREF  clColour : [in] Custom colour
+//
+//  Return Value : Previous colour
+//
+#define    RichEdit_SetBackgroundColour(hCtrl, bSystem, clColour)    SendMessage(hCtrl, EM_SETBKGNDCOLOR, bSystem, (LPARAM)(clColour))
+
 /// Macro: RichEdit_SetCharFormat
 //  Description: Sets current character format
 //
@@ -141,6 +214,36 @@
 //  Return Value : TRUE/FALSE
 //
 #define    RichEdit_SetCharFormat(hCtrl, iFlags, pFormat)            SendMessage(hCtrl, EM_SETCHARFORMAT, iFlags, (LPARAM)(CHARFORMAT*)(pFormat))
+
+/// Macro: RichEdit_SetEventMask
+//  Description: Sets the notifications sent by a RichEdit
+//
+//  HWND   hCtrl : [in] RichEdit window handle
+//  UINT   iMask : [in] Event mask
+//
+//  Return Value : Previous event mask
+//
+#define    RichEdit_SetEventMask(hCtrl, iMask)                       SendMessage(hCtrl, EM_SETEVENTMASK, NULL, (LPARAM)(iMask))
+
+/// Macro: RichEdit_SetFontSize
+//  Description: Sets the font size
+//
+//  HWND   hCtrl   : [in] RichEdit window handle
+//  UINT   iPoints : [in] Font size
+//
+//  Return Value : TRUE/FALSE
+//
+#define    RichEdit_SetFontSize(hCtrl, iPoints)                      SendMessage(hCtrl, EM_SETFONTSIZE, iPoints, NULL)
+
+/// Macro: RichEdit_SetOLECallback
+//  Description: Sets OLE Callback interface
+//
+//  HWND                   hCtrl      : [in] RichEdit window handle
+//  IRichEditOleCallback*  pInterface : [in] IRichEditCallback* Interface
+//
+//  Return Value : TRUE/FALSE
+//
+#define    RichEdit_SetOLECallback(hCtrl, pInterface)               SendMessage(hCtrl, EM_SETOLECALLBACK, NULL, (LPARAM)(IRichEditOleCallback*)(pInterface))
 
 /// Macro: RichEdit_SetParagraphFormat
 //  Description: Sets current paragraph format

@@ -118,9 +118,9 @@ VOID   initCorrectionDialog(HWND  hDialog, CORRECTION_DIALOG_DATA*  pDialogData)
    /// Display description 
    switch (pDialogData->eObjectType)
    {
-   case RT_COMMANDS:        setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asCommandSyntax->pTooltipDescription, GTC_WHITE, FALSE);   break;
-   case RT_GAME_OBJECTS:    setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asObjectName->pDescription,           GTC_WHITE, FALSE);   break;
-   case RT_SCRIPT_OBJECTS:  setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asObjectName->pDescription,           GTC_WHITE, FALSE);   break;
+   case RT_COMMANDS:        setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asCommandSyntax->pTooltipDescription, GTC_WHITE);   break;
+   case RT_GAME_OBJECTS:    setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asObjectName->pDescription,           GTC_WHITE);   break;
+   case RT_SCRIPT_OBJECTS:  setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asObjectName->pDescription,           GTC_WHITE);   break;
    }
 
    // [DIALOG] Center dialog and set text

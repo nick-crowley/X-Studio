@@ -417,7 +417,8 @@
 #define IDS_RICHTEXT_EXCESS_CLOSING_TAGS                 691
 #define IDS_RICHTEXT_UNSUPPORTED_LANGUAGE_TAG            692
 #define IDS_RICHTEXT_UNSUPPORTED_TOOLTIP_TAG             693
-#define IDS_RICHTEXT_UNKNOWN_TAG                         694
+#define IDS_RICHTEXT_BUTTON_ID_DUPLICATE                 694
+#define IDS_RICHTEXT_UNKNOWN_TAG                         695
 
 /// Main Window
 // Exception types
@@ -1437,12 +1438,16 @@
 #define IDC_COLUMN_ONE_RADIO                             4340
 #define IDC_COLUMN_TWO_RADIO                             4341
 #define IDC_COLUMN_THREE_RADIO                           4342
-#define IDC_COLUMN_WIDTH_CHECK                           4343
-#define IDC_COLUMN_WIDTH_SLIDER                          4344
-#define IDC_COLUMN_WIDTH_STATIC                          4345 
-#define IDC_COLUMN_SPACING_SLIDER                        4346
-#define IDC_COLUMN_SPACING_STATIC                        4347
-#define IDC_COLUMN_SPACING_CHECK                         4348
+
+#define IDC_COLUMN_WIDTH_GROUP                           4343
+#define IDC_COLUMN_WIDTH_CHECK                           4344
+#define IDC_COLUMN_WIDTH_SLIDER                          4345
+#define IDC_COLUMN_WIDTH_STATIC                          4346 
+
+#define IDC_COLUMN_SPACING_GROUP                         4347
+#define IDC_COLUMN_SPACING_SLIDER                        4348
+#define IDC_COLUMN_SPACING_STATIC                        4349
+#define IDC_COLUMN_SPACING_CHECK                         4350
 
 // 'Button' Property Page
 #define IDC_BUTTONS_LIST                                 4360

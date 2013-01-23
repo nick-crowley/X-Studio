@@ -44,7 +44,7 @@ VOID  displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UIN
    TCHAR  szText[32];
 
    // Assemble output text
-   StringCchPrintf(szText, 32, TEXT("%u pixels"), iValue);
+   StringCchPrintf(szText, 32, iControlID == IDC_COLUMN_WIDTH_STATIC ? TEXT("%u pixels wide") : TEXT("%u pixels apart"), iValue);
 
    // Output
    SetWindowText(GetDlgItem(hPage, iControlID), szText);
@@ -61,10 +61,10 @@ VOID  displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UIN
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 
-/// Function name  : onColumnsPageCommand
+/// Function name  : onColumnsPage_Command
 // Description     : WM_COMMAND processing for the 'Columns' properties page
 // 
-// LANGUAGE_DOCUMENT* pDocument      : [in] Language Document data
+// PROPERTIES_DATA*   pSheetData     : [in] Properties sheet data
 // HWND               hPage          : [in] 'Columns' properties dialog page window handle
 // CONST UINT         iControl       : [in] ID of the control sending the command
 // CONST UINT         iNotification  : [in] Notification being sent
@@ -72,9 +72,9 @@ VOID  displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UIN
 // 
 // Return Value   : TRUE if processed, FALSE otherwise
 // 
-BOOL    onColumnsPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl)
+BOOL    onColumnsPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl)
 {
-   LANGUAGE_MESSAGE*  &pCurrentMessage = pDocument->pCurrentMessage;    // Convenience pointer for current language message
+   LANGUAGE_MESSAGE*  pCurrentMessage = pSheetData->pLanguageDocument->pCurrentMessage;    // Convenience pointer for current language message
 
    switch (iControl)
    {
@@ -107,40 +107,80 @@ BOOL    onColumnsPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, CONST U
 }
 
 
-/// Function name  : onColumnsPageCustomDraw
+/// Function name  : onColumnsPage_DrawGroup
 // Description     : Custom draw the 'Number of Columns' radio buttons
 // 
-// LANGUAGE_DOCUMENT*  pDocument  : [in] Language Document data
+// PROPERTIES_DATA*    pSheetData : [in] Properties sheet data
 // HWND                hPage      : [in] Window handle of the 'Columns' properties dialog page
 // HIMAGELIST          hImageList : [in] ImageList containing the large column selection icons
 // NMCUSTOMDRAW*       pDrawData  : [in] WM_NOTIFY custom draw data
 // 
 // Return Value   : TRUE
 // 
-BOOL  onColumnsPageCustomDraw(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, HIMAGELIST  hImageList, NMCUSTOMDRAW*  pDrawData)
+BOOL  onColumnsPage_DrawGroup(PROPERTIES_DATA*  pSheetData, HWND  hPage, DRAWITEMSTRUCT*  pDrawData)
 {
-   DC_STATE  oPrevState;         // Device context state
-   POINT     ptIcon;             // Position of the icon within the draw rectangle
-   BOOL      bIsChecked,         // Whether control is checked
-             bIsHot;             // Whether cursor is over the control
-   SIZE      siDrawSize;         // Size of the drawing rectangle
-   HPEN      hPen;               // Pen used for drawing the coloured rectangled
-   TCHAR     szText[16];         // Control's text, displayed beneath the icon
+   HTHEME  hTheme;
+   RECT    rcCheck;
+   UINT    iCheckID;
+   INT     iDCState;
+
+   // Prepare
+   iDCState = SaveDC(pDrawData->hDC);
+   hTheme = OpenThemeData(pDrawData->hwndItem, TEXT("BUTTON"));
+
+   // Get drawing rectangle of relevant CheckBox
+   iCheckID = (pDrawData->CtlID == IDC_COLUMN_WIDTH_GROUP ? IDC_COLUMN_WIDTH_CHECK : IDC_COLUMN_SPACING_CHECK);
+   GetWindowRect(GetControl(hPage, iCheckID), &rcCheck);
+
+   // Clip the CheckBox
+   utilScreenToClientRect(pDrawData->hwndItem, &rcCheck);
+   ExcludeClipRect(pDrawData->hDC, rcCheck.left, rcCheck.top, rcCheck.right, rcCheck.bottom);
+
+   /// [BORDER]
+   DrawThemeBackground(hTheme, pDrawData->hDC, BP_GROUPBOX, GBS_NORMAL, &pDrawData->rcItem, NULL);
+
+   // Cleanup
+   CloseThemeData(hTheme);
+   RestoreDC(pDrawData->hDC, iDCState);
+   return TRUE;
+}
+
+/// Function name  : onColumnsPage_DrawRadio
+// Description     : Custom draw the 'Number of Columns' radio buttons
+// 
+// PROPERTIES_DATA*    pSheetData : [in] Properties sheet data
+// HWND                hPage      : [in] Window handle of the 'Columns' properties dialog page
+// HIMAGELIST          hImageList : [in] ImageList containing the large column selection icons
+// NMCUSTOMDRAW*       pDrawData  : [in] WM_NOTIFY custom draw data
+// 
+// Return Value   : TRUE
+// 
+BOOL  onColumnsPage_DrawRadio(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMCUSTOMDRAW*  pDrawData)
+{
+   CONST UINT iIconSize = 48;
+   DC_STATE   oPrevState;         // Device context state
+   POINT      ptIcon;             // Position of the icon within the draw rectangle
+   BOOL       bIsChecked,         // Whether control is checked
+              bIsHot;             // Whether cursor is over the control
+   SIZE       siDrawSize;         // Size of the drawing rectangle
+   HPEN       hPen;               // Pen used for drawing the coloured rectangled
+   TCHAR      szText[16];         // Control's text, displayed beneath the icon
 
    switch (pDrawData->dwDrawStage)
    {
    case CDDS_PREERASE:
       // Prepare
       utilConvertRectangleToSize(&pDrawData->rc, &siDrawSize);
+      GetWindowText(pDrawData->hdr.hwndFrom, szText, 16);
       
       // Calculate icon position
-      ptIcon.x = (siDrawSize.cx / 2) - 24;
-      ptIcon.y = (siDrawSize.cy / 2) - 24;
+      ptIcon.x = (siDrawSize.cx - iIconSize) / 2;
+      ptIcon.y = (siDrawSize.cy - iIconSize) / 2;
 
       /// [ICON] Draw appropriate icon
-      ImageList_Draw(hImageList, pDrawData->hdr.idFrom - IDC_COLUMN_ONE_RADIO, pDrawData->hdc, ptIcon.x, ptIcon.x, ILD_NORMAL);
+      ImageList_Draw(pSheetData->hColumnIcons, pDrawData->hdr.idFrom - IDC_COLUMN_ONE_RADIO, pDrawData->hdc, ptIcon.x, ptIcon.x, ILD_NORMAL);
       
-      /// [BORDER] Draw appropriate border (or none)
+      // Determine state
       bIsHot     = (pDrawData->uItemState INCLUDES CDIS_HOT);
       bIsChecked = IsDlgButtonChecked(hPage, pDrawData->hdr.idFrom);
 
@@ -148,21 +188,20 @@ BOOL  onColumnsPageCustomDraw(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, HIMAGE
       {
          // Create appropriately coloured pen
          hPen = CreatePen(PS_SOLID, 3, (bIsHot ? clRadioButtonHot : clRadioButtonSelected));
-         
-         // Draw border using appropriate border and (lack of) fill colour
-         oPrevState.hOldPen   = SelectPen(pDrawData->hdc, hPen);
          oPrevState.hOldBrush = SelectBrush(pDrawData->hdc, GetStockObject(NULL_BRUSH));
+         oPrevState.hOldPen   = SelectPen(pDrawData->hdc, hPen);
+
+         /// [BORDER] Draw border 
          Rectangle(pDrawData->hdc, pDrawData->rc.left, pDrawData->rc.top, pDrawData->rc.right, pDrawData->rc.bottom);
 
          // Cleanup
-         SelectObject(pDrawData->hdc, oPrevState.hOldPen);
-         SelectObject(pDrawData->hdc, oPrevState.hOldBrush);
+         SelectPen(pDrawData->hdc, oPrevState.hOldPen);
+         SelectBrush(pDrawData->hdc, oPrevState.hOldBrush);
          DeleteObject(hPen);
       }
 
       /// [TEXT] Draw window text beneath icon
-      pDrawData->rc.top += ptIcon.x + 48;
-      GetWindowText(pDrawData->hdr.hwndFrom, szText, 16);
+      pDrawData->rc.top += ptIcon.x + iIconSize;
       DrawText(pDrawData->hdc, szText, lstrlen(szText), &pDrawData->rc, DT_CENTER);
       
       // Prevent system from painting
@@ -174,34 +213,33 @@ BOOL  onColumnsPageCustomDraw(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, HIMAGE
 }
 
 
-/// Function name  : onColumnsPageScrollHorizontal
+/// Function name  : onColumnsPage_Scroll
 // Description     : Extract the current position from the trackbar and display in it's static control
 // 
-// LANGUAGE_DOCUMENT*  pDocument    : [in] LanguageDocument data
-// HWND                hPage        : [in] 'Columns' property dialog page window handle
-// CONST UINT          iScrollType  : [in] Type of scrolling to perform
-// UINT                iPosition    : [in] [DRAGGING] Current drag position
-// HWND                hCtrl        : [in] Scrollbar control window handle
+// PROPERTIES_DATA*  pSheetData   : [in] Properties sheet data
+// HWND              hPage        : [in] 'Columns' property dialog page window handle
+// CONST UINT        iScrollType  : [in] Type of scrolling to perform
+// UINT              iPosition    : [in] [DRAGGING] Current drag position
+// HWND              hCtrl        : [in] Scrollbar control window handle
 // 
 // Return Value   : TRUE
 // 
-BOOL  onColumnsPageScrollHorizontal(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iScrollType, UINT  iPosition, HWND  hCtrl)
+BOOL  onColumnsPage_Scroll(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iScrollType, UINT  iPosition, HWND  hCtrl)
 {
    UINT  iSliderID,     // ID of the slider control being scrolled
          iStaticID;     // ID of the related static which will display formatted position of the slider
 
-   /// Determine slider ID and position
+   // Prepare
    iSliderID = GetDlgCtrlID(hCtrl);
+
+   /// Determine slider position  
    switch (iScrollType)
    {
+   // [DRAG] 
    case SB_THUMBTRACK:
-   case SB_THUMBPOSITION:
-      break;
-
-   // [NON-DRAG MOVEMENT] - Determine position manually
-   default:
-      iPosition = SendDlgItemMessage(hPage, iSliderID, TBM_GETPOS, NULL, NULL);
-      break;
+   case SB_THUMBPOSITION:  break;
+   // [NON-DRAG MOVEMENT]
+   default:                iPosition = SendDlgItemMessage(hPage, iSliderID, TBM_GETPOS, NULL, NULL);  break;
    }
 
    /// Update current message
@@ -210,13 +248,13 @@ BOOL  onColumnsPageScrollHorizontal(LANGUAGE_DOCUMENT*  pDocument, HWND  hPage, 
    // [WIDTH]
    case IDC_COLUMN_WIDTH_SLIDER:
       iStaticID = IDC_COLUMN_WIDTH_STATIC;
-      pDocument->pCurrentMessage->iColumnWidth = iPosition;
+      getLanguageMessage(pSheetData)->iColumnWidth = iPosition;
       break;
 
    // [SPACING]
    case IDC_COLUMN_SPACING_SLIDER:
       iStaticID = IDC_COLUMN_SPACING_STATIC;
-      pDocument->pCurrentMessage->iColumnSpacing = iPosition;
+      getLanguageMessage(pSheetData)->iColumnSpacing = iPosition;
       break;
    }
 
@@ -249,20 +287,32 @@ INT_PTR   dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
    {
    /// [TRACKBAR MOVEMENT] 
    case WM_HSCROLL:
-      return onColumnsPageScrollHorizontal(pDialogData->pLanguageDocument, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+      return onColumnsPage_Scroll(pDialogData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
 
    // [COMMAND PROCESSING]
    case WM_COMMAND:
-      if (onColumnsPageCommand(pDialogData->pLanguageDocument, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
+      if (onColumnsPage_Command(pDialogData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
          return TRUE;
+      break;
+
+   case WM_DRAWITEM:
+      if (wParam == IDC_COLUMN_WIDTH_GROUP OR wParam == IDC_COLUMN_SPACING_GROUP)
+         return onColumnsPage_DrawGroup(pDialogData, hPage, (DRAWITEMSTRUCT*)lParam);
       break;
 
    /// [NOTIFICATION]
    case WM_NOTIFY:
       pHeader = (NMHDR*)lParam;
+
       // [CUSTOM DRAW] - Only custom draw the 'Number of Columns' radio buttons
-      if (pHeader->code == NM_CUSTOMDRAW AND pHeader->idFrom >= IDC_COLUMN_ONE_RADIO AND pHeader->idFrom <= IDC_COLUMN_THREE_RADIO)
-         return onColumnsPageCustomDraw(pDialogData->pLanguageDocument, hPage, pDialogData->hColumnIcons, (NMCUSTOMDRAW*)pHeader);
+      if (pHeader->code == NM_CUSTOMDRAW)
+         switch (pHeader->idFrom)
+         {
+            case IDC_COLUMN_ONE_RADIO:
+            case IDC_COLUMN_TWO_RADIO:
+            case IDC_COLUMN_THREE_RADIO:
+               return onColumnsPage_DrawRadio(pDialogData, hPage, (NMCUSTOMDRAW*)pHeader);
+         }
       break;
    }
 

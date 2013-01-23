@@ -31,7 +31,7 @@ CONST PROPERTY_PAGE_DEFINITION  oPropertyPages[PROPERTY_PAGE_COUNT] =
       dlgprocColumnsPage,         TEXT("PROPERTIES_COLUMNS"),          TEXT("TWO_COLUMN_ICON"),       IDS_LANGUAGE_COLUMNS_PAGE_TITLE,
       dlgprocButtonPage,          TEXT("PROPERTIES_BUTTON"),           TEXT("OUTPUT_WINDOW_ICON"),    IDS_LANGUAGE_BUTTON_PAGE_TITLE,
       dlgprocSpecialPage,         TEXT("PROPERTIES_SPECIAL"),          TEXT("PREFERENCES_ICON"),      IDS_LANGUAGE_SPECIAL_PAGE_TITLE,
-      dlgprocPropertiesBlankPage, TEXT("PROPERTIES_NONE"),             TEXT("BEARSCRIPT"),            IDS_NONE_PAGE_TITLE    
+      dlgprocPropertiesBlankPage, TEXT("PROPERTIES_NONE"),             TEXT("MAIN_WINDOW"),           IDS_NONE_PAGE_TITLE    
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +95,10 @@ HWND   createPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
    pWindowRect = getAppPreferencesWindowRect(AW_PROPERTIES);
    SetWindowPos(pDialogData->hSheetDlg, NULL, pWindowRect->left, pWindowRect->top, NULL, NULL, SWP_NOZORDER WITH SWP_NOSIZE);
 
+   // Create and insert replacement ImageList for the TabControl
+   HIMAGELIST hTabImageList = TabCtrl_SetImageList(PropSheet_GetTabControl(pDialogData->hSheetDlg), createPropertiesDialogImageList(pDialogData->eType));
+   ImageList_Destroy(hTabImageList);
+
    /// Display dialog
    ShowWindow(pDialogData->hSheetDlg, SW_SHOWNORMAL);
    UpdateWindow(pDialogData->hSheetDlg);
@@ -117,10 +121,7 @@ PROPERTIES_DATA*  createPropertiesDialogData()
    pDialogData = utilCreateEmptyObject(PROPERTIES_DATA);
 
    // Create column icons ImageList
-   pDialogData->hColumnIcons = ImageList_Create(48, 48, ILC_COLOR32 WITH ILC_MASK, 3, 1);
-   ImageList_AddIcon(pDialogData->hColumnIcons, LoadIcon(getResourceInstance(), TEXT("ONE_COLUMN_ICON")));
-   ImageList_AddIcon(pDialogData->hColumnIcons, LoadIcon(getResourceInstance(), TEXT("TWO_COLUMN_ICON")));
-   ImageList_AddIcon(pDialogData->hColumnIcons, LoadIcon(getResourceInstance(), TEXT("THREE_COLUMN_ICON")));
+   pDialogData->hColumnIcons = utilCreateImageList(getResourceInstance(), 48, 3, "ONE_COLUMN_ICON", "TWO_COLUMN_ICON", "THREE_COLUMN_ICON");
 
    // Return new object
    return pDialogData;
@@ -151,6 +152,23 @@ VOID  createPropertiesDialogPageData(PROPERTIES_DATA*  pPropertiesData, PROPSHEE
    pPageData->pszTemplate = oPropertyPages[ePage].szTemplateResource;
    pPageData->pszIcon     = oPropertyPages[ePage].szIconResource;
    pPageData->pszTitle    = MAKEINTRESOURCE(oPropertyPages[ePage].iTitleResource);
+}
+
+
+
+HIMAGELIST  createPropertiesDialogImageList(PROPERTY_DIALOG_TYPE  eType)
+{
+   const UINT  iIconSize = 18;
+   HIMAGELIST  hImageList;
+
+   switch (eType)
+   {
+   case PDT_NO_DOCUMENT:       hImageList = utilCreateImageList(getResourceInstance(), iIconSize, 1, "MAIN_WINDOW");  break;
+   case PDT_LANGUAGE_DOCUMENT: hImageList = utilCreateImageList(getResourceInstance(), iIconSize, 4, "NEW_LANGUAGE_FILE_ICON", "TWO_COLUMN_ICON", "VARIABLE_ICON", "PREFERENCES_ICON");  break;
+   case PDT_SCRIPT_DOCUMENT:   hImageList = utilCreateImageList(getResourceInstance(), iIconSize, 5, "NEW_SCRIPT_FILE_ICON", "ARGUMENT_ICON", "SCRIPT_DEPENDENCY_ICON", "VARIABLE_DEPENDENCY_ICON", "EDIT_PAGE_ICON");  break;
+   }
+
+   return hImageList;
 }
 
 
@@ -627,14 +645,14 @@ VOID  onPropertiesDialogActivate(HWND  hSheet, CONST UINT  iFlags)
 //
 INT    onPropertiesDialogCreate(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
 {
-   DLGTEMPLATE*  pTemplate;        // Dialog template for the property sheet
+   //PROPERTIES_DATA*  pDialogData;
+   DLGTEMPLATE*      pTemplate;        // Dialog template for the property sheet
    HWND          hTabCtrl,         // Tab control window handle
                  hButtonCtrl;      // Button control window handle
    RECT          rcTabCtrl,        // Tab control client rectangle
                  rcSheet;          // Sheet client rectangle
    SIZE          siTabCtrl;        // Size of tab control client rectangle
-   HIMAGELIST    hTabImageList;    // Existing imagelist of the tab control
-                 
+   //HIMAGELIST    hTabImageList;    // Existing imagelist of the tab control            
 
    // [DEBUG]
    TRACK_FUNCTION();
@@ -686,11 +704,12 @@ INT    onPropertiesDialogCreate(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
       utilSetClientRect(hSheet, &rcSheet, FALSE);
       utilSetClientRect(hTabCtrl, &rcTabCtrl, FALSE);
 
+      // Turn transparency 'Off' initially
       SetLayeredWindowAttributes(hSheet, NULL, 0xFF, LWA_ALPHA);
 
       // Create and insert replacement ImageList for the TabControl
-      hTabImageList = TabCtrl_SetImageList(hTabCtrl, utilCreateImageList(getResourceInstance(), 18, 5, "NEW_SCRIPT_FILE_ICON", "ARGUMENT_ICON", "SCRIPT_DEPENDENCY_ICON", "VARIABLE_DEPENDENCY_ICON", "EDIT_PAGE_ICON"));
-      ImageList_Destroy(hTabImageList);
+      /*hTabImageList = TabCtrl_SetImageList(hTabCtrl, createPropertiesDialogImageList(pDialogData->eType));
+      ImageList_Destroy(hTabImageList);*/
       break;
    }
 
@@ -711,7 +730,7 @@ VOID    onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMEN
    HPROPSHEETPAGE   hDummyPage,            // Handle to dummy page added during switch over
                     hNewPage;              // Handle of the page currently being created
    PROPERTY_PAGE    eInitialPage;          // ID of the first new page to be added
-   UINT             iOriginalTabIndex;     // Index of the currently selected tab
+   UINT             iOriginalTabIndex;     // Index of the currently selected tab        
 
    // [DEBUG]
    TRACK_FUNCTION();
@@ -754,7 +773,6 @@ VOID    onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMEN
       case PDT_SCRIPT_DOCUMENT:     eInitialPage = PP_SCRIPT_GENERAL;    pSheetData->pScriptDocument   = (SCRIPT_DOCUMENT*)pNewDocument;     break;
       }
 
-
       /// Create and Insert new pages
       for (UINT  iPage = 0; iPage < identifyPropertiesDialogPageCount(pSheetData->eType); iPage++)
       {
@@ -765,10 +783,8 @@ VOID    onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMEN
          PropSheet_AddPage(pSheetData->hSheetDlg, hNewPage);   // Appends page to end
       }
 
-      /// Remove dummy page
+      /// Remove dummy page + select original tab
       PropSheet_RemovePage(pSheetData->hSheetDlg, NULL, hDummyPage);
-
-      // Select original tab, if possible
       PropSheet_SetCurSel(pSheetData->hSheetDlg, NULL, iOriginalTabIndex);
 
       // Redraw window
@@ -1075,7 +1091,6 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
       {
       // [DOCUMENT UPDATED] Refresh current page values
       case UN_DOCUMENT_UPDATED:
-         //onPropertiesDialogPageShow(pSheetData, PropSheet_GetCurrentPageHwnd(pSheetData->hSheetDlg), getPropertiesDialogCurrentPageID(pSheetData));
          onPropertiesDialogPageShow(pSheetData, hPage, ePage);
          break;
 

@@ -219,7 +219,7 @@ BOOL  onButtonPageRequestData(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLV
    
    /// [IMAGE] Supply none
    if (pOutput->item.mask INCLUDES LVIF_IMAGE)
-      pOutput->item.iImage = NULL;
+      pOutput->item.iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("VARIABLE_ICON"));
 
    /// [INDENT] Supply none
    if (pOutput->item.mask INCLUDES LVIF_INDENT)
@@ -282,14 +282,6 @@ INT_PTR   dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARA
       ptCursor.x = LOWORD(lParam);
       ptCursor.y = HIWORD(lParam);
       return onButtonPageContextMenu(pDialogData->pLanguageDocument, hDialog, (HWND)wParam, &ptCursor);
-
-   // [CUSTOM MENU DRAWING]
-   case WM_DRAWITEM:
-      return onOwnerDrawCustomMenu((DRAWITEMSTRUCT*)lParam);
-   // [CUSTOM MENU MEASURING]
-   case WM_MEASUREITEM:
-      calculateCustomMenuItemSize(hDialog, (MEASUREITEMSTRUCT*)lParam);
-      return TRUE;
    }
 
    // Pass to common handlers

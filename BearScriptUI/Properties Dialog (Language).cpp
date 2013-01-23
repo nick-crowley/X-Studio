@@ -21,6 +21,18 @@
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : getLanguageMessage
+// Description     : Retrieve current language message from properties dialog active language document
+// 
+// PROPERTIES_DATA*  pSheetData   : [in] Sheet data
+// 
+// Return Value   : Language message
+// 
+LANGUAGE_MESSAGE*  getLanguageMessage(PROPERTIES_DATA*  pSheetData)
+{
+   ASSERT(pSheetData->pLanguageDocument);
+   return pSheetData->pLanguageDocument->pCurrentMessage;
+}
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
@@ -118,8 +130,10 @@ VOID  performLanguageMessageCompatibilityChange(LANGUAGE_MESSAGE*  pMessage, CON
 BOOL    onGeneralPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl)
 {
    MESSAGE_COMPATIBILITY  eCompatibility;
-   LANGUAGE_MESSAGE*     &pCurrentMessage = pDocument->pCurrentMessage;
+   LANGUAGE_MESSAGE*      pCurrentMessage = pDocument->pCurrentMessage;
+   BOOL                   bResult = FALSE;
 
+   TRACK_FUNCTION();
    switch (iControl)
    {
    /// [AUTHOR] -- Update current message
@@ -128,7 +142,10 @@ BOOL    onGeneralPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST
       {
          utilSafeDeleteString(pCurrentMessage->szAuthor);
          pCurrentMessage->szAuthor = utilGetWindowText(hCtrl);
-         return TRUE;
+
+         // [EVENT] Notify document that a property has changed
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControl);
+         bResult = TRUE;
       }
       break;
 
@@ -138,7 +155,10 @@ BOOL    onGeneralPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST
       {
          utilSafeDeleteString(pCurrentMessage->szTitle);
          pCurrentMessage->szTitle = utilGetWindowText(hCtrl);
-         return TRUE;
+
+         // [EVENT] Notify document that a property has changed
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControl);
+         bResult = TRUE;
       }
       break;
 
@@ -148,12 +168,13 @@ BOOL    onGeneralPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST
       {
          eCompatibility = (MESSAGE_COMPATIBILITY)SendDlgItemMessage(hDialog, IDC_COMPATIBILITY_COMBO, CB_GETCURSEL, NULL, NULL);
          performLanguageMessageCompatibilityChange(pCurrentMessage, eCompatibility);
-         return TRUE;
+         bResult = TRUE;
       }
       break;
    }
 
-   return FALSE;
+   END_TRACKING();
+   return bResult;
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
