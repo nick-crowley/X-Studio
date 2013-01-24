@@ -268,6 +268,7 @@ BOOL   findGamePageInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iPageID, GAME_
 // GAME_STRING*  pGameString : [in/out] GameString to modify
 // CONST TCHAR*  szNewText   : [in]     New GameString text
 // 
+BearScriptAPI
 VOID  updateGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szNewText)
 {
    // Delete existing string

@@ -29,7 +29,7 @@
 ///                                       MESSAGE HANDLERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : onArgumentPageContextMenu
+/// Function name  : onArgumentPage_ContextMenu
 // Description     : Display the GamePage or GameString editing popup menu
 // 
 // SCRIPT_DOCUMENT*  pDocument : [in] Language document data
@@ -38,7 +38,7 @@
 // 
 // Return Value   : TRUE
 // 
-BOOL   onArgumentPageContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST POINT  ptCursor)
+BOOL   onArgumentPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST POINT  ptCursor)
 {
    CUSTOM_MENU*   pCustomMenu;    // Custom Popup menu
    LVHITTESTINFO  oHitTest;          // ListView hittest data
@@ -103,7 +103,7 @@ BOOL  onArgumentsPageCustomDrawTooltip(HWND  hDialog, NMTTCUSTOMDRAW*  pHeader)
    return TRUE;
 }
 
-/// Function name  : onArgumentPageCustomDraw
+/// Function name  : onArgumentPage_CustomDraw
 // Description     : Custom draw handler for the ListView and buttons
 // 
 // SCRIPT_DOCUMENT*  pDocument    : [in] 
@@ -113,7 +113,7 @@ BOOL  onArgumentsPageCustomDrawTooltip(HWND  hDialog, NMTTCUSTOMDRAW*  pHeader)
 // 
 // Return Value   : 
 // 
-BOOL  onArgumentPageCustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pMessageHeader)
+BOOL  onArgumentPage_CustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pMessageHeader)
 {  
    // Examine control
    switch (iControlID)
@@ -139,14 +139,14 @@ BOOL  onArgumentPageCustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST U
 }
 
 
-/// Function name  : onArgumentPageDeleteArgument
+/// Function name  : onArgumentPage_DeleteArgument
 // Description     : Delete the currently selected argument ListView item and the associated ARGUMENT list item
 //                    of the ScriptFile of the currently active document.
 // 
 // SCRIPT_DOCUMENT*  pDocument  : [in] Active document
 // HWND              hDialog    : [in] Window handle of the arguments page
 // 
-VOID   onArgumentPageDeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
+VOID   onArgumentPage_DeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 {
    INT  iItemIndex;     // Zero-based index of the currently selected argument item in the 'Arguments' ListView
    
@@ -164,21 +164,21 @@ VOID   onArgumentPageDeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 
    // Unselected remaining items
    ListView_SetItemState(GetDlgItem(hDialog,IDC_ARGUMENTS_LIST), -1, NULL, LVIS_SELECTED);
-   onArgumentPageItemChanged(pDocument, hDialog, NULL);
+   onArgumentPage_ItemChanged(pDocument, hDialog, NULL);
 
    // [EVENT] Notify document that a property has changed
    sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_ARGUMENTS_LIST);
 }
 
 
-/// Function name  : onArgumentPageEditArgument
+/// Function name  : onArgumentPage_EditArgument
 // Description     : Create an appropriate control to edit the argument property specified by the 'ListView label
 //                     editing data' within the specified document.
 // 
 // SCRIPT_DOCUMENT*  pDocument   : [in] The currently active document
 // HWND              hListView   : [in] Window handle of the Arguments ListView
 // 
-VOID   onArgumentPageEditArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hListView)
+VOID   onArgumentPage_EditArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hListView)
 {
    LISTVIEW_LABEL_DATA&  oLabelData = pDocument->oLabelData;     // Convenience reference for the 'ListView label editing data'
    ARGUMENT*             pArgument;       // Argument list iterator
@@ -249,14 +249,14 @@ VOID   onArgumentPageEditArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hListView)
 }
 
 
-/// Function name  : onArgumentPageInsertArgument
+/// Function name  : onArgumentPage_InsertArgument
 // Description     : Display the 'Insert Argument' dialog and (if the user creates an argument) add the argument
 //                    to the document's ScriptFile and the document properties dialog Argument ListView
 // 
 // SCRIPT_DOCUMENT*  pDocument   : [in] Active document
 // HWND              hDialog     : [in] Window handle of the Arguments property page
 // 
-VOID   onArgumentPageInsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
+VOID   onArgumentPage_InsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 {
    // [VERBOSE]
    VERBOSE_LIB_COMMAND();
@@ -273,7 +273,7 @@ VOID   onArgumentPageInsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 }
 
 
-/// Function name  : onArgumentPageItemChanged
+/// Function name  : onArgumentPage_ItemChanged
 // Description     : Enable/Disable the 'Remove Argument' button based on whether an argument is selected
 // 
 // SCRIPT_DOCUMENT*  pActiveDocument : [in] Active Document
@@ -282,7 +282,7 @@ VOID   onArgumentPageInsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 // 
 // Return Value   : TRUE
 // 
-BOOL   onArgumentPageItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialog, NMLISTVIEW*  pItemData)
+BOOL   onArgumentPage_ItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialog, NMLISTVIEW*  pItemData)
 {
    UINT  iSelectedCount;      // Number of items currently selected in the 'Arguments' ListView
 
@@ -293,7 +293,7 @@ BOOL   onArgumentPageItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialo
    return TRUE;
 }
 
-/// Function name  : onArgumentPageRequestData
+/// Function name  : onArgumentPage_RequestData
 // Description     : Supply the requested piece of argument data for the ListView (sub)item
 // 
 // CONST SCRIPT_DOCUMENT*  pDocument    : [in]     Document data
@@ -302,7 +302,7 @@ BOOL   onArgumentPageItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialo
 // 
 // Return Type     : TRUE
 //
-BOOL   onArgumentPageRequestData(CONST SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pMessageData)
+BOOL   onArgumentPage_RequestData(CONST SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pMessageData)
 {
    LVITEM&        oOutput = pMessageData->item;      // Convenience pointer for the item output data
    GAME_STRING*   pGameString;   // GameString used for argument type lookup
@@ -382,7 +382,7 @@ INT_PTR   dlgprocArgumentPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
    case WM_CONTEXTMENU:
       ptCursor.x = LOWORD(lParam);
       ptCursor.y = HIWORD(lParam);
-      onArgumentPageContextMenu(pDialogData->pScriptDocument, (HWND)wParam, ptCursor);
+      onArgumentPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, ptCursor);
       return TRUE;
 
    /// [COMMANDS] - Process Arguments List menu items and button commands
@@ -392,16 +392,16 @@ INT_PTR   dlgprocArgumentPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
       {
       case IDM_ARGUMENT_INSERT:
       case IDC_ADD_ARGUMENT:
-         onArgumentPageInsertArgument(pDialogData->pScriptDocument, hDialog);
+         onArgumentPage_InsertArgument(pDialogData->pScriptDocument, hDialog);
          return TRUE;
 
       case IDM_ARGUMENT_EDIT:
-         onArgumentPageEditArgument(pDialogData->pScriptDocument, GetDlgItem(hDialog, IDC_ARGUMENTS_LIST));
+         onArgumentPage_EditArgument(pDialogData->pScriptDocument, GetDlgItem(hDialog, IDC_ARGUMENTS_LIST));
          return TRUE;
 
       case IDM_ARGUMENT_DELETE:
       case IDC_REMOVE_ARGUMENT:
-         onArgumentPageDeleteArgument(pDialogData->pScriptDocument, hDialog);
+         onArgumentPage_DeleteArgument(pDialogData->pScriptDocument, hDialog);
          return TRUE;
       }
       break;
@@ -415,7 +415,7 @@ INT_PTR   dlgprocArgumentPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
       {
       /// [REQUEST ARGUMENTS DATA] Supply ARGUMENT data
       case LVN_GETDISPINFO:
-         return onArgumentPageRequestData(pDialogData->pScriptDocument, hDialog, (NMLVDISPINFO*)lParam);
+         return onArgumentPage_RequestData(pDialogData->pScriptDocument, hDialog, (NMLVDISPINFO*)lParam);
 
       /// [IN-PLACE LABEL EDITING] Block system's in place editing 
       case LVN_BEGINLABELEDIT:
@@ -424,11 +424,11 @@ INT_PTR   dlgprocArgumentPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
 
       /// [CUSTOM DRAW BUTTONS]
       case NM_CUSTOMDRAW:
-         return onArgumentPageCustomDraw(pDialogData->pScriptDocument, hDialog, wParam, (NMHDR*)lParam);
+         return onArgumentPage_CustomDraw(pDialogData->pScriptDocument, hDialog, wParam, (NMHDR*)lParam);
 
       /// [SELECTION CHANGED] Enable/Disable 'Remove' button
       case LVN_ITEMCHANGED:
-         return onArgumentPageItemChanged(pDialogData->pScriptDocument, hDialog, (NMLISTVIEW*)lParam);
+         return onArgumentPage_ItemChanged(pDialogData->pScriptDocument, hDialog, (NMLISTVIEW*)lParam);
       }
       break;
    }

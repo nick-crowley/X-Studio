@@ -1281,7 +1281,7 @@
 #define IDC_RESULTS_LIST                                 3180
 #define IDC_RESULTS_SEARCH                               3181
 #define IDC_RESULTS_FILTER                               3182
-#define IDC_RESULTS_COMPATIBLE_CHECK                     3183
+#define IDC_RESULTS_COMPATIBLE                           3183
 
 // Search Dialog
 #define IDC_SEARCH_TAB                                   3190
@@ -1310,15 +1310,19 @@
 
 /// //////////////////////////////////////////////////////////////////////////////
 
-// Insert Language GamePage
+// SourceText Dialog
+#define IDC_SOURCE_EDIT                                  4095
+
+// Insert Language Page
 #define IDC_PAGE_ID_EDIT                                 4100
 #define IDC_PAGE_ID_ICON                                 4101
 #define IDC_PAGE_TITLE_EDIT                              4102
 #define IDC_PAGE_DESCRIPTION_EDIT                        4103
 #define IDC_PAGE_VOICED_CHECK                            4104
 
-// Insert Language GameString
-#define IDC_STRING_ID_EDIT                               4106
+/// OLD:
+// Insert Language String
+//#define IDC_STRING_ID_EDIT                               4106
 #define IDC_STRING_ID_ICON                               4107
 
 // Find Text Dialog
@@ -1432,7 +1436,10 @@
 // 'General' Property Page
 #define IDC_AUTHOR_EDIT                                  4320
 #define IDC_TITLE_EDIT                                   4321
-#define IDC_COMPATIBILITY_COMBO                          4322
+#define IDC_STRING_ID_EDIT                               4322
+#define IDC_STRING_VERSION_COMBO                         4323
+#define IDC_COMPATIBILITY_COMBO                          4324
+#define IDC_LANGUAGE_FOLDER_EDIT                         4325
 
 // 'Columns' Property Page
 #define IDC_COLUMN_ONE_RADIO                             4340

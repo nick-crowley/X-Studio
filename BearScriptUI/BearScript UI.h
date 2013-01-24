@@ -373,11 +373,16 @@ AVL_TREE*  getLanguageDocumentGamePageTree(LANGUAGE_DOCUMENT*  pDocument);
 // Functions
 VOID       deleteLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage);
 AVL_TREE*  generateLanguagePageStringsTree(LANGUAGE_DOCUMENT*  pDocument, CONST GAME_PAGE*  pGamePage);
+UINT       identifyLanguagePageStringNextID(LANGUAGE_DOCUMENT*  pDocument);
 BOOL       insertLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pGamePage);
 BOOL       insertLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pGameString);
-VOID       moveLanguageDocumentPageStrings(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage);
+VOID       modifyLanguageDocumentGamePageID(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage);
+VOID       modifyLanguageDocumentGameStringID(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString, const UINT  iNewID);
 VOID       treeprocDeleteGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
+VOID       treeprocFindFreeGameStringID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 VOID       treeprocModifyGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
+BOOL       validateLanguageButtonID(LANGUAGE_DOCUMENT*  pDocument, CONST TCHAR*  szID);
+BOOL       validateLanguagePageStringID(LANGUAGE_DOCUMENT*  pDocument, const UINT  iStringID);
 
 // Message Handlers
 VOID       onLanguageDocument_Create(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd);
@@ -385,11 +390,8 @@ VOID       onLanguageDocument_ContextMenu(LANGUAGE_DOCUMENT*  pDocument, CONST P
 BOOL       onLanguageDocument_Command(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hControl);
 VOID       onLanguageDocument_Destroy(LANGUAGE_DOCUMENT*  pDocument);
 BOOL       onLanguageDocument_Notify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage);
-VOID       onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID);
 BOOL       onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, NMLVDISPINFO*  pHeader);
 VOID       onLanguageDocument_Resize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNewSize);
-VOID       onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
-VOID       onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
 
 // Window proc
 LRESULT    wndprocLanguageDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
@@ -401,7 +403,16 @@ LRESULT    wndprocLanguageDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam
 // Message Handlers
 VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage);
 VOID  onLanguageDocument_EditPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage);
+VOID  onLanguageDocument_EditString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString);
+VOID  onLanguageDocument_EditStringBegin(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader);
+BOOL  onLanguageDocument_EditStringEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader);
+
 VOID  onLanguageDocument_InsertPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pNewPage);
+VOID  onLanguageDocument_InsertString(LANGUAGE_DOCUMENT*  pDocument, const UINT  iPageID);
+VOID       onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
+VOID       onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID);
+VOID       onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
+VOID   onLanguageDocument_ViewFormattingError(LANGUAGE_DOCUMENT*  pDocument);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                        MAIN
@@ -944,7 +955,7 @@ INT_PTR  dlgprocPreferencesMiscPage(HWND  hDialog, UINT  iMessage, WPARAM  wPara
 INT_PTR  dlgprocPreferencesSyntaxPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
-///                           PROPERTIES PROPERTY SHEET (BASE)
+///                           PROPERTIES DIALOG (BASE)
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Creation / Destruction
@@ -969,13 +980,13 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
 HWND  initPropertiesDialogPageTooltips(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
 
 // Message Handlers
-VOID  onPropertiesDialogActivate(HWND  hSheet, CONST UINT  iFlags);
-INT   onPropertiesDialogCreate(HWND  hSheet, UINT  iMessage, LPARAM  lParam);
-VOID  onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pPropertiesData, DOCUMENT*  pNewDocument);
-VOID  onPropertiesDialogHelp(PROPERTIES_DATA*  pSheetData, PROPERTY_PAGE  ePage, CONST HELPINFO*  pRequest);
-BOOL  onPropertiesDialogNotify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPERTY_PAGE  ePage, NMHDR*  pMessageHeader);
-VOID  onPropertiesDialogPageHide(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
-VOID  onPropertiesDialogPageShow(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
+VOID  onPropertiesDialog_Activate(HWND  hSheet, CONST UINT  iFlags);
+INT   onPropertiesDialog_Create(HWND  hSheet, UINT  iMessage, LPARAM  lParam);
+VOID  onPropertiesDialog_DocumentSwitched(PROPERTIES_DATA*  pPropertiesData, DOCUMENT*  pNewDocument);
+VOID  onPropertiesDialog_Help(PROPERTIES_DATA*  pSheetData, PROPERTY_PAGE  ePage, CONST HELPINFO*  pRequest);
+BOOL  onPropertiesDialog_Notify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPERTY_PAGE  ePage, NMHDR*  pMessageHeader);
+VOID  onPropertiesDialog_PageHide(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
+VOID  onPropertiesDialog_PageShow(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
 
 // Window procedures
 INT_PTR  dlgprocPropertiesBlankPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
@@ -984,93 +995,92 @@ INT_PTR  dlgprocPropertiesSheet(HWND  hSheet, UINT  iMessage, WPARAM  wParam, LP
 
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
-///                      PROPERTIES PROPERTY SHEET (ARGUMENT PAGE)
+///                        PROPERTIES DIALOG (SCRIPT)
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
+/// Page: General
 // Message Handlers
-BOOL   onArgumentPageContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST POINT  ptCursor);
-BOOL   onArgumentPageCustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pMessageHeader);
-VOID   onArgumentPageDeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
-VOID   onArgumentPageEditArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hListView);
-VOID   onArgumentPageInsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
-BOOL   onArgumentPageItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialog, NMLISTVIEW*  pItemData);
-BOOL   onArgumentPageRequestData(CONST SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pMessageData);
+BOOL   onGeneralPage_CommandS(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
+BOOL   onGeneralPage_DrawItem(DRAWITEMSTRUCT*  pDrawInfo);
+VOID   onGeneralPage_PropertyChanged(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControlID);
+VOID   onScriptPage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
+
+/// Page: Arguments
+// Message Handlers
+BOOL   onArgumentPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST POINT  ptCursor);
+BOOL   onArgumentPage_CustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pMessageHeader);
+VOID   onArgumentPage_DeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
+VOID   onArgumentPage_EditArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hListView);
+VOID   onArgumentPage_InsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
+BOOL   onArgumentPage_ItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialog, NMLISTVIEW*  pItemData);
+BOOL   onArgumentPage_RequestData(CONST SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pMessageData);
+
+/// Pages: Dependencies/Strings/Variables
+// Functions
+VOID   updateScriptDependenciesPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage);
+VOID   updateScriptStringsPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage);
+VOID   updateScriptVariablesPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage);
+
+// Message Handlers
+BOOL   onDependenciesPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST UINT  iCursorX, CONST UINT  iCursorY);
+VOID   onDependenciesPage_LoadSelectedScripts(HWND  hPage, SCRIPT_FILE*  pScriptFile, AVL_TREE*  pDependenciesTree);
+VOID   onDependenciesPage_OperationComplete(PROPERTIES_DATA*  pSheetData, AVL_TREE*  pCallersTree);
+VOID   onDependenciesPage_PerformSearch(PROPERTIES_DATA*  pSheetData, HWND  hPage);
+VOID   onDependenciesPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData);
+VOID   onStringsPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData);
+VOID   onVariablesPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData);
 
 // Dialog procedures
 INT_PTR   dlgprocArgumentPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-
-// Window Procedures
+INT_PTR   dlgprocGeneralPageS(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+INT_PTR   dlgprocStringsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 LRESULT   wndprocArgumentPageComboCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 LRESULT   wndprocArgumentPageEditCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
-///                      PROPERTIES PROPERTY SHEET (GENERAL PAGE)
-/// ////////////////////////////////////////////////////////////////////////////////////////
-
-// Message Handlers
-BOOL      onGeneralPageCommandScript(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
-BOOL      onGeneralPageDrawItem(DRAWITEMSTRUCT*  pDrawInfo);
-VOID      onGeneralPagePropertyChanged(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID);
-
-// Dialog Procedures
-INT_PTR   dlgprocGeneralPageScript(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-
-/// ////////////////////////////////////////////////////////////////////////////////////////
-///                   PROPERTIES PROPERTY SHEET  (DEPENDENCIES PAGE)
-/// ////////////////////////////////////////////////////////////////////////////////////////
-
-// Functions
-VOID   updateScriptDependenciesPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage);
-VOID   updateScriptStringsPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage);
-VOID   updateScriptVariablesPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage);
-
-// Message Handlers
-BOOL   onDependenciesPageContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST UINT  iCursorX, CONST UINT  iCursorY);
-VOID   onDependenciesPage_LoadSelectedScripts(HWND  hPage, SCRIPT_FILE*  pScriptFile, AVL_TREE*  pDependenciesTree);
-VOID   onDependenciesPage_OperationComplete(PROPERTIES_DATA*  pSheetData, AVL_TREE*  pCallersTree);
-VOID   onDependenciesPage_PerformSearch(PROPERTIES_DATA*  pSheetData, HWND  hPage);
-VOID   onDependenciesPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData);
-VOID   onStringsPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData);
-VOID   onVariablesPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData);
-
-// Dialog procedures
-INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-INT_PTR   dlgprocStringsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-
-/// ////////////////////////////////////////////////////////////////////////////////////////
-///                     PROPERTIES PROPERTY SHEET (LANGUAGE PAGES)
+///                        PROPERTIES DIALOG (LANGUAGE)
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Helpers
-LANGUAGE_MESSAGE*  getLanguageMessage(PROPERTIES_DATA*  pSheetData);
+VOID                   enablePropertiesDialogControls(HWND  hPage, const BOOL  bEnable);
+LANGUAGE_MESSAGE*      getLanguageMessage(PROPERTIES_DATA*  pSheetData);
 
+/// Page: General
 // Functions
 MESSAGE_COMPATIBILITY  calculateLanguageMessageCompatibility(CONST LANGUAGE_MESSAGE*  pMessage);
-VOID    displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UINT  iValue);
-VOID    performLanguageMessageCompatibilityChange(LANGUAGE_MESSAGE*  pMessage, CONST MESSAGE_COMPATIBILITY  eCompatibility);
+VOID                   displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UINT  iValue);
+VOID                   performLanguageMessageCompatibilityChange(LANGUAGE_MESSAGE*  pMessage, CONST MESSAGE_COMPATIBILITY  eCompatibility);
 
+// Handlers
+VOID    onLanguagePage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);
+BOOL    onGeneralPage_CommandL(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
+
+/// Page: Buttons
 // Message Handlers
-BOOL    onButtonPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
-BOOL    onButtonPageContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, HWND  hCtrl, CONST POINT*  ptCursor);
-BOOL    onButtonPageLabelEditBegin(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVLABELINFO*  pLabelData);
-BOOL    onButtonPageLabelEditEnd(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVLABELINFO*  pLabelData);
-BOOL    onButtonPageNotification(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
-BOOL    onButtonPageRequestData(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pOutput);
+//BOOL    onButtonPage_Command(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
+BOOL    onButtonPage_ContextMenu(PROPERTIES_DATA*  pSheetData, HWND  hPage, HWND  hCtrl, CONST POINT*  ptCursor);
+VOID    onButtonPage_LabelEditBegin(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pLabelData);
+VOID    onButtonPage_LabelEditEnd(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pLabelData);
+BOOL    onButtonPage_Notification(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMHDR*  pMessage);
+VOID    onButtonPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, LVITEM&  oOutput);
 
+/// Page: Columns
+// Message Handlers
 BOOL    onColumnsPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
 BOOL    onColumnsPage_DrawGroup(PROPERTIES_DATA*  pSheetData, HWND  hPage, DRAWITEMSTRUCT*  pDrawData);
 BOOL    onColumnsPage_DrawRadio(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMCUSTOMDRAW*  pDrawData);
 BOOL    onColumnsPage_Scroll(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iScrollType, UINT  iPosition, HWND  hCtrl);
 
-BOOL    onGeneralPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
-BOOL    onSpecialPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
+/// Page: Special
+// Message Handlers
+BOOL    onSpecialPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
 
-
-// Window procedures
+// Dialog procedures
 INT_PTR    dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 INT_PTR    dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-INT_PTR    dlgprocGeneralPageLanguage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+INT_PTR    dlgprocGeneralPageL(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 INT_PTR    dlgprocSpecialPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -1109,9 +1119,10 @@ BOOL    createRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog
 UINT   identifyRichTextDialogToolBarCommandID(CONST UINT  iIndex);
 
 // Functions 
+UINT   getRichTextDialogButtonCount(LANGUAGE_DOCUMENT*  pDocument);
 BOOL   initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
-BOOL   updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
 BOOL   performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iCommand);
+BOOL   updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
 
 // Message Handlers
 BOOL   onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification);
@@ -1124,6 +1135,12 @@ BOOL   onRichTextDialogResize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
 
 INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                                SOURCETEXT DIALOG
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Functions
+BOOL  displaySourceTextDialog(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pTargetString, HWND  hParentWnd);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                SCRIPT CALL DIALOG

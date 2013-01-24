@@ -657,12 +657,9 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
       }
       else 
       {
-         // [STAGE] Move to IDS_PROGRESS_STORING_MASTER_STRINGS or IDS_PROGRESS_TRANSLATING_SPEECH_CLIPS
-         if (pProgress)    
+         // [STAGE] Move to IDS_PROGRESS_STORING_MASTER_STRINGS / IDS_PROGRESS_PROCESSING_LANGUAGE / IDS_PROGRESS_TRANSLATING_SPEECH_CLIPS
+         if (pProgress)   // [Not used by supplementary langauge files]
          {
-            // [CHECK] Ensure we're dealing with the Master LanguageFile or the SpeechFile
-            //ASSERT(isLanguageFileMaster(pTargetFile) OR pTargetFile->eType == LFT_SPEECH);    // [FIX] Now also used during loading user langauge files
-
             // [PROGRESS] Define progress based on the number of pages processed
             advanceOperationProgressStage(pProgress);
             updateOperationProgressMaximum(pProgress, getXMLNodeCount(pLanguageNode));
@@ -733,7 +730,7 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
                   // [STRINGS] Insert new GameString into LanguageFile
                   case LFT_STRINGS:
                      // [FIX] BUG:014 'Empty string entries in supplementary language files produce a warning and are not processed'
-                     insertGameStringIntoLanguageFile(pTargetFile, (pItemNode->szText ? pItemNode->szText : TEXT("")), (UINT)oItemData.iItemID, (UINT)oItemData.iRawPageID, pError);
+                     insertGameStringIntoLanguageFile(pTargetFile, utilEither(pItemNode->szText, TEXT("")), (UINT)oItemData.iItemID, (UINT)oItemData.iRawPageID, pError);
 #ifdef BUG_FIX
                      // [CHECK] Ensure string has text
                      if (pItemNode->szText == NULL)

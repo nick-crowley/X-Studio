@@ -42,7 +42,7 @@
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 
-/// Function name  : onSpecialPageCommand
+/// Function name  : onSpecialPage_Command
 // Description     : WM_COMMAND processing for the 'Special' properties page
 // 
 // LANGUAGE_DOCUMENT* pDocument      : [in] Language Document data
@@ -53,48 +53,53 @@
 // 
 // Return Value   : TRUE if processed, FALSE otherwise
 // 
-BOOL    onSpecialPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl)
+BOOL    onSpecialPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl)
 {
-   LANGUAGE_MESSAGE*  &pCurrentMessage = pDocument->pCurrentMessage;
+   LANGUAGE_MESSAGE*  pCurrentMessage = getLanguageMessage(pSheetData);
+   BOOL               bResult = TRUE;
 
+   // [CHECK] Ensure update is due to user action
+   if (pSheetData->bRefreshing)
+      return FALSE;
+
+   // Examine control
    switch (iControl)
    {
-   /// [ARTICLE CHECK] - Save new article state
    case IDC_ARTICLE_CHECK:
-      pCurrentMessage->bArticle = IsDlgButtonChecked(hDialog, IDC_ARTICLE_CHECK);
-      break;
-
-   /// [CUSTOM RANK CHECK] - Save new state and Enable/Disable custom rank controls
    case IDC_RANK_CHECK:
-      pCurrentMessage->bCustomRank = IsDlgButtonChecked(hDialog, IDC_RANK_CHECK);
-      EnableWindow(GetDlgItem(hDialog,IDC_RANK_TITLE_EDIT), IsDlgButtonChecked(hDialog, IDC_RANK_CHECK));
-      EnableWindow(GetDlgItem(hDialog,IDC_RANK_TYPE_COMBO), IsDlgButtonChecked(hDialog, IDC_RANK_CHECK));
-      break;
-
-   /// [RANK TYPE]
    case IDC_RANK_TYPE_COMBO:
-      if (iNotification == CBN_SELCHANGE)
-      {
-         pCurrentMessage->eRankType = (RANK_TYPE)SendDlgItemMessage(hDialog, IDC_RANK_TYPE_COMBO, CB_GETCURSEL, NULL, NULL);
-         break;
-      }
-      return FALSE;
-
-   /// [RANK TITLE] - Store new title
    case IDC_RANK_TITLE_EDIT:
-      if (iNotification == EN_CHANGE)
+      switch (iControl)
       {
-         // Delete existing title and replace with window text
-         utilReplaceWindowTextString(pCurrentMessage->szRankTitle, hCtrl);
+      /// [ARTICLE CHECK] - Save new article state
+      case IDC_ARTICLE_CHECK:
+         pCurrentMessage->bArticle = IsDlgButtonChecked(hDialog, IDC_ARTICLE_CHECK);
+         break;
+
+      /// [CUSTOM RANK CHECK] - Save new state and Enable/Disable custom rank controls
+      case IDC_RANK_CHECK:
+         utilEnableDlgItem(hDialog, IDC_RANK_TITLE_EDIT, pCurrentMessage->bCustomRank = IsDlgButtonChecked(hDialog, IDC_RANK_CHECK));
+         utilEnableDlgItem(hDialog, IDC_RANK_TYPE_COMBO, pCurrentMessage->bCustomRank);
+         break;
+
+      /// [RANK TYPE] Store new rank
+      case IDC_RANK_TYPE_COMBO:
+         if (bResult = iNotification == CBN_SELCHANGE)
+            pCurrentMessage->eRankType = (RANK_TYPE)ComboBox_GetCurSel(GetDlgItem(hDialog, IDC_RANK_TYPE_COMBO));
+         break;
+
+      /// [RANK TITLE] Store new title
+      case IDC_RANK_TITLE_EDIT:
+         if (bResult = iNotification == EN_CHANGE)
+            utilReplaceWindowTextString(pCurrentMessage->szRankTitle, hCtrl);
          break;
       }
-      return FALSE;
 
-   default:
-      return FALSE;
+      return bResult;
    }
 
-   return TRUE;
+   // [UNHANDLED]
+   return FALSE;
 }
 
 /// Function name  : onSpecialPageCtlColour
@@ -142,7 +147,7 @@ INT_PTR   dlgprocSpecialPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
    switch (iMessage)
    {
    case WM_COMMAND:
-      if (onSpecialPageCommand(pDialogData->pLanguageDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
+      if (onSpecialPage_Command(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
          return TRUE;
       break;
    }

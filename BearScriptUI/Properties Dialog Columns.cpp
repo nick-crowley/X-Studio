@@ -74,36 +74,53 @@ VOID  displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UIN
 // 
 BOOL    onColumnsPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl)
 {
-   LANGUAGE_MESSAGE*  pCurrentMessage = pSheetData->pLanguageDocument->pCurrentMessage;    // Convenience pointer for current language message
+   LANGUAGE_MESSAGE*  pCurrentMessage = pSheetData->pLanguageDocument->pCurrentMessage;    // Convenience pointer for current language message;
+   BOOL               bResult = TRUE;
 
+   TRACK_FUNCTION();
    switch (iControl)
    {
    /// [COLUMN COUNT] -- Update the message
-   case IDC_COLUMN_ONE_RADIO:    pCurrentMessage->iColumnCount = 1;   break;
-   case IDC_COLUMN_TWO_RADIO:    pCurrentMessage->iColumnCount = 2;   break;
-   case IDC_COLUMN_THREE_RADIO:  pCurrentMessage->iColumnCount = 3;   break;
-
-   /// [CUSTOM WIDTH] -- Update message then enable/disable width controls
+   case IDC_COLUMN_ONE_RADIO:  
+   case IDC_COLUMN_TWO_RADIO:  
+   case IDC_COLUMN_THREE_RADIO:
    case IDC_COLUMN_WIDTH_CHECK:
-      pCurrentMessage->bCustomWidth = IsDlgButtonChecked(hPage, IDC_COLUMN_WIDTH_CHECK);
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_WIDTH_SLIDER), pCurrentMessage->bCustomWidth);
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_WIDTH_STATIC), pCurrentMessage->bCustomWidth);
-      break;
-
-   /// [CUSTOM SPACING] -- Update message then enable/disable width controls
    case IDC_COLUMN_SPACING_CHECK:
-      pCurrentMessage->bCustomSpacing = IsDlgButtonChecked(hPage, IDC_COLUMN_SPACING_CHECK);
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_SPACING_SLIDER), pCurrentMessage->bCustomSpacing);
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_SPACING_STATIC), pCurrentMessage->bCustomSpacing);
+      switch (iControl)
+      {
+      /// [COLUMN COUNT] -- Update the message
+      case IDC_COLUMN_ONE_RADIO:    pCurrentMessage->iColumnCount = 1;   break;
+      case IDC_COLUMN_TWO_RADIO:    pCurrentMessage->iColumnCount = 2;   break;
+      case IDC_COLUMN_THREE_RADIO:  pCurrentMessage->iColumnCount = 3;   break;
+
+      /// [CUSTOM WIDTH] -- Update message then enable/disable width controls
+      case IDC_COLUMN_WIDTH_CHECK:
+         pCurrentMessage->bCustomWidth = IsDlgButtonChecked(hPage, IDC_COLUMN_WIDTH_CHECK);
+         EnableWindow(GetDlgItem(hPage, IDC_COLUMN_WIDTH_SLIDER), pCurrentMessage->bCustomWidth);
+         EnableWindow(GetDlgItem(hPage, IDC_COLUMN_WIDTH_STATIC), pCurrentMessage->bCustomWidth);
+         break;
+
+      /// [CUSTOM SPACING] -- Update message then enable/disable width controls
+      case IDC_COLUMN_SPACING_CHECK:
+         pCurrentMessage->bCustomSpacing = IsDlgButtonChecked(hPage, IDC_COLUMN_SPACING_CHECK);
+         EnableWindow(GetDlgItem(hPage, IDC_COLUMN_SPACING_SLIDER), pCurrentMessage->bCustomSpacing);
+         EnableWindow(GetDlgItem(hPage, IDC_COLUMN_SPACING_STATIC), pCurrentMessage->bCustomSpacing);
+         break;
+      }
+
+      // [BY USER] Notify document of property change
+      if (pSheetData->bRefreshing)
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControl);
       break;
 
+   // [UNHANDLED]
    default:
-      return FALSE;
+      bResult = FALSE;
+      break;
    }
 
-   // [EVENT] Notify document that a property has changed
-   sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControl);
-   return TRUE;
+   END_TRACKING();
+   return bResult;
 }
 
 
@@ -258,8 +275,9 @@ BOOL  onColumnsPage_Scroll(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT
       break;
    }
 
-   // [EVENT] Notify document that a property has changed
-   sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iSliderID);
+   // [BY USER] Notify document of change
+   if (!pSheetData->bRefreshing)
+      sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iSliderID);
 
    /// Format and display position value
    displayColumnPageSliderText(hPage, iStaticID, iPosition);
@@ -279,28 +297,31 @@ INT_PTR   dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
 {
    PROPERTIES_DATA*  pDialogData;
    NMHDR*            pHeader;
+   BOOL              bResult = FALSE;
+   TRACK_FUNCTION();
 
    // Get dialog data
    pDialogData = getPropertiesDialogData(hPage);
    
    switch (iMessage)
    {
-   /// [TRACKBAR MOVEMENT] 
+   /// [SLIDER] 
    case WM_HSCROLL:
-      return onColumnsPage_Scroll(pDialogData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
-
-   // [COMMAND PROCESSING]
-   case WM_COMMAND:
-      if (onColumnsPage_Command(pDialogData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
-         return TRUE;
+      bResult = onColumnsPage_Scroll(pDialogData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
       break;
 
+   /// [COMMANDS]
+   case WM_COMMAND:
+      bResult = onColumnsPage_Command(pDialogData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+      break;
+
+   /// [OWNER DRAW GROUP-BOX]
    case WM_DRAWITEM:
       if (wParam == IDC_COLUMN_WIDTH_GROUP OR wParam == IDC_COLUMN_SPACING_GROUP)
-         return onColumnsPage_DrawGroup(pDialogData, hPage, (DRAWITEMSTRUCT*)lParam);
+         bResult = onColumnsPage_DrawGroup(pDialogData, hPage, (DRAWITEMSTRUCT*)lParam);
       break;
 
-   /// [NOTIFICATION]
+   /// [CUSTOM DRAW RADIO-BUTTON]
    case WM_NOTIFY:
       pHeader = (NMHDR*)lParam;
 
@@ -311,10 +332,12 @@ INT_PTR   dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
             case IDC_COLUMN_ONE_RADIO:
             case IDC_COLUMN_TWO_RADIO:
             case IDC_COLUMN_THREE_RADIO:
-               return onColumnsPage_DrawRadio(pDialogData, hPage, (NMCUSTOMDRAW*)pHeader);
+               bResult = onColumnsPage_DrawRadio(pDialogData, hPage, (NMCUSTOMDRAW*)pHeader);
+               break;
          }
       break;
    }
 
-   return dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_LANGUAGE_COLUMNS);
+   END_TRACKING();
+   return (bResult ? bResult : dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_LANGUAGE_COLUMNS));
 }

@@ -257,8 +257,8 @@ VOID  initResultsDialogControls(RESULTS_DIALOG_DATA*  pDialogData)
    ComboBox_SetCurSel(pDialogData->hFilterCombo, getAppPreferences()->eSearchDialogFilters[pDialogData->eType]);
 
    /// [COMPATIBLE] Check+Enable for Commands and ScriptObjects
-   utilEnableDlgItem(pDialogData->hDialog, IDC_RESULTS_COMPATIBLE_CHECK, pDialogData->eType != RT_GAME_OBJECTS);
-   CheckDlgButton(pDialogData->hDialog, IDC_RESULTS_COMPATIBLE_CHECK, pDialogData->eType != RT_GAME_OBJECTS);
+   utilShowDlgItem(pDialogData->hDialog, IDC_RESULTS_COMPATIBLE, pDialogData->eType != RT_GAME_OBJECTS);
+   CheckDlgButton(pDialogData->hDialog, IDC_RESULTS_COMPATIBLE, pDialogData->eType != RT_GAME_OBJECTS);
 
    // Cleanup
    END_TRACKING();
@@ -364,7 +364,7 @@ VOID   updateResultsDialog(HWND  hDialog)
          pDialogData->eGameVersion = getAppPreferences()->eGameVersion;
 
       /// Build results tree and calculate group sizes
-      performResultsDialogQuery(pDialogData, szSearchTerm, iGroupFilter, IsDlgButtonChecked(hDialog, IDC_RESULTS_COMPATIBLE_CHECK));   
+      performResultsDialogQuery(pDialogData, szSearchTerm, iGroupFilter, IsDlgButtonChecked(hDialog, IDC_RESULTS_COMPATIBLE));   
       performAVLTreeGroupCount(pDialogData->pResultsTree, pGroupCounter, AK_GROUP);
 
       // Iterate through all groups
@@ -386,6 +386,12 @@ VOID   updateResultsDialog(HWND  hDialog)
       // [FAILURE] Empty ListView
       GroupedListView_EmptyGroups(pDialogData->hListView);
    }
+
+   SCRIPT_DOCUMENT*  pScriptDoc = getActiveScriptDocument();
+   utilEnableDlgItem(hDialog, IDC_RESULTS_SEARCH, pScriptDoc != NULL);
+   utilEnableDlgItem(hDialog, IDC_RESULTS_FILTER, pScriptDoc != NULL);
+   utilEnableDlgItem(hDialog, IDC_RESULTS_LIST, pScriptDoc != NULL);
+   utilEnableDlgItem(hDialog, IDC_RESULTS_COMPATIBLE, pScriptDoc != NULL);
    
    // Cleanup
    END_TRACKING();
@@ -438,7 +444,7 @@ BOOL   onResultsDialog_Command(RESULTS_DIALOG_DATA*  pDialogData, CONST UINT  iC
       break;
 
    /// [COMPATIBLE CHECK CHANGED] Refresh results
-   case IDC_RESULTS_COMPATIBLE_CHECK:
+   case IDC_RESULTS_COMPATIBLE:
       updateResultsDialog(pDialogData->hDialog);
       bResult = TRUE;
       break;
@@ -902,10 +908,10 @@ VOID   onResultsDialog_Resize(RESULTS_DIALOG_DATA*  pDialogData, CONST SIZE*  pD
    utilDeferDlgItemRect(hControlPositions, pDialogData->hDialog, IDC_RESULTS_LIST, &rcControl, FALSE, TRUE);
 
    /// Align CheckBox with edge of the dialog
-   utilGetDlgItemRect(pDialogData->hDialog, IDC_RESULTS_COMPATIBLE_CHECK, &rcControl);
+   utilGetDlgItemRect(pDialogData->hDialog, IDC_RESULTS_COMPATIBLE, &rcControl);
    rcControl.left  = pDialogSize->cx - (rcControl.right - rcControl.left);
    rcControl.right = pDialogSize->cx;
-   utilDeferDlgItemRect(hControlPositions, pDialogData->hDialog, IDC_RESULTS_COMPATIBLE_CHECK, &rcControl, TRUE, FALSE);
+   utilDeferDlgItemRect(hControlPositions, pDialogData->hDialog, IDC_RESULTS_COMPATIBLE, &rcControl, TRUE, FALSE);
 
    /// Extend Search Edit to the edge of the dialog
    utilGetDlgItemRect(pDialogData->hDialog, IDC_RESULTS_SEARCH, &rcControl);

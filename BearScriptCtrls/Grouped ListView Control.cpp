@@ -527,7 +527,7 @@ BOOL   onGroupedListViewCustomDraw(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRAW
             {
             /// [HEADER GAP] - Draw a blank item
             case GLVIT_BLANK:
-               FillRect(pPrevState->hDC, &pItemData->rcRect, GetSysColorBrush(COLOR_WINDOW));
+               FillRect(pPrevState->hDC, &pItemData->rcRect, GetSysColorBrush(IsWindowEnabled(hCtrl) ? COLOR_WINDOW : COLOR_BTNFACE));
                break;
 
             /// [HEADER] - Draw a bold header with a gradient underline

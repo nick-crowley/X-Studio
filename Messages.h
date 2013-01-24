@@ -526,6 +526,14 @@
 //
 #define     UM_PLAY_MEDIA_ITEM            (UM_XSTUDIO + 61)
 
+/// Name: UM_INIT_MEDIA_PLAYER
+// Description: Passes dialog data to the media player
+//
+// WPARAM : NULL
+// LPARAM : Dialog data
+//
+#define     UM_INIT_MEDIA_PLAYER            (UM_XSTUDIO + 62)
+
 /// Name: UM_MEDIA_EVENT
 // Description: Tells the Media Player dialog a DirectShow graph filter event has occurred
 //
@@ -533,5 +541,7 @@
 // LPARAM : Custom ID, Ignored.
 //
 #define     UM_MEDIA_EVENT                (WM_APP + 2)
+
+
 
 

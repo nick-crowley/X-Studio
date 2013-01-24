@@ -427,6 +427,27 @@ BOOL   utilEnableDlgItem(HWND  hDialog, CONST UINT  iControlID, CONST BOOL  bEna
 }
 
 
+/// Function name  : utilEnableDlgItems
+// Description     : Enables/Disables specified controls in a dialog
+// 
+// HWND        hDialog   : [in] Dialog
+// const BOOL  bEnable : [in] TRUE/FALSE
+// const UINT  iCount  : [in] Control count
+// const UINT  ....    : [in] Control IDs
+// 
+UtilityAPI
+VOID  utilEnableDlgItems(HWND  hDialog, const BOOL  bEnable, const UINT  iCount, ...)
+{
+   va_list  pArguments = utilGetFirstVariableArgument(&iCount);
+
+   for (UINT  i = 0; i < iCount; i++)
+   {
+      EnableWindow(GetDlgItem(hDialog, utilGetCurrentVariableArgument(pArguments, UINT)), bEnable);
+      pArguments = utilGetNextVariableArgument(pArguments, UINT);
+   }
+}
+
+
 /// Function name  : utilGetDlgItemPath
 // Description     : Generate a new string of MAX_PATH chars from a window's text
 // 
@@ -543,6 +564,19 @@ UINT   utilGetWindowHeight(HWND  hWnd)
    return (rcWindow.bottom - rcWindow.top);
 }
 
+
+/// Function name  : utilGetWindowInt
+// Description     : Retrieve window text as an integer
+// 
+// HWND   hWnd  : [in] Target window
+// 
+UtilityAPI
+UINT  utilGetWindowInt(HWND  hWnd)
+{
+   TCHAR  szText[16];
+   
+   return GetWindowText(hWnd, szText, 16) ? utilConvertStringToInteger(szText) : 0;
+}
 
 /// Function name  : utilGetWindowSize
 // Description     : Retrieve the size of a window

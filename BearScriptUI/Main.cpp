@@ -6,6 +6,7 @@
 // 
 
 #include "stdafx.h"
+#include "Dbghelp.h"
 
 // Import Common controls v6.0
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -648,6 +649,7 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
 
    // Prepare
    SET_THREAD_NAME("User Interface");
+   //SymInitialize(GetCurrentProcess(), NULL, TRUE );
    pError = NULL;
 
    // [CHECK] Ensure program is not already running
@@ -780,6 +782,7 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
    }
 
    // [TERMINATE]
+   //SymCleanup(GetCurrentProcess());
    return FALSE;
 }
 

@@ -447,7 +447,9 @@ LRESULT CALLBACK       wndprocConsole(HWND hWnd, UINT iMessage, WPARAM wParam, L
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Functions
-BearScriptAPI VOID   debugQueryWindow(HWND  hWnd, CONST TCHAR*  szName, CONST BOOL  bIncludeParent);
+BearScriptAPI VOID    debugQueryWindow(HWND  hWnd, CONST TCHAR*  szName, CONST BOOL  bIncludeParent);
+BearScriptAPI TCHAR*  generateStackTrace(HANDLE  hProcess);
+
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    ERROR QUEUES
@@ -661,7 +663,7 @@ VOID                appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*
 BearScriptAPI BOOL  findGameStringByID(CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
 BearScriptAPI BOOL  findGameStringInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
 BearScriptAPI BOOL  findGamePageInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iPageID, GAME_PAGE*  &pOutput);
-VOID                updateGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szNewText);
+BearScriptAPI VOID  updateGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szNewText);
 
 // Functions
 BOOL                findGameStringBySubString(CONST TCHAR*  szSubString, CONST UINT  iLength, CONST UINT  iDefaultPageID, GAME_STRING*  &pOutput);

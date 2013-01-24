@@ -263,7 +263,8 @@ struct  LANGUAGE_DOCUMENT : DOCUMENT
                         hRichEdit,           // RichText dialog's RichEdit control window handle
                         hToolBar;            // RichText dialog's Toolbar window handle
 
-   LISTVIEW_LABEL_DATA  oLabelData;         // In-Place Label editing data
+   //LISTVIEW_LABEL_DATA  oLabelData;         // In-Place Label editing data
+   LVHITTESTINFO        oStringClick;
    GAME_PAGE*           pCurrentPage;       // Currently selected GamePage
    GAME_STRING*         pCurrentString;     // Currently selected GameString
 
@@ -556,7 +557,7 @@ struct PROPERTIES_DATA
    PROPERTY_DIALOG_TYPE  eType;                             // Type of pages currently being displayed
    HWND                  hSheetDlg,                         // Window handle for the properties sheet
                          hTooltips[PROPERTY_PAGE_COUNT];    // Tooltip window handles
-
+   BOOL                  bRefreshing;                       // TRUE while controls are being refreshed by the dialog
    
    DLGPROC               dlgprocSheetBase;                  // Base dialog procedure for the sub-classed properties sheet
 

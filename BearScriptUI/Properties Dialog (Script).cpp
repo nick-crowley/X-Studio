@@ -12,7 +12,7 @@
 ///                                          MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : onGeneralPageCommandScript
+/// Function name  : onGeneralPage_CommandS
 // Description     : WM_COMMAND processing for the 'General' script properties page
 // 
 // SCRIPT_DOCUMENT* pDocument      : [in] ScriptDocument 
@@ -23,14 +23,11 @@
 // 
 // Return Value   : TRUE if processed, FALSE otherwise
 // 
-BOOL   onGeneralPageCommandScript(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl)
+BOOL   onGeneralPage_CommandS(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl)
 {
    GAME_STRING*  pCommandLookup;
    TCHAR*        szCommandID;
-   BOOL          bResult;
-
-   // Prepare
-   bResult = FALSE;
+   BOOL          bResult = FALSE;
 
    // Examine control ID
    switch (iControlID)
@@ -49,11 +46,8 @@ BOOL   onGeneralPageCommandScript(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONS
       case EN_CHANGE:
       case CBN_SELCHANGE:
          // [CHECK] Ensure notification was caused by user input
-         if (hCtrl == GetFocus())
-         {
-            onGeneralPagePropertyChanged(pDocument, hPage, iControlID);
-            bResult = TRUE;
-         }
+         if (bResult = !pSheetData->bRefreshing)
+            onGeneralPage_PropertyChanged(pSheetData, hPage, iControlID);
          break;
 
       /// [LOST FOCUS] Ensure script name isn't empty
@@ -62,7 +56,7 @@ BOOL   onGeneralPageCommandScript(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONS
          if (iControlID == IDC_SCRIPT_NAME AND !utilGetDlgItemTextLength(hPage, IDC_SCRIPT_NAME))
          {
             SetDlgItemText(hPage, IDC_SCRIPT_NAME, TEXT("Untitled"));
-            onGeneralPagePropertyChanged(pDocument, hPage, IDC_SCRIPT_NAME);
+            onGeneralPage_PropertyChanged(pSheetData, hPage, IDC_SCRIPT_NAME);
          }
          // [CHECK] Resolve CommandID if numeric
          else if (iControlID == IDC_SCRIPT_COMMAND AND utilGetDlgItemTextLength(hPage, IDC_SCRIPT_COMMAND))
@@ -85,14 +79,14 @@ BOOL   onGeneralPageCommandScript(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONS
 }
 
 
-/// Function name  : onGeneralPageDrawItem
+/// Function name  : onGeneralPage_DrawItem
 // Description     : Draws the script signature icon
 // 
 // DRAWITEMSTRUCT*  pDrawInfo : [in] Draw info
 // 
 // Return Value   : TRUE
 // 
-BOOL  onGeneralPageDrawItem(DRAWITEMSTRUCT*  pDrawInfo)
+BOOL  onGeneralPage_DrawItem(DRAWITEMSTRUCT*  pDrawInfo)
 {
    RECT  rcIcon;
 
@@ -114,23 +108,25 @@ BOOL  onGeneralPageDrawItem(DRAWITEMSTRUCT*  pDrawInfo)
 }
 
 
-/// Function name  : onGeneralPagePropertyChanged
+/// Function name  : onGeneralPage_PropertyChanged
 // Description     : Saves the new values to the ScriptFile and notifies the document
 // 
 // SCRIPT_DOCUMENT*  pDocument  : [in] Script Document
 // HWND              hDialog    : [in] Window handle of the Properties page
 // CONST UINT        iControlID : [in] ID of the control whoose value has changed
 // 
-VOID   onGeneralPagePropertyChanged(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID)
+VOID   onGeneralPage_PropertyChanged(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST UINT  iControlID)
 {
    SCRIPT_FILE*  pScriptFile;    // Convenience pointer
    TCHAR*        szNewValue;     // New property value
    
-   // Prepare
-   pScriptFile = pDocument->pScriptFile;
+   // [CHECK] Ensure user is responsible for change
+   if (pSheetData->bRefreshing)
+      return;
 
-   // Get new property value
-   szNewValue = utilGetWindowText(GetDlgItem(hPage, iControlID));
+   // Prepare
+   pScriptFile = pSheetData->pScriptDocument->pScriptFile;
+   szNewValue  = utilGetWindowText(GetDlgItem(hPage, iControlID));
 
    // Determine which property has changed
    switch (iControlID)
@@ -172,15 +168,95 @@ VOID   onGeneralPagePropertyChanged(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CO
    utilDeleteString(szNewValue);
 }
 
+/// Function name  : onScriptPage_Show
+// Description     : Displays the values for a script document property page
+// 
+// PROPERTIES_DATA*     pSheetData  : [in] Properties dialog data
+// HWND                 hPage       : [in] Window handle of the page to display
+// CONST PROPERTY_PAGE  ePage       : [in] ID of the page to display
+// 
+VOID  onScriptPage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
+{
+   SCRIPT_FILE*      pScriptFile;       // Convenience pointer
+   TCHAR*            szFolderPath;      // Folder portion of the script path
+
+   // [DEBUG]
+   TRACK_FUNCTION();
+
+   // Examine page
+   switch (ePage)
+   {
+   /// [SCRIPT: GENERAL]
+   case PP_SCRIPT_GENERAL:
+      // Prepare
+      pScriptFile = pSheetData->pScriptDocument->pScriptFile;
+
+      // Display Script Name + Description + Command
+      SetDlgItemText(hPage, IDC_SCRIPT_NAME,        pScriptFile->szScriptname);
+      SetDlgItemText(hPage, IDC_SCRIPT_DESCRIPTION, pScriptFile->szDescription);
+      SetDlgItemText(hPage, IDC_SCRIPT_COMMAND,     pScriptFile->szCommandID);
+
+      // Display script directory
+      PathSetDlgItemPath(hPage, IDC_SCRIPT_FOLDER, szFolderPath = utilDuplicateFolderPath(pScriptFile->szFullPath));
+      utilDeleteString(szFolderPath);
+
+      // Show/Hide signature icon
+      utilEnableDlgItem(hPage, IDC_SCRIPT_SIGNATURE, pScriptFile->bSignature);
+      utilRedrawWindow(GetControl(hPage, IDC_SCRIPT_SIGNATURE));
+
+      // Display Version and EngineVersion
+      SetDlgItemInt(hPage, IDC_SCRIPT_VERSION, pScriptFile->iVersion, FALSE);
+      SendDlgItemMessage(hPage, IDC_SCRIPT_ENGINE_VERSION, CB_SETCURSEL, (WPARAM)pScriptFile->eGameVersion, NULL);
+
+      // Display Commenting Quality  (Display minimum of 10% to ensure very poor quality has 1 block instead of none)
+      SendDlgItemMessage(hPage, IDC_SCRIPT_COMMENT_RATIO, PBM_SETPOS, max(10, CodeEdit_GetCommentQuality(pSheetData->pScriptDocument->hCodeEdit)), NULL);
+      utilRedrawWindow(GetControl(hPage, IDC_SCRIPT_COMMENT_RATIO));
+      break;
+
+   /// [SCRIPT ARGUMENTS]
+   case PP_SCRIPT_ARGUMENTS:
+      // Prepare
+      pScriptFile = pSheetData->pScriptDocument->pScriptFile;
+
+      // Inform ListView of number of arguments
+      ListView_SetItemCount(GetDlgItem(hPage, IDC_ARGUMENTS_LIST), getScriptFileArgumentCount(pScriptFile));
+
+      // Disable 'Remove' button until user clicks the ListView
+      EnableWindow(GetDlgItem(hPage, IDC_REMOVE_ARGUMENT), FALSE);
+      InvalidateRect(GetDlgItem(hPage, IDC_ARGUMENTS_LIST), NULL, FALSE);
+      break;
+
+   /// [SCRIPT DEPENDENCIES] Populate list
+   case PP_SCRIPT_DEPENDENCIES:
+      updateScriptDependenciesPage_List(pSheetData, hPage);
+      break;
+
+   /// [VARIABLE DEPENDENCIES] Populate list
+   case PP_SCRIPT_VARIABLES:
+      updateScriptVariablesPage_List(pSheetData, hPage);
+      // Enable ProjectVariable button if a project is loaded
+      utilEnableDlgItem(hPage, IDC_PROJECT_VARIABLES, getActiveProject() != NULL);
+      break;
+
+   /// [STRING DEPENDENCIES] Populate list
+   case PP_SCRIPT_STRINGS:
+      updateScriptStringsPage_List(pSheetData, hPage);
+      break;
+   }
+
+   // Cleanup
+   END_TRACKING();
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       DIALOG PROCEDURES
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : dlgprocGeneralPageScript
+/// Function name  : dlgprocGeneralPageS
 // Description     : Window procedure for the 'General' properties dialog page
 //
 // 
-INT_PTR   dlgprocGeneralPageScript(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
+INT_PTR   dlgprocGeneralPageS(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROPERTIES_DATA*  pSheetData;    // Property sheet dialog data
 
@@ -192,7 +268,7 @@ INT_PTR   dlgprocGeneralPageScript(HWND  hPage, UINT  iMessage, WPARAM  wParam, 
    {
    /// [COMMAND]
    case WM_COMMAND:
-      return onGeneralPageCommandScript(pSheetData->pScriptDocument, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+      return onGeneralPage_CommandS(pSheetData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
 
    /// [CUSTOM COMBOBOX] Override default size
    case WM_MEASUREITEM:
@@ -200,7 +276,7 @@ INT_PTR   dlgprocGeneralPageScript(HWND  hPage, UINT  iMessage, WPARAM  wParam, 
 
    /// [SIGNATURE] Draw icon
    case WM_DRAWITEM:
-      if (onGeneralPageDrawItem((DRAWITEMSTRUCT*)lParam))
+      if (onGeneralPage_DrawItem((DRAWITEMSTRUCT*)lParam))
          return TRUE;
       break;
    }

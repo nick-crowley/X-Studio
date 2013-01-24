@@ -432,14 +432,17 @@ ControlsAPI VOID     initReportModeListView(HWND  hListView, CONST LISTVIEW_COLU
 
 // Functions
 ControlsAPI VOID     drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pHeader);
+ControlsAPI BOOL     editCustomListViewItem(HWND  hListView, const UINT  iItem, const UINT  iSubItem, const LISTVIEW_LABEL  eCtrlType);
 
 // Message Handlers
 ControlsAPI UINT     onCustomDrawListView(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pHeader);
 ControlsAPI BOOL     onCustomListViewNotify(HWND  hParent, BOOL  bIsDialog, CONST UINT  iListViewID, NMHDR*  pMessage);
 
-// Old LanguageDoc stuff
-ControlsAPI BOOL     onCustomListViewItemEdit(LISTVIEW_LABEL_DATA*  pLabelData, HWND  hListView);
-LRESULT   wndprocCustomListViewLabelCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+// Window Proc
+ControlsAPI LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+LRESULT              wndprocCustomListViewLabel(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+
+
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CUSTOM MENUS
@@ -475,12 +478,17 @@ ControlsAPI BOOL   onOwnerDrawCustomMenu(DRAWITEMSTRUCT*  pDrawData);
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Helpers
-ControlsAPI BOOL              findLanguageButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
+ControlsAPI BOOL              findButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
+ControlsAPI BOOL              modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput);
+ControlsAPI BOOL              removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex);
 
 // Functions
 ControlsAPI BOOL              getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage);
 ControlsAPI LANGUAGE_BUTTON*  insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CONST TCHAR*  szText);
 ControlsAPI VOID              setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground);
+
+// Window Procedures
+ControlsAPI LRESULT           wndprocCustomRichEditControl(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    GROUPED LISTVIEW 

@@ -96,6 +96,30 @@ UINT  identifyRichTextDialogToolBarCommandID(CONST UINT  iIndex)
 ///                                          FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : getRichTextDialogButtonCount
+// Description     : Retrieves the button count for the current message
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Language Document
+// 
+// Return Value   : Button Count
+// 
+UINT  getRichTextDialogButtonCount(LANGUAGE_DOCUMENT*  pDocument)
+{
+   IRichEditOle*  pRichEdit;
+   UINT           iCount = 0;
+
+   // Count number of OLE objects
+   if (RichEdit_GetOLEInterface(pDocument->hRichEdit, &pRichEdit))
+   {
+      iCount = pRichEdit->GetObjectCount();
+      utilReleaseInterface(pRichEdit);
+   }
+
+   // Return count
+   return iCount;
+}
+
+
 /// Function name  : initRichTextDialog
 // Description     : Initialise the toolbar and RichEdit control in a RichText dialog
 // 
@@ -385,9 +409,10 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
    case IDC_LANGUAGE_EDIT:
       switch (iNotification)
       {
-      /// [TEXT CHANGED] Update document
+      /// [TEXT CHANGED] Notify document + properties
       case EN_CHANGE:
          sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControlID);
+         sendDocumentUpdated(AW_PROPERTIES); 
          // Fall through..
 
       /// [TEXT/FOCUS CHANGED] Update toolbar
@@ -518,7 +543,11 @@ BOOL  onRichTextDialogInsertButton(LANGUAGE_DOCUMENT*  pDocument)
    LANGUAGE_BUTTON*  pButton;
 
    // [CHECK] Ensure button ID is unique
-   if (!isRichEditButtonUnique(pDocument->pCurrentMessage, TEXT("NewID")))
+   //if (!isRichEditButtonUnique(pDocument->pCurrentMessage, TEXT("NewID")))
+   //   return FALSE;
+
+   // [CHECK] Ensure button ID is unique
+   if (!validateLanguageButtonID(pDocument, TEXT("NewID")))
       return FALSE;
 
    // [CHECK] Attempt to insert new button + store data

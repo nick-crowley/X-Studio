@@ -524,7 +524,14 @@ UINT    generateExceptionError(CONST EXCEPTION_POINTERS*  pExceptionData, ERROR_
       break;
    }
 
-   // Get CallStack
+   // [HACK] Unlock Call-Stack, but delete stack trace
+   //szCallStack = FLATTEN_CALL_STACK();
+   //utilDeleteString(szCallStack);
+
+   /// NEW: Use DbgHelp.dll to create stack trace
+   //szCallStack = generateStackTrace(GetCurrentProcess());
+
+   /// NEW: DbgHelp.dll not so useful, use original stack trace method
    szCallStack = FLATTEN_CALL_STACK();
 
    /// Set display message and attach CallStack

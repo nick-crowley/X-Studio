@@ -1,5 +1,5 @@
 //
-// Insert Argument Dialog.cpp : The 'new argument' dialog for the 'Arguments' document properties
+// Insert Page Dialog.cpp : The 'Insert Page' dialog for the language document
 //
 // NB: Best viewed with tab size of 3 characters and Visual Studio's 'XML Doc Comment' syntax colouring
 //         set to a colour that highly contrasts the 'C/C++ comment' syntax colouring
@@ -14,8 +14,6 @@
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
-//enum PAGE_RESULT { Cancelled, Edited, Created };
 
 struct  PAGE_DIALOG_DATA
 {
@@ -49,7 +47,7 @@ INT_PTR  dlgprocInsertPageDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
 // GAME_PAGE*          pPageToEdit : [in] Existing page to edit, if any, otherwise NULL
 // HWND                hParentWnd  : [in] Parent window for the dialog
 // 
-// Return Value   : TRUE if new GamePage was inserted, otherwise FALSE
+// Return Value   : New GamePage containing specified properties, or NULL if user cancelled
 // 
 GAME_PAGE*  displayInsertPageDialog(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPageToEdit, HWND  hParentWnd)
 {
@@ -88,6 +86,9 @@ BOOL  initInsertPageDialog(PAGE_DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  
       // Enable 'OK' --> 'Valid' icon
       utilEnableDlgItem(hDialog, IDOK, TRUE);
       SendDlgItemMessage(hDialog, IDC_PAGE_ID_ICON, STM_SETICON, (WPARAM)LoadIcon(getResourceInstance(), TEXT("VALID_ICON")), NULL);
+
+      // [TITLE]
+      SetDlgItemText(hDialog, IDC_DIALOG_TITLE, TEXT("Edit String Page"));
    }
    /// [NEW] Just display 'Invalid'
    else
@@ -95,6 +96,9 @@ BOOL  initInsertPageDialog(PAGE_DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  
       // Disable 'OK' --> 'Invalid' Icon
       utilEnableDlgItem(hDialog, IDOK, FALSE);
       SendDlgItemMessage(hDialog, IDC_PAGE_ID_ICON, STM_SETICON, (WPARAM)LoadIcon(getResourceInstance(), TEXT("INVALID_ICON")), NULL);
+
+      // [TITLE]
+      SetDlgItemText(hDialog, IDC_DIALOG_TITLE, TEXT("Create String Page"));
    }
 
    // [OWNER DRAW]
@@ -157,10 +161,10 @@ BOOL   onInsertPageDialogCommand(PAGE_DIALOG_DATA*  pDialogData, HWND  hDialog, 
    /// [OK] Generate new Page and return as dialog result
    case IDOK:
       // Prepare
+      bVoiced = IsDlgButtonChecked(hDialog, IDC_PAGE_VOICED_CHECK);
       iPageID = GetDlgItemInt(hDialog, IDC_PAGE_ID_EDIT, NULL, FALSE);
       szTitle = utilGetDlgItemText(hDialog, IDC_PAGE_TITLE_EDIT);
       szDescription = utilGetDlgItemText(hDialog, IDC_PAGE_DESCRIPTION_EDIT);
-      bVoiced = IsDlgButtonChecked(hDialog, IDC_PAGE_VOICED_CHECK);
 
       // Generate + Return new page
       pGamePage = createGamePage(iPageID, szTitle, szDescription, bVoiced);
@@ -210,7 +214,7 @@ INT_PTR  dlgprocInsertPageDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
    /// [OWNER DRAW]
    case WM_DRAWITEM:
       if (wParam == IDC_DIALOG_ICON)
-         bResult = onOwnerDrawStaticIcon(lParam, TEXT("INSERT_PAGE_ICON"), 96);
+         bResult = onOwnerDrawStaticIcon(lParam, pDialogData->pEditPage ? TEXT("EDIT_PAGE_ICON") : TEXT("INSERT_PAGE_ICON"), 96);
       break;
 
    /// [HELP] Invoke help

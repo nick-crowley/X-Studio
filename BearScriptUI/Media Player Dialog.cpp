@@ -370,7 +370,7 @@ BOOL   initMediaPlayerDialog(MEDIA_PLAYER_DATA*  pDialogData, HWND  hDialog)
 
    // Sub-class progress control
    pDialogData->wndprocProgressCtrl = (WNDPROC)SetWindowLong(GetDlgItem(hDialog,IDC_MEDIA_PROGRESS), GWL_WNDPROC, (LONG)wndprocMediaPlayerDialogProgressCtrl);
-   SendDlgItemMessage(hDialog, IDC_MEDIA_PROGRESS, UM_SET_WINDOW_DATA, NULL, (LPARAM)pDialogData);
+   SendDlgItemMessage(hDialog, IDC_MEDIA_PROGRESS, UM_INIT_MEDIA_PLAYER, NULL, (LPARAM)pDialogData);
 
    // Initialise controls
    updateMediaPlayerDialogControls(pDialogData, hDialog);
@@ -1024,7 +1024,7 @@ LRESULT   wndprocMediaPlayerDialogProgressCtrl(HWND  hCtrl, UINT  iMessage, WPAR
    switch (iMessage)
    {
    // [INPUT DATA] - Store dialog data containing original window procedure
-   case UM_SET_WINDOW_DATA:
+   case UM_INIT_MEDIA_PLAYER:
       pDialogData = (MEDIA_PLAYER_DATA*)lParam;
       return 0;
 

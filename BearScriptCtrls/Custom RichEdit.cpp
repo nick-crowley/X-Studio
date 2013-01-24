@@ -22,7 +22,7 @@ CONST UINT   iMessageTextSize       = 10;    // Point size of message text
 ///                                             HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : findLanguageButtonInRichEditByIndex
+/// Function name  : findButtonInRichEditByIndex
 // Description     : Find the LanguageButton data associated with a specified OLE object in a RichEdit control
 // 
 // HWND              hRichEdit  : [in]  Window handle of the RichEdit control to search
@@ -32,7 +32,7 @@ CONST UINT   iMessageTextSize       = 10;    // Point size of message text
 // Return Value   : TRUE if found, FALSE otherwise
 // 
 ControlsAPI
-BOOL  findLanguageButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput)
+BOOL  findButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput)
 {
    IRichEditOle*  pRichEdit;     // OLE interface for the Richedit control
    REOBJECT       oObjectData;   // RichEdit OLE object properties
@@ -42,14 +42,122 @@ BOOL  findLanguageButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, L
    oObjectData.cbStruct = sizeof(REOBJECT);
    pOutput = NULL;
 
-   // Get object properties
-   if (RichEdit_GetOLEInterface(hRichEdit, &pRichEdit) AND pRichEdit->GetObject(iIndex, &oObjectData, REO_GETOBJ_NO_INTERFACES) == S_OK)
-      // [FOUND] Set result
+   // Prepare
+   if (!RichEdit_GetOLEInterface(hRichEdit, &pRichEdit))
+      return FALSE;
+   
+   // Get object and extract button data
+   if (pRichEdit->GetObject(iIndex, &oObjectData, REO_GETOBJ_NO_INTERFACES) == S_OK)
       pOutput = (LANGUAGE_BUTTON*)oObjectData.dwUser;
 
    // Cleanup and return
    utilReleaseInterface(pRichEdit);
    return pOutput != NULL;
+}
+
+
+/// Function name  : modifyButtonInRichEditByIndex
+// Description     : Replaces a button in a RichEdit with another with different text
+// 
+// HWND               hRichEdit : [in] RichEdit
+// const UINT         iIndex    : [in] Index of button to delete
+// const TCHAR*       szNewText : [in] New Text
+// LANGUAGE_BUTTON*&  pOutput   : [out] New data if succesful, otherwise NULL
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+ControlsAPI
+BOOL  modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput)
+{
+   LANGUAGE_BUTTON*  pButton;
+   IRichEditOle*  pRichEdit;     // RichEdit control OLE interface
+   CHARRANGE      oSelection;    // Original selection, preserved
+   REOBJECT       oImage;        // RichEdit control OLE object attributes
+   TCHAR*         szID;
+   BOOL           bResult;
+
+   // Prepare
+   utilZeroObject(&oImage, REOBJECT);
+   oImage.cbStruct = sizeof(REOBJECT);
+   pOutput = NULL;
+
+   // Get RichEdit OLE interface
+   if (!RichEdit_GetOLEInterface(hRichEdit, &pRichEdit))
+      return FALSE;
+
+   /// Lookup object
+   if (bResult = (pRichEdit->GetObject(iIndex, &oImage, REO_GETOBJ_NO_INTERFACES) == S_OK))
+   {
+      // Preserve old button ID
+      pButton = (LANGUAGE_BUTTON*)oImage.dwUser;
+      szID    = utilDuplicateSimpleString(pButton->szID);
+
+      // Preserve selection
+      RichEdit_HideSelection(hRichEdit, TRUE);
+      Edit_GetSelEx(hRichEdit, &oSelection.cpMin, &oSelection.cpMax);
+
+      /// Delete object
+      Edit_SetSel(hRichEdit, oImage.cp, oImage.cp + 1);
+      Edit_ReplaceSel(hRichEdit, TEXT(""));
+
+      /// Insert new object
+      pOutput = insertRichEditButton(hRichEdit, szID, szNewText);
+
+      // Cleanup
+      Edit_SetSel(hRichEdit, oSelection.cpMin, oSelection.cpMax);
+      RichEdit_HideSelection(hRichEdit, FALSE);
+      utilDeleteString(szID);
+   }
+   
+   // Release interfaces
+   utilReleaseInterface(pRichEdit);
+   return bResult;
+}
+
+
+/// Function name  : removeButtonFromRichEditByIndex
+// Description     : Deletes a LanguageButton from a RichEdit control
+// 
+// HWND        hRichEdit : [in] RichEdit
+// const UINT  iIndex    : [in] Index of button to delete
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+ControlsAPI
+BOOL  removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex)
+{
+   IRichEditOle*  pRichEdit;  // RichEdit control OLE interface
+   CHARRANGE      oSelection;        // Original selection, preserved
+   REOBJECT       oImage;     // RichEdit control OLE object attributes
+   BOOL           bResult;
+
+   // Get RichEdit OLE interface
+   if (!RichEdit_GetOLEInterface(hRichEdit, &pRichEdit))
+      return FALSE;
+
+   // Prepare
+   utilZeroObject(&oImage, REOBJECT);
+   oImage.cbStruct = sizeof(REOBJECT);
+
+   // Lookup object
+   if (bResult = (pRichEdit->GetObject(iIndex, &oImage, REO_GETOBJ_NO_INTERFACES) == S_OK))
+   {
+      // Preserve selection
+      RichEdit_HideSelection(hRichEdit, TRUE);
+      Edit_GetSelEx(hRichEdit, &oSelection.cpMin, &oSelection.cpMax);
+
+      /// Delete object
+      Edit_SetSel(hRichEdit, oImage.cp, oImage.cp + 1);
+      Edit_ReplaceSel(hRichEdit, TEXT(""));
+
+      // Restore selection
+      Edit_SetSel(hRichEdit, oSelection.cpMin, oSelection.cpMax);
+      RichEdit_HideSelection(hRichEdit, FALSE);
+   }
+   
+   // Release interfaces
+   utilReleaseInterface(pRichEdit);
+   return bResult;
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -350,4 +458,32 @@ VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TE
          Edit_SetSel(hRichEdit, 32768, 32768);
       }
    }
+}
+
+
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                          WINDOW PROC
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : wndprocCustomRichEditControl
+// Description     : Prevents a RichEdit control in a dialog from having it's text initially selected
+// 
+//ControlsAPI
+LRESULT  wndprocCustomRichEditControl(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
+{
+   WNDCLASSEX  oClassInfo;
+
+   // Prepare
+   GetClassInfoEx(NULL, RICHEDIT_CLASS, &oClassInfo);
+
+   // Examine message
+   switch (iMessage)
+   {
+   // [GET DIALOG CODE] Remove Initially select entire text style
+   case WM_GETDLGCODE:
+      return CallWindowProc(oClassInfo.lpfnWndProc, hWnd, iMessage, wParam, lParam) ^ DLGC_HASSETSEL;
+   }
+
+   // [UNHANDLED] Pass to base
+   return CallWindowProc(oClassInfo.lpfnWndProc, hWnd, iMessage, wParam, lParam);
 }

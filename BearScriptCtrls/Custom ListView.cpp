@@ -123,11 +123,17 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    // [HOT TRACKING]  (Use 'focus' state as 'hot')
    if (ListView_GetExtendedListViewStyle(hListView) INCLUDES LVS_EX_TRACKSELECT)
       eItemState |= (pDrawData->uItemState INCLUDES CDIS_FOCUS ? CDIS_HOT : NULL);
+   else
+      eItemState |= (ListView_GetItemState(hListView, pDrawData->dwItemSpec, LVIS_CUT) ? CDIS_HOT : NULL);
+
+   // [LISTVIEW DISABLED] Draw all items as 'Disabled'
+   if (!IsWindowEnabled(hListView))
+      eItemState = CDIS_DISABLED;
 
    // [COLUMNS] Create background brushes
    hSortBrush   = CreateSolidBrush(clLightGrey);
    iSortColumn  = ListView_GetSelectedColumn(hListView);
-   hColumnBrush = CreateSolidBrush(ListView_GetBkColor(hListView));
+   hColumnBrush = CreateSolidBrush(IsWindowEnabled(hListView) ? ListView_GetBkColor(hListView) : GetSysColor(COLOR_BTNFACE));
    
    // Prepare
    iBackgroundMode = SetBkMode(pDrawData->hdc, TRANSPARENT);
@@ -152,9 +158,8 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
       {
       /// [ITEM] Draw icon and text
       case 0:
-         // [CHECK] Are we using a custom state?
+         // [DISABLED ITEM] Determine whether item is disabled
          if (pItem->mask INCLUDES LVIF_STATE)
-            // [CHECK] Determine whether item is disabled
             eItemState |= (pItem->state == LVIS_DISABLED ? CDIS_DISABLED : NULL);
 
          /// [INDENT] Offset our drawing rectangle
@@ -258,6 +263,73 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    DeleteBrush(hColumnBrush);
    utilDeleteString(pItem->pszText);
 }
+
+
+/// Function name  : editCustomListViewItem
+// Description     : Initiate custom ListView label editing by creating a control over a specified sub-item
+// 
+// HWND                  hListView : [in] ListView
+// const UINT            iItem     : [in] Item
+// const UINT            iSubItem  : [in] SubItem
+// const LISTVIEW_LABEL  eCtrlType : [in] LVLT_EDIT or LVLT_COMBOBOX
+// 
+// Return Value   : TRUE/FALSE
+// 
+ControlsAPI 
+BOOL   editCustomListViewItem(HWND  hListView, const UINT  iItem, const UINT  iSubItem, const LISTVIEW_LABEL  eCtrlType)
+{
+   LVITEM  oItem;    // Notification data for setting up the new control
+   RECT    rcItem;    // Sub-item rectangle
+   SIZE    siItem;    // Size of the sub-item rectangle
+   HWND    hCtrl;
+   
+   // Prepare
+   utilZeroObject(&oItem, LVITEM);
+
+   // Store item data
+   oItem.iItem    = iItem;
+   oItem.iSubItem = iSubItem;
+   oItem.lParam   = eCtrlType;
+
+   // Get the SubItem rectangle
+   rcItem.left = LVIR_LABEL;
+   rcItem.top  = iSubItem;
+   SendMessage(hListView, (iSubItem ? LVM_GETSUBITEMRECT : LVM_GETITEMRECT), iItem, (LPARAM)&rcItem);
+   utilConvertRectangleToSize(&rcItem, &siItem);
+   
+   /// Create control
+   switch (eCtrlType)
+   {
+   // [EDIT] 
+   case LVLT_EDIT:
+      hCtrl = CreateWindowEx(NULL, WC_EDIT, NULL, WS_CHILD WITH WS_BORDER WITH ES_WANTRETURN WITH ES_AUTOHSCROLL, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
+      break;
+
+   // [COMBO] 
+   case LVLT_COMBOBOX:
+      hCtrl = CreateWindowEx(NULL, WC_COMBOBOX, NULL, WS_CHILD WITH WS_BORDER WITH WS_VSCROLL WITH CBS_DROPDOWNLIST WITH CBS_SORT, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
+      SendMessage(hCtrl, CB_SETDROPPEDWIDTH, 200, NULL);
+      SendMessage(hCtrl, CB_SETMINVISIBLE, 8, NULL);
+      break;
+   }
+
+   // [CHECK] Ensure window was created
+   if (!hCtrl)
+      return FALSE;
+
+   /// Pass label data. Command parent to populate control
+   SubclassWindow(hCtrl, wndprocCustomListViewLabel);
+   SendMessage(hCtrl, WM_USER, GetWindowID(hListView), (LPARAM)&oItem);
+
+   // Show + Focus
+   MoveWindow(hCtrl, rcItem.left, rcItem.top, siItem.cx, siItem.cy + 4, FALSE);
+   SetWindowPos(hCtrl, HWND_TOPMOST, NULL, NULL, NULL, NULL, SWP_NOMOVE | SWP_NOSIZE);
+   SetWindowFont(hCtrl, GetStockObject(ANSI_VAR_FONT), FALSE);
+   ShowWindow(hCtrl, SW_SHOWNORMAL);
+   SetFocus(hCtrl);
+   return TRUE;
+}
+
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   MESSAGE HANDLERS
@@ -402,165 +474,125 @@ BOOL  onCustomListViewNotify(HWND  hParent, BOOL  bIsDialog, CONST UINT  iListVi
 
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                   OLD CODE
+///                                   WINDOW PROCEDURES
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-/// Function name  : onCustomListViewItemEdit
-// Description     : Initiate custom ListView label editing by creating a control over a specified sub-item
+/// Function name  : wndprocCustomListView
+// Description     : Provides 'Hot' ListView items
 // 
-// LISTVIEW_LABEL_DATA*  pLabelData  : [in] Label Data containing the item/subitem and the type of control to create
-// HWND                  hListView   : [in] Window handle of the ListView containing the item
-// 
-// Return Value   : TRUE
-// 
-ControlsAPI 
-BOOL   onCustomListViewItemEdit(LISTVIEW_LABEL_DATA*  pLabelData, HWND  hListView)
+ControlsAPI
+LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
-   //NMLVLABELINFO  oNotification;    // Notification data for setting up the new control
-   //RECT           rcSubItemRect;    // Sub-item rectangle
-   //SIZE           siSubItemSize;    // Size of the sub-item rectangle
-   //
-   //// [CHECK] Shouldn't be here if no item was selected
-   //if (pLabelData->iItem == -1)
-   //   return TRUE;
+   LVHITTESTINFO  oHitTest;
+   WNDCLASS       oBaseClass;
 
-   ///// [ITEM/SUBITEM] Get the bounding rectangle for the element to be edited
-   //rcSubItemRect.left = LVIR_LABEL;
-   //rcSubItemRect.top  = pLabelData->iSubItem;
-   //SendMessage(hListView, pLabelData->iSubItem > 0 ? LVM_GETSUBITEMRECT : LVM_GETITEMRECT, pLabelData->iItem, (LPARAM)&rcSubItemRect);
-   //
-   ///// Create appropriate label editing control
-   //switch (pLabelData->eCtrlType)
-   //{
-   //case LVLT_EDIT:
-   //   pLabelData->hCtrl = CreateWindowEx(NULL, WC_EDIT, NULL, WS_CHILD WITH WS_BORDER WITH ES_WANTRETURN WITH ES_AUTOHSCROLL, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
-   //   break;
+   switch (iMessage)
+   {
+   /// [MOUSE MOVE] Assign Hot Item + Track Mouse
+   case WM_MOUSEMOVE:
+      utilTrackMouseEvent(hWnd, TME_LEAVE, 0);
 
-   //case LVLT_COMBOBOX:
-   //   pLabelData->hCtrl = CreateWindowEx(NULL, WC_COMBOBOX, NULL, WS_CHILD WITH WS_BORDER WITH WS_VSCROLL WITH CBS_DROPDOWNLIST WITH CBS_SORT, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
-   //   SendMessage(pLabelData->hCtrl, CB_SETDROPPEDWIDTH, 200, NULL);
-   //   SendMessage(pLabelData->hCtrl, CB_SETMINVISIBLE, 8, NULL);
-   //   break;
-   //}
-   //
-   //// Subclass new control and pass label data
-   //pLabelData->wndprocCtrl = (WNDPROC)SetWindowLong(pLabelData->hCtrl, GWL_WNDPROC, (LONG)wndprocCustomListViewLabelCtrl);
-   //SendMessage(pLabelData->hCtrl, UM_SET_WINDOW_DATA, NULL, (LPARAM)pLabelData);
+      // Prepare
+      GetCursorPos(&oHitTest.pt);
+      ScreenToClient(hWnd, &oHitTest.pt);
 
-   ///// Send a modified 'BeginLabelEdit' notification. This allows user to fill ComboBox items or edit ctrl text.
-   //oNotification.oMessage.code     = LVCN_BEGINLABELEDIT;
-   //oNotification.oMessage.hwndFrom = hListView;
-   //oNotification.oMessage.idFrom   = GetDlgCtrlID(hListView);
-   //// Pass control handle and item/subitem
-   //oNotification.eCtrlType = pLabelData->eCtrlType;
-   //oNotification.hCtrl     = pLabelData->hCtrl;
-   //oNotification.iItem     = pLabelData->iItem;
-   //oNotification.iSubItem  = pLabelData->iSubItem;
-   //// Send to the parent of the ListView
-   //pLabelData->hParent = GetParent(hListView);
-   //SendMessage(pLabelData->hParent, WM_NOTIFY, oNotification.oMessage.idFrom, (LPARAM)&oNotification);
+      // [ITEM CHANGED] Move 'Hot' status to new item
+      if (ListView_HitTest(hWnd, &oHitTest) != -1 AND !ListView_GetItemState(hWnd, oHitTest.iItem, LVIS_CUT))
+      {
+         ListView_SetItemState(hWnd, -1, NULL, LVIS_CUT);
+         if (oHitTest.iItem != -1)
+            ListView_SetItemState(hWnd, oHitTest.iItem, LVIS_CUT, LVIS_CUT);
+      }
 
-   ///// Reposition control
-   //utilConvertRectangleToSize(&rcSubItemRect, &siSubItemSize);
-   //siSubItemSize.cy += 4;
-   //MoveWindow(pLabelData->hCtrl, rcSubItemRect.left, rcSubItemRect.top, siSubItemSize.cx, siSubItemSize.cy, TRUE);
-   //SetWindowPos(pLabelData->hCtrl, HWND_TOPMOST, rcSubItemRect.left, rcSubItemRect.top, siSubItemSize.cx, siSubItemSize.cy, SWP_NOMOVE WITH SWP_NOSIZE);
+      //CONSOLE("** Current Hot Item = %d", ListView_GetNextItem(hWnd, -1, LVNI_CUT));
+      break;
 
-   //// Assign normal font, show control and set focus
-   //SetWindowFont(pLabelData->hCtrl, GetStockObject(ANSI_VAR_FONT), FALSE);
-   //ShowWindow(pLabelData->hCtrl, SW_SHOW);
-   //SetFocus(pLabelData->hCtrl);
+   /// [MOUSE LEAVE] Cancel mouse tracking + Hot Item
+   case WM_MOUSELEAVE:
+      utilTrackMouseEvent(hWnd, TME_LEAVE | TME_CANCEL, 0);
 
-   return TRUE;
+      // Remove 'Hot' status from current hot item
+      ListView_SetItemState(hWnd, -1, NULL, LVIS_CUT);
+      break;
+   }
+
+   // Pass to base
+   GetClassInfo(NULL, WC_LISTVIEW, &oBaseClass);
+   return CallWindowProc(oBaseClass.lpfnWndProc, hWnd, iMessage, wParam, lParam);
 }
 
 
-/// Function name  : wndprocCustomListViewLabelCtrl
-// Description     : Sub-classed window procedure for the edit/combobox used in custom listview item editing
+/// Function name  : wndprocCustomListViewLabel
+// Description     : Edit/ComboBox Custom ListView Label control
 // 
-// 
-LRESULT  wndprocCustomListViewLabelCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
+LRESULT  wndprocCustomListViewLabel(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
-   static LISTVIEW_LABEL_DATA*  pLabelData = NULL;   // ListView label editing data
-   //NMLVLABELINFO                oNotification;       // Notification message data
-   //
-   //switch (iMessage)
-   //{
-   ///// [INPUT DATA] -- Store the LABEL_DATA for the current edit
-   //case UM_SET_WINDOW_DATA:
-   //   pLabelData = (LISTVIEW_LABEL_DATA*)lParam;
-   //   return 0;
+   static NMLVDISPINFO  oLabelData;
+   WNDCLASS             oBaseClass;
+   
+   switch (iMessage)
+   {
+   /// [CREATE] Store the label data
+   case WM_USER:
+      // Copy item data
+      oLabelData.item = *(LVITEM*)lParam;
 
-   ///// [DESTROY WINDOW] -- Zero input LABEL_DATA
-   //case WM_DESTROY:
-   //   CallWindowProc(pLabelData->wndprocCtrl, hCtrl, iMessage, wParam, lParam);
-   //   SetWindowLong(hCtrl, GWL_WNDPROC, (LONG)pLabelData->wndprocCtrl);
-   //   pLabelData = NULL;
-   //   return 0;
+      // Request ** ListView's Parent ** populate control
+      oLabelData.hdr.code     = LVN_BEGINLABELEDIT;
+      oLabelData.hdr.idFrom   = wParam;         /// Listview WindowID
+      oLabelData.hdr.hwndFrom = hCtrl;          /// Label Handle
+      SendMessage(GetParent(GetParent(hCtrl)), WM_NOTIFY, oLabelData.hdr.idFrom, (LPARAM)&oLabelData);
 
-   ///// [ENTER or ESCAPE KEY] -- Pass current text / selected item to the ListView's parent
-   //case WM_KEYDOWN:
-   //   switch (wParam)
-   //   {
-   //   // [ENTER] - Check user has entered text
-   //   case VK_RETURN:
-   //      if (pLabelData->eCtrlType == LVLT_EDIT AND GetWindowTextLength(hCtrl) == 0)
-   //         break;
-   //      
-   //   // [ESCAPE] - Return NULL instead of window text or -1 instead of item index
-   //   case VK_ESCAPE:
-   //      // Setup a modified 'EndLabelEdit' notification
-   //      oNotification.oMessage.code     = LVCN_ENDLABELEDIT;
-   //      oNotification.oMessage.hwndFrom = GetParent(hCtrl);
-   //      oNotification.oMessage.idFrom   = GetDlgCtrlID(oNotification.oMessage.hwndFrom);
-   //      // Pass the item/subitem and control type
-   //      oNotification.iItem     = pLabelData->iItem;
-   //      oNotification.iSubItem  = pLabelData->iSubItem;
-   //      oNotification.eCtrlType = pLabelData->eCtrlType;
-   //      // Pass the current text / currently selected item.  If user pressed ESCAPE, pass NULL or -1.
-   //      switch (pLabelData->eCtrlType)
-   //      {
-   //      case LVLT_EDIT:     oNotification.szNewText  = (wParam == VK_RETURN ? utilGetWindowText(hCtrl) : NULL);           break;            
-   //      case LVLT_COMBOBOX: oNotification.iSelection = (wParam == VK_RETURN ? SendMessage(hCtrl, CB_GETCURSEL, NULL, NULL) : -1);  break;
-   //      }
-   //      
-   //      // Send notification to the parent of the ListView
-   //      SendMessage(pLabelData->hParent, WM_NOTIFY, IDC_LISTVIEW_LABEL_CTRL, (LPARAM)&oNotification);
-   //      // Destroy label text (if any)
-   //      if (pLabelData->eCtrlType == LVLT_EDIT AND oNotification.szNewText)
-   //         utilDeleteString(oNotification.szNewText);
-   //      // Destroy control by setting the focus back to the ListView
-   //      SetFocus(GetParent(hCtrl));
-   //      return 0;
-   //   }
-   //   break;
+      // Prepare final notification
+      oLabelData.hdr.code = LVN_ENDLABELEDIT;
+      return 0;
+      
+   /// [LOST FOCUS] Destroy without notification
+   case WM_KILLFOCUS:
+      DestroyWindow(hCtrl);
+      return 0;
 
-   ///// [LOST FOCUS] -- Destroy control and (For ComboBoxes only) notify the parent of the current selection
-   //case WM_KILLFOCUS:
-   //   if (pLabelData->eCtrlType == LVLT_COMBOBOX)
-   //   {
-   //      // Setup a modified 'EndLabelEdit' notification
-   //      oNotification.oMessage.code     = LVCN_ENDLABELEDIT;
-   //      oNotification.oMessage.idFrom   = IDC_LISTVIEW_LABEL_CTRL;
-   //      oNotification.oMessage.hwndFrom = hCtrl;
-   //      // Pass the item/subitem
-   //      oNotification.iItem      = pLabelData->iItem;
-   //      oNotification.iSubItem   = pLabelData->iSubItem;
-   //      // Pass the current selection index
-   //      oNotification.eCtrlType  = LVLT_COMBOBOX;
-   //      oNotification.iSelection = SendMessage(hCtrl, CB_GETCURSEL, NULL, NULL);
-   //      // Send notification to the parent of the ListView
-   //      SendMessage(pLabelData->hParent, WM_NOTIFY, IDC_LISTVIEW_LABEL_CTRL, (LPARAM)&oNotification);
-   //   }
-   //   DestroyWindow(hCtrl);
-   //   return 0;
+   /// [COMBO-BOX CHANGED] Inform ListView *Parent* + Destroy window
+   case WM_COMMAND:
+      if (HIWORD(wParam) == CBN_SELCHANGE)
+      {
+         // [REQUEST] Request ListView *Parent* validate data
+         if (SendMessage(GetParent(GetParent(hCtrl)), WM_NOTIFY, oLabelData.hdr.idFrom, (LPARAM)&oLabelData))
+            // [VALID] Focus ListView
+            SetFocus(GetParent(hCtrl));
+         else // [INVALID] Beep!
+            MessageBeep(MB_ICONERROR);
+         return 0;
+      }
+      break;
 
-   ///// [KEYBOARD QUERY] -- Request all keyboard input
-   //case WM_GETDLGCODE:
-   //   return DLGC_WANTALLKEYS;
-   //}
+   // [KEY PRESS]
+   case WM_KEYDOWN:
+      /// [ESCAPE] Destroy without notification
+      if (wParam == VK_ESCAPE)
+      {
+         SetFocus(GetParent(hCtrl));
+         return 0;
+      }
+      /// [ENTER] Inform ListView *Parent* + Destroy window
+      else if (wParam == VK_RETURN AND oLabelData.item.lParam == LVLT_EDIT)
+      {
+         // [REQUEST] Request ListView *Parent* validate data
+         if (SendMessage(GetParent(GetParent(hCtrl)), WM_NOTIFY, oLabelData.hdr.idFrom, (LPARAM)&oLabelData))
+            // [VALID] Focus ListView
+            SetFocus(GetParent(hCtrl));
+         else // [INVALID] Beep!
+            MessageBeep(MB_ICONERROR);
+         return 0;
+      }
+      break;
 
-   // Pass to the control's base window proc
-   return CallWindowProc(pLabelData->wndprocCtrl, hCtrl, iMessage, wParam, lParam);
+   /// [KEYBOARD QUERY] -- Request all keyboard input
+   case WM_GETDLGCODE:
+      return DLGC_WANTALLKEYS;
+   }
+
+   // Pass to edit/combo base proc
+   GetClassInfo(NULL, (TCHAR*)GetClassLong(hCtrl, GCW_ATOM), &oBaseClass);
+   return CallWindowProc(oBaseClass.lpfnWndProc, hCtrl, iMessage, wParam, lParam);
 }

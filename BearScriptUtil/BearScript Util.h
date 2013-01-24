@@ -361,6 +361,7 @@ UtilityAPI VOID      utilDeferClientRect(HDWP  hWindowPos, HWND  hWnd, CONST REC
 UtilityAPI VOID      utilDeferDlgItemRect(HDWP  hWindowPos, HWND  hDialog, CONST UINT  iControlID, CONST RECT*  pRect, CONST BOOL  bMove, CONST BOOL  bResize);
 UtilityAPI BOOL      utilEnableDragNDrop(HWND  hWnd);
 UtilityAPI BOOL      utilEnableDlgItem(HWND  hDialog, CONST UINT  iControlID, CONST BOOL  bEnable);
+UtilityAPI VOID      utilEnableDlgItems(HWND  hDialog, const BOOL  bEnable, const UINT  iCount, ...);
 UtilityAPI TCHAR*    utilGetDlgItemPath(HWND  hDialog, CONST UINT  iControlID);
 UtilityAPI VOID      utilGetDlgItemRect(HWND  hDialog, CONST UINT  iControlID, RECT*  pClientRect);
 UtilityAPI TCHAR*    utilGetDlgItemText(HWND  hDialog, CONST UINT  iControlID);
@@ -368,6 +369,7 @@ UtilityAPI UINT      utilGetDlgItemTextLength(HWND  hDialog, CONST UINT  iContro
 UtilityAPI HWND      utilGetTopWindow(HWND  hWnd);
 UtilityAPI BOOL      utilGetWindowCursorPos(HWND  hWnd, POINT*  ptCursor);
 UtilityAPI UINT      utilGetWindowHeight(HWND  hWnd);
+UtilityAPI UINT      utilGetWindowInt(HWND  hWnd);
 UtilityAPI VOID      utilGetWindowSize(HWND  hWnd, SIZE*  pSize);
 UtilityAPI TCHAR*    utilGetWindowText(HWND  hWnd);
 UtilityAPI UINT      utilGetWindowWidth(HWND  hWnd);

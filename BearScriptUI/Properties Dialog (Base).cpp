@@ -21,13 +21,13 @@
 // 
 CONST PROPERTY_PAGE_DEFINITION  oPropertyPages[PROPERTY_PAGE_COUNT] = 
 { 
-      dlgprocGeneralPageScript,   TEXT("PROPERTIES_GENERAL_SCRIPT"),   TEXT("NEW_SCRIPT_FILE_ICON"),  IDS_SCRIPT_GENERAL_PAGE_TITLE,        //COMMAND_LIST_ICON
+      dlgprocGeneralPageS,        TEXT("PROPERTIES_GENERAL_SCRIPT"),   TEXT("NEW_SCRIPT_FILE_ICON"),  IDS_SCRIPT_GENERAL_PAGE_TITLE,        //COMMAND_LIST_ICON
       dlgprocArgumentPage,        TEXT("PROPERTIES_ARGUMENTS"),        TEXT("EDIT_FORMATTING_ICON"),  IDS_SCRIPT_ARGUMENTS_PAGE_TITLE,
       dlgprocDependenciesPage,    TEXT("PROPERTIES_DEPENDENCIES"),     TEXT("VARIABLE_ICON"),         IDS_SCRIPT_DEPENDENCIES_PAGE_TITLE,
       dlgprocVariablesPage,       TEXT("PROPERTIES_VARIABLES"),        TEXT("VARIABLE_ICON"),         IDS_SCRIPT_VARIABLES_PAGE_TITLE,
       dlgprocStringsPage,         TEXT("PROPERTIES_STRINGS"),          TEXT("EDIT_PAGE_ICON"),        IDS_SCRIPT_STRINGS_PAGE_TITLE,
 
-      dlgprocGeneralPageLanguage, TEXT("PROPERTIES_GENERAL_LANGUAGE"), TEXT("NEW_LANGUAGE_FILE_ICON"),IDS_LANGUAGE_GENERAL_PAGE_TITLE,
+      dlgprocGeneralPageL,        TEXT("PROPERTIES_GENERAL_LANGUAGE"), TEXT("NEW_LANGUAGE_FILE_ICON"),IDS_LANGUAGE_GENERAL_PAGE_TITLE,
       dlgprocColumnsPage,         TEXT("PROPERTIES_COLUMNS"),          TEXT("TWO_COLUMN_ICON"),       IDS_LANGUAGE_COLUMNS_PAGE_TITLE,
       dlgprocButtonPage,          TEXT("PROPERTIES_BUTTON"),           TEXT("OUTPUT_WINDOW_ICON"),    IDS_LANGUAGE_BUTTON_PAGE_TITLE,
       dlgprocSpecialPage,         TEXT("PROPERTIES_SPECIAL"),          TEXT("PREFERENCES_ICON"),      IDS_LANGUAGE_SPECIAL_PAGE_TITLE,
@@ -67,7 +67,7 @@ HWND   createPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
 
    // Define sheet properties
    oSheetData.dwFlags     = PSH_PROPSHEETPAGE WITH PSH_MODELESS WITH PSH_USECALLBACK;
-   oSheetData.pfnCallback = onPropertiesDialogCreate;
+   oSheetData.pfnCallback = onPropertiesDialog_Create;
    oSheetData.nPages      = identifyPropertiesDialogPageCount(pDialogData->eType);
    oSheetData.ppsp        = oPageData;
    oSheetData.pszCaption  = MAKEINTRESOURCE(IDS_PROPERTIES_SHEET_TITLE);
@@ -448,9 +448,8 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
    {
    /// [SCRIPT: GENERAL]
    case PP_SCRIPT_GENERAL:
-      // Iterate through GameVersions
+      // Populate Script GameVersion ComboBox
       for (GAME_VERSION  eVersion = GV_THREAT; eVersion <= GV_ALBION_PRELUDE; eVersion = (GAME_VERSION)(eVersion + 1))
-         // Populate GameVersion string and icon
          appendCustomComboBoxItemEx(GetControl(hPage, IDC_SCRIPT_ENGINE_VERSION), identifyGameVersionString(eVersion), NULL, identifyGameVersionIconID(eVersion), NULL);
       
       // Set text length limits
@@ -474,13 +473,17 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
 
    /// [LANGUAGE: GENERAL]
    case PP_LANGUAGE_GENERAL:
+      // Populate String GameVersion ComboBox
+      for (GAME_VERSION  eVersion = GV_THREAT; eVersion <= GV_ALBION_PRELUDE; eVersion = (GAME_VERSION)(eVersion + 1))
+         appendCustomComboBoxItemEx(GetControl(hPage, IDC_STRING_VERSION_COMBO), identifyGameVersionString(eVersion), NULL, identifyGameVersionIconID(eVersion), NULL);
+
       // Set edit length limits
       SendDlgItemMessage(hPage, IDC_AUTHOR_EDIT, EM_LIMITTEXT, 128, NULL);
       SendDlgItemMessage(hPage, IDC_TITLE_EDIT,  EM_LIMITTEXT, 256, NULL);
       // Compatibility Combo
-      SendDlgItemMessage(hPage, IDC_COMPATIBILITY_COMBO, CB_ADDSTRING, -1, (LPARAM)TEXT("Logbook, Message and Custom Menu"));
-      SendDlgItemMessage(hPage, IDC_COMPATIBILITY_COMBO, CB_ADDSTRING, -1, (LPARAM)TEXT("Logbook and Message"));
-      SendDlgItemMessage(hPage, IDC_COMPATIBILITY_COMBO, CB_ADDSTRING, -1, (LPARAM)TEXT("Logbook"));
+      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook Only"),                           NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
+      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook, Incoming Message"),              NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
+      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook, Incoming Message, Custom Menu"), NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
       break;
 
    /// [ACTION BUTTONS]
@@ -619,13 +622,13 @@ HWND  initPropertiesDialogPageTooltips(PROPERTIES_DATA*  pSheetData, HWND  hPage
 ///                                     MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : onPropertiesDialogActivate
+/// Function name  : onPropertiesDialog_Activate
 // Description     : Enables/Disables window transparency
 // 
 // HWND        hSheet  : [in] Properties sheet
 // CONST UINT  iFlags  : [in] Activation source: WA_ACTIVE, WA_MOUSEACTIVE, WA_INACTIVE
 // 
-VOID  onPropertiesDialogActivate(HWND  hSheet, CONST UINT  iFlags)
+VOID  onPropertiesDialog_Activate(HWND  hSheet, CONST UINT  iFlags)
 {
    // [CHECK] Is transparent dialog preference set?
    if (getAppPreferences()->bTransparentProperties)
@@ -634,7 +637,7 @@ VOID  onPropertiesDialogActivate(HWND  hSheet, CONST UINT  iFlags)
 }
 
 
-/// Function name  : onPropertiesDialogCreate
+/// Function name  : onPropertiesDialog_Create
 // Description     : Removes the buttons on the properties dialog and resizes the dialog to fit
 // 
 // HWND   hDialog  : [in] Window handle of property sheet
@@ -643,7 +646,7 @@ VOID  onPropertiesDialogActivate(HWND  hSheet, CONST UINT  iFlags)
 // 
 // Return type : NULL
 //
-INT    onPropertiesDialogCreate(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
+INT    onPropertiesDialog_Create(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
 {
    //PROPERTIES_DATA*  pDialogData;
    DLGTEMPLATE*      pTemplate;        // Dialog template for the property sheet
@@ -718,13 +721,13 @@ INT    onPropertiesDialogCreate(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
 }
 
 
-/// Function name  : onPropertiesDialogDocumentSwitched
+/// Function name  : onPropertiesDialog_DocumentSwitched
 // Description     : Updates the dialog to display appropriate pages for a new document
 // 
 // PROPERTIES_DATA*  pSheetData   : [in] Window data for the property sheet
 // DOCUMENT*         pNewDocument : [in] New document to display pages for
 // 
-VOID    onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMENT*  pNewDocument)
+VOID    onPropertiesDialog_DocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMENT*  pNewDocument)
 {
    PROPSHEETPAGE    oNewPageData[5];       // New page data
    HPROPSHEETPAGE   hDummyPage,            // Handle to dummy page added during switch over
@@ -738,8 +741,11 @@ VOID    onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMEN
    // [CHECK] Is the new document the same type as the old?
    if (pSheetData->eType == identifyPropertiesDialogType(pNewDocument))
    {
-      /// [SAME TYPE] Update document pointer and refresh all page values manually
-      pSheetData->pScriptDocument = (SCRIPT_DOCUMENT*)pNewDocument;
+      /// [SAME TYPE] Update document pointer 
+      pSheetData->pScriptDocument   = (pSheetData->pScriptDocument ? (SCRIPT_DOCUMENT*)pNewDocument : NULL);
+      pSheetData->pLanguageDocument = (pSheetData->pLanguageDocument ? (LANGUAGE_DOCUMENT*)pNewDocument : NULL);
+
+      // Refresh all page values manually
       PropSheet_QuerySiblings(pSheetData->hSheetDlg, UN_DOCUMENT_UPDATED, NULL);
    }
    /// [DIFFERENT] Change pages
@@ -797,14 +803,14 @@ VOID    onPropertiesDialogDocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUMEN
 }
 
 
-/// Function name  : onPropertiesDialogHelp
+/// Function name  : onPropertiesDialog_Help
 // Description     : Launch the appropriate help page for the current page
 // 
 // PROPERTIES_DATA*        pSheetData : [in] Sheet data
 // CONST PREFERENCES_PAGE  ePage      : [in] Page ID
 // CONST HELPINFO*         pRequest   : [in] System WM_HELP data
 // 
-VOID  onPropertiesDialogHelp(PROPERTIES_DATA*  pSheetData, PROPERTY_PAGE  ePage, CONST HELPINFO*  pRequest)
+VOID  onPropertiesDialog_Help(PROPERTIES_DATA*  pSheetData, PROPERTY_PAGE  ePage, CONST HELPINFO*  pRequest)
 {
    switch (ePage)
    {
@@ -817,7 +823,7 @@ VOID  onPropertiesDialogHelp(PROPERTIES_DATA*  pSheetData, PROPERTY_PAGE  ePage,
 }
 
 
-/// Function name  : onPropertiesDialogNotify
+/// Function name  : onPropertiesDialog_Notify
 // Description     : Notification handler for the properties dialog
 // 
 // PROPERTIES_DATA*  pSheetData     : [in] Properties sheet data
@@ -827,7 +833,7 @@ VOID  onPropertiesDialogHelp(PROPERTIES_DATA*  pSheetData, PROPERTY_PAGE  ePage,
 // 
 // Return Value   : TRUE if handled, otherwise FALSE
 // 
-BOOL  onPropertiesDialogNotify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPERTY_PAGE  ePage, NMHDR*  pMessageHeader)
+BOOL  onPropertiesDialog_Notify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPERTY_PAGE  ePage, NMHDR*  pMessageHeader)
 {
    BOOL   bResult;
 
@@ -839,14 +845,14 @@ BOOL  onPropertiesDialogNotify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPER
    {
    /// [PRE-DISPLAY] -- Update page to reflect current document state
    case PSN_SETACTIVE:
-      onPropertiesDialogPageShow(pSheetData, hPage, ePage);
+      onPropertiesDialog_PageShow(pSheetData, hPage, ePage);
       SetWindowLong(hPage, DWL_MSGRESULT, FALSE);
       break;
 
    /// [SHEET CLOSED / PAGE SWITCHED] -- Allow closure
    case PSN_QUERYCANCEL:
    case PSN_KILLACTIVE:
-      //onPropertiesDialogPageHide(pSheetData, hPage, ePage);
+      //onPropertiesDialog_PageHide(pSheetData, hPage, ePage);
       SetWindowLong(hPage, DWL_MSGRESULT, FALSE);
       break;
 
@@ -866,175 +872,55 @@ BOOL  onPropertiesDialogNotify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPER
 }
 
 
-/// Function name  : onPropertiesDialogPageHide
+/// Function name  : onPropertiesDialog_PageHide
 // Description     : Since updates are performed immediately, no action is necessary
 // 
 // PROPERTIES_DATA*     pSheetData  : [in] Properties dialog data
 // HWND                 hPage       : [in] Window handle of the page to hide
 // CONST PROPERTY_PAGE  ePage       : [in] ID of the page to hide
 // 
-VOID  onPropertiesDialogPageHide(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
+VOID  onPropertiesDialog_PageHide(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
 {
-   //// Examine page
-   //switch (ePage)
-   //{
-   ///// [GENERAL PROPERTIES]
-   //case PP_SCRIPT_GENERAL:
-   //   break;
-
-   ///// [SCRIPT ARGUMENTS]
-   //case PP_SCRIPT_ARGUMENTS:
-   //   break;
-
-   ///// [EXTERNAL DEPENDENCIES]
-   //case PP_SCRIPT_DEPENDENCIES:
-   //   break;
-   //}
+   
 }
 
 
-/// Function name  : onPropertiesDialogPageShow
+/// Function name  : onPropertiesDialog_PageShow
 // Description     : Displays the values for a given properties dialog page
 // 
 // PROPERTIES_DATA*     pSheetData  : [in] Properties dialog data
 // HWND                 hPage       : [in] Window handle of the page to display
 // CONST PROPERTY_PAGE  ePage       : [in] ID of the page to display
 // 
-VOID  onPropertiesDialogPageShow(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
+VOID  onPropertiesDialog_PageShow(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
 {
-   LANGUAGE_MESSAGE* pCurrentMessage;   // Convenience pointer for current message
-   IRichEditOle*     pRichEditOLE;      // OLE interface for the Richedit control
-   SCRIPT_FILE*      pScriptFile;       // Convenience pointer
-   TCHAR*            szFolderPath;      // Folder portion of the script path
-
    // [DEBUG]
    TRACK_FUNCTION();
+   pSheetData->bRefreshing = TRUE;
 
    // Examine page
    switch (ePage)
    {
-   /// [SCRIPT: GENERAL]
+   /// [SCRIPT PAGES]
    case PP_SCRIPT_GENERAL:
-      // Prepare
-      pScriptFile = pSheetData->pScriptDocument->pScriptFile;
-
-      // Display Script Name + Description + Command
-      SetDlgItemText(hPage, IDC_SCRIPT_NAME,        pScriptFile->szScriptname);
-      SetDlgItemText(hPage, IDC_SCRIPT_DESCRIPTION, pScriptFile->szDescription);
-      SetDlgItemText(hPage, IDC_SCRIPT_COMMAND,     pScriptFile->szCommandID);
-
-      // Display script directory
-      PathSetDlgItemPath(hPage, IDC_SCRIPT_FOLDER, szFolderPath = utilDuplicateFolderPath(pScriptFile->szFullPath));
-      utilDeleteString(szFolderPath);
-
-      // Show/Hide signature icon
-      utilEnableDlgItem(hPage, IDC_SCRIPT_SIGNATURE, pScriptFile->bSignature);
-      utilRedrawWindow(GetControl(hPage, IDC_SCRIPT_SIGNATURE));
-
-      // Display Version and EngineVersion
-      SetDlgItemInt(hPage, IDC_SCRIPT_VERSION, pScriptFile->iVersion, FALSE);
-      SendDlgItemMessage(hPage, IDC_SCRIPT_ENGINE_VERSION, CB_SETCURSEL, (WPARAM)pScriptFile->eGameVersion, NULL);
-
-      // Display Commenting Quality  (Display minimum of 10% to ensure very poor quality has 1 block instead of none)
-      SendDlgItemMessage(hPage, IDC_SCRIPT_COMMENT_RATIO, PBM_SETPOS, max(10, CodeEdit_GetCommentQuality(pSheetData->pScriptDocument->hCodeEdit)), NULL);
-      utilRedrawWindow(GetControl(hPage, IDC_SCRIPT_COMMENT_RATIO));
-      break;
-
-   /// [SCRIPT ARGUMENTS]
    case PP_SCRIPT_ARGUMENTS:
-      // Prepare
-      pScriptFile = pSheetData->pScriptDocument->pScriptFile;
-
-      // Inform ListView of number of arguments
-      SendDlgItemMessage(hPage, IDC_ARGUMENTS_LIST, LVM_SETITEMCOUNT, getScriptFileArgumentCount(pScriptFile), NULL);
-
-      // Disable 'Remove' button until user clicks the ListView
-      EnableWindow(GetDlgItem(hPage, IDC_REMOVE_ARGUMENT), FALSE);
-      InvalidateRect(GetDlgItem(hPage, IDC_ARGUMENTS_LIST), NULL, FALSE);
-      break;
-
-   /// [SCRIPT DEPENDENCIES] Populate list
    case PP_SCRIPT_DEPENDENCIES:
-      updateScriptDependenciesPageList(pSheetData, hPage);
-      break;
-
-   /// [VARIABLE DEPENDENCIES] Populate list
    case PP_SCRIPT_VARIABLES:
-      updateScriptVariablesPageList(pSheetData, hPage);
-      // Enable ProjectVariable button if a project is loaded
-      utilEnableDlgItem(hPage, IDC_PROJECT_VARIABLES, getActiveProject() != NULL);
-      break;
-
-   /// [STRING DEPENDENCIES] Populate list
    case PP_SCRIPT_STRINGS:
-      updateScriptStringsPageList(pSheetData, hPage);
+      onScriptPage_Show(pSheetData, hPage, ePage);
       break;
 
-   /// [LANGUAGE: GENERAL]
+   /// [LANGUAGE PAGES]
    case PP_LANGUAGE_GENERAL:
-      // Prepare
-      pCurrentMessage = pSheetData->pLanguageDocument->pCurrentMessage;
-
-      // Author and Title
-      SetDlgItemText(hPage, IDC_AUTHOR_EDIT, pCurrentMessage->szAuthor);
-      SetDlgItemText(hPage, IDC_TITLE_EDIT,  pCurrentMessage->szTitle);
-      // Message Compatibility
-      pCurrentMessage->eCompatibility = calculateLanguageMessageCompatibility(pCurrentMessage);
-      SendDlgItemMessage(hPage, IDC_COMPATIBILITY_COMBO, CB_SETCURSEL, pCurrentMessage->eCompatibility, NULL);
-      break;
-
-   /// [ACTION BUTTONS]
    case PP_LANGUAGE_BUTTON:
-      // Prepare
-      SendMessage(pSheetData->pLanguageDocument->hRichEdit, EM_GETOLEINTERFACE, NULL, (LPARAM)&pRichEditOLE);
-      // Set ListView item count to reflect number of OLE objects in the RichEdit
-      SendDlgItemMessage(hPage, IDC_BUTTONS_LIST, LVM_SETITEMCOUNT, pRichEditOLE->GetObjectCount(), NULL);
-      pRichEditOLE->Release();
-      break;
-
-   /// [COLUMN ADJUSTMENT]
    case PP_LANGUAGE_COLUMNS:
-      // Prepare
-      pCurrentMessage = pSheetData->pLanguageDocument->pCurrentMessage;
-
-      // Select appropriate column number
-      CheckDlgButton(hPage, IDC_COLUMN_ONE_RADIO, pCurrentMessage->iColumnCount <= 1);
-      CheckDlgButton(hPage, IDC_COLUMN_TWO_RADIO, pCurrentMessage->iColumnCount == 2);
-      CheckDlgButton(hPage, IDC_COLUMN_THREE_RADIO, pCurrentMessage->iColumnCount >= 3);
-      // Position width/spacing sliders
-      SendDlgItemMessage(hPage, IDC_COLUMN_WIDTH_SLIDER,   TBM_SETPOS, TRUE, pCurrentMessage->iColumnWidth);
-      SendDlgItemMessage(hPage, IDC_COLUMN_SPACING_SLIDER, TBM_SETPOS, TRUE, pCurrentMessage->iColumnSpacing);
-      // Display formatted width/spacing values
-      displayColumnPageSliderText(hPage, IDC_COLUMN_WIDTH_STATIC,   pCurrentMessage->iColumnWidth);
-      displayColumnPageSliderText(hPage, IDC_COLUMN_SPACING_STATIC, pCurrentMessage->iColumnSpacing);
-      // Check width/spacing checkboxes
-      CheckDlgButton(hPage, IDC_COLUMN_WIDTH_CHECK,   pCurrentMessage->bCustomWidth);
-      CheckDlgButton(hPage, IDC_COLUMN_SPACING_CHECK, pCurrentMessage->bCustomSpacing);
-      // Enable/Disable width/spacing controls appropriately
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_WIDTH_SLIDER),  pCurrentMessage->bCustomWidth);
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_WIDTH_STATIC),  pCurrentMessage->bCustomWidth);
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_SPACING_SLIDER), pCurrentMessage->bCustomSpacing);
-      EnableWindow(GetDlgItem(hPage, IDC_COLUMN_SPACING_STATIC), pCurrentMessage->bCustomSpacing);
-      break;
-
-   /// [LEGACY STUFF]
    case PP_LANGUAGE_SPECIAL:
-      // Prepare
-      pCurrentMessage = pSheetData->pLanguageDocument->pCurrentMessage;
-
-      // Rank Type + Title
-      CheckDlgButton(hPage, IDC_RANK_CHECK, pCurrentMessage->bCustomRank);
-      SetDlgItemText(hPage, IDC_RANK_TITLE_EDIT, pCurrentMessage->szRankTitle);
-      SendDlgItemMessage(hPage, IDC_RANK_TYPE_COMBO, CB_SETCURSEL, pCurrentMessage->eRankType, NULL);
-      // Article check
-      CheckDlgButton(hPage, IDC_ARTICLE_CHECK, pCurrentMessage->bArticle);
-      // Enable/Disable Rank controls
-      EnableWindow(GetDlgItem(hPage, IDC_RANK_TYPE_COMBO), pCurrentMessage->bCustomRank);
-      EnableWindow(GetDlgItem(hPage, IDC_RANK_TITLE_EDIT), pCurrentMessage->bCustomRank);
+      onLanguagePage_Show(pSheetData, hPage, ePage);
       break;
    }
 
    // Cleanup
+   pSheetData->bRefreshing = FALSE;
    END_TRACKING();
 }
 
@@ -1091,7 +977,7 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
       {
       // [DOCUMENT UPDATED] Refresh current page values
       case UN_DOCUMENT_UPDATED:
-         onPropertiesDialogPageShow(pSheetData, hPage, ePage);
+         onPropertiesDialog_PageShow(pSheetData, hPage, ePage);
          break;
 
       default:
@@ -1102,7 +988,7 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
 
    /// [NOTIFICATION]
    case WM_NOTIFY:
-      bResult = onPropertiesDialogNotify(pSheetData, hPage, ePage, (NMHDR*)lParam);
+      bResult = onPropertiesDialog_Notify(pSheetData, hPage, ePage, (NMHDR*)lParam);
       break;
 
    /// [MENU ITEM HOVER] Forward messages up the chain to the Main window
@@ -1112,7 +998,7 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
 
    /// [HELP] Display helpfile
    case WM_HELP:
-      onPropertiesDialogHelp(pSheetData, ePage, (HELPINFO*)lParam);
+      onPropertiesDialog_Help(pSheetData, ePage, (HELPINFO*)lParam);
       break;
 
    /// [CUSTOM MENU/CUSTOM COMBO]
@@ -1162,7 +1048,7 @@ INT_PTR   dlgprocPropertiesSheet(HWND  hSheet, UINT  iMessage, WPARAM  wParam, L
 
       /// [DOCUMENT SWITCHED] -- Change the pages if necessary and refresh all page values
       case UN_DOCUMENT_SWITCHED:
-         onPropertiesDialogDocumentSwitched(pSheetData, (DOCUMENT*)lParam);
+         onPropertiesDialog_DocumentSwitched(pSheetData, (DOCUMENT*)lParam);
          bPassToBase = FALSE;
          break;
 
@@ -1191,7 +1077,7 @@ INT_PTR   dlgprocPropertiesSheet(HWND  hSheet, UINT  iMessage, WPARAM  wParam, L
 
       // [ACTIVATE] Set transparency
       case WM_ACTIVATE:
-         onPropertiesDialogActivate(hSheet, LOWORD(wParam));
+         onPropertiesDialog_Activate(hSheet, LOWORD(wParam));
          break;
 
       // [MOVE DIALOG] Save new position to preferences

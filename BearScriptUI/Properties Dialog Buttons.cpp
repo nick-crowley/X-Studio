@@ -29,36 +29,7 @@
 ///                                        MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : onButtonPageCommand
-// Description     : WM_COMMAND processing for the 'Buttons' properties page
-// 
-// LANGUAGE_DOCUMENT* pDocument      : [in] Language Document data
-// HWND               hDialog        : [in] 'Buttons' properties dialog page window handle
-// CONST UINT         iControl       : [in] ID of the control sending the command
-// CONST UINT         iNotification  : [in] Notification being sent
-// HWND               hCtrl          : [in] Window handle fo the control sending the command
-// 
-// Return Value   : TRUE if processed, FALSE otherwise
-// 
-BOOL    onButtonPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl)
-{
-   switch (iControl)
-   {
-   /// [EDIT SELECTED BUTTON]
-   case IDM_BUTTON_EDIT:
-      return onCustomListViewItemEdit(&pDocument->oLabelData, GetDlgItem(hDialog, IDC_BUTTONS_LIST));
-
-   /// [REMOVE EXISTING BUTTON]
-   case IDM_BUTTON_DELETE:
-      MessageBox(hDialog, TEXT("Deleting buttons not yet implemented"), TEXT("Info"), MB_OK);
-      return TRUE;
-   }
-   return FALSE;
-}
-
-
-
-/// Function name  : onButtonPageContextMenu
+/// Function name  : onButtonPage_ContextMenu
 // Description     : Display the 'Buttons' page listview context menu
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] Language document data
@@ -66,111 +37,118 @@ BOOL    onButtonPageCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST 
 // HWND                hCtrl     : [in] Window handle of the control that was right-clicked
 // CONST POINT*        ptCursor  : [in] Cursor position, in screen co-ords
 // 
-// Return Value   : TRUE
+// Return Value   : TRUE/FALSE
 // 
-BOOL    onButtonPageContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, HWND  hCtrl, CONST POINT*  ptCursor)
+BOOL    onButtonPage_ContextMenu(PROPERTIES_DATA*  pSheetData, HWND  hPage, HWND  hCtrl, CONST POINT*  ptCursor)
 {
    CUSTOM_MENU*   pCustomMenu;    // Custom Popup menu
-   LVHITTESTINFO  oHitTest;          // ListView hittest data
-   UINT           iItem;             // ListView index of the item clicked
+   LVHITTESTINFO  oHitTest;       // ListView hittest data
 
    /// [BUTTON LIST] Display the editing context menu
    if (GetDlgCtrlID(hCtrl) == IDC_BUTTONS_LIST)
    {
-      // Find the currently selected item 
-      iItem = ListView_GetNextItem(hCtrl, -1, LVNI_ALL WITH LVNI_SELECTED);
-      // [CHECK] Abort if user hasn't selected an item (all button menu items require a selected item)
-      if (iItem == -1)
-      {
-         pDocument->oLabelData.iItem = pDocument->oLabelData.iSubItem = -1;
-         return TRUE;
-      }
-
-      /// Identify the sub-item clicked (if any)
+      // Identify the sub-item 
       oHitTest.pt = *ptCursor;
       ScreenToClient(hCtrl, &oHitTest.pt);
-
-      // Determine and store Item + SubItem
       ListView_SubItemHitTest(hCtrl, &oHitTest);
-      pDocument->oLabelData.iItem    = iItem;
-      pDocument->oLabelData.iSubItem = oHitTest.iSubItem;
       
-      // Create Button Popup CustomMenu
+      // Create appropriate menu
       pCustomMenu = createCustomMenu(TEXT("LANGUAGE_MENU"), TRUE, IDM_BUTTON_POPUP);
+      EnableMenuItem(pCustomMenu->hPopup, IDM_BUTTON_EDIT,   ListView_GetSelected(hCtrl) != -1 ? MF_ENABLED : MF_DISABLED);
+      EnableMenuItem(pCustomMenu->hPopup, IDM_BUTTON_DELETE, ListView_GetSelected(hCtrl) != -1 ? MF_ENABLED : MF_DISABLED);
 
-      /// Display context menu
-      TrackPopupMenu(pCustomMenu->hPopup, TPM_TOPALIGN WITH TPM_LEFTALIGN, ptCursor->x, ptCursor->y, NULL, GetParent(hCtrl), NULL);
+      // Display context menu
+      switch (TrackPopupMenu(pCustomMenu->hPopup, TPM_TOPALIGN WITH TPM_LEFTALIGN WITH TPM_RETURNCMD, ptCursor->x, ptCursor->y, NULL, hPage, NULL))
+      {
+      /// [EDIT BUTTON]
+      case IDM_BUTTON_EDIT:   editCustomListViewItem(hCtrl, oHitTest.iItem, oHitTest.iSubItem, LVLT_EDIT);                break;
+      /// [DELETE BUTTON]
+      case IDM_BUTTON_DELETE: removeButtonFromRichEditByIndex(pSheetData->pLanguageDocument->hRichEdit, oHitTest.iItem);    
+                              ListView_SetItemCount(hCtrl, getRichTextDialogButtonCount(pSheetData->pLanguageDocument));  break;
+      }
 
       // Cleanup
       deleteCustomMenu(pCustomMenu);
+      return TRUE;
    }
 
-   return TRUE;
+   return FALSE;
 }
 
-/// Function name  : onButtonPageLabelEditBegin
-// Description     : Copy the specified language button property into the label editing control
+
+/// Function name  : onButtonPage_LabelEditBegin
+// Description     : Displays the button ID/Text in the Edit label
 // 
-// LANGUAGE_DOCUMENT*  pDocument   : [in] Language document data
-// HWND                hDialog     : [in] 'Button' properties page window handle
-// NMLVLABELINFO*      pLabelData  : [in] Custom label editing notification data
+// PROPERTIES_DATA*  pSheetData : [in] Sheet data
+// HWND              hPage      : [in] 'Button' page 
+// NMLVDISPINFO*     pLabelData : [in] Label notification
 // 
-// Return Value   : TRUE
-// 
-BOOL  onButtonPageLabelEditBegin(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVLABELINFO*  pLabelData)
+VOID  onButtonPage_LabelEditBegin(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pLabelData)
 {
-   LANGUAGE_BUTTON*  pLanguageButton;
+   LANGUAGE_BUTTON*  pButton;
 
    // [CHECK] Item should be valid
-   ASSERT(pLabelData->iItem != -1);
+   ASSERT(pLabelData->item.iItem != -1);
 
-   // Get specified language button
-   if (findLanguageButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->iItem, pLanguageButton))
+   /// Lookup LanguageButton
+   if (findButtonInRichEditByIndex(pSheetData->pLanguageDocument->hRichEdit, pLabelData->item.iItem, pButton))
    {
-      // Fill label with appropriate property
-      switch (pLabelData->iSubItem)
+      /// Provide ID/Text
+      switch (pLabelData->item.iSubItem)
       {
-      case BUTTON_COLUMN_ID:     SetWindowText(pLabelData->hCtrl, pLanguageButton->szID);    break;
-      case BUTTON_COLUMN_TEXT:   SetWindowText(pLabelData->hCtrl, pLanguageButton->szText);  break;
+      case BUTTON_COLUMN_ID:     SetWindowText(pLabelData->hdr.hwndFrom, pButton->szID);    break;
+      case BUTTON_COLUMN_TEXT:   SetWindowText(pLabelData->hdr.hwndFrom, pButton->szText);  break;
       }
    }
-
-   return TRUE;
 }
 
-/// Function name  : onButtonPageLabelEditEnd
-// Description     : Save the contents of the label editing control to the appropriate language button property
+
+/// Function name  : onButtonPage_LabelEditEnd
+// Description     : Validates/Saves new button ID/text
 // 
-// LANGUAGE_DOCUMENT*  pDocument   : [in] Language document data
-// HWND                hDialog     : [in] 'Button' properties page window handle
-// NMLVLABELINFO*      pLabelData  : [in] Custom label editing notification data
+// PROPERTIES_DATA*  pSheetData : [in] Sheet data
+// HWND              hPage      : [in] 'Button' page 
+// NMLVDISPINFO*     pLabelData : [in] Label notification
 // 
-// Return Value   : TRUE
-// 
-BOOL  onButtonPageLabelEditEnd(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVLABELINFO*  pLabelData)
+VOID  onButtonPage_LabelEditEnd(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pLabelData)
 {
-   LANGUAGE_BUTTON*  pLanguageButton;
+   LANGUAGE_DOCUMENT* pDocument = pSheetData->pLanguageDocument;
+   LANGUAGE_BUTTON   *pButton,
+                     *pNewButton;
 
-   // [CHECK] User didn't cancel editing
-   if (pLabelData->szNewText == NULL)
-      return TRUE;
-
-   // Get specified language button
-   if (findLanguageButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->iItem, pLanguageButton))
+   // Lookup language button
+   if (findButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, pButton))
    {
-      // Update appropriate property
-      switch (pLabelData->iSubItem)
-      {
-      case BUTTON_COLUMN_ID:     utilReplaceString(pLanguageButton->szID,   pLabelData->szNewText);    break;
-      case BUTTON_COLUMN_TEXT:   utilReplaceString(pLanguageButton->szText, pLabelData->szNewText);    break;
-      }
-   }
+      TCHAR*  szValue = utilGetWindowText(pLabelData->hdr.hwndFrom);
+      BOOL    bAccept = TRUE;
 
-   return TRUE;
+      switch (pLabelData->item.iSubItem)
+      {
+      /// [TEXT] Ensure text isn't empty, then delete the OLE button and generate a new one
+      case BUTTON_COLUMN_TEXT:
+         if (bAccept = lstrlen(szValue))
+         {
+            // Replace desired button + Store resultant button data
+            if (modifyButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, szValue, pNewButton))
+               insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pNewButton);   
+         }
+         break;
+
+      /// [ID] Ensure ID is valid, then replace
+      case BUTTON_COLUMN_ID: 
+         if (bAccept = validateLanguageButtonID(pDocument, szValue))
+            utilReplaceString(pButton->szID, szValue);
+         break;
+      }
+
+      // Return validation result
+      utilDeleteString(szValue);
+      SetWindowLong(hPage, DWL_MSGRESULT, bAccept);
+   }
 }
 
 
-/// Function name  : onButtonPageNotification
+/// Function name  : onButtonPage_Notification
 // Description     : Performs 'Buttons' page notification processing
 // 
 // LANGUAGE_DOCUMENT*  pDocument  : [in] Language Document data
@@ -179,7 +157,7 @@ BOOL  onButtonPageLabelEditEnd(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NML
 // 
 // Return Value   : TRUE if processed, FALSE otherwise
 // 
-BOOL   onButtonPageNotification(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage)
+BOOL   onButtonPage_Notification(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMHDR*  pMessage)
 {
    /// [BUTTON LIST] 
    if (pMessage->idFrom == IDC_BUTTONS_LIST)
@@ -188,15 +166,18 @@ BOOL   onButtonPageNotification(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NM
       {
       // [REQUEST ITEM DATA]
       case LVN_GETDISPINFO:
-         return onButtonPageRequestData(pDocument, hDialog, (NMLVDISPINFO*)pMessage);
+         onButtonPage_RequestData(pSheetData, hPage, ((NMLVDISPINFO*)pMessage)->item);
+         return TRUE;
 
-      // [LABEL EDITING BEGIN]
-      case LVCN_BEGINLABELEDIT:
-         return onButtonPageLabelEditBegin(pDocument, hDialog, (NMLVLABELINFO*)pMessage);
+      // [BEGIN EDIT]
+      case LVN_BEGINLABELEDIT:
+         onButtonPage_LabelEditBegin(pSheetData, hPage, (NMLVDISPINFO*)pMessage);
+         return TRUE;
 
-      // [LABEL EDITING END]
-      case LVCN_ENDLABELEDIT:
-         return onButtonPageLabelEditEnd(pDocument, hDialog, (NMLVLABELINFO*)pMessage);
+      // [END EDIT]
+      case LVN_ENDLABELEDIT:
+         onButtonPage_LabelEditEnd(pSheetData, hPage, (NMLVDISPINFO*)pMessage);
+         return TRUE;
       }
    }
 
@@ -204,51 +185,46 @@ BOOL   onButtonPageNotification(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NM
 }
 
 
-/// Function name  : onButtonPageRequestData
+/// Function name  : onButtonPage_RequestData
 // Description     : Supply 'buttons' page Listview item data
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in]     Language document data
 // HWND                hDialog   : [in]     'Buttons' properties page window handle
 // NMLVDISPINFO*       pOutput   : [in/out] Item + subitem data being requested
 // 
-// Return Value   : TRUE
-// 
-BOOL  onButtonPageRequestData(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pOutput)
+VOID  onButtonPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, LVITEM&  oOutput)
 {
    LANGUAGE_BUTTON*  pButtonData;     // Data associated with the OLE button object
    
-   /// [IMAGE] Supply none
-   if (pOutput->item.mask INCLUDES LVIF_IMAGE)
-      pOutput->item.iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("VARIABLE_ICON"));
+   /// [IMAGE] Supply calculator image
+   if (oOutput.mask INCLUDES LVIF_IMAGE)
+      oOutput.iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("VARIABLE_ICON"));
 
-   /// [INDENT] Supply none
-   if (pOutput->item.mask INCLUDES LVIF_INDENT)
-      pOutput->item.iIndent = NULL;
+   // [INDENT] None
+   if (oOutput.mask INCLUDES LVIF_INDENT)
+      oOutput.iIndent = NULL;
 
    /// [TEXT] Supply text/id from the data associated with the OLE object
-   if (pOutput->item.mask INCLUDES LVIF_TEXT)
+   if (oOutput.mask INCLUDES LVIF_TEXT)
    {
       // Lookup button data in RichEdit control
-      if (findLanguageButtonInRichEditByIndex(pDocument->hRichEdit, pOutput->item.iItem, pButtonData))
+      if (findButtonInRichEditByIndex(pSheetData->pLanguageDocument->hRichEdit, oOutput.iItem, pButtonData))
       {
          // Supply appropriate property
-         switch (pOutput->item.iSubItem)
+         switch (oOutput.iSubItem)
          {
-         case BUTTON_COLUMN_ID:   StringCchCopy(pOutput->item.pszText, pOutput->item.cchTextMax, pButtonData->szID);    break;
-         case BUTTON_COLUMN_TEXT: StringCchCopy(pOutput->item.pszText, pOutput->item.cchTextMax, pButtonData->szText);  break;
+         case BUTTON_COLUMN_ID:   StringCchCopy(oOutput.pszText, oOutput.cchTextMax, pButtonData->szID);    break;
+         case BUTTON_COLUMN_TEXT: StringCchCopy(oOutput.pszText, oOutput.cchTextMax, pButtonData->szText);  break;
          }
       }
       else
-         StringCchCopy(pOutput->item.pszText, pOutput->item.cchTextMax, TEXT("[Not Found]"));
+         StringCchCopy(oOutput.pszText, oOutput.cchTextMax, TEXT("[Not Found]"));
    }
-
-   return TRUE;
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                LANGUAGE PAGE  WINDOW PROCEDURES
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 /// Function name  : dlgprocButtonPage
 // Description     : Window procedure for the 'General' script property page
@@ -265,15 +241,9 @@ INT_PTR   dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARA
    // Intercept messages
    switch (iMessage)
    {
-   /// [COMMANDS]
-   case WM_COMMAND:
-      if (onButtonPageCommand(pDialogData->pLanguageDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
-         return TRUE;
-      break;
-
    /// [NOTIFICATIONS]
    case WM_NOTIFY:
-      if (onButtonPageNotification(pDialogData->pLanguageDocument, hDialog, (NMHDR*)lParam))
+      if (onButtonPage_Notification(pDialogData, hDialog, (NMHDR*)lParam))
          return TRUE;
       break;
 
@@ -281,7 +251,7 @@ INT_PTR   dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARA
    case WM_CONTEXTMENU:
       ptCursor.x = LOWORD(lParam);
       ptCursor.y = HIWORD(lParam);
-      return onButtonPageContextMenu(pDialogData->pLanguageDocument, hDialog, (HWND)wParam, &ptCursor);
+      return onButtonPage_ContextMenu(pDialogData, hDialog, (HWND)wParam, &ptCursor);
    }
 
    // Pass to common handlers

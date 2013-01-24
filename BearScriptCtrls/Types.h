@@ -458,7 +458,7 @@ struct  LABEL_QUEUE
 
 // Defines the type of control used to edit a ListView item
 //
-enum  LISTVIEW_LABEL_TYPE  { LVLT_EDIT, LVLT_COMBOBOX };
+enum  LISTVIEW_LABEL  { LVLT_EDIT = 0xffff0001, LVLT_COMBOBOX = 0xffff0002 };
 
 // Stores the necessary properties to enable ListView in-place item editing
 //
@@ -467,7 +467,7 @@ struct  LISTVIEW_LABEL_DATA
    HWND                 hParent;      // Parent window containing the ListView
 
    HWND                 hCtrl;        // Control used for item editing
-   LISTVIEW_LABEL_TYPE  eCtrlType;    // Type of control used for item editing
+   LISTVIEW_LABEL  eCtrlType;    // Type of control used for item editing
    WNDPROC              wndprocCtrl;  // Original window procedure of the control used for item editing
 
    INT                  iItem,        // Zero-based Item being edited
@@ -484,7 +484,7 @@ struct  LISTVIEW_LABEL_NOTIFICATION
    NMHDR                oMessage;     // Message header containing the ListView notification, window handle and ID.
 
    HWND                 hCtrl;        // Control sending the nofication
-   LISTVIEW_LABEL_TYPE  eCtrlType;    // Type of control sending the notification
+   LISTVIEW_LABEL  eCtrlType;    // Type of control sending the notification
 
    INT                  iItem,        // Zero-based Item being edited
                         iSubItem;     // 1-based Sub-item being edited. Zero indicates the main item.

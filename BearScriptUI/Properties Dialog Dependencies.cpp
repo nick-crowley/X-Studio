@@ -40,7 +40,7 @@ CONST TCHAR*  szVariableUsages[4] = { NULL, TEXT("Get"),   TEXT("Set"),   TEXT("
 // 
 // PROPERTIES_DATA*  pSheetData : [in] Properties sheet data
 // 
-VOID   updateScriptDependenciesPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage)
+VOID   updateScriptDependenciesPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 {
    // [VERBOSE]
    VERBOSE_LIB_COMMAND();
@@ -62,7 +62,7 @@ VOID   updateScriptDependenciesPageList(PROPERTIES_DATA*  pSheetData, HWND  hPag
 // 
 // PROPERTIES_DATA*  pSheetData : [in] Properties sheet data
 // 
-VOID   updateScriptStringsPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage)
+VOID   updateScriptStringsPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 {
    PROJECT_DOCUMENT*  pProject;
 
@@ -89,7 +89,7 @@ VOID   updateScriptStringsPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 // 
 // PROPERTIES_DATA*  pSheetData : [in] Properties sheet data
 // 
-VOID   updateScriptVariablesPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage)
+VOID   updateScriptVariablesPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 {
    // [VERBOSE]
    VERBOSE_LIB_COMMAND();
@@ -109,7 +109,7 @@ VOID   updateScriptVariablesPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 ///                                        MESSAGE HANDLERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : onDependenciesPageContextMenu
+/// Function name  : onDependenciesPage_ContextMenu
 // Description     : Display the ScriptDependencies or VariableDependencies Popup Menu
 // 
 // SCRIPT_DOCUMENT*  pDocument : [in] Script document data
@@ -119,7 +119,7 @@ VOID   updateScriptVariablesPageList(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 // 
 // Return Value   : TRUE
 // 
-BOOL  onDependenciesPageContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST UINT  iCursorX, CONST UINT  iCursorY)
+BOOL  onDependenciesPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST UINT  iCursorX, CONST UINT  iCursorY)
 {
    CUSTOM_MENU*  pCustomMenu;    // Custom Popup menu
    UINT          iSubMenuID;     // Popup submenu ID
@@ -260,14 +260,14 @@ VOID  onDependenciesPage_PerformSearch(PROPERTIES_DATA*  pSheetData, HWND  hPage
 
 
 
-/// Function name  : onDependenciesPageRequestData
+/// Function name  : onDependenciesPage_RequestData
 // Description     : Supply the requested piece of ScriptDependencies data for the ListView (sub)item
 // 
 // PROPERTIES_DATA*  pSheetData   : [in]     Properties sheet dialog data
 // HWND              hPage        : [in]     Window handle of the dependencies page
 // NMLVDISPINFO*     pMessageData : [in/out] Indicates what data is required and stores it
 //
-VOID   onDependenciesPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData)
+VOID   onDependenciesPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData)
 {
    SCRIPT_DEPENDENCY*   pDependency;                     // ScriptDependency associated with the selected item
    LVITEM&              oOutput = pMessageData->item;    // Convenience pointer for the item output data
@@ -309,14 +309,14 @@ VOID   onDependenciesPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, 
 
 
 
-/// Function name  : onStringsPageRequestData
+/// Function name  : onStringsPage_RequestData
 // Description     : Supply the requested piece of GameString data for the ListView (sub)item
 // 
 // PROPERTIES_DATA*  pSheetData   : [in]     Properties sheet dialog data
 // HWND              hPage        : [in]     Window handle of the dependencies page
 // NMLVDISPINFO*     pMessageData : [in/out] Indicates what data is required and stores it
 //
-VOID   onStringsPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData)
+VOID   onStringsPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData)
 {
    STRING_DEPENDENCY*  pDependecy;                     // GameString associated with the selected item
    LVITEM&             oOutput = pMessageData->item;    // Convenience pointer for the item output data
@@ -375,14 +375,14 @@ VOID   onStringsPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVD
 }
 
 
-/// Function name  : onVariablesPageRequestData
+/// Function name  : onVariablesPage_RequestData
 // Description     : Supply the requested piece of VariableDependencies data for the ListView (sub)item
 // 
 // PROPERTIES_DATA*  pSheetData   : [in]     Properties sheet dialog data
 // HWND              hPage        : [in]     Window handle of the dependencies page
 // NMLVDISPINFO*     pMessageData : [in/out] Indicates what data is required and stores it
 //
-VOID   onVariablesPageRequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData)
+VOID   onVariablesPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pMessageData)
 {
    VARIABLE_DEPENDENCY*  pDependency;                     // VariableDependency associated with the selected item
    LVITEM&               oOutput = pMessageData->item;    // Convenience pointer for the item output data
@@ -457,7 +457,7 @@ INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, L
       // [REFRESH SCRIPT DEPENDENCIES]
       case IDM_DEPENDENCIES_REFRESH:      // menu item
       case IDC_REFRESH_DEPENDENCIES:      // button
-         updateScriptDependenciesPageList(pDialogData, hPage);
+         updateScriptDependenciesPage_List(pDialogData, hPage);
          return TRUE;
 
       // [SEARCH SCRIPT-CALLS]
@@ -469,7 +469,7 @@ INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, L
 
    /// [CONTEXT MENU]
    case WM_CONTEXTMENU:
-      return onDependenciesPageContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+      return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
 
    /// [NOTIFICATION] - Handle ListView notifications
    case WM_NOTIFY:
@@ -480,7 +480,7 @@ INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, L
       {
       // [REQUEST DEPENDENCY DATA] Supply ScriptDependency/VariableDependency data
       case LVN_GETDISPINFO:
-         onDependenciesPageRequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
+         onDependenciesPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
          return TRUE;
 
       // [CUSTOM DRAW] Draw Refresh button and ListView
@@ -533,14 +533,14 @@ INT_PTR   dlgprocStringsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
       // [REFRESH VARIABLE DEPENDENCIES]
       case IDM_STRINGS_REFRESH:      // menu item
       case IDC_REFRESH_STRINGS:      // button
-         updateScriptStringsPageList(pDialogData, hPage);
+         updateScriptStringsPage_List(pDialogData, hPage);
          return TRUE;
       }
       break;
 
    /// [CONTEXT MENU]
    case WM_CONTEXTMENU:
-      return onDependenciesPageContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+      return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
 
    /// [NOTIFICATION] - Handle ListView notifications
    case WM_NOTIFY:
@@ -552,7 +552,7 @@ INT_PTR   dlgprocStringsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
       {
       // [REQUEST DEPENDENCY DATA] Supply GameString data
       case LVN_GETDISPINFO:
-         onStringsPageRequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
+         onStringsPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
          return TRUE;
 
       // [CUSTOM DRAW] Draw Refresh button and ListView
@@ -599,7 +599,7 @@ INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPAR
       // [REFRESH VARIABLE DEPENDENCIES]
       case IDM_VARIABLES_REFRESH:      // menu item
       case IDC_REFRESH_VARIABLES:      // button
-         updateScriptVariablesPageList(pDialogData, hPage);
+         updateScriptVariablesPage_List(pDialogData, hPage);
          return TRUE;
 
       // [PROJECT VARIABLES]
@@ -611,7 +611,7 @@ INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPAR
 
    /// [CONTEXT MENU]
    case WM_CONTEXTMENU:
-      return onDependenciesPageContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+      return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
 
    /// [NOTIFICATION] - Handle ListView notifications
    case WM_NOTIFY:
@@ -622,7 +622,7 @@ INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPAR
       {
       // [REQUEST DEPENDENCY DATA] Supply VariableDependency data
       case LVN_GETDISPINFO:
-         onVariablesPageRequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
+         onVariablesPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
          return TRUE;
 
       // [CUSTOM DRAW] Draw Refresh button and ListView

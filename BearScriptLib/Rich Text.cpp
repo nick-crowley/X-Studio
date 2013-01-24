@@ -542,6 +542,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
          // Parse the ID from the [select] tag
          if (eObjectType == RTT_LANGUAGE_MESSAGE AND translateLanguageMessageTag(pTokeniser, NULL, pItem, pErrorQueue))
          {
+            // [CHECK] Ensure ID is not a duplicate
             if (!isRichEditButtonUnique(pOutput, pItem->szID))
                // [ERROR] "Duplicate button ID '%s' found in [select] tag"
                pError = generateDualError(HERE(IDS_RICHTEXT_BUTTON_ID_DUPLICATE), pItem->szID);
