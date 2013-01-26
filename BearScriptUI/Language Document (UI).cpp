@@ -333,7 +333,7 @@ VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CO
    if (bSelected)
    {
       // [ITEM] Calculate item index 
-      if ((iLogicalItem = GroupedListView_ConvertIndex(pDocument->hPageList, iItem)) != -1)
+      if ((iLogicalItem = GroupedListView_PhysicalToLogical(pDocument->hPageList, iItem)) != -1)
       {
          // [CHECK] Ensure Page + PageStrings do not exist
          ASSERT(!pDocument->pCurrentPage AND !pDocument->pPageStringsByID);

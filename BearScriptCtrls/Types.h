@@ -365,8 +365,6 @@ struct LISTVIEW_COLUMNS
 ///  A virtual ListView that displays grouped data with fancy XP style headings
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-#define       MAX_GROUPS            32      // Max number of groups in a Grouped ListView
-
 // Defines the size and name of each group
 // 
 struct  LISTVIEW_GROUP
@@ -378,39 +376,27 @@ struct  LISTVIEW_GROUP
 
 // Associated with a Grouped ListView window, it contains the group data
 //
-struct  GROUPED_LISTVIEW_DATA
+struct  GROUPED_LISTVIEW
 {
-   LISTVIEW_GROUP  pGroups[MAX_GROUPS];   // Groups array
-   UINT            iCount;                  // Number of groups
-
-   HFONT           hHeaderFont;           // Font used to display header text
-
-   /// NEW:
-   HWND            hCtrl;
-   WNDPROC         pfnBaseWindowProc;
-
-   LIST*           pGroupList;
+   HWND      hCtrl;                 // ListView
+   LIST*     pGroupList;            // Group data
+   WNDPROC   pfnBaseWindowProc;     // No longer used
+   HFONT     hHeaderFont;           // Font used to display header text
 };
 
-// Classifies each line in a Grouped ListView. A positive value indicates an index and a negative value indicates
-//   a component of the header.  The components are either a blank line or the heading text.
+// Identifies items as either a real item or part of a header
 //
 enum  LISTVIEW_INDEX_TYPE  { GLVIT_BLANK, GLVIT_GROUPHEADER, GLVIT_ITEM };
 
 
-// Identifies the properties of a Grouped ListView item.
+// Holds the position/properties of a Grouped ListView item.
 //
 struct  LISTVIEW_ITEM
 {
-   // Item index
    LISTVIEW_INDEX_TYPE  eType;               // Index type - either an item or part of a header
    UINT                 iLogicalIndex,       // Logical index  (Item number)
-                        iPhysicalIndex,      // Physical index  (ListView item index)
-                        iGroupPhysicalIndex; // Physical index of first line of group header
-                        
-   // Misc
+                        iPhysicalIndex;      // Physical index  (ListView item index)
    LISTVIEW_GROUP      *pGroup;              // Group to which item belongs
-   RECT                 rcRect;              // Bounding rectangle of the entire item
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////

@@ -30,7 +30,7 @@
 BOOL   createLanguageDialogControls(LANGUAGE_DOCUMENT*  pDocument)
 {
    DWORD             dwListStyle     = WS_BORDER WITH WS_CHILD WITH WS_TABSTOP WITH (LVS_OWNERDATA WITH LVS_SHOWSELALWAYS WITH LVS_REPORT WITH LVS_SINGLESEL WITH LVS_NOSORTHEADER);
-   LISTVIEW_COLUMNS  oPageListView   = { 3, IDS_LANGUAGE_PAGE_COLUMN_ID,   60, 160, 100,  NULL, NULL },
+   LISTVIEW_COLUMNS  oPageListView   = { 3, IDS_LANGUAGE_STRING_COLUMN_ID, 60, 160, 100,  NULL, NULL },
                      oStringListView = { 2, IDS_LANGUAGE_STRING_COLUMN_ID, 70, 600, NULL, NULL, NULL };
    PANE_PROPERTIES   oPaneData;       // New pane properties
    PANE*             pTargetPane;     // Workspace pane being targetted for a split
@@ -709,9 +709,8 @@ VOID   onLanguageDocument_Create(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd)
       performAVLTreeIndexing(getLanguageDocumentGamePageTree(pDocument));
 
       /// Display Pages
-      /// REM: ListView_SetItemCount(pDocument->hPageList, getTreeNodeCount(getLanguageDocumentGamePageTree(pDocument)));
       updateLanguageDocumentPageGroups(pDocument);
-      ListView_SetItemState(pDocument->hPageList, 3, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);    // Causes strings to be generated + displayed
+      ListView_SetItemState(pDocument->hPageList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);    // Causes strings to be generated + displayed
 
       // Show child windows
       ShowWindow(pDocument->hPageList, SW_SHOWNORMAL);
@@ -855,7 +854,8 @@ BOOL  onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  
    /// [GAME PAGE]
    case IDC_PAGE_LIST:
       // [CHECK] Lookup item
-      if (findLanguageDocumentGamePageByIndex(pDocument, GroupedListView_ConvertIndex(pDocument->hPageList, oOutput.iItem), pGamePage))
+      //if (findLanguageDocumentGamePageByIndex(pDocument, GroupedListView_PhysicalToLogical(pDocument->hPageList, oOutput.iItem), pGamePage))
+      if (findLanguageDocumentGamePageByIndex(pDocument, oOutput.iItem, pGamePage))
       {
          // [IMAGE] Provide Voiced/NotVoiced icon
          if (oOutput.mask INCLUDES LVIF_IMAGE)

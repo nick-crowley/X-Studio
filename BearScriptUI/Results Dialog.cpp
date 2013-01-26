@@ -130,15 +130,15 @@ UINT  identifyResultsDialogFilter(HWND  hDialog)
 // 
 // Return Value   : TRUE if found, FALSE otherwise
 // 
-BOOL   findResultsDialogItemByIndex(RESULTS_DIALOG_DATA*  pDialogData, CONST INT  iPhysicalIndex, SUGGESTION_RESULT&  xOutput)
+BOOL   findResultsDialogItemByIndex(RESULTS_DIALOG_DATA*  pDialogData, CONST INT  iLogicalIndex, SUGGESTION_RESULT&  xOutput)
 {
-   INT   iLogicalIndex;   // Item logical index
+   //INT   iLogicalIndex;   // Item logical index
    
    // Prepare
    xOutput.asPointer = NULL;
 
    // Get logical index
-   iLogicalIndex = GroupedListView_ConvertIndex(pDialogData->hListView, iPhysicalIndex);
+   //iLogicalIndex = GroupedListView_PhysicalToLogical(pDialogData->hListView, iPhysicalIndex);
 
    // Lookup item data
    if (iLogicalIndex != -1)
@@ -452,7 +452,7 @@ BOOL   onResultsDialog_Command(RESULTS_DIALOG_DATA*  pDialogData, CONST UINT  iC
    /// [INSERT SUGGESTION]
    case IDM_RESULTS_INSERT_RESULT:
       // Lookup selected item
-      if (findResultsDialogItemByIndex(pDialogData, ListView_GetNextItem(pDialogData->hListView, -1, LVNI_SELECTED), xSelectedItem))
+      if (findResultsDialogItemByIndex(pDialogData, ListView_GetSelected(pDialogData->hListView), xSelectedItem))
          // [FOUND] Insert result
          onResultsDialog_InsertResult(pDialogData, xSelectedItem);
       break;
@@ -491,7 +491,7 @@ VOID  onResultsDialog_ContextMenu(RESULTS_DIALOG_DATA*  pDialogData, HWND  hCtrl
    TRACK_FUNCTION();
 
    // [CHECK] Ensure ListView item is selected
-   if (GetDlgCtrlID(hCtrl) == IDC_RESULTS_LIST AND findResultsDialogItemByIndex(pDialogData, ListView_GetNextItem(pDialogData->hListView, -1, LVNI_SELECTED), xSelectedItem))
+   if (GetDlgCtrlID(hCtrl) == IDC_RESULTS_LIST AND findResultsDialogItemByIndex(pDialogData, ListView_GetSelected(pDialogData->hListView), xSelectedItem))
    {
       // Create CustomMenu
       pCustomMenu = createCustomMenu(TEXT("DIALOG_MENU"), TRUE, IDM_RESULTS_POPUP);
@@ -616,7 +616,7 @@ VOID  onResultsDialog_LookupCommand(RESULTS_DIALOG_DATA*  pDialogData)
    TRACK_FUNCTION();
 
    // Lookup selected item
-   if (findResultsDialogItemByIndex(pDialogData, ListView_GetNextItem(pDialogData->hListView, -1, LVNI_SELECTED), xSelectedItem))
+   if (findResultsDialogItemByIndex(pDialogData, ListView_GetSelected(pDialogData->hListView), xSelectedItem))
    {
       // [CHECK] Is this a command with an MSCI URL?
       if (pDialogData->eType == RT_COMMANDS AND lstrlen(xSelectedItem.asCommandSyntax->szReferenceURL))
@@ -702,7 +702,7 @@ BOOL  onResultsDialog_Notify(RESULTS_DIALOG_DATA*  pDialogData, NMHDR*  pMessage
          pListViewItem = (NMITEMACTIVATE*)pMessage;
 
          // Lookup selected item
-         if (bResult = findResultsDialogItemByIndex(pDialogData, pListViewItem->iItem, xSelectedItem))
+         if (bResult = findResultsDialogItemByIndex(pDialogData, GroupedListView_PhysicalToLogical(pDialogData->hListView, pListViewItem->iItem), xSelectedItem))
             // [FOUND] Insert item
             onResultsDialog_InsertResult(pDialogData, xSelectedItem);
          break;
@@ -980,7 +980,7 @@ VOID  onResultsDialog_SubmitCorrection(RESULTS_DIALOG_DATA*  pDialogData)
    TRACK_FUNCTION();
 
    // Lookup selected item
-   if (findResultsDialogItemByIndex(pDialogData, ListView_GetNextItem(pDialogData->hListView, -1, LVNI_SELECTED), xSelectedItem))
+   if (findResultsDialogItemByIndex(pDialogData, ListView_GetSelected(pDialogData->hListView), xSelectedItem))
       /// [FOUND] Pass item data to Correction Dialog
       displayCorrectionDialog(getAppWindow(), pDialogData->eType, xSelectedItem);
 

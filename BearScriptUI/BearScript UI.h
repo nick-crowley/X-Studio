@@ -1207,7 +1207,7 @@ RESULTS_DIALOG_DATA*  getResultsDialogData(HWND  hDialog);
 UINT                  identifyResultsDialogFilter(HWND  hDialog);
 
 // Functions
-BOOL   findResultsDialogItemByIndex(RESULTS_DIALOG_DATA*  pDialogData, CONST INT  iPhysicalIndex, SUGGESTION_RESULT&  xOutput);
+BOOL   findResultsDialogItemByIndex(RESULTS_DIALOG_DATA*  pDialogData, CONST INT  iLogicalIndex, SUGGESTION_RESULT&  xOutput);
 VOID   initResultsDialog(RESULTS_DIALOG_DATA*  pDialogData, HWND  hDialog);
 VOID   initResultsDialogControls(RESULTS_DIALOG_DATA*  pDialogData);
 VOID   performResultsDialogQuery(RESULTS_DIALOG_DATA*  pDialogData, CONST TCHAR*  szSearchTerm, CONST UINT  iGroupFilter, CONST BOOL  bCompatibleOnly);

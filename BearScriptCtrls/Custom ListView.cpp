@@ -490,20 +490,21 @@ LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARA
    {
    /// [MOUSE MOVE] Assign Hot Item + Track Mouse
    case WM_MOUSEMOVE:
-      utilTrackMouseEvent(hWnd, TME_LEAVE, 0);
-
       // Prepare
-      GetCursorPos(&oHitTest.pt);
-      ScreenToClient(hWnd, &oHitTest.pt);
+      utilTrackMouseEvent(hWnd, TME_LEAVE, 0);
+      utilGetWindowCursorPos(hWnd, &oHitTest.pt);
 
-      // [ITEM CHANGED] Move 'Hot' status to new item
-      if (ListView_HitTest(hWnd, &oHitTest) != -1 AND !ListView_GetItemState(hWnd, oHitTest.iItem, LVIS_CUT))
+      // [NOT ITEM] Clear focus, if any
+      if (ListView_HitTest(hWnd, &oHitTest) == -1)
+         ListView_SetItemState(hWnd, -1, NULL, LVIS_CUT)
+
+      // [NEW ITEM] Move focus status to new item
+      else if (!ListView_GetItemState(hWnd, oHitTest.iItem, LVIS_CUT))
       {
-         ListView_SetItemState(hWnd, -1, NULL, LVIS_CUT);
-         if (oHitTest.iItem != -1)
-            ListView_SetItemState(hWnd, oHitTest.iItem, LVIS_CUT, LVIS_CUT);
+         ListView_SetItemState(hWnd, -1, NULL, LVIS_CUT)
+         ListView_SetItemState(hWnd, oHitTest.iItem, LVIS_CUT, LVIS_CUT);
       }
-
+      
       //CONSOLE("** Current Hot Item = %d", ListView_GetNextItem(hWnd, -1, LVNI_CUT));
       break;
 

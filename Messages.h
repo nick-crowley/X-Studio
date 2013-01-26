@@ -499,12 +499,13 @@
 //
 #define     GroupedListView_EmptyGroups(hCtrl)                       SendMessage(hCtrl, UM_EMPTY_LISTVIEW_GROUPS, NULL, NULL)
 
-/// Name: UM_CONVERT_INDEX
+
+/// Name: UM_PHYSICAL_TO_LOGICAL
 // Description: Converts a physical index into a logical onde
 //
-#define     UM_CONVERT_INDEX                                         (UM_XSTUDIO + 57)
+#define     UM_PHYSICAL_TO_LOGICAL                                   (UM_XSTUDIO + 57)
 //
-#define     GroupedListView_ConvertIndex(hCtrl, iPhysicalIndex)      SendMessage(hCtrl, UM_CONVERT_INDEX, iPhysicalIndex, NULL)
+#define     GroupedListView_PhysicalToLogical(hCtrl, iPhysicalIndex) SendMessage(hCtrl, UM_PHYSICAL_TO_LOGICAL, iPhysicalIndex, NULL)
 
 
 /// Name: UM_REMOVE_LISTVIEW_GROUPS
