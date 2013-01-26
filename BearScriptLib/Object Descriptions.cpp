@@ -163,27 +163,24 @@ BOOL   insertDescriptionIntoVariablesFile(VARIABLES_FILE*  pVariablesFile, CONST
 // 
 TCHAR*  generatePopulatedDescriptionSource(CONST TCHAR*  szSourceText, CONST UINT  iSourceLength, CONST AVL_TREE*  pVariablesTree, CONST COMMAND_SYNTAX*  pSyntax, CONST UINT  iPageID, CONST UINT  iStringID, ERROR_QUEUE*  pErrorQueue)
 {
-   CONST UINT             iMaxParameters = 6;      //           Maximum number of parameters a command can have
-   DESCRIPTION_VARIABLE  *pVariable;               //           DescriptionVariable
-   CODEOBJECT            *pCodeObject;             //           Parses the input source-text
-   CONST TCHAR           *szPunctuation;           // [KEYWORD] Punctuation following the keyword (if any)
-   TCHAR                 *szOutput,                //           Operation result
-                         *szKeyword,               //           Variable ID  (or text)
-                         *szCommand,               // [COMMAND] Entire command text, including parameters
-                         *szFirstParameter,        // [COMMAND] Remaining Command parameters
-                         *szParameters[iMaxParameters],         // [COMMAND] Command parameters
-                         *szIterator,              // [COMMAND] Parameters tokeniser
-                         *szAssembledTemplate,     // [COMMAND] Unpopulated variable source-text with parameters inserted
-                         *szPopulatedVariable;     //           Populated variable source-text
-   UINT                   iOutputLength,           //           Length of output buffer
-                          iParameterCount;         // [COMMAND] Number of parameters parsed
+   CONST UINT             iMaxParameters = 6;            //           Maximum number of parameters a command can have
+   DESCRIPTION_VARIABLE  *pVariable;                     //           DescriptionVariable
+   CODEOBJECT            *pCodeObject;                   //           Parses the input source-text
+   CONST TCHAR           *szPunctuation;                 // [KEYWORD] Punctuation following the keyword (if any)
+   TCHAR                 *szOutput,                      //           Operation result
+                         *szKeyword,                     //           Variable ID  (or text)
+                         *szCommand,                     // [COMMAND] Entire command text, including parameters
+                         *szFirstParameter,              // [COMMAND] Remaining Command parameters
+                         *szParameters[iMaxParameters],  // [COMMAND] Command parameters
+                         *szIterator,                    // [COMMAND] Parameters tokeniser
+                         *szAssembledTemplate,           // [COMMAND] Unpopulated variable source-text with parameters inserted
+                         *szPopulatedVariable;           //           Populated variable source-text
+   UINT                   iOutputLength,                 //           Length of output buffer
+                          iParameterCount;               // [COMMAND] Number of parameters parsed
 
    // Prepare
    pCodeObject = createCodeObject(szSourceText);
-
-   // Create output
-   iOutputLength = 4096;
-   szOutput      = utilCreateEmptyString(iOutputLength);
+   szOutput    = utilCreateEmptyString(iOutputLength = 4096);
    
    /// Split CommandSyntax string into CodeObjects
    while (findNextCodeObject(pCodeObject))

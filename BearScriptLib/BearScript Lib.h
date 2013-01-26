@@ -125,24 +125,11 @@ LPARAM                    extractArgumentTreeNode(LPARAM  pNode, CONST AVL_TREE_
 // Functions
 BearScriptAPI VOID   performBinaryTreeMediaPageReplication(AVL_TREE*  pSourceTree, CONST MEDIA_ITEM_TYPE  eType, CONST UINT  iPageID, AVL_TREE*  pDestinationTree);
 BearScriptAPI VOID   performBinaryTreeMediaPageTypeCount(AVL_TREE*  pTargetTree, UINT*  piOutput, CONST UINT  iTypeCount);
-BearScriptAPI VOID   performBinaryTreeScriptDependenciesOutput(AVL_TREE*  pTree, HWND  hListView);
-BearScriptAPI VOID   performBinaryTreeReplication(AVL_TREE*  pSourceTree, AVL_TREE*  pDestinationTree);
-BearScriptAPI VOID   performBinaryTreeStringPageReplication(AVL_TREE*  pSourceTree, CONST UINT  iPageID, AVL_TREE*  pDestinationTree);
-BearScriptAPI VOID   performLanguageFileXMLGeneration(LANGUAGE_FILE*  pLanguageFile, TCHAR*  szConversionBuffer);
 
 /// Operations (CONVERTED)
 VOID   treeprocCountMediaPageTypes(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
-VOID   treeprocOutputScriptDependencies(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
 VOID   treeprocReplicateMediaPage(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
-VOID   treeprocReplicateStringPage(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
-VOID   treeprocReplicateBinaryTree(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
-VOID   treeprocIndexBinaryTreeObjects(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
 
-// In progress
-
-
-// Operations (NOT YET CONVERTED)
-VOID   treeprocGenerateLanguageFileXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    BUG REPORTS
@@ -223,8 +210,8 @@ VOID                    destructorCommand(LPARAM  pCommand);
 // Helpers
 BearScriptAPI BOOL          isCommandGameStringDependent(CONST COMMAND*  pCommand);
 BearScriptAPI CONST TCHAR*  identifyCommandTypeString(CONST COMMAND_TYPE  eType);
-BearScriptAPI LIST*         generateCommandGameStringReferences(CONST COMMAND*  pCommand);
 BearScriptAPI BOOL          isCommandComment(CONST COMMAND*  pCommand);
+BearScriptAPI BOOL          isCommandScriptCall(CONST COMMAND*  pCommand);
 BearScriptAPI BOOL          isCommandTradingSearch(CONST COMMAND*  pCommand);
 BearScriptAPI BOOL          isCommandID(CONST COMMAND*  pCommand, CONST UINT  iID);
 BearScriptAPI BOOL          isCommandType(CONST COMMAND*  pCommand, CONST COMMAND_TYPE  eType);
@@ -653,6 +640,7 @@ VOID               treeprocInsertGameObjectCollisionsIntoGameData(AVL_TREE_NODE*
 // Creation / Destruction
 BearScriptAPI GAME_PAGE*    createGamePage(CONST UINT  iPageID, CONST TCHAR*  szTitle, CONST TCHAR*  szDescription, CONST BOOL  bVoiced);
 BearScriptAPI GAME_STRING*  createGameString(CONST TCHAR*  szText, CONST UINT  iStringID, CONST UINT  iPageID, CONST STRING_TYPE  eType);
+GAME_STRING_REF*            createGameStringReference(CONST UINT  iPageParameterIndex, CONST UINT  iStringParameterIndex);
 SUBSTRING*                  createSubString(CONST TCHAR*  szSourceText);
 BearScriptAPI VOID          deleteGamePage(GAME_PAGE*  &pGamePage);
 BearScriptAPI VOID          deleteGameString(GAME_STRING*  &pGameString);
@@ -660,6 +648,7 @@ VOID                        deleteSubString(SUBSTRING*  &pSubString);
 
 // Helpers
 VOID                appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szFormat, ...);
+UINT                calculateOutputPageID(const UINT  iPageID, const GAME_VERSION  eVersion);
 BearScriptAPI BOOL  findGameStringByID(CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
 BearScriptAPI BOOL  findGameStringInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
 BearScriptAPI BOOL  findGamePageInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iPageID, GAME_PAGE*  &pOutput);
@@ -771,10 +760,9 @@ BOOL              insertGameStringIntoLanguageFile(LANGUAGE_FILE*  pLanguageFile
 OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FILE*  pTargetFile, CONST BOOL  bSubStrings, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE* pErrorQueue);
 VOID              performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, OPERATION_PROGRESS*  pProgress);
 VOID              performVariablesFileStringConversion(VARIABLES_FILE*  pVariablesFile);
+OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 
 // (Export) Functions
-BearScriptAPI BOOL              generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
-BearScriptAPI OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI DWORD             threadprocLoadLanguageFile(VOID*  pParameter);
 BearScriptAPI DWORD             threadprocSaveLanguageFile(VOID*  pParameter);
 
@@ -986,7 +974,7 @@ BearScriptAPI BOOL   generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE
 BearScriptAPI BOOL   generateLanguageMessageFromGameString(CONST GAME_STRING*  pSourceText, LANGUAGE_MESSAGE*  &pOutput, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI BOOL   generateRichTextFromGameString(CONST GAME_STRING*  pSourceText, RICH_TEXT*  &pOutput, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI BOOL   generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTextLength, CONST STRING_TYPE  eStringType, RICH_TEXT*  &pOutput, CONST RICHTEXT_TYPE  eObjectType, ERROR_QUEUE*  pErrorQueue);
-BOOL                 translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUAGE_MESSAGE*  pMessage, RICH_ITEM*  pButton, ERROR_QUEUE*  pErrorQueue);
+BOOL                 translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUAGE_MESSAGE*  pMessage, RICH_ITEM*  pButton, ERROR_STACK*  &pError);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    RICH TEXT (OBJECTS)
@@ -1103,10 +1091,12 @@ BearScriptAPI BOOL   findIntegerParameterInCommandByIndex(CONST COMMAND* pComman
 BearScriptAPI BOOL   findParameterInCommandByIndex(CONST COMMAND* pCommand, CONST PARAMETER_TYPE  eType, CONST UINT  iIndex, PARAMETER*  &pOutput);
 BearScriptAPI BOOL   findReturnObjectParameterInCommand(CONST COMMAND*  pCommand, PARAMETER*  &pOutput);
 BearScriptAPI BOOL   findReturnVariableParameterInCommand(CONST COMMAND*  pCommand, CONST TCHAR*  &szOutput);
+BearScriptAPI BOOL   findScriptCallParameterInCommand(const COMMAND*  pCommand, PARAMETER*&  pOutput);
 BearScriptAPI BOOL   findStringParameterInCommandByIndex(CONST COMMAND* pCommand, CONST UINT  iIndex, CONST TCHAR* &szOutput);
 BearScriptAPI BOOL   findVariableParameterInCommandByIndex(CONST COMMAND* pCommand, CONST UINT  iIndex, CONST TCHAR* &szOutput);
 BearScriptAPI UINT   getCommandParameterCount(CONST COMMAND*  pCommand, CONST PARAMETER_TYPE  eType);
 BOOL                 generateParameterFromMissingWare(CONST TCHAR*  szParameterText, CONST PARAMETER_SYNTAX  eSyntax, CONST UINT  iLineNumber, PARAMETER*  &pOutput);
+BearScriptAPI LIST*  generateParameterGameStringRefs(CONST COMMAND*  pCommand);
 CONST TCHAR*         identifyParameterSyntaxString(CONST PARAMETER_SYNTAX  eParameterSyntax);
 VOID                 insertParameterIntoCommand(COMMAND*  pCommand, CONST PARAMETER_INDEX*  pIndex, PARAMETER*  pParameter);
 BOOL                 isReferenceObject(CONST PARAMETER*  pParameter);
@@ -1288,13 +1278,14 @@ BOOL                        verifyDataType(CONST DATA_TYPE  eType);
 
 // Functions
 BOOL                 calculateParameterSyntaxByIndex(CONST COMMAND*  pCommand, CONST UINT  iParameterIndex, PARAMETER_SYNTAX  &eOutput, ERROR_STACK*  &pError);
-BearScriptAPI TCHAR* calculateScriptCallTargetFilePath(CONST TCHAR*  szScriptCallFilePath, CONST COMMAND*  pScriptCallCommand);
+BearScriptAPI TCHAR* calculateScriptCallTargetFilePath(CONST TCHAR*  szCallerPath, CONST COMMAND*  pScriptCall);
 BOOL                 convertLabelNumberParameterToLabel(CONST COMMAND_NODE*  pCommandNode, COMMAND*  pCommand, ERROR_STACK*  &pError);
+BearScriptAPI BOOL   findGameStringDependency(CONST COMMAND*  pCommand, GAME_STRING*  &pOutput);
 BOOL                 findNextCommandComponent(COMMAND_COMPONENT*  pCommandComponent);
-BearScriptAPI BOOL   isGameStringDependencyPresent(CONST COMMAND*  pCommand, ERROR_STACK*  &pError);
 BOOL                 parseScriptPropertiesFromBuffer(SCRIPT_FILE*  pScriptFile);
 BOOL                 performScriptTypeConversion(CONST PARAMETER*  pParameter, CONST DATA_TYPE  eInput, DATA_TYPE&  eOutput, CONST SCRIPT_VALUE_TYPE  eInputType, CONST SCRIPT_VALUE_TYPE  eOutputType, ERROR_STACK*  &pError);
 BOOL                 performScriptValueConversion(SCRIPT_FILE*  pScriptFile, CONST PARAMETER*  pInput, INT&  iOutput, CONST SCRIPT_VALUE_TYPE  eInputType, CONST SCRIPT_VALUE_TYPE  eOutputType, ERROR_STACK*  &pError);
+BOOL                 verifyGameStringDependencies(COMMAND*  pCommand, ERROR_QUEUE*  pErrorQueue);
 BOOL                 verifyScriptEngineVersion(CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue);
 VOID                 verifyScriptFileScriptNameFromPath(SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue);
 
@@ -1468,6 +1459,7 @@ TCHAR*        getTextStreamBuffer(CONST TEXT_STREAM*  pTextStream);
 
 // Functions
 VOID          appendCharToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR  chCharacter);
+VOID          appendStringToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR*  szText);
 VOID          appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szFormat, ...);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////

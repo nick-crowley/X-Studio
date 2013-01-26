@@ -400,7 +400,6 @@ AVL_TREE*  generateCodeEditScriptDependencyTree(CODE_EDIT_DATA*  pWindowData)
 }
 
 
-
 /// Function name  : generateCodeEditStringDependencyTree
 // Description     : Creates a StringDependencies tree from the current commands
 // 
@@ -411,14 +410,14 @@ AVL_TREE*  generateCodeEditScriptDependencyTree(CODE_EDIT_DATA*  pWindowData)
 // 
 AVL_TREE*  generateCodeEditStringDependencyTree(CODE_EDIT_DATA*  pWindowData, CONST PROJECT_FILE*  pProjectFile)
 {
-   GAME_STRING_REFERENCE *pReference;         // Current GameString reference
-   CODE_EDIT_LINE        *pLineData;          // LineData for the current line
-   LIST_ITEM             *pIterator;          // Line iterator
-   AVL_TREE              *pOutputTree;        // Output tree of ScriptDependencies
-   LIST                  *pReferenceList;     // List of GameString references
-   UINT                   iStringID,          // First/only String ID of current reference
-                          iLastStringID,      // [ARRAY] Last string ID of current only reference
-                          iPageID;            // PageID of current reference
+   GAME_STRING_REF *pReference;         // Current GameString reference
+   CODE_EDIT_LINE  *pLineData;          // LineData for the current line
+   LIST_ITEM       *pIterator;          // Line iterator
+   AVL_TREE        *pOutputTree;        // Output tree of ScriptDependencies
+   LIST            *pReferenceList;     // List of GameString references
+   UINT             iStringID,          // First/only String ID of current reference
+                    iLastStringID,      // [ARRAY] Last string ID of current only reference
+                    iPageID;            // PageID of current reference
 
    // Prepare
    TRACK_FUNCTION();
@@ -431,7 +430,7 @@ AVL_TREE*  generateCodeEditStringDependencyTree(CODE_EDIT_DATA*  pWindowData, CO
       ASSERT(pLineData->pCommand);
 
       // Lookup the GameString references
-      if (pReferenceList = generateCommandGameStringReferences(pLineData->pCommand))
+      if (pReferenceList = generateParameterGameStringRefs(pLineData->pCommand))
       {
          // Iterate through the references
          for (UINT  iIndex = 0; findListObjectByIndex(pReferenceList, iIndex, (LPARAM&)pReference); iIndex++)
@@ -594,13 +593,13 @@ AVL_TREE*  generateCodeEditVariableDependencyTree(CODE_EDIT_DATA*  pWindowData)
       case CMD_GET_LOCAL_VARIABLE:          // "$2 $0 get local variable: name=$1"
       case CMD_SET_LOCAL_VARIABLE:          // "$0 set local variable: name=$1 value=$2"
       case CMD_GET_GLOBAL_VARIABLE_KEYS:    // "$0 get all global variable keys, starting with=$1"
-      case CMD_GET_GLOBAL_VARIABLE_REG_EXP: // "$0 get global variables: regular expression=$1"
+      case CMD_GET_GLOBAL_VARIABLE_REGEX:   // "$0 get global variables: regular expression=$1"
          iVariableNameIndex = 1;
          break;
 
       // [PARAMETER TWO]
       case CMD_GET_LOCAL_VARIABLE_KEYS:     // "$1 $0 get all local variable keys, starting with=$2"
-      case CMD_GET_LOCAL_VARIABLE_REG_EXP:  // "$1 $0 get local variables: regular expression=$2"
+      case CMD_GET_LOCAL_VARIABLE_REGEX:    // "$1 $0 get local variables: regular expression=$2"
          iVariableNameIndex = 2;
          break;
       }
@@ -678,6 +677,61 @@ AVL_TREE*  generateCodeEditVariableNamesTree(CODE_EDIT_DATA*  pWindowData)
    performAVLTreeIndexing(pOutputTree);
    END_TRACKING();
    return pOutputTree;
+}
+
+
+/// Function name  : getCodeEditCaretGameString
+// Description     : Retrieves the GameString referenced by the command at the caret
+// 
+// CODE_EDIT_DATA*      pWindowData  : [in] Window data
+// CONST PROJECT_FILE*  pProjectFile : [in][optional] ProjectFile
+// 
+// Return Value   : GameString if found, otherwise NULL
+// 
+GAME_STRING*  getCodeEditCaretGameString(CODE_EDIT_DATA*  pWindowData, CONST PROJECT_FILE*  pProjectFile)
+{
+   CODE_EDIT_LINE  *pLineData;          // LineData for the current line
+   GAME_STRING_REF *pReference;         // Current Ref
+   GAME_STRING     *pOutput;
+   LIST_ITEM       *pLineItem;
+   LIST            *pReferenceList;     // COMMAND's GameString references
+   UINT             iPageID,            // Current Ref PageID
+                    iStringID;          // Current Ref StringID
+   // Prepare
+   TRACK_FUNCTION();
+   pOutput = NULL;
+
+   // Lookup line data
+   if (findCodeEditLineListItemByIndex(pWindowData, pWindowData->oCaret.oLocation.iLine, pLineItem) AND (pLineData = extractListItemPointer(pLineItem, CODE_EDIT_LINE)))
+   {
+      /// Lookup the Parameter Indicies containing PageID/StringID
+      if (pReferenceList = generateParameterGameStringRefs(pLineData->pCommand))
+      {
+         // Iterate through the references (Abort on errors)
+         for (UINT  iIndex = 0; findListObjectByIndex(pReferenceList, iIndex, (LPARAM&)pReference); iIndex++)
+         {
+            // [CHECK] Resolve page ID and string ID
+            if (!resolveCodeEditIntegerParameter(pWindowData, pLineItem, pReference->iPageParameterIndex, pProjectFile, iPageID) OR
+                !resolveCodeEditIntegerParameter(pWindowData, pLineItem, pReference->iStringParameterIndex, pProjectFile, iStringID))
+                continue;
+
+            // [CHECK] Skip if both are zero, this often happens in commands with multiple references
+            if (iPageID == 0 AND iStringID == 0)
+               continue;
+
+            /// Return the first GameString found
+            if (findGameStringByID(iStringID, iPageID, pOutput))
+               break;
+         }
+
+         // Cleanup
+         deleteList(pReferenceList);
+      }
+   }
+
+   // Return GameString if found
+   END_TRACKING();
+   return pOutput;
 }
 
 

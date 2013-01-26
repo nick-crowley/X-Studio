@@ -298,7 +298,7 @@ BOOL  generateOutputTreeStandardCommands(SCRIPT_FILE*  pScriptFile, OPERATION_PR
          break;
 
       /// [SCRIPT-CALL] -- Normal parameters followed by an argument count and a sequence of argument tuples
-      case CMD_SCRIPT_CALL:
+      case CMD_CALL_SCRIPT_VAR_ARGS:
          // Iterate through first THREE PARAMETERs and add to XML Tree
          for (UINT  iSubIndex = 0; iSubIndex < 3 AND findParameterInCommandByIndex(pCommand, PT_DEFAULT, iSubIndex, pParameter); iSubIndex++)
             appendParameterToXMLTree(pScriptFile, pCommand, pParameter, pTree, pCommandNode);

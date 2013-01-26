@@ -543,7 +543,6 @@ VOID  onCodeEditMouseHover(CODE_EDIT_DATA*  pWindowData, CONST POINT*  ptCursor,
    CODE_EDIT_LINE*     pLineData;
    CODEOBJECT*         pCodeObject;
    TCHAR*              szLineText;
-   TRACKMOUSEEVENT     oHoverEvent;
 
    // Prepare
    TRACK_FUNCTION();
@@ -551,13 +550,8 @@ VOID  onCodeEditMouseHover(CODE_EDIT_DATA*  pWindowData, CONST POINT*  ptCursor,
 
    //VERBOSE("CODE-EDIT: WM_MOUSEHOVER received");
 
-   // Prepare
-   oHoverEvent.cbSize    = sizeof(oHoverEvent);
-   oHoverEvent.dwFlags   = TME_HOVER WITH TME_CANCEL;
-   oHoverEvent.hwndTrack = pWindowData->hWnd;
-
-   // Request/reset hover request
-   TrackMouseEvent(&oHoverEvent);
+   // Cancel hover request
+   utilTrackMouseEvent(pWindowData->hWnd, TME_HOVER WITH TME_CANCEL, NULL);
 
    /// [CHECK] Have we hovered over code?
    if (performCodeEditHitTest(pWindowData, ptCursor, &oHoverLocation) == CDR_LINE_TEXT)
@@ -608,7 +602,6 @@ VOID  onCodeEditMouseMove(CODE_EDIT_DATA*  pWindowData, POINT  ptCursor, CONST U
 {
    CODE_EDIT_LOCATION  oCursorLocation,            // Location of the cursor
                        oPreviousCaretLocation;     // Existing location of the caret
-   TRACKMOUSEEVENT     oHoverEvent;
 
    // [TRACK]
    TRACK_FUNCTION();
@@ -644,16 +637,8 @@ VOID  onCodeEditMouseMove(CODE_EDIT_DATA*  pWindowData, POINT  ptCursor, CONST U
    }
    /// [NO BUTTONS and NO SUGGESTIONS]
    else if (utilExcludes(iButtons, MK_LBUTTON WITH MK_RBUTTON WITH MK_MBUTTON) AND !pWindowData->oSuggestion.hCtrl AND pWindowData->pPreferences->bEditorTooltips)
-   {
-      // Prepare
-      oHoverEvent.cbSize      = sizeof(oHoverEvent);
-      oHoverEvent.dwHoverTime = (1000 * pWindowData->pPreferences->iEditorTooltipDelay);
-      oHoverEvent.dwFlags     = TME_HOVER;
-      oHoverEvent.hwndTrack   = pWindowData->hWnd;
-
-      // Request/reset hover request
-      TrackMouseEvent(&oHoverEvent);
-   }
+      // Request mouse hover
+      utilTrackMouseEvent(pWindowData->hWnd, TME_HOVER, 1000 * pWindowData->pPreferences->iEditorTooltipDelay);
    
    // [TOOLTIP] Destroy Tooltip
    if (pWindowData->bTooltipVisible) 
@@ -1240,6 +1225,11 @@ LRESULT   wndprocCodeEdit(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lP
       // [GET CARET LINE ERROR]
       case UM_GET_CARET_LINE_ERROR:
          iResult = (LRESULT)getCodeEditCaretLineError(pWindowData);
+         break;
+
+      // [GET CARET GAME STRING]
+      case UM_GET_CARET_GAME_STRING:
+         iResult = (LRESULT)getCodeEditCaretGameString(pWindowData, (PROJECT_FILE*)lParam);
          break;
 
       // [GET COMMENT QUALITY]

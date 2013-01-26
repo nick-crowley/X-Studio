@@ -346,11 +346,16 @@ BOOL      performCharacterReplacement(TCHAR*  szInputBuffer, CONST UINT  iBuffer
 // 
 // Return type : FALSE if eType is invalid
 //
+/// RESCINDED: Kept for reference
+//
 BearScriptAPI
 BOOL    performStringConversion(TCHAR*  szBuffer, CONST UINT  iBufferLength, CONST STRING_TYPE  eFromType, CONST STRING_TYPE  eToType)
 {
    UINT  iFlags = NULL;
-   
+  
+   TODO("DO NOT USE");
+   return FALSE;
+
    switch (eFromType)
    {
    /// [FROM EXTERNAL TO INTERNAL] -- Convert LF, ', &, <, >, ", %  but not [,],{,}   WARNING: Length will be increased

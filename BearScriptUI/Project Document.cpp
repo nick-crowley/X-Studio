@@ -67,6 +67,15 @@ PROJECT_DOCUMENT*  getActiveProject()
    return getMainWindowData()->pProject;
 }
 
+/// Function name  : getActiveProjectFile
+// Description     : Retrieves the current project document's ProjectFile
+// 
+// Return Value   : Current ProjectFile, if any, otherwise NULL
+// 
+PROJECT_FILE*  getActiveProjectFile()
+{
+   return getActiveProject() ? getActiveProject()->pProjectFile : NULL;
+}
 
 /// Function name  : isDocumentInProject
 // Description     : Determines whether a document is in the project
@@ -303,7 +312,7 @@ VOID  onProject_SaveComplete(DOCUMENT_OPERATION*  pOperationData)
    // [CHECK] Was the save successful?
    if (isOperationSuccessful(pOperationData))
    {
-      // [UN-MODIFIED] Update flag
+      /// [UN-MODIFIED] Update flag
       setProjectModifiedFlag(pDocument, FALSE);
 
       // [CHECK] Should project close after a successful save?

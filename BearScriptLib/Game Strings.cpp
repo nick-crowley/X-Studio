@@ -68,6 +68,31 @@ GAME_STRING*  createGameString(CONST TCHAR*  szText, CONST UINT  iStringID, CONS
    return pNewString;
 }
 
+
+/// Function name  : createGameStringReference
+// Description     : Creates data for a GameStringReference
+// 
+// CONST UINT  iPageParameterIndex   : [in] Index of parameter containing the Page ID
+// CONST UINT  iStringParameterIndex : [in] Index of parameter containing the String ID
+//
+// Return Value   : New GameStringReference, you are responsible for destroying it
+// 
+GAME_STRING_REF*   createGameStringReference(CONST UINT  iPageParameterIndex, CONST UINT  iStringParameterIndex)
+{
+   GAME_STRING_REF*   pReference;       // Object being created
+
+   // Create object
+   pReference = utilCreateEmptyObject(GAME_STRING_REF);
+
+   // Set properties
+   pReference->iPageParameterIndex   = iPageParameterIndex;
+   pReference->iStringParameterIndex = iStringParameterIndex;
+
+   // Return object
+   return pReference;
+}
+
+
 /// Function name  : createSubString
 // Description     : Create a new SubString iteration object
 // 
@@ -88,22 +113,6 @@ SUBSTRING*  createSubString(CONST TCHAR*  szSourceText)
 
    // Return new
    return pNewSubString;
-}
-
-/// Function name  : deleteGameString
-// Description     : Deletes a GAME_STRING object
-//
-// GAME_STRING*  &pGameString : [in] Game string objec to destroy
-// 
-BearScriptAPI
-VOID  deleteGameString(GAME_STRING*  &pGameString)
-{
-   // Delete text
-   if (pGameString->szText)
-      utilDeleteString(pGameString->szText);
-
-   // Delete calling object
-   utilDeleteObject(pGameString);
 }
 
 
@@ -145,6 +154,24 @@ GAME_PAGE*  createGamePage(CONST UINT  iPageID, CONST TCHAR*  szTitle, CONST TCH
    // Return new GamePage
    return pNewPage;
 }
+
+
+/// Function name  : deleteGameString
+// Description     : Deletes a GAME_STRING object
+//
+// GAME_STRING*  &pGameString : [in] Game string objec to destroy
+// 
+BearScriptAPI
+VOID  deleteGameString(GAME_STRING*  &pGameString)
+{
+   // Delete text
+   if (pGameString->szText)
+      utilDeleteString(pGameString->szText);
+
+   // Delete calling object
+   utilDeleteObject(pGameString);
+}
+
 
 /// Function name  : deleteGamePage
 // Description     : Delete a GamePage object
@@ -205,7 +232,18 @@ VOID  appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szFormat, ..
    utilDeleteStrings(szAppendedText, szReplacementString);
 }
 
-
+/// Function name  : calculateOutputPageID
+// Description     : Generates the original PageID using game version
+// 
+// const UINT          iPageID   : [in] PageID
+// const GAME_VERSION  eVersion  : [in] Game version.  Must not be GV_UNKNOWN
+// 
+// Return Value   : Original PageID
+// 
+UINT  calculateOutputPageID(const UINT  iPageID, const GAME_VERSION  eVersion)
+{
+   return iPageID + iPageVersionValues[eVersion];
+}
 
 /// Function name  : findGameStringByID
 // Description     : Find a game string from the game data strings tree by it's string and page IDs
@@ -438,7 +476,7 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
          pSubString->iCount = lstrlen(pSubString->szMarker);
 
       /// Extract string to the output buffer and update the marker
-      StringCchCopyN(pSubString->szText, GAME_STRING_LENGTH, pSubString->szMarker, pSubString->iCount);
+      StringCchCopyN(pSubString->szText, MAX_STRING, pSubString->szMarker, pSubString->iCount);
       pSubString->szMarker += pSubString->iCount;
       break;
 
@@ -460,13 +498,13 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
                if (pLookupString->bResolved)
                {
                   // [RESOLVED] Insert verbatim
-                  StringCchCopy(pSubString->szText, GAME_STRING_LENGTH, pLookupString->szText);
+                  StringCchCopy(pSubString->szText, MAX_STRING, pLookupString->szText);
                   pSubString->iCount = pLookupString->iCount;
                }
                else
                {
                   // [UNRESOLVED] Recursively resolve sub-strings
-                  performGameStringResolution(pLookupString, pSubString->szText, GAME_STRING_LENGTH, pHistoryStack, pErrorQueue);
+                  performGameStringResolution(pLookupString, pSubString->szText, MAX_STRING, pHistoryStack, pErrorQueue);
                   pSubString->iCount = lstrlen(pSubString->szText);
                }
             }
@@ -474,7 +512,7 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
             {  
                /// [NOT FOUND] GameString lookup not found (return the sub-string tag)
                pSubString->iCount = (szEndMarker - pSubString->szMarker);
-               StringCchCopyN(pSubString->szText, GAME_STRING_LENGTH, pSubString->szMarker, pSubString->iCount);
+               StringCchCopyN(pSubString->szText, MAX_STRING, pSubString->szMarker, pSubString->iCount);
 
                // Report number of missing strings
                iMissingCount++;
@@ -494,7 +532,7 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
          {
             /// [MISSION] Copy verbatim
             pSubString->iCount = (szEndMarker - pSubString->szMarker);
-            StringCchCopyN(pSubString->szText, GAME_STRING_LENGTH, pSubString->szMarker, pSubString->iCount);
+            StringCchCopyN(pSubString->szText, MAX_STRING, pSubString->szMarker, pSubString->iCount);
             // Set the type
             pSubString->eType = SST_MISSION;
          }
@@ -504,7 +542,7 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
       else
       {
          /// [ERROR] No matching curly bracket
-         //StringCchCopy(pSubString->szText, GAME_STRING_LENGTH, TEXT("{Error, no matching bracket}"));
+         //StringCchCopy(pSubString->szText, MAX_STRING, TEXT("{Error, no matching bracket}"));
          //pSubString->iCount = lstrlen(pSubString->szText);
 
          //// [ERROR] "Unclosed sub-string marker detected in page %u, string %u : '%s'"
@@ -512,7 +550,7 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
          //utilDeleteString(szPreview);
 
          /// [VALIDATION_FIX] Copy string verbatim. They're often used as characters in the MARS scripts without escapes.
-         StringCchCopy(pSubString->szText, GAME_STRING_LENGTH, pSubString->szMarker);
+         StringCchCopy(pSubString->szText, MAX_STRING, pSubString->szMarker);
          pSubString->iCount = lstrlen(pSubString->szText);
 
          // Return 'TEXT' and ensure further calls return FALSE
@@ -714,14 +752,14 @@ UINT  performGameStringResolution(CONST GAME_STRING*  pGameString, TCHAR*  szOut
       case SST_MISSION:
       case SST_LOOKUP:
       case SST_TEXT:
-         StringCchCat(szOutput, GAME_STRING_LENGTH, pSubString->szText);  
+         StringCchCat(szOutput, MAX_STRING, pSubString->szText);  
          break;
 
       /// [COMMENTS] Ignore
       case SST_COMMENT:
          // [SPECIAL CASE] Allow 'opening bracket' operator
          if (utilCompareString(pSubString->szText, "("))
-            StringCchCat(szOutput, GAME_STRING_LENGTH, pSubString->szText);  
+            StringCchCat(szOutput, MAX_STRING, pSubString->szText);  
          break;
       }
    }

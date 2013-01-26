@@ -140,9 +140,35 @@ LPARAM  extractGamePageTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  ePropert
    // Examine property
    switch (eProperty)
    {
+   default:          xOutput = NULL;                            break;
    case AK_TEXT:     xOutput = (LPARAM)pGamePage->szTitle;      break;
    case AK_PAGE_ID:  xOutput = (LPARAM)pGamePage->iPageID;      break;
-   default:          xOutput = NULL;                            break;
+
+   // [GROUP] Derived property
+   case AK_GROUP:
+      if (pGamePage->iPageID >= 6000)
+         xOutput = GPG_USER;
+      else if (pGamePage->iPageID >= 3800)
+         xOutput = GPG_NPC;
+      else if (pGamePage->iPageID >= 3200)
+         xOutput = GPG_PLOT;
+      else if (pGamePage->iPageID >= 2032)
+         xOutput = GPG_NEWS;
+      else if (pGamePage->iPageID >= 1999)
+         xOutput = GPG_EDITOR;
+      else if (pGamePage->iPageID >= 1701)
+         xOutput = GPG_MENU;
+      else if (pGamePage->iPageID >= 1500)
+         xOutput = GPG_BONUS;
+      else if (pGamePage->iPageID >= 1290)
+         xOutput = GPG_QUEST;
+      else if (pGamePage->iPageID >= 1000)
+         xOutput = GPG_MISC;
+      else if (pGamePage->iPageID >= 101)
+         xOutput = GPG_DIALOGUE;
+      else
+         xOutput = GPG_DATA;
+      break;
    }
 
    // Return property value
@@ -679,11 +705,11 @@ VOID   treeprocResolveGameStringSubstrings(AVL_TREE_NODE*  pNode, AVL_TREE_OPERA
       return;
 
    // Prepare
-   szOutput = utilCreateEmptyString(GAME_STRING_LENGTH);
+   szOutput = utilCreateEmptyString(MAX_STRING);
    pResolutionList = createStack(NULL);
 
    /// Attempt to resolve sub-strings. Increment running total of failures.
-   pOperationData->xOutput += performGameStringResolution(pGameString, szOutput, GAME_STRING_LENGTH, pResolutionList, pOperationData->pErrorQueue);
+   pOperationData->xOutput += performGameStringResolution(pGameString, szOutput, MAX_STRING, pResolutionList, pOperationData->pErrorQueue);
 
    // Replace GameString text
    pGameString->szText = utilReplaceString(pGameString->szText, szOutput);

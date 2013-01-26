@@ -417,10 +417,10 @@ OPERATION_RESULT  translateCommandToString(CONST SCRIPT_FILE*  pScriptFile, COMM
    if (pCommand->iID == CMD_NOP)
       return OR_SUCCESS;
 
-   // [SPECIAL CASES] Fudge certain commands in various ways
+   /// [SPECIAL CASES] Fudge certain commands in various ways
    translateCommandToStringSpecialCases(pScriptFile, pCommand, hParentWnd, pErrorQueue);
 
-   // [CHECK] Is this command incompatible?
+   /// [COMPATIBILITY] Is this command incompatible?
    if (!isCommandSyntaxCompatible(pCommand->pSyntax, pScriptFile->eGameVersion))
    {
       // [ERROR] "Incompatible %s command detected on line %u : '%s'"
@@ -532,9 +532,9 @@ OPERATION_RESULT  translateCommandToString(CONST SCRIPT_FILE*  pScriptFile, COMM
       }
    } // END: while 'more Command Components'
 
-   // [GAME STRING REFERENCE] Check the specified game string exists
-   if (isCommandGameStringDependent(pCommand) AND !isGameStringDependencyPresent(pCommand, pError))
-      pushCommandAndOutputQueues(pError, pErrorQueue, pCommand->pErrorQueue, ET_WARNING);
+   /// [GAME STRING REFERENCE] Check the specified game string exists
+   if (isCommandGameStringDependent(pCommand))
+      verifyGameStringDependencies(pCommand, pErrorQueue);
 
    // Cleanup and return result
    if (pExternalScript)
@@ -1230,7 +1230,7 @@ VOID   translateReadCustomMenuItemMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND
          
          /// Replace 'read text' and 'add custom menu item' commands with a macro command
          destroyCommandsInTranslatorOutputByIndex(pScriptFile->pTranslator, iIndex, 2);
-         insertVirtualCommandToTranslator(pScriptFile->pTranslator, iIndex, createCustomCommandf(CMD_READ_CUSTOM_MENU_ITEM, CT_STANDARD WITH CT_VIRTUAL, iIndex, szCommandText));
+         insertVirtualCommandToTranslator(pScriptFile->pTranslator, iIndex, createCustomCommandf(CMD_ADD_MENU_ITEM_BYREF, CT_STANDARD WITH CT_VIRTUAL, iIndex, szCommandText));
 
          // Cleanup
          utilDeleteString(szCommandText);
@@ -1239,11 +1239,11 @@ VOID   translateReadCustomMenuItemMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND
       else if (isCommandAddCustomMenuInfoHeading(pSubCommand, szTextVariable, szMenuVariable))
       {
          /// Generate command text:  'add custom menu info/heading to array $0: page=$1 id=$2'
-         szCommandText = utilCreateStringf(LINE_LENGTH, TEXT("add custom menu %s to array $%s: page=%s id=%s"), isCommandID(pSubCommand, CMD_ADD_CUSTOM_MENU_INFO) ? TEXT("info line") : TEXT("heading"), 
+         szCommandText = utilCreateStringf(LINE_LENGTH, TEXT("add custom menu %s to array $%s: page=%s id=%s"), isCommandID(pSubCommand, CMD_ADD_MENU_INFO) ? TEXT("info line") : TEXT("heading"), 
                                                                                                                 szMenuVariable, pPageID->szBuffer, pStringID->szBuffer);
          /// Replace 'read text' and 'add custom menu' commands with a macro command
          destroyCommandsInTranslatorOutputByIndex(pScriptFile->pTranslator, iIndex, 2);
-         insertVirtualCommandToTranslator(pScriptFile->pTranslator, iIndex, createCustomCommandf(isCommandID(pSubCommand, CMD_ADD_CUSTOM_MENU_INFO) ? CMD_READ_CUSTOM_MENU_INFO : CMD_READ_CUSTOM_MENU_HEADING, 
+         insertVirtualCommandToTranslator(pScriptFile->pTranslator, iIndex, createCustomCommandf(isCommandID(pSubCommand, CMD_ADD_MENU_INFO) ? CMD_ADD_MENU_INFO_BYREF : CMD_ADD_MENU_HEADING_BYREF, 
                                                                                                  CT_STANDARD WITH CT_VIRTUAL, iIndex, szCommandText));
          // Cleanup
          utilDeleteString(szCommandText);

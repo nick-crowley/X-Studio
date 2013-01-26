@@ -13,6 +13,11 @@
 
 CONST UINT  iChunkSize = 10;
 
+CONST COLORREF  clGreen  = RGB(34, 177,76),
+                clYellow = RGB(221,210,0),
+                clOrange = RGB(255,127,39),
+                clRed    = RGB(237,28, 36);
+
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -26,20 +31,17 @@ CONST UINT  iChunkSize = 10;
 // 
 COLORREF  identifyCommentRatioColour(CONST UINT  iPercentage)
 {
-   UINT  iColourValue;     // Colour offset
+   // [75+] Return GREEN 
+   if (iPercentage >= 75)
+      return clGreen;
 
-   // [CHECK] Return GREEN for 100+
-   if (iPercentage > 100)
-      return RGB(0, 255, 0);
+   // [50+] Return YELLOW
+   else if (iPercentage >= 50)
+      return clYellow;
 
-   // Convert 0% to 50% into 0 to 255 and 51% to 100% into 0 to 255.
-   iColourValue = 255 * (iPercentage % 51) / 50;
-
-   // Convert 0% to red, 50% to orange and 100% to green
-   if (iPercentage <= 50)
-      return RGB(255, iColourValue, 0);
-   else
-      return RGB(255 - iColourValue, 255, 0);
+   else 
+      // [25 -> 0] Return ORANGE / RED
+      return (iPercentage >= 25 ? clOrange : clRed);
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -132,8 +134,6 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
    
    // [CHECK]
    ASSERT(iPercentage <= 100);
-   // Prepare
-   hTheme = OpenThemeData(hCtrl, TEXT("PROGRESS"));
 
    // Get client and content rectangles
    GetClientRect(hCtrl, &rcClientRect);
@@ -162,12 +162,12 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
    ExcludeClipRect(pPaintData->hdc, rcContentRect.left, rcContentRect.top, rcContentRect.right, rcContentRect.bottom);
 
    // [CHECK] Are themes active?
-   if (hTheme)
-      /// [THEME BORDER] Draw the progress bar border
-      DrawThemeBackground(hTheme, pPaintData->hdc, PP_BAR, NULL, &rcClientRect, NULL);
+   if (hTheme = OpenThemeData(hCtrl, WC_EDIT))
+      /// [THEME BORDER] Draw the border of an edit control
+      DrawThemeBackground(hTheme, pPaintData->hdc, EP_BACKGROUNDWITHBORDER, EBWBS_NORMAL, &rcClientRect, NULL);
    else
       /// [NON-THEME BORDER] Draw simple box
-      DrawEdge(pPaintData->hdc, &rcClientRect, EDGE_SUNKEN, BF_RECT);
+      DrawEdge(pPaintData->hdc, &rcClientRect, EDGE_ETCHED, BF_RECT);
 
    // Revert clipping region back to the client area
    hClipRegion = CreateRectRgn(rcClientRect.left, rcClientRect.top, rcClientRect.right, rcClientRect.bottom);

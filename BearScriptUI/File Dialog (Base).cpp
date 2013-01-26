@@ -47,6 +47,7 @@ CONST COLORREF    clVirtualFile                  = RGB(0,0,255),
 // Filters displayed for the system OpenFile dialog
 //
 CONST TCHAR*  szSystemDialogFilter = TEXT("All Supported Documents (*.xml, *.pck, *.xprj)\0") TEXT("*.PCK;*.XML;*.XPRJ\0")
+                                     TEXT("Project Files (*.xprj)\0") TEXT("*.XPRJ\0")
                                      TEXT("Compressed Files (*.pck)\0") TEXT("*.PCK\0")
                                      TEXT("Uncompressed Files (*.xml)\0") TEXT("*.XML\0")
                                      TEXT("All Files (*.*)\0") TEXT("*.*\0\0");

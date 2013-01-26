@@ -366,18 +366,16 @@ VOID  performAVLTreeGroupCount(CONST AVL_TREE*  pTree, AVL_TREE_GROUP_COUNTER*  
 BearScriptAPI
 BOOL  performOperationOnAVLTree(CONST AVL_TREE*  pTree, AVL_TREE_OPERATION*  pOperationData)
 {
-   BOOL    bResult;   // Operation result
-
    // [CHECK] Ensure tree and operation data exist
    ASSERT(pTree AND pOperationData);
 
    // Prepare
-   bResult = FALSE;
+   pOperationData->bResult = FALSE;
 
    // [CHECK] Are enough nodes present for it to be worthwhile to multithread?
    if (pOperationData->bMultiThreaded AND getTreeNodeCount(pTree) >= pOperationData->iNodesPerThread)
       /// [MULTI-THREADED] Pass to threaded version
-      bResult = performThreadedOperationOnAVLTree(pTree, pOperationData);
+      performThreadedOperationOnAVLTree(pTree, pOperationData);
 
    // [CHECK] Do nothing if tree is empty
    else if (getTreeNodeCount(pTree))
@@ -386,14 +384,14 @@ BOOL  performOperationOnAVLTree(CONST AVL_TREE*  pTree, AVL_TREE_OPERATION*  pOp
       pOperationData->bProcessing = TRUE;
 
       /// [SINGLE-THREADED] Perform operation from the root
-      bResult = performOperationOnAVLTreeFromNode(pTree, pTree->pRoot, pOperationData);
+      performOperationOnAVLTreeFromNode(pTree, pTree->pRoot, pOperationData);
 
       // Remove processing flag
       pOperationData->bProcessing = FALSE;
    }
 
-   // Return result
-   return bResult;
+   // Return operation result
+   return pOperationData->bResult;
 }
 
 

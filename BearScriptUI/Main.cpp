@@ -333,7 +333,7 @@ VOID  initApplicationLogFile()
 
    /// Print version header
    CONSOLE("=============================");
-   CONSOLE(" X-Studio Beta III (Update 13) ");
+   CONSOLE(" X-Studio Beta IV ");
    CONSOLE("=============================");
 
    // Generate date

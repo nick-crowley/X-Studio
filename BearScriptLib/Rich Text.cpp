@@ -15,6 +15,9 @@ CONST TCHAR*  szAlignmentTags[5] = { TEXT("N/A"),    TEXT("left"),    TEXT("righ
 CONST TCHAR*  szColourTags[10]   = { TEXT("black"),  TEXT("blue"),    TEXT("cyan"),  TEXT("N/A"),    TEXT("green"), 
                                      TEXT("orange"), TEXT("magenta"), TEXT("red"),   TEXT("white"),  TEXT("yellow") };
 
+/// Macro: topTagStackItem
+#define  topTagStackItem(pStack)    ((RICHTEXT_STACK_ITEM*)topStackObject(pStack))
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       CREATION / DESTRUCTION
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +85,7 @@ CONST TCHAR*  convertRichTextTagToString(RICHTEXT_TAG  eTag)
    case RTT_RED:     szOutput = TEXT("red");      break;
    case RTT_WHITE:   szOutput = TEXT("white");    break;
    case RTT_YELLOW:  szOutput = TEXT("yellow");   break;
+   case RTT_DEFAULT: szOutput = TEXT("\\033X");   break;
 
    case RTT_LEFT:    szOutput = TEXT("left");     break;
    case RTT_RIGHT:   szOutput = TEXT("right");    break;
@@ -378,9 +382,9 @@ BOOL  findNextRichObject(RICHTEXT_TOKENISER*  pObject)
 /// Function name  : generatLanguageMessageFromGameString
 // Description     : Convenience function for generating LanguageMessages from GameStrings
 // 
-// CONST GAME_STRING*  pSourceText : [in]  Input string containing RichText formatting tags
-// LANGUAGE_MESSAGE*  &pOutput     : [out] New LanguageMessage object, you are responsible for destroying it
-// ERROR_QUEUE*        pErrorQueue : [out] Error message, if any, caused by formatting errors
+// CONST GAME_STRING*  pSourceText : [in]          Input string containing RichText formatting tags
+// LANGUAGE_MESSAGE*  &pOutput     : [out]         New LanguageMessage object, you are responsible for destroying it
+// ERROR_QUEUE*        pErrorQueue : [in/out][opt] Error messages, caused by invalid formatting 
 // 
 // Return Value   : TRUE if succesful, FALSE if there were parsing errors.  If FALSE the RichText object contains the unformatted plaintext
 // 
@@ -395,9 +399,9 @@ BOOL  generateLanguageMessageFromGameString(CONST GAME_STRING*  pSourceText, LAN
 /// Function name  : generateRichTextFromGameString
 // Description     : Convenience function for generating RichText from GameStrings
 // 
-// CONST GAME_STRING*  pSourceText : [in]  Input string containing RichText formatting tags
-// RICH_TEXT*         &pOutput     : [out] New RichText object, you are responsible for destroying it
-// ERROR_QUEUE*        pErrorQueue : [out] Error message, if any, caused by formatting errors
+// CONST GAME_STRING*  pSourceText : [in]          Input string containing RichText formatting tags
+// RICH_TEXT*         &pOutput     : [out]         New RichText object, you are responsible for destroying it
+// ERROR_QUEUE*        pErrorQueue : [in/out][opt] Error messages, caused by invalid formatting 
 // 
 // Return Value   : TRUE if succesful, FALSE if there were parsing errors.  If FALSE the RichText object contains the unformatted plaintext
 // 
@@ -412,13 +416,13 @@ BOOL  generateRichTextFromGameString(CONST GAME_STRING*  pSourceText, RICH_TEXT*
 /// Function name  : generateRichTextFromSourceText
 // Description     : Parse a string containing language formatting tags into a new RichText or LanguageMessage object
 // 
-// CONST TCHAR*          szSourceText  : [in]  PlainText containing RichText formatting tags
-// CONST UINT            iTextLength   : [in]  Length of plain text above, in characters
-// CONST STRING_TYPE     eStringType   : [in]  String type of source-text
-// RICH_TEXT*           &pOutput       : [out] New RichText object, you are responsible for destroying it
-///                                                -> The String type of the RichText object is always ST_DISPLAY 
-// CONST RICHTEXT_TYPE   eObjectType   : [in]  Whether to create a RichText or LanguageMessage object
-// ERROR_QUEUE*          pErrorQueue   : [in/out] Error messages, caused by invalid formatting 
+// CONST TCHAR*          szSourceText  : [in]          PlainText containing RichText formatting tags
+// CONST UINT            iTextLength   : [in]          Length of plain text above, in characters
+// CONST STRING_TYPE     eStringType   : [in]          String type of source-text
+// RICH_TEXT*           &pOutput       : [out]         New RichText object, you are responsible for destroying it
+///                                                      -> The String type of the RichText object is always ST_DISPLAY 
+// CONST RICHTEXT_TYPE   eObjectType   : [in]          Whether to create a RichText or LanguageMessage object
+// ERROR_QUEUE*          pErrorQueue   : [in/out][opt] Error messages, caused by invalid formatting 
 // 
 // Return Value   : TRUE if parsed succesfully, FALSE otherwise. 
 ///                 Object is created whether TRUE or FALSE. If FALSE then 'pRichText' contains the unformatted input text
@@ -434,10 +438,10 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
    RICHTEXT_STACK_ITEM*    pTopItem;          // Top stack item
    ERROR_STACK*            pError;            // Current error, if any
    BOOL                    bFormattingError;  // Whether any formatting errors occurred  (ErrorStack may have been deleted before return)
+   TCHAR*                  szConverted;
    
    // Prepare
    pError = NULL;
-   bFormattingError = FALSE;
 
    /// Create the parsing object, stack and output object
    pTokeniser = createRichTextTokeniser(szSourceText, iTextLength, eStringType);    // Converts string to ST_INTERNAL
@@ -449,7 +453,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
    pItem = createRichItemText(NULL);
 
    // Tokenise input string into RichObjects
-   while (findNextRichObject(pTokeniser) AND !pError) // Abort on error
+   while (!pError AND findNextRichObject(pTokeniser)) // Abort on error
    {
       /// [OPENING TAG] Add to the stack - except for 'NONE' and self closing tags (eg. [ranking])
       if (pTokeniser->eClass != RTC_TEXT AND !pTokeniser->bClosingTag AND !pTokeniser->bSelfClosingTag)
@@ -459,7 +463,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
       else if (pTokeniser->eClass != RTC_TEXT AND pTokeniser->bClosingTag)
       {
          // [CHECK] Ensure there is at least one open tag
-         if (!getStackItemCount(pTagStack))
+         if (!getStackItemCount(pTagStack) AND pTokeniser->eTag != RTT_DEFAULT)     // Allow excess \033X tags, they have no effect
          {  
             // [ERROR] "Unexpected formatting tag [/%s] found in message"
             pError = generateDualError(HERE(IDS_RICHTEXT_EXCESS_CLOSING_TAGS), convertRichTextTagToString(pTokeniser->eTag));
@@ -502,7 +506,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
       case RTC_MESSAGE_TAG:
          // Attempt to parse properties from tag
          if (eObjectType == RTT_LANGUAGE_MESSAGE)
-            translateLanguageMessageTag(pTokeniser, (LANGUAGE_MESSAGE*)pOutput, NULL, pErrorQueue);
+            translateLanguageMessageTag(pTokeniser, (LANGUAGE_MESSAGE*)pOutput, NULL, pError);
          else
             // [ERROR] "Unsupported formatting tag [%s] found in toolip message: [article], [author], [title], [text] and [ranking] are not supported"
             pError = generateDualError(HERE(IDS_RICHTEXT_UNSUPPORTED_LANGUAGE_TAG), convertRichTextTagToString(pTokeniser->eTag));
@@ -540,7 +544,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
          pItem->eType = RIT_BUTTON;
 
          // Parse the ID from the [select] tag
-         if (eObjectType == RTT_LANGUAGE_MESSAGE AND translateLanguageMessageTag(pTokeniser, NULL, pItem, pErrorQueue))
+         if (eObjectType == RTT_LANGUAGE_MESSAGE AND translateLanguageMessageTag(pTokeniser, NULL, pItem, pError))
          {
             // [CHECK] Ensure ID is not a duplicate
             if (!isRichEditButtonUnique(pOutput, pItem->szID))
@@ -559,7 +563,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
 
          // Parse the ID from the [image] tag
          if (eObjectType == RTT_RICH_TEXT)
-            translateLanguageMessageTag(pTokeniser, NULL, pItem, pErrorQueue);
+            translateLanguageMessageTag(pTokeniser, NULL, pItem, pError);
          else
             // [ERROR] "Unsupported formatting tag [%s] found in language message: [image] is not supported"
             pError = generateDualError(HERE(IDS_RICHTEXT_UNSUPPORTED_TOOLTIP_TAG), convertRichTextTagToString(pTokeniser->eTag));
@@ -568,23 +572,21 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
       /// [PLAIN TEXT] -- Add text to the current item then add it to the paragraph
       case RTC_TEXT:
          // [SPECIAL CASE] -- [Author] or [Title] on the stack -- save text directly into the LanguageMessage
-         if ((pTopItem = (RICHTEXT_STACK_ITEM*)topStackObject(pTagStack)) AND (pTopItem->eTag == RTT_AUTHOR OR pTopItem->eTag == RTT_TITLE))
+         if ((pTopItem = topTagStackItem(pTagStack)) AND (pTopItem->eTag == RTT_AUTHOR OR pTopItem->eTag == RTT_TITLE))
          {
             // Prepare
             pLanguageMessage = (LANGUAGE_MESSAGE*)pOutput;
+            generateConvertedString(pTokeniser->szText, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szConverted);
 
             // Store and convert author/title text
             switch (pTopItem->eTag)
             {
-            case RTT_AUTHOR:  
-               utilReplaceString(pLanguageMessage->szAuthor, pTokeniser->szText);
-               performStringConversion(pLanguageMessage->szAuthor, lstrlen(pLanguageMessage->szAuthor), ST_INTERNAL, ST_DISPLAY);
-               break;
-            case RTT_TITLE:
-               utilReplaceString(pLanguageMessage->szTitle, pTokeniser->szText);
-               performStringConversion(pLanguageMessage->szTitle, lstrlen(pLanguageMessage->szTitle), ST_INTERNAL, ST_DISPLAY);
-               break;
+            case RTT_AUTHOR:  utilReplaceString(pLanguageMessage->szAuthor, utilEither(szConverted, pTokeniser->szText));  break;
+            case RTT_TITLE:   utilReplaceString(pLanguageMessage->szTitle, utilEither(szConverted, pTokeniser->szText));   break;
             }
+
+            // Cleanup
+            utilSafeDeleteString(szConverted);
          }
          // Save item text and add item to the paragraph.
          else
@@ -601,16 +603,11 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
    }
 
    // Pop any remaining colour tags from the stack
-   while ((pTopItem = (RICHTEXT_STACK_ITEM*)topStackObject(pTagStack)) AND pTopItem->eClass == RTC_COLOUR_TAG)
+   while ((pTopItem = topTagStackItem(pTagStack)) AND pTopItem->eClass == RTC_COLOUR_TAG)
       destroyTopStackObject(pTagStack);
-
-   // [CHECK] Any formatting tags still open?
-   if (!pError AND getStackItemCount(pTagStack))
-      // [ERROR] "There are unclosed formatting tags remaining in the RichText message"
-      pError = generateDualWarning(HERE(IDS_RICHTEXT_OPEN_TAGS_REMAINING));
    
    /// [ERROR] Return the input plaintext
-   if (bFormattingError = isError(pError))
+   if (bFormattingError = (pError != NULL))
    {
       // Delete partially parsed content
       deleteRichText(pOutput);
@@ -619,16 +616,16 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
       // Replace with a single PlainText item
       findListObjectByIndex(pOutput->pParagraphList, 0, (LPARAM&)pParagraph);
       appendRichTextItemToParagraph(pParagraph, createRichItemPlainText(szSourceText, iTextLength));
+
+      // Attach plain-text to message, then Append/Destroy error appropriately
+      attachTextToError(pError, szSourceText); 
+      pErrorQueue ? pushErrorQueue(pErrorQueue, pError) : deleteErrorStack(pError);
    }
 
-   // [CHECK] Ensure ErrorQueue is provided
-   if (pError AND pErrorQueue)
-   {
-      attachTextToError(pError, szSourceText);     // Attach the plain-text to the error message
-      pushErrorQueue(pErrorQueue, pError);
-   }
-   else if (pError)
-      deleteErrorStack(pError);
+   // [CHECK] Ensure all tags were closed
+   if (getStackItemCount(pTagStack) AND pErrorQueue)
+      /// [WARNING] "There is an unclosed [%s] formatting tag remaining in the RichText message"
+      pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_RICHTEXT_OPEN_TAGS_REMAINING), convertRichTextTagToString(topTagStackItem(pTagStack)->eTag)) );
    
    // Cleanup and return
    deleteRichItem(pItem);
@@ -649,21 +646,19 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
 BearScriptAPI
 BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GAME_STRING*  pGameString)
 {
-   RICHTEXT_ATTRIBUTES  oState;       // Current formatting state
-   RICH_PARAGRAPH*       pParagraph;   // Paragraph iterator
-   RICH_ITEM*            pItem;        // Item iterator
+   RICHTEXT_ATTRIBUTES   oState;             // Current formatting state
+   RICH_PARAGRAPH*       pParagraph;         // Paragraph iterator
+   RICH_ITEM*            pItem;              // Item iterator
    BOOL                  bDefaultParagraph,  // TRUE if the formatting of the first paragraph is LEFT - ie. what's assumed if there is no initial alignment tag
                          bCustomColumns;     // TRUE if the message uses anything other than a single standard column
-   TCHAR*                szOutput;     // New string
-   UINT                  iOutputSize;  // Total length of output buffer, in characters
-                         //iOutputUsed;  // Current length of output buffer, in characters
+   TCHAR                *szOutput,           // New string
+                        *szConverted;
 
    // [CHECK] Validate parameters
    ASSERT(pMessage->eType == RTT_LANGUAGE_MESSAGE);
 
    // Prepare output
-   iOutputSize = 4096;
-   szOutput = utilCreateEmptyString(iOutputSize);
+   szOutput = utilCreateEmptyString(MAX_STRING);
 
    // Setup generator
    utilZeroObject(&oState, RICHTEXT_ATTRIBUTES);
@@ -672,35 +667,35 @@ BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GA
 
    /// [ARTICLE] Add this first, if required
    if (pMessage->bArticle)
-      StringCchCopy(szOutput, iOutputSize, TEXT("[article/]"));
+      StringCchCopy(szOutput, MAX_STRING, TEXT("[article/]"));
 
    /// [AUTHOR and TITLE TAGS] Add these second, if present
    if (pMessage->szAuthor)
-      utilStringCchCatf(szOutput, iOutputSize, TEXT("[author]%s[/author]"), pMessage->szAuthor);
+      utilStringCchCatf(szOutput, MAX_STRING, TEXT("[author]%s[/author]"), pMessage->szAuthor);
    if (pMessage->szTitle)
-      utilStringCchCatf(szOutput, iOutputSize, TEXT("[title]%s[/title]"), pMessage->szTitle);
+      utilStringCchCatf(szOutput, MAX_STRING, TEXT("[title]%s[/title]"), pMessage->szTitle);
    
    /// [COLUMNS] Add only if any of the three custom column properties are used
    bCustomColumns = (pMessage->iColumnCount > 1 OR pMessage->bCustomWidth OR pMessage->bCustomSpacing);
    if (bCustomColumns)
    {
-      StringCchCat(szOutput, iOutputSize, TEXT("[text"));
+      StringCchCat(szOutput, MAX_STRING, TEXT("[text"));
       // Number of columns
       if (pMessage->iColumnCount > 1)
-         utilStringCchCatf(szOutput, iOutputSize, TEXT(" cols='%u'"), pMessage->iColumnCount);
+         utilStringCchCatf(szOutput, MAX_STRING, TEXT(" cols='%u'"), pMessage->iColumnCount);
       // Column widths
       if (pMessage->bCustomWidth)
-         utilStringCchCatf(szOutput, iOutputSize, TEXT(" colwidth='%u'"), pMessage->iColumnWidth);
+         utilStringCchCatf(szOutput, MAX_STRING, TEXT(" colwidth='%u'"), pMessage->iColumnWidth);
       // Column spacings
       if (pMessage->bCustomSpacing)
-         utilStringCchCatf(szOutput, iOutputSize, TEXT(" colspacing='%u'"), pMessage->iColumnSpacing);
+         utilStringCchCatf(szOutput, MAX_STRING, TEXT(" colspacing='%u'"), pMessage->iColumnSpacing);
       // Close tag
-      StringCchCat(szOutput, iOutputSize, TEXT("]"));
+      StringCchCat(szOutput, MAX_STRING, TEXT("]"));
    }
 
    /// [RANKING] Add only if a custom rank is present
    if (pMessage->bCustomRank)
-      utilStringCchCatf(szOutput, iOutputSize, TEXT("[ranking type='%s' title='%s'/]"), pMessage->eRankType == RT_FIGHT ? TEXT("fight") : TEXT("trade"), pMessage->szRankTitle);
+      utilStringCchCatf(szOutput, MAX_STRING, TEXT("[ranking type='%s' title='%s'/]"), pMessage->eRankType == RT_FIGHT ? TEXT("fight") : TEXT("trade"), pMessage->szRankTitle);
    
    /// Iterate through paragraphs and their items
    for (LIST_ITEM*  pParagraphIterator = getListHead(pMessage->pParagraphList); pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH); pParagraphIterator = pParagraphIterator->pNext)
@@ -710,7 +705,7 @@ BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GA
 
       // Open paragraph tag if necessary
       if (!bDefaultParagraph)
-         utilStringCchCatf(szOutput, iOutputSize, TEXT("[%s]"), szAlignmentTags[pParagraph->eAlignment]);
+         utilStringCchCatf(szOutput, MAX_STRING, TEXT("[%s]"), szAlignmentTags[pParagraph->eAlignment]);
 
       /// Iterate through items within the paragraph
       for (LIST_ITEM*  pItemIterator = getListHead(pParagraph->pItemList); pItem = extractListItemPointer(pItemIterator, RICH_ITEM); pItemIterator = pItemIterator->pNext)
@@ -720,11 +715,11 @@ BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GA
          {
             // Check for changes in the formatting state and open/close the appropriate tags
             if (pItem->bBold != oState.bBold)
-               StringCchCat(szOutput, iOutputSize, pItem->bBold > oState.bBold ? TEXT("[b]") : TEXT("[/b]"));
+               StringCchCat(szOutput, MAX_STRING, pItem->bBold > oState.bBold ? TEXT("[b]") : TEXT("[/b]"));
             if (pItem->bItalic != oState.bItalic)
-               StringCchCat(szOutput, iOutputSize, pItem->bItalic > oState.bItalic ? TEXT("[i]") : TEXT("[/i]"));
+               StringCchCat(szOutput, MAX_STRING, pItem->bItalic > oState.bItalic ? TEXT("[i]") : TEXT("[/i]"));
             if (pItem->bUnderline != oState.bUnderline)
-               StringCchCat(szOutput, iOutputSize, pItem->bUnderline > oState.bUnderline ? TEXT("[u]") : TEXT("[/u]"));
+               StringCchCat(szOutput, MAX_STRING, pItem->bUnderline > oState.bUnderline ? TEXT("[u]") : TEXT("[/u]"));
             
             // Update formatting state
             oState.bBold      = pItem->bBold;
@@ -737,44 +732,40 @@ BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GA
                // Close the current colour tag and open a new one.  If current colour is default, don't close
                //  the current tag, and if the new colour is default don't open a new one.
                if (oState.eColour != GTC_DEFAULT)
-                  utilStringCchCatf(szOutput, iOutputSize, TEXT("[/%s]"), szColourTags[oState.eColour]);
+                  utilStringCchCatf(szOutput, MAX_STRING, TEXT("[/%s]"), szColourTags[oState.eColour]);
                if (pItem->eColour != GTC_DEFAULT)
-                  utilStringCchCatf(szOutput, iOutputSize, TEXT("[%s]"), szColourTags[pItem->eColour]);
+                  utilStringCchCatf(szOutput, MAX_STRING, TEXT("[%s]"), szColourTags[pItem->eColour]);
                // Update state
                oState.eColour = pItem->eColour;
             }
 
-            UINT  iOutputLength = lstrlen(szOutput);
             /// Insert item text
-            StringCchCat(szOutput, 4096, pItem->szText);
-            // Convert from DISPLAY to INTERNAL once in the output buffer
-            performStringConversion(&szOutput[iOutputLength], 4096 - iOutputLength, ST_DISPLAY, ST_INTERNAL);
+            generateConvertedString(pItem->szText, SPC_LANGUAGE_DISPLAY_TO_INTERNAL, szConverted);    // Convert DISPLAY->INTERNAL
+            StringCchCat(szOutput, MAX_STRING, utilEither(szConverted, pItem->szText));
+            utilSafeDeleteString(szConverted);
          }
          // [BUTTON] - Output as a single line
          else
-            utilStringCchCatf(szOutput, iOutputSize, TEXT("[select value='%s']%s[/select]"), pItem->szID, pItem->szText);
+            utilStringCchCatf(szOutput, MAX_STRING, TEXT("[select value='%s']%s[/select]"), pItem->szID, pItem->szText);
       }
 
       // Close any remaining open formatting tags
-      StringCchCat(szOutput, iOutputSize, oState.bBold      ? TEXT("[/b]") : TEXT(""));
-      StringCchCat(szOutput, iOutputSize, oState.bItalic    ? TEXT("[/i]") : TEXT(""));
-      StringCchCat(szOutput, iOutputSize, oState.bUnderline ? TEXT("[/u]") : TEXT(""));
+      StringCchCat(szOutput, MAX_STRING, oState.bBold      ? TEXT("[/b]") : TEXT(""));
+      StringCchCat(szOutput, MAX_STRING, oState.bItalic    ? TEXT("[/i]") : TEXT(""));
+      StringCchCat(szOutput, MAX_STRING, oState.bUnderline ? TEXT("[/u]") : TEXT(""));
       oState.bBold = oState.bItalic = oState.bUnderline = FALSE;
 
       // Close paragraph tag if necessary
       if (!bDefaultParagraph)
-         utilStringCchCatf(szOutput, iOutputSize, TEXT("[/%s]"), szAlignmentTags[pParagraph->eAlignment]);
+         utilStringCchCatf(szOutput, MAX_STRING, TEXT("[/%s]"), szAlignmentTags[pParagraph->eAlignment]);
    }
 
    // Close [TEXT] tag if necessary
    if (bCustomColumns)
-      StringCchCat(szOutput, iOutputSize, TEXT("[/text]"));
+      StringCchCat(szOutput, MAX_STRING, TEXT("[/text]"));
 
-   // Update existing GameString
-   utilDeleteString(pGameString->szText);
-   pGameString->iCount = lstrlen(szOutput);
-
-   pGameString->szText = utilDuplicateString(szOutput, pGameString->iCount);
+   /// Update existing GameString
+   updateGameStringText(pGameString, szOutput);
    pGameString->eType  = ST_INTERNAL;
 
    // Cleanup
@@ -790,31 +781,30 @@ BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GA
 // CONST RICHTEXT_TOKENISER*  pTokeniser   : [in]               RichObject containing a [TEXT], [ARTICLE], [RANKING] or [SELECT] tag
 // LANGUAGE_MESSAGE*          pMessage     : [in/out][optional] LanguageMessage into which the tag should be parsed
 // RICH_ITEM*                 pButton      : [in/out][optional] RichText 'button' item into which the tag should be parsed
-// ERROR_QUEUE*               pErrorQueue  : [in/out]           Error messages caused by translation, if any. May already contain errors
+// ERROR_STACK*               pError       : [out]              New error containing parsing error, otherwise NULL
 // 
 // Return Value   : TRUE if parsed succesful, FALSE if there were errors
 // 
-BOOL   translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUAGE_MESSAGE*  pMessage, RICH_ITEM*  pButton, ERROR_QUEUE*  pErrorQueue)
+BOOL   translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUAGE_MESSAGE*  pMessage, RICH_ITEM*  pButton, ERROR_STACK*  &pError)
 {
    RICHTEXT_TOKEN_STATE   eState;       // Processing state
-   ERROR_STACK           *pError;       // Error, if any
    TCHAR                 *szToken,      // Current token
                          *szTokenEnd,   // End position of the current token
-                         *szTextCopy;   // Copy of the current RichObject text
+                         *szTextCopy,   // Copy of the current RichObject text
+                         *szConverted;
    
-   // [CHECK] Ensure tag can have properties
+   // Examine tag
    switch (pTokeniser->eTag)
    {
-   // [DEFAULT] - Remaining tags don't have properties therefore they don't require parsing
-   default:          
-      return TRUE;
-
+   // [CUSTOM] Set message flag when detected
    case RTT_ARTICLE: pMessage->bArticle    = TRUE;  break;
    case RTT_RANKING: pMessage->bCustomRank = TRUE;  break;
+   // [DEFAULT] Process normally
    case RTT_SELECT:  
    case RTT_IMAGE:  
-   case RTT_TEXT:    
-      break;
+   case RTT_TEXT:    break;
+   // [NO PROPERTIES] No processing required
+   default:          return TRUE;
    }
 
    // Prepare
@@ -865,7 +855,7 @@ BOOL   translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUA
             eState = RTS_ARTICLE_STATE;
          else
             /// [ERROR] "Unknown property '%s' detected while translating formatting tag [%s]"
-            pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_RICHTEXT_UNKNOWN_TAG), szToken, convertRichTextTagToString(pTokeniser->eTag)));
+            pError = generateDualError(HERE(IDS_RICHTEXT_UNKNOWN_TAG), szToken, convertRichTextTagToString(pTokeniser->eTag));
          
          // Move token to character after null terminator we inserted
          szToken = &szTokenEnd[1];
@@ -884,13 +874,12 @@ BOOL   translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUA
       case RTS_COLUMN_SPACING: pMessage->iColumnSpacing = utilConvertStringToInteger(szToken);  pMessage->bCustomSpacing = TRUE;  break;
 
       /// [RANKING PROPERTIES]
-      case RTS_RANK_TYPE:      
-         pMessage->eRankType = (utilCompareString(szToken, "fight") ? RT_FIGHT : RT_TRADE);  
-         break;
-      case RTS_RANK_TITLE:     
-         pMessage->szRankTitle = utilReplaceString(pMessage->szRankTitle, szToken);
-         performStringConversion(pMessage->szRankTitle, lstrlen(pMessage->szRankTitle), ST_INTERNAL, ST_DISPLAY);
-         break;
+      case RTS_RANK_TYPE:      pMessage->eRankType = (utilCompareString(szToken, "fight") ? RT_FIGHT : RT_TRADE);  break;
+
+      case RTS_RANK_TITLE:     generateConvertedString(szToken, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szConverted);
+                               utilReplaceString(pMessage->szRankTitle, utilEither(szConverted, szToken));
+                               utilSafeDeleteString(szConverted);
+                               break;
 
       /// [ARTICLE PROPERTIES]
       case RTS_ARTICLE_STATE:  

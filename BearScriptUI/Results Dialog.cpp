@@ -221,8 +221,8 @@ VOID  initResultsDialogControls(RESULTS_DIALOG_DATA*  pDialogData)
    pDialogData->hListView    = GetControl(pDialogData->hDialog, IDC_RESULTS_LIST);
    hListViewTooltip          = ListView_GetToolTips(pDialogData->hListView);
 
-   /// [LIST] Add ListView columns and ImageLists
-   initReportModeListView(pDialogData->hListView, (pDialogData->eType == RT_COMMANDS ? &oCommandListView : &oObjectNameListView), TRUE);
+   /// [GROUP-LIST] Add ListView columns and ImageLists
+   initReportModeListView(pDialogData->hListView, (pDialogData->eType == RT_COMMANDS ? &oCommandListView : &oObjectNameListView), FALSE);
 
    // [LIST] Set tooltip display times
    Tooltip_SetDisplayTime(hListViewTooltip, TTDT_INITIAL, getAppPreferences()->iSearchResultTooltipDelay * 1000);   // Wait x seconds before display
@@ -681,6 +681,7 @@ BOOL  onResultsDialog_Notify(RESULTS_DIALOG_DATA*  pDialogData, NMHDR*  pMessage
       /// [CUSTOM DRAW]
       case NM_CUSTOMDRAW:
          bResult = onGroupedListViewCustomDraw(pDialogData->hDialog, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage);
+         SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, bResult);
          break;
 
       /// [RICH TOOLTIP]
@@ -706,11 +707,11 @@ BOOL  onResultsDialog_Notify(RESULTS_DIALOG_DATA*  pDialogData, NMHDR*  pMessage
             onResultsDialog_InsertResult(pDialogData, xSelectedItem);
          break;
 
-      /// [HOVER TRACKING]
+      /*/// [HOVER TRACKING]
       default:
          if (pDialogData)
             bResult = onCustomListViewNotify(pDialogData->hDialog, TRUE, IDC_RESULTS_LIST, (NMHDR*)pMessage);
-         break;
+         break;*/
       }
       break;
    }

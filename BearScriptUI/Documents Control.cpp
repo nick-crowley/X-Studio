@@ -1006,10 +1006,6 @@ VOID  onDocumentsControl_LoadComplete(DOCUMENTS_DATA*  pWindowData, CONST DOCUME
       if (pOperationData->bActivateOnLoad)
          displayDocumentByIndex(pWindowData->hTabCtrl, getDocumentCount() - 1);
 
-      // [MODIFIED] 
-      /*if (eType == DT_SCRIPT AND ((SCRIPT_FILE*)pOperationData->pGameFile)->bModifiedOnLoad)
-         setDocumentModifiedFlag(pDocument, TRUE);*/
-
       /// [TUTORIAL] Delay-Display relevant tutorial
       switch (eType)
       {

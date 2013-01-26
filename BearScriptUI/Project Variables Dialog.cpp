@@ -342,7 +342,7 @@ INT_PTR  dlgprocProjectVariablesDialog(HWND  hDialog, UINT  iMessage, WPARAM  wP
 
    /// [OWNER DRAW]
    case WM_DRAWITEM:
-      bResult = (wParam == IDC_DIALOG_ICON ? onOwnerDrawStaticIcon(lParam, TEXT("SCRIPT_CALLER_ICON"), 96) : FALSE);
+      bResult = (wParam == IDC_DIALOG_ICON ? onOwnerDrawStaticIcon(lParam, TEXT("VARIABLE_DEPENDENCY_ICON"), 96) : FALSE);
       break;
 
    /// [HELP] Invoke help

@@ -407,19 +407,10 @@ struct  LISTVIEW_ITEM
    UINT                 iLogicalIndex,       // Logical index  (Item number)
                         iPhysicalIndex,      // Physical index  (ListView item index)
                         iGroupPhysicalIndex; // Physical index of first line of group header
+                        
    // Misc
-   LISTVIEW_GROUP      *pGroup;            // The ListView group this item is a part of
-   RECT                 rcRect;            // Bounding rectangle of the entire item, not the specified sub-item
-
-   /// NEW:
-   TCHAR*               szText;            // Item text
-   UINT                 iTextMax,          // Length of the item text buffer
-                        iImage,            // Item's zero-based ImageList icon index
-                        iSubItem,          // Zero-based sub-item
-                        iState,            // Whether item is selected and/or has the focus
-                        iMask;             // Mask specifying which properties are valid or being requested
-   RICH_TEXT*           pRichText;         // Rich item text, this is never owned by the ListView so it does not destroy it.  
-                                           ///                             NB: Only valid when mask contains GLVIF_RICHTEXT
+   LISTVIEW_GROUP      *pGroup;              // Group to which item belongs
+   RECT                 rcRect;              // Bounding rectangle of the entire item
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////

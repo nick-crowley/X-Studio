@@ -763,7 +763,7 @@ OPERATION_RESULT  validateScriptFileByText(CONST SCRIPT_FILE*  pValidationFile, 
       //case CMD_COMMENT:
       //case CMD_COMMAND_COMMENT:
       // [SCRIPT CALL] Skip because argument names cannot be properly resolves in the 'Code.Validation' folder when the necessary script hasn't be validated yet
-      case CMD_SCRIPT_CALL:
+      case CMD_CALL_SCRIPT_VAR_ARGS:
          continue;
 
       default:

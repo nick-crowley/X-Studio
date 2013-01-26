@@ -511,6 +511,7 @@ VOID  onMediaDocumentRequestData(MEDIA_DOCUMENT*  pDocument, CONST UINT  iContro
    MEDIA_ITEM*   pMediaItem;   // MediaItem object associated with the requested item index
    GAME_STRING*  pGameString;  // GameString containing descriptions for speech MediaItems
    GAME_PAGE*    pGamePage;    // GamePage containing names of speech MediaPages
+   TCHAR*        szConverted;
 
    // Default to returning plaintext
    pOutput->item.lParam = NULL;
@@ -592,8 +593,10 @@ VOID  onMediaDocumentRequestData(MEDIA_DOCUMENT*  pDocument, CONST UINT  iContro
          case MIT_SPEECH_CLIP:
             if (findGameStringByID(pMediaItem->iID, pMediaItem->iPageID, pGameString))
             {
-               StringCchCopy(pOutput->item.pszText, pOutput->item.cchTextMax, pGameString->szText);
-               performStringConversion(pOutput->item.pszText, pOutput->item.cchTextMax, ST_INTERNAL, ST_DISPLAY);
+               generateConvertedString(pGameString->szText, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szConverted);
+               StringCchCopy(pOutput->item.pszText, pOutput->item.cchTextMax, utilEither(szConverted, pGameString->szText));
+               // Cleanup
+               utilSafeDeleteString(szConverted);
             }
             else
                StringCchCopy(pOutput->item.pszText, pOutput->item.cchTextMax, TEXT("[None]")); 

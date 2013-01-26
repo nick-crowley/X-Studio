@@ -331,9 +331,6 @@ BOOL  onMainWindowCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID
 // 
 VOID   onMainWindowDataGameStrings(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // Create new document, pass NULL instead of a LanguageFile.
-   //onMainWindowFileNewLanguageDocument(pWindowData, NULL);
-
    DOCUMENT*       pDocument;
    INT             iDocumentIndex;
 

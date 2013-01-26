@@ -437,7 +437,7 @@ BOOL  generateParameters(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pCommand, ER
       switch (pCommand->iID)
       {
       // [SCRIPT CALL] Generate PARAMETERS from any remaining non-operator and non-word CodeObjects
-      case CMD_SCRIPT_CALL:
+      case CMD_CALL_SCRIPT_VAR_ARGS:
          generateParametersForScriptCall(pScriptFile, pCommand, pCodeObject, pParameterIndex, pError);
          break;
 
@@ -717,7 +717,7 @@ BOOL  generateParametersForScriptCall(CONST SCRIPT_FILE*  pScriptFile, COMMAND* 
    TCHAR*      szArgumentName;      // Name of the ScriptCall argument being processed
 
    // [CHECK] Ensure command is 'call script'
-   ASSERT(isCommandID(pCommand, CMD_SCRIPT_CALL));
+   ASSERT(isCommandID(pCommand, CMD_CALL_SCRIPT_VAR_ARGS));
 
    // Prepare
    pError = NULL;
@@ -939,7 +939,7 @@ BOOL  generateCustomMenuMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtua
       pError = generateDualError(HERE(IDS_GENERATION_FOREACH_ITERATOR_MISSING), pVirtualCommand->iLineNumber + 1, pVirtualCommand->szBuffer);
 
    // [CHECK] Lookup return variable 
-   else if (isCommandID(pVirtualCommand, CMD_READ_CUSTOM_MENU_ITEM) AND !findParameterInCommandByIndex(pVirtualCommand, PT_DEFAULT, 3, pMenuReturnID))
+   else if (isCommandID(pVirtualCommand, CMD_ADD_MENU_ITEM_BYREF) AND !findParameterInCommandByIndex(pVirtualCommand, PT_DEFAULT, 3, pMenuReturnID))
       // [ERROR] "Missing item ID in the 'add custom menu item' macro on line %u : '%s'"
       pError = generateDualError(HERE(IDS_GENERATION_FOREACH_COUNTER_MISSING), pVirtualCommand->iLineNumber + 1, pVirtualCommand->szBuffer);
 
@@ -957,11 +957,11 @@ BOOL  generateCustomMenuMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtua
             StringCchPrintf(szCommandText, LINE_LENGTH, TEXT("$%s = read text: page=%s id=%s"), szReturnVariable, pMenuPageID->szBuffer, pMenuStringID->szBuffer);
 
          /// [ITEM] Create 'add custom menu item' command
-         else if (pVirtualCommand->iID == CMD_READ_CUSTOM_MENU_ITEM)
+         else if (pVirtualCommand->iID == CMD_ADD_MENU_ITEM_BYREF)
             StringCchPrintf(szCommandText, LINE_LENGTH, TEXT("add custom menu item to array $%s: text=$%s returnvalue=%s"), szArrayVariable, szReturnVariable, pMenuReturnID->szBuffer);
 
          /// [HEADING/INFO-LINE] Create 'add custom menu heading/info-line' command
-         else if (pVirtualCommand->iID == CMD_READ_CUSTOM_MENU_INFO)
+         else if (pVirtualCommand->iID == CMD_ADD_MENU_INFO_BYREF)
             StringCchPrintf(szCommandText, LINE_LENGTH, TEXT("add custom menu info line to array $%s: text=$%s"), szArrayVariable, szReturnVariable);
          else
             StringCchPrintf(szCommandText, LINE_LENGTH, TEXT("add custom menu heading to array $%s: title=$%s"), szArrayVariable, szReturnVariable);
@@ -1252,9 +1252,9 @@ BOOL  generateScriptMacroCommands(SCRIPT_FILE*  pScriptFile, COMMAND*  pVirtualC
       break;
 
    /// [READ CUSTOM MENU xxxx] 
-   case CMD_READ_CUSTOM_MENU_ITEM:     // add custom menu item to array $0: page=$1x id=$2y returnvalue=$3
-   case CMD_READ_CUSTOM_MENU_INFO:     // add custom menu info line to array $0: page=$1x id=$2y
-   case CMD_READ_CUSTOM_MENU_HEADING:  // add custom menu heading to array $0: page=$1x id=$2y
+   case CMD_ADD_MENU_ITEM_BYREF:     // add custom menu item to array $0: page=$1x id=$2y returnvalue=$3
+   case CMD_ADD_MENU_INFO_BYREF:     // add custom menu info line to array $0: page=$1x id=$2y
+   case CMD_ADD_MENU_HEADING_BYREF:  // add custom menu heading to array $0: page=$1x id=$2y
       bResult = generateCustomMenuMacro(pScriptFile, pVirtualCommand, pErrorQueue);
       break;
    }

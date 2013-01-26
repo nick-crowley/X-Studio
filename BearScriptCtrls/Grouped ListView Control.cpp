@@ -60,35 +60,6 @@ LISTVIEW_GROUP*   createGroupedListViewGroup(CONST UINT  iGroupID, CONST UINT  i
 
 
 
-/// Function name  : createGroupedListViewItem
-// Description     : Creates an empty GroupedListViewItem specially for requesting item data
-// 
-// CONST UINT  iPhysicalIndex : [in] Zero-based physical item index
-// CONST UINT  iBufferLength  : [in] Length of the text buffer it will contain
-// 
-// Return Value   : New LISTVIEW_ITEM, you are responsible for destroying it
-// 
-LISTVIEW_ITEM*  createGroupedListViewItem(CONST UINT  iPhysicalIndex, CONST UINT  iBufferLength)
-{
-   LISTVIEW_ITEM*   pListViewItem;       // Object being created
-
-   // Create object
-   pListViewItem = utilCreateEmptyObject(LISTVIEW_ITEM);
-
-   // Create text buffer
-   pListViewItem->szText         = utilCreateEmptyString(iBufferLength);
-   pListViewItem->iTextMax       = iBufferLength;
-
-   // Set properties
-   pListViewItem->iPhysicalIndex = iPhysicalIndex;
-   pListViewItem->iMask          = (LVIF_TEXT WITH LVIF_IMAGE WITH LVIF_STATE);
-
-   // Return object
-   return pListViewItem;
-}
-
-
-
 /// Function name  : deleteGroupedListViewData
 // Description     : Destroys the data for the GroupedListView
 // 
@@ -130,22 +101,6 @@ VOID  destructorGroupedListViewGroup(LPARAM  pListViewGroup)
    deleteGroupedListViewGroup((LISTVIEW_GROUP*&)pListViewGroup);
 }
 
-
-/// Function name  : deleteGroupedListViewItem
-// Description     : Destroys the data for the GroupedListViewItem
-// 
-// LISTVIEW_ITEM*  &pListViewItem : [in] GroupedListViewItem to destroy
-// 
-VOID  deleteGroupedListViewItem(LISTVIEW_ITEM*  &pListViewItem)
-{
-   // Destroy text buffer
-   utilDeleteString(pListViewItem->szText);
-
-   /// Do *NOT* destroy RichText buffer
-
-   // Destroy calling object
-   utilDeleteObject(pListViewItem);
-}
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                       HELPERS
@@ -229,13 +184,15 @@ BOOL  findGroupedListViewGroupByID(GROUPED_LISTVIEW_DATA*  pWindowData, CONST UI
 // 
 WNDPROC  getGroupedListViewBaseWindowProc(HWND  hCtrl)
 {
-   WNDCLASS   oBaseClass;
+   //WNDCLASS   oBaseClass;
 
-   // Lookup window class
-   GetClassInfo(NULL, WC_LISTVIEW, &oBaseClass);
+   //// Lookup window class
+   //GetClassInfo(NULL, WC_LISTVIEW, &oBaseClass);
 
-   // Return window proc
-   return oBaseClass.lpfnWndProc;
+   //// Return window proc
+   //return oBaseClass.lpfnWndProc;
+
+   return wndprocCustomListView;
 }
 
 
@@ -304,8 +261,8 @@ BOOL   calculateGroupedListViewLogicalIndex(GROUPED_LISTVIEW_DATA*  pWindowData,
             // [HEADER SPACING] Define item type and set logical index to NULL
             case 0:
             case 2:  
-               pItem->eType         = GLVIT_BLANK;      
-               pItem->iLogicalIndex = (UINT)-1;
+               pItem->eType             = GLVIT_BLANK;      
+               pItem->iLogicalIndex     = (UINT)-1;
                break;
 
             // [HEADER TITLE] Define item type and set logical index to NULL
@@ -379,7 +336,7 @@ INT   convertGroupedListViewPhysicalIndex(HWND  hCtrl, CONST UINT  iPhysicalInde
 // 
 // Return type : TRUE if succesful, FALSE otherwise 
 //
-BOOL   drawGroupedListViewGradientLine(HDC  hDC, CONST RECT*  pItemRect)
+BOOL   drawGroupedListViewGradientLine(HDC  hDC, CONST RECT*  pItemRect, CONST UINT  iBackground)
 {
    TRIVERTEX        oVertex[2] ;
    GRADIENT_RECT    oGradientRect;
@@ -395,9 +352,9 @@ BOOL   drawGroupedListViewGradientLine(HDC  hDC, CONST RECT*  pItemRect)
 
    oVertex[1].x      = pItemRect->left + (pItemRect->right - pItemRect->left) / 2;
    oVertex[1].y      = pItemRect->bottom; 
-   oVertex[1].Red    = GetRValue(GetSysColor(COLOR_WINDOW)) << 8;
-   oVertex[1].Green  = GetGValue(GetSysColor(COLOR_WINDOW)) << 8;
-   oVertex[1].Blue   = GetBValue(GetSysColor(COLOR_WINDOW)) << 8;
+   oVertex[1].Red    = GetRValue(GetSysColor(iBackground)) << 8;
+   oVertex[1].Green  = GetGValue(GetSysColor(iBackground)) << 8;
+   oVertex[1].Blue   = GetBValue(GetSysColor(iBackground)) << 8;
    oVertex[1].Alpha  = 0x0000;
 
    oGradientRect.UpperLeft  = 0;
@@ -484,50 +441,50 @@ BOOL   onGroupedListViewCustomDraw(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRAW
    GROUPED_LISTVIEW_DATA*  pWindowData;      // Grouped ListView window data
    NMCUSTOMDRAW*           pDrawingData;     // Convenience pointer
    DC_STATE*               pPrevState;       // DC State
-   LISTVIEW_ITEM*          pItemData;        // GroupedListView item data
+   LISTVIEW_ITEM           oItemData;        // GroupedListView item data
    RECT                    rcHeading;        // Heading text rectangle
    BOOL                    bResult;
 
    // Prepare
    pWindowData  = getGroupedListViewData(hCtrl);
    pDrawingData = &pMessageData->nmcd;
-   bResult = TRUE;
+   bResult      = FALSE;
 
    /// Examine current draw stage
    switch (pDrawingData->dwDrawStage)
    {
    /// [CDDS_PREPAINT] Request Custom Draw
    case CDDS_PREPAINT:
-      SetWindowLong(hParentWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW WITH CDRF_NOTIFYPOSTPAINT);
+      bResult = CDRF_NOTIFYITEMDRAW WITH CDRF_NOTIFYPOSTPAINT;
       break;
 
    /// [POST-PAINT] Skip focus rectangle
    case CDDS_POSTPAINT:
    case CDDS_ITEMPOSTPAINT:
-      SetWindowLong(hParentWnd, DWL_MSGRESULT, CDRF_SKIPPOSTPAINT);
+      bResult = DWL_MSGRESULT, CDRF_SKIPPOSTPAINT;
       break;
 
    /// [CDDS_ITEMPREPAINT] Draw header, a gap, or an item
    case CDDS_ITEMPREPAINT:   
       // Prepare
-      pItemData  = createGroupedListViewItem(pDrawingData->dwItemSpec, 512);
+      oItemData.iPhysicalIndex = pDrawingData->dwItemSpec;
       pPrevState = utilCreateDeviceContextState(pDrawingData->hdc);
 
       // [CHECK] Never draw the item beneath the header (this only happens when dragging headers)
-      if (pItemData->iPhysicalIndex != ListView_GetTopIndex(hCtrl) - 1)
+      if (oItemData.iPhysicalIndex != ListView_GetTopIndex(hCtrl) - 1)
       {
          /// Attempt to convert physical item index into a logical one
-         if (calculateGroupedListViewLogicalIndex(pWindowData, pItemData))
+         if (calculateGroupedListViewLogicalIndex(pWindowData, &oItemData))
          {
             // Retrieve bounding rectangle
-            ListView_GetItemRect(pWindowData->hCtrl, pItemData->iPhysicalIndex, &pItemData->rcRect, LVIR_BOUNDS);
+            ListView_GetItemRect(pWindowData->hCtrl, oItemData.iPhysicalIndex, &oItemData.rcRect, LVIR_BOUNDS);
 
             // Examine item type
-            switch (pItemData->eType)
+            switch (oItemData.eType)
             {
             /// [HEADER GAP] - Draw a blank item
             case GLVIT_BLANK:
-               FillRect(pPrevState->hDC, &pItemData->rcRect, GetSysColorBrush(IsWindowEnabled(hCtrl) ? COLOR_WINDOW : COLOR_BTNFACE));
+               FillRect(pPrevState->hDC, &oItemData.rcRect, GetSysColorBrush(IsWindowEnabled(hCtrl) ? COLOR_WINDOW : COLOR_BTNFACE));
                break;
 
             /// [HEADER] - Draw a bold header with a gradient underline
@@ -536,12 +493,12 @@ BOOL   onGroupedListViewCustomDraw(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRAW
                utilSetDeviceContextFont(pPrevState, pWindowData->hHeaderFont, GetSysColor(COLOR_WINDOWTEXT));
                
                // [CALC]
-               rcHeading       = pItemData->rcRect;
+               rcHeading       = oItemData.rcRect;
                rcHeading.left += (2 * GetSystemMetrics(SM_CXEDGE));
 
                // Draw group name in bold with gradient line beneath
-               DrawText(pPrevState->hDC, pItemData->pGroup->szName, lstrlen(pItemData->pGroup->szName), &rcHeading, DT_LEFT WITH DT_SINGLELINE WITH DT_WORD_ELLIPSIS);
-               drawGroupedListViewGradientLine(pPrevState->hDC, &pItemData->rcRect);
+               DrawText(pPrevState->hDC, oItemData.pGroup->szName, lstrlen(oItemData.pGroup->szName), &rcHeading, DT_LEFT WITH DT_SINGLELINE WITH DT_WORD_ELLIPSIS);
+               drawGroupedListViewGradientLine(pPrevState->hDC, &oItemData.rcRect, IsWindowEnabled(hCtrl) ? COLOR_WINDOW : COLOR_BTNFACE);
                break;
 
             /// [ITEM] - Request data from parent and draw item
@@ -555,12 +512,7 @@ BOOL   onGroupedListViewCustomDraw(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRAW
       
       // Cleanup and Notify system we've performed drawing
       utilDeleteDeviceContextState(pPrevState);
-      deleteGroupedListViewItem(pItemData);
-      SetWindowLong(hParentWnd, DWL_MSGRESULT, CDRF_SKIPDEFAULT);
-      break;
-
-   default:
-      bResult = FALSE;
+      bResult = CDRF_SKIPDEFAULT;
       break;
    }
 
@@ -657,6 +609,38 @@ VOID   onGroupedListViewEmptyGroups(GROUPED_LISTVIEW_DATA*  pWindowData)
 }
 
 
+/// Function name  :  onGroupedListViewGetNextValidItem
+// Description     : 
+// 
+// GROUPED_LISTVIEW_DATA*  pWindowData   : [in] 
+// const INT  iPhysicalIndex   : [in] 
+// 
+// Return Value   : 
+// 
+INT   onGroupedListViewGetNextValidItem(GROUPED_LISTVIEW_DATA*  pWindowData, const INT  iPhysicalIndex)
+{
+   //LISTVIEW_ITEM  oItem;
+
+   //// Prepare
+   //utilZeroObject(&oItem, LISTVIEW_ITEM);
+   //oItem.iPhysicalIndex = iPhysicalIndex;
+
+   //// Calculate physical index of group header
+   //if (calculateGroupedListViewLogicalIndex(pWindowData, &oItem))
+   //   return oItem.iGroupPhysicalIndex + 3;
+   ////{
+   ////   // Request logical index of first group item
+   ////   oItem.iPhysicalIndex = oItem.iGroupPhysicalIndex + 3;
+   ////   calculateGroupedListViewLogicalIndex(pWindowData, &oItem);
+   ////}
+
+   //// Return index if found, otherwise -1
+   //return oItem.iLogicalIndex;
+
+   return -1;
+}
+
+
 /// Function name  : onGroupedListViewRemoveGroups
 // Description     : Removes all groups from the ListView
 // 
@@ -703,7 +687,6 @@ BOOL   onGroupedListViewSetGroupCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST
 }
 
 
-
 /// Function name  : onGroupedListViewSetItemCount
 // Description     : Increase a ListView item count to account for the lines containing group headers
 // 
@@ -714,7 +697,9 @@ BOOL   onGroupedListViewSetGroupCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST
 //
 UINT   onGroupedListViewSetItemCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST UINT  iItemCount)
 {
-   ASSERT(FALSE);
+   // ASSERT! Should not be using ListView_SetItemCount() on a GroupedListView
+   BUG("Should not be using ListView_SetItemCount() on a GroupedListView");
+
    // Use 3 lines per group header
    return iItemCount + (pWindowData->iCount * 3);
 }
@@ -730,18 +715,11 @@ UINT   onGroupedListViewSetItemCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST 
 LRESULT   wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    GROUPED_LISTVIEW_DATA*  pWindowData; 
-   WNDCLASS                oBaseClass;
+   //WNDCLASS                oBaseClass;
    NMHDR*                  pHeader;
-   /*BOOL                    bPassToBase;
-   LRESULT                 iResult;*/
    
    // Get window data
    pWindowData = getGroupedListViewData(hCtrl);
-   /*bPassToBase = TRUE;
-   iResult     = 0;*/
-
-   // Lookup base window class
-   GetClassInfo(NULL, WC_LISTVIEW, &oBaseClass);
 
    // Examine message
    switch (iMessage)
@@ -781,6 +759,10 @@ LRESULT   wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LP
       onGroupedListViewEmptyGroups(pWindowData);
       return 0;
 
+   // [GET NEXT VALID ITEM]
+   case UM_GET_NEXT_VALID_ITEM:
+      return onGroupedListViewGetNextValidItem(pWindowData, wParam);
+
    // [REMOVE GROUPS] - Deletes all groups
    case UM_REMOVE_LISTVIEW_GROUPS:
       onGroupedListViewRemoveGroups(pWindowData);
@@ -792,12 +774,13 @@ LRESULT   wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LP
 
    // [SET ITEM COUNT] -- Alter item count to account for group headings, then pass to ListView base
    case LVM_SETITEMCOUNT:
-      ASSERT(FALSE);
       wParam = onGroupedListViewSetItemCount(pWindowData, wParam);
       break;
    }
 
    // Pass to base
-   return CallWindowProc(oBaseClass.lpfnWndProc, hCtrl, iMessage, wParam, lParam);
+   //GetClassInfo(NULL, WC_LISTVIEW, &oBaseClass);
+   //return CallWindowProc(oBaseClass.lpfnWndProc, hCtrl, iMessage, wParam, lParam);
+   return wndprocCustomListView(hCtrl, iMessage, wParam, lParam);
 }
 

@@ -657,14 +657,6 @@
 #define IDS_GAME_FOLDER_BROWSE_TEXT                      1095
 
 
-/// Language Document
-// Columns
-#define IDS_LANGUAGE_PAGE_COLUMN_ID                      1100
-#define IDS_LANGUAGE_PAGE_COLUMN_TITLE                   1101
-#define IDS_LANGUAGE_PAGE_COLUMN_DESCRIPTION             1102
-#define IDS_LANGUAGE_STRING_COLUMN_ID                    1103
-#define IDS_LANGUAGE_STRING_COLUMN_TEXT                  1104
-
 /// Media Document
 // Columns
 #define IDS_MEDIA_GROUP_COLUMN_ID                        1110
@@ -757,10 +749,11 @@
 
 // Saving Language File
 #define IDS_OUTPUT_LANGUAGE_SAVING                       1270
+#define IDS_OUTPUT_GENERATING_LANGUAGE_XML               1271
 
-#define IDS_OUTPUT_LANGUAGE_SAVE_SUCCESS                 1271   // NB: The order of success/failure/abort is required by printOperationResultToOutputDialog
-#define IDS_OUTPUT_LANGUAGE_SAVE_FAILURE                 1272
-#define IDS_OUTPUT_LANGUAGE_SAVE_ABORTED                 1273
+#define IDS_OUTPUT_LANGUAGE_SAVE_SUCCESS                 1273   // NB: The order of success/failure/abort is required by printOperationResultToOutputDialog
+#define IDS_OUTPUT_LANGUAGE_SAVE_FAILURE                 1274
+#define IDS_OUTPUT_LANGUAGE_SAVE_ABORTED                 1275
 
 // Bug Submission
 #define IDS_OUTPUT_SUBMIT_REPORT                         1280
@@ -862,6 +855,33 @@
 #define IDS_PROGRESS_PARSING_LANGUAGE                       1380
 #define IDS_PROGRESS_TRANSLATING_LANGUAGE                   1381
 #define IDS_PROGRESS_PROCESSING_LANGUAGE                    1382
+
+// Save LanguageFile
+#define IDS_PROGRESS_GENERATING_LANGUAGE                    1385
+
+
+/// Language Document
+// Columns
+#define IDS_LANGUAGE_PAGE_COLUMN_ID                         1420
+#define IDS_LANGUAGE_PAGE_COLUMN_TITLE                      1421
+#define IDS_LANGUAGE_PAGE_COLUMN_DESCRIPTION                1422
+#define IDS_LANGUAGE_STRING_COLUMN_ID                       1423
+#define IDS_LANGUAGE_STRING_COLUMN_TEXT                     1424
+
+#define IDS_LANGUAGE_GROUP_DATA                             1425
+#define IDS_LANGUAGE_GROUP_DIALOGUE                         1426
+#define IDS_LANGUAGE_GROUP_MISC                             1427
+#define IDS_LANGUAGE_GROUP_QUEST                            1428
+#define IDS_LANGUAGE_GROUP_BONUS                            1429
+#define IDS_LANGUAGE_GROUP_MENU                             1430
+#define IDS_LANGUAGE_GROUP_EDITOR                           1431
+#define IDS_LANGUAGE_GROUP_NEWS                             1432
+#define IDS_LANGUAGE_GROUP_PLOT                             1433
+#define IDS_LANGUAGE_GROUP_NPC                              1434
+#define IDS_LANGUAGE_GROUP_USER                             1435
+
+#define IDS_FIRST_LANGUAGE_GROUP                            IDS_LANGUAGE_GROUP_DATA
+#define LANGUAGE_GROUP_COUNT                                11
 
 /// ///////////////////////////////////////////////////////
 ///                  GENERAL STRINGS
@@ -1086,7 +1106,7 @@
 #define IDM_CODE_EDIT_LOOKUP_COMMAND                     2120
 #define IDM_CODE_EDIT_OPEN_TARGET_SCRIPT                 2121
 #define IDM_CODE_EDIT_GOTO_LABEL                         2122
-#define IDM_CODE_EDIT_EDIT_LANGUAGE_STRING               2123
+#define IDM_CODE_EDIT_VIEW_LANGUAGE_STRING               2123
 #define IDM_CODE_EDIT_VIEW_ERROR                         2124
 #define IDM_CODE_EDIT_VIEW_WARNING                       2125
 #define IDM_CODE_EDIT_PROPERTIES                         2126
@@ -1319,11 +1339,6 @@
 #define IDC_PAGE_TITLE_EDIT                              4102
 #define IDC_PAGE_DESCRIPTION_EDIT                        4103
 #define IDC_PAGE_VOICED_CHECK                            4104
-
-/// OLD:
-// Insert Language String
-//#define IDC_STRING_ID_EDIT                               4106
-#define IDC_STRING_ID_ICON                               4107
 
 // Find Text Dialog
 #define IDC_FIND_SEARCH_EDIT                             4110

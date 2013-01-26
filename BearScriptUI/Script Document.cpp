@@ -148,15 +148,14 @@ VOID     updateScriptDocumentVariablesCombo(SCRIPT_DOCUMENT*  pDocument)
 // 
 VOID   onScriptDocumentContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, CONST POINT*  ptCursor, HWND  hCtrl)
 {
-   CUSTOM_MENU*        pCustomMenu;       // Popup CustomMenu
-   CONST TCHAR*        szTargetLabel;     // Name of label targetted by COMMAND, if any
-   ERROR_QUEUE*        pErrorQueue;       // CodeEdit line error, if any
-   ERROR_STACK*        pError;            // Dummy error
-   COMMAND*            pCommand;          // CodeEdit line COMMAND
+   //GAME_STRING*    pDependency;         // GameString dependency of COMMAND, if any
+   CUSTOM_MENU*    pCustomMenu;         // Popup CustomMenu
+   CONST TCHAR*    szTargetLabel;       // Name of label targetted by COMMAND, if any
+   ERROR_QUEUE*    pErrorQueue;         // CodeEdit line error, if any
+   COMMAND*        pCommand;            // CodeEdit line COMMAND
 
    // Prepare
    TRACK_FUNCTION();
-   pError = NULL;
    
    /// [CODE-EDIT]
    if (GetDlgCtrlID(hCtrl) == IDC_CODE_EDIT) 
@@ -218,20 +217,21 @@ VOID   onScriptDocumentContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, C
       
       // [CHECK] Does command use GameStrings?
       if (!isCommandGameStringDependent(pCommand))
-         removeCustomMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_EDIT_LANGUAGE_STRING, FALSE);  
+         removeCustomMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_VIEW_LANGUAGE_STRING, FALSE);  
       else
-         /// [EDIT STRING] Is dependency present?
-         EnableMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_EDIT_LANGUAGE_STRING, isGameStringDependencyPresent(pCommand, pError) ? MF_ENABLED : MF_DISABLED);
+      {
+         /// [VIEW STRING] Is dependency present?
+         //BOOL bEnabled = (getActiveProject() ? CodeEdit_FindGameString(pDocument->hCodeEdit, getActiveProject(), pDependency) : findGameStringDependency(pCommand, pDependency));
+         //pDependency = CodeEdit_GetCaretGameString(pDocument->hCodeEdit, getActiveProjectFile());
+         EnableMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_VIEW_LANGUAGE_STRING, CodeEdit_GetCaretGameString(pDocument->hCodeEdit, getActiveProjectFile()) ? MF_ENABLED : MF_DISABLED);
+      }
          
       /// [PROPERTIES] Check based on whether the window is open or not
       CheckMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_PROPERTIES, (getMainWindowData()->hPropertiesSheet ? MF_CHECKED : MF_UNCHECKED));
       
       // Display the pop-up menu
       TrackPopupMenu(pCustomMenu->hPopup, TPM_LEFTALIGN WITH TPM_TOPALIGN WITH TPM_LEFTBUTTON, ptCursor->x, ptCursor->y, NULL, hDialog, NULL);
-      
-      // Cleanup
       deleteCustomMenu(pCustomMenu);
-      safeDeleteErrorStack(pError);
    }
 
    // [TRACK]
@@ -364,6 +364,11 @@ BOOL   onScriptDocumentCommand(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iControl
    /// [GOTO LABEL]
    case IDM_CODE_EDIT_GOTO_LABEL:
       onScriptDocumentGotoLabel(pDocument);
+      break;
+
+   /// [VIEW STRING]
+   case IDM_CODE_EDIT_VIEW_LANGUAGE_STRING:
+      onScriptDocumentViewLanguageString(pDocument);
       break;
 
    /// [PROPERTIES]
@@ -619,6 +624,10 @@ VOID   onScriptDocumentLoadComplete(SCRIPT_DOCUMENT*  pDocument, DOCUMENT_OPERAT
 
    // [TRACK]
    TRACK_FUNCTION();
+
+   /// [MODIFIED on LOAD] 
+   if (pDocument->pScriptFile->bModifiedOnLoad)
+      setDocumentModifiedFlag(pDocument, TRUE);
 
    /// [RECURSION] Are we opening script dependencies?
    if (pOperationData->oAdvanced.iRecursionDepth > 0)
@@ -922,7 +931,7 @@ VOID   onScriptDocumentSaveComplete(SCRIPT_DOCUMENT*  pDocument, DOCUMENT_OPERAT
    /// [SUCCESSFUL] Document saved successfully
    if (isOperationSuccessful(pOperationData))
    {
-      /// [MODIFIED] Remove 'modified' flag
+      /// [UN-MODIFIED] Remove 'modified' flag
       setDocumentModifiedFlag(pDocument, FALSE);
 
       // [COMPILER TEST] Validate the generated document
@@ -1033,6 +1042,29 @@ VOID   onScriptDocumentValidationComplete(SCRIPT_DOCUMENT*  pDocument, DOCUMENT_
 
    // [TRACK]
    END_TRACKING();
+}
+
+
+/// Function name  : onScriptDocumentViewLanguageString
+// Description     : Display the string referenced by the command on the current line
+// 
+// SCRIPT_DOCUMENT*    pDocument   : [in] ScriptDocument
+// 
+VOID  onScriptDocumentViewLanguageString(SCRIPT_DOCUMENT*  pDocument)
+{
+   GAME_STRING*  pDependency;
+   //COMMAND*      pCommand = CodeEdit_GetCaretLineCommand(pDocument->hCodeEdit);
+
+   // [CHECK] Lookup Dependency
+   //if (findGameStringDependency(pCommand, pDependency))
+   if (pDependency = CodeEdit_GetCaretGameString(pDocument->hCodeEdit, getActiveProjectFile()))
+   {
+      /// Load/Display game strings
+      onMainWindowDataGameStrings(getMainWindowData());
+
+      // Select desired GameString
+      displayLanguageDocumentGameString(getActiveLanguageDocument(), pDependency);
+   }
 }
 
 

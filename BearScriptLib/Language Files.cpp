@@ -284,6 +284,49 @@ BOOL  isLanguageFileMaster(CONST LANGUAGE_FILE*  pLanguageFile)
 ///                                         FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+VOID  treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData)
+{
+   TEXT_STREAM*   pStream         = (TEXT_STREAM*)pData->xFirstInput;
+   GAME_STRING*   pString         = extractPointerFromTreeNode(pNode, GAME_STRING);
+   GAME_VERSION&  eCurrentVersion = (GAME_VERSION&)pData->xInternalData1;     // xInternalData1 : Current PageID
+   UINT&          iCurrentPageID  = (UINT&)pData->xInternalData2;             // xInternalData2 : Current String Version
+   TCHAR*         szConverted     = NULL;
+
+   /// [NEW PAGE/VERSION] Generate close/open page tags
+   if (pString->iPageID != iCurrentPageID OR pString->eVersion != eCurrentVersion)
+   {
+      GAME_PAGE*  pPage;
+
+      // Close existing <page> tag  (if any)
+      if (iCurrentPageID != NULL)
+         appendStringToTextStream(pStream, TEXT("\t</page>\r\n"));
+
+      // Lookup GamePage. 
+      findObjectInAVLTreeByValue(pData->pInputTree, pString->iPageID, NULL, (LPARAM&)pPage);
+
+      // Update PageID + Version
+      //if (pString->iPageID != iCurrentPageID)
+      
+      iCurrentPageID  = pString->iPageID;
+      eCurrentVersion = pString->eVersion;
+      
+
+      /// [PAGE] Generate <page> tag
+      appendStringToTextStreamf(pStream, TEXT("\r\n\t<page id=\"%d\" title=\"%s\" desc=\"%s\" voice=\"%s\">\r\n"), calculateOutputPageID(iCurrentPageID, eCurrentVersion), 
+                                                                                                                   lstrlen(pPage->szTitle)       ? pPage->szTitle       : TEXT(""), 
+                                                                                                                   lstrlen(pPage->szDescription) ? pPage->szDescription : TEXT(""), 
+                                                                                                                   pPage->bVoice                 ? TEXT("yes")          : TEXT("no"));
+   }
+
+   /// [STRING] Generate <t> tag
+   generateConvertedString(pString->szText, SPC_LANGUAGE_INTERNAL_TO_EXTERNAL, szConverted);
+   appendStringToTextStreamf(pStream, TEXT("\t\t<t id=\"%d\">%s</t>\r\n"), pString->iID, utilEither(szConverted, pString->szText));
+
+   // Cleanup
+   utilSafeDeleteString(szConverted);
+}
+
 /// Function name  : generateLanguageFileXML
 // Description     : Fill the output buffer of a LanguageFile with the XML equivilent of it's current contents.
 // 
@@ -293,42 +336,50 @@ BOOL  isLanguageFileMaster(CONST LANGUAGE_FILE*  pLanguageFile)
 // 
 // Return Value   : TRUE if succesful, FALSE if there were errors
 // 
-BearScriptAPI 
 BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
-   TCHAR*  szConversionBuffer;
+   AVL_TREE_OPERATION*  pOperation = createAVLTreeOperationEx(treeprocGenerateLanguageXML, ATT_INORDER, pErrorQueue, pProgress);
+   TEXT_STREAM*         pOutputStream;     // XML output stream
+   AVL_TREE*            pOrderedTree;
 
-   // [CHECK] Not trying to save the game data
-   ASSERT(pLanguageFile);
-   // [CHECK] Input language file has no existing buffers
-   ASSERT(!hasInputData(pLanguageFile) AND !hasOutputData(pLanguageFile));
-   
-   /// Create 4k string conversion buffer and 128k output buffer
-   szConversionBuffer = utilCreateEmptyString(4 * 1024);
-   pLanguageFile->szOutputBuffer = utilCreateEmptyString(pLanguageFile->iOutputSize = 128 * 1024);
-   
-   // Add header
-   StringCchCopy(pLanguageFile->szOutputBuffer, pLanguageFile->iOutputSize, TEXT("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n"));
-   StringCchCat(pLanguageFile->szOutputBuffer,  pLanguageFile->iOutputSize, TEXT("<language id=\"44\">\r\n"));
-   
-   /// Flatten String and Page trees into output buffer
-   performLanguageFileXMLGeneration(pLanguageFile, szConversionBuffer);
-   
-   // Close the final page and the file itself
-   StringCchCat(pLanguageFile->szOutputBuffer, pLanguageFile->iOutputSize, TEXT("</page>\r\n"));
-   StringCchCat(pLanguageFile->szOutputBuffer, pLanguageFile->iOutputSize, TEXT("</language>\r\n"));
+   // [VERBOSE]
+   TRACK_FUNCTION();
+   VERBOSE("Generating XML for %s file '%s'", identifyLanguageFile(pLanguageFile), pLanguageFile->szFullPath);
 
-   // Calculate exact output length
-   pLanguageFile->iOutputSize = lstrlen(pLanguageFile->szOutputBuffer);
-   
-   /// DEBUG: Override output name
-   setGameFilePath(pLanguageFile, TEXT("c:\\LangOutputTest.txt"));
+   // [STAGE]
+   updateOperationProgressMaximum(pProgress, getTreeNodeCount(pLanguageFile->pGameStringsByID));
+
+   // Prepare
+   pOperation->xFirstInput = (LPARAM)(pOutputStream = createTextStream(64 * 1024));
+   pOperation->pInputTree  = pLanguageFile->pGamePagesByID;
+
+   // Add schema tags
+   appendStringToTextStream(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?>\r\n"));
+   appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), 44);
+
+   /// Create a copy of all strings with order: PAGE_ID, GAME_VERSION, STRING_ID
+   pOrderedTree = duplicateAVLTree(pLanguageFile->pGameStringsByID, createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), createAVLTreeSortKey(AK_VERSION, AO_ASCENDING), createAVLTreeSortKey(AK_ID, AO_ASCENDING));
+   pOrderedTree->pfnDeleteNode = NULL;
+
+   /// Generate <page> and <t> tags
+   performOperationOnAVLTree(pOrderedTree, pOperation);
+
+   // Close final <page> tag
+   appendStringToTextStream(pOutputStream, TEXT("\t</page>\r\n"));
+   appendStringToTextStream(pOutputStream, TEXT("</language>\r\n"));
+
+   // Copy output to LanguageFile
+   pLanguageFile->szOutputBuffer = utilDuplicateString(pOutputStream->szBuffer, pOutputStream->iBufferUsed);
+   pLanguageFile->iOutputSize    = pOutputStream->iBufferUsed;
 
    // Cleanup and return
-   utilDeleteString(szConversionBuffer);
-   return !hasErrors(pErrorQueue);
+   pOperation->pErrorQueue = NULL;
+   deleteAVLTreeOperation(pOperation);
+   deleteAVLTree(pOrderedTree);
+   deleteTextStream(pOutputStream);
+   END_TRACKING();
+   return TRUE;
 }
-
 
 /// Function name  : insertGamePageIntoLanguageFile
 // Description     : Attempts to insert a new GamePage into a LanguageFile.  If a conflict is found, the existing page is updated
@@ -612,7 +663,6 @@ VOID    performVariablesFileStringConversion(VARIABLES_FILE*  pVariablesFile)
 //               OR_FAILURE - The file was NOT translated because it was in a foreign language or the <language> tag was missing
 //               OR_ABORTED - The file was partially translated - the user aborted translation due to errors
 //
-BearScriptAPI
 OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
    OPERATION_RESULT    eResult;           // Operation result
@@ -811,109 +861,6 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
 }      
 
 
-
-/// Function name  : translateLanguageTag
-// Description     : Parses a <t> or <page> tag 
-// 
-// CONST TCHAR*              szTag           : [in]  Tag text
-// CONST UINT                iTagLength      : [in]  Length of tag text
-// LANGUAGE_TAG_STACK_ITEM  &oOutput         : [out] Resultant language tag
-// ERROR_STACK*             &pOperationError : [out] New error message, if any
-// 
-// Return type : Non-zero if succesful, zero if not.
-//               Return contains a combination of LANGUAGE_TAG_PARSE_STATE flags indicating which properties were found
-//
-//UINT   translateLanguageTag(CONST TCHAR*  szTag, CONST UINT  iTagLength, LANGUAGE_TAG_STACK_ITEM&  oOutput, ERROR_STACK*  &pOperationError)
-//{
-//   LANGUAGE_TAG_PARSE_STATE   eState;          // Processing state
-//   UINT                       eResult;         // Return flags indicating which properties were discovered
-//   TCHAR                     *szToken,        // Current token
-//                             *szTagCopy,      // Copy of the tag for manipulation by the tokeniser
-//                             *szTokenEnd;     // End position of the current token
-//   CONST TCHAR*               szTagName;
-//   // Prepare
-//   pOperationError = NULL;
-//   eState          = LTPS_PROPERTY_NAME;
-//   eResult         = NULL;
-//
-//   // Determine the tag name
-//   switch (oOutput.eTag)
-//   {
-//   case LT_STRING:   szTagName = TEXT("t");         break;
-//   case LT_PAGE:     szTagName = TEXT("page");      break;
-//   case LT_LANGUAGE: szTagName = TEXT("language");  break;
-//   default:          szTagName = TEXT("ERROR");     ASSERT(FALSE); break;
-//   }
-//
-//   // Copy the input tag without the tag name
-//   szTagCopy = utilDuplicateString(&szTag[lstrlen(szTagName)], iTagLength - lstrlen(szTagName));
-//
-//   // Tokenise tag manually since the tokeniser can't handle empty strings eg. ""
-//   for (szToken = szTagCopy, szTokenEnd = utilFindCharacter(szTagCopy, '"'); szTokenEnd; szTokenEnd = utilFindCharacter(szToken, '"'))
-//   {
-//      // Null terminate token
-//      szTokenEnd[0] = NULL;
-//
-//      // [CHECK] Abort if there were errors in the previous iteration
-//      if (pOperationError != NULL)
-//         break;
-//
-//      switch (eState)
-//      {
-//      // [PROPERTY NAME] -- Identify property from token
-//      case LTPS_PROPERTY_NAME:
-//         StrTrim(szToken, TEXT(" ="));
-//         // Universal properties
-//         if (utilCompareString(szToken, "id"))
-//            eState = LTPS_ID;
-//         // String and Page properties
-//         else if (utilCompareString(szToken, "title"))
-//            eState = LTPS_TITLE;
-//         else if (utilCompareString(szToken, "descr"))
-//            eState = LTPS_DESCRIPTION;
-//         else if (utilCompareString(szToken, "voice"))
-//            eState = LTPS_VOICE;
-//         // Speech Clip properties
-//         else if (utilCompareString(szToken, "s"))
-//            eState = LTPS_POSITION;
-//         else if (utilCompareString(szToken, "l"))
-//            eState = LTPS_LENGTH;
-//         else if (utilCompareString(szToken, "stream"))
-//            eState = LTPS_STREAM;
-//         else
-//         {  /// ERROR: Unknown property '%s' detected while translating <%s> tag
-//            pOperationError = generateError(HERE(IDS_XML_TAG_UNKNOWN_PROPERTY));
-//            enhanceError(pOperationError, IDS_XML_TAG_UNKNOWN_PROPERTY, szToken, oOutput.eTag == LT_PAGE ? TEXT("page") : TEXT("t"));
-//         }
-//         // Move iterator to the start of the next token
-//         szToken = &szTokenEnd[1];
-//         continue;
-//
-//      // [STRING / PAGE VALUES]
-//      case LTPS_DESCRIPTION: StringCchCopy(oOutput.szPageDescription, 128, szToken);  eResult |= eState;   break;
-//      case LTPS_TITLE:       StringCchCopy(oOutput.szPageTitle, 128, szToken);        eResult |= eState;   break;
-//      case LTPS_VOICE:       oOutput.bPageVoiced = (utilCompareString(szToken, "yes") ? TRUE : FALSE);  eResult |= eState;   break;
-//
-//      // [UNIVERSAL / SPEECH CLIP VALUES]
-//      case LTPS_ID:       oOutput.iID       = utilConvertStringToInteger(szToken);  eResult |= eState;   break;
-//      case LTPS_POSITION: oOutput.iPosition = utilConvertStringToInteger(szToken);  eResult |= eState;   break;
-//      case LTPS_LENGTH:   oOutput.iLength   = utilConvertStringToInteger(szToken);  eResult |= eState;   break;
-//      case LTPS_STREAM:   break;
-//      }
-//
-//      // Reset to searching for property names
-//      eState = LTPS_PROPERTY_NAME;
-//      // Move iterator to the start of the next token
-//      szToken = &szTokenEnd[1];
-//   }
-//
-//   // Cleanup 
-//   utilDeleteString(szTagCopy);
-//   // Return NULL if there was an error, otherwise return the combination of flags indicating which properties were read.
-//   return (pOperationError ? NULL : eResult);
-//}
-
-
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       THREAD FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -960,10 +907,6 @@ DWORD   threadprocLoadLanguageFile(VOID*  pParameter)
       eResult = OR_FAILURE;
    }
 
-   /// [FAILURE/ABORT] Destroy the LanguageFile
-   /*if (eResult != OR_SUCCESS)
-      deleteLanguageFile(pLanguageFile);*/
-   
    // [DEBUG] Separate previous output from further output for claritfy
    VERBOSE_THREAD_COMPLETE("LANGUAGE-FILE PARSING WORKER THREAD COMPLETED");
 
@@ -988,27 +931,58 @@ DWORD   threadprocLoadLanguageFile(VOID*  pParameter)
 BearScriptAPI
 DWORD   threadprocSaveLanguageFile(VOID*  pParameter)
 {
-   DOCUMENT_OPERATION*    pOperationData;   // Convenience pointer
+   DOCUMENT_OPERATION*   pOperationData;   // Convenience pointer
    LANGUAGE_FILE*        pLanguageFile;     // Operation result
    OPERATION_RESULT      eResult;           // Operation result
+
+   // [TRACKING]
+   TRACK_FUNCTION();
+   SET_THREAD_NAME("Language Generation");
 
    // Prepare
    pOperationData = (DOCUMENT_OPERATION*)pParameter;
    pLanguageFile  = (LANGUAGE_FILE*)pOperationData->pGameFile;
    eResult        = OR_SUCCESS;
 
-   // [TWO STAGES] Convert LanguageFile to XML
-   if (generateLanguageFileXML(pLanguageFile, pOperationData->pProgress, pOperationData->pErrorQueue))
-      // [NONE? STAGES] Save LanguageFile to disk
-      saveDocumentToFileSystem(pOperationData->szFullPath, pLanguageFile, pOperationData->pErrorQueue);
+   /// [GUARD BLOCK]
+   __try
+   {
+      // [STAGE] Parsing XML in language file '%s'
+      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_GENERATING_LANGUAGE_XML), identifyGameFileFilename(pLanguageFile)));
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_GENERATING_LANGUAGE);
 
-   // [ERROR] Enhance the current error message
-   if (hasErrors(pOperationData->pErrorQueue))
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_LANGUAGE_SAVE_ERROR)); 
+      /// Generate LanguageFile XML
+      if (!generateLanguageFileXML(pLanguageFile, pOperationData->pProgress, pOperationData->pErrorQueue))
+         // No enhancement necessary
+         eResult = OR_FAILURE;
+      
+      /// Save LanguageFile to disk
+      else if (!saveDocumentToFileSystem(TEXT("c:\\temp\\LanguageFileTest.txt"), pLanguageFile, pOperationData->pErrorQueue))    //pOperationData->szFullPath
+      {
+         // [ERROR] "There was an I/O error while loading the %s file '%s'"
+         enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_LANGUAGE_FILE_IO_ERROR), identifyGameFileFilename(pLanguageFile)); 
+         eResult = OR_FAILURE;
+      }
+   }
+   /// [EXCEPTION HANDLER]
+   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   {
+      // [ERROR] "An unidentified and unexpected critical error has occurred while generating the language file '%s'"
+      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_SAVE_SCRIPT_FILE), identifyGameFileFilename(pLanguageFile));
+      eResult = OR_FAILURE;
+   }
+
+   //// [ERROR] Enhance the current error message
+   //if (hasErrors(pOperationData->pErrorQueue))
+   //   enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_LANGUAGE_SAVE_ERROR)); 
+
+   // [DEBUG] Separate previous output from further output for claritfy
+   VERBOSE_THREAD_COMPLETE("LANGUAGE GENERATION WORKER THREAD COMPLETED");
    
-   // Cleanup and mark operation complete
+   // Cleanup and return result
    closeThreadOperation(pOperationData, eResult);
-   return 0;
+   END_TRACKING();
+   return THREAD_RETURN;
 }
 
 

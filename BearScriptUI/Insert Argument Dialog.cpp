@@ -268,20 +268,12 @@ INT_PTR  dlgprocInsertArgumentDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
       pScriptFile = (SCRIPT_FILE*)lParam;
       hTooltip    = createTooltipWindow(hDialog);
 
-      /*/// [MODAL WINDOW] Add window to stack
-      pushModalWindowStack(hDialog);*/
-
       // Init dialog
       bResult = initInsertArgumentDialog(pScriptFile, hDialog, hTooltip);
       break;
 
    /// [DESTRUCTION] -- Cleanup
    case WM_DESTROY:
-      bResult = TRUE;
-
-      /*/// [MODAL WINDOW] Remove window from stack
-      popModalWindowStack();*/
-
       // Cleanup
       pScriptFile = NULL;
       utilDeleteWindow(hTooltip);

@@ -140,7 +140,7 @@ BOOL  findNextSpecialPhrase(STRING_CONVERTER*  pStringConverter)
    if (pStringConverter->eType != SCT_TEXT)
    {
       // Copy phrase text
-      StringCchCopy(pStringConverter->szText, 4096, szConversionPhrases[pStringConverter->eType]);
+      StringCchCopy(pStringConverter->szText, MAX_STRING, szConversionPhrases[pStringConverter->eType]);
       // Calculate phrase length
       pStringConverter->iLength = lstrlen(pStringConverter->szText);
       
@@ -155,7 +155,7 @@ BOOL  findNextSpecialPhrase(STRING_CONVERTER*  pStringConverter)
       {
          // Calculate length and extract phrase
          pStringConverter->iLength = (pStringConverter->szPosition - szPhraseStart);
-         StringCchCopyN(pStringConverter->szText, 4096, szPhraseStart, pStringConverter->iLength);
+         StringCchCopyN(pStringConverter->szText, MAX_STRING, szPhraseStart, pStringConverter->iLength);
          break;
       }
       
@@ -176,54 +176,56 @@ BOOL  findNextSpecialPhrase(STRING_CONVERTER*  pStringConverter)
 BearScriptAPI
 BOOL   generateConvertedString(CONST TCHAR*  szInput, CONST UINT  iFlags, TCHAR*  &szOutput)
 {
-   STRING_CONVERTER*        pStringConverter;     // string conversion object
+   STRING_CONVERTER*        pCurrentPhrase;       // string conversion object
    SPECIAL_CHARACTER_TYPE   eReplacementPhrase;   // Alternate special phrase for the phrase being replaced
    
    // Prepare
-   pStringConverter = createStringConverter(szInput);
-   szOutput         = NULL;
+   pCurrentPhrase = createStringConverter(szInput);
+   szOutput       = NULL;
 
    /// Search for special phrases in input string
-   while (findNextSpecialPhrase(pStringConverter))
+   while (findNextSpecialPhrase(pCurrentPhrase))
    {
       // Examine current phrase type
-      switch (pStringConverter->eType)
+      switch (pCurrentPhrase->eType)
       {
       /// [SPECIAL PHRASE] Replace with it's alternative if the conversion flag for this type of phrase has been specified
       default:
          // Determine whether expand/condense flag was specified for this phrase type
-         if (iFlags INCLUDES iConversionFlags[pStringConverter->eType])
+         if (iFlags INCLUDES iConversionFlags[pCurrentPhrase->eType])
          {
-            // Determine replacement phrase     NB: CONDENSED phrase IDs are ODD, while EXPANDED phrase IDs are EVEN
-            if ((INT)pStringConverter->eType % 2 == 1)
-               eReplacementPhrase = (SPECIAL_CHARACTER_TYPE)(pStringConverter->eType + 1);      // ODD: Increase ID by 1
-            else  // EVEN IDs are EXPANDED
-               eReplacementPhrase = (SPECIAL_CHARACTER_TYPE)(pStringConverter->eType - 1);      // EVEN: Decrease ID by 1
+            // Determine replacement phrase                    NB: CONDENSED phrase IDs are ODD, while EXPANDED phrase IDs are EVEN
+            if ((INT)pCurrentPhrase->eType % 2 == 1)
+               // [CONDENSED] Replace with Expanded
+               eReplacementPhrase = (SPECIAL_CHARACTER_TYPE)(pCurrentPhrase->eType + 1);      // Map Condensed->Expanded: Increase ID by 1
+            else  
+               // [EXPANDED] Replace with Condensed
+               eReplacementPhrase = (SPECIAL_CHARACTER_TYPE)(pCurrentPhrase->eType - 1);      // Map Expanded->Condensed: Decrease ID by 1
 
             // Output expanded/condensed alternative
-            StringCchCat(pStringConverter->szOutput, 4096, szConversionPhrases[eReplacementPhrase]);
-            pStringConverter->iOutputLength += lstrlen(szConversionPhrases[eReplacementPhrase]);
+            StringCchCat(pCurrentPhrase->szOutput, MAX_STRING, szConversionPhrases[eReplacementPhrase]);
+            pCurrentPhrase->iOutputLength += lstrlen(szConversionPhrases[eReplacementPhrase]);
 
-            // Set the 'conversion performed' flag
-            pStringConverter->bConversionPerformed = TRUE;
+            // Set the 'any conversion performed' flag
+            pCurrentPhrase->bConversionPerformed = TRUE;
             break;
          }
          // else Fall through...
 
       /// [TEXT] Add current phrase to output 
       case SCT_TEXT:
-         StringCchCat(pStringConverter->szOutput, 4096, pStringConverter->szText);
-         pStringConverter->iOutputLength += pStringConverter->iLength;
+         StringCchCat(pCurrentPhrase->szOutput, MAX_STRING, pCurrentPhrase->szText);
+         pCurrentPhrase->iOutputLength += pCurrentPhrase->iLength;
          break;
       }
    }
 
-   // Set output
-   if (pStringConverter->bConversionPerformed)
-      szOutput = utilDuplicateString(pStringConverter->szOutput, pStringConverter->iOutputLength);
+   // Set output only if necessary
+   if (pCurrentPhrase->bConversionPerformed)
+      szOutput = utilDuplicateString(pCurrentPhrase->szOutput, pCurrentPhrase->iOutputLength);
 
    // Cleanup and return TRUE if conversion was performed
-   deleteStringConverter(pStringConverter);
+   deleteStringConverter(pCurrentPhrase);
    return (szOutput != NULL);
 }
 

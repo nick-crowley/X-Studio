@@ -224,6 +224,18 @@
 #define     CodeEdit_GetCaretLineError(hCtrl)                        (ERROR_QUEUE*)SendMessage(hCtrl, UM_GET_CARET_LINE_ERROR, NULL, NULL)
 
 
+/// Name: UM_GET_CARET_GAME_STRING
+// Description: Retrieves the GameString referenced by the command containing the caret
+//
+// LPARAM : PROJECT_FILE* : [in] ProjectFile
+//
+// Return : GAME_STRING* if found, otherwise NULL
+//
+#define     UM_GET_CARET_GAME_STRING                                (UM_XSTUDIO + 51)
+//
+#define     CodeEdit_GetCaretGameString(hCtrl,pProject)             (GAME_STRING*)SendMessage(hCtrl, UM_GET_CARET_GAME_STRING, NULL, (LPARAM)(pProject))
+
+
 /// Name: UM_GET_CARET_LOCATION
 // Description: Retrieves the current location of the caret within the CodeEdit
 //
@@ -487,11 +499,18 @@
 //
 #define     GroupedListView_EmptyGroups(hCtrl)                       SendMessage(hCtrl, UM_EMPTY_LISTVIEW_GROUPS, NULL, NULL)
 
+/// Name: UM_GET_NEXT_VALID_ITEM
+// Description: Empties but does not delete all groups in a GroupedListView
+//
+#define     UM_GET_NEXT_VALID_ITEM                                   (UM_XSTUDIO + 57)
+//
+#define     GroupedListView_GetNextValidItem(hCtrl, iPhysicalItem)   SendMessage(hCtrl, UM_GET_NEXT_VALID_ITEM, iPhysicalItem, NULL)
+
 
 /// Name: UM_REMOVE_LISTVIEW_GROUPS
 // Description: Deletes all groups in a GroupedListView
 //
-#define     UM_REMOVE_LISTVIEW_GROUPS                                (UM_XSTUDIO + 57)
+#define     UM_REMOVE_LISTVIEW_GROUPS                                (UM_XSTUDIO + 58)
 //
 #define     GroupedListView_RemoveGroups(hCtrl)                      SendMessage(hCtrl, UM_REMOVE_LISTVIEW_GROUPS, NULL, NULL)
 
@@ -502,7 +521,7 @@
 // WPARAM : UINT : [in] ID of the group
 // LPARAM : UINT : [in] Number of items in the group
 //          
-#define     UM_SET_LISTVIEW_GROUP_COUNT                              (UM_XSTUDIO + 58)
+#define     UM_SET_LISTVIEW_GROUP_COUNT                              (UM_XSTUDIO + 59)
 //
 #define     GroupedListView_SetGroupCount(hCtrl, iGroupID, iCount)   SendMessage(hCtrl, UM_SET_LISTVIEW_GROUP_COUNT, (WPARAM)(iGroupID), (LPARAM)(iCount))
 

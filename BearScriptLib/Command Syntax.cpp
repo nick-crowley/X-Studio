@@ -827,7 +827,7 @@ TCHAR*  generateCommandSyntaxSuggestionText(CONST COMMAND_SYNTAX*  pCommandSynta
    }
 
    // [SPECIAL CASE] Add optional arguments to Script Call suggestion text manually
-   /*if (pCommandSyntax->iID == CMD_SCRIPT_CALL)
+   /*if (pCommandSyntax->iID == CMD_CALL_SCRIPT_VAR_ARGS)
       StringCchCat(szOutput, iOutputLength, TEXT(" argument¹=$Value  argument²=$Value  argumentª=$Value"));*/
 
    // Trim leading whitespace
@@ -976,9 +976,9 @@ BOOL  generateCommandSyntaxTitle(CONST COMMAND_SYNTAX*  pSyntax, CONST RICH_SYNT
          StringCchCat(szSource, 1024, TEXT("[/b]"));
 
       // [SPECIAL CASE] Add optional parameters to Script call titles manually
-      if (pSyntax->iID == CMD_SCRIPT_CALL AND eType == RST_BOLD_TEXT)
+      if (pSyntax->iID == CMD_CALL_SCRIPT_VAR_ARGS AND eType == RST_BOLD_TEXT)
          utilStringCchCatf(szSource, 1024, TEXT(" \\[ ") txtBold("arg1=") TEXT("«%s» ") txtBold("arg2=") TEXT("«%s» ... ") txtBold("argª=") TEXT("«%s» \\]"), szParameterSyntax[PS_VALUE], szParameterSyntax[PS_VALUE], szParameterSyntax[PS_VALUE]);
-      else if (pSyntax->iID == CMD_SCRIPT_CALL)
+      else if (pSyntax->iID == CMD_CALL_SCRIPT_VAR_ARGS)
          utilStringCchCatf(szSource, 1024, TEXT(" \\[ arg1=") txtBold("«%s»") TEXT(" arg2=") txtBold("«%s»") TEXT(" ... argª=") txtBold("«%s»") TEXT(" \\]"), szParameterSyntax[PS_VALUE], szParameterSyntax[PS_VALUE], szParameterSyntax[PS_VALUE]);
       break;
 

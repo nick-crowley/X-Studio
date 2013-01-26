@@ -378,8 +378,10 @@ BOOL       insertLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PA
 BOOL       insertLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pGameString);
 VOID       modifyLanguageDocumentGamePageID(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage);
 VOID       modifyLanguageDocumentGameStringID(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString, const UINT  iNewID);
+VOID       updateLanguageDocumentPageGroups(LANGUAGE_DOCUMENT*  pDocument);
 VOID       treeprocDeleteGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 VOID       treeprocFindFreeGameStringID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
+VOID       treeprocGeneratePageStrings(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
 VOID       treeprocModifyGameStringPageID(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 BOOL       validateLanguageButtonID(LANGUAGE_DOCUMENT*  pDocument, CONST TCHAR*  szID);
 BOOL       validateLanguagePageStringID(LANGUAGE_DOCUMENT*  pDocument, const UINT  iStringID);
@@ -392,6 +394,7 @@ VOID       onLanguageDocument_Destroy(LANGUAGE_DOCUMENT*  pDocument);
 BOOL       onLanguageDocument_Notify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage);
 BOOL       onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID, NMLVDISPINFO*  pHeader);
 VOID       onLanguageDocument_Resize(LANGUAGE_DOCUMENT*  pDocument, CONST SIZE*  pNewSize);
+VOID       onLanguageDocument_SaveComplete(LANGUAGE_DOCUMENT*  pDocument, DOCUMENT_OPERATION*  pOperationData);
 
 // Window proc
 LRESULT    wndprocLanguageDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
@@ -399,6 +402,10 @@ LRESULT    wndprocLanguageDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                LANGUAGE DOCUMENT (UI)
 /// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Functions
+VOID  displayLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, const GAME_STRING*  pString);
+VOID  treeprocResolveGameStringIndex(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 
 // Message Handlers
 VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage);
@@ -409,10 +416,10 @@ BOOL  onLanguageDocument_EditStringEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPIN
 
 VOID  onLanguageDocument_InsertPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pNewPage);
 VOID  onLanguageDocument_InsertString(LANGUAGE_DOCUMENT*  pDocument, const UINT  iPageID);
-VOID       onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
-VOID       onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID);
-VOID       onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
-VOID   onLanguageDocument_ViewFormattingError(LANGUAGE_DOCUMENT*  pDocument);
+VOID  onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
+VOID  onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iControlID);
+VOID  onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected);
+VOID  onLanguageDocument_ViewFormattingError(LANGUAGE_DOCUMENT*  pDocument);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                        MAIN
@@ -715,28 +722,9 @@ VOID    popModalWindowStack();
 ///                               NEW DOCUMENT DIALOG
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-// Creation / Destruction
-NEW_DOCUMENT_DATA*  createInsertDocumentDialogData();
-VOID                deleteInsertDocumentDialogData(NEW_DOCUMENT_DATA*  &pData);
-
-// Helpers
-NEW_DOCUMENT_DATA*  getInsertDocumentDialogData(HWND  hDialog);
-
 // Functions
 NEW_DOCUMENT_DATA*  displayInsertDocumentDialog(MAIN_WINDOW_DATA*  pMainWindowData);
-VOID                updateInsertDocumentDialog(NEW_DOCUMENT_DATA*  pDialogData);
-BOOL                initInsertDocumentDialog(NEW_DOCUMENT_DATA*  pDialogData, HWND  hDialog);
-
-// Message Handlers
-BOOL     onInsertDocumentDialog_Command(NEW_DOCUMENT_DATA*  pDialogData, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
-VOID     onInsertDocumentDialog_DoubleClick(NEW_DOCUMENT_DATA*  pDialogData, NMITEMACTIVATE*  pMessage);
-BOOL     onInsertDocumentDialog_Notify(NEW_DOCUMENT_DATA*  pDialogData, NMHDR*  pMessage);
-VOID     onInsertDocumentDialog_OK(NEW_DOCUMENT_DATA*  pDialogData);
-VOID     onInsertDocumentDialog_RequestData(NEW_DOCUMENT_DATA*  pDialogData, NMLVDISPINFO*  pHeader);
-VOID     onInsertDocumentDialog_SelectionChange(NEW_DOCUMENT_DATA*  pDialogData, NMLISTVIEW*  pListView);
-
-// Window procedure
-INT_PTR  dlgprocInsertDocumentDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+VOID                deleteInsertDocumentDialogData(NEW_DOCUMENT_DATA*  &pData);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                 OPERATION POOL
@@ -823,6 +811,7 @@ INT_PTR dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARA
 // Helpers
 PROJECT_FOLDER     calculateProjectFolderFromDocumentType(CONST DOCUMENT_TYPE  eType);
 PROJECT_DOCUMENT*  getActiveProject();
+PROJECT_FILE*      getActiveProjectFile();
 BOOL               isDocumentInProject(CONST DOCUMENT*  pDocument);
 VOID               setProjectModifiedFlag(PROJECT_DOCUMENT*  pProject, CONST BOOL  bModified);
 
@@ -1198,6 +1187,7 @@ VOID    onScriptDocumentSelectionChange(SCRIPT_DOCUMENT*  pDocument);
 VOID    onScriptDocumentTextChange(SCRIPT_DOCUMENT*  pDocument);
 VOID    onScriptDocumentPropertyChanged(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iProperty);
 VOID    onScriptDocumentValidationComplete(SCRIPT_DOCUMENT*  pDocument, DOCUMENT_OPERATION*  pOperationData);
+VOID    onScriptDocumentViewLanguageString(SCRIPT_DOCUMENT*  pDocument);
 VOID    onScriptDocumentViewError(SCRIPT_DOCUMENT*  pDocument);
 
 // Window procedure

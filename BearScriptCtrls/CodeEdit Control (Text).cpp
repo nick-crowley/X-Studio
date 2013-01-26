@@ -48,7 +48,7 @@ VOID  insertCodeEditCharacterAtCaret(CODE_EDIT_DATA*  pWindowData, CONST TCHAR  
       updateCodeEditLine(pWindowData, oCaretLocation.iLine, CCF_TEXT_CHANGED);
 
       // [SCRIPT ARGUMENTS] Insert script-call arguments when user types ':'
-      if (chCharacter == ':' AND isCommandID(pLineData->pCommand, CMD_SCRIPT_CALL))
+      if (chCharacter == ':' AND isCommandID(pLineData->pCommand, CMD_CALL_SCRIPT_VAR_ARGS))
          onCodeEditScriptCallOperator(pWindowData, pLineData);
       break;
 

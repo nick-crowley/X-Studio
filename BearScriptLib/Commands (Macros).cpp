@@ -52,7 +52,7 @@ BOOL  isCommandAddCustomMenuInfoHeading(CONST COMMAND*  pCommand, CONST TCHAR*  
    szMenuVariable = NULL;
 
    // [CHECK] Ensure command and text variable are correct
-   if ((isCommandID(pCommand, CMD_ADD_CUSTOM_MENU_INFO) OR isCommandID(pCommand, CMD_ADD_CUSTOM_MENU_HEADING)) AND isVariableParameterInCommandAtIndex(pCommand, 1, szTextVariable))
+   if ((isCommandID(pCommand, CMD_ADD_MENU_INFO) OR isCommandID(pCommand, CMD_ADD_MENU_HEADING)) AND isVariableParameterInCommandAtIndex(pCommand, 1, szTextVariable))
       // [SUCCESS] Extract Menu Variable 
       findVariableParameterInCommandByIndex(pCommand, 0, szMenuVariable);
 
@@ -74,7 +74,7 @@ BOOL  isCommandAddCustomMenuInfoHeading(CONST COMMAND*  pCommand, CONST TCHAR*  
 BOOL  isCommandAddCustomMenuItem(CONST COMMAND*  pCommand, CONST TCHAR*  szTextVariable, CONST TCHAR*  &szMenuVariable, PARAMETER*  &pItemID)
 {
    // [CHECK] Ensure command has correct text variable. Extract Menu Variable and ReturnID Parameter.
-   if (!isCommandID(pCommand, CMD_ADD_CUSTOM_MENU_ITEM) OR !isVariableParameterInCommandAtIndex(pCommand, 1, szTextVariable) OR 
+   if (!isCommandID(pCommand, CMD_ADD_MENU_ITEM) OR !isVariableParameterInCommandAtIndex(pCommand, 1, szTextVariable) OR 
        !findVariableParameterInCommandByIndex(pCommand, 0, szMenuVariable) OR !findParameterInCommandByIndex(pCommand, PT_DEFAULT, 2, pItemID))
    {
       // [FAILED] Ensure outputs are NULL

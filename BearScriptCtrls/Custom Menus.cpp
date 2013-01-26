@@ -688,7 +688,7 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_CODE_EDIT_LOOKUP_COMMAND:        szIconID = TEXT("HELP_ICON");                break;
    case IDM_CODE_EDIT_OPEN_TARGET_SCRIPT:    szIconID = TEXT("SCRIPT_DEPENDENCY_ICON");   break;
    case IDM_CODE_EDIT_GOTO_LABEL:            szIconID = TEXT("FUNCTION_ICON");            break;
-   case IDM_CODE_EDIT_EDIT_LANGUAGE_STRING:  szIconID = TEXT("EDIT_FORMATTING_ICON");     break;
+   case IDM_CODE_EDIT_VIEW_LANGUAGE_STRING:  szIconID = TEXT("EDIT_FORMATTING_ICON");     break;
    case IDM_CODE_EDIT_VIEW_ERROR:            szIconID = TEXT("ERROR_ICON");               break;
    case IDM_CODE_EDIT_VIEW_WARNING:          szIconID = TEXT("WARNING_ICON");             break;
    case IDM_CODE_EDIT_PROPERTIES:            szIconID = TEXT("PROPERTIES_ICON");          break;

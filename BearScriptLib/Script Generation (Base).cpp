@@ -421,7 +421,7 @@ BOOL  identifyCommandFromHash(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pComman
 
    // [SCRIPT CALL] -- Can only be identified by the start of the command hash as the ending depends on the script arguments
    else if (utilCompareStringN(pCommandHash->szCommandHash, "callscript:", 11))
-      pCommand->iID = CMD_SCRIPT_CALL;
+      pCommand->iID = CMD_CALL_SCRIPT_VAR_ARGS;
 
    // [DIM ARRAY] -- Can only be identified by the start of the command hash as the ending depends on the script arguments
    else if (utilCompareStringN(pCommandHash->szCommandHash, "dim", 3))
@@ -455,12 +455,16 @@ BOOL  identifyCommandFromHash(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pComman
    case CMD_BREAK:
    case CMD_CONTINUE:      pCommand->iFlags = CT_AUXILIARY;                       break;
    // [SCRIPT-CALL]
-   case CMD_SCRIPT_CALL:   pCommand->iFlags = CT_STANDARD WITH CT_SCRIPTCALL;     break;
+   case CMD_CALL_SCRIPT_VAR_ARGS:   pCommand->iFlags = CT_STANDARD WITH CT_SCRIPTCALL;     break;
    // [EXPRESSION]
    case CMD_EXPRESSION:    pCommand->iFlags = CT_STANDARD WITH CT_EXPRESSION;     break;
    // [STANDARD]
    default:                pCommand->iFlags = CT_STANDARD;                        break;
    }
+
+   // [SCRIPT-CALL]
+   if (isCommandScriptCall(pCommand))
+      pCommand->iFlags |= CT_SCRIPTCALL;
 
    // [MACRO] Add the 'virtual' flag
    if (pCommand->pSyntax AND pCommand->pSyntax->eGroup == CG_MACRO) 

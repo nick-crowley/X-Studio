@@ -12,10 +12,7 @@
 #define            LINE_LENGTH               512          // Maximum length of a line (in chars)
 #define            HASH_LENGTH               384          // Maximum length of a hash (in chars)
 #define            COMPONENT_LENGTH          256          // Max length of variables, enumerations and constants
-#define            GAME_STRING_LENGTH        4096         // Max length for a game string
-
-// Define maximum number of various components
-#define            MAX_STACK                 32           // Max number of items in a JumpStack
+#define            MAX_STRING           4096         // Max length for a game string
 
 // Define various totals
 #define            GAME_TEXT_COLOURS         10           // Number of game text colours
@@ -362,81 +359,111 @@ enum   COMMAND_VERSION  { CV_THREAT          = 1,        // X2 The Threat
 
 // Define IDs of some important commands, for clarity
 //
-#define         CMD_NONE                         0
-#define         CMD_COMMENT                      1
-#define         CMD_NOP                          2
-#define         CMD_COMMAND_COMMENT              3
-#define         CMD_END                          4
-#define         CMD_ELSE                         5
-#define         CMD_BREAK                        7
-#define         CMD_CONTINUE                     6
-#define         CMD_GOTO_LABEL                   100
-#define         CMD_DEFINE_LABEL                 101
-#define         CMD_SCRIPT_CALL                  102
-#define         CMD_RETURN                       103
-#define         CMD_EXPRESSION                   104
-#define         CMD_RANDOM_VALUE_ZERO            106
-#define         CMD_RANDOM_VALUE                 110
-#define         CMD_INTERRUPT_SCRIPT             111
-#define         CMD_HIDDEN_JUMP                  112
-#define         CMD_IS_DATATYPE                  125
-#define         CMD_READ_TEXT                    126
-#define         CMD_ARRAY_ALLOC                  128
-#define         CMD_ARRAY_ACCESS                 129
-#define         CMD_ARRAY_ASSIGNMENT             130
-#define         CMD_SIZE_OF_ARRAY                131
-#define         CMD_INCREMENT                    142
-#define         CMD_DECREMENT                    143
-#define         CMD_STRING_PRINTF                150
-#define         CMD_SET_LOCAL_VARIABLE           155
-#define         CMD_GET_LOCAL_VARIABLE           156
-#define         CMD_SET_GLOBAL_VARIABLE          157
-#define         CMD_GET_GLOBAL_VARIABLE          158
-#define         CMD_INTERRUPT_SCRIPT_PRIORITY    159
-#define         CMD_DEFINE_ARRAY                 250
-#define         CMD_FOR_EACH                     251
-#define         CMD_FOR_EACH_COUNTER             252
-#define         CMD_FOR_LOOP                     253
-#define         CMD_READ_CUSTOM_MENU_ITEM        254
-#define         CMD_READ_CUSTOM_MENU_INFO        255
-#define         CMD_READ_CUSTOM_MENU_HEADING     256
-#define         CMD_WRITE_LOGBOOK                403
-#define         CMD_WRITE_LOG                    406
-#define         CMD_AVERAGE_PRICE_BY_REF         628
-#define         CMD_AVERAGE_PRICE                629
-#define         CMD_INTERRUPT_TASK               1016
-#define         CMD_START_TASK                   1017
-#define         CMD_SPEAK_TEXT                   1042
-#define         CMD_GET_INDEX_OF_ARRAY           1083
-#define         CMD_DISPLAY_NEWS_ARTICLE         1090
-#define         CMD_GOTO_SUB                     1167
-#define         CMD_END_SUB                      1168
-#define         CMD_DELAYED_COMMAND              1185
-#define         CMD_READ_TEXT_ARRAY              1337
-#define         CMD_SET_WING_COMMAND             1384
-#define         CMD_GET_LOCAL_VARIABLE_KEYS      1414
-#define         CMD_CALL_NAMED_SCRIPT            1425
-#define         CMD_START_NAMED_SCRIPT           1426
-#define         CMD_GET_GLOBAL_VARIABLE_KEYS     1436
-#define         CMD_ADD_CUSTOM_MENU_INFO         1446
-#define         CMD_ADD_CUSTOM_MENU_ITEM         1447
-#define         CMD_ADD_CUSTOM_MENU_HEADING      1448
-#define         CMD_GET_LOCAL_VARIABLE_REG_EXP   1450
-#define         CMD_GET_GLOBAL_VARIABLE_REG_EXP  1451
-#define         CMD_GET_OBJECT_NAME_ARRAY        1496
-#define         CMD_ADD_NEWS_ARTICLE             1531
-#define         CMD_ADD_INFO_ARTICLE             1532
-#define         CMD_ADD_HISTORY_ARTICLE          1533
-#define         CMD_ADD_STORIES_ARTICLE          1534
-#define         CMD_ADD_SCRIPT_OPTIONS           1598
-#define         CMD_REGISTER_HOTKEY_SCRIPT       1601
-#define         CMD_REGISTER_HOTKEY_SCRIPT_NAME  1603
-#define         CMD_ADD_PLAYER_GRAPH             1608
-#define         CMD_REMOVE_PLAYER_GRAPH          1609
-#define         CMD_ADD_CLASS_GRAPH              1610
-#define         CMD_REMOVE_CLASS_GRAPH           1611
-#define         CMD_ADD_OBJECT_GRAPH             1612
-#define         CMD_REMOVE_OBJECT_GRAPH          1613
+#define    CMD_NONE                         0
+#define    CMD_COMMENT                      1
+#define    CMD_NOP                          2
+#define    CMD_COMMAND_COMMENT              3
+#define    CMD_END                          4
+#define    CMD_ELSE                         5
+#define    CMD_BREAK                        7
+#define    CMD_CONTINUE                     6
+#define    CMD_GOTO_LABEL                   100
+#define    CMD_DEFINE_LABEL                 101
+#define    CMD_CALL_SCRIPT_VAR_ARGS         102
+#define    CMD_RETURN                       103
+#define    CMD_EXPRESSION                   104
+#define    CMD_RANDOM_VALUE_ZERO            106
+#define    CMD_RANDOM_VALUE                 110
+#define    CMD_INTERRUPT_SCRIPT             111
+#define    CMD_HIDDEN_JUMP                  112
+#define    CMD_CONNECT_SHIP_SCRIPT          113 
+#define    CMD_SET_GLOBAL_SCRIPT_MAP        118
+#define    CMD_IS_DATATYPE                  125
+#define    CMD_READ_TEXT                    126
+#define    CMD_ARRAY_ALLOC                  128
+#define    CMD_ARRAY_ACCESS                 129
+#define    CMD_ARRAY_ASSIGNMENT             130
+#define    CMD_SIZE_OF_ARRAY                131
+#define    CMD_GET_NEWS_ARTICLE_STATE       138
+#define    CMD_SET_NEWS_ARTICLE_STATE       139
+#define    CMD_INCREMENT                    142
+#define    CMD_DECREMENT                    143
+#define    CMD_STRING_PRINTF                150
+#define    CMD_SET_SHIP_UPGRADE_SCRIPT      154
+#define    CMD_SET_LOCAL_VARIABLE           155
+#define    CMD_GET_LOCAL_VARIABLE           156
+#define    CMD_SET_GLOBAL_VARIABLE          157
+#define    CMD_GET_GLOBAL_VARIABLE          158
+#define    CMD_INTERRUPT_SCRIPT_ARGS        159
+#define    CMD_SEND_INCOMING_QUESTION       212
+#define    CMD_SEND_INCOMING_QUESTION_EX    213
+#define    CMD_DEFINE_ARRAY                 250
+#define    CMD_FOR_EACH                     251
+#define    CMD_FOR_EACH_COUNTER             252
+#define    CMD_FOR_LOOP                     253
+#define    CMD_ADD_MENU_ITEM_BYREF          254
+#define    CMD_ADD_MENU_INFO_BYREF          255
+#define    CMD_ADD_MENU_HEADING_BYREF       256
+#define    CMD_WRITE_LOGBOOK                403
+#define    CMD_WRITE_LOG                    406
+#define    CMD_AVERAGE_PRICE_BY_REF         628
+#define    CMD_AVERAGE_PRICE                629
+#define    CMD_REGISTER_AL_SCRIPT           1000
+#define    CMD_UNREGISTER_AL_SCRIPT         1001
+#define    CMD_INTERRUPT_TASK_ARGS          1016
+#define    CMD_BEGIN_TASK_ARGS              1017
+#define    CMD_SPEAK_TEXT                   1042
+#define    CMD_IS_SCRIPT_ON_STACK           1072
+#define    CMD_GET_INDEX_OF_ARRAY           1083
+#define    CMD_REGISTER_QUEST_SCRIPT        1084
+#define    CMD_ADD_EVENT_LISTENER           1088
+#define    CMD_DISPLAY_NEWS_ARTICLE         1090
+#define    CMD_REGISTER_HOTKEY_1            1100
+#define    CMD_REGISTER_GOD_EVENT           1141
+#define    CMD_GOTO_SUB                     1167
+#define    CMD_END_SUB                      1168
+#define    CMD_DELAYED_COMMAND              1185
+#define    CMD_CONNECT_WING_SCRIPT          1186
+#define    CMD_READ_TEXT_ARRAY              1337
+#define    CMD_READ_TEXT_EXISTS             1338
+#define    CMD_ADD_SECONDARY_SIGNAL         1339
+#define    CMD_SET_WING_UPGRADE_SCRIPT      1381
+#define    CMD_SET_GLOBAL_WING_SCRIPT_MAP   1382
+#define    CMD_SET_WING_COMMAND             1384
+#define    CMD_ADD_WING_SCRIPT              1393
+#define    CMD_ADD_WING_SCRIPT_CHECK        1398
+#define    CMD_SET_GLOBAL_SECONDARY_MAP     1407
+#define    CMD_GET_LOCAL_VARIABLE_KEYS      1414
+#define    CMD_CALL_SCRIPT_ARGS             1425
+#define    CMD_LAUNCH_SCRIPT_ARGS           1426
+#define    CMD_GET_GLOBAL_VARIABLE_KEYS     1436
+#define    CMD_ADD_MENU_INFO                1446
+#define    CMD_ADD_MENU_ITEM                1447
+#define    CMD_ADD_MENU_HEADING             1448
+#define    CMD_GET_LOCAL_VARIABLE_REGEX     1450
+#define    CMD_GET_GLOBAL_VARIABLE_REGEX    1451
+#define    CMD_SET_SHIP_PRELOAD_SCRIPT      1466
+#define    CMD_SET_WING_PRELOAD_SCRIPT      1467
+#define    CMD_GET_OBJECT_NAME_ARRAY        1496
+#define    CMD_REGISTER_HOTKEY_2            1511
+#define    CMD_ADD_NEWS_ARTICLE             1531
+#define    CMD_ADD_INFO_ARTICLE             1532
+#define    CMD_ADD_HISTORY_ARTICLE          1533
+#define    CMD_ADD_STORIES_ARTICLE          1534
+#define    CMD_ADD_SCRIPT_OPTIONS           1598
+#define    CMD_REMOVE_SCRIPT_OPTIONS        1599
+#define    CMD_CHECK_SCRIPT_EXISTS_1        1600
+#define    CMD_REGISTER_HOTKEY_1_BYREF      1601
+#define    CMD_GET_HOTKEY_INDEX_1           1602
+#define    CMD_REGISTER_HOTKEY_2_BYREF      1603
+#define    CMD_GET_HOTKEY_INDEX_2           1604
+#define    CMD_CHECK_SCRIPT_EXISTS_2        1605
+#define    CMD_ADD_PLAYER_GRAPH             1608
+#define    CMD_REMOVE_PLAYER_GRAPH          1609
+#define    CMD_ADD_CLASS_GRAPH              1610
+#define    CMD_REMOVE_CLASS_GRAPH           1611
+#define    CMD_ADD_OBJECT_GRAPH             1612
+#define    CMD_REMOVE_OBJECT_GRAPH          1613
 
 // Defines the syntax of a script command: ID + text + position and type of parameters
 //
@@ -898,11 +925,23 @@ enum  STRING_TYPE    {  ST_EXTERNAL,         // External strings have XML Safety
                         ST_INTERNAL,         // Internal strings have no XML safety phrases and have ¶ symbols
                         ST_DISPLAY    };     // Display strings have no XML safety phrases and have % symbols
 
+enum  GAME_PAGE_GROUP  { GPG_DATA,
+                         GPG_DIALOGUE,
+                         GPG_MISC,
+                         GPG_QUEST,
+                         GPG_BONUS,
+                         GPG_MENU,
+                         GPG_EDITOR,
+                         GPG_NEWS,
+                         GPG_PLOT,
+                         GPG_NPC,
+                         GPG_USER  };
+
 // Game string -- Represents either language file entries or assembled ware names
 //
 struct GAME_STRING
 {
-   TCHAR*         szText;       // String contents  (Max length of GAME_STRING_LENGTH)
+   TCHAR*         szText;       // String contents  (Max length of MAX_STRING)
    UINT           iCount;       // Length of string, in characters
 
    UINT           iID,          // String ID
@@ -929,7 +968,7 @@ struct GAME_PAGE
 
 // Identifies the parameters in a command that hold references to GameStrings
 //
-struct GAME_STRING_REFERENCE
+struct GAME_STRING_REF
 {
    UINT   iPageParameterIndex,      // Index of parameter containing the PageID reference
           iStringParameterIndex;    // Index of parameter containing the StringID reference
@@ -2137,7 +2176,7 @@ struct SUBSTRING
                   *szMarker;  // Current processing position within the source text
 
    SUBSTRING_TYPE  eType;                       // SubString type
-   TCHAR           szText[GAME_STRING_LENGTH];  // SubString text
+   TCHAR           szText[MAX_STRING];  // SubString text
    UINT            iCount;                      // Length of SubString, in characters
 };
 
@@ -2189,20 +2228,23 @@ struct STRING_CONVERTER
                            *szPosition;          // Input string iterator
 
    SPECIAL_CHARACTER_TYPE  eType;                // Current phrase type
-   TCHAR                   szText[4096];         // Current phrase text
+   TCHAR                   szText[MAX_STRING];   // Current phrase text
    UINT                    iLength;              // Current phrase length, in characters
 
    BOOL                    bConversionPerformed; // Output flag indicating whether any conversion was performed
-   TCHAR                   szOutput[4096];       // Output string
+   TCHAR                   szOutput[MAX_STRING]; // Output string
    UINT                    iOutputLength;        // Output string length, in characters
 };
 
 // Defines commonly used string conversions 
-#define  SPC_SCRIPT_DISPLAY_TO_EXTERNAL    (SCF_CONDENSE_APOSTROPHE WITH SCF_EXPAND_AMPERSAND   WITH SCF_EXPAND_GREATER_THAN   WITH SCF_EXPAND_LESS_THAN   WITH SCF_EXPAND_QUOTES) // WITH SCF_EXPAND_BRACKET)
-#define  SPC_SCRIPT_EXTERNAL_TO_DISPLAY    (SCF_EXPAND_APOSTROPHE   WITH SCF_CONDENSE_AMPERSAND WITH SCF_CONDENSE_GREATER_THAN WITH SCF_CONDENSE_LESS_THAN WITH SCF_CONDENSE_QUOTES) // WITH SCF_CONDENSE_BRACKET)
+#define  SPC_SCRIPT_DISPLAY_TO_EXTERNAL    (SCF_CONDENSE_APOSTROPHE | SCF_EXPAND_AMPERSAND   | SCF_EXPAND_GREATER_THAN   | SCF_EXPAND_LESS_THAN   | SCF_EXPAND_QUOTES) // WITH SCF_EXPAND_BRACKET)
+#define  SPC_SCRIPT_EXTERNAL_TO_DISPLAY    (SCF_EXPAND_APOSTROPHE   | SCF_CONDENSE_AMPERSAND | SCF_CONDENSE_GREATER_THAN | SCF_CONDENSE_LESS_THAN | SCF_CONDENSE_QUOTES) // WITH SCF_CONDENSE_BRACKET)
 
-#define  SPC_LANGUAGE_EXTERNAL_TO_INTERNAL (SCF_CONDENSE_AMPERSAND WITH SCF_CONDENSE_GREATER_THAN WITH SCF_CONDENSE_LESS_THAN WITH SCF_CONDENSE_QUOTES WITH SCF_CONDENSE_NEWLINE WITH SCF_CONDENSE_PERCENT WITH SCF_CONDENSE_ADDITION WITH SCF_CONDENSE_TAB)
-#define  SPC_LANGUAGE_INTERNAL_TO_DISPLAY  (SCF_CONDENSE_NEWLINE WITH SCF_CONDENSE_APOSTROPHE WITH SCF_CONDENSE_QUOTES WITH SCF_CONDENSE_SQUARE_BRACKET WITH SCF_CONDENSE_BRACKET WITH SCF_CONDENSE_CURLY_BRACKET)
+#define  SPC_LANGUAGE_INTERNAL_TO_EXTERNAL (SCF_EXPAND_APOSTROPHE   | SCF_EXPAND_AMPERSAND   | SCF_EXPAND_GREATER_THAN   | SCF_EXPAND_LESS_THAN   | SCF_EXPAND_QUOTES   | SCF_EXPAND_NEWLINE   | SCF_EXPAND_ADDITION   | SCF_EXPAND_TAB)    // SCF_EXPAND_PERCENT   |
+#define  SPC_LANGUAGE_EXTERNAL_TO_INTERNAL (SCF_CONDENSE_APOSTROPHE | SCF_CONDENSE_AMPERSAND | SCF_CONDENSE_GREATER_THAN | SCF_CONDENSE_LESS_THAN | SCF_CONDENSE_QUOTES | SCF_CONDENSE_NEWLINE | SCF_CONDENSE_ADDITION | SCF_CONDENSE_TAB)  // SCF_CONDENSE_PERCENT |
+
+#define  SPC_LANGUAGE_INTERNAL_TO_DISPLAY  (SCF_CONDENSE_SQUARE_BRACKET | SCF_CONDENSE_CURLY_BRACKET | SCF_CONDENSE_BRACKET)
+#define  SPC_LANGUAGE_DISPLAY_TO_INTERNAL  (SCF_EXPAND_SQUARE_BRACKET   | SCF_EXPAND_CURLY_BRACKET   | SCF_EXPAND_BRACKET)
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    SUGGESTION RESULT
@@ -2215,10 +2257,10 @@ struct VARIABLE_NAME;
 //
 union SUGGESTION_RESULT
 {
-   CONST COMMAND_SYNTAX*    asCommandSyntax;
-   OBJECT_NAME*       asObjectName;
-   VARIABLE_NAME*     asVariableName;
-   LPARAM             asPointer;
+   CONST COMMAND_SYNTAX*  asCommandSyntax;
+   OBJECT_NAME*           asObjectName;
+   VARIABLE_NAME*         asVariableName;
+   LPARAM                 asPointer;
 };
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -2852,15 +2894,14 @@ enum XML_TOKEN_TYPE  { XTT_TEXT,                 // Text
 struct XML_TOKENISER
 {
 // Public:
-   TCHAR            szText[4096]; // Current token
-   //CONST TCHAR*     szText;
-   UINT             iCount;      // Current token length, in characters
-   XML_TOKEN_TYPE   eType;       // Token type
-   UINT             iLineNumber; // Line number containing the token (one-based)
+   TCHAR            szText[MAX_STRING];   // Current token
+   UINT             iCount;               // Current token length, in characters
+   XML_TOKEN_TYPE   eType;                // Token type
+   UINT             iLineNumber;          // Line number containing the token (one-based)
 
 // Private:
-   CONST TCHAR     *szSource,     // Input text
-                   *szNextToken;  // Current position within the input string (Actually points to the next token)
+   CONST TCHAR     *szSource,             // Input text
+                   *szNextToken;          // Current position within the input string (Actually points to the next token)
 };
 
 // XML Tag properties parsing state

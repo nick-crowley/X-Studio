@@ -31,7 +31,7 @@ enum COMMAND_SOURCE  { CS_MENU_ITEM = 0, CS_ACCELERATOR = 1 };
 // Window class name
 extern ControlsAPI CONST TCHAR*  szCodeEditClass;
 extern CONST TCHAR*              szCommentRatioCtrl;
-extern CONST TCHAR*              szGroupedListViewClass;
+extern ControlsAPI CONST TCHAR*  szGroupedListViewClass;
 extern CONST TCHAR*              szMessageHeaderClass;
 extern CONST TCHAR*              szWorkspaceClass;          
 
@@ -62,6 +62,7 @@ AVL_TREE*        generateCodeEditStringDependencyTree(CODE_EDIT_DATA*  pWindowDa
 CUSTOM_TOOLTIP*  generateCodeEditTooltipData(CODE_EDIT_DATA*  pWindowData, CONST UINT  iLine, CONST CODEOBJECT*  pCodeObject);
 AVL_TREE*        generateCodeEditVariableDependencyTree(CODE_EDIT_DATA*  pWindowData);
 AVL_TREE*        generateCodeEditVariableNamesTree(CODE_EDIT_DATA*  pWindowData);
+GAME_STRING*     getCodeEditCaretGameString(CODE_EDIT_DATA*  pWindowData, CONST PROJECT_FILE*  pProjectFile);
 BOOL             isCodeEditSelectionCommented(CODE_EDIT_DATA*  pWindowData);
 VOID             performCodeEditSelectionCommenting(CODE_EDIT_DATA*  pWindowData, CONST BOOL  bComment);
 BOOL             resolveCodeEditIntegerParameter(CODE_EDIT_DATA*  pWindowData, LIST_ITEM*  pTargetLine, CONST UINT  iParameterIndex, CONST PROJECT_FILE*  pProjectFile, UINT&  iOutput);
@@ -496,11 +497,9 @@ ControlsAPI LRESULT           wndprocCustomRichEditControl(HWND  hWnd, UINT  iMe
 
 // Creation / Destruction
 GROUPED_LISTVIEW_DATA*  createGroupedListViewData();
-LISTVIEW_ITEM*          createGroupedListViewItem(CONST UINT  iPhysicalIndex, CONST UINT  iBufferLength);
 VOID                    deleteGroupedListViewData(GROUPED_LISTVIEW_DATA*  &pWindowData);
 VOID                    deleteGroupedListViewGroup(LISTVIEW_GROUP*  &pNewGroup);
 VOID                    destructorGroupedListViewGroup(LPARAM  pListViewGroup);
-VOID                    deleteGroupedListViewItem(LISTVIEW_ITEM*  &pListViewItem);
 
 // (Exported) Creation / Destruction
 ControlsAPI LISTVIEW_GROUP*  createGroupedListViewGroup(CONST UINT  iGroupID, CONST UINT  iGroupNameResourceID);
@@ -514,7 +513,7 @@ GROUPED_LISTVIEW_DATA*  getGroupedListViewData(HWND  hCtrl);
 // Functions
 BOOL                    calculateGroupedListViewLogicalIndex(GROUPED_LISTVIEW_DATA*  pWindowData, LISTVIEW_ITEM*  pItem);
 ControlsAPI INT         convertGroupedListViewPhysicalIndex(HWND  hCtrl, CONST UINT  iPhysicalIndex);
-BOOL                    drawGroupedListViewGradientLine(HDC  hDC, CONST RECT*  pItemRect);
+BOOL                    drawGroupedListViewGradientLine(HDC  hDC, CONST RECT*  pItemRect, CONST UINT  iBackground);
 
 // Message Handlers
 BOOL                    onGroupedListViewAddGroup(GROUPED_LISTVIEW_DATA*  pWindowData, LISTVIEW_GROUP*  pNewGroup);
@@ -523,6 +522,7 @@ ControlsAPI BOOL        onGroupedListViewCustomDraw(HWND  hParentWnd, HWND  hCtr
 BOOL                    onGroupedListViewCustomDrawTooltip(GROUPED_LISTVIEW_DATA*  pWindowData, HWND  hTooltip, NMHDR*  pHeader);
 VOID                    onGroupedListViewDestroy(GROUPED_LISTVIEW_DATA*  &pWindowData);
 VOID                    onGroupedListViewEmptyGroups(GROUPED_LISTVIEW_DATA*  pWindowData);
+INT                     onGroupedListViewGetNextValidItem(GROUPED_LISTVIEW_DATA*  pWindowData, const INT  iPhysicalIndex);
 VOID                    onGroupedListViewRemoveGroups(GROUPED_LISTVIEW_DATA*  pWindowData);
 BOOL                    onGroupedListViewSetGroupCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST UINT  iGroupID, CONST UINT  iCount);
 UINT                    onGroupedListViewSetItemCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST UINT  iItemCount);

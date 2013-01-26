@@ -574,7 +574,7 @@ BOOL  insertCodeEditSuggestionAtCaret(CODE_EDIT_DATA*  pWindowData)
          insertCodeEditTextAtCaret(pWindowData, szOutput, TRUE);
 
          /*SUGGESTION_RESULT  xResult;
-         if (findObjectInAVLTreeByIndex(pSuggestion->pResultsTree, ListView_GetNextItem(pSuggestion->hCtrl, -1, LVNI_SELECTED WITH LVNI_ALL), xResult) AND xResult.asCommandSyntax->iID == CMD_SCRIPT_CALL)
+         if (findObjectInAVLTreeByIndex(pSuggestion->pResultsTree, ListView_GetNextItem(pSuggestion->hCtrl, -1, LVNI_SELECTED WITH LVNI_ALL), xResult) AND xResult.asCommandSyntax->iID == CMD_CALL_SCRIPT_VAR_ARGS)
          {
          }*/
       }

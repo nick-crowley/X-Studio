@@ -70,10 +70,11 @@ GAME_PAGE*  displayInsertPageDialog(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  p
 BOOL  initInsertPageDialog(PAGE_DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  hTooltip)
 {
    // Create tooltips
-   /*addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_NAME_EDIT);
-   addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_NAME_ICON);
-   addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_TYPE_COMBO);
-   addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_DESCRIPTION_EDIT);*/
+   addTooltipTextToControl(hTooltip, hDialog, IDC_PAGE_ID_EDIT);
+   addTooltipTextToControl(hTooltip, hDialog, IDC_PAGE_ID_ICON);
+   addTooltipTextToControl(hTooltip, hDialog, IDC_PAGE_TITLE_EDIT);
+   addTooltipTextToControl(hTooltip, hDialog, IDC_PAGE_DESCRIPTION_EDIT);
+   addTooltipTextToControl(hTooltip, hDialog, IDC_PAGE_VOICED_CHECK);
 
    /// [EDIT EXISTING] Display properties
    if (pDialogData->pEditPage)
@@ -132,7 +133,7 @@ BOOL  initInsertPageDialog(PAGE_DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  
 // 
 BOOL   onInsertPageDialogCommand(PAGE_DIALOG_DATA*  pDialogData, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl)
 {
-   GAME_PAGE*  pGamePage;          // Page being created
+   GAME_PAGE  *pGamePage;          // Page being created
    TCHAR      *szTitle,            // Title
               *szDescription;      // Description
    UINT        iPageID;            // Page ID
@@ -194,6 +195,7 @@ BOOL   onInsertPageDialogCommand(PAGE_DIALOG_DATA*  pDialogData, HWND  hDialog, 
 INT_PTR  dlgprocInsertPageDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PAGE_DIALOG_DATA*  pDialogData = (PAGE_DIALOG_DATA*)GetWindowLong(hDialog, DWL_USER);   
+   static HWND        hTooltip    = NULL;
    BOOL               bResult     = FALSE;
 
    // Examine message
@@ -203,7 +205,12 @@ INT_PTR  dlgprocInsertPageDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
    case WM_INITDIALOG:
       // Store data + Init Dialog
       SetWindowLong(hDialog, DWL_USER, lParam);
-      bResult = initInsertPageDialog((PAGE_DIALOG_DATA*)lParam, hDialog, NULL);
+      bResult = initInsertPageDialog((PAGE_DIALOG_DATA*)lParam, hDialog, hTooltip = createTooltipWindow(hDialog));
+      break;
+
+   /// [DESTROY] Destroy Tooltip
+   case WM_DESTROY:
+      utilDeleteWindow(hTooltip);
       break;
 
    /// [COMMAND PROCESSING] -- Process name change, OK and CANCEL

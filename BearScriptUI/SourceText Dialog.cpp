@@ -70,11 +70,8 @@ BOOL  displaySourceTextDialog(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pTarg
 BOOL  initSourceTextDialog(DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  hTooltip)
 {
    // Create tooltips
-   /*addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_NAME_EDIT);
-   addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_NAME_ICON);
-   addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_TYPE_COMBO);
-   addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_DESCRIPTION_EDIT);*/
-
+   addTooltipTextToControl(hTooltip, hDialog, IDC_SOURCE_EDIT);
+   
    /// Display source text  (and de-select it)
    SetDlgItemText(hDialog, IDC_SOURCE_EDIT, pDialogData->pGameString->szText);
    SubclassWindow(GetDlgItem(hDialog, IDC_SOURCE_EDIT), wndprocCustomRichEditControl);
@@ -148,6 +145,7 @@ BOOL   onSourceTextDialogCommand(DIALOG_DATA*  pDialogData, HWND  hDialog, CONST
 INT_PTR  dlgprocSourceTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    DIALOG_DATA*  pDialogData = (DIALOG_DATA*)GetWindowLong(hDialog, DWL_USER);   
+   static HWND   hTooltip    = NULL;
    BOOL          bResult     = FALSE;
 
    // Examine message
@@ -157,7 +155,12 @@ INT_PTR  dlgprocSourceTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
    case WM_INITDIALOG:
       // Store data + Init Dialog
       SetWindowLong(hDialog, DWL_USER, lParam);
-      bResult = initSourceTextDialog((DIALOG_DATA*)lParam, hDialog, NULL);
+      bResult = initSourceTextDialog((DIALOG_DATA*)lParam, hDialog, hTooltip = createTooltipWindow(hDialog));
+      break;
+
+   /// [DESTRUCTION] Cleanup
+   case WM_DESTROY:
+      utilDeleteWindow(hTooltip);
       break;
 
    /// [COMMAND PROCESSING] -- Process OK / CANCEL

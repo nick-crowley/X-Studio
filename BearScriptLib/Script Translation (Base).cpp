@@ -314,7 +314,7 @@ BOOL  calculateParameterSyntaxByIndex(CONST COMMAND*  pCommand, CONST UINT  iPar
       eOutput = PS_EXPRESSION;
 
    /// [SCRIPT CALL] Use the 'PARAMETER' syntax to indicate script-call arguments
-   else if (isCommandID(pCommand, CMD_SCRIPT_CALL) AND iParameterIndex > 2)
+   else if (isCommandID(pCommand, CMD_CALL_SCRIPT_VAR_ARGS) AND iParameterIndex > 2)
       eOutput = PS_PARAMETER;
 
    /// [DELAYED COMMAND] Return FALSE, thereby aborting parsing without causing an error
@@ -350,46 +350,20 @@ BOOL  calculateParameterSyntaxByIndex(CONST COMMAND*  pCommand, CONST UINT  iPar
 // Return Value   : New string containing the target script file path (as .pck) if found, otherwise NULL. You are responsible for destroying it
 // 
 BearScriptAPI 
-TCHAR*  calculateScriptCallTargetFilePath(CONST TCHAR*  szScriptCallFilePath, CONST COMMAND*  pScriptCallCommand)
+TCHAR*  calculateScriptCallTargetFilePath(CONST TCHAR*  szCallerPath, CONST COMMAND*  pScriptCall)
 {
-   PARAMETER*  pTargetScriptName;   // PARAMETER of the input COMMAND containing the script name
+   PARAMETER*  pTargetScript;   // PARAMETER of the input COMMAND containing the script name
    TCHAR*      szOutput;            // New string containing the script name, if found
 
    // Prepare
-   pTargetScriptName = NULL;
-   szOutput          = NULL;
-
-   /// Extract the script name PARAMETER from the input COMMAND
-   switch (pScriptCallCommand->iID)
-   {
-   // [SCRIPT-CALL] Script name stored as parameter zero
-   case CMD_SCRIPT_CALL:                 // "$1 $2 call script $0 :"
-      findParameterInCommandByIndex(pScriptCallCommand, PT_DEFAULT, 0, pTargetScriptName);
-      break;
-
-   // [INTERRUPT-WITH-SCRIPT or TASK] Script name stored as parameter one
-   case CMD_INTERRUPT_SCRIPT:            // "$0 interrupt with script $1 and prio $2"
-   case CMD_INTERRUPT_SCRIPT_PRIORITY:   // "$0 interrupt with script $1 and prio $2: arg1=$3 arg2=$4 arg3=$5 arg4=$6"
-   case CMD_INTERRUPT_TASK:              // "$0 interrupt task $2 with script $1 and prio $3: arg1=$4 arg2=$5 arg3=$6 arg4=$7"
-   case CMD_START_TASK:                  // "$0 start task $2 with script $1 and prio $3: arg1=$4 arg2=$5 arg3=$6 arg4=$7 arg5=$8"
-      findParameterInCommandByIndex(pScriptCallCommand, PT_DEFAULT, 1, pTargetScriptName);  
-      break;
-
-   // [START or CALL NAMED SCRIPT] Script name is stored as parameter two
-   case CMD_CALL_NAMED_SCRIPT:           // "$1 $0 call named script: script=$2, $3, $4, $5, $6, $7"
-   case CMD_START_NAMED_SCRIPT:          // "$0 start named script: task=$1 scriptname=$2 prio=$3, $4, $5, $6, $7, $8"
-      findParameterInCommandByIndex(pScriptCallCommand, PT_DEFAULT, 2, pTargetScriptName);  
-      break;
-   }
+   szOutput = NULL;
 
    /// [FOUND] Extract the script name from the PARAMETER and assemble with calling script folder
-   if (pTargetScriptName AND pTargetScriptName->eType == DT_STRING)
+   if (findScriptCallParameterInCommand(pScriptCall, pTargetScript) AND pTargetScript->eType == DT_STRING)
    {
-      // Create path containing only the calling script folder
-      szOutput = utilDuplicateFolderPath(szScriptCallFilePath);
-
-      // Append target script name as .PCK
-      utilStringCchCatf(szOutput, MAX_PATH, TEXT("%s.pck"), pTargetScriptName->szValue);
+      // Generate Folder + Filename + .PCK
+      szOutput = utilDuplicateFolderPath(szCallerPath);
+      utilStringCchCatf(szOutput, MAX_PATH, TEXT("%s.pck"), pTargetScript->szValue);
    }
 
    // Return script name if found, otherwise NULL
@@ -474,6 +448,54 @@ BOOL  convertLabelNumberParameterToLabel(CONST COMMAND_NODE*  pCommandNode, COMM
    
    // Return TRUE if there were no errors
    return (pError == NULL);
+}
+
+
+/// Function name  : findGameStringDependency
+// Description     : Retrieves the first available GameString dependency from a Command
+// 
+// CONST COMMAND*  pCommand : [in]  COMMAND containing a command that references a game string
+// GAME_STRING*   &pOutput  : [out] GameString if found, otherwise NULL
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BearScriptAPI
+BOOL  findGameStringDependency(CONST COMMAND*  pCommand, GAME_STRING*  &pOutput)
+{
+   GAME_STRING_REF *pReference;         // Current Ref
+   LIST            *pReferenceList;     // COMMAND's GameString references
+   INT              iPageID,            // Current Ref PageID
+                    iStringID;          // Current Ref StringID
+
+   // Prepare
+   pOutput = NULL;
+
+   /// Lookup the Parameter Indicies containing PageID/StringID
+   if (pReferenceList = generateParameterGameStringRefs(pCommand))
+   {
+      // Iterate through the references (Abort on errors)
+      for (UINT  iIndex = 0; findListObjectByIndex(pReferenceList, iIndex, (LPARAM&)pReference); iIndex++)
+      {
+         // Locate the PARAMETERS
+         if (!findIntegerParameterInCommandByIndex(pCommand, pReference->iPageParameterIndex, iPageID) OR
+             !findIntegerParameterInCommandByIndex(pCommand, pReference->iStringParameterIndex, iStringID))
+             continue;
+
+         // [CHECK] Abort if both are zero, this often happens in commands with multiple references
+         if (iPageID == 0 AND iStringID == 0)
+            continue;
+
+         /// Return the first GameString found
+         if (findGameStringByID(iStringID, iPageID, pOutput))
+            break;
+      }
+
+      // Cleanup
+      deleteList(pReferenceList);
+   }
+
+   // Return TRUE if found
+   return (pOutput != NULL);
 }
 
 
@@ -573,60 +595,6 @@ BOOL  findNextCommandComponent(COMMAND_COMPONENT*  pCommandComponent)
    
    // Update current component and return TRUE
    return TRUE;
-}
-
-
-/// Function name  : isGameStringDependencyPresent
-// Description     : Determines whether the GameString referenced by a COMMAND exists within the game data
-// 
-// CONST COMMAND*  pCommand : [in]  COMMAND containing a command that references a game string
-// ERROR_STACK*   &pError   : [out] New error if any, otherwise NULL
-// 
-// Return Value   : TRUE if found (or it cannot be determined), FALSE otherwise
-// 
-BearScriptAPI
-BOOL  isGameStringDependencyPresent(CONST COMMAND*  pCommand, ERROR_STACK*  &pError)
-{
-   GAME_STRING_REFERENCE *pReference;         // COMMAND's GameString references
-   LIST                  *pReferenceList;
-   PARAMETER             *pPageParameter,     // Parameter containing the page ID
-                         *pStringParameter;   // Parameter containing the string ID
-   GAME_STRING           *pTargetString;      // Dummy GameString for testing retrieval
-
-   // Prepare
-   pError = NULL;
-
-   /// Lookup the COMMAND's Page and String parameter indicies
-   if (pReferenceList = generateCommandGameStringReferences(pCommand))
-   {
-      // Iterate through the references (Abort on errors)
-      for (UINT  iIndex = 0; !pError AND findListObjectByIndex(pReferenceList, iIndex, (LPARAM&)pReference); iIndex++)
-      {
-         /// Locate the PARAMETERS
-         if (!findParameterInCommandByIndex(pCommand, PT_DEFAULT, pReference->iPageParameterIndex, pPageParameter) OR
-             !findParameterInCommandByIndex(pCommand, PT_DEFAULT, pReference->iStringParameterIndex, pStringParameter))
-             continue;
-      
-         // [CHECK] Abort if either of the parameters isn't an integer
-         if (pPageParameter->eType != DT_INTEGER OR pStringParameter->eType != DT_INTEGER)
-            continue;
-
-         // [CHECK] Abort if both are zero, this often happens in commands with multiple references
-         if (pPageParameter->iValue == NULL AND pStringParameter->iValue == NULL)
-            continue;
-
-         /// Lookup the specified GameString
-         if (!findGameStringByID(pStringParameter->iValue, pPageParameter->iValue, pTargetString))
-            // [WARNING] "Cannot find the GameString %u:%u referenced by the command '%s' on line %u"
-            pError = generateDualWarning(HERE(IDS_TRANSLATION_GAME_STRING_REFERENCE_NOT_FOUND), pPageParameter->iValue, pStringParameter->iValue, pCommand->szBuffer, pCommand->iLineNumber);
-      }
-
-      // Cleanup
-      deleteList(pReferenceList);
-   }
-
-   // Return TRUE if there were no errors
-   return (pError == NULL);
 }
 
 
@@ -963,6 +931,56 @@ BOOL  performScriptValueConversion(SCRIPT_FILE*  pScriptFile, CONST PARAMETER*  
          pError = generateDualError(HERE(IDS_TRANSLATION_DATATYPE_UNSUPPORTED), pParameterType ? pParameterType->szText : TEXT("unknown"));
          break;
       }
+   }
+
+   // Return TRUE if there were no errors
+   return (pError == NULL);
+}
+
+
+/// Function name  : verifyGameStringDependencies
+// Description     : Generates a warning for every missing GameString dependency
+// 
+// CONST COMMAND*  pCommand    : [in]     COMMAND containing a command that references a game string
+// ERROR_QUEUE*    pErrorQueue : [in/out] New error if any, otherwise NULL
+// 
+// Return Value   : TRUE if all are present, otherwise FALSE
+// 
+BOOL  verifyGameStringDependencies(COMMAND*  pCommand, ERROR_QUEUE*  pErrorQueue)
+{
+   GAME_STRING_REF *pReference;         // COMMAND's GameString references
+   ERROR_STACK     *pError = NULL;
+   GAME_STRING     *pTargetString;      // Dummy GameString for testing retrieval
+   LIST            *pReferenceList;     // Reference list
+   INT              iPageID,
+                    iStringID;
+
+   /// Lookup the COMMAND's Page and String parameter indicies
+   if (pReferenceList = generateParameterGameStringRefs(pCommand))
+   {
+      // Iterate through the references
+      for (UINT  iIndex = 0; findListObjectByIndex(pReferenceList, iIndex, (LPARAM&)pReference); iIndex++)
+      {
+         /// Locate the PARAMETERS
+         if (!findIntegerParameterInCommandByIndex(pCommand, pReference->iPageParameterIndex, iPageID) OR
+             !findIntegerParameterInCommandByIndex(pCommand, pReference->iStringParameterIndex, iStringID))
+             continue;
+
+         // [CHECK] Abort if both are zero, this often happens in commands with multiple references
+         if (iPageID == 0 AND iStringID == 0)
+            continue;
+
+         /// [CHECK] Lookup the specified GameString
+         if (!findGameStringByID(iStringID, iPageID, pTargetString))
+         {
+            // [WARNING] "Cannot find the GameString %u:%u referenced by the command '%s' on line %u"
+            pError = generateDualWarning(HERE(IDS_TRANSLATION_GAME_STRING_REFERENCE_NOT_FOUND), iPageID, iStringID, pCommand->szBuffer, pCommand->iLineNumber);
+            pushCommandAndOutputQueues(pError, pErrorQueue, pCommand->pErrorQueue, ET_WARNING);
+         }
+      }
+
+      // Cleanup
+      deleteList(pReferenceList);
    }
 
    // Return TRUE if there were no errors

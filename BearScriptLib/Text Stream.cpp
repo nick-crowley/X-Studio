@@ -33,7 +33,7 @@ TEXT_STREAM*  createTextStream(CONST UINT  iInitialSize)
 
    // Set properties
    pTextStream->szBuffer        = utilCreateEmptyString(iInitialSize);
-   pTextStream->szAssembledText = utilCreateEmptyString(4096);
+   pTextStream->szAssembledText = utilCreateEmptyString(MAX_STRING);
    pTextStream->iBufferSize     = iInitialSize;
 
    // Return object
@@ -76,9 +76,32 @@ TCHAR*  getTextStreamBuffer(CONST TEXT_STREAM*  pTextStream)
 ///                                          FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : appendStringToTextStream
+// Description     : Appends a string to a TextStream object
+//
+// TEXT_STREAM*  pTextStream : [in/out] TextStream to append
+// CONST TCHAR*  szText      : [in]     Text
+// 
+VOID  appendStringToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR*  szText)
+{
+   // Extend stream if buffer more than 85% full
+   if (pTextStream->iBufferUsed > utilCalculatePercentage(pTextStream->iBufferSize, 85))
+   {
+      pTextStream->iBufferSize *= 2;
+      pTextStream->szBuffer = utilExtendString(pTextStream->szBuffer, pTextStream->iBufferUsed, pTextStream->iBufferSize);
+   }
+
+   /// Append input text to existing buffer
+   StringCchCopy(getTextStreamBuffer(pTextStream), pTextStream->iBufferSize - pTextStream->iBufferUsed, szText);
+
+   // Increment current position
+   pTextStream->iBufferUsed += lstrlen(szText);
+}
+
+
 /// Function name  : appendStringToTextStreamf
 // Description     : Appends a formatted string to a TextStream object
-///                                             NB: New strings are limited to an expanded size of 4096 characters
+///                                             NB: New strings are limited to an expanded size of MAX_STRING characters
 // 
 // TEXT_STREAM*  pTextStream : [in/out]       TextStream to append
 // CONST TCHAR*  szFormat    : [in]           Printf-style formatting string
@@ -92,7 +115,7 @@ VOID  appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szForma
    pArguments = utilGetFirstVariableArgument(&szFormat);
 
    /// Assemble input text
-   StringCchVPrintf(pTextStream->szAssembledText, 4096, szFormat, pArguments);
+   StringCchVPrintf(pTextStream->szAssembledText, MAX_STRING, szFormat, pArguments);
 
    // Extend stream if buffer more than 85% full
    if (pTextStream->iBufferUsed > utilCalculatePercentage(pTextStream->iBufferSize, 85))
@@ -111,7 +134,7 @@ VOID  appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szForma
 
 /// Function name  : appendCharToTextStream
 // Description     : Appends a character to a TextStream object
-///                                             NB: New strings are limited to an expanded size of 4096 characters
+///                                             NB: New strings are limited to an expanded size of MAX_STRING characters
 // 
 // TEXT_STREAM*  pTextStream : [in/out] TextStream to be appended
 // CONST TCHAR   chCharacter : [in]     Character to append

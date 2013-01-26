@@ -105,7 +105,7 @@ DOCUMENT_OPERATION*   createDocumentOperationData(CONST OPERATION_TYPE  eOperati
       break;
 
    case OT_SAVE_LANGUAGE_FILE: 
-      TODO("Define save language file stages");   
+      addStageToOperationProgress(pOperationData->pProgress, IDS_PROGRESS_GENERATING_LANGUAGE);
       break;  
    }
    

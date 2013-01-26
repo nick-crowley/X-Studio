@@ -768,7 +768,7 @@ PARAMETER_NODE_TYPE  identifyParameterNodeType(CONST COMMAND*  pCommand, CONST P
       break;
 
    /// [SCRIPT CALL] ScriptName, ReturnObject, ReferenceObject, Argument Count, Argument 0, ... , Argument n
-   case CMD_SCRIPT_CALL:
+   case CMD_CALL_SCRIPT_VAR_ARGS:
       /// [COMMAND COMMENT SCRIPT-CALLS] These have the 'associated command' and 'base command ID' nodes, thereby offsetting each index by two
       if (pCommand->iFlags INCLUDES CT_CMD_COMMENT)
          switch (iNodeIndex)
@@ -889,7 +889,7 @@ BOOL  verifyCommandChildNodeCount(COMMAND*  pCommand, CONST UINT  iChildNodes, E
    {
    /// [EXPRESSION / SCRIPT CALL] Can't calculate the appropriate number of nodes for these
    case CMD_EXPRESSION:
-   case CMD_SCRIPT_CALL:
+   case CMD_CALL_SCRIPT_VAR_ARGS:
       return TRUE;
 
    /// [DELAYED COMMAND] Manually check the appropriate counts - two variations

@@ -7,6 +7,28 @@
 
 #include "stdafx.h"
 
+
+// Creation / Destruction
+NEW_DOCUMENT_DATA*  createInsertDocumentDialogData();
+
+// Helpers
+NEW_DOCUMENT_DATA*  getInsertDocumentDialogData(HWND  hDialog);
+
+// Functions
+VOID                updateInsertDocumentDialog(NEW_DOCUMENT_DATA*  pDialogData);
+BOOL                initInsertDocumentDialog(NEW_DOCUMENT_DATA*  pDialogData, HWND  hDialog);
+
+// Message Handlers
+BOOL     onInsertDocumentDialog_Command(NEW_DOCUMENT_DATA*  pDialogData, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
+VOID     onInsertDocumentDialog_DoubleClick(NEW_DOCUMENT_DATA*  pDialogData, NMITEMACTIVATE*  pMessage);
+BOOL     onInsertDocumentDialog_Notify(NEW_DOCUMENT_DATA*  pDialogData, NMHDR*  pMessage);
+VOID     onInsertDocumentDialog_OK(NEW_DOCUMENT_DATA*  pDialogData);
+VOID     onInsertDocumentDialog_RequestData(NEW_DOCUMENT_DATA*  pDialogData, NMLVDISPINFO*  pHeader);
+VOID     onInsertDocumentDialog_SelectionChange(NEW_DOCUMENT_DATA*  pDialogData, NMLISTVIEW*  pListView);
+
+// Window procedure
+INT_PTR  dlgprocInsertDocumentDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       CONSTANTS / GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,10 +193,11 @@ VOID   updateInsertDocumentDialog(NEW_DOCUMENT_DATA*  pDialogData)
    // Examine selection
    switch (ListView_GetNextItem(pDialogData->hListView, -1, LVNI_SELECTED))
    {
-   /// [SCRIPT/PROJECT] Allow
+   /// [SCRIPT/LANGUAGE/PROJECT] Allow
    case NDT_PROJECT:
+   case NDT_LANGUAGE:
    case NDT_SCRIPT:     bOKEnabled = TRUE;  break;
-   /// [REMAINDER] Deny
+   /// [MISSION] Deny
    default:             bOKEnabled = FALSE; break;
    }
    

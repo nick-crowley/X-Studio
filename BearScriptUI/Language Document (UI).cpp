@@ -17,6 +17,8 @@
 #define    ListView_UnSelectAll(hCtrl)         ListView_SetItemState(hCtrl, -1, NULL, LVIS_SELECTED)
 #define    ListView_SelectItem(hCtrl, iItem)   ListView_SetItemState(hCtrl, iItem, LVIS_SELECTED, LVIS_SELECTED)
 
+enum  ResolveOperation  { ResolvePageIndex, ResolveStringIndex };
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +33,83 @@
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : displayLanguageDocumentGameString
+// Description     : Finds and selects the desired GameString
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// const GAME_STRING*  pString   : [in] String to display
+// 
+VOID  displayLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, const GAME_STRING*  pString)
+{
+   AVL_TREE_OPERATION*  pOperation;
+   GAME_STRING*         pConfirm;
+
+   // [CHECK] Abort if GameString isn't present
+   if (!findObjectInAVLTreeByValue(getLanguageDocumentGameStringTree(pDocument), pString->iPageID, pString->iID, (LPARAM&)pConfirm))
+      return;
+
+   // Prepare
+   pOperation              = createAVLTreeOperation(treeprocResolveGameStringIndex, ATT_PREORDER);
+   pOperation->xFirstInput = (LPARAM)pString;
+   pOperation->iFlags      = ResolvePageIndex;
+
+   /// Resolve ListView index of page
+   if (performOperationOnAVLTree(getLanguageDocumentGamePageTree(pDocument), pOperation))
+   {
+      // [OPTIONAL] Select input page
+      if (ListView_GetSelected(pDocument->hPageList) != pOperation->xOutput)
+      {
+         ListView_UnSelectAll(pDocument->hPageList);
+         ListView_SelectItem(pDocument->hPageList, pOperation->xOutput);
+         ListView_EnsureVisible(pDocument->hPageList, pOperation->xOutput, FALSE);
+      }
+
+      /// Resolve ListView index of string
+      pOperation->iFlags = ResolveStringIndex;
+      performOperationOnAVLTree(pDocument->pPageStringsByID, pOperation);
+
+      // [OPTIONAL] Deselect current string and select desired string
+      if (ListView_GetSelected(pDocument->hStringList) != pOperation->xOutput)
+      {
+         ListView_UnSelectAll(pDocument->hStringList);
+         ListView_SelectItem(pDocument->hStringList, pOperation->xOutput);
+         ListView_EnsureVisible(pDocument->hStringList, pOperation->xOutput, FALSE);
+      }
+   }
+
+   // Cleanup
+   deleteAVLTreeOperation(pOperation);
+}
+
+
+/// Function name  : treeprocResolveGameStringIndex
+// Description     : Locates the index of a specified GamePage or GameString
+// 
+// AVL_TREE_NODE*       pNode   : [in] Node containing a GameString or a GamePage
+// AVL_TREE_OPERATION*  pData   : [in] xFirstInput : GameString to locate
+//                                     iFlags      : ResolvePageIndex or ResolveStringIndex
+//                                     xOutput     : Node index
+// 
+VOID  treeprocResolveGameStringIndex(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData)
+{
+   GAME_STRING*  pTargetString = (GAME_STRING*)pData->xFirstInput; // extractPointerFromTreeNode(pNode, GAME_STRING);
+   BOOL          bMatch        = FALSE;
+   
+   // [PAGE] Compare GamePage node against target PageID
+   if (pData->iFlags == ResolvePageIndex)
+      bMatch = (extractPointerFromTreeNode(pNode, GAME_PAGE)->iPageID == pTargetString->iPageID);
+   // [STRING] Compare GameString node against target StringID
+   else
+      bMatch = (extractPointerFromTreeNode(pNode, GAME_STRING)->iID == pTargetString->iID);
+   
+   /// [MATCH] Return index and abort search
+   if (bMatch)
+   {
+      pData->xOutput     = pNode->iIndex;
+      pData->bResult     = TRUE;
+      pData->bProcessing = FALSE;
+   }
+}
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       HANDLERS
@@ -249,31 +328,41 @@ VOID  onLanguageDocument_InsertString(LANGUAGE_DOCUMENT*  pDocument, const UINT 
 // 
 VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected)
 {
+   INT  iLogicalItem;
+
    if (bSelected)
    {
-      // [CHECK] Ensure Page + PageStrings do not exist
-      ASSERT(!pDocument->pCurrentPage AND !pDocument->pPageStringsByID);
+      // [ITEM] Calculate item index 
+      if ((iLogicalItem = convertGroupedListViewPhysicalIndex(pDocument->hPageList, iItem)) != -1)
+      {
+         // [CHECK] Ensure Page + PageStrings do not exist
+         ASSERT(!pDocument->pCurrentPage AND !pDocument->pPageStringsByID);
 
-      // Generate strings for new page
-      findLanguageDocumentGamePageByIndex(pDocument, iItem, pDocument->pCurrentPage);
-      pDocument->pPageStringsByID = generateLanguagePageStringsTree(pDocument, pDocument->pCurrentPage);
+         // Generate strings for new page
+         findLanguageDocumentGamePageByIndex(pDocument, iLogicalItem, pDocument->pCurrentPage);
+         pDocument->pPageStringsByID = generateLanguagePageStringsTree(pDocument, pDocument->pCurrentPage);
 
-      /// Display contents + select first
-      ListView_SetItemCount(pDocument->hStringList, getTreeNodeCount(pDocument->pPageStringsByID));
-      ListView_SetItemState(pDocument->hStringList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+         /// Display contents + select first
+         ListView_SetItemCount(pDocument->hStringList, getTreeNodeCount(pDocument->pPageStringsByID));
+         ListView_SetItemState(pDocument->hStringList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+      }
+      //// [HEADING] Select next item
+      //else
+      //   ListView_SelectItem(pDocument->hPageList, GroupedListView_GetNextValidItem(pDocument->hPageList, iItem));
    }
    else
    {
-      // [CHECK] Ensure Page + PageStrings exist
-      ASSERT(pDocument->pCurrentPage AND pDocument->pPageStringsByID);
+      // [CHECK] Ensure user didn't de-select a heading
+      if (pDocument->pCurrentPage AND pDocument->pPageStringsByID)
+      {
+         // Deselect current string, if any
+         ListView_SetItemState(pDocument->hStringList, -1, NULL, LVIS_SELECTED);
+         ListView_SetItemCount(pDocument->hStringList, 0);
 
-      // Deselect current string, if any
-      ListView_SetItemState(pDocument->hStringList, -1, NULL, LVIS_SELECTED);
-      ListView_SetItemCount(pDocument->hStringList, 0);
-
-      // Delete existing page contents
-      deleteAVLTree(pDocument->pPageStringsByID);
-      pDocument->pCurrentPage = NULL;
+         // Delete existing page contents
+         deleteAVLTree(pDocument->pPageStringsByID);
+         pDocument->pCurrentPage = NULL;
+      }
    }
 }
 

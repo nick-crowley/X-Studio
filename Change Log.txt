@@ -2,111 +2,133 @@
 =                                                                   CHANGE LOG                                                                               =
 ==============================================================================================================================================================
 
+Beta IV : xx xxxxxxxxx 2013
+---------------------------------
+• Added Language file editor
+• Added feature request "Display the path of each document at all times"
+• Added feature request "Add a separate choice in windows explorer 'Open File' window for Project files"
+• Fixed BUG:041 - Cannot scroll the list of available new documents on some systems
+• Fixed BUG:042 - Some script call commands are not detected by the external script-call search
 
-Beta II : Update 1 - 7th May 2012
+===============================================================================================================================
+===============================================================================================================================
+
+Beta III (Update 13) : 12th October 2012
 ---------------------------------
 
-• Fixed BUG:003 - 'App crashes when displaying the preferences dialog (if running app for the first time)'
+• Added feature request "automatically supply script-call arguments for 'call script' command"
+• Added feature request 'manually displaying tutorial windows'
+• Added feature request 'case sensitive/insensitive text search'
+• Added recently used file list
+• Add keyboard shortcut Ctrl+Tab for switching between open documents
+• Completed help-file section on Projects / ProjectVariables
+• Updated help-file page on Adv. Loading options
+• Fixed BUG:040 - Find & Replace is case sensitive
 
-
-Beta II : Update 2 - 7th May 2012
+Beta III (Update 12) : 10th October 2012
 ---------------------------------
 
-• Fixed BUG:004 - 'App crashes during loading when 'loading language strings' is displayed'
+• Updated help-file with full list of commands that have been changed
+• Fixed BUG:039. Auto-completing macros sometimes appends instead of replaces the existing command
+• Fixed BUG:038. Cannot navigate through words in comments by holding control and using the arrow keys
+• Fixed BUG:037. Pressing ENTER for a newline in the 'submit correction' window submits the correction
+• Fixed BUG:036. You cannot open scripts that implement an unrecognised ship/station command
+• Fixed BUG:035. All scripts without a ship/station command are saved as implementing COMMAND_NONE
+• Fixed BUG:034. The first letter of comments is sometimes truncated after reloading scripts
+• Fixed BUG:033. Helper window caption titles are truncated on some systems
+• Fixed BUG:030. Illogical expressions are compiled instead of producing an error
 
-• Re-worked preferences so the game folder is validated on startup and the app-state actually means 'is game data loaded?'
-• Fixed some memory leaks in the enumeration of the virtual file system. Renamed file I/O functions for consistency
-• Added new decryption code to handle extracted PCKs as well as VFS ones. Hopefully that covers all required decryption
-• Changed the way game data is loaded so its more consistent with the proper rules of precedence  (Now loads only PCK files)
-	TODO: Load TXT or XML files as a fall-back when .PCKs are not found
-• By virtue of above, external script calls are now resolved into PCK files. XML files are always 'not found'.  (Opposite of previous functionality)
-
-
-Beta II : Update 3 - 9th May 2012
+Beta III (Update 11) : 7th October 2012
 ---------------------------------
 
-• Fixed BUG:005 - 'New script arguments are not actually created'
-• Fixed BUG:006 - 'Sometimes you cannot switch between documents'
-• Fixed BUG:007 - 'Variables switch places with each other after saving and loading a script'
+• Added list of commands that have been changed to the help file
+• Scripts using older incompatible commands now load successfully
+• Fixed BUG:1056 - Iterators within nested 'for each' macros are not unique
 
-• Changed method of entering the game folder in preferences dialog from edit controls to pre-populating ComboBoxes
-• Updated the preferences object to preserve workspace window ratios instead of floating window rectangles
-• Added command line switch -help : Displays available switches
-• Added command line switch -reset : Removes any saved program settings that are potentially causing errors
-• Added command line switch -verbose : Outputs lots of extra detail to the Console window and log
-• Changing arguments now marks the script as 'modified' and you will be prompted to save your changes when closing
-• You can no longer rename two arguments to have the same name
-• Changed the how argument and variable lists are maintained by the ScriptTranslator and ScriptGenerator so variables aren't given the wrong IDs during generation
-• The ScriptEdit now destroys generation data after every key-press to prevent the variable names list expanding to unmanageable size
-• Added basic exception handling to the threaded operations, they should now fail gracefully, although no useful information is provided and memory will be leaked
-• Added massive amounts of detail to the Console window/log when 'Verbose' mode is enabled
-• Temporarily enabled 'Verbose' mode by default to aid diagnosing problems on users' computers
-
-
-Beta II : Update 4 - 12th May 2012
+Beta III (Update 10) : 7th October 2012
 ---------------------------------
 
-• Fixed BUG:004 - 'App crashes during loading when 'loading language strings' is displayed'
-• Fixed BUG:008 - 'Loading an already opened script results in a multiple documents being created'
-• Fixed BUG:009 - 'Filtering the script object lists displays results from the wrong groups'
-• Fixed BUG:010 - 'An apostrophe is appended to all strings when scripts are saved'
+• Added option to export all files in a project to a specific folder
+• Added 'replace' functionality to Find & Replace text
+• Add a 'goto label' context menu item to the MSCI editor
+• Added ability to define custom commands using an external file for Jack08
+• Missing script properties, commonly found in scripts written with ESCE editor, are now read from the <codearray> section
+• ID of commands overridden by language files is displayed on load
+• Missing project files are searched for in the folder containing the .xprj file
+• Subroutine code is now indented (experimental)
+• Added option to use windows explorer Open File dialog instead of the catalogue browser
+• Fixed BUG:1050 - And access violation occurs if you use an 'if' without a matching 'end'
+• Fixed BUG:029 - Web-browser XML becomes corrupted when nesting more than 10 'if' statements, preventing you from re-opening the script
+• Fixed BUG:031 - Backspacing while displaying suggestions may cause an access violation
+• Fixed BUG:1053 - Can't load scripts with empty descriptions or arguments
+• Fixed BUG:1054 - Can't use 'dim' macro with numbers, strings or objects
 
-• Game data can now be loaded in multiple languages
-• Game data is now loaded in the same order as the game: extracted PCK files -> PCK files in catalogues -> extracted TXT/XML files
-• The search window only lists the commands/ScriptObjects that are compatible with the current script
-• Cleaned up the loading of supplementary language files: 0002 is no longer skipped, warnings about strings being overwritten are suppressed for Egosoft files
-• Script properties now shows the command it is overriding, if any
-• Compilation output window and search results window sizes are now properly saved
-• Correct version is displayed in the OpenFiles dialog
-• Warnings are now produced during load/save if script commands that are incompatible with the EngineVersion are used
-
-Beta II : Update 5 - 27th May 2012
+Beta III (Update 8 ) : 23rd September 2012
 ---------------------------------
 
-• Fixed BUG:011 - 'If you press RETURN twice in a script, it automatically inserts the first auto-complete entry'
+• Fixed BUG:027 An access violation may occur if you try to use skip-if on a command directly beneath another skip-if
+• Fixed BUG:028 A warning is not produced when you use variables without assigning them first
 
-• Added support for X3:AP
-• Added support for commands from older versions that were changed or deleted
-• Added support for custom game data in object type definition files
-• Added very limited protection against access violations and debugging assertions
-• Re-organised errors in the output window into a hierarchy
-• Reduced the number of messages produced when loading supplementary language files
-• Added stage descriptions to operations in the output window
-• Added a game version icon to ScriptObjects in the search window
-• Added a status bar indicator showing the version of the game data currently loaded
-• Ensured command syntax will now load properly irrellevant of the game data version
-
-Beta II : Update 6 - 28th May 2012
+Beta III (Update 7) : 21st September 2012
 ---------------------------------
 
-• Fixed BUG:012 - 'An access violation occurs if a matching string is not found for the name of ware, missile, laser or shield'
-• Fixed BUG:013 - 'XML tags cannot be placed inside comments in any XML file'
+• Added 'Show Compatible' checkbox to search dialog
+• Added font name/size preview to preferences window
+• Fixed drawing code for older systems without windows themes
+• Fixed BUG:025 Copy/paste and undo/redo corrupts scripts by inserting hundreds of extra lines
+• Fixed BUG:026 Access violations during compilation prevent you continuing to edit the script
 
-
-Beta II : Update 7 - 30th May 2012
+Beta III (Update 6) : 19th September 2012
 ---------------------------------
 
-• Fixed BUG:014  - 'Empty string entries in supplementary language files produce a warning and are not processed'
-• Fixed BUG:015  - 'Albion Prelude scripts with the new <sourceplaintext> tag cannot be not loaded'
-• Fixed BUG:016  - 'Scrolling the mouse wheel very fast causes the script editor to 'jump''
-• Fixed BUG:1018 - 'Errors produced by findNextXMLToken() don't have a Line number in any of the messages'
-• Fixed BUG:1019 - 'All Terran Conflict game catalouges are processed in Albion Prelude mode, instead of only the first 13'
-• Fixed BUG:1020 - 'The codeEdit only displays a 3 digit line number, instead of 4 digit'
-• Fixed BUG:1021 - 'Script dependencies ListView has an incorrect column name - second column should be "Call Count" or similar'
-• Fixed BUG:1024 - 'An access violation occurs when loading Jack08's supplementary language file '7212-L044.xml''
-• Fixed BUG:1025 - 'Strange symbols are being appended to the input buffers of supplementary language files'
-• Fixed BUG:1027 - 'Unable to resolve the name of SPARE_LASER_1 and SPARE_LASER_2'
-• Fixed BUG:1028 - 'Unable to resolve the game data version even executable is present'
-• Fixed BUG:1029 - 'Missing external scripts and any translation errors they created are not displayed in the CodeEdit after loading'
-• Fixed BUG:1030 - 'CodeEdit context menu item 'View Error' has the wrong icon and doesn't be reflect severity of the actual error'
-• Fixed BUG:1031 - 'Progress dialog is not centering itself within main window'
-• Fixed BUG:1032 - 'The filename in the output dialog and VERBOSE doesn't always reflect the alternate extension of the file, if that was loaded instead'
+• Increase speed of OpenFile dialog when only displaying .xml scripts and project files
+• Merged Close/Save/SaveAs menu items for documents and projects, they now act upon whichever is currently selected
+• Added option to insert all open documents into the current project
+• Fixed missing status bar explanations for many menu items, and some tooltips for controls in the properties window
+• No longer have to manually close current project to start/open another
+• Fixed BUG 023: An access violation occurs when you attempt to comment an empty line
+• Fixed BUG 024: An access violation occurs if you remove script arguments
+• 6 internal bug fixes
 
-• Added support for loading scripts via drag n drop
-• Added ability to load script dependencies via the script properties window
-• Script objects loaded from modded content now have a unique icon
-• Added new stage to represent generating ScriptObjects
-• Added an extra check to translateLanguageOrSpeechFile() to detect inappropriate tags, such as strings outside of pages
+Beta III (Update 5) - 18 September 2012
+---------------------------------
+
+• Added 'Undo/Redo' to script editor
+• Added wildcard pattern matching to OpenFile dialog, * and ? are supported.
+• Changed loading order to: loose .pck -> loose.txt/.xml -> catalogue .pck -> catalogue .txt/.xml
+• Added project variables: displays strings used in scripts even if you store the page ID in a global variable
+• Partially updated the help file, press F1 to jump to relevant pages. ScriptEditor, Preferences, Properties done.
+• Fixed keyboard shortcuts all over the program
+• New Documents now display 'SaveAs' and 'Would you like to save?' as you would expect
+• Fixed lots of problems with Windows XP
+
+Beta III (Update 4) - 13 September 2012
+---------------------------------
+
+• Added 'Find Text' function
+• Fixed BUG 022: Text selection is lost when you right-click
+
+Beta III (Update 3) - 6 September 2012
+---------------------------------
+
+• Added options to disabling auto-complete
+• Added more error checking during program load
+• Fixed BUG 019: New arguments were not created
+• Fixed BUG 020: Using a number for the label name causes an exception
+
+Beta III (Update 2) - 3 September 2012
+---------------------------------
+
+• Tried to fix bugs for DrBullwinkle, AndrewWilde and JoelR
+
+Beta III (Update 1) - 2 September 2012
+---------------------------------
+
+• Prices of (most) GameObjects are now displayed in tooltips
+• Added a few more tutorial windows
+• Added option to cancel when closing unsaved documents
+• Added lots of missing error message titles
+• Fixed BUG 018 : 'Auto-complete deletes the entire line when inserting a command' 
 
 Beta III - 31st August 2012
 ---------------------------------
@@ -152,3 +174,116 @@ Beta III - 31st August 2012
 • Unified all icons in the application from multiple ImageLists into two ImageTrees
 
 • Lots of internal fixes
+
+===============================================================================================================================
+===============================================================================================================================
+
+Beta II : Update 7 - 30th May 2012
+---------------------------------
+
+• Fixed BUG:014  - 'Empty string entries in supplementary language files produce a warning and are not processed'
+• Fixed BUG:015  - 'Albion Prelude scripts with the new <sourceplaintext> tag cannot be not loaded'
+• Fixed BUG:016  - 'Scrolling the mouse wheel very fast causes the script editor to 'jump''
+• Fixed BUG:1018 - 'Errors produced by findNextXMLToken() don't have a Line number in any of the messages'
+• Fixed BUG:1019 - 'All Terran Conflict game catalouges are processed in Albion Prelude mode, instead of only the first 13'
+• Fixed BUG:1020 - 'The codeEdit only displays a 3 digit line number, instead of 4 digit'
+• Fixed BUG:1021 - 'Script dependencies ListView has an incorrect column name - second column should be "Call Count" or similar'
+• Fixed BUG:1024 - 'An access violation occurs when loading Jack08's supplementary language file '7212-L044.xml''
+• Fixed BUG:1025 - 'Strange symbols are being appended to the input buffers of supplementary language files'
+• Fixed BUG:1027 - 'Unable to resolve the name of SPARE_LASER_1 and SPARE_LASER_2'
+• Fixed BUG:1028 - 'Unable to resolve the game data version even executable is present'
+• Fixed BUG:1029 - 'Missing external scripts and any translation errors they created are not displayed in the CodeEdit after loading'
+• Fixed BUG:1030 - 'CodeEdit context menu item 'View Error' has the wrong icon and doesn't be reflect severity of the actual error'
+• Fixed BUG:1031 - 'Progress dialog is not centering itself within main window'
+• Fixed BUG:1032 - 'The filename in the output dialog and VERBOSE doesn't always reflect the alternate extension of the file, if that was loaded instead'
+
+• Added support for loading scripts via drag n drop
+• Added ability to load script dependencies via the script properties window
+• Script objects loaded from modded content now have a unique icon
+• Added new stage to represent generating ScriptObjects
+• Added an extra check to translateLanguageOrSpeechFile() to detect inappropriate tags, such as strings outside of pages
+
+Beta II : Update 6 - 28th May 2012
+---------------------------------
+
+• Fixed BUG:012 - 'An access violation occurs if a matching string is not found for the name of ware, missile, laser or shield'
+• Fixed BUG:013 - 'XML tags cannot be placed inside comments in any XML file'
+
+Beta II : Update 5 - 27th May 2012
+---------------------------------
+
+• Fixed BUG:011 - 'If you press RETURN twice in a script, it automatically inserts the first auto-complete entry'
+
+• Added support for X3:AP
+• Added support for commands from older versions that were changed or deleted
+• Added support for custom game data in object type definition files
+• Added very limited protection against access violations and debugging assertions
+• Re-organised errors in the output window into a hierarchy
+• Reduced the number of messages produced when loading supplementary language files
+• Added stage descriptions to operations in the output window
+• Added a game version icon to ScriptObjects in the search window
+• Added a status bar indicator showing the version of the game data currently loaded
+• Ensured command syntax will now load properly irrellevant of the game data version
+
+Beta II : Update 4 - 12th May 2012
+---------------------------------
+
+• Fixed BUG:004 - 'App crashes during loading when 'loading language strings' is displayed'
+• Fixed BUG:008 - 'Loading an already opened script results in a multiple documents being created'
+• Fixed BUG:009 - 'Filtering the script object lists displays results from the wrong groups'
+• Fixed BUG:010 - 'An apostrophe is appended to all strings when scripts are saved'
+
+• Game data can now be loaded in multiple languages
+• Game data is now loaded in the same order as the game: extracted PCK files -> PCK files in catalogues -> extracted TXT/XML files
+• The search window only lists the commands/ScriptObjects that are compatible with the current script
+• Cleaned up the loading of supplementary language files: 0002 is no longer skipped, warnings about strings being overwritten are suppressed for Egosoft files
+• Script properties now shows the command it is overriding, if any
+• Compilation output window and search results window sizes are now properly saved
+• Correct version is displayed in the OpenFiles dialog
+• Warnings are now produced during load/save if script commands that are incompatible with the EngineVersion are used
+
+
+Beta II : Update 3 - 9th May 2012
+---------------------------------
+
+• Fixed BUG:005 - 'New script arguments are not actually created'
+• Fixed BUG:006 - 'Sometimes you cannot switch between documents'
+• Fixed BUG:007 - 'Variables switch places with each other after saving and loading a script'
+
+• Changed method of entering the game folder in preferences dialog from edit controls to pre-populating ComboBoxes
+• Updated the preferences object to preserve workspace window ratios instead of floating window rectangles
+• Added command line switch -help : Displays available switches
+• Added command line switch -reset : Removes any saved program settings that are potentially causing errors
+• Added command line switch -verbose : Outputs lots of extra detail to the Console window and log
+• Changing arguments now marks the script as 'modified' and you will be prompted to save your changes when closing
+• You can no longer rename two arguments to have the same name
+• Changed the how argument and variable lists are maintained by the ScriptTranslator and ScriptGenerator so variables aren't given the wrong IDs during generation
+• The ScriptEdit now destroys generation data after every key-press to prevent the variable names list expanding to unmanageable size
+• Added basic exception handling to the threaded operations, they should now fail gracefully, although no useful information is provided and memory will be leaked
+• Added massive amounts of detail to the Console window/log when 'Verbose' mode is enabled
+• Temporarily enabled 'Verbose' mode by default to aid diagnosing problems on users' computers
+
+
+Beta II : Update 2 - 7th May 2012
+---------------------------------
+
+• Fixed BUG:004 - 'App crashes during loading when 'loading language strings' is displayed'
+
+• Re-worked preferences so the game folder is validated on startup and the app-state actually means 'is game data loaded?'
+• Fixed some memory leaks in the enumeration of the virtual file system. Renamed file I/O functions for consistency
+• Added new decryption code to handle extracted PCKs as well as VFS ones. Hopefully that covers all required decryption
+• Changed the way game data is loaded so its more consistent with the proper rules of precedence  (Now loads only PCK files)
+	TODO: Load TXT or XML files as a fall-back when .PCKs are not found
+• By virtue of above, external script calls are now resolved into PCK files. XML files are always 'not found'.  (Opposite of previous functionality)
+
+===============================================================================================================================
+===============================================================================================================================
+
+Beta II : Update 1 - 7th May 2012
+---------------------------------
+
+• Fixed BUG:003 - 'App crashes when displaying the preferences dialog (if running app for the first time)'
+
+
+
+
