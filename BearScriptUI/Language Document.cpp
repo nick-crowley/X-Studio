@@ -711,7 +711,7 @@ VOID   onLanguageDocument_Create(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd)
       /// Display Pages
       /// REM: ListView_SetItemCount(pDocument->hPageList, getTreeNodeCount(getLanguageDocumentGamePageTree(pDocument)));
       updateLanguageDocumentPageGroups(pDocument);
-      ListView_SetItemState(pDocument->hPageList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);    // Causes strings to be generated + displayed
+      ListView_SetItemState(pDocument->hPageList, 3, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);    // Causes strings to be generated + displayed
 
       // Show child windows
       ShowWindow(pDocument->hPageList, SW_SHOWNORMAL);
@@ -807,7 +807,7 @@ BOOL   onLanguageDocument_Notify(LANGUAGE_DOCUMENT*  pDocument, NMHDR*  pMessage
       /// [CUSTOM DRAW] Pass to CustomListView / GroupedListView handler
       case NM_CUSTOMDRAW:
          bResult = (pMessage->idFrom == IDC_STRING_LIST ? onCustomDrawListView(pDocument->hWnd, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage) 
-                                                        : onGroupedListViewCustomDraw(pDocument->hWnd, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage));
+                                                        : onCustomDraw_GroupedListView(pDocument->hWnd, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage));
          break;
 
       // [UNHANDLED]
@@ -855,7 +855,7 @@ BOOL  onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  
    /// [GAME PAGE]
    case IDC_PAGE_LIST:
       // [CHECK] Lookup item
-      if (findLanguageDocumentGamePageByIndex(pDocument, convertGroupedListViewPhysicalIndex(pDocument->hPageList, oOutput.iItem), pGamePage))
+      if (findLanguageDocumentGamePageByIndex(pDocument, GroupedListView_ConvertIndex(pDocument->hPageList, oOutput.iItem), pGamePage))
       {
          // [IMAGE] Provide Voiced/NotVoiced icon
          if (oOutput.mask INCLUDES LVIF_IMAGE)

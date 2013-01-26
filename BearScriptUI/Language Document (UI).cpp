@@ -14,7 +14,7 @@
 #define    STRING_COLUMN_ID         0      // String ID column
 #define    STRING_COLUMN_TEXT       1      // Text column
 
-#define    ListView_UnSelectAll(hCtrl)         ListView_SetItemState(hCtrl, -1, NULL, LVIS_SELECTED)
+#define    ListView_DeSelectAll(hCtrl)         ListView_SetItemState(hCtrl, -1, NULL, LVIS_SELECTED)
 #define    ListView_SelectItem(hCtrl, iItem)   ListView_SetItemState(hCtrl, iItem, LVIS_SELECTED, LVIS_SELECTED)
 
 enum  ResolveOperation  { ResolvePageIndex, ResolveStringIndex };
@@ -59,7 +59,7 @@ VOID  displayLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, const GAM
       // [OPTIONAL] Select input page
       if (ListView_GetSelected(pDocument->hPageList) != pOperation->xOutput)
       {
-         ListView_UnSelectAll(pDocument->hPageList);
+         ListView_DeSelectAll(pDocument->hPageList);
          ListView_SelectItem(pDocument->hPageList, pOperation->xOutput);
          ListView_EnsureVisible(pDocument->hPageList, pOperation->xOutput, FALSE);
       }
@@ -71,7 +71,7 @@ VOID  displayLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, const GAM
       // [OPTIONAL] Deselect current string and select desired string
       if (ListView_GetSelected(pDocument->hStringList) != pOperation->xOutput)
       {
-         ListView_UnSelectAll(pDocument->hStringList);
+         ListView_DeSelectAll(pDocument->hStringList);
          ListView_SelectItem(pDocument->hStringList, pOperation->xOutput);
          ListView_EnsureVisible(pDocument->hStringList, pOperation->xOutput, FALSE);
       }
@@ -129,7 +129,7 @@ VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  p
 
    // Hide/Destroy Document PageStrings
    INT  iSelection = ListView_GetSelected(pDocument->hPageList);
-   ListView_UnSelectAll(pDocument->hPageList);
+   ListView_DeSelectAll(pDocument->hPageList);
 
    /// Delete all strings with input PageID
    deleteLanguageDocumentGamePage(pDocument, pPage);
@@ -169,7 +169,7 @@ VOID  onLanguageDocument_EditPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOl
    else
    {
       // Hide/Destroy Document PageStrings
-      ListView_UnSelectAll(pDocument->hPageList);
+      ListView_DeSelectAll(pDocument->hPageList);
 
       /// Change PageID of all strings within page
       modifyLanguageDocumentGamePageID(pDocument, pOldPage, pNewPage);
@@ -211,7 +211,7 @@ VOID  onLanguageDocument_EditString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING* 
    /// [EDIT FORMATTING]
    case STRING_COLUMN_TEXT:
       // Save current string
-      ListView_UnSelectAll(pDocument->hStringList);
+      ListView_DeSelectAll(pDocument->hStringList);
 
       // Display sourceText editor and redisplay string
       bChanged = (displaySourceTextDialog(pDocument, pString, getAppWindow()) == IDOK);
@@ -259,7 +259,7 @@ BOOL  onLanguageDocument_EditStringEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPIN
 
    // Save current string
    INT  iSelected = ListView_GetSelected(pDocument->hStringList);
-   ListView_UnSelectAll(pDocument->hStringList);
+   ListView_DeSelectAll(pDocument->hStringList);
 
    /// Edit StringID + Refresh ListView
    modifyLanguageDocumentGameStringID(pDocument, pCurrentString, iNewStringID);
@@ -284,7 +284,7 @@ VOID  onLanguageDocument_InsertPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  p
 
    // Hide/Destroy document PageStrings
    INT  iSelection = ListView_GetSelected(pDocument->hPageList);
-   ListView_UnSelectAll(pDocument->hPageList);
+   ListView_DeSelectAll(pDocument->hPageList);
 
    /// Insert new GamePage + Refresh ListView
    insertLanguageDocumentGamePage(pDocument, pNewPage);
@@ -308,7 +308,7 @@ VOID  onLanguageDocument_InsertString(LANGUAGE_DOCUMENT*  pDocument, const UINT 
    ASSERT(!pDocument->bVirtual AND pDocument->pCurrentPage);
 
    // De-select current string
-   ListView_UnSelectAll(pDocument->hStringList);
+   ListView_DeSelectAll(pDocument->hStringList);
 
    /// Insert new GameString (into current page) into Tree + ListView
    pNewString = createGameString(TEXT("NEW STRING"), identifyLanguagePageStringNextID(pDocument), iPageID, ST_INTERNAL);
@@ -333,7 +333,7 @@ VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CO
    if (bSelected)
    {
       // [ITEM] Calculate item index 
-      if ((iLogicalItem = convertGroupedListViewPhysicalIndex(pDocument->hPageList, iItem)) != -1)
+      if ((iLogicalItem = GroupedListView_ConvertIndex(pDocument->hPageList, iItem)) != -1)
       {
          // [CHECK] Ensure Page + PageStrings do not exist
          ASSERT(!pDocument->pCurrentPage AND !pDocument->pPageStringsByID);
@@ -348,7 +348,10 @@ VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CO
       }
       //// [HEADING] Select next item
       //else
-      //   ListView_SelectItem(pDocument->hPageList, GroupedListView_GetNextValidItem(pDocument->hPageList, iItem));
+      //{
+      //   ListView_DeSelectAll(pDocument->hPageList);
+      //   ListView_SelectItem(pDocument->hPageList, iItem + 2);
+      //}
    }
    else
    {

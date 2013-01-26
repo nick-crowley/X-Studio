@@ -1111,6 +1111,7 @@ LRESULT   wndprocScriptDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
 {
    DOCUMENT_OPERATION*  pOperationData;
    SCRIPT_DOCUMENT*     pDocument;
+   MEASUREITEMSTRUCT*   pItemSize;
    CREATESTRUCT*        pCreationData;
    ERROR_STACK*         pError;
    POINT                ptCursor;
@@ -1195,8 +1196,9 @@ LRESULT   wndprocScriptDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
 
       /// [CUSTOM MENU/CUSTOM COMBO]
       case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                     break;
-      case WM_MEASUREITEM: onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);      break;
       case WM_DELETEITEM:  onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);                 break;
+      case WM_MEASUREITEM: pItemSize = (MEASUREITEMSTRUCT*)lParam; 
+                           pItemSize->CtlType == ODT_COMBOBOX ? onWindow_MeasureComboBox(pItemSize, (IMAGE_TREE_SIZE)20, ITS_MEDIUM) : onWindow_MeasureItem(hDialog, pItemSize);  break;
 
       /// [DOCUMENT LOADED/SAVED]
       case UN_OPERATION_COMPLETE:

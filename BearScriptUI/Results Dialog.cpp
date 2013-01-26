@@ -106,11 +106,11 @@ RESULTS_DIALOG_DATA*  getResultsDialogData(HWND  hDialog)
 
 
 /// Function name  : identifyResultsDialogFilter
-// Description     : 
+// Description     : Retrieves the currently selected filter
 // 
-// HWND  hDialog   : [in] 
+// HWND  hDialog   : [in] Results dialog
 // 
-// Return Value   : 
+// Return Value   : Filter index
 // 
 UINT  identifyResultsDialogFilter(HWND  hDialog)
 {
@@ -138,7 +138,7 @@ BOOL   findResultsDialogItemByIndex(RESULTS_DIALOG_DATA*  pDialogData, CONST INT
    xOutput.asPointer = NULL;
 
    // Get logical index
-   iLogicalIndex = convertGroupedListViewPhysicalIndex(pDialogData->hListView, iPhysicalIndex);
+   iLogicalIndex = GroupedListView_ConvertIndex(pDialogData->hListView, iPhysicalIndex);
 
    // Lookup item data
    if (iLogicalIndex != -1)
@@ -680,7 +680,7 @@ BOOL  onResultsDialog_Notify(RESULTS_DIALOG_DATA*  pDialogData, NMHDR*  pMessage
       {
       /// [CUSTOM DRAW]
       case NM_CUSTOMDRAW:
-         bResult = onGroupedListViewCustomDraw(pDialogData->hDialog, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage);
+         bResult = onCustomDraw_GroupedListView(pDialogData->hDialog, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage);
          SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, bResult);
          break;
 

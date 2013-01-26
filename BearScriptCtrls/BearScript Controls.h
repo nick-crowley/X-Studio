@@ -495,40 +495,14 @@ ControlsAPI LRESULT           wndprocCustomRichEditControl(HWND  hWnd, UINT  iMe
 ///                                    GROUPED LISTVIEW 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-// Creation / Destruction
-GROUPED_LISTVIEW_DATA*  createGroupedListViewData();
-VOID                    deleteGroupedListViewData(GROUPED_LISTVIEW_DATA*  &pWindowData);
-VOID                    deleteGroupedListViewGroup(LISTVIEW_GROUP*  &pNewGroup);
-VOID                    destructorGroupedListViewGroup(LPARAM  pListViewGroup);
-
-// (Exported) Creation / Destruction
+// Creation/Destruction
 ControlsAPI LISTVIEW_GROUP*  createGroupedListViewGroup(CONST UINT  iGroupID, CONST UINT  iGroupNameResourceID);
 
-// Helpers
-UINT                    calculateGroupedListViewPhysicalItemCount(GROUPED_LISTVIEW_DATA*  pWindowData);
-BOOL                    findGroupedListViewGroupByID(GROUPED_LISTVIEW_DATA*  pWindowData, CONST UINT  iID, LISTVIEW_GROUP*  &pOutput);
-WNDPROC                 getGroupedListViewBaseWindowProc(HWND  hCtrl);
-GROUPED_LISTVIEW_DATA*  getGroupedListViewData(HWND  hCtrl);
-
-// Functions
-BOOL                    calculateGroupedListViewLogicalIndex(GROUPED_LISTVIEW_DATA*  pWindowData, LISTVIEW_ITEM*  pItem);
-ControlsAPI INT         convertGroupedListViewPhysicalIndex(HWND  hCtrl, CONST UINT  iPhysicalIndex);
-BOOL                    drawGroupedListViewGradientLine(HDC  hDC, CONST RECT*  pItemRect, CONST UINT  iBackground);
-
-// Message Handlers
-BOOL                    onGroupedListViewAddGroup(GROUPED_LISTVIEW_DATA*  pWindowData, LISTVIEW_GROUP*  pNewGroup);
-GROUPED_LISTVIEW_DATA*  onGroupedListViewCreate(HWND  hCtrl);
-ControlsAPI BOOL        onGroupedListViewCustomDraw(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRAW*  pMessageData);
-BOOL                    onGroupedListViewCustomDrawTooltip(GROUPED_LISTVIEW_DATA*  pWindowData, HWND  hTooltip, NMHDR*  pHeader);
-VOID                    onGroupedListViewDestroy(GROUPED_LISTVIEW_DATA*  &pWindowData);
-VOID                    onGroupedListViewEmptyGroups(GROUPED_LISTVIEW_DATA*  pWindowData);
-INT                     onGroupedListViewGetNextValidItem(GROUPED_LISTVIEW_DATA*  pWindowData, const INT  iPhysicalIndex);
-VOID                    onGroupedListViewRemoveGroups(GROUPED_LISTVIEW_DATA*  pWindowData);
-BOOL                    onGroupedListViewSetGroupCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST UINT  iGroupID, CONST UINT  iCount);
-UINT                    onGroupedListViewSetItemCount(GROUPED_LISTVIEW_DATA*  pWindowData, CONST UINT  iItemCount);
+// Handlers
+ControlsAPI BOOL             onCustomDraw_GroupedListView(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRAW*  pMessageData);
 
 // Window procedure
-LRESULT CALLBACK        wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+LRESULT CALLBACK             wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    LANGUAGE OLE

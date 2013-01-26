@@ -13,9 +13,10 @@
 /// ///////////////////////////////////////////////////////
 
 #define IDB_MAIN_TOOLBAR                                 100
-#define IDB_LANGUAGE_TOOLBAR                             101
-#define IDB_FILE_TOOLBAR                                 102
-#define IDB_MESSAGE_TOOLBAR                              103
+#define IDB_MAIN_TOOLBAR_SMALL                           101
+#define IDB_LANGUAGE_TOOLBAR                             102
+#define IDB_FILE_TOOLBAR                                 103
+#define IDB_MESSAGE_TOOLBAR                              104
 
 /// ///////////////////////////////////////////////////////
 ///                  ERROR  MESSAGES

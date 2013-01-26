@@ -499,12 +499,12 @@
 //
 #define     GroupedListView_EmptyGroups(hCtrl)                       SendMessage(hCtrl, UM_EMPTY_LISTVIEW_GROUPS, NULL, NULL)
 
-/// Name: UM_GET_NEXT_VALID_ITEM
-// Description: Empties but does not delete all groups in a GroupedListView
+/// Name: UM_CONVERT_INDEX
+// Description: Converts a physical index into a logical onde
 //
-#define     UM_GET_NEXT_VALID_ITEM                                   (UM_XSTUDIO + 57)
+#define     UM_CONVERT_INDEX                                         (UM_XSTUDIO + 57)
 //
-#define     GroupedListView_GetNextValidItem(hCtrl, iPhysicalItem)   SendMessage(hCtrl, UM_GET_NEXT_VALID_ITEM, iPhysicalItem, NULL)
+#define     GroupedListView_ConvertIndex(hCtrl, iPhysicalIndex)      SendMessage(hCtrl, UM_CONVERT_INDEX, iPhysicalIndex, NULL)
 
 
 /// Name: UM_REMOVE_LISTVIEW_GROUPS

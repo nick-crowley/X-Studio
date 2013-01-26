@@ -12,7 +12,7 @@
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Toolbar button count
-CONST UINT  iToolBarButtonCount  = 24;
+CONST UINT  iToolBarButtonCount  = 26;
 
 // Menu Sub-Menu indicies
 #define  MAINWINDOW_FILE_MENU_INDEX     0
@@ -161,7 +161,7 @@ HWND    createMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
 
    // Define number of toolbar buttons
    pWindowData->iToolBarButtonCount    = iToolBarButtonCount;
-   pWindowData->iToolBarSeparatorCount = 4;
+   pWindowData->iToolBarSeparatorCount = 5;
 
    /// Create ToolBar
    hCtrl = CreateWindowEx(NULL, TOOLBARCLASSNAME, NULL, TBSTYLE_FLAT WITH TBSTYLE_TRANSPARENT WITH TBSTYLE_TOOLTIPS WITH WS_CHILD WITH WS_VISIBLE, 0,0, 0,0, 
@@ -173,10 +173,10 @@ HWND    createMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
    {
       // Define source bitmap
       oToolbarData.hInst = getResourceInstance();
-      oToolbarData.nID   = IDB_MAIN_TOOLBAR;
+      oToolbarData.nID   = IDB_MAIN_TOOLBAR_SMALL;
 
       /// Define number and dimensions of individual images
-      SendMessage(hCtrl, TB_SETBITMAPSIZE, NULL, MAKE_LONG(32,32));
+      SendMessage(hCtrl, TB_SETBITMAPSIZE, NULL, MAKE_LONG(28,28));
       SendMessage(hCtrl, TB_ADDBITMAP, (iToolBarButtonCount - pWindowData->iToolBarSeparatorCount), (LPARAM)&oToolbarData);
 
       /// Define buttons
@@ -379,21 +379,18 @@ UINT  identifyMainWindowCommandByIndex(CONST UINT  iIndex)
 {
    static UINT   iButtonCommands[iToolBarButtonCount] = 
    {  
-      // New, Open, Save, <Separator>  
-      // Cut, Copy, Paste, <Separator>
-      IDM_FILE_NEW,            IDM_FILE_OPEN,               IDM_FILE_SAVE,                 NULL, 
-      IDM_EDIT_CUT,            IDM_EDIT_COPY,               IDM_EDIT_PASTE,                NULL, 
+      // New, Open, Browse, Save, SaveAll <Sep>  Cut, Copy, Paste, Delete <Sep> Comment, Find <Sep>
+      IDM_FILE_NEW,     IDM_FILE_OPEN,   IDM_FILE_BROWSE,    IDM_FILE_SAVE,      IDM_FILE_SAVE_ALL,   NULL, 
+      IDM_EDIT_CUT,     IDM_EDIT_COPY,   IDM_EDIT_PASTE,     IDM_EDIT_DELETE,    NULL,                IDM_EDIT_FIND,       IDM_EDIT_COMMENT,     NULL, 
+      
+      // GameStrings, MediaBrowser, <Sep>
+      IDM_TOOLS_GAME_STRINGS,    IDM_TOOLS_MEDIA_BROWSER,   NULL, 
 
-      // Find, <Separator>
-      IDM_EDIT_FIND,           NULL, 
-
-      // GameObjects, ScriptObjects, CommandList, OutputDialog, DocumentProperties, <Separator>
-      // GameStrings, MediaBrowser, MissionHierarchy, ConversationBrowser, <Separator>
-      IDM_VIEW_COMMAND_LIST,   IDM_VIEW_GAME_OBJECTS_LIST,  IDM_VIEW_SCRIPT_OBJECTS_LIST,  IDM_VIEW_COMPILER_OUTPUT,        IDM_VIEW_PROJECT_EXPLORER,  IDM_VIEW_DOCUMENT_PROPERTIES,   NULL, 
-      IDM_TOOLS_GAME_STRINGS,  IDM_TOOLS_MEDIA_BROWSER,     IDM_TOOLS_MISSION_HIERARCHY,   IDM_TOOLS_CONVERSATION_BROWSER,  NULL, 
-
+      // ProjectExplorer, OutputDialog, CommandList, GameObjects, ScriptObjects, DocumentProperties, <Sep>
+      IDM_VIEW_PROJECT_EXPLORER, IDM_VIEW_COMPILER_OUTPUT,  IDM_VIEW_DOCUMENT_PROPERTIES,  IDM_VIEW_COMMAND_LIST,  IDM_VIEW_GAME_OBJECTS_LIST,  IDM_VIEW_SCRIPT_OBJECTS_LIST,  NULL,
+      
       // Help, Forums
-      IDM_HELP_HELP,           IDM_HELP_FORUMS   
+      IDM_HELP_HELP,    IDM_HELP_FORUMS   
    }; 
 
    // Return
