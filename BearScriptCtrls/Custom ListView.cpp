@@ -497,18 +497,19 @@ LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARA
 {
    LVHITTESTINFO  oHitTest;
    WNDCLASS       oBaseClass;
+   /*static HWND    hPrevFocus = NULL;*/
 
    switch (iMessage)
    {
    /// [MOUSE MOVE] Assign Hot Item + Track Mouse
    case WM_MOUSEMOVE:
+      // Get focus
+      /*if (GetFocus() != hWnd)
+         hPrevFocus = SetFocus(hWnd);*/
+
       // Prepare
       utilTrackMouseEvent(hWnd, TME_LEAVE, 0);
       utilGetWindowCursorPos(hWnd, &oHitTest.pt);
-
-      // Get focus
-      if (GetFocus() != hWnd)
-         SetFocus(hWnd);
 
       // [NOWHERE/HEADER] Clear focus, if any
       if (ListView_HitTest(hWnd, &oHitTest) == -1)
@@ -530,6 +531,9 @@ LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARA
 
       // Remove 'Hot' status from current hot item
       ListView_SetItemState(hWnd, -1, NULL, LVIS_CUT);
+
+      //// Return focus
+      //SetFocus(hPrevFocus);
       break;
    }
 

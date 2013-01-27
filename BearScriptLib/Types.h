@@ -1213,7 +1213,7 @@ struct LANGUAGE_FILE : GAME_FILE
 {
    LANGUAGE_FILE_TYPE  eType;                 // Identifies whether file contains strings, speech items, object descriptions or description variables
 
-   UINT                iLanguage;             // Language ID of the strings within the file
+   GAME_LANGUAGE       eLanguage;             // Language ID of the strings within the file
    BOOL                bMasterStrings;        // [STRINGS]      Whether this represents the game's master language file (0001-L0nn.xml)
 
    AVL_TREE           *pGameStringsByID,      // [STRINGS]      Contains GameStrings by PAGE_ID then STRING_ID

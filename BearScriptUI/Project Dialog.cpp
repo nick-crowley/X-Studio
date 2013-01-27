@@ -585,6 +585,23 @@ VOID  onProjectDialog_Destroy(PROJECT_DIALOG_DATA*  pDialogData)
 }
 
 
+/// Function name  : onProjectDialog_GetMenuItemState
+// Description     : Determines whether a toolbar/menu command relating to the document should be enabled or disabled
+// 
+// PROJECT_DIALOG_DATA*  pDialogData : [in]     Dialog data
+// CONST UINT            iCommandID  : [in]     Menu/toolbar Command
+// UINT*                 piState     : [in/out] Combination of MF_ENABLED, MF_DISABLED, MF_CHECKED, MF_UNCHECKED
+// 
+BOOL   onProjectDialog_GetMenuItemState(PROJECT_DIALOG_DATA*  pDialogData, CONST UINT  iCommandID, UINT*  piState)
+{
+   // Return DISABLED
+   *piState = MF_DISABLED;
+   SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, TRUE);
+
+   return TRUE;
+}
+
+
 /// Function name  : onProjectDialog_Moving
 // Description     : Prevents the dialog being dragged around by it's caption
 // 
@@ -823,9 +840,19 @@ INT_PTR  dlgprocProjectDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
       sendAppMessage(AW_MAIN, WM_MENUSELECT, wParam, lParam);
       break;
 
+   /// [MENU ITEM STATE]
+   case UM_GET_MENU_ITEM_STATE:
+      bResult = onProjectDialog_GetMenuItemState(pDialogData, wParam, (UINT*)lParam);
+      break;
+
    /// [MOVING] Prevent window from being dragged
    case WM_MOVING:
       bResult = onProjectDialog_Moving(pDialogData, (RECT*)lParam);
+      break;
+
+   /// [RECEIVE FOCUS] Focus TreeView
+   case WM_SETFOCUS:
+      SetFocus(pDialogData->hTreeView);
       break;
 
    /// [NON-CLIENT PAINT]
@@ -854,6 +881,9 @@ INT_PTR  dlgprocProjectDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
       bResult = FALSE;
       break;
    }
+
+   // [FOCUS HANDLER]
+   updateMainWindowToolBar(iMessage, wParam, lParam);
 
    // Return return
    return bResult;

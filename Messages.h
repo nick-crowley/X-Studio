@@ -132,15 +132,17 @@
 //
 #define     UN_PROPERTY_UPDATED                                     (UM_XSTUDIO + 17) 
 
-/// Name: UM_QUERY_DOCUMENT_COMMAND
-// Description: Queries a document for the current state of a document related toolbar/menu command
+/// Name: UM_GET_MENU_ITEM_STATE
+// Description: Queries the parent of the focus window for the correct state of a menu command
 //
 // WPARAM : UINT : [in] ID of the menu/toolbar command to query the state of
 // LPARAM : NULL
 //
 // Return Value : Combination of MF_ENABLED, MF_DISABLED, MF_CHECKED, MF_UNCHECKED
 //
-#define     UM_QUERY_DOCUMENT_COMMAND                               (UM_XSTUDIO + 18)
+#define     UM_GET_MENU_ITEM_STATE                                   (UM_XSTUDIO + 18)
+
+#define     Window_GetMenuItemState(hWnd, iCommandID, piState)       SendMessage(hWnd, UM_GET_MENU_ITEM_STATE, iCommandID, (LPARAM)(UINT*)(piState))
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  SCRIPT DOCUMENT

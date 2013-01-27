@@ -351,7 +351,7 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 ///                                         MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : onRichTextDialogCommand
+/// Function name  : onRichTextDialog_Command
 // Description     : RichText dialog WM_COMMAND processing
 // 
 // LANGUAGE_DOCUMENT*  pDocument       : [in] Language document hosting the RichText dialog
@@ -361,7 +361,7 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 // 
 // Return Value   : TRUE if processed, FALSE otherwise
 // 
-BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification)
+BOOL  onRichTextDialog_Command(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification)
 {
    BOOL  bResult = FALSE;
 
@@ -397,12 +397,12 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
 
    /// [COLOUR] - Display colouring menu
    case IDM_RICHEDIT_COLOUR:
-      bResult = onRichTextDialogContextMenu(pDocument, hDialog, IDM_COLOUR_POPUP);
+      bResult = onRichTextDialog_ContextMenu(pDocument, hDialog, IDM_COLOUR_POPUP);
       break;
 
    /// [INSERT BUTTON] - Create button bitmap and Insert as OLE object
    case IDM_RICHEDIT_BUTTON:
-      bResult = onRichTextDialogInsertButton(pDocument);
+      bResult = onRichTextDialog_InsertButton(pDocument);
       break;
 
    // [EDIT NOTIFICATIONS]
@@ -429,7 +429,7 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
 }
 
 
-/// Function name  : onRichTextDialogContextMenu
+/// Function name  : onRichTextDialog_ContextMenu
 // Description     : Display the colour/edit popup menu
 //
 // HWND        hDialog     : [in] Window handle of the parent window for the popup menu
@@ -437,7 +437,7 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
 // 
 // Return Value   : TRUE
 // 
-BOOL  onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iMenuIndex)
+BOOL  onRichTextDialog_ContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iMenuIndex)
 {
    CUSTOM_MENU*  pCustomMenu;    // Custom Popup menu
    POINT         ptCursor;       // Cursor position
@@ -455,7 +455,7 @@ BOOL  onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, 
 }
 
 
-/// Function name  : onRichTextDialogDestroy
+/// Function name  : onRichTextDialog_Destroy
 // Description     : Cleanup the RichText dialog controls and RichEdit OLE interface
 // 
 // LANGUAGE_DOCUMENT*  pDocument  : [in] Language document hosting the RichText dialog
@@ -463,7 +463,7 @@ BOOL  onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, 
 // 
 // Return Value   : TRUE
 // 
-BOOL  onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
+BOOL  onRichTextDialog_Destroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 {
    IRichEditOle*  pRichEdit;  // RichEdit control OLE interface
    REOBJECT       oImage;     // RichEdit control OLE object attributes
@@ -511,7 +511,7 @@ BOOL  onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 }
 
 
-/// Function name  : onRichTextDialogDestroyButton
+/// Function name  : onRichTextDialog_DestroyButton
 // Description     : Called when a Languagebutton is being destroyed by the RichEdit
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] Document
@@ -519,7 +519,7 @@ BOOL  onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 // 
 // Return Value   : 
 // 
-BOOL  onRichTextDialogDestroyButton(LANGUAGE_DOCUMENT*  pDocument, IOleObject*  pObject)
+BOOL  onRichTextDialog_DestroyButton(LANGUAGE_DOCUMENT*  pDocument, IOleObject*  pObject)
 {
    LANGUAGE_BUTTON*  pButton;
 
@@ -530,15 +530,59 @@ BOOL  onRichTextDialogDestroyButton(LANGUAGE_DOCUMENT*  pDocument, IOleObject*  
    return TRUE;
 }
 
+/// Function name  : onRichTextDialog_GetMenuItemState
+// Description     : Determines whether a toolbar/menu command relating to the document should be enabled or disabled
+// 
+// LANGUAGE_DOCUMENT*  pDocument   : [in]     Document
+// CONST UINT          iCommandID  : [in]     Menu/toolbar Command
+// UINT*               piState     : [in/out] Combination of MF_ENABLED, MF_DISABLED, MF_CHECKED, MF_UNCHECKED
+// 
+BOOL   onRichTextDialog_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState)
+{
+   UINT  iSelection;
 
-/// Function name  : onRichTextDialogInsertButton
+   // [TRACKING]
+   TRACK_FUNCTION();
+
+   // Examine command
+   switch (iCommandID)
+   {
+   /// [UNDO/REDO] Query RichEdit
+   case IDM_EDIT_REDO:  *piState = (RichEdit_CanRedo(pDocument->hRichEdit) ? MF_ENABLED : MF_DISABLED);   break;
+   case IDM_EDIT_UNDO:  *piState = (Edit_CanUndo(pDocument->hRichEdit)     ? MF_ENABLED : MF_DISABLED);   break;  
+
+   /// [CUT/COPY/DELETE] Requires a text selection
+   case IDM_EDIT_CUT:
+   case IDM_EDIT_COPY:
+   case IDM_EDIT_DELETE:
+      iSelection = Edit_GetSel(pDocument->hRichEdit);
+      *piState   = (LOWORD(iSelection) == HIWORD(iSelection) ? MF_ENABLED : MF_DISABLED);
+      break;
+
+   /// [PASTE/SELECT ALL] Always enabled
+   case IDM_EDIT_PASTE:
+   case IDM_EDIT_SELECT_ALL:
+      *piState = MF_ENABLED;
+      break;
+
+   // [COMMENT] Unsupported
+   default:
+      *piState = MF_DISABLED;
+      break;
+   }
+
+   END_TRACKING();
+   return TRUE;
+}
+
+/// Function name  : onRichTextDialog_InsertButton
 // Description     : Inserts a new OLE Button Picture 
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] Lanaguage document hosting the RichText dialog
 // 
 // Return Value   : TRUE if successful, FALSE if not
 // 
-BOOL  onRichTextDialogInsertButton(LANGUAGE_DOCUMENT*  pDocument)
+BOOL  onRichTextDialog_InsertButton(LANGUAGE_DOCUMENT*  pDocument)
 {
    LANGUAGE_BUTTON*  pButton;
 
@@ -559,7 +603,7 @@ BOOL  onRichTextDialogInsertButton(LANGUAGE_DOCUMENT*  pDocument)
 }
 
 
-/// Function name  : onRichTextDialogNotify
+/// Function name  : onRichTextDialog_Notify
 // Description     : WM_NOTIFY processing
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] Lanaguage document hosting the RichText dialog
@@ -568,7 +612,7 @@ BOOL  onRichTextDialogInsertButton(LANGUAGE_DOCUMENT*  pDocument)
 // 
 // Return Value   : TRUE if processed, FALSE otherwise
 // 
-BOOL   onRichTextDialogNotify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage)
+BOOL   onRichTextDialog_Notify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage)
 {
    BOOL  bResult = FALSE;
 
@@ -590,7 +634,7 @@ BOOL   onRichTextDialogNotify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHD
    return bResult;
 }
 
-/// Function name  : onRichTextDialogResize
+/// Function name  : onRichTextDialog_Resize
 // Description     : Stretches the RichEdit control across the non-toolbar parts of the client area
 // 
 // LANGUAGE_DOCUMENT*  pDocument : [in] Language document hosting the RichText dialog
@@ -600,7 +644,7 @@ BOOL   onRichTextDialogNotify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHD
 // 
 /// Return Value   : TRUE
 // 
-BOOL  onRichTextDialogResize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iWidth, CONST UINT  iHeight)
+BOOL  onRichTextDialog_Resize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iWidth, CONST UINT  iHeight)
 {
    RECT  rcClient,      // Dialog client rectangle
          rcToolBar;     // Toolbar client rectangle
@@ -640,56 +684,87 @@ BOOL  onRichTextDialogResize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST
 INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    LANGUAGE_DOCUMENT*  pDocument;   // Language document data
+   ERROR_STACK*        pException;
+   BOOL                bResult = FALSE;
 
    // Get window data
+   TRACK_FUNCTION();
    pDocument = (LANGUAGE_DOCUMENT*)GetWindowLong(hDialog, DWL_USER);
 
-   switch (iMessage)
+   /// [GUARD BLOCK]
+   __try
    {
-   /// [CREATION]
-   case WM_INITDIALOG:
-      return initRichTextDialog((LANGUAGE_DOCUMENT*)lParam, hDialog);
+      switch (iMessage)
+      {
+      /// [CREATION]
+      case WM_INITDIALOG:
+         bResult = initRichTextDialog((LANGUAGE_DOCUMENT*)lParam, hDialog);
+         break;
 
-   /// [DESTRUCTION]
-   case WM_DESTROY:
-      return onRichTextDialogDestroy(pDocument, hDialog);
+      /// [DESTRUCTION]
+      case WM_DESTROY:
+         bResult = onRichTextDialog_Destroy(pDocument, hDialog);
+         break;
 
-   /// [COMMANDS]
-   case WM_COMMAND:
-      return onRichTextDialogCommand(pDocument, hDialog, LOWORD(wParam), HIWORD(wParam));
+      /// [COMMANDS]
+      case WM_COMMAND:
+         bResult = onRichTextDialog_Command(pDocument, hDialog, LOWORD(wParam), HIWORD(wParam));
+         break;
 
-   /// [NOTIFICATION]
-   case WM_NOTIFY:
-      return onRichTextDialogNotify(pDocument, hDialog, (NMHDR*)lParam);
+      /// [NOTIFICATION]
+      case WM_NOTIFY:
+         bResult = onRichTextDialog_Notify(pDocument, hDialog, (NMHDR*)lParam);
+         break;
 
-   /// [CONTEXT MENU] - Display RichEdit popup
-   case WM_CONTEXTMENU:
-      if (pDocument->hRichEdit == (HWND)wParam)
-         return onRichTextDialogContextMenu(pDocument, hDialog, IDM_RICHEDIT_POPUP);
-      break;
+      /// [CONTEXT MENU] - Display RichEdit popup
+      case WM_CONTEXTMENU:
+         if (pDocument->hRichEdit == (HWND)wParam)
+            bResult = onRichTextDialog_ContextMenu(pDocument, hDialog, IDM_RICHEDIT_POPUP);
+         break;
 
-   /// [MENU HOVER] -- Display description in status bar
-   case WM_MENUSELECT:
-      return utilReflectMessage(hDialog, iMessage, wParam, lParam);
+      /// [MENU HOVER] -- Display description in status bar
+      case WM_MENUSELECT:
+         bResult = utilReflectMessage(hDialog, iMessage, wParam, lParam);
+         break;
 
-   /// [CUSTOM MENU] -- Draw custom menu
-   case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                  break;
-   case WM_MEASUREITEM: onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);   break;
+      /// [MENU ITEM STATE]
+      case UM_GET_MENU_ITEM_STATE:
+         bResult = onRichTextDialog_GetMenuItemState(pDocument, wParam, (UINT*)lParam);
+         break;
 
-   /// [RESIZING]
-   case WM_SIZE:
-      return onRichTextDialogResize(pDocument, hDialog, LOWORD(lParam), HIWORD(lParam));
+      /// [CUSTOM MENU] -- Draw custom menu
+      case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                  break;
+      case WM_MEASUREITEM: onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);   break;
 
-   /// [VISUAL STYLES]
-   case WM_CTLCOLORDLG:
-   case WM_CTLCOLORSTATIC:
-      return (INT_PTR)GetStockObject(WHITE_BRUSH);
+      /// [RESIZING]
+      case WM_SIZE:
+         bResult = onRichTextDialog_Resize(pDocument, hDialog, LOWORD(lParam), HIWORD(lParam));
+         break;
 
-   // [OBJECT DESTROYED]
-   case UN_OBJECT_DESTROYED:
-      return onRichTextDialogDestroyButton(pDocument, (IOleObject*)lParam);
+      /// [VISUAL STYLES]
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:
+         bResult = (INT_PTR)GetStockObject(WHITE_BRUSH);
+         break;
+
+      // [OBJECT DESTROYED]
+      case UN_OBJECT_DESTROYED:
+         bResult = onRichTextDialog_DestroyButton(pDocument, (IOleObject*)lParam);
+         break;
+      }
+
+      // [FOCUS HANDLER]
+      updateMainWindowToolBar(iMessage, wParam, lParam);
+   }
+   /// [EXCEPTION HANDLER]
+   __except (generateExceptionError(GetExceptionInformation(), pException))
+   {
+      // [ERROR] "An unidentified and unexpected critical error has occurred in the rich edit dialog"
+      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_RICHTEXT_DIALOG));
+      displayException(pException);
    }
 
-   return FALSE;
+   END_TRACKING();
+   return (INT_PTR)bResult;
 }
 

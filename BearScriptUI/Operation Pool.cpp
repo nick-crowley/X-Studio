@@ -582,7 +582,7 @@ VOID    onOperationPoolOperationComplete(OPERATION_POOL*  pOperationPool, OPERAT
 
    // Refresh main window and it's toolbar
    updateMainWindowToolBar(pMainWindowData);
-   InvalidateRect(pMainWindowData->hMainWnd, NULL, FALSE);
+   //InvalidateRect(pMainWindowData->hMainWnd, NULL, FALSE);
 
    // [CHECK] Ensure memory is OK
    ASSERT(utilValidateMemory());

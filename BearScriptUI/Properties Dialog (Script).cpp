@@ -268,7 +268,8 @@ INT_PTR   dlgprocGeneralPageS(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARA
    {
    /// [COMMAND]
    case WM_COMMAND:
-      return onGeneralPage_CommandS(pSheetData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+      onGeneralPage_CommandS(pSheetData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+      break;
 
    /// [CUSTOM COMBOBOX] Override default size
    case WM_MEASUREITEM:

@@ -1068,6 +1068,15 @@ LRESULT   wndprocLanguageDocument(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LP
          sendAppMessage(AW_MAIN, WM_MENUSELECT, wParam, lParam);
          break;
 
+      /// [GET MENU CMD STATE]
+      case UM_GET_MENU_ITEM_STATE:
+         iResult = onLanguageDocument_GetMenuItemState(pDocument, wParam, (UINT*)lParam);
+         break;
+
+      case WM_SETFOCUS:
+         SetFocus(pDocument->hPageList);
+         break;
+
       /// [CUSTOM MENU/CUSTOM COMBO]
       case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                  break;
       case WM_MEASUREITEM: onWindow_MeasureItem(hWnd, (MEASUREITEMSTRUCT*)lParam);      break;
@@ -1092,6 +1101,9 @@ LRESULT   wndprocLanguageDocument(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LP
          iResult = DefWindowProc(hWnd, iMessage, wParam, lParam);
          break;
       }
+
+      // [FOCUS HANDLER]
+      updateMainWindowToolBar(iMessage, wParam, lParam);
    }
    /// [EXCEPTION HANDLER]
    __except (generateExceptionError(GetExceptionInformation(), pException))

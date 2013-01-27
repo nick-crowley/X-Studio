@@ -456,6 +456,7 @@
 #define IDS_EXCEPTION_PREFERENCES_DIALOG                 733
 #define IDS_EXCEPTION_LANGUAGE_DOCUMENT                  734
 #define IDS_EXCEPTION_FIRST_RUN_DIALOG                   735
+#define IDS_EXCEPTION_RICHTEXT_DIALOG                    736
 
 // Function Exception Handlers
 #define IDS_EXCEPTION_MESSAGE_PUMP                       740
@@ -1452,7 +1453,7 @@
 // 'General' Property Page
 #define IDC_AUTHOR_EDIT                                  4320
 #define IDC_TITLE_EDIT                                   4321
-#define IDC_STRING_ID_EDIT                               4322
+#define IDC_LANGUAGE_COMBO                               4322
 #define IDC_STRING_VERSION_COMBO                         4323
 #define IDC_COMPATIBILITY_COMBO                          4324
 #define IDC_LANGUAGE_FOLDER_EDIT                         4325

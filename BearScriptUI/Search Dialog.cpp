@@ -196,6 +196,7 @@ BOOL  setActiveResultsDialogByType(HWND  hSearchDialog, CONST RESULT_TYPE  eDial
 
       // Update active tab
       pDialogData->eActiveDialog = eDialog;
+      SetFocus(GetDlgItem(pDialogData->hChildren[eDialog], IDC_RESULTS_SEARCH));
 
       // [CHANGED] Return TRUE
       return TRUE;

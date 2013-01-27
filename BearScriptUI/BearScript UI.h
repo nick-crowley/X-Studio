@@ -413,6 +413,7 @@ VOID  onLanguageDocument_EditPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOl
 VOID  onLanguageDocument_EditString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString);
 VOID  onLanguageDocument_EditStringBegin(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader);
 BOOL  onLanguageDocument_EditStringEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader);
+BOOL  onLanguageDocument_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState);
 
 VOID  onLanguageDocument_InsertPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pNewPage);
 VOID  onLanguageDocument_InsertString(LANGUAGE_DOCUMENT*  pDocument, const UINT  iPageID);
@@ -465,6 +466,7 @@ UINT               identifyMainWindowCommandByIndex(CONST UINT  iIndex);
 VOID     setMainWindowState(CONST APPLICATION_STATE  eState);
 VOID     setMainWindowStatusBarTextf(CONST UINT  iPaneID, CONST UINT  iMessageID, ...);
 VOID     updateMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData);
+VOID     updateMainWindowToolBar(UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 // Message Handlers
 VOID     onMainWindowCreate(HWND  hMainWnd, CONST CREATESTRUCT*  pCreationData);
@@ -788,7 +790,6 @@ VOID    printErrorToOutputDialog(CONST ERROR_STACK*  pError);
 VOID    printMessageToOutputDialogf(CONST OUTPUT_DIALOG_ICON  eIcon, CONST UINT  iMessageID, ...);
 VOID    printOperationStateToOutputDialogf(OPERATION_DATA*  pOperation, CONST UINT  iMessageID, ...);
 VOID    printOperationErrorToOutputDialog(CONST OPERATION_DATA*  pOperation, CONST UINT  iItemIndex, CONST ERROR_STACK*  pError, CONST BOOL  bAddToConsole);
-//VOID    setOutputDialogRedraw(HWND  hDialog, CONST BOOL  bEnable);
 VOID    updateOutputDialogList(OUTPUT_DIALOG_DATA*  pDialogData);
 
 // Message Handlers
@@ -797,6 +798,7 @@ BOOL    onOutputDialogCommand(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iCon
 VOID    onOutputDialogContextMenu(OUTPUT_DIALOG_DATA*  pDialogData, HWND  hCtrl, POINT*  ptCursor);
 BOOL    onOutputDialogCustomDraw(OUTPUT_DIALOG_DATA*  pDialogData, NMLVCUSTOMDRAW*  pMessageData);
 BOOL    onOutputDialogDoubleClick(OUTPUT_DIALOG_DATA*  pDialogData, NMITEMACTIVATE*  pClickData);
+BOOL    onOutputDialogGetMenuItemState(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iCommandID, UINT*  piState);
 BOOL    onOutputDialogMoving(OUTPUT_DIALOG_DATA*  pDialogData, RECT*  pWindowRect);
 BOOL    onOutputDialogNotify(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iControlID, NMHDR*  pMessage);
 VOID    onOutputDialogResize(OUTPUT_DIALOG_DATA*  pDialogData, CONST SIZE*  pNewSize);
@@ -851,6 +853,7 @@ VOID     onProjectDialog_ContextMenu(PROJECT_DIALOG_DATA*  pDialogData, HWND  hC
 BOOL     onProjectDialog_Command(PROJECT_DIALOG_DATA*  pDialogData, CONST UINT  iControl, CONST UINT  iNotification, HWND  hCtrl);
 BOOL     onProjectDialog_CustomDraw(PROJECT_DIALOG_DATA*  pDialogData, NMTVCUSTOMDRAW*  pMessage);
 VOID     onProjectDialog_Destroy(PROJECT_DIALOG_DATA*  pDialogData);
+BOOL     onProjectDialog_GetMenuItemState(PROJECT_DIALOG_DATA*  pDialogData, CONST UINT  iCommandID, UINT*  piState);
 BOOL     onProjectDialog_Moving(PROJECT_DIALOG_DATA*  pDialogData, RECT*  pWindowRect);
 BOOL     onProjectDialog_Notify(PROJECT_DIALOG_DATA*  pDialogData, NMHDR*  pMessage);
 VOID     onProjectDialog_RequestData(PROJECT_DIALOG_DATA*  pDialogData, NMTVDISPINFO*  pHeader);
@@ -1115,13 +1118,14 @@ BOOL   performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog
 BOOL   updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
 
 // Message Handlers
-BOOL   onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification);
-BOOL   onRichTextDialogContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iMenuIndex);
-BOOL   onRichTextDialogDestroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
-BOOL   onRichTextDialogDestroyButton(LANGUAGE_DOCUMENT*  pDocument, IOleObject*  pObject);
-BOOL   onRichTextDialogInsertButton(LANGUAGE_DOCUMENT*  pDocument);
-BOOL   onRichTextDialogNotify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
-BOOL   onRichTextDialogResize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iWidth, CONST UINT  iHeight);
+BOOL   onRichTextDialog_Command(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification);
+BOOL   onRichTextDialog_ContextMenu(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iMenuIndex);
+BOOL   onRichTextDialog_Destroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog);
+BOOL   onRichTextDialog_DestroyButton(LANGUAGE_DOCUMENT*  pDocument, IOleObject*  pObject);
+BOOL   onRichTextDialog_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState);
+BOOL   onRichTextDialog_InsertButton(LANGUAGE_DOCUMENT*  pDocument);
+BOOL   onRichTextDialog_Notify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
+BOOL   onRichTextDialog_Resize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONST UINT  iWidth, CONST UINT  iHeight);
 
 INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
@@ -1170,6 +1174,7 @@ VOID    onScriptDocumentContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, 
 BOOL    onScriptDocumentCommand(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification);
 VOID    onScriptDocumentCreate(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
 VOID    onScriptDocumentDestroy(SCRIPT_DOCUMENT*  pDocument);
+BOOL    onScriptDocumentGetMenuItemState(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState);
 BOOL    onScriptDocumentGetScriptVersion(SCRIPT_DOCUMENT*  pDocument, GAME_VERSION*  pOutput);
 VOID    onScriptDocumentGotoLabel(SCRIPT_DOCUMENT*  pDocument);
 VOID    onScriptDocumentHelp(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, CONST HELPINFO*  pRequest);
@@ -1179,7 +1184,6 @@ VOID    onScriptDocumentLoseFocus(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
 VOID    onScriptDocumentOpenTargetScript(SCRIPT_DOCUMENT*  pDocument);
 BOOL    onScriptDocumentNotify(SCRIPT_DOCUMENT*  pDocument, NMHDR*  pMessage);
 VOID    onScriptDocumentPreferencesChanged(SCRIPT_DOCUMENT*  pDocument);
-UINT    onScriptDocumentQueryCommand(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iCommandID);
 VOID    onScriptDocumentReceiveFocus(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
 VOID    onScriptDocumentResize(SCRIPT_DOCUMENT*  pDocument, CONST SIZE*  pNewSize);
 VOID    onScriptDocumentSaveComplete(SCRIPT_DOCUMENT*  pDocument, DOCUMENT_OPERATION*  pOperationData);

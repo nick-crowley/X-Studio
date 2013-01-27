@@ -103,7 +103,7 @@ LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath, const GAME_LANG
    LANGUAGE_FILE*  pLanguageFile = createLanguageFile(LFT_STRINGS, szFullPath, TRUE);
 
    // Set language
-   pLanguageFile->iLanguage = eLanguage;
+   pLanguageFile->eLanguage = eLanguage;
 
    // Insert empty page
    insertGamePageIntoLanguageFile(pLanguageFile, 1, TEXT("Title"), TEXT("Description"), FALSE);
@@ -215,6 +215,30 @@ CONST TCHAR*  identifyGameLanguageString(CONST GAME_LANGUAGE  eLanguage)
    return szOutput;
 }
 
+
+/// Function name  : isGameLanguageValid
+// Description     : Ensures a GameLanguage is a recognised value
+// 
+// const GAME_LANGUAGE  eLanguage   : [in] Language
+// 
+// Return Value   : TRUE/FALSE
+// 
+BOOL  isGameLanguageValid(const GAME_LANGUAGE  eLanguage)
+{
+   // Examine language
+   switch (eLanguage)
+   {
+   case GL_ENGLISH:   
+   case GL_FRENCH:    
+   case GL_GERMAN:    
+   case GL_ITALIAN:   
+   case GL_POLISH:    
+   case GL_RUSSIAN:   
+   case GL_SPANISH:   return TRUE;
+   default:           return FALSE;
+   }
+}
+
 /// Function name  : identifyLanguageFile
 // Description     : Provides a description of a LanguageFile for VERBOSE output
 // 
@@ -289,49 +313,6 @@ BOOL  isLanguageFileMaster(CONST LANGUAGE_FILE*  pLanguageFile)
 ///                                         FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-VOID  treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData)
-{
-   TEXT_STREAM*   pStream         = (TEXT_STREAM*)pData->xFirstInput;
-   GAME_STRING*   pString         = extractPointerFromTreeNode(pNode, GAME_STRING);
-   GAME_VERSION&  eCurrentVersion = (GAME_VERSION&)pData->xInternalData1;     // xInternalData1 : Current PageID
-   UINT&          iCurrentPageID  = (UINT&)pData->xInternalData2;             // xInternalData2 : Current String Version
-   TCHAR*         szConverted     = NULL;
-
-   /// [NEW PAGE/VERSION] Generate close/open page tags
-   if (pString->iPageID != iCurrentPageID OR pString->eVersion != eCurrentVersion)
-   {
-      GAME_PAGE*  pPage;
-
-      // Close existing <page> tag  (if any)
-      if (iCurrentPageID != NULL)
-         appendStringToTextStream(pStream, TEXT("\t</page>\r\n"));
-
-      // Lookup GamePage. 
-      findObjectInAVLTreeByValue(pData->pInputTree, pString->iPageID, NULL, (LPARAM&)pPage);
-
-      // Update PageID + Version
-      //if (pString->iPageID != iCurrentPageID)
-      
-      iCurrentPageID  = pString->iPageID;
-      eCurrentVersion = pString->eVersion;
-      
-
-      /// [PAGE] Generate <page> tag
-      appendStringToTextStreamf(pStream, TEXT("\r\n\t<page id=\"%d\" title=\"%s\" desc=\"%s\" voice=\"%s\">\r\n"), calculateOutputPageID(iCurrentPageID, eCurrentVersion), 
-                                                                                                                   lstrlen(pPage->szTitle)       ? pPage->szTitle       : TEXT(""), 
-                                                                                                                   lstrlen(pPage->szDescription) ? pPage->szDescription : TEXT(""), 
-                                                                                                                   pPage->bVoice                 ? TEXT("yes")          : TEXT("no"));
-   }
-
-   /// [STRING] Generate <t> tag
-   generateConvertedString(pString->szText, SPC_LANGUAGE_INTERNAL_TO_EXTERNAL, szConverted);
-   appendStringToTextStreamf(pStream, TEXT("\t\t<t id=\"%d\">%s</t>\r\n"), pString->iID, utilEither(szConverted, pString->szText));
-
-   // Cleanup
-   utilSafeDeleteString(szConverted);
-}
-
 /// Function name  : generateLanguageFileXML
 // Description     : Fill the output buffer of a LanguageFile with the XML equivilent of it's current contents.
 // 
@@ -360,7 +341,7 @@ BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*
 
    // Add schema tags
    appendStringToTextStream(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?>\r\n"));
-   appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), pLanguageFile->iLanguage);
+   appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), pLanguageFile->eLanguage);
 
    /// Create a copy of all strings with order: PAGE_ID, GAME_VERSION, STRING_ID
    pOrderedTree = duplicateAVLTree(pLanguageFile->pGameStringsByID, createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), createAVLTreeSortKey(AK_VERSION, AO_ASCENDING), createAVLTreeSortKey(AK_ID, AO_ASCENDING));
@@ -694,15 +675,18 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
    if (generateXMLTree(pTargetFile->szInputBuffer, pTargetFile->iInputSize, identifyGameFileFilename(pTargetFile), hParentWnd, pXMLTree, pProgress, pErrorQueue) == OR_SUCCESS)
    {
       // Find language node
-      if (!findXMLTreeNodeByName(pXMLTree->pRoot, TEXT("language"), TRUE, pLanguageNode) OR !getXMLPropertyInteger(pLanguageNode, TEXT("id"), (INT&)pTargetFile->iLanguage))
+      if (!findXMLTreeNodeByName(pXMLTree->pRoot, TEXT("language"), TRUE, pLanguageNode) OR !getXMLPropertyInteger(pLanguageNode, TEXT("id"), (INT&)pTargetFile->eLanguage))
          // [ERROR] "Could not find the <language> tag in the %s file '%s' or the <language> tag does not specify a language ID"
          pError = generateDualError(HERE(IDS_LANGUAGE_TAG_MISSING), identifyLanguageFile(pTargetFile), identifyGameFileFilename(pTargetFile));
       
       // [CHECK] Ensure language matches the GameData language
-      else if (pTargetFile->iLanguage != getAppPreferences()->eGameLanguage)
+      else if (pTargetFile->eLanguage != getAppPreferences()->eGameLanguage)
          // [WARNING] "The language of the %s file '%s' is %s which does not match your chosen game data language of %s"
-         pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_LANGUAGE_TAG_MISMATCH), identifyLanguageFile(pTargetFile), identifyGameFileFilename(pTargetFile), identifyGameLanguageString((GAME_LANGUAGE)pTargetFile->iLanguage), identifyGameLanguageString(getAppPreferences()->eGameLanguage)));
+         pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_LANGUAGE_TAG_MISMATCH), identifyLanguageFile(pTargetFile), identifyGameFileFilename(pTargetFile), identifyGameLanguageString(pTargetFile->eLanguage), identifyGameLanguageString(getAppPreferences()->eGameLanguage)));
       
+      // [CHECK] Ensure language is valid
+      if (!isGameLanguageValid(pTargetFile->eLanguage))
+         pTargetFile->eLanguage = getAppPreferences()->eGameLanguage;
 
       /// [ERROR] Return FAILURE due to the language not matching
       if (pError)
@@ -863,8 +847,54 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
    deleteXMLTree(pXMLTree);
    END_TRACKING();
    return eResult;
-}      
+}
 
+
+/// Function name  : treeprocGenerateLanguageXML
+// Description     : Produces Languagefile XML
+// 
+// AVL_TREE_NODE*       pNode   : [in] GameString node
+// AVL_TREE_OPERATION*  pData   : [in] xFirstInput : Output TextStream*
+//                                     pInputTree  : Languagefile's GamePage tree
+// 
+VOID  treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData)
+{
+   TEXT_STREAM*   pStream         = (TEXT_STREAM*)pData->xFirstInput;
+   GAME_STRING*   pString         = extractPointerFromTreeNode(pNode, GAME_STRING);
+   GAME_VERSION&  eCurrentVersion = (GAME_VERSION&)pData->xInternalData1;     // xInternalData1 : Current PageID
+   UINT&          iCurrentPageID  = (UINT&)pData->xInternalData2;             // xInternalData2 : Current String Version
+   TCHAR*         szConverted     = NULL;
+
+   /// [NEW PAGE/VERSION] Generate close/open page tags
+   if (pString->iPageID != iCurrentPageID OR pString->eVersion != eCurrentVersion)
+   {
+      GAME_PAGE*  pPage;
+
+      // Close existing <page> tag  (if any)
+      if (iCurrentPageID != NULL)
+         appendStringToTextStream(pStream, TEXT("\t</page>\r\n"));
+
+      // Lookup GamePage. 
+      findObjectInAVLTreeByValue(pData->pInputTree, pString->iPageID, NULL, (LPARAM&)pPage);
+
+      // Update PageID + Version
+      iCurrentPageID  = pString->iPageID;
+      eCurrentVersion = pString->eVersion;
+      
+      /// [PAGE] Generate <page> tag
+      appendStringToTextStreamf(pStream, TEXT("\r\n\t<page id=\"%d\" title=\"%s\" desc=\"%s\" voice=\"%s\">\r\n"), calculateOutputPageID(iCurrentPageID, eCurrentVersion), 
+                                                                                                                   lstrlen(pPage->szTitle)       ? pPage->szTitle       : TEXT(""), 
+                                                                                                                   lstrlen(pPage->szDescription) ? pPage->szDescription : TEXT(""), 
+                                                                                                                   pPage->bVoice                 ? TEXT("yes")          : TEXT("no"));
+   }
+
+   /// [STRING] Generate <t> tag
+   generateConvertedString(pString->szText, SPC_LANGUAGE_INTERNAL_TO_EXTERNAL, szConverted);
+   appendStringToTextStreamf(pStream, TEXT("\t\t<t id=\"%d\">%s</t>\r\n"), pString->iID, utilEither(szConverted, pString->szText));
+
+   // Cleanup
+   utilSafeDeleteString(szConverted);
+}
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       THREAD FUNCTIONS

@@ -569,6 +569,41 @@ VOID    onResultsDialog_Destroy(RESULTS_DIALOG_DATA*  pDialogData)
 }
 
 
+/// Function name  :  onResultsDialog_GetMenuItemState
+// Description     : Determines whether a toolbar/menu command relating to the document should be enabled or disabled
+// 
+// RESULTS_DIALOG_DATA*  pDialogData   : [in] 
+// CONST UINT          iCommandID  : [in]     Menu/toolbar Command
+// UINT*               piState     : [in/out] Combination of MF_ENABLED, MF_DISABLED, MF_CHECKED, MF_UNCHECKED
+// 
+// Return Value   : TRUE
+// 
+BOOL   onResultsDialog_GetMenuItemState(RESULTS_DIALOG_DATA*  pDialogData, const UINT  iCommandID, UINT*  piState)
+{
+   switch (iCommandID)
+   {
+   /// [EDIT] Require focus to be on the search term
+   case IDM_EDIT_REDO:  
+   case IDM_EDIT_UNDO:  
+   case IDM_EDIT_CUT:
+   case IDM_EDIT_COPY:
+   case IDM_EDIT_DELETE:
+   case IDM_EDIT_PASTE:
+   case IDM_EDIT_SELECT_ALL:
+      *piState = (GetWindowID(GetFocus()) == IDC_RESULTS_SEARCH ? MF_ENABLED : MF_DISABLED);
+      break;
+
+   // [COMMENT] Unsupported
+   default:
+      *piState = MF_DISABLED;
+      break;
+   }
+
+   // Return TRUE
+   SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, TRUE);
+   return TRUE;
+}
+
 /// Function name  : onResultsDialog_InsertResult
 // Description     : Passes a formatted suggestion to the ActiveDocument
 // 
@@ -963,6 +998,7 @@ VOID  onResultsDialog_Show(RESULTS_DIALOG_DATA*  pDialogData)
 
    /// Update results
    updateResultsDialog(pDialogData->hDialog);
+   SetFocus(GetDlgItem(pDialogData->hDialog, IDC_RESULTS_SEARCH));
 
    END_TRACKING();
 }
@@ -1174,6 +1210,10 @@ INT_PTR    dlgprocResultsDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
          sendAppMessage(AW_MAIN, WM_MENUSELECT, wParam, lParam);
          break;
 
+      /// [MENU ITEM STATE]
+      case UM_GET_MENU_ITEM_STATE:
+         bResult = onResultsDialog_GetMenuItemState(pDialogData, wParam, (UINT*)lParam);
+
       /// [SHOW]
       case WM_SHOWWINDOW:
          if (wParam == TRUE)
@@ -1219,6 +1259,9 @@ INT_PTR    dlgprocResultsDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
          bResult = FALSE;
          break;
       }
+
+      // [FOCUS HANDLER]
+      updateMainWindowToolBar(iMessage, wParam, lParam);
    }
    /// [EXCEPTION HANDLER]
    __except (generateExceptionError(GetExceptionInformation(), pException))

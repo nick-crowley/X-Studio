@@ -126,7 +126,7 @@ BOOL  onMainWindowCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID
       break;
 
    /// [EDIT MENU]
-   // [EDIT: CUT/COPY/PASTE/DELETE]
+   // [EDIT: CUT/COPY/PASTE/DELETE] Send to focus window
    case IDM_EDIT_CUT:         SendMessage(GetFocus(), WM_CUT,   NULL, NULL);    break;
    case IDM_EDIT_COPY:        SendMessage(GetFocus(), WM_COPY,  NULL, NULL);    break;
    case IDM_EDIT_PASTE:       SendMessage(GetFocus(), WM_PASTE, NULL, NULL);    break;
@@ -135,16 +135,17 @@ BOOL  onMainWindowCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID
    case IDM_EDIT_UNDO:        SendMessage(GetFocus(), WM_UNDO, NULL, NULL);     break;
    case IDM_EDIT_REDO:        SendMessage(GetFocus(), EM_REDO, NULL, NULL);     break;
 
-   // [EDIT: COMMENT] Pass to document   
+   // [EDIT: BOLD/ITALIC/UNDERLINE/COMMENT] Send to parent of focus window
+   case IDM_RICHEDIT_BOLD:
+   case IDM_RICHEDIT_ITALIC:
+   case IDM_RICHEDIT_UNDERLINE: 
    case IDM_EDIT_COMMENT:
-      if (pActiveDocument = getActiveScriptDocument())
-         SendMessage(pActiveDocument->hWnd, WM_COMMAND, iCommandID, NULL);
+      SendMessage(GetParent(GetFocus()), WM_COMMAND, iCommandID, NULL);   
       break;
 
-   // [EDIT: FIND] Ensure document exists
+   // [EDIT: FIND] 
    case IDM_EDIT_FIND:
-      if (pActiveDocument = getActiveDocument())
-         onMainWindowEditFindText(pWindowData);
+      onMainWindowEditFindText(pWindowData);
       break;
 
    /// [VIEW MENU]
@@ -660,7 +661,7 @@ VOID  onMainWindowFileNewLanguageDocument(MAIN_WINDOW_DATA*  pWindowData, CONST 
    pDocument->bUntitled = TRUE;
 
    // Update Toolbar
-   updateMainWindowToolBar(pWindowData);
+   //updateMainWindowToolBar(pWindowData);
 }
 
 
@@ -701,7 +702,7 @@ VOID  onMainWindowFileNewProjectDocument(MAIN_WINDOW_DATA*  pWindowData, CONST T
       pDocument->bUntitled = TRUE;
 
       // Update Toolbar
-      updateMainWindowToolBar(pWindowData);
+      //updateMainWindowToolBar(pWindowData);
       break;
    }
 
@@ -748,7 +749,7 @@ VOID  onMainWindowFileNewScriptDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TC
    pDocument->bUntitled = TRUE;
 
    // Cleanup and update toolbar
-   updateMainWindowToolBar(pWindowData);
+   //updateMainWindowToolBar(pWindowData);
    utilDeleteStrings(szInitialText, szDate);
    END_TRACKING();
 }

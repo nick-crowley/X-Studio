@@ -473,6 +473,14 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
 
    /// [LANGUAGE: GENERAL]
    case PP_LANGUAGE_GENERAL:
+      // Populate languages ComboBox
+      for (APP_LANGUAGE eLanguage = AL_ENGLISH; eLanguage <= AL_SPANISH; eLanguage = (APP_LANGUAGE)(eLanguage + 1))
+      {
+         TCHAR* szLanguage = utilLoadString(getResourceInstance(), IDS_LANGUAGE_ENGLISH + eLanguage, 64);
+         appendCustomComboBoxItemEx(GetControl(hPage, IDC_LANGUAGE_COMBO), szLanguage, NULL, szLanguageIcons[eLanguage], NULL);
+         utilDeleteString(szLanguage);
+      }
+
       // Populate String GameVersion ComboBox
       for (GAME_VERSION  eVersion = GV_THREAT; eVersion <= GV_ALBION_PRELUDE; eVersion = (GAME_VERSION)(eVersion + 1))
          appendCustomComboBoxItemEx(GetControl(hPage, IDC_STRING_VERSION_COMBO), identifyGameVersionString(eVersion), NULL, identifyGameVersionIconID(eVersion), NULL);
@@ -1011,6 +1019,9 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
       bResult = FALSE;
       break;
    }
+
+   // [FOCUS HANDLER]
+   updateMainWindowToolBar(iMessage, wParam, lParam);
 
    // Return result
    END_TRACKING();

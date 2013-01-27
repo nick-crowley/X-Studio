@@ -112,6 +112,10 @@ IMAGE_TREE*   getAppImageTree(CONST IMAGE_TREE_SIZE  eSize)
    case ITS_SMALL:   pOutput = pApplication->pSmallImageTree;    break;
    case ITS_MEDIUM:  pOutput = pApplication->pMediumImageTree;   break;
    case ITS_LARGE:   pOutput = pApplication->pLargeImageTree;    break;
+
+   default:          
+      VERBOSE(BUG "Invalid ImageTree size");
+      pOutput = pApplication->pMediumImageTree;   break;
    }
 
    // Return ImageTree

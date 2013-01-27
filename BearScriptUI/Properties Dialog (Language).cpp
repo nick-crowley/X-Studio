@@ -151,6 +151,7 @@ VOID  onLanguagePage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPE
    LANGUAGE_DOCUMENT*  pDocument = pSheetData->pLanguageDocument;       // Document
    LANGUAGE_MESSAGE*   pMessage  = getLanguageMessage(pSheetData);      // Current message  [May be NULL]
    GAME_STRING*        pString   = pDocument->pCurrentString;           // Current string   [May be NULL]
+   APP_LANGUAGE        eLanguage;
    BOOL                bEnabled  = pMessage AND !pDocument->bVirtual;   // TRUE if document is non-virtual and string is currently selected
    TCHAR*              szFolder  = NULL;                                // Document folder path
    
@@ -161,17 +162,21 @@ VOID  onLanguagePage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPE
    /// [LANGUAGE: GENERAL]
    case PP_LANGUAGE_GENERAL:
       // Enable/Disable controls appropriately
-      utilEnableDlgItems(hPage, bEnabled, 3, IDC_AUTHOR_EDIT, IDC_TITLE_EDIT, IDC_STRING_VERSION_COMBO);
+      utilEnableDlgItems(hPage, bEnabled, 4, IDC_AUTHOR_EDIT, IDC_TITLE_EDIT, IDC_LANGUAGE_COMBO, IDC_STRING_VERSION_COMBO);
 
-      // Author/Title + StringID + DocumentPath
+      // Calculate path + language
+      szFolder  = (pDocument->pLanguageFile ? utilDuplicateFolderPath(pDocument->szFullPath) : generateGameDataFilePath(GFI_LANGUAGE_FOLDER, getAppPreferences()->szGameFolder, getAppPreferences()->eGameVersion));
+      eLanguage = convertGameLanguageToAppLanguage(pDocument->pLanguageFile ? pDocument->pLanguageFile->eLanguage : getAppPreferences()->eGameLanguage);
+
+      // Author/Title + DocumentPath
       SetDlgItemText(hPage, IDC_AUTHOR_EDIT,    pMessage ? pMessage->szAuthor : TEXT(""));
       SetDlgItemText(hPage, IDC_TITLE_EDIT,     pMessage ? pMessage->szTitle  : TEXT(""));
-      SetDlgItemInt(hPage,  IDC_STRING_ID_EDIT, pString  ? pString->iID : 0, FALSE);
-      PathSetDlgItemPath(hPage, IDC_LANGUAGE_FOLDER_EDIT, szFolder = utilDuplicateFolderPath(pDocument->szFullPath));
-      
-      // Compatibility + Version
+      PathSetDlgItemPath(hPage, IDC_LANGUAGE_FOLDER_EDIT, szFolder);
+
+      // Language + Compatibility + Version
       ComboBox_SetCurSel(GetDlgItem(hPage, IDC_COMPATIBILITY_COMBO),  pMessage ? pMessage->eCompatibility = calculateLanguageMessageCompatibility(pMessage) : LMC_LOGBOOK);
       ComboBox_SetCurSel(GetDlgItem(hPage, IDC_STRING_VERSION_COMBO), pString  ? pString->eVersion : GV_THREAT);
+      ComboBox_SetCurSel(GetDlgItem(hPage, IDC_LANGUAGE_COMBO), eLanguage);
       break;
 
    /// [ACTION BUTTONS]
@@ -281,18 +286,25 @@ BOOL    onGeneralPage_CommandL(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONS
       /// [COMPATIBILITY] Strip the message of customisations incompatible with the current selection
       case IDC_COMPATIBILITY_COMBO:
          if (bResult = (iNotification == CBN_SELCHANGE))
-            performLanguageMessageCompatibilityChange(pMessage, (MESSAGE_COMPATIBILITY)ComboBox_GetCurSel(GetDlgItem(hDialog, iControl)) );
+            performLanguageMessageCompatibilityChange(pMessage, (MESSAGE_COMPATIBILITY)ComboBox_GetCurSel(hCtrl) );
          break;
 
       /// [GAME VERSION] Update GameVersion
       case IDC_STRING_VERSION_COMBO:
          if (bResult = (iNotification == CBN_SELCHANGE))
-            pDocument->pCurrentString->eVersion = (GAME_VERSION)ComboBox_GetCurSel(GetDlgItem(hDialog, iControl));
+            pDocument->pCurrentString->eVersion = (GAME_VERSION)ComboBox_GetCurSel(hCtrl);
+         break;
+
+      /// [LANGUAGE] Update Language
+      case IDC_LANGUAGE_COMBO:
+         if (bResult = (iNotification == CBN_SELCHANGE AND pDocument->pLanguageFile))
+            pDocument->pLanguageFile->eLanguage = convertAppLanguageToGameLanguage((APP_LANGUAGE)ComboBox_GetCurSel(hCtrl));
          break;
       }
 
       // [EVENT] Notify document that a property has changed
-      sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControl);
+      if (bResult)
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControl);
    }
 
    END_TRACKING();
@@ -319,8 +331,7 @@ INT_PTR   dlgprocGeneralPageL(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
    {
    /// [COMMAND]
    case WM_COMMAND:
-      if (onGeneralPage_CommandL(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
-         return TRUE;
+      onGeneralPage_CommandL(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
       break;
 
    /// [CUSTOM COMBOBOX] Small Combo with Medium drop-down

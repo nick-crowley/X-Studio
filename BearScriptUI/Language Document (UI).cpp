@@ -271,6 +271,19 @@ BOOL  onLanguageDocument_EditStringEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPIN
 }
 
 
+/// Function name  : onLanguageDocument_GetMenuItemState
+// Description     : Determines whether a toolbar/menu command relating to the document should be enabled or disabled
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in]     Document
+// CONST UINT        iCommandID  : [in]     Menu/toolbar Command
+// UINT*             piState     : [in/out] Combination of MF_ENABLED, MF_DISABLED, MF_CHECKED, MF_UNCHECKED
+// 
+BOOL   onLanguageDocument_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState)
+{
+   *piState = MF_DISABLED;
+   return TRUE;
+}
+
 /// Function name  : onLanguageDocument_InsertPage
 // Description     : 'Insert Page' context menu handler
 // 

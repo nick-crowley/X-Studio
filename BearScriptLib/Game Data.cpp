@@ -142,6 +142,7 @@ GAME_LANGUAGE  convertAppLanguageToGameLanguage(CONST APP_LANGUAGE  eLanguage)
    // Examine language
    switch (eLanguage)
    {
+   default:  VERBOSE(BUG "Unknown AppLanguage"); // Fall through
    case AL_ENGLISH:   eOutput = GL_ENGLISH;  break;
    case AL_FRENCH:    eOutput = GL_FRENCH;   break;
    case AL_GERMAN:    eOutput = GL_GERMAN;   break;
@@ -170,6 +171,7 @@ INTERFACE_LANGUAGE  convertAppLanguageToInterfaceLanguage(CONST APP_LANGUAGE  eL
    // Examine language
    switch (eLanguage)
    {
+   default:  VERBOSE(BUG "Unknown AppLanguage"); // Fall through
    case AL_ENGLISH:   eOutput = IL_ENGLISH;  break;
    case AL_GERMAN:    eOutput = IL_GERMAN;   break;
    //case IL_RUSSIAN:   eOutput = AL_RUSSIAN;  break;
@@ -194,6 +196,7 @@ APP_LANGUAGE  convertGameLanguageToAppLanguage(CONST GAME_LANGUAGE  eLanguage)
    // Examine language
    switch (eLanguage)
    {
+   default:  VERBOSE(BUG "Unknown GameLanguage"); // Fall through
    case GL_ENGLISH:   eOutput = AL_ENGLISH;  break;
    case GL_FRENCH:    eOutput = AL_FRENCH;   break;
    case GL_GERMAN:    eOutput = AL_GERMAN;   break;
@@ -224,6 +227,7 @@ APP_LANGUAGE  convertInterfaceLanguageToAppLanguage(CONST INTERFACE_LANGUAGE  eL
    // Examine language
    switch (eLanguage)
    {
+   default:  VERBOSE(BUG "Unknown InterfaceLanguage"); // Fall through
    case IL_ENGLISH:   eOutput = AL_ENGLISH;  break;
    case IL_GERMAN:    eOutput = AL_GERMAN;   break;
    //case IL_RUSSIAN:   eOutput = AL_RUSSIAN;  break;

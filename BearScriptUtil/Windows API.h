@@ -145,6 +145,15 @@
 //                                       RICH EDIT CONTROL
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Macro: RichEdit_CanRedo
+//  Description: Checks whether control can Redo
+//
+//  HWND  hCtrl   : [in] RichEdit window handle
+//
+// Return Value: TRUE/FALSE
+//
+#define    RichEdit_CanRedo(hCtrl)                                   SendMessage(hCtrl, EM_CANREDO, NULL, NULL)
+
 /// Macro: RichEdit_GetCharFormat
 //  Description: Gets current character format
 //

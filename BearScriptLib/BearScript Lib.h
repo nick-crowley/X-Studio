@@ -420,7 +420,7 @@ LRESULT CALLBACK       wndprocConsole(HWND hWnd, UINT iMessage, WPARAM wParam, L
 //
 // CONST CHAR*  szTask : [in] (ANSI) Description of the bug
 //
-#define  BUG(szBug)                            CONSOLE("BUG: " szBug " in " __FUNCTION__) 
+#define  BUG                                   "BUG: " __FUNCTION__ "() :" 
 
 /// Macro: OFFICIAL_BUG
 // Description: Prints a bug description and bug ID to the console
@@ -751,11 +751,13 @@ BearScriptAPI VOID            deleteLanguageFile(LANGUAGE_FILE*  &pLanguageFile)
 BOOL              findLanguageFileGamePageByID(CONST LANGUAGE_FILE*  pLanguageFile, CONST UINT  iPageID, GAME_PAGE*  &pOutput);
 BOOL              findLanguageFileGameStringByID(CONST LANGUAGE_FILE*  pLanguageFile, CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
 CONST TCHAR*      identifyGameLanguageString(CONST GAME_LANGUAGE  eLanguage);
+BOOL              isGameLanguageValid(const GAME_LANGUAGE  eLanguage);
 CONST TCHAR*      identifyLanguageFile(CONST LANGUAGE_FILE*  pLanguageFile);
 BOOL              isLanguageFileOfficial(CONST LANGUAGE_FILE*  pLanguageFile);
 BOOL              isLanguageFileMaster(CONST LANGUAGE_FILE*  pLanguageFile);
 
 // Functions
+BOOL              generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 VOID              insertGamePageIntoLanguageFile(LANGUAGE_FILE*  pLanguageFile, CONST UINT  iPageID, CONST TCHAR*  szTitle, CONST TCHAR*  szDescription, CONST BOOL  bVoiced);
 BOOL              insertGameStringIntoDescriptionsFile(LANGUAGE_FILE*  pDescriptionsFile, CONST TCHAR*  szString, CONST UINT  iID, CONST UINT  iPageID, ERROR_STACK*  &pError);
 BOOL              insertGameStringIntoLanguageFile(LANGUAGE_FILE*  pLanguageFile, CONST TCHAR*  szString, CONST UINT  iID, CONST UINT  iPageID, ERROR_STACK*  &pError);
@@ -763,6 +765,7 @@ OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FIL
 VOID              performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, OPERATION_PROGRESS*  pProgress);
 VOID              performVariablesFileStringConversion(VARIABLES_FILE*  pVariablesFile);
 OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
+VOID              treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 
 // (Export) Functions
 BearScriptAPI DWORD             threadprocLoadLanguageFile(VOID*  pParameter);

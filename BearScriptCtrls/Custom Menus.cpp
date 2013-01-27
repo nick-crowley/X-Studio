@@ -697,7 +697,7 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_COLOUR_BLACK:                    szIconID = TEXT("BLACK_ICON");               break;
    case IDM_COLOUR_BLUE:                     szIconID = TEXT("BLUE_ICON");                break;
    case IDM_COLOUR_CYAN:                     szIconID = TEXT("CYAN_ICON");                break;
-   case IDM_COLOUR_DEFAULT:                  szIconID = TEXT("BLACK_ICON");               break;
+   case IDM_COLOUR_DEFAULT:                  szIconID = TEXT("GREY_ICON");               break;
    case IDM_COLOUR_GREEN:                    szIconID = TEXT("GREEN_ICON");               break;
    case IDM_COLOUR_ORANGE:                   szIconID = TEXT("ORANGE_ICON");              break;
    case IDM_COLOUR_PURPLE:                   szIconID = TEXT("PURPLE_ICON");              break;

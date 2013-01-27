@@ -744,6 +744,7 @@ LIST*  generateRecentDocumentList(MAIN_WINDOW_DATA*  pWindowData)
    return pOutputList;
 }
 
+
 /// Function name  : identifyMainWindowCommandStateByID
 // Description     : Determines the state of any given toolbar/menu command
 // 
@@ -756,7 +757,7 @@ LIST*  generateRecentDocumentList(MAIN_WINDOW_DATA*  pWindowData)
 BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID)
 {
    DOCUMENT*   pDocument;        // Used for determining whether an item in the Window menu is the active document or not
-   TCHAR       szClassName[32];  // WindowClass name of the window with keyboard focus
+   //TCHAR       szClassName[32];  // WindowClass name of the window with keyboard focus
    BOOL        iOutput;          // Operation result
    
    // Prepare
@@ -872,7 +873,7 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
       /// [FIND TEXT] Requires a script document
       case IDM_EDIT_FIND:                    iOutput = (getActiveScriptDocument() ? MF_ENABLED : MF_DISABLED);    break;
 
-      /// [EDIT COMMANDS] Requires an Edit/CodeEdit with keyboard focus
+      /// [EDIT GENERIC] Enable unless parent of focus window declines them
       case IDM_EDIT_UNDO:
       case IDM_EDIT_REDO:
       case IDM_EDIT_CUT:
@@ -880,24 +881,17 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
       case IDM_EDIT_PASTE:
       case IDM_EDIT_DELETE:
       case IDM_EDIT_SELECT_ALL:
-         // [EDIT WINDOW] Always enable
-         if (GetClassName(GetFocus(), szClassName, 32) AND (utilCompareStringVariables(szClassName, WC_EDIT))) // OR utilCompareStringVariables(szClassName, szCodeEditClass)))
-            iOutput = MF_ENABLED;
-         
-         // [DOCUMENT CODE-EDIT] Query document
-         else if (GetFocus() AND getActiveScriptCodeEdit() == GetFocus())
-            iOutput = SendMessage(getActiveDocument()->hWnd, UM_QUERY_DOCUMENT_COMMAND, iCommandID, NULL);
-         
-         // [PREFERENCES CODE-EDIT] Enable all
-         else if (utilCompareStringVariables(szClassName, szCodeEditClass))
+         if (!Window_GetMenuItemState(GetParent(GetFocus()), iCommandID, &iOutput))
             iOutput = MF_ENABLED;
          break;
 
-      /// [COMMENT] Require CodeEdit with keyboard focus
+      /// [EDIT SPECIAL] Disable unless parent of focus window accepts them
+      case IDM_RICHEDIT_BOLD:
+      case IDM_RICHEDIT_ITALIC:
+      case IDM_RICHEDIT_UNDERLINE: 
       case IDM_EDIT_COMMENT:
-         // [DOCUMENT CODE-EDIT] Query document
-         if (GetFocus() AND getActiveScriptCodeEdit() == GetFocus())
-            iOutput = SendMessage(getActiveDocument()->hWnd, UM_QUERY_DOCUMENT_COMMAND, IDM_EDIT_COMMENT, NULL);
+         if (!Window_GetMenuItemState(GetParent(GetFocus()), iCommandID, &iOutput))
+            iOutput = MF_DISABLED;
          break;
 
       /// [WINDOW MENU] Handle the document menu or pass to the document

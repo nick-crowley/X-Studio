@@ -305,7 +305,8 @@ HRESULT    RichEditCallback::GetContextMenu(WORD  iSelectionType, IOleObject*  p
 {
    HMENU  hParentMenu;
 
-   BUG("Richedit provided context menu can't be custom drawn");
+   // BUG
+   VERBOSE(BUG "Richedit provided context menu can't be custom drawn");
 
    // Retrieve appropriate Popup
    hParentMenu = LoadMenu(getResourceInstance(), TEXT("LANGUAGE_MENU"));

@@ -407,6 +407,7 @@ LRESULT  onCodeEditInterfaceMessage(CODE_EDIT_DATA*  pWindowData, CONST UINT  iM
          onCodeEditSelectAll(pWindowData);
       break;
 
+
    /// Message: EM_CANUNDO and EM_CANREDO
    case EM_CANUNDO:  xResult = (getStackItemCount(pWindowData->oUndo.pUndoStack) > 0 ? TRUE : FALSE); break;
    case EM_CANREDO:  xResult = (getStackItemCount(pWindowData->oUndo.pRedoStack) > 0 ? TRUE : FALSE); break;
@@ -768,6 +769,10 @@ VOID  onCodeEditLoseFocus(CODE_EDIT_DATA*  pWindowData, HWND  hDestinationWnd)
       destroyCodeEditSuggestionList(pWindowData);
    }
 
+   // Send EN_KILLFOCUS
+   if (pWindowData)
+      SendMessage(GetParent(pWindowData->hWnd), WM_COMMAND, MAKE_LONG(GetWindowID(pWindowData->hWnd), EN_KILLFOCUS), (LPARAM)pWindowData->hWnd);
+
    // [TRACK]
    END_TRACKING();
 }
@@ -794,6 +799,10 @@ VOID  onCodeEditReceiveFocus(CODE_EDIT_DATA*  pWindowData, HWND  hSourceWnd)
       updateCodeEditCaretPosition(pWindowData);
       ShowCaret(pWindowData->hWnd);
    }
+
+   // Send EN_SETFOCUS
+   if (pWindowData)
+      SendMessage(GetParent(pWindowData->hWnd), WM_COMMAND, MAKE_LONG(GetWindowID(pWindowData->hWnd), EN_SETFOCUS), (LPARAM)pWindowData->hWnd);
 
    // [TRACK]
    END_TRACKING();

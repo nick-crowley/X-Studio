@@ -495,6 +495,45 @@ VOID  updateMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
 }
 
 
+/// Function name  : updateMainWindowToolBar
+// Description     : 
+// 
+// UINT  iMessage   : [in] 
+// WPARAM  wParam   : [in] 
+// LPARAM  lParam   : [in] 
+// 
+VOID  updateMainWindowToolBar(UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
+{
+   TCHAR  szClass[16];
+
+   // [SETFOCUS]
+   if (iMessage == WM_SETFOCUS)
+      /// [WINDOW GAINED FOCUS] Update Toolbar
+      updateMainWindowToolBar(getMainWindowData());
+
+   // [COMMAND]
+   else if (iMessage == WM_COMMAND AND lParam != NULL AND GetClassName((HWND)lParam, szClass, 16))
+   {
+      BOOL  bUpdate = FALSE;
+
+      switch (HIWORD(wParam))
+      {
+      case BN_SETFOCUS:   bUpdate = utilCompareStringVariables(szClass, WC_BUTTON);    break;
+      case EN_SETFOCUS:   bUpdate = utilCompareStringVariables(szClass, WC_EDIT) OR utilCompareStringVariables(szClass, RICHEDIT_CLASS);      break;
+      case CBN_SETFOCUS:  bUpdate = utilCompareStringVariables(szClass, WC_COMBOBOX);  break;
+      case LBN_SETFOCUS:  bUpdate = utilCompareStringVariables(szClass, WC_LISTBOX);   break;      
+      }
+
+      /// [CONTROL GAINED FOCUS] Update Toolbar
+      if (bUpdate)
+         updateMainWindowToolBar(getMainWindowData());
+   }
+   // [NOTIFY]
+   else if (iMessage == WM_NOTIFY AND ((NMHDR*)lParam)->code == NM_SETFOCUS)
+      /// [CONTROL GAINED FOCUS] Update Toolbar
+      updateMainWindowToolBar(getMainWindowData());
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////

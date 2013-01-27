@@ -471,6 +471,54 @@ VOID     onScriptDocumentDestroy(SCRIPT_DOCUMENT*  pDocument)
 }
 
 
+/// Function name  : onScriptDocumentGetMenuItemState
+// Description     : Determines whether a toolbar/menu command relating to the document should be enabled or disabled
+// 
+// SCRIPT_DOCUMENT*  pDocument   : [in]     Script Document to query
+// CONST UINT        iCommandID  : [in]     Menu/toolbar Command to query
+// UINT*             piState     : [in/out] Combination of MF_ENABLED, MF_DISABLED, MF_CHECKED, MF_UNCHECKED
+// 
+BOOL  onScriptDocumentGetMenuItemState(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState)
+{
+   // [TRACKING]
+   TRACK_FUNCTION();
+
+   // [CHECK] Ensure CodeEdit has focus
+   if (GetFocus() != pDocument->hCodeEdit)
+      *piState = MF_DISABLED;
+   
+   // Examine command
+   else switch (iCommandID)
+   {
+   /// [UNDO/REDO] Require empty/full undo queue
+   case IDM_EDIT_REDO:  *piState = (RichEdit_CanRedo(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED);   break;
+   case IDM_EDIT_UNDO:  *piState = (Edit_CanUndo(pDocument->hCodeEdit)     ? MF_ENABLED : MF_DISABLED);   break;  
+
+   /// [CUT/COPY/DELETE] Requires a text selection
+   case IDM_EDIT_CUT:
+   case IDM_EDIT_COPY:
+   case IDM_EDIT_DELETE:
+   case IDM_EDIT_COMMENT:
+      *piState = (CodeEdit_HasSelection(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED);
+      break;
+
+   /// [PASTE / SELECT ALL] Always enabled
+   case IDM_EDIT_PASTE:
+   case IDM_EDIT_SELECT_ALL:
+      *piState = MF_ENABLED;
+      break;
+
+   // [UNSUPPORTED] Error
+   default:
+      VERBOSE(BUG "Unsupported Command");
+      break;
+   }
+
+   END_TRACKING();
+   return TRUE;
+}
+
+
 /// Function name  : onScriptDocumentGetScriptVersion
 // Description     : Returns the Script's GameVersion 
 // 
@@ -665,8 +713,9 @@ VOID  onScriptDocumentLoseFocus(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
    // [TRACK]
    TRACK_FUNCTION();
    
-   // Destroy labels refresh timer
+   // Destroy labels refresh timer + Refresh Toolbar
    KillTimer(pDocument->hWnd, iLabelsTickerID);
+   //updateMainWindowToolBar(getMainWindowData());
 
    // [TRACK]
    END_TRACKING();
@@ -741,54 +790,6 @@ VOID   onScriptDocumentPreferencesChanged(SCRIPT_DOCUMENT*  pDocument)
 }
 
 
-/// Function name  : onScriptDocumentQueryCommand
-// Description     : Determines whether a toolbar/menu command relating to the document should be enabled or disabled
-// 
-// SCRIPT_DOCUMENT*  pDocument   : [in] Script Document to query
-// CONST UINT        iCommandID  : [in] Menu/toolbar Command to query
-// 
-// Message Return Value : Combination of MF_ENABLED, MF_DISABLED, MF_CHECKED, MF_UNCHECKED
-// 
-UINT   onScriptDocumentQueryCommand(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iCommandID)
-{
-   UINT  iState;    // Operation result
-
-   // [TRACKING]
-   TRACK_FUNCTION();
-
-   // Examine command
-   switch (iCommandID)
-   {
-   /// [UNDO/REDO] Query CodeEdit
-   case IDM_EDIT_REDO:  iState = (SendMessage(pDocument->hCodeEdit, EM_CANREDO, NULL, NULL) ? MF_ENABLED : MF_DISABLED);   break;
-   case IDM_EDIT_UNDO:  iState = (SendMessage(pDocument->hCodeEdit, EM_CANUNDO, NULL, NULL) ? MF_ENABLED : MF_DISABLED);   break;  
-
-   /// [CUT/COPY/DELETE] Requires a text selection
-   case IDM_EDIT_CUT:
-   case IDM_EDIT_COPY:
-   case IDM_EDIT_DELETE:
-   case IDM_EDIT_COMMENT:
-      iState = (SendMessage(pDocument->hCodeEdit, UM_HAS_SELECTION, NULL, NULL) ? MF_ENABLED : MF_DISABLED);
-      break;
-
-   /// [PASTE / SELECT ALL] Always enabled
-   case IDM_EDIT_PASTE:
-   case IDM_EDIT_SELECT_ALL:
-      iState = MF_ENABLED;
-      break;
-
-   // [UNSUPPORTED] Error
-   default:
-      ASSERT(FALSE);
-      break;
-   }
-
-   // Set message result
-   END_TRACKING();
-   return iState;
-}
-
-
 /// Function name  : onScriptDocumentReceiveFocus
 // Description     : Create the 'Current scope' timer
 // 
@@ -805,6 +806,9 @@ VOID  onScriptDocumentReceiveFocus(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 
    // Set focus to the CodeEdit
    SetFocus(pDocument->hCodeEdit);
+
+   // Refresh Toolbar
+   //updateMainWindowToolBar(getMainWindowData());
 
    // [TRACK]
    END_TRACKING();
@@ -1150,7 +1154,7 @@ LRESULT   wndprocScriptDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
       case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                     break;
       case WM_DELETEITEM:  onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);                 break;
       case WM_MEASUREITEM: pItemSize = (MEASUREITEMSTRUCT*)lParam; 
-                           pItemSize->CtlType == ODT_COMBOBOX ? onWindow_MeasureComboBox(pItemSize, (IMAGE_TREE_SIZE)20, ITS_MEDIUM) : onWindow_MeasureItem(hDialog, pItemSize);  break;
+                           pItemSize->CtlType == ODT_COMBOBOX ? onWindow_MeasureComboBox(pItemSize, ITS_MEDIUM, ITS_MEDIUM) : onWindow_MeasureItem(hDialog, pItemSize);  break;
 
       /// [DOCUMENT LOADED/SAVED]
       case UN_OPERATION_COMPLETE:
@@ -1176,9 +1180,9 @@ LRESULT   wndprocScriptDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
          iResult = onScriptDocumentGetScriptVersion(pDocument, (GAME_VERSION*)lParam);
          break;
 
-      /// [QUERY DOCUMENT COMMAND]
-      case UM_QUERY_DOCUMENT_COMMAND:
-         iResult = onScriptDocumentQueryCommand(pDocument, wParam);
+      /// [GET MENU CMD STATE]
+      case UM_GET_MENU_ITEM_STATE:
+         iResult = onScriptDocumentGetMenuItemState(pDocument, wParam, (UINT*)lParam);
          break;
 
       /// [INSERT RESULT] Forward to CodeEdit
@@ -1216,6 +1220,9 @@ LRESULT   wndprocScriptDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
          iResult = DefWindowProc(hDialog, iMessage, wParam, lParam);
          break;
       }
+
+      // [FOCUS HANDLER]
+      updateMainWindowToolBar(iMessage, wParam, lParam);
    }
    /// [EXCEPTION HANDLER]
    __except (generateExceptionError(GetExceptionInformation(), pError))
