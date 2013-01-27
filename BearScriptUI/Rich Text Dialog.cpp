@@ -81,10 +81,10 @@ BOOL   createRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 UINT  identifyRichTextDialogToolBarCommandID(CONST UINT  iIndex)
 {
    static UINT iButtonCommands[iToolBarButtonCount] = {
-                IDM_RICHEDIT_CUT,   IDM_RICHEDIT_COPY,   IDM_RICHEDIT_PASTE,     IDM_RICHEDIT_DELETE,
-          NULL, IDM_RICHEDIT_LEFT,  IDM_RICHEDIT_CENTRE, IDM_RICHEDIT_RIGHT,     IDM_RICHEDIT_JUSTIFY,
+                IDM_EDIT_CUT,       IDM_EDIT_COPY,       IDM_EDIT_PASTE,         IDM_EDIT_DELETE,
           NULL, IDM_RICHEDIT_BOLD,  IDM_RICHEDIT_ITALIC, IDM_RICHEDIT_UNDERLINE, 
           NULL, IDM_RICHEDIT_COLOUR, 
+          NULL, IDM_RICHEDIT_LEFT,  IDM_RICHEDIT_CENTRE, IDM_RICHEDIT_RIGHT,     IDM_RICHEDIT_JUSTIFY,
           NULL, IDM_RICHEDIT_BUTTON };
 
    // [CHECK] Index is valid
@@ -191,10 +191,10 @@ BOOL performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, 
    // [COLOUR]
    default:                      iProperty = CFM_COLOR;        break;
    // [CLIPBOARD]
-   case IDM_RICHEDIT_CUT:        return SendMessage(pDocument->hRichEdit, WM_CUT,   NULL, NULL);
-   case IDM_RICHEDIT_COPY:       return SendMessage(pDocument->hRichEdit, WM_COPY,  NULL, NULL);
-   case IDM_RICHEDIT_PASTE:      return SendMessage(pDocument->hRichEdit, WM_PASTE, NULL, NULL);
-   case IDM_RICHEDIT_DELETE:     return SendMessage(pDocument->hRichEdit, WM_CLEAR, NULL, NULL);
+   case IDM_EDIT_CUT:        return SendMessage(pDocument->hRichEdit, WM_CUT,   NULL, NULL);
+   case IDM_EDIT_COPY:       return SendMessage(pDocument->hRichEdit, WM_COPY,  NULL, NULL);
+   case IDM_EDIT_PASTE:      return SendMessage(pDocument->hRichEdit, WM_PASTE, NULL, NULL);
+   case IDM_EDIT_DELETE:     return SendMessage(pDocument->hRichEdit, WM_CLEAR, NULL, NULL);
    }
 
    /// Alter the specified property
@@ -271,7 +271,7 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
    bEditHasFocus = (GetFocus() == pDocument->hRichEdit);
 
    /// [STATE] Enable/Disable buttons 
-   for (UINT iButton = IDM_RICHEDIT_CUT; iButton <= IDM_RICHEDIT_BUTTON; iButton++)
+   for (UINT iButton = IDM_EDIT_CUT; iButton <= IDM_RICHEDIT_BUTTON; iButton++)
    {
       // [DEFAULT] Ensure we have the input focus + doc isn't game data
       bButtonState = bEditHasFocus AND !pDocument->bVirtual;
@@ -283,15 +283,15 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
          continue;
 
       /// [CUT/COPY/DELETE] - Ensure there is a selection
-      case IDM_RICHEDIT_CUT:
-      case IDM_RICHEDIT_COPY:
-      case IDM_RICHEDIT_DELETE:
+      case IDM_EDIT_CUT:
+      case IDM_EDIT_COPY:
+      case IDM_EDIT_DELETE:
          SendMessage(pDocument->hRichEdit, EM_EXGETSEL, NULL, (LPARAM)&oSelection);
          bButtonState &= (oSelection.cpMin != oSelection.cpMax);
          break;
 
       /// [PASTE] - Ensure clipboard contains text
-      case IDM_RICHEDIT_PASTE:
+      case IDM_EDIT_PASTE:
          bButtonState &= SendMessage(pDocument->hRichEdit, EM_CANPASTE, CF_UNICODETEXT, NULL) WITH SendMessage(pDocument->hRichEdit, EM_CANPASTE, CF_TEXT, NULL);
          break;
       }
@@ -388,10 +388,10 @@ BOOL  onRichTextDialogCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
    case IDM_RICHEDIT_ITALIC:
    case IDM_RICHEDIT_UNDERLINE:
    /// [CLIPBOARD]
-   case IDM_RICHEDIT_CUT:    
-   case IDM_RICHEDIT_COPY:   
-   case IDM_RICHEDIT_PASTE:  
-   case IDM_RICHEDIT_DELETE: 
+   case IDM_EDIT_CUT:    
+   case IDM_EDIT_COPY:   
+   case IDM_EDIT_PASTE:  
+   case IDM_EDIT_DELETE: 
       bResult = performRichEditFormatCommand(pDocument, hDialog, iControlID);
       break;
 

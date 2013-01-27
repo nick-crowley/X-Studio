@@ -131,6 +131,11 @@ CONST TCHAR*     szLargeIcons[iLargeIconCount] =
    TEXT("LANGUAGE_FOLDER_ICON"), TEXT("MISSION_FOLDER_ICON"),     TEXT("SCRIPT_FOLDER_ICON"),
 };
 
+// Language Identifiers
+LANGID  iLanguageIDs[3] = { MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_UK),     // AL_ENGLISH
+                            NULL,                                             // AL_FRENCH
+                            MAKELANGID(LANG_GERMAN, SUBLANG_GERMAN) };        // AL_GERMAN
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION  /  DESTRUCTION
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,6 +199,21 @@ VOID  deleteApplication()
 ///                                          HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : setThreadLanguage
+// Description     : Sets the thread language to the preferences based interface language
+// 
+// const APP_LANGUAGE  eLanguage : [in] Language
+//
+BearScriptAPI
+VOID  setThreadLanguage(const APP_LANGUAGE  eLanguage)
+{
+   LANGID  iLangID = iLanguageIDs[eLanguage];   // Lookup language ID
+
+   /// Set thread locate and UI language
+   SetThreadLocale(iLangID);  
+   SetThreadUILanguage(iLangID);
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,13 +237,16 @@ TCHAR*    generateResourceLibraryPath(CONST APP_LANGUAGE  eLanguage)
    // Get full path of EXE
    GetModuleFileName(NULL, szExePath, MAX_PATH);
 
-   /// Generate full path to appropriate library
-   switch (eLanguage)
+   // Generate full path to appropriate library
+   /*switch (eLanguage)
    {
    case AL_ENGLISH:     szOutput = utilRenameFilePath(szExePath, TEXT("X-Studio.English.DLL"));    break;
    case AL_GERMAN:      szOutput = utilRenameFilePath(szExePath, TEXT("X-Studio.German.DLL"));    break;
    case AL_RUSSIAN:     szOutput = utilRenameFilePath(szExePath, TEXT("X-Studio.Russian.DLL"));    break;
-   }
+   }*/
+
+   /// All languages stored in single library
+   szOutput = utilRenameFilePath(szExePath, TEXT("X-Studio.Resources.DLL"));
 
    // Cleanup and return
    utilDeleteString(szExePath);
@@ -393,6 +416,9 @@ BOOL  loadResourceLibrary(CONST APP_LANGUAGE  eLanguage, ERROR_STACK*  &pError)
    /// Load resource library for the specified language
    if (pApplication->hResourceInstance = LoadLibrary(szLibraryPath))
    {
+      /// Set thread language
+      setThreadLanguage(eLanguage);
+
       // [SUCCESS] Load application title and resource DLL path
       LoadString(getResourceInstance(), IDS_APPLICATION_NAME, pApplication->szName, 128);
       StringCchCopy(pApplication->szResourceLibrary, MAX_PATH, szLibraryPath);

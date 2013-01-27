@@ -148,6 +148,7 @@ HICON  getAppImageTreeIconHandle(CONST IMAGE_TREE_SIZE  eSize, CONST TCHAR*  szI
    return getImageTreeIconHandle(getAppImageTree(eSize), szIconID);
 }
 
+
 /// Function name  : getAppName
 // Description     : Global access to the application name
 // 

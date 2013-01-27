@@ -53,7 +53,7 @@ BOOL  initFirstRunDialog(HWND  hDialog)
       {
       case AL_ENGLISH:
       case AL_GERMAN:
-      case AL_RUSSIAN:
+      //case AL_RUSSIAN:
          /// Load interface language name and add to ComboBox
          ASSERT(szLanguage = utilLoadString(getResourceInstance(), IDS_LANGUAGE_ENGLISH + eLanguage, 64));
          appendCustomComboBoxItemEx(GetControl(hDialog, IDC_FIRST_LANGUAGE_COMBO), szLanguage, NULL, szLanguageIcons[eLanguage], NULL);

@@ -646,7 +646,7 @@ VOID  onMainWindowFileNewLanguageDocument(MAIN_WINDOW_DATA*  pWindowData, CONST 
    VERBOSE_UI_COMMAND();
 
    /// Create LanguageFile with single empty Page
-   pLanguageFile = createUserLanguageFile(utilEither(szFullPath, TEXT("Untitled.xml")));
+   pLanguageFile = createUserLanguageFile(utilEither(szFullPath, TEXT("Untitled.xml")), getAppPreferences()->eGameLanguage);
 
    /// Create LanguageDoc
    pDocument = createDocumentByType(DT_LANGUAGE, pLanguageFile);

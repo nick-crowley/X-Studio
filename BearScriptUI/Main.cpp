@@ -50,6 +50,23 @@ MAIN_WINDOW_DATA*  getMainWindowData()
    return (getAppWindow() ? getMainWindowData(getAppWindow()) : NULL);
 }
 
+
+/// Function name  : setMainWindowAccelerators
+// Description     : Activates new accelerators
+// 
+// const TCHAR*  szID   : [in] Resource ID
+// 
+// Return Value   : Previous window accelerators
+// 
+HACCEL  setMainWindowAccelerators(MAIN_WINDOW_DATA*  pWindowData, const TCHAR*  szID)
+{
+   HACCEL  hPrev = pWindowData->hAccelerators;
+
+   // Load new accelerators
+   pWindowData->hAccelerators = LoadAccelerators(getResourceInstance(), szID);
+   return hPrev;
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -649,7 +666,6 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
 
    // Prepare
    SET_THREAD_NAME("User Interface");
-   //SymInitialize(GetCurrentProcess(), NULL, TRUE );
    pError = NULL;
 
    // [CHECK] Ensure program is not already running
@@ -782,7 +798,6 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
    }
 
    // [TERMINATE]
-   //SymCleanup(GetCurrentProcess());
    return FALSE;
 }
 

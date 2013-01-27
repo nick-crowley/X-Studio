@@ -613,10 +613,10 @@ ControlsAPI GAME_TEXT_COLOUR  identifyGameTextColourFromColourMenuID(CONST UINT 
 
 // Functions
 ControlsAPI VOID   drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CONST UINT  iDrawFlags);
-ControlsAPI VOID   drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText, CONST GAME_TEXT_COLOUR  eBackground);
+ControlsAPI VOID   drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText, const BOOL  bDisabled, CONST GAME_TEXT_COLOUR  eBackground);
 RICHTEXT_DRAWING   drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, CONST BOOL  bMeasurement);
 VOID               drawRichTextItemsInLine(HDC  hDC, CONST RICHTEXT_POSITION*  pStartPos, CONST RECT*  pLineRect, RICHTEXT_POSITION*  pEndPos, INT*  piRemainingWidth, INT*  piLineHeight, CONST BOOL  bMeasurement);
-ControlsAPI VOID   drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, CONST GAME_TEXT_COLOUR  eBackground);
+ControlsAPI VOID   drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, const BOOL  bDisabled, CONST GAME_TEXT_COLOUR  eBackground);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                     WORKSPACE_DATA

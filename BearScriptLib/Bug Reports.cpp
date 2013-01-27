@@ -462,6 +462,7 @@ DWORD   threadprocSubmitReport(VOID*  pParameter)
    // [DEBUGGING]
    TRACK_FUNCTION();
    SET_THREAD_NAME("Submission Upload");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // [CHECK] Ensure parameter exists
    ASSERT(pParameter);

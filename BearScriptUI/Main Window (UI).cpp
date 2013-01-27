@@ -869,8 +869,8 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
       case IDM_WINDOW_CLOSE_ALL_DOCUMENTS:   iOutput = (getActiveDocument()    ? MF_ENABLED : MF_DISABLED);    break;
       case IDM_WINDOW_CLOSE_OTHER_DOCUMENTS: iOutput = (getDocumentCount() > 1 ? MF_ENABLED : MF_DISABLED);    break;      
 
-      /// [FIND TEXT] Requires a document
-      case IDM_EDIT_FIND:                    iOutput = (getActiveDocument()    ? MF_ENABLED : MF_DISABLED);    break;
+      /// [FIND TEXT] Requires a script document
+      case IDM_EDIT_FIND:                    iOutput = (getActiveScriptDocument() ? MF_ENABLED : MF_DISABLED);    break;
 
       /// [EDIT COMMANDS] Requires an Edit/CodeEdit with keyboard focus
       case IDM_EDIT_UNDO:

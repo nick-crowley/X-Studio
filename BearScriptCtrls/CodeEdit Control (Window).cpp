@@ -924,10 +924,10 @@ VOID  onCodeEditPaint(CODE_EDIT_DATA*  pWindowData)
 
    /// Draw a 3D border around the control
    hDC = BeginPaint(pWindowData->hWnd, &oPaintData);
-   DrawEdge(hDC, &rcClientRect, EDGE_SUNKEN, BF_ADJUST WITH BF_TOPLEFT);     // Deflates client rectangle
+   DrawEdge(hDC, &rcClientRect, EDGE_ETCHED, BF_TOPLEFT);
 
    // Define clipping region within the border
-   rgnClippingArea = CreateRectRgn(rcClientRect.left, rcClientRect.top, rcClientRect.right, rcClientRect.bottom);
+   rgnClippingArea = CreateRectRgn(rcClientRect.left + 1, rcClientRect.top + 1, rcClientRect.right, rcClientRect.bottom);
    SelectClipRgn(hDC, rgnClippingArea);
 
    // Determine the bounding rectangle of the first visible line

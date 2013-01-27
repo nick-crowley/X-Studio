@@ -98,12 +98,17 @@ LANGUAGE_FILE*  createLanguageFile(CONST LANGUAGE_FILE_TYPE  eType, CONST TCHAR*
 // Return Value   : New language file, you are responsible for destroying it
 // 
 BearScriptAPI
-LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath)
+LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath, const GAME_LANGUAGE  eLanguage)
 {
    LANGUAGE_FILE*  pLanguageFile = createLanguageFile(LFT_STRINGS, szFullPath, TRUE);
 
+   // Set language
+   pLanguageFile->iLanguage = eLanguage;
+
+   // Insert empty page
    insertGamePageIntoLanguageFile(pLanguageFile, 1, TEXT("Title"), TEXT("Description"), FALSE);
 
+   // Return
    return pLanguageFile;
 }
 
@@ -355,7 +360,7 @@ BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*
 
    // Add schema tags
    appendStringToTextStream(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?>\r\n"));
-   appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), 44);
+   appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), pLanguageFile->iLanguage);
 
    /// Create a copy of all strings with order: PAGE_ID, GAME_VERSION, STRING_ID
    pOrderedTree = duplicateAVLTree(pLanguageFile->pGameStringsByID, createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), createAVLTreeSortKey(AK_VERSION, AO_ASCENDING), createAVLTreeSortKey(AK_ID, AO_ASCENDING));
@@ -887,6 +892,7 @@ DWORD   threadprocLoadLanguageFile(VOID*  pParameter)
    TRACK_FUNCTION();
    VERBOSE_LIB_COMMAND();
    SET_THREAD_NAME("LanguageFile Parsing");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // Prepare
    pOperationData = (DOCUMENT_OPERATION*)pParameter;
@@ -938,6 +944,7 @@ DWORD   threadprocSaveLanguageFile(VOID*  pParameter)
    // [TRACKING]
    TRACK_FUNCTION();
    SET_THREAD_NAME("Language Generation");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // Prepare
    pOperationData = (DOCUMENT_OPERATION*)pParameter;

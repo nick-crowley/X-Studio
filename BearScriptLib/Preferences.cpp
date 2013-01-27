@@ -114,7 +114,7 @@ BOOL   getAppPreferencesLanguage(APP_LANGUAGE*  pLanguage)
    if (hAppKey = utilRegistryOpenAppKey(getAppRegistryKey()))
    {
       // Extract Preferences version
-      bResult = utilRegistryReadNumber(hAppKey, TEXT("Language"), pLanguage);
+      bResult = utilRegistryReadNumber(hAppKey, TEXT("eAppLanguage"), pLanguage);
       utilRegistryCloseKey(hAppKey);
    }
 

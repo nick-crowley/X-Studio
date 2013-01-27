@@ -642,6 +642,7 @@ DWORD   threadprocLoadProjectFile(VOID*  pParameter)
    // [DEBUGGING]
    TRACK_FUNCTION();
    SET_THREAD_NAME("Project Translation");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // [CHECK] Ensure parameter exists
    ASSERT(pParameter);
@@ -708,6 +709,7 @@ DWORD    threadprocSaveProjectFile(VOID*  pParameter)
    // [DEBUGGING]
    TRACK_FUNCTION();
    SET_THREAD_NAME("Script Generation");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // [CHECK] Ensure parameter exists
    ASSERT(pParameter);

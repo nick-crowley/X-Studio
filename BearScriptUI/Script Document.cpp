@@ -167,9 +167,9 @@ VOID   onScriptDocumentContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, C
       pCustomMenu = createCustomMenu(TEXT("SCRIPT_MENU"), TRUE, IDM_CODE_EDIT_POPUP);
 
       /// [SELECTION] Enable items based on advice from the CodeEdit
-      EnableMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_CUT,    (CodeEdit_HasSelection(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED));
-      EnableMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_COPY,   (CodeEdit_HasSelection(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED));
-      EnableMenuItem(pCustomMenu->hPopup, IDM_CODE_EDIT_DELETE, (CodeEdit_HasSelection(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED));
+      EnableMenuItem(pCustomMenu->hPopup, IDM_EDIT_CUT,    (CodeEdit_HasSelection(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED));
+      EnableMenuItem(pCustomMenu->hPopup, IDM_EDIT_COPY,   (CodeEdit_HasSelection(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED));
+      EnableMenuItem(pCustomMenu->hPopup, IDM_EDIT_DELETE, (CodeEdit_HasSelection(pDocument->hCodeEdit) ? MF_ENABLED : MF_DISABLED));
       
       // Lookup line COMMAND and ERROR-QUEUE (if any)
       pErrorQueue = CodeEdit_GetCaretLineError(pDocument->hCodeEdit);
@@ -306,75 +306,27 @@ BOOL   onScriptDocumentCommand(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iControl
       }
       break;
 
-   // [CUT]
-   case IDM_EDIT_CUT:
-   case IDM_CODE_EDIT_CUT:   
-      SendMessage(pDocument->hCodeEdit, WM_CUT, NULL, NULL); 
-      break;
+   /// [CUT/COPY/PASTE/DELETE]
+   case IDM_EDIT_CUT:                        SendMessage(pDocument->hCodeEdit, WM_CUT, NULL, NULL);      break;
+   case IDM_EDIT_COPY:                       SendMessage(pDocument->hCodeEdit, WM_COPY, NULL, NULL);     break;
+   case IDM_EDIT_PASTE:                      SendMessage(pDocument->hCodeEdit, WM_PASTE, NULL, NULL);    break;
+   case IDM_EDIT_DELETE:                     SendMessage(pDocument->hCodeEdit, WM_CLEAR, NULL, NULL);    break;
 
-   // [COPY]
-   case IDM_EDIT_COPY:
-   case IDM_CODE_EDIT_COPY:
-      SendMessage(pDocument->hCodeEdit, WM_COPY, NULL, NULL); 
-      break;
+   /// [SELECT ALL/COMMENT/SUGGESTIONS]
+   case IDM_EDIT_SELECT_ALL:                 CodeEdit_SelectAll(pDocument->hCodeEdit);                                                                break;
+   case IDM_EDIT_COMMENT:                    CodeEdit_CommentSelection(pDocument->hCodeEdit, !CodeEdit_IsSelectionCommented(pDocument->hCodeEdit));   break;
+   case IDM_CODE_EDIT_VIEW_SUGGESTIONS:      CodeEdit_ShowSuggestions(pDocument->hCodeEdit, NULL);                                                    break;
 
-   // [PASTE]
-   case IDM_EDIT_PASTE:
-   case IDM_CODE_EDIT_PASTE:
-      SendMessage(pDocument->hCodeEdit, WM_PASTE, NULL, NULL); 
-      break;
-
-   // [DELETE]
-   case IDM_EDIT_DELETE:
-   case IDM_CODE_EDIT_DELETE:
-      SendMessage(pDocument->hCodeEdit, WM_CLEAR, NULL, NULL); 
-      break;
-
-   /// [SELECT ALL]
-   case IDM_EDIT_SELECT_ALL:
-      CodeEdit_SelectAll(pDocument->hCodeEdit);
-      break;
-
-   /// [COMMENT SELECTION]
-   case IDM_EDIT_COMMENT:
-      CodeEdit_CommentSelection(pDocument->hCodeEdit, !CodeEdit_IsSelectionCommented(pDocument->hCodeEdit)); 
-      break;
-
-   /// [SUGGESTIONS]
-   case IDM_CODE_EDIT_VIEW_SUGGESTIONS:   
-      CodeEdit_ShowSuggestions(pDocument->hCodeEdit, NULL); 
-      break;
-
-   /// [LOOKUP COMMAND]
-   case IDM_CODE_EDIT_LOOKUP_COMMAND:
-      onScriptDocumentLookupCommand(pDocument);
-      break;
-
-   /// [COMPILER ERROR]
+   /// [MSCI/VIEW-ERROR/OPEN-SCRIPT/GOTO-LABEL/VIEW-STRING]
+   case IDM_CODE_EDIT_LOOKUP_COMMAND:        onScriptDocumentLookupCommand(pDocument);       break;
    case IDM_CODE_EDIT_VIEW_ERROR:
-   case IDM_CODE_EDIT_VIEW_WARNING:
-      onScriptDocumentViewError(pDocument);
-      break;
-
-   /// [OPEN SCRIPT-CALL]
-   case IDM_CODE_EDIT_OPEN_TARGET_SCRIPT:
-      onScriptDocumentOpenTargetScript(pDocument);
-      break;
-
-   /// [GOTO LABEL]
-   case IDM_CODE_EDIT_GOTO_LABEL:
-      onScriptDocumentGotoLabel(pDocument);
-      break;
-
-   /// [VIEW STRING]
-   case IDM_CODE_EDIT_VIEW_LANGUAGE_STRING:
-      onScriptDocumentViewLanguageString(pDocument);
-      break;
+   case IDM_CODE_EDIT_VIEW_WARNING:          onScriptDocumentViewError(pDocument);           break;
+   case IDM_CODE_EDIT_OPEN_TARGET_SCRIPT:    onScriptDocumentOpenTargetScript(pDocument);    break;
+   case IDM_CODE_EDIT_GOTO_LABEL:            onScriptDocumentGotoLabel(pDocument);           break;
+   case IDM_CODE_EDIT_VIEW_LANGUAGE_STRING:  onScriptDocumentViewLanguageString(pDocument);  break;
 
    /// [PROPERTIES]
-   case IDM_CODE_EDIT_PROPERTIES:
-      SendMessage(getAppWindow(), WM_COMMAND, IDM_VIEW_DOCUMENT_PROPERTIES, NULL);
-      break;
+   case IDM_CODE_EDIT_PROPERTIES:            SendMessage(getAppWindow(), WM_COMMAND, IDM_VIEW_DOCUMENT_PROPERTIES, NULL);  break;
    }
 
    // [TRACK]

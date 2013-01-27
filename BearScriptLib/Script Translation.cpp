@@ -1596,6 +1596,7 @@ DWORD   threadprocLoadScriptFile(VOID*  pParameter)
    TRACK_FUNCTION();
    VERBOSE_LIB_COMMAND();
    SET_THREAD_NAME("Script Translation");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // [CHECK] Ensure parameter exists
    ASSERT(pParameter);

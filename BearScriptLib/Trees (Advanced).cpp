@@ -705,6 +705,7 @@ DWORD   threadprocAVLSubTreeOperation(VOID*  pParameter)
    // [DEBUG] Set thread name
    StringCchPrintfA(szThreadNameA, 32, "AVLTree Worker (%u of %u)", pThreadData->iThreadIndex + 1, pThreadData->iThreadCount - 1);
    SET_THREAD_NAME(szThreadNameA);
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    __try
    {

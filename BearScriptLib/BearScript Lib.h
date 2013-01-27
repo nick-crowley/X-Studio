@@ -79,6 +79,7 @@ BearScriptAPI HIMAGELIST        getAppImageList(CONST IMAGE_TREE_SIZE  eSize);
 BearScriptAPI IMAGE_TREE*       getAppImageTree(CONST IMAGE_TREE_SIZE  eSize);
 BearScriptAPI UINT              getAppImageTreeIconIndex(CONST IMAGE_TREE_SIZE  eSize, CONST TCHAR*  szIconID);
 BearScriptAPI HICON             getAppImageTreeIconHandle(CONST IMAGE_TREE_SIZE  eSize, CONST TCHAR*  szIconID);
+BearScriptAPI APP_LANGUAGE      getAppLanguage();
 BearScriptAPI CONST TCHAR*      getAppName();
 BearScriptAPI CONST TCHAR*      getAppRegistryKey();
 BearScriptAPI CONST TCHAR*      getAppRegistrySubKey(CONST APPLICATION_REGISTRY_KEY  eSubKey);
@@ -549,6 +550,7 @@ BearScriptAPI VOID           destroyGameData();
 
 // Helpers
 BearScriptAPI GAME_LANGUAGE  convertAppLanguageToGameLanguage(CONST APP_LANGUAGE  eLanguage);
+BearScriptAPI INTERFACE_LANGUAGE  convertAppLanguageToInterfaceLanguage(CONST APP_LANGUAGE  eLanguage);
 BearScriptAPI APP_LANGUAGE   convertGameLanguageToAppLanguage(CONST GAME_LANGUAGE  eLanguage);
 BearScriptAPI APP_LANGUAGE   convertInterfaceLanguageToAppLanguage(CONST INTERFACE_LANGUAGE  eLanguage);
 BOOL                         findGameDataFileByIndex(CONST UINT  iIndex, CONST GAME_DATA_FILE*  &pOutput);
@@ -742,7 +744,7 @@ BearScriptAPI BOOL   findLanguageButtonByObject(AVL_TREE*  pTree, IOleObject*  p
 
 // (Export) Creation / Destruction
 BearScriptAPI LANGUAGE_FILE*  createLanguageFile(CONST LANGUAGE_FILE_TYPE  eType, CONST TCHAR*  szFullPath, CONST BOOL  bSupplementary);
-BearScriptAPI LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath);
+BearScriptAPI LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath, const GAME_LANGUAGE  eLanguage);
 BearScriptAPI VOID            deleteLanguageFile(LANGUAGE_FILE*  &pLanguageFile);
 
 // Helpers
@@ -775,7 +777,7 @@ BearScriptAPI VOID          createApplication(HINSTANCE  hInstance);
 BearScriptAPI VOID          deleteApplication();
 
 // Helpers
-
+BearScriptAPI VOID          setThreadLanguage(const APP_LANGUAGE  eLanguage);
 
 // Functions
 BearScriptAPI TCHAR*        generateResourceLibraryPath(CONST APP_LANGUAGE  eLanguage);

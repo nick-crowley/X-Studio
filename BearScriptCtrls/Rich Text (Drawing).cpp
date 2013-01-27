@@ -192,7 +192,7 @@ GAME_TEXT_COLOUR   identifyGameTextColourFromRGB(CONST COLORREF  clColour)
 ///                                             -> BLUE        - The item has a 'selected' background therefore 'inverse' text colouring should be used throughout, regardless of text colour.     
 // 
 ControlsAPI
-VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, CONST GAME_TEXT_COLOUR  eBackground)
+VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, const BOOL  bDisabled, CONST GAME_TEXT_COLOUR  eBackground)
 {
    GAME_TEXT_COLOUR   eDefaultColour;        // Colour contrasting the background used to represent the 'default' colour
    COLORREF           clOldColour;           //
@@ -217,7 +217,7 @@ VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSA
       if (lstrlen(szText))
       {
          // Prepare
-         SetTextColor(hDC, calculateVisibleRichTextColour(GTC_BLACK, eBackground));
+         SetTextColor(hDC, bDisabled ? GetSysColor(COLOR_GRAYTEXT) : calculateVisibleRichTextColour(GTC_BLACK, eBackground));
          hItemFont = (iProperty == 0 ? utilDuplicateFont(hDC, TRUE, FALSE, TRUE) : utilDuplicateFont(hDC, TRUE, FALSE, FALSE));
          hOldFont  = SelectFont(hDC, hItemFont);
 
@@ -236,7 +236,7 @@ VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSA
    }
 
    /// [TEXT] Draw remaining text
-   drawRichTextInSingleLine(hDC, rcDrawRect, pMessage, eBackground);
+   drawRichTextInSingleLine(hDC, rcDrawRect, pMessage, bDisabled, eBackground);
 }
 
 
@@ -246,13 +246,14 @@ VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSA
 // HDC                    hDC          : [in] Device context to draw to
 // RECT                   rcDrawRect   : [in] Bounding rectangle of the desired area to draw to
 // RICH_TEXT*             pRichText    : [in] RichText message to draw. ** The contents may be altered during drawing **
+// const BOOL             bDisabled    : [in] Whether text should be drawn 'disabled'
 // CONST GAME_TEXT_COLOUR eBackground  : [in] Background colour, must be GTC_BLACK, GTC_WHITE or GTC_BLUE. 
 //
 ///                                             -> BLACK/WHITE - The default text colour will be altered to contrast this colour. All other colours are unchanged
 ///                                             -> BLUE        - The item has a 'selected' background therefore 'inverse' text colouring should be used throughout, regardless of text colour.     
 // 
 ControlsAPI
-VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText, CONST GAME_TEXT_COLOUR  eBackground)
+VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText, const BOOL  bDisabled, CONST GAME_TEXT_COLOUR  eBackground)
 {
    GAME_TEXT_COLOUR   eDefaultColour;        // Colour contrasting the background used to represent the 'default' colour
    RICH_PARAGRAPH*    pParagraph;            // Paragraph being drawn
@@ -269,6 +270,10 @@ VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText
    eDefaultColour = (eBackground == GTC_WHITE ? GTC_BLACK : GTC_DEFAULT);
    clOldColour    = GetTextColor(hDC);
 
+   // [DISABLED] Draw without colour
+   if (bDisabled)
+      SetTextColor(hDC, GetSysColor(COLOR_GRAYTEXT));
+
    /// [TEXT] Iterate through paragraphs (while there is drawing rectangle remaining)
    for (LIST_ITEM*  pParagraphIterator = getListHead(pRichText->pParagraphList); (rcDrawRect.left < rcDrawRect.right) AND (pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH)); pParagraphIterator = pParagraphIterator->pNext)
    {
@@ -282,9 +287,10 @@ VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText
             for (TCHAR*  szChar = utilFindCharacter(pItem->szText, '\n'); szChar; szChar = utilFindCharacter(szChar, '\n'))
                szChar[0] = ' ';
 
-            // Set font and text colour
+            // Set font, also colour if enabled
             hOldFont = SelectFont(hDC, hItemFont = utilDuplicateFont(hDC, pItem->bBold, pItem->bItalic, pItem->bUnderline));
-            SetTextColor(hDC, calculateVisibleRichTextColour(pItem->eColour, eBackground));
+            if (!bDisabled)
+               SetTextColor(hDC, calculateVisibleRichTextColour(pItem->eColour, eBackground));
 
             // Draw item text
             DrawText(hDC, pItem->szText, lstrlen(pItem->szText), &rcDrawRect, DT_LEFT WITH DT_VCENTER WITH DT_SINGLELINE WITH DT_END_ELLIPSIS WITH DT_NOPREFIX);

@@ -1099,10 +1099,10 @@
 
 /// CodeEdit Window
 // Context Menu
-#define IDM_CODE_EDIT_CUT                                2115
-#define IDM_CODE_EDIT_COPY                               2116
-#define IDM_CODE_EDIT_PASTE                              2117
-#define IDM_CODE_EDIT_DELETE                             2118
+//#define IDM_CODE_EDIT_CUT                                2115
+//#define IDM_CODE_EDIT_COPY                               2116
+//#define IDM_CODE_EDIT_PASTE                              2117
+//#define IDM_CODE_EDIT_DELETE                             2118
 #define IDM_CODE_EDIT_VIEW_SUGGESTIONS                   2119
 #define IDM_CODE_EDIT_LOOKUP_COMMAND                     2120
 #define IDM_CODE_EDIT_OPEN_TARGET_SCRIPT                 2121

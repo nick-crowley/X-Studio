@@ -341,10 +341,10 @@ BOOL  initPreferencesGeneralPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
    {
       switch (eLanguage)
       {
-      // [ENGLISH/GERMAN/RUSSIAN] 
+      // [ENGLISH/GERMAN] 
       case AL_ENGLISH:
       case AL_GERMAN:
-      case AL_RUSSIAN:  
+      //case AL_RUSSIAN:  
          // Add language name and icon to comboBox
          szLanguage = utilLoadString(getResourceInstance(), IDS_LANGUAGE_ENGLISH + eLanguage, 64);
          appendCustomComboBoxItemEx(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO), szLanguage, NULL, szLanguageIcons[eLanguage], NULL);
@@ -898,7 +898,7 @@ BOOL  onPreferencesPage_Show(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONS
    /// [GENERAL] - Choose language and option values
    case PP_GENERAL:
       // App Language
-      ComboBox_SetCurSel(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO), pPreferencesCopy->eAppLanguage);
+      ComboBox_SetCurSel(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO), convertAppLanguageToInterfaceLanguage(pPreferencesCopy->eAppLanguage));
 
       // Select options
       CheckDlgButton(hDialog, IDC_PRESERVE_SESSION_CHECK,         pPreferencesCopy->bPreserveSession);

@@ -155,6 +155,29 @@ GAME_LANGUAGE  convertAppLanguageToGameLanguage(CONST APP_LANGUAGE  eLanguage)
    return eOutput;
 }
 
+/// Function name  : convertInterfaceLanguageToAppLanguage
+// Description     : Converts an App language to an interface language
+// 
+// CONST INTERFACE_LANGUAGE  eLanguage : [in] App language ID 
+// 
+// Return Value   : interface language ID
+// 
+BearScriptAPI
+INTERFACE_LANGUAGE  convertAppLanguageToInterfaceLanguage(CONST APP_LANGUAGE  eLanguage)
+{
+   INTERFACE_LANGUAGE  eOutput;      // Operation result
+
+   // Examine language
+   switch (eLanguage)
+   {
+   case AL_ENGLISH:   eOutput = IL_ENGLISH;  break;
+   case AL_GERMAN:    eOutput = IL_GERMAN;   break;
+   //case IL_RUSSIAN:   eOutput = AL_RUSSIAN;  break;
+   }
+
+   // Return result
+   return eOutput;
+}
 
 /// Function name  : convertGameLanguageToAppLanguage
 // Description     : Converts an language ID used by the game into the value used by the application
@@ -203,7 +226,7 @@ APP_LANGUAGE  convertInterfaceLanguageToAppLanguage(CONST INTERFACE_LANGUAGE  eL
    {
    case IL_ENGLISH:   eOutput = AL_ENGLISH;  break;
    case IL_GERMAN:    eOutput = AL_GERMAN;   break;
-   case IL_RUSSIAN:   eOutput = AL_RUSSIAN;  break;
+   //case IL_RUSSIAN:   eOutput = AL_RUSSIAN;  break;
    }
 
    // Return result
@@ -707,6 +730,7 @@ DWORD   threadprocLoadGameData(VOID*  pParameter)
    TRACK_FUNCTION();
    SET_THREAD_NAME("Load Game Data");
    VERBOSE_LIB_COMMAND();
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // [CHECK] Ensure parameter exists
    ASSERT(pParameter);

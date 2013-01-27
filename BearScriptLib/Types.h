@@ -1615,8 +1615,8 @@ enum APP_LANGUAGE     { AL_ENGLISH,      //
                         AL_SPANISH,   }; // 
 
 enum INTERFACE_LANGUAGE { IL_ENGLISH,
-                          IL_GERMAN,
-                          IL_RUSSIAN   };
+                          IL_GERMAN };
+                          //IL_RUSSIAN   };
 
 // Uniquely Identifies each page in the preferences property sheet
 //

@@ -17,7 +17,8 @@
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Colours
-COLORREF  clLightGrey = RGB(247,247,247);    // ListView sort column
+COLORREF  clLightGrey  = RGB(247,247,247),    // ListView sort column
+          clNullColour = 0xff000000;          // Colour sentinel value
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                      HELPERS
@@ -67,6 +68,14 @@ VOID  initReportModeListView(HWND  hListView, CONST LISTVIEW_COLUMNS*  pListView
 ///                                      FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ICON_STATE  calculateIconState(UINT  eItemState, const BOOL  bCtrlEnabled)
+{
+   if (!bCtrlEnabled)
+      return IS_DISABLED;
+   else
+      return utilIncludes(eItemState, CDIS_SELECTED WITH CDIS_HOT) AND utilExcludes(eItemState, CDIS_DISABLED) ? IS_SELECTED : IS_NORMAL;
+}
+
 /// Function name  : drawCustomListViewItem
 // Description     : Performs ListView custom draw for a single item in report mode
 ///                                    This function does not set the CustomDraw result code
@@ -88,11 +97,14 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
                   eItemState,       // Item state
                   iColumnCount,     // Number of ListView columns
                   iSortColumn;      // Index of sorted column, if any
+   BOOL           bCtrlEnabled;
    HBRUSH         hColumnBrush,     // Column background brush
                   hSortBrush;       // Sort column background brush
 
    // Prepare
-   pDrawData = &pHeader->nmcd;
+   pDrawData   = &pHeader->nmcd;
+   clOldColour = clNullColour;
+   bCtrlEnabled = IsWindowEnabled(hListView);
 
    // [WIN XP] Manually lookup item rectangle
    if (getAppWindowsVersion() < WINDOWS_VISTA)
@@ -133,7 +145,7 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    // [COLUMNS] Create background brushes
    hSortBrush   = CreateSolidBrush(clLightGrey);
    iSortColumn  = ListView_GetSelectedColumn(hListView);
-   hColumnBrush = CreateSolidBrush(IsWindowEnabled(hListView) ? ListView_GetBkColor(hListView) : GetSysColor(COLOR_BTNFACE));
+   hColumnBrush = CreateSolidBrush(bCtrlEnabled ? ListView_GetBkColor(hListView) : GetSysColor(COLOR_BTNFACE));
    
    // Prepare
    iBackgroundMode = SetBkMode(pDrawData->hdc, TRANSPARENT);
@@ -198,11 +210,11 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
             ListView_GetItemRect(hListView, pItem->iItem, &rcSubItem, LVIR_ICON);
 
             /// [ICON] Draw icon 
-            drawIcon(hImageList, LOWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, utilIncludes(eItemState, CDIS_SELECTED WITH CDIS_HOT) AND utilExcludes(eItemState, CDIS_DISABLED) ? IS_SELECTED : IS_NORMAL);
+            drawIcon(hImageList, LOWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, calculateIconState(eItemState, bCtrlEnabled));
 
             /// [OVERLAY]
             if (HIWORD(pItem->iImage))
-              drawIcon(hImageList, HIWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, utilIncludes(eItemState, CDIS_SELECTED WITH CDIS_HOT) AND utilExcludes(eItemState, CDIS_DISABLED) ? IS_SELECTED : IS_NORMAL);
+              drawIcon(hImageList, HIWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, calculateIconState(eItemState, bCtrlEnabled));
          }
 
          // Retrieve text rectangle
@@ -224,9 +236,9 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
          break;
       }
 
-      /// [COLOUR] Set text colour
-      if (pItem->mask INCLUDES LVIF_COLOUR_TEXT)
-         clOldColour = SetTextColor(pDrawData->hdc, (COLORREF)pItem->lParam);
+      /// [DISABLED/COLOURED] Set text colour
+      if ((pItem->mask & LVIF_COLOUR_TEXT) OR !bCtrlEnabled)
+         clOldColour = SetTextColor(pDrawData->hdc, (!bCtrlEnabled ? GetSysColor(COLOR_GRAYTEXT) : (COLORREF)pItem->lParam));
 
       // [CHECK] Is RichText specified?
       if (pItem->lParam AND utilIncludes(pItem->mask, LVIF_RICHTEXT))
@@ -235,9 +247,9 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
 
          /// [RICH-TEXT] Draw RichText, and optionally destroy
          if (pRichText->eType == RTT_LANGUAGE_MESSAGE)
-            drawLanguageMessageInSingleLine(pDrawData->hdc, rcSubItem, (LANGUAGE_MESSAGE*)pRichText, GTC_WHITE);
+            drawLanguageMessageInSingleLine(pDrawData->hdc, rcSubItem, (LANGUAGE_MESSAGE*)pRichText, !IsWindowEnabled(hListView), GTC_WHITE);
          else
-            drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, pRichText, GTC_WHITE);
+            drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, pRichText, !IsWindowEnabled(hListView), GTC_WHITE);
 
          // [CHECK] Should the RichText be destroyed?
          if (utilIncludes(pItem->mask, LVIF_DESTROYTEXT))
@@ -251,7 +263,7 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
          DrawText(pDrawData->hdc, pItem->pszText, lstrlen(pItem->pszText), &rcSubItem, pItem->cColumns WITH DT_VCENTER WITH DT_SINGLELINE WITH DT_WORD_ELLIPSIS WITH DT_NOPREFIX);
 
       // Restore DC colour
-      if (pItem->mask INCLUDES LVIF_COLOUR_TEXT)
+      if (clOldColour != clNullColour)
          SetTextColor(pDrawData->hdc, clOldColour);
    }
 
@@ -494,7 +506,11 @@ LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARA
       utilTrackMouseEvent(hWnd, TME_LEAVE, 0);
       utilGetWindowCursorPos(hWnd, &oHitTest.pt);
 
-      // [NOT ITEM] Clear focus, if any
+      // Get focus
+      if (GetFocus() != hWnd)
+         SetFocus(hWnd);
+
+      // [NOWHERE/HEADER] Clear focus, if any
       if (ListView_HitTest(hWnd, &oHitTest) == -1)
          ListView_SetItemState(hWnd, -1, NULL, LVIS_CUT)
 

@@ -427,6 +427,7 @@ VOID  onLanguageDocument_ViewFormattingError(LANGUAGE_DOCUMENT*  pDocument);
 
 // Helpers
 MAIN_WINDOW_DATA*  getMainWindowData();
+HACCEL             setMainWindowAccelerators(MAIN_WINDOW_DATA*  pWindowData, const TCHAR*  szID);
 
 // Functions
 BOOL     displayApplication(INT  nCmdShow, ERROR_STACK*  &pError);

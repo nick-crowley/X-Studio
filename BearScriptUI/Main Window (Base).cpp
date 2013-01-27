@@ -221,28 +221,20 @@ HWND    createMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
 // 
 MAIN_WINDOW_DATA*  createMainWindowData()
 {
-   MAIN_WINDOW_DATA*  pWindowData;
-
-   // [TRACK]
+   MAIN_WINDOW_DATA*  pWindowData = utilCreateEmptyObject(MAIN_WINDOW_DATA);
    TRACK_FUNCTION();
 
-   // Create new object
-   pWindowData = utilCreateEmptyObject(MAIN_WINDOW_DATA);
-
-   // Create output dialog data
+   /// Create output dialog data
    pWindowData->pOutputDlgData = createOutputDialogData();
 
-   // Create Operation Pool
+   /// Create Operation Pool
    pWindowData->pOperationPool = createOperationPool();
 
-   // Create properties data
+   /// Create properties data
    pWindowData->pPropertiesSheetData = createPropertiesDialogData();
 
-   // Create window stack
-   //pWindowData->pWindowStack = createModalWindowStack(NULL);
-
    // Load main window accelerators
-   pWindowData->hAccelerators = LoadAccelerators(getResourceInstance(), szMainWindowClass);
+   setMainWindowAccelerators(pWindowData, szMainWindowClass);
 
    // Return new window data
    END_TRACKING();
@@ -383,11 +375,11 @@ UINT  identifyMainWindowCommandByIndex(CONST UINT  iIndex)
       IDM_FILE_NEW,     IDM_FILE_OPEN,   IDM_FILE_BROWSE,    IDM_FILE_SAVE,      IDM_FILE_SAVE_ALL,   NULL, 
       IDM_EDIT_CUT,     IDM_EDIT_COPY,   IDM_EDIT_PASTE,     IDM_EDIT_DELETE,    NULL,                IDM_EDIT_FIND,       IDM_EDIT_COMMENT,     NULL, 
       
-      // GameStrings, MediaBrowser, <Sep>
-      IDM_TOOLS_GAME_STRINGS,    IDM_TOOLS_MEDIA_BROWSER,   NULL, 
-
       // ProjectExplorer, OutputDialog, CommandList, GameObjects, ScriptObjects, DocumentProperties, <Sep>
       IDM_VIEW_PROJECT_EXPLORER, IDM_VIEW_COMPILER_OUTPUT,  IDM_VIEW_DOCUMENT_PROPERTIES,  IDM_VIEW_COMMAND_LIST,  IDM_VIEW_GAME_OBJECTS_LIST,  IDM_VIEW_SCRIPT_OBJECTS_LIST,  NULL,
+
+      // GameStrings, MediaBrowser, <Sep>
+      IDM_TOOLS_GAME_STRINGS,    IDM_TOOLS_MEDIA_BROWSER,   NULL, 
       
       // Help, Forums
       IDM_HELP_HELP,    IDM_HELP_FORUMS   

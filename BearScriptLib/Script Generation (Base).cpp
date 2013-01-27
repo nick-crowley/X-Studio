@@ -941,6 +941,7 @@ DWORD    threadprocSaveScriptFile(VOID*  pParameter)
    // [TRACKING]
    TRACK_FUNCTION();
    SET_THREAD_NAME("Script Generation");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // [CHECK] Ensure parameter exists
    ASSERT(pParameter);

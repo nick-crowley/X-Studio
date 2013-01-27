@@ -1127,6 +1127,7 @@ DWORD   threadprocFileSystemSearch(VOID*  pParameter)
    // [DEBUGGING]
    TRACK_FUNCTION();
    SET_THREAD_NAME("File System Search");
+   setThreadLanguage(getAppPreferences()->eAppLanguage);
 
    // [CHECK] Ensure parameter exists
    ASSERT(pParameter);

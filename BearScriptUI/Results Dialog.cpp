@@ -875,7 +875,7 @@ BOOL  onResultsDialog_RequestTooltipData(RESULTS_DIALOG_DATA*  pDialogData, HWND
    }
    else
       /// [SYSTEM DEFAULT] Return dummy string so Tooltip is created
-      StringCchCopy(pHeader->pszText, pHeader->cchTextMax, TEXT("This text will never be displayed"));
+      StringCchCopy(pHeader->pszText, pHeader->cchTextMax, TEXT("Big brother is watching you..."));
 
    // [SUCCESS] Return TRUE
    return TRUE;

@@ -29,7 +29,7 @@ UINT               calculateLogicalCount(GROUPED_LISTVIEW*  pWindowData);
 BOOL               calculateLogicalIndex(GROUPED_LISTVIEW*  pWindowData, const INT  iPhysicalIndex, LISTVIEW_ITEM*  pOutput);
 UINT               calculatePhysicalCount(GROUPED_LISTVIEW*  pWindowData);
 INT                calculatePhysicalIndex(GROUPED_LISTVIEW*  pWindowData, const INT  iLogicalIndex);
-BOOL               drawHeaderGradient(HDC  hDC, CONST RECT*  pItemRect, CONST UINT  iBackground);
+BOOL               drawHeaderGradient(HDC  hDC, const RECT*  pItemRect, const COLORREF  clForeground, const COLORREF  clBackground);
 BOOL               findGroupByID(GROUPED_LISTVIEW*  pWindowData, CONST UINT  iID, LISTVIEW_GROUP*  &pOutput);
 
 // Message Handlers
@@ -40,6 +40,12 @@ VOID               onGroupedListView_Destroy(GROUPED_LISTVIEW*  &pWindowData);
 VOID               onGroupedListView_EmptyGroups(GROUPED_LISTVIEW*  pWindowData);
 VOID               onGroupedListView_RemoveGroups(GROUPED_LISTVIEW*  pWindowData);
 BOOL               onGroupedListView_SetGroupCount(GROUPED_LISTVIEW*  pWindowData, CONST UINT  iGroupID, CONST UINT  iCount);
+
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                                  CONSTANTS / GLOBALS
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+const COLORREF  clLightBlue = RGB(50,151,255);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CREATION / DESTRUCTION
@@ -342,7 +348,7 @@ INT  calculatePhysicalIndex(GROUPED_LISTVIEW*  pWindowData, const INT  iLogicalI
 // 
 // Return type : TRUE if succesful, FALSE otherwise 
 //
-BOOL   drawHeaderGradient(HDC  hDC, CONST RECT*  pItemRect, CONST UINT  iBackground)
+BOOL   drawHeaderGradient(HDC  hDC, const RECT*  pItemRect, const COLORREF  clForeground, const COLORREF  clBackground)
 {
    TRIVERTEX        oVertex[2] ;
    GRADIENT_RECT    oGradientRect;
@@ -350,17 +356,17 @@ BOOL   drawHeaderGradient(HDC  hDC, CONST RECT*  pItemRect, CONST UINT  iBackgro
    // Define left as Light Blue (No transparency)
    oVertex[0].x      = pItemRect->left;
    oVertex[0].y      = pItemRect->bottom - 2;
-   oVertex[0].Red    = 0x3200;
-   oVertex[0].Green  = 0x9700;      // Light Blue -> RGB(50, 151, 255)
-   oVertex[0].Blue   = 0xff00;
+   oVertex[0].Red    = GetRValue(clForeground) << 8;
+   oVertex[0].Green  = GetGValue(clForeground) << 8;      // Light Blue -> RGB(50, 151, 255)
+   oVertex[0].Blue   = GetBValue(clForeground) << 8;
    oVertex[0].Alpha  = 0xff00;
 
    // Define right as background colour  (Full transparency)
    oVertex[1].x      = pItemRect->left + (pItemRect->right - pItemRect->left) / 2;
    oVertex[1].y      = pItemRect->bottom; 
-   oVertex[1].Red    = GetRValue(GetSysColor(iBackground)) << 8;
-   oVertex[1].Green  = GetGValue(GetSysColor(iBackground)) << 8;
-   oVertex[1].Blue   = GetBValue(GetSysColor(iBackground)) << 8;
+   oVertex[1].Red    = GetRValue(clBackground) << 8;
+   oVertex[1].Green  = GetGValue(clBackground) << 8;
+   oVertex[1].Blue   = GetBValue(clBackground) << 8;
    oVertex[1].Alpha  = 0x0000;
 
    // Draw shaded rectangle
@@ -413,7 +419,8 @@ BOOL   onCustomDraw_GroupedListView(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRA
    LISTVIEW_ITEM      oItemData;        // GroupedListView item data
    RECT               rcHeading,        // Heading text rectangle
                       rcItem;
-   BOOL               bResult;
+   BOOL               bResult,
+                      bEnabled;
 
    // Prepare
    pWindowData  = getWindowData(hCtrl);
@@ -459,16 +466,17 @@ BOOL   onCustomDraw_GroupedListView(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRA
 
             /// [HEADER] - Draw a bold header with a gradient underline
             case GLVIT_GROUPHEADER:
-               // Switch to a bold font
-               utilSetDeviceContextFont(pPrevState, pWindowData->hHeaderFont, GetSysColor(COLOR_WINDOWTEXT));
-               
-               // [CALC]
+               // Prepare
                rcHeading       = rcItem;
                rcHeading.left += (2 * GetSystemMetrics(SM_CXEDGE));
+               bEnabled        = IsWindowEnabled(hCtrl);
 
-               // Draw group name in bold with gradient line beneath
+               // Draw group name in bold 
+               utilSetDeviceContextFont(pPrevState, pWindowData->hHeaderFont, GetSysColor(bEnabled ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
                DrawText(pPrevState->hDC, oItemData.pGroup->szName, lstrlen(oItemData.pGroup->szName), &rcHeading, DT_LEFT WITH DT_SINGLELINE WITH DT_WORD_ELLIPSIS);
-               drawHeaderGradient(pPrevState->hDC, &rcItem, IsWindowEnabled(hCtrl) ? COLOR_WINDOW : COLOR_BTNFACE);
+
+               // Draw blue gradient line beneath
+               drawHeaderGradient(pPrevState->hDC, &rcItem, (bEnabled ? clLightBlue : GetSysColor(COLOR_GRAYTEXT)), GetSysColor(bEnabled ? COLOR_WINDOW : COLOR_BTNFACE));
                break;
 
             /// [ITEM] Draw Item  [Provide Logical index]

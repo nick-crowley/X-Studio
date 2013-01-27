@@ -653,36 +653,26 @@ BOOL  findNextXMLToken(XML_TOKENISER*  &pOutput, ERROR_STACK*  &pError)
          case XTT_OPENING_TAG:
             pOutput->iCount = max(0, szTokenEnd - szTokenStart - 1);
             StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[1], pOutput->iCount);
-            /*pOutput->szText = &szTokenStart[1];
-            szTokenEnd[0]   = NULL;*/
             break;
          /// [CLOSING TAG] Copy without </ and >
          case XTT_CLOSING_TAG:
             pOutput->iCount = max(0, szTokenEnd - szTokenStart - 2);
             StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[2], pOutput->iCount);
-            /*pOutput->szText = &szTokenStart[2];
-            szTokenEnd[0]   = NULL;*/
             break;
          /// [SELF CLOSING TAG] Copy with < and />
          case XTT_SELF_CLOSING_TAG:
             pOutput->iCount = max(0, szTokenEnd - szTokenStart - 2);
             StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[1], pOutput->iCount);
-            /*pOutput->szText = &szTokenStart[1];
-            szTokenEnd[-1]  = NULL;*/
             break;
          /// [COMMENT TAG] Copy without <!-- and -->
          case XTT_COMMENT_TAG:
             pOutput->iCount = max(0, szTokenEnd - szTokenStart - 6);
             StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[4], pOutput->iCount);
-            /*pOutput->szText = &szTokenStart[4];
-            szTokenEnd[-1]  = NULL;*/
             break;
          /// [SCHEMA TAG] Copy without <? and ?>
          case XTT_SCHEMA_TAG:
             pOutput->iCount = max(0, szTokenEnd - szTokenStart - 3);
             StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[2], pOutput->iCount);
-            /*pOutput->szText = &szTokenStart[2];
-            szTokenEnd[-1]  = NULL;*/
             break;
          }
 
@@ -716,8 +706,6 @@ BOOL  findNextXMLToken(XML_TOKENISER*  &pOutput, ERROR_STACK*  &pError)
          /// Measure and copy text
          pOutput->iCount = min(MAX_STRING, szTokenEnd - szTokenStart);
          StringCchCopyN(pOutput->szText, MAX_STRING, szTokenStart, pOutput->iCount);
-         /*pOutput->szText = szTokenStart;
-         szTokenEnd[0]   = NULL;*/
 
          // [CHECK] Check for character entities
          if (utilFindSubString(pOutput->szText, "&#"))

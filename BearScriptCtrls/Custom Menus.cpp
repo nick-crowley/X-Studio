@@ -680,10 +680,10 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_DOCUMENT_REMOVE_PROJECT:         szIconID = TEXT("REMOVE_PROJECT_FILE_ICON"); break;
       
    /// [CODE EDIT]
-   case IDM_CODE_EDIT_CUT:                   szIconID = TEXT("CUT_ICON");                 break;
+   /*case IDM_CODE_EDIT_CUT:                   szIconID = TEXT("CUT_ICON");                 break;
    case IDM_CODE_EDIT_COPY:                  szIconID = TEXT("COPY_ICON");                break;
    case IDM_CODE_EDIT_PASTE:                 szIconID = TEXT("PASTE_ICON");               break;
-   case IDM_CODE_EDIT_DELETE:                szIconID = TEXT("DELETE_ICON");              break;
+   case IDM_CODE_EDIT_DELETE:                szIconID = TEXT("DELETE_ICON");              break;*/
    case IDM_CODE_EDIT_VIEW_SUGGESTIONS:      szIconID = TEXT("GAME_OBJECT_ICON");         break;
    case IDM_CODE_EDIT_LOOKUP_COMMAND:        szIconID = TEXT("HELP_ICON");                break;
    case IDM_CODE_EDIT_OPEN_TARGET_SCRIPT:    szIconID = TEXT("SCRIPT_DEPENDENCY_ICON");   break;
