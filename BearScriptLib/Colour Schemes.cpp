@@ -11,15 +11,23 @@
 ///                                       CONSTANTS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Game Text Colours
-BearScriptAPI CONST COLORREF  clTextColours[GAME_TEXT_COLOURS] = 
+/// Tooltip Colours
+BearScriptAPI CONST COLORREF  clTooltipColours[GAME_TEXT_COLOURS] = 
 {  
-   RGB(0,0,0),       RGB(25,55,242),  RGB(42,168,200),  RGB(200,200,200), // Black, Blue, Cyan, Default
-   RGB(13,191,25),   RGB(213,145,28), RGB(200,36,167),  RGB(180,37,37),   // Green, Orange, Purple, Red 
-   RGB(255,255,255), RGB(180,180,0)                                       // White, Yellow
+   RGB(0,0,0),       RGB(0,0,255),    RGB(0,230,240),   RGB(200,200,200),     // Black, Blue, Cyan, Default
+   RGB(0,255,0),     RGB(255,150,20), RGB(210,20,255),  RGB(255,0,0),         // Green, Orange, Purple, Red
+   RGB(255,255,255), RGB(0,255,255)                                           // White, Yellow
 };
 
-/// Interface Colours
+/// RichText Colours
+BearScriptAPI CONST COLORREF  clTextColours[GAME_TEXT_COLOURS] = 
+{  
+   RGB(0,0,0),       RGB(25,55,242),  RGB(42,168,200),  RGB(200,200,200),     // Black, Blue, Cyan, Default
+   RGB(13,191,25),   RGB(213,145,28), RGB(200,36,167),  RGB(180,37,37),       // Green, Orange, Purple, Red 
+   RGB(255,255,255), RGB(180,180,0)                                           // White, Yellow
+};
+
+/// CodeEdit Colours
 BearScriptAPI CONST COLORREF  clInterfaceColours[INTERFACE_COLOURS] = 
 {  
    RGB(0,0,0),                                                                   // Black
@@ -124,6 +132,22 @@ COLORREF  getInterfaceColour(CONST INTERFACE_COLOUR  eColour)
    ASSERT((UINT)eColour < INTERFACE_COLOURS);
 
    return clInterfaceColours[eColour];
+}
+
+
+/// Function name  : getTooltipColour
+// Description     : Retrieve the RGB colour associated with a specified GameText colour ID
+// 
+// CONST GAME_TEXT_COLOUR  eColour   : [in] GameText colour ID
+// 
+// Return Value   : RGB colour
+// 
+BearScriptAPI
+COLORREF  getTooltipColour(CONST GAME_TEXT_COLOUR  eColour)
+{
+   ASSERT((UINT)eColour < GAME_TEXT_COLOURS);
+
+   return clTooltipColours[eColour];
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////

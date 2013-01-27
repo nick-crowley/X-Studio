@@ -344,23 +344,15 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\English.rc2"
+				RelativePath=".\English.h"
 				>
 			</File>
 			<File
-				RelativePath=".\German.rc2"
+				RelativePath=".\German.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Resources.rc"
-				>
-			</File>
-			<File
-				RelativePath=".\Bitmaps\Toolbar - Main (Small).bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\Bitmaps\Toolbar - Richtext Dialog.bmp"
 				>
 			</File>
 			<Filter
@@ -891,7 +883,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Bitmaps\Toolbar - Language Dialog.BMP"
+					RelativePath=".\Bitmaps\Toolbar - Main (Small).bmp"
 					>
 				</File>
 				<File
@@ -900,6 +892,10 @@
 				</File>
 				<File
 					RelativePath=".\Bitmaps\Toolbar - Message Dialog.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\Toolbar - Richtext Dialog.bmp"
 					>
 				</File>
 				<File

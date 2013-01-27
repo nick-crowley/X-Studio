@@ -71,6 +71,35 @@ BOOL   createRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 ///                                           HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : identifyGameTextColourFromColourMenuID
+// Description     : Convert a colour menu item ID into it's equivilent colour ID
+// 
+// CONST UINT  iCommandID   : [in] Command ID of the colour menu item
+// 
+// Return Value   : Game text colour or DEFAULT if unrecognised
+// 
+GAME_TEXT_COLOUR  identifyTextColourFromCommandID(CONST UINT  iCommandID)
+{
+   GAME_TEXT_COLOUR  eOutput;
+
+   switch (iCommandID)
+   {
+   case IDM_COLOUR_BLACK:     eOutput = GTC_BLACK;    break;
+   case IDM_COLOUR_BLUE:      eOutput = GTC_BLUE;     break;
+   case IDM_COLOUR_CYAN:      eOutput = GTC_CYAN;     break;
+   case IDM_COLOUR_GREEN:     eOutput = GTC_GREEN;    break;
+   case IDM_COLOUR_ORANGE:    eOutput = GTC_ORANGE;   break;
+   case IDM_COLOUR_PURPLE:    eOutput = GTC_PURPLE;   break;
+   case IDM_COLOUR_RED:       eOutput = GTC_RED;      break;
+   case IDM_COLOUR_WHITE:     eOutput = GTC_WHITE;    break;
+   case IDM_COLOUR_YELLOW:    eOutput = GTC_YELLOW;   break;
+   default:                   eOutput = GTC_DEFAULT;  break;
+   }
+   
+   return eOutput;
+}
+
+
 /// Function name  : identifyRichTextDialogToolBarCommandID
 // Description     : Determine the command ID of a RichText dialog toolbar button from it's position
 // 
@@ -223,7 +252,7 @@ BOOL performRichEditFormatCommand(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, 
 
       // [COLOUR] Set the correct text colour
       default:
-         oCharacterFormat.crTextColor = clTextColours[identifyGameTextColourFromColourMenuID(iCommand)];
+         oCharacterFormat.crTextColor = getGameTextColour(identifyTextColourFromCommandID(iCommand));
          break;
       }
       // Save new attributes

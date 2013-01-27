@@ -341,6 +341,7 @@ BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*
 
    // Add schema tags
    appendStringToTextStream(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?>\r\n"));
+   appendStringToTextStreamf(pOutputStream, TEXT("<-- Generated using %s -->\r\n"), getAppName());
    appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), pLanguageFile->eLanguage);
 
    /// Create a copy of all strings with order: PAGE_ID, GAME_VERSION, STRING_ID

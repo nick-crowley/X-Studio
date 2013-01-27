@@ -442,11 +442,11 @@ VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TE
          /// [TEXT] Display text with appropriate formatting
          if (pItem->eType == RIT_TEXT)
          {  
-            // Convert item attributes into character formatting
-            oCharacterFormat.dwEffects = (pItem->bBold ? CFE_BOLD : NULL) WITH (pItem->bItalic ? CFE_ITALIC : NULL) WITH (pItem->bUnderline ? CFE_UNDERLINE : NULL);
-            // Override the 'default' colour (if specified)
-            oCharacterFormat.crTextColor = clTextColours[pItem->eColour != GTC_DEFAULT ? pItem->eColour : eDefaultColour ];
-            // Set formatting and insert text.
+            // Set item attributes + Colour
+            oCharacterFormat.dwEffects   = (pItem->bBold ? CFE_BOLD : NULL) WITH (pItem->bItalic ? CFE_ITALIC : NULL) WITH (pItem->bUnderline ? CFE_UNDERLINE : NULL);
+            oCharacterFormat.crTextColor = getGameTextColour(pItem->eColour != GTC_DEFAULT ? pItem->eColour : eDefaultColour);
+
+            // Set formatting + text.
             RichEdit_SetCharFormat(hRichEdit, SCF_SELECTION, &oCharacterFormat);
             Edit_ReplaceSel(hRichEdit, pItem->szText);
          }

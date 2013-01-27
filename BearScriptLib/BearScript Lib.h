@@ -189,6 +189,7 @@ BearScriptAPI VOID  destructorColourScheme(LPARAM  pColourSchemeListItem);
 // Helpers
 BearScriptAPI COLORREF  getGameTextColour(CONST GAME_TEXT_COLOUR  eColour);
 BearScriptAPI COLORREF  getInterfaceColour(CONST INTERFACE_COLOUR  eColour);
+BearScriptAPI COLORREF  getTooltipColour(CONST GAME_TEXT_COLOUR  eColour);
 
 // Functions
 BearScriptAPI LIST*  generateColourSchemeListFromRegistry();

@@ -60,8 +60,8 @@ COLORREF  calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST 
    case GTC_BLACK:
       switch (eColour)
       {
-      case GTC_BLACK:  clOutput = clTextColours[GTC_DEFAULT];  break;
-      default:         clOutput = clTextColours[eColour];      break;
+      case GTC_BLACK:  clOutput = getGameTextColour(GTC_DEFAULT);  break;
+      default:         clOutput = getGameTextColour(eColour);      break;
       }
       break;
 
@@ -70,8 +70,8 @@ COLORREF  calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST 
       switch (eColour)
       {
       case GTC_WHITE:   
-      case GTC_DEFAULT: clOutput = clTextColours[GTC_BLACK];  break;
-      default:          clOutput = clTextColours[eColour];    break;
+      case GTC_DEFAULT: clOutput = getGameTextColour(GTC_BLACK);  break;
+      default:          clOutput = getGameTextColour(eColour);    break;
       }
       break;
    }
@@ -130,28 +130,6 @@ RICHTEXT_FORMATTING comparePlainTextGenerationState(CHARFORMAT*  pCharacterForma
    {
       eOutput = (eOutput == RTF_PARAGRAPH_CHANGED ? RTF_BOTH_CHANGED : RTF_CHARACTER_CHANGED);
    }
-
-   return eOutput;
-}
-
-
-
-/// Function name  : identifyGameTextColourFromColourMenuID
-// Description     : Convert a colour menu item ID into it's equivilent colour ID
-// 
-// CONST UINT  iCommandID   : [in] Command ID of the colour menu item
-// 
-// Return Value   : Game text colour or DEFAULT if unrecognised
-// 
-ControlsAPI
-GAME_TEXT_COLOUR  identifyGameTextColourFromColourMenuID(CONST UINT  iCommandID)
-{
-   GAME_TEXT_COLOUR  eOutput;
-   UINT              iColour;
-
-   // Calculate equivilent value and check it's bounds
-   iColour = (iCommandID - IDM_COLOUR_BLACK);
-   eOutput = (GAME_TEXT_COLOUR)(iColour >= 0 AND iColour < 10 ? iColour : GTC_DEFAULT);
 
    return eOutput;
 }
@@ -545,7 +523,7 @@ VOID  drawRichTextItemsInLine(HDC  hDC, CONST RICHTEXT_POSITION*  pStartPos, CON
       case RIT_TEXT:
          // [FONT] Set item font and colour
          pDrawState = utilCreateDeviceContextState(hDC);
-         utilSetDeviceContextFont(pDrawState, hItemFont = utilDuplicateFont(hDC, pItem->bBold, pItem->bItalic, pItem->bUnderline), getGameTextColour(pItem->eColour != GTC_DEFAULT ? pItem->eColour : GTC_BLACK ));
+         utilSetDeviceContextFont(pDrawState, hItemFont = utilDuplicateFont(hDC, pItem->bBold, pItem->bItalic, pItem->bUnderline), getTooltipColour(pItem->eColour != GTC_DEFAULT ? pItem->eColour : GTC_BLACK ));
 
          /// Attempt to draw item in remaining rectangle.  Receive item length and width.
          eDrawResult = drawRichTextItemInRect(hDC, &pItem->szText[pEndPos->iCharIndex], &rcItem, &iItemLength, &siItem.cx, bMeasurement);

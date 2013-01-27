@@ -609,7 +609,6 @@ VOID                          calculatePlainTextGenerateStateFromAttributes(CHAR
 ControlsAPI COLORREF          calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST GAME_TEXT_COLOUR  eBackground);
 RICHTEXT_FORMATTING           comparePlainTextGenerationState(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState);
 GAME_TEXT_COLOUR              identifyGameTextColourFromRGB(CONST COLORREF  clColour);
-ControlsAPI GAME_TEXT_COLOUR  identifyGameTextColourFromColourMenuID(CONST UINT  iCommandID);
 
 // Functions
 ControlsAPI VOID   drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CONST UINT  iDrawFlags);
