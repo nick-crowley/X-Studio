@@ -61,80 +61,6 @@ LANGUAGE_MESSAGE*  getLanguageMessage(PROPERTIES_DATA*  pSheetData)
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : calculateLanguageMessageCompatibility
-// Description     : Determine which display methods a LanguageMessage is compatible with from the custom formatting it uses.
-// 
-// CONST LANGUAGE_MESSAGE*  pMessage   : [in] LanguageMessage to examine
-// 
-// Return Value   : LMC_LOGBOOK     : Logbook
-//                  LMC_MESSAGE     : Logbook + 'Incoming Message'
-//                  LMC_CUSTOM_MENU : Logbook + 'Incoming Message' + CustomMenu
-// 
-MESSAGE_COMPATIBILITY  calculateLanguageMessageCompatibility(CONST LANGUAGE_MESSAGE*  pMessage)
-{
-   MESSAGE_COMPATIBILITY  eResult;      // Resultant compatbility
-   RICH_PARAGRAPH*        pParagraph;   // LanguageMessage paragraphs iterator
-   RICH_ITEM*        pItem;        // LanguageMessage items iterator
-
-   // [RANK], [ARTICLE] and [TEXT] tags are incompatible with the CustomMenu
-   // [AUTHOR], [TITLE] and [SELECT] are too.
-   /// TODO: Determine exactly what is compatible logbooks and 'incoming messages'.  Possibly alter the possible combinations
-
-   eResult = LMC_CUSTOM_MENU;
-
-   // [CHECK] Output 'MESSAGE' if [ARTICLE], [AUTHOR], [TITLE], [RANK] or [TEXT] tags are present
-   if (pMessage->bArticle OR pMessage->bCustomRank OR pMessage->szAuthor OR pMessage->szTitle OR
-      pMessage->iColumnCount > 1 OR pMessage->bCustomSpacing OR pMessage->bCustomWidth)
-      eResult = LMC_MESSAGE;
-
-   // [CHECK] Output 'MESSAGE' if [SELECT] tags are present
-   for (LIST_ITEM*  pParagraphIterator = getListHead(pMessage->pParagraphList); pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH); pParagraphIterator = pParagraphIterator->pNext)
-   {
-      for (LIST_ITEM*  pItemIterator = getListHead(pParagraph->pItemList); pItem = extractListItemPointer(pItemIterator, RICH_ITEM); pItemIterator = pItemIterator->pNext)
-         if (pItem->eType == RIT_BUTTON)
-            eResult = LMC_MESSAGE;
-   }
-      
-   // Return result
-   return eResult;
-}
-
-
-/// Function name  : performLanguageMessageCompatibilityChange
-// Description     : Remove customisations that are incompatible with the specified compatibility mode
-// 
-// LANGUAGE_MESSAGE*            pMessage       : [in/out] LanguageMessage to alter
-// CONST MESSAGE_COMPATIBILITY  eCompatibility : [in]     Desired compatibility
-// 
-VOID  performLanguageMessageCompatibilityChange(LANGUAGE_MESSAGE*  pMessage, CONST MESSAGE_COMPATIBILITY  eCompatibility)
-{
-   switch (eCompatibility)
-   {
-   // [LOGBOOK / MESSAGE] - At present everything is compatible with both of these
-   case LMC_LOGBOOK: /// TODO: Determine what's compatible with logbook messages and what isn't.
-   case LMC_MESSAGE: /// TODO: Determine what's compatible with 'incoming messages' and what isn't.
-      break;
-
-   /// [CUSTOM MENU] - Strip.. everything really.
-   case LMC_CUSTOM_MENU:
-      // [TITLE], [AUTHOR], [RANK] and [ARTICLE]
-      utilSafeDeleteStrings(pMessage->szAuthor, pMessage->szTitle);
-      utilSafeDeleteString(pMessage->szRankTitle);
-      pMessage->bArticle = FALSE;
-      pMessage->bCustomRank = FALSE;
-      // [TEXT]
-      pMessage->iColumnCount = 1;
-      pMessage->bCustomWidth = FALSE;
-      pMessage->bCustomSpacing = FALSE;
-      // [SELECT] -- Remove button items..
-      /// TODO: Remove buttons
-      break;
-   }
-
-   // Update message compatiblity
-   pMessage->eCompatibility = eCompatibility;
-}
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                     MESSAGE HANDLERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +100,7 @@ VOID  onLanguagePage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPE
       PathSetDlgItemPath(hPage, IDC_LANGUAGE_FOLDER_EDIT, szFolder);
 
       // Language + Compatibility + Version
-      ComboBox_SetCurSel(GetDlgItem(hPage, IDC_COMPATIBILITY_COMBO),  pMessage ? pMessage->eCompatibility = calculateLanguageMessageCompatibility(pMessage) : LMC_LOGBOOK);
+      ComboBox_SetCurSel(GetDlgItem(hPage, IDC_COMPATIBILITY_COMBO),  pMessage ? pMessage->eCompatibility : LMC_LOGBOOK);
       ComboBox_SetCurSel(GetDlgItem(hPage, IDC_STRING_VERSION_COMBO), pString  ? pString->eVersion : GV_THREAT);
       ComboBox_SetCurSel(GetDlgItem(hPage, IDC_LANGUAGE_COMBO), eLanguage);
       break;
@@ -283,11 +209,11 @@ BOOL    onGeneralPage_CommandL(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONS
          }
          break;
 
-      /// [COMPATIBILITY] Strip the message of customisations incompatible with the current selection
+      /*/// [COMPATIBILITY] Strip the message of customisations incompatible with the current selection
       case IDC_COMPATIBILITY_COMBO:
          if (bResult = (iNotification == CBN_SELCHANGE))
-            performLanguageMessageCompatibilityChange(pMessage, (MESSAGE_COMPATIBILITY)ComboBox_GetCurSel(hCtrl) );
-         break;
+            performLanguageMessageCompatibilityChange(pMessage, (COMPATIBILITY)ComboBox_GetCurSel(hCtrl) );
+         break;*/
 
       /// [GAME VERSION] Update GameVersion
       case IDC_STRING_VERSION_COMBO:

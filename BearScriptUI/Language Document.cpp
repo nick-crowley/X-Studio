@@ -904,7 +904,7 @@ BOOL  onLanguageDocument_RequestData(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  
          if (oOutput.mask INCLUDES LVIF_TEXT AND (oOutput.lParam == LVIP_CUSTOM_DRAW))    // [FIX] Ignore LVN_GETDISPINFO that does not originate from CustomDraw handler (Received from unknown window once per click)
          {
             // Attempt to generate RichText from source         
-            if (!generateLanguageMessageFromGameString(pGameString, pMessage, NULL))
+            if (!generateMessageFromGameString(pGameString, pMessage, NULL))
             {  // [ERROR] Display text in red
                oOutput.lParam  = RGB(255,0,0); 
                oOutput.mask   |= LVIF_COLOUR_TEXT;

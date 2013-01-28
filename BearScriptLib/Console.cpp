@@ -14,7 +14,7 @@
 #define        IDC_CONSOLE_EDIT     100  
 
 // Max length of a console string
-#define        CONSOLE_LENGTH       512  
+#define        CONSOLE_LENGTH       8192  
 
 // Window class
 CONST TCHAR    *szConsoleClass = TEXT("DebugConsole");
@@ -340,8 +340,8 @@ VOID   consolePrintLastErrorEx(CONST DWORD  dwErrorCode, CONST TCHAR*  szActivit
    TCHAR*  szSystemError;     // Error mesasge
 
    /// Convert error code to string
-   szSystemError = utilCreateEmptyString(CONSOLE_LENGTH);
-   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, NULL, szSystemError, CONSOLE_LENGTH, NULL);
+   szSystemError = utilCreateEmptyString(512);
+   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, NULL, szSystemError, 512, NULL);
    
    // Remove LF/CRLF and trailing full stop
    StrTrim(szSystemError, TEXT(" .\r\n"));

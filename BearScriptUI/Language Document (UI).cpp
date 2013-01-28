@@ -411,7 +411,7 @@ VOID  onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UI
       if (!pDocument->bVirtual)
       {
          getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
-         generatePlainTextFromLanguageMessage(pDocument->pCurrentMessage, pDocument->pCurrentString);
+         generateSourceTextFromRichText(pDocument->pCurrentMessage, pDocument->pCurrentString);
       }
       // Fall through...
 
@@ -447,7 +447,7 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
       findLanguageDocumentGameStringByIndex(pDocument, iItem, pDocument->pCurrentString);
 
       // Generate RichText + display
-      if (pDocument->bFormattingError = !generateLanguageMessageFromGameString(pDocument->pCurrentString, pDocument->pCurrentMessage, pDocument->pFormatErrors))
+      if (pDocument->bFormattingError = !generateMessageFromGameString(pDocument->pCurrentString, pDocument->pCurrentMessage, pDocument->pFormatErrors))
          SetWindowText(pDocument->hRichEdit, TEXT(""));
       else
       {
@@ -473,7 +473,7 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
       if (!pDocument->bVirtual AND Edit_GetModify(pDocument->hRichEdit))
       {
          getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
-         generatePlainTextFromLanguageMessage(pDocument->pCurrentMessage, pDocument->pCurrentString);
+         generateSourceTextFromRichText(pDocument->pCurrentMessage, pDocument->pCurrentString);
       }
 
       /// [DEBUG]

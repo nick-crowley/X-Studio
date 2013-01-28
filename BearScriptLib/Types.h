@@ -1813,7 +1813,7 @@ struct  STORED_DOCUMENT
 
 // Compatibility of a RichEdit message based on the tags it contains
 //
-enum MESSAGE_COMPATIBILITY { LMC_LOGBOOK, LMC_MESSAGE, LMC_CUSTOM_MENU };
+enum COMPATIBILITY { LMC_LOGBOOK, /*LMC_MESSAGE,*/ LMC_CUSTOM_MENU };
 
 // Alignment of a RichEdit paragraph
 //
@@ -1868,22 +1868,20 @@ struct RICH_PARAGRAPH
 //
 struct RICH_TEXT
 { 
-   LIST*                  pParagraphList;     // List of paragraphs in the message
-
-   RICHTEXT_TYPE          eType;              // Whether object is a RICH_TEXT object or a LANGUAGE_MESSAGE object
-   MESSAGE_COMPATIBILITY  eCompatibility;     // Compatbility of the formatting throughout the message
+   LIST*                pParagraphList;     // List of paragraphs in the message
+   RICHTEXT_TYPE        eType;              // Whether object is a RICH_TEXT object or a LANGUAGE_MESSAGE object
 };
 
 // RichText attributes, used as state information for generating plain text from rich text
 // 
 struct RICHTEXT_ATTRIBUTES
 {
-   BOOL                bBold,         // Text is currently in bold
-                       bUnderline,    // Text is currently underlined
-                       bItalic;       // Text is currently italicised
-   GAME_TEXT_COLOUR    eColour;       // Current text colour
+   BOOL                 bBold,         // Text is currently in bold
+                        bUnderline,    // Text is currently underlined
+                        bItalic;       // Text is currently italicised
+   GAME_TEXT_COLOUR     eColour;       // Current text colour
 
-   PARAGRAPH_ALIGNMENT  eAlignment;   // Current alignment of the text
+   PARAGRAPH_ALIGNMENT  eAlignment;    // Current alignment of the text
 };
 
 // RichText Phrase - used for parsing text from a RichEdit control
@@ -1900,8 +1898,8 @@ struct RICHTEXT_PHRASE
 struct LANGUAGE_MESSAGE : RICH_TEXT
 {
    // [TITLE] and [AUTHOR] Properties
-   TCHAR      *szAuthor,               // Author of the message (ST_DISPLAY)
-              *szTitle;                // Title of the message (ST_DISPLAY)
+   TCHAR     *szAuthor,                // Author of the message (ST_DISPLAY)
+             *szTitle;                 // Title of the message (ST_DISPLAY)
 
    // [RANK] Properties
    BOOL       bCustomRank;             // Whether 'eRankType' and 'szRankTitle' are valid
@@ -1919,6 +1917,9 @@ struct LANGUAGE_MESSAGE : RICH_TEXT
 
    BOOL       bCustomWidth,            // Whether 'iColumnWidth' is valid
               bCustomSpacing;          // Whether 'iColumnSpacing' is valid
+
+   // Message properties
+   COMPATIBILITY  eCompatibility;     // Compatbility of the formatting throughout the message
 };
 
 
@@ -2251,8 +2252,8 @@ struct STRING_CONVERTER
 #define  SPC_LANGUAGE_INTERNAL_TO_EXTERNAL (SCF_EXPAND_APOSTROPHE   | SCF_EXPAND_AMPERSAND   | SCF_EXPAND_GREATER_THAN   | SCF_EXPAND_LESS_THAN   | SCF_EXPAND_QUOTES   | SCF_EXPAND_NEWLINE   | SCF_EXPAND_ADDITION   | SCF_EXPAND_TAB)    // SCF_EXPAND_PERCENT   |
 #define  SPC_LANGUAGE_EXTERNAL_TO_INTERNAL (SCF_CONDENSE_APOSTROPHE | SCF_CONDENSE_AMPERSAND | SCF_CONDENSE_GREATER_THAN | SCF_CONDENSE_LESS_THAN | SCF_CONDENSE_QUOTES | SCF_CONDENSE_NEWLINE | SCF_CONDENSE_ADDITION | SCF_CONDENSE_TAB)  // SCF_CONDENSE_PERCENT |
 
-#define  SPC_LANGUAGE_INTERNAL_TO_DISPLAY  (SCF_CONDENSE_BRACKET | SCF_CONDENSE_SQUARE_BRACKET) // | SCF_CONDENSE_CURLY_BRACKET)
-#define  SPC_LANGUAGE_DISPLAY_TO_INTERNAL  (SCF_EXPAND_BRACKET   | SCF_EXPAND_SQUARE_BRACKET)   // | SCF_EXPAND_CURLY_BRACKET  )
+#define  SPC_LANGUAGE_INTERNAL_TO_DISPLAY  (SCF_CONDENSE_SQUARE_BRACKET) // SCF_CONDENSE_BRACKET  |   // | SCF_CONDENSE_CURLY_BRACKET)
+#define  SPC_LANGUAGE_DISPLAY_TO_INTERNAL  (SCF_EXPAND_SQUARE_BRACKET)   // SCF_EXPAND_BRACKET    |   // | SCF_EXPAND_CURLY_BRACKET  )
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    SUGGESTION RESULT

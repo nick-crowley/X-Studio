@@ -968,21 +968,16 @@ TESTING_ONLY(BearScriptAPI VOID   setAppPreferencesGameDataFolder(CONST TCHAR*  
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Helpers
-BearScriptAPI VOID   appendRichTextItemToParagraph(RICH_PARAGRAPH*  pParagraph, RICH_ITEM*  pItem);
+BearScriptAPI VOID   appendRichTextItem(RICH_PARAGRAPH*  pParagraph, RICH_ITEM*  pItem);
 BearScriptAPI VOID   appendRichTextParagraph(RICH_TEXT*  pRichText, RICH_PARAGRAPH*  pParagraph);
-CONST TCHAR*         convertRichTextTagToString(RICHTEXT_TAG  eTag);
-GAME_TEXT_COLOUR     identifyGameTextColourFromRichTextTag(CONST RICHTEXT_TAG  eTag);
-RICHTEXT_TAG         identifyRichTextTag(CONST TCHAR*  szTag);
 BearScriptAPI BOOL   isRichEditButtonUnique(CONST RICH_TEXT*  pRichText, CONST TCHAR*  szID);
-BearScriptAPI VOID   setRichTextParagraphAlignment(RICH_TEXT*  pRichText, CONST UINT  iIndex, CONST PARAGRAPH_ALIGNMENT  eAlignment);
+BearScriptAPI VOID   setParagraphAlignment(RICH_TEXT*  pRichText, CONST UINT  iIndex, CONST PARAGRAPH_ALIGNMENT  eAlignment);
 
 // Functions
-BOOL                 findNextRichObject(RICHTEXT_TOKENISER*  pObject);
-BearScriptAPI BOOL   generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pLanguageMessage, GAME_STRING*  pOutput);
-BearScriptAPI BOOL   generateLanguageMessageFromGameString(CONST GAME_STRING*  pSourceText, LANGUAGE_MESSAGE*  &pOutput, ERROR_QUEUE*  pErrorQueue);
+BearScriptAPI BOOL   generateSourceTextFromRichText(CONST LANGUAGE_MESSAGE*  pLanguageMessage, GAME_STRING*  pOutput);
+BearScriptAPI BOOL   generateMessageFromGameString(CONST GAME_STRING*  pSourceText, LANGUAGE_MESSAGE*  &pOutput, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI BOOL   generateRichTextFromGameString(CONST GAME_STRING*  pSourceText, RICH_TEXT*  &pOutput, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI BOOL   generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTextLength, CONST STRING_TYPE  eStringType, RICH_TEXT*  &pOutput, CONST RICHTEXT_TYPE  eObjectType, ERROR_QUEUE*  pErrorQueue);
-BOOL                 translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTokeniser, LANGUAGE_MESSAGE*  pMessage, RICH_ITEM*  pButton, ERROR_STACK*  &pError);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    RICH TEXT (OBJECTS)

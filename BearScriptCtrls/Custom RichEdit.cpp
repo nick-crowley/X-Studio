@@ -206,7 +206,7 @@ BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
       if (iPos != oPhrase.iStart)      // [CHECK] If previous character was an object, phrase is empty
       {
          oPhrase.iEnd = iPos;
-         appendRichTextItemToParagraph(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
+         appendRichTextItem(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
       }
 
       // [ALIGNMENT CHANGED] Create a new paragraph
@@ -218,7 +218,7 @@ BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
       {
          // Extract data and generate button item
          if (findButtonInRichEditByIndex(hRichEdit, iButtonIndex++, pButtonData))
-            appendRichTextItemToParagraph(pParagraph, pItem = createRichItemButton(pButtonData->szText, pButtonData->szID));
+            appendRichTextItem(pParagraph, pItem = createRichItemButton(pButtonData->szText, pButtonData->szID));
 
          // Initialise a new phrase using the NEXT character
          oPhrase.iStart = iPos + 1;
@@ -238,7 +238,7 @@ BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
    if (iPos != oPhrase.iStart)   // [CHECK] If previous character was an object, phrase is empty
    {
       oPhrase.iEnd = iPos;
-      appendRichTextItemToParagraph(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
+      appendRichTextItem(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
    }
 
    // Restore original selection 

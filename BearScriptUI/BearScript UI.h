@@ -1042,9 +1042,7 @@ LANGUAGE_MESSAGE*      getLanguageMessage(PROPERTIES_DATA*  pSheetData);
 
 /// Page: General
 // Functions
-MESSAGE_COMPATIBILITY  calculateLanguageMessageCompatibility(CONST LANGUAGE_MESSAGE*  pMessage);
-VOID                   displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UINT  iValue);
-VOID                   performLanguageMessageCompatibilityChange(LANGUAGE_MESSAGE*  pMessage, CONST MESSAGE_COMPATIBILITY  eCompatibility);
+VOID    displayColumnPageSliderText(HWND  hPage, CONST UINT  iControlID, CONST UINT  iValue);
 
 // Handlers
 VOID    onLanguagePage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage);

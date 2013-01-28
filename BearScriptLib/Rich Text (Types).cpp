@@ -139,7 +139,11 @@ RICH_ITEM*  createRichItemTextFromPhrase(HWND  hRichEdit, const RICHTEXT_PHRASE*
 
    // Extract desired text from RichEdit control
    Edit_SetSel(hRichEdit, pPhrase->iStart, pPhrase->iEnd);
-   Edit_GetSelText(hRichEdit, pNewItem->szText);   
+   Edit_GetSelText(hRichEdit, pNewItem->szText); 
+
+   // [NEWLINES] Convert \r to \n
+   for (TCHAR*  szNewLine = utilFindCharacter(pNewItem->szText, '\r'); szNewLine; szNewLine = utilFindCharacter(pNewItem->szText, '\r'))
+      szNewLine[0] = '\n';
 
    // Ensure null termination and return
    pNewItem->szText[iLength] = NULL;

@@ -48,7 +48,7 @@ VOID   treeprocTestRichEditConversion(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*
                      *pNewString = createGameString(TEXT("empty"), NULL, NULL, ST_INTERNAL);
 
    /// Generate RichText
-   if (!generateLanguageMessageFromGameString(pString, pMessage, NULL))
+   if (!generateMessageFromGameString(pString, pMessage, NULL))
       VERBOSE("*** Failed to generated RichText for PageID:%d StringID:%d", pString->iPageID, pString->iID);
    else
    {
@@ -59,16 +59,12 @@ VOID   treeprocTestRichEditConversion(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*
       // TODO: Compare RichText
 
       /// Generate PlainText
-      if (!generatePlainTextFromLanguageMessage(pMessage, pNewString))
+      if (!generateSourceTextFromRichText(pMessage, pNewString))
          VERBOSE("*** Failed to generated PlainText for PageID:%d StringID:%d", pString->iPageID, pString->iID);
 
       /// Compare input and output
       else if (!utilCompareStringVariables(pString->szText, pNewString->szText))
-      {
-         VERBOSE("*** DIFFERENCE in PageID:%d StringID:%d:\r\n" "BEFORE: \r\n" "%s\r\n\r\n" "AFTER: \r\n" "%s\r\n\r\n__", pString->iPageID, pString->iID, pString->szText, pNewString->szText);
-         
-      }
-         
+         VERBOSE("*** DIFFERENCE in PageID:%d StringID:%d:\r\n" "BEFORE: \r\n" "%s**END**\r\n\r\n" "AFTER: \r\n" "%s**END**\r\n\r\n__", pString->iPageID, pString->iID, pString->szText, pNewString->szText);
    }
 
    // Cleanup
