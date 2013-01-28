@@ -53,6 +53,19 @@ VOID  appendRichTextItemToParagraph(RICH_PARAGRAPH*  pParagraph, RICH_ITEM*  pIt
 }
 
 
+/// Function name  : appendRichTextParagraph
+// Description     : Appends a paragraph to RichText
+// 
+// RICH_TEXT*       pRichText  : [in/out] RichText
+// RICH_PARAGRAPH*  pParagraph : [in]     Paragraph
+// 
+BearScriptAPI
+VOID  appendRichTextParagraph(RICH_TEXT*  pRichText, RICH_PARAGRAPH*  pParagraph)
+{
+   appendObjectToList(pRichText->pParagraphList, (LPARAM)pParagraph);
+}
+
+
 /// Function name  : convertRichTextTagToString
 // Description     : Converts a tag ID to a string
 // 
@@ -644,7 +657,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
 // Return Value   : TRUE
 // 
 BearScriptAPI
-BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GAME_STRING*  pGameString)
+BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GAME_STRING*  pOutput)
 {
    RICHTEXT_ATTRIBUTES   oState;             // Current formatting state
    RICH_PARAGRAPH*       pParagraph;         // Paragraph iterator
@@ -765,8 +778,8 @@ BOOL  generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pMessage, GA
       StringCchCat(szOutput, MAX_STRING, TEXT("[/text]"));
 
    /// Update existing GameString
-   updateGameStringText(pGameString, szOutput);
-   pGameString->eType  = ST_INTERNAL;
+   updateGameStringText(pOutput, szOutput);
+   pOutput->eType  = ST_INTERNAL;
 
    // Cleanup
    utilDeleteString(szOutput);

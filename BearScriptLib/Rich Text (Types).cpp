@@ -112,7 +112,7 @@ RICH_ITEM*  createRichItemText(CONST RICH_ITEM*  pExistingItem)
    return pNewItem;
 }
 
-/// Function name  : createRichItemTextFromEdit
+/// Function name  : createRichItemTextFromPhrase
 // Description     : Create a new 'text' RichText item using specified attributes and text from a RichEdit control
 // 
 // HWND                   hRichEdit     : [in] RichEdit control window handle
@@ -123,30 +123,26 @@ RICH_ITEM*  createRichItemText(CONST RICH_ITEM*  pExistingItem)
 // Return Value   : New RichText item, you are responsisble for destroying it
 // 
 BearScriptAPI
-RICH_ITEM*  createRichItemTextFromEdit(HWND  hRichEdit, CONST UINT  iCharIndex, CONST UINT  iPhraseLength, RICHTEXT_ATTRIBUTES*  pState)
+RICH_ITEM*  createRichItemTextFromPhrase(HWND  hRichEdit, const RICHTEXT_PHRASE*  pPhrase)
 {
-   RICH_ITEM*  pNewItem;
+   RICH_ITEM*  pNewItem = utilCreateEmptyObject(RICH_ITEM);
+   UINT        iLength  = pPhrase->iEnd - pPhrase->iStart;
 
-   // Create new item of type 'text'
-   pNewItem             = utilCreateEmptyObject(RICH_ITEM);
-   pNewItem->eType      = RIT_TEXT;
-   
    // Set attributes
-   pNewItem->szText     = utilCreateEmptyString(iPhraseLength + 1);
-   pNewItem->bBold      = pState->bBold;
-   pNewItem->bItalic    = pState->bItalic;
-   pNewItem->bUnderline = pState->bUnderline;
-   pNewItem->eColour    = pState->eColour;
+   pNewItem->eType      = RIT_TEXT;
+   pNewItem->eTextType  = ST_DISPLAY;
+   pNewItem->szText     = utilCreateEmptyString(iLength + 1);
+   pNewItem->bBold      = pPhrase->oState.bBold;
+   pNewItem->bItalic    = pPhrase->oState.bItalic;
+   pNewItem->bUnderline = pPhrase->oState.bUnderline;
+   pNewItem->eColour    = pPhrase->oState.eColour;
 
    // Extract desired text from RichEdit control
-   Edit_SetSel(hRichEdit, iCharIndex, iCharIndex + iPhraseLength);
-   Edit_GetSelText(hRichEdit, pNewItem->szText);
-
-   // RichEdit text is DISPLAY, so no conversion is necessary
-   pNewItem->eTextType  = ST_DISPLAY;
+   Edit_SetSel(hRichEdit, pPhrase->iStart, pPhrase->iEnd);
+   Edit_GetSelText(hRichEdit, pNewItem->szText);   
 
    // Ensure null termination and return
-   pNewItem->szText[iPhraseLength] = NULL;
+   pNewItem->szText[iLength] = NULL;
    return pNewItem;
 }
 

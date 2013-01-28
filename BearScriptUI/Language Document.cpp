@@ -712,6 +712,9 @@ VOID   onLanguageDocument_Create(LANGUAGE_DOCUMENT*  pDocument, HWND  hWnd)
       updateLanguageDocumentPageGroups(pDocument);
       ListView_SetItemState(pDocument->hPageList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);    // Causes strings to be generated + displayed
 
+      /// [DEBUG] Test RichText algorithms
+      testRichTextConversion(pDocument->hWnd, getLanguageDocumentGameStringTree(pDocument));
+
       // Show child windows
       ShowWindow(pDocument->hPageList, SW_SHOWNORMAL);
       ShowWindow(pDocument->hStringList, SW_SHOWNORMAL);

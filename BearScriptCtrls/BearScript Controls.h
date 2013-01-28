@@ -478,15 +478,13 @@ ControlsAPI BOOL   onOwnerDrawCustomMenu(DRAWITEMSTRUCT*  pDrawData);
 ///                               CUSTOM RICH EDIT
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-// Helpers
-ControlsAPI BOOL              findButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
-ControlsAPI BOOL              modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput);
-ControlsAPI BOOL              removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex);
-
 // Functions
+ControlsAPI BOOL              findButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
 ControlsAPI BOOL              getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage);
 ControlsAPI LANGUAGE_BUTTON*  insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CONST TCHAR*  szText);
-ControlsAPI VOID              setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground);
+ControlsAPI BOOL              modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput);
+ControlsAPI BOOL              removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex);
+ControlsAPI VOID              setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const bool  bSkipButtons, CONST GAME_TEXT_COLOUR  eBackground);
 
 // Window Procedures
 ControlsAPI LRESULT           wndprocCustomRichEditControl(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
@@ -605,10 +603,8 @@ BOOL APIENTRY          DllMain(HMODULE  hModule, DWORD  dwPurpose, LPVOID  lpRes
 
 
 // Helpers
-VOID                          calculatePlainTextGenerateStateFromAttributes(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState);
-ControlsAPI COLORREF          calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST GAME_TEXT_COLOUR  eBackground);
-RICHTEXT_FORMATTING           comparePlainTextGenerationState(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState);
-GAME_TEXT_COLOUR              identifyGameTextColourFromRGB(CONST COLORREF  clColour);
+ControlsAPI COLORREF  calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST GAME_TEXT_COLOUR  eBackground);
+GAME_TEXT_COLOUR      identifyGameTextColourFromRGB(CONST COLORREF  clColour);
 
 // Functions
 ControlsAPI VOID   drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CONST UINT  iDrawFlags);

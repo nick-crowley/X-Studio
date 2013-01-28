@@ -1296,7 +1296,8 @@ BOOL   testErrorMessageDialog();
 BOOL   testMessageDialog();
 BOOL   testOutputDialog(HWND  hOutputDialog);
 
-
+//
+BOOL  testRichTextConversion(HWND  hParent, const AVL_TREE*  pGameStringTree);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                      TEST CASES

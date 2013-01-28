@@ -541,7 +541,7 @@ OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FIL
          }
 
          // Convert strings from 'external' to 'internal'
-         performLanguageFileStringConversion(pTargetFile, pProgress);
+         performLanguageFileStringConversion(pTargetFile, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL, pProgress);
          break;
 
       /// [SPEECH] None required
@@ -557,7 +557,7 @@ OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FIL
       /// [DESCRIPTIONS] Convert string type.
       case LFT_DESCRIPTIONS:
          // Convert strings from 'external' to 'internal'
-         performLanguageFileStringConversion(pTargetFile, NULL);
+         performLanguageFileStringConversion(pTargetFile, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL, NULL);
          break;
       }
    }
@@ -577,7 +577,7 @@ OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FIL
 // LANGUAGE_FILE*       pTargetFile : [in]            LanguageFile/DescriptionsFile containing the tree to convert
 // OPERATION_PROGRESS*  pProgress   : [in] [optional] Progress tracking
 // 
-VOID    performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, OPERATION_PROGRESS*  pProgress)
+VOID    performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, const UINT  iConversionFlags, OPERATION_PROGRESS*  pProgress)
 {
    AVL_TREE_OPERATION*   pOperationData;
 
@@ -586,6 +586,7 @@ VOID    performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, OPERATI
 
    // Setup conversion operation
    pOperationData = createAVLTreeOperationEx(treeprocConvertGameStringToInternal, ATT_INORDER, NULL, pProgress);
+   pOperationData->xFirstInput = iConversionFlags;
    
    /// Convert all GameStrings in the appropriate tree to 'INTERNAL'
    switch (pTargetFile->eType)

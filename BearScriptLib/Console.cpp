@@ -11,13 +11,20 @@
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 // Console Edit control ID
-#define        IDC_CONSOLE_EDIT           100  
+#define        IDC_CONSOLE_EDIT     100  
 
 // Max length of a console string
-#define        CONSOLE_LENGTH             512  
+#define        CONSOLE_LENGTH       512  
 
 // Window class
-CONST TCHAR*    szConsoleClass             = TEXT("DebugConsole");
+CONST TCHAR    *szConsoleClass = TEXT("DebugConsole");
+
+// Log FileName
+#ifndef _DEBUG
+CONST TCHAR*  szLogFileName = TEXT("Console.log");
+#else
+CONST TCHAR*  szLogFileName = TEXT("DebugConsole.log");
+#endif
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CREATION / DESTRUCTION
@@ -188,7 +195,7 @@ VOID   consolePrint(CONST TCHAR* szText)
    EnterCriticalSection(&getAppConsole()->oCriticalSection);
 
    /// Attempt to open Console.log for writing
-   if ((hLogFile = CreateFile(TEXT("Console.log"), FILE_ALL_ACCESS, NULL, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE)
+   if ((hLogFile = CreateFile(szLogFileName, FILE_ALL_ACCESS, NULL, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE)
    {
       // Convert output to ANSI
       iOutputLength = lstrlen(szOutputTextW);
@@ -478,7 +485,7 @@ TCHAR*  generateConsoleLogFilePath()
 
    // Generate full path of 'Console.log'
    GetModuleFileName(NULL, szModulePath, MAX_PATH);
-   szLogFilePath = utilRenameFilePath(szModulePath, TEXT("Console.log"));
+   szLogFilePath = utilRenameFilePath(szModulePath, szLogFileName);
 
    // Cleanup and return path
    utilDeleteString(szModulePath);

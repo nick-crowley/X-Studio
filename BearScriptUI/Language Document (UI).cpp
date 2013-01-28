@@ -435,8 +435,7 @@ VOID  onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UI
 // 
 VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CONST INT  iItem, CONST BOOL  bSelected)
 {
-   IRichEditOle*  pRichEdit;  // RichEdit control OLE interface
-   REOBJECT       oImage;     // RichEdit control OLE object attributes
+   LANGUAGE_BUTTON*  pButtonData;
 
    // Disable EN_CHANGE notifications
    INT  iOldMask = RichEdit_SetEventMask(pDocument->hRichEdit, RichEdit_GetEventMask(pDocument->hRichEdit) ^ ENM_CHANGE);
@@ -452,21 +451,16 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
          SetWindowText(pDocument->hRichEdit, TEXT(""));
       else
       {
-         // Prepare
-         utilZeroObject(&oImage, REOBJECT);
-         oImage.cbStruct = sizeof(REOBJECT);
-         RichEdit_GetOLEInterface(pDocument->hRichEdit, &pRichEdit);
+         /// [DEBUG]
+         //pDocument->szOldGameString = utilDuplicateSimpleString(pDocument->pCurrentString->szText);
 
          // Insert text + buttons
-         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, GTC_BLACK);
+         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, false, GTC_BLACK);
          Edit_SetModify(pDocument->hRichEdit, FALSE);
 
-         // Store button data
-         for (INT iIndex = 0; pRichEdit->GetObject(iIndex, &oImage, REO_GETOBJ_NO_INTERFACES) == S_OK; iIndex--)
-            insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)(LANGUAGE_BUTTON*)oImage.dwUser);
-         
-         // Cleanup
-         utilReleaseInterface(pRichEdit);
+         // Store data for inserted buttons
+         for (INT iIndex = 0; findButtonInRichEditByIndex(pDocument->hRichEdit, iIndex, pButtonData); iIndex--)
+            insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pButtonData);
       }
 
       // Enable/Disable window by result
@@ -481,6 +475,11 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
          getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
          generatePlainTextFromLanguageMessage(pDocument->pCurrentMessage, pDocument->pCurrentString);
       }
+
+      /// [DEBUG]
+      /*if (!utilCompareStringVariables(pDocument->szOldGameString, pDocument->pCurrentString->szText))
+         consolePrintf(TEXT("GAME STRING CHANGED:\r\n*** BEFORE: %s\r\n** AFTER: %s"), pDocument->szOldGameString, pDocument->pCurrentString->szText);
+      utilDeleteString(pDocument->szOldGameString);*/
 
       // Disable/Clear RichEdit
       SetWindowText(pDocument->hRichEdit, TEXT(""));

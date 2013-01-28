@@ -645,6 +645,7 @@ BearScriptAPI GAME_PAGE*    createGamePage(CONST UINT  iPageID, CONST TCHAR*  sz
 BearScriptAPI GAME_STRING*  createGameString(CONST TCHAR*  szText, CONST UINT  iStringID, CONST UINT  iPageID, CONST STRING_TYPE  eType);
 GAME_STRING_REF*            createGameStringReference(CONST UINT  iPageParameterIndex, CONST UINT  iStringParameterIndex);
 SUBSTRING*                  createSubString(CONST TCHAR*  szSourceText);
+BearScriptAPI GAME_STRING*  duplicateGameString(const GAME_STRING*  pString);
 BearScriptAPI VOID          deleteGamePage(GAME_PAGE*  &pGamePage);
 BearScriptAPI VOID          deleteGameString(GAME_STRING*  &pGameString);
 VOID                        deleteSubString(SUBSTRING*  &pSubString);
@@ -763,7 +764,7 @@ VOID              insertGamePageIntoLanguageFile(LANGUAGE_FILE*  pLanguageFile, 
 BOOL              insertGameStringIntoDescriptionsFile(LANGUAGE_FILE*  pDescriptionsFile, CONST TCHAR*  szString, CONST UINT  iID, CONST UINT  iPageID, ERROR_STACK*  &pError);
 BOOL              insertGameStringIntoLanguageFile(LANGUAGE_FILE*  pLanguageFile, CONST TCHAR*  szString, CONST UINT  iID, CONST UINT  iPageID, ERROR_STACK*  &pError);
 OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FILE*  pTargetFile, CONST BOOL  bSubStrings, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE* pErrorQueue);
-VOID              performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, OPERATION_PROGRESS*  pProgress);
+VOID              performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, const UINT  iConversionFlags, OPERATION_PROGRESS*  pProgress);
 VOID              performVariablesFileStringConversion(VARIABLES_FILE*  pVariablesFile);
 OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 VOID              treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
@@ -968,6 +969,7 @@ TESTING_ONLY(BearScriptAPI VOID   setAppPreferencesGameDataFolder(CONST TCHAR*  
 
 // Helpers
 BearScriptAPI VOID   appendRichTextItemToParagraph(RICH_PARAGRAPH*  pParagraph, RICH_ITEM*  pItem);
+BearScriptAPI VOID   appendRichTextParagraph(RICH_TEXT*  pRichText, RICH_PARAGRAPH*  pParagraph);
 CONST TCHAR*         convertRichTextTagToString(RICHTEXT_TAG  eTag);
 GAME_TEXT_COLOUR     identifyGameTextColourFromRichTextTag(CONST RICHTEXT_TAG  eTag);
 RICHTEXT_TAG         identifyRichTextTag(CONST TCHAR*  szTag);
@@ -976,7 +978,7 @@ BearScriptAPI VOID   setRichTextParagraphAlignment(RICH_TEXT*  pRichText, CONST 
 
 // Functions
 BOOL                 findNextRichObject(RICHTEXT_TOKENISER*  pObject);
-BearScriptAPI BOOL   generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pLanguageMessage, GAME_STRING*  pGameString);
+BearScriptAPI BOOL   generatePlainTextFromLanguageMessage(CONST LANGUAGE_MESSAGE*  pLanguageMessage, GAME_STRING*  pOutput);
 BearScriptAPI BOOL   generateLanguageMessageFromGameString(CONST GAME_STRING*  pSourceText, LANGUAGE_MESSAGE*  &pOutput, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI BOOL   generateRichTextFromGameString(CONST GAME_STRING*  pSourceText, RICH_TEXT*  &pOutput, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI BOOL   generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTextLength, CONST STRING_TYPE  eStringType, RICH_TEXT*  &pOutput, CONST RICHTEXT_TYPE  eObjectType, ERROR_QUEUE*  pErrorQueue);
@@ -991,7 +993,7 @@ BearScriptAPI RICH_PARAGRAPH*  createRichParagraph(PARAGRAPH_ALIGNMENT  eAlignme
 BearScriptAPI RICH_ITEM*       createRichItemButton(CONST TCHAR*  szText, CONST TCHAR*  szID);
 RICH_ITEM*                     createRichItemPlainText(CONST TCHAR*  szPlainText, CONST UINT  iTextLength);
 RICH_ITEM*                     createRichItemText(CONST RICH_ITEM*  pExistingItem);
-BearScriptAPI RICH_ITEM*       createRichItemTextFromEdit(HWND  hRichEdit, CONST UINT  iCharIndex, CONST UINT  iPhraseLength, RICHTEXT_ATTRIBUTES*  pState);
+BearScriptAPI RICH_ITEM*       createRichItemTextFromPhrase(HWND  hRichEdit, const RICHTEXT_PHRASE*  pPhrase);
 BearScriptAPI RICH_TEXT*       createRichText(CONST RICHTEXT_TYPE  eType);
 RICHTEXT_STACK_ITEM*           createRichTextStackItem(RICHTEXT_TOKEN_CLASS  eClass, RICHTEXT_TAG  eTag);
 RICHTEXT_TOKENISER*            createRichTextTokeniser(CONST TCHAR*  szSourceText, CONST UINT  iTextLength, CONST STRING_TYPE  eStringType);

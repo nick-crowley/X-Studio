@@ -156,6 +156,27 @@ GAME_PAGE*  createGamePage(CONST UINT  iPageID, CONST TCHAR*  szTitle, CONST TCH
 }
 
 
+/// Function name  : duplicateGameString
+// Description     : Duplicates a GameString
+// 
+// const GAME_STRING*  pString   : [in] Old string
+// 
+// Return Value   : New string
+// 
+BearScriptAPI
+GAME_STRING*  duplicateGameString(const GAME_STRING*  pString)
+{
+   GAME_STRING*  pNewString = utilCreateEmptyObject(GAME_STRING);
+
+   // Duplicate content
+   utilCopyObject(pNewString, pString, GAME_STRING);
+   pNewString->szText = utilDuplicateString(pString->szText, pString->iCount);
+   
+   // Return
+   return pNewString;
+}
+
+
 /// Function name  : deleteGameString
 // Description     : Deletes a GAME_STRING object
 //
@@ -781,7 +802,7 @@ UINT  performGameStringResolution(CONST GAME_STRING*  pGameString, TCHAR*  szOut
 // Description     : Convert a GameStrings binary tree node from external to internal
 // 
 // BINARY_TREE_NODE*            pNode            : [in] Current tree node
-// BINARY_TREE_OPERATION_DATA*  pOperationData   : [in] Ignored
+// BINARY_TREE_OPERATION_DATA*  pOperationData   : [in] xFirstInput : Conversion flags
 // 
 VOID    treeprocConvertGameStringToInternal(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
 {
@@ -795,7 +816,7 @@ VOID    treeprocConvertGameStringToInternal(AVL_TREE_NODE*  pNode, AVL_TREE_OPER
    if (pGameString->eType != ST_INTERNAL)
    {
       /// Create converted string
-      if (generateConvertedString(pGameString->szText, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL, szConverted))
+      if (generateConvertedString(pGameString->szText, pOperationData->xFirstInput, szConverted))
       {
          /// Replace text buffer
          utilDeleteString(pGameString->szText);

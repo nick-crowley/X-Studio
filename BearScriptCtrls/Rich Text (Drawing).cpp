@@ -80,60 +80,6 @@ COLORREF  calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST 
 }
 
 
-/// Function name  : calculatePlainTextGenerateStateFromAttributes
-// Description     : Convert a CHARFORMAT and PARAFORMAT object into a current PlainTextGenerator state
-// 
-// CHARFORMAT*            pCharacterFormat : [in]  Character attributes
-// PARAFORMAT*            pParagraphFormat : [in]  Paragraph attributes
-// RICHTEXT_ATTRIBUTES*  pState           : [out] PlainTextGenerator formatting attributes
-// 
-VOID  calculatePlainTextGenerateStateFromAttributes(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState)
-{
-   pState->bBold      = (pCharacterFormat->dwEffects INCLUDES CFE_BOLD      ? TRUE : FALSE);
-   pState->bItalic    = (pCharacterFormat->dwEffects INCLUDES CFE_ITALIC    ? TRUE : FALSE);
-   pState->bUnderline = (pCharacterFormat->dwEffects INCLUDES CFE_UNDERLINE ? TRUE : FALSE);
-   pState->eAlignment = (PARAGRAPH_ALIGNMENT)pParagraphFormat->wAlignment;
-   pState->eColour    = identifyGameTextColourFromRGB(pCharacterFormat->crTextColor);
-}
-
-
-/// Function name  : comparePlainTextGenerationState
-// Description     : Compare the attributes of a plain text generator state and the character/paragraph attributes
-//                    of a RichEdit control's selection.
-// 
-// CHARFORMAT*            pCharacterFormat : [in] Character attributes
-// PARAFORMAT*            pParagraphFormat : [in] Paragraph attributes
-// RICHTEXT_ATTRIBUTES*  pState           : [in] Current plain text generator state
-// 
-// Return Value   : Whether they are equal or have changed
-// 
-RICHTEXT_FORMATTING comparePlainTextGenerationState(CHARFORMAT*  pCharacterFormat, PARAFORMAT*  pParagraphFormat, RICHTEXT_ATTRIBUTES*  pState)
-{
-   RICHTEXT_FORMATTING   eOutput;      // Comparison result
-   RICHTEXT_ATTRIBUTES  oNewState;    // Input character/paragraph attributes condensed into a plain text generator state
-
-   // Prepare
-   eOutput = RTF_FORMATTING_EQUAL;
-
-   // Create another plain text generation state from the incoming char + para attributes
-   calculatePlainTextGenerateStateFromAttributes(pCharacterFormat, pParagraphFormat, &oNewState);
-
-   // Compare alignments
-   if (pState->eAlignment != oNewState.eAlignment)
-      eOutput = RTF_PARAGRAPH_CHANGED;
-
-   // Compare formatting
-   if (pState->bBold      != oNewState.bBold      OR
-       pState->bItalic    != oNewState.bItalic    OR
-       pState->bUnderline != oNewState.bUnderline OR
-       pState->eColour    != oNewState.eColour)
-   {
-      eOutput = (eOutput == RTF_PARAGRAPH_CHANGED ? RTF_BOTH_CHANGED : RTF_CHARACTER_CHANGED);
-   }
-
-   return eOutput;
-}
-
 
 /// Function name  : identifyGameTextColourFromRGB
 // Description     : Match an COLORREF to a text colour enumeration

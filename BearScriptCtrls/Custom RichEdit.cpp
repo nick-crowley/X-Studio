@@ -14,12 +14,111 @@
 CONST UINT   iMessageTextSize       = 10;    // Point size of message text
              
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                       CREATION / DESTRUCTION
+///                                          DECLARATIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Helpers
+RICHTEXT_FORMATTING   compareRichTextAttributes(const RICHTEXT_ATTRIBUTES*  pOld, const RICHTEXT_ATTRIBUTES*  pNew);
+BOOL                  getRichEditObjectByIndex(HWND  hRichEdit, const UINT  iIndex, REOBJECT*  pObject);
+VOID                  identifyRichTextAttributes(HWND  hRichEdit, const INT  iIndex, RICHTEXT_ATTRIBUTES*  pState);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                             HELPERS
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : compareRichTextAttributes
+// Description     : Compares values of two attributes objects
+// 
+// RICHTEXT_ATTRIBUTES*  pOld : [in] Old Attributes
+// RICHTEXT_ATTRIBUTES*  pNew : [in] New Attributes
+// 
+// Return Value   : RTF_FORMATTING_EQUAL, RTF_PARAGRAPH_CHANGED, RTF_CHARACTER_CHANGED or RTF_BOTH_CHANGED
+// 
+RICHTEXT_FORMATTING   compareRichTextAttributes(const RICHTEXT_ATTRIBUTES*  pOld, const RICHTEXT_ATTRIBUTES*  pNew)
+{
+   UINT   iResult = RTF_FORMATTING_EQUAL;      // Comparison result
+
+   // Compare alignments
+   if (pOld->eAlignment != pNew->eAlignment)
+      iResult = RTF_PARAGRAPH_CHANGED;
+
+   // Compare formatting
+   if (pOld->bBold != pNew->bBold OR pOld->bItalic != pNew->bItalic OR pOld->bUnderline != pNew->bUnderline OR pOld->eColour != pNew->eColour)
+      iResult |= RTF_CHARACTER_CHANGED; 
+   
+   // Return result
+   return (RICHTEXT_FORMATTING)iResult;
+}
+
+
+/// Function name  : getRichEditObjectByIndex
+// Description     : Retrieves an OLE object
+// 
+// HWND        hRichEdit : [in]     Richedit
+// const UINT  iIndex    : [in]     Index
+// REOBJECT*   pObject   : [in/out] Object data
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BOOL  getRichEditObjectByIndex(HWND  hRichEdit, const UINT  iIndex, REOBJECT*  pObject)
+{
+   IRichEditOle*  pRichEdit;
+   BOOL           bResult;
+
+   // Prepare
+   if (!RichEdit_GetOLEInterface(hRichEdit, &pRichEdit))
+      return FALSE;
+
+   // Prepare
+   utilZeroObject(pObject, REOBJECT);
+   pObject->cbStruct = sizeof(REOBJECT);
+
+   // Get object 
+   bResult = (pRichEdit->GetObject(iIndex, pObject, REO_GETOBJ_NO_INTERFACES) == S_OK);
+
+   // Return result
+   utilReleaseInterface(pRichEdit);
+   return bResult;
+}
+
+
+/// Function name  : identifyRichTextAttributes
+// Description     : Converts the character/paragraph format of the current selection into an attributes object
+// 
+// HWND                  hRichEdit : [in]     RichEdit
+// const UINT            iIndex    : [in]     Index of Character to examine
+// RICHTEXT_ATTRIBUTES*  pState    : [in/out] Attributes
+// 
+VOID  identifyRichTextAttributes(HWND  hRichEdit, const INT  iIndex, RICHTEXT_ATTRIBUTES*  pState)
+{
+   CHARFORMAT    oCharacter;    // Character attributes
+   PARAFORMAT    oParagraph;    // Paragraph attributes
+
+   // Prepare
+   utilZeroObject(&oParagraph, PARAFORMAT);
+   utilZeroObject(&oCharacter, CHARFORMAT);
+   oParagraph.cbSize = sizeof(PARAFORMAT);
+   oCharacter.cbSize = sizeof(CHARFORMAT);
+
+   // Select character
+   Edit_SetSel(hRichEdit, iIndex, iIndex + 1);
+
+   // Get attributes
+   RichEdit_GetParagraphFormat(hRichEdit, &oParagraph);
+   RichEdit_GetCharFormat(hRichEdit, SCF_SELECTION, &oCharacter);
+
+   // Convert attributes
+   pState->bBold      = (oCharacter.dwEffects INCLUDES CFE_BOLD      ? TRUE : FALSE);
+   pState->bItalic    = (oCharacter.dwEffects INCLUDES CFE_ITALIC    ? TRUE : FALSE);
+   pState->bUnderline = (oCharacter.dwEffects INCLUDES CFE_UNDERLINE ? TRUE : FALSE);
+   // Convert alignment
+   pState->eAlignment = (PARAGRAPH_ALIGNMENT)oParagraph.wAlignment;
+   // Convert colour
+   pState->eColour    = identifyGameTextColourFromRGB(oCharacter.crTextColor);
+}
+
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                             FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Function name  : findButtonInRichEditByIndex
@@ -34,277 +133,117 @@ CONST UINT   iMessageTextSize       = 10;    // Point size of message text
 ControlsAPI
 BOOL  findButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput)
 {
-   IRichEditOle*  pRichEdit;     // OLE interface for the Richedit control
-   REOBJECT       oObjectData;   // RichEdit OLE object properties
+   REOBJECT  oObject;   // OLE Object
 
    // Prepare
-   utilZeroObject(&oObjectData, REOBJECT);
-   oObjectData.cbStruct = sizeof(REOBJECT);
    pOutput = NULL;
-
-   // Prepare
-   if (!RichEdit_GetOLEInterface(hRichEdit, &pRichEdit))
-      return FALSE;
-   
-   // Get object and extract button data
-   if (pRichEdit->GetObject(iIndex, &oObjectData, REO_GETOBJ_NO_INTERFACES) == S_OK)
-      pOutput = (LANGUAGE_BUTTON*)oObjectData.dwUser;
-
-   // Cleanup and return
-   utilReleaseInterface(pRichEdit);
-   return pOutput != NULL;
-}
-
-
-/// Function name  : modifyButtonInRichEditByIndex
-// Description     : Replaces a button in a RichEdit with another with different text
-// 
-// HWND               hRichEdit : [in] RichEdit
-// const UINT         iIndex    : [in] Index of button to delete
-// const TCHAR*       szNewText : [in] New Text
-// LANGUAGE_BUTTON*&  pOutput   : [out] New data if succesful, otherwise NULL
-// 
-// Return Value   : TRUE if found, FALSE otherwise
-// 
-ControlsAPI
-BOOL  modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput)
-{
-   LANGUAGE_BUTTON*  pButton;
-   IRichEditOle*  pRichEdit;     // RichEdit control OLE interface
-   CHARRANGE      oSelection;    // Original selection, preserved
-   REOBJECT       oImage;        // RichEdit control OLE object attributes
-   TCHAR*         szID;
-   BOOL           bResult;
-
-   // Prepare
-   utilZeroObject(&oImage, REOBJECT);
-   oImage.cbStruct = sizeof(REOBJECT);
-   pOutput = NULL;
-
-   // Get RichEdit OLE interface
-   if (!RichEdit_GetOLEInterface(hRichEdit, &pRichEdit))
-      return FALSE;
-
-   /// Lookup object
-   if (bResult = (pRichEdit->GetObject(iIndex, &oImage, REO_GETOBJ_NO_INTERFACES) == S_OK))
-   {
-      // Preserve old button ID
-      pButton = (LANGUAGE_BUTTON*)oImage.dwUser;
-      szID    = utilDuplicateSimpleString(pButton->szID);
-
-      // Preserve selection
-      RichEdit_HideSelection(hRichEdit, TRUE);
-      Edit_GetSelEx(hRichEdit, &oSelection.cpMin, &oSelection.cpMax);
-
-      /// Delete object
-      Edit_SetSel(hRichEdit, oImage.cp, oImage.cp + 1);
-      Edit_ReplaceSel(hRichEdit, TEXT(""));
-
-      /// Insert new object
-      pOutput = insertRichEditButton(hRichEdit, szID, szNewText);
-
-      // Cleanup
-      Edit_SetSel(hRichEdit, oSelection.cpMin, oSelection.cpMax);
-      RichEdit_HideSelection(hRichEdit, FALSE);
-      utilDeleteString(szID);
-   }
-   
-   // Release interfaces
-   utilReleaseInterface(pRichEdit);
-   return bResult;
-}
-
-
-/// Function name  : removeButtonFromRichEditByIndex
-// Description     : Deletes a LanguageButton from a RichEdit control
-// 
-// HWND        hRichEdit : [in] RichEdit
-// const UINT  iIndex    : [in] Index of button to delete
-// 
-// Return Value   : TRUE if found, FALSE otherwise
-// 
-ControlsAPI
-BOOL  removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex)
-{
-   IRichEditOle*  pRichEdit;  // RichEdit control OLE interface
-   CHARRANGE      oSelection;        // Original selection, preserved
-   REOBJECT       oImage;     // RichEdit control OLE object attributes
-   BOOL           bResult;
-
-   // Get RichEdit OLE interface
-   if (!RichEdit_GetOLEInterface(hRichEdit, &pRichEdit))
-      return FALSE;
-
-   // Prepare
-   utilZeroObject(&oImage, REOBJECT);
-   oImage.cbStruct = sizeof(REOBJECT);
 
    // Lookup object
-   if (bResult = (pRichEdit->GetObject(iIndex, &oImage, REO_GETOBJ_NO_INTERFACES) == S_OK))
-   {
-      // Preserve selection
-      RichEdit_HideSelection(hRichEdit, TRUE);
-      Edit_GetSelEx(hRichEdit, &oSelection.cpMin, &oSelection.cpMax);
-
-      /// Delete object
-      Edit_SetSel(hRichEdit, oImage.cp, oImage.cp + 1);
-      Edit_ReplaceSel(hRichEdit, TEXT(""));
-
-      // Restore selection
-      Edit_SetSel(hRichEdit, oSelection.cpMin, oSelection.cpMax);
-      RichEdit_HideSelection(hRichEdit, FALSE);
-   }
+   if (getRichEditObjectByIndex(hRichEdit, iIndex, &oObject))
+      pOutput = (LANGUAGE_BUTTON*)oObject.dwUser;
    
-   // Release interfaces
-   utilReleaseInterface(pRichEdit);
-   return bResult;
+   // Return TRUE if found
+   return pOutput != NULL;
 }
-
-/// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                             FUNCTIONS
-/// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /// Function name  : getRichEditText
 // Description     : Fill a RichText object from the current contents of a RichEdit control
 // 
-// HWND        hRichEdit  : [in]  Window handle of a RichEdit control, possibly containing new text
-// RICH_TEXT*  pMessage   : [out] Existing RichText object. Paragraph and item components will be overwritten.
+// HWND        hRichEdit  : [in]     Window handle of a RichEdit control, possibly containing new text
+// RICH_TEXT*  pMessage   : [in/out] Existing RichText object. Paragraph and item components will be overwritten.
 // 
 // Return Value   : TRUE
 // 
 ControlsAPI
 BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
 {
-   RICH_PARAGRAPH*       pParagraph;          // Current paragraph being processed
-   RICH_ITEM*            pItem;               // Current item of the current paragraph being processed
-   RICHTEXT_ATTRIBUTES   oState;              // Current formatting attributes of the character currently being processed
-   RICHTEXT_FORMATTING   eComparison;         // Comparison between character attributes
-   LANGUAGE_BUTTON*      pButtonData;         // RichEdit language button OLE object data
-   IRichEditOle*         pRichEditOLE;        // RichEdit OLE interface
-   REOBJECT              oObjectData;         // RichEdit OLE object properties
-   CHARFORMAT            oCharacterFormat;    // Character attributes
-   PARAFORMAT            oParagraphFormat;    // Paragraph attributes
-   UINT                  iPhraseStart, i,     // Character index of the beginning of the phrase (item) currently being processed
-                         iButtonIndex,        // Index of the button currently being processed (if any)
-                         iTextLength;         // Number of characters in RichEdit
-   GETTEXTLENGTHEX       oTextLength;         // Query object for determining number of chars in RichEdit
+   GETTEXTLENGTHEX       oTextLength;         // Text length
    CHARRANGE             oOriginalSel;        // Original selection, preserved
+   RICH_PARAGRAPH*       pParagraph;          // Current paragraph 
+   RICH_ITEM*            pItem;               // Current item 
+   RICHTEXT_PHRASE       oPhrase;             // Current phrase
+   UINT                  iTextLength,         // Exactly length of RichEdit
+                         iButtonIndex = 0,    // Current button index
+                         iPos;
    
-   // Prepare
-   utilZeroObject(&oParagraphFormat, PARAFORMAT);
-   utilZeroObject(&oCharacterFormat, CHARFORMAT);
-   oParagraphFormat.cbSize = sizeof(PARAFORMAT);
-   oCharacterFormat.cbSize = sizeof(CHARFORMAT);
+   /// Reset RichText object
+   deleteListContents(pMessage->pParagraphList);
 
-   // Prepare
-   RichEdit_HideSelection(hRichEdit, TRUE);
-   RichEdit_GetOLEInterface(hRichEdit, &pRichEditOLE);
-   Edit_GetSelEx(hRichEdit, &oOriginalSel.cpMin, &oOriginalSel.cpMax);
-
-   // Get text length
+   // Get exact text length
    oTextLength.codepage = 1200;
    oTextLength.flags = GTL_PRECISE WITH GTL_NUMCHARS;
    iTextLength = SendMessage(hRichEdit, EM_GETTEXTLENGTHEX, (WPARAM)&oTextLength, NULL);
 
-   /// Select and query first character
-   Edit_SetSel(hRichEdit, 0, 1);
-   RichEdit_GetParagraphFormat(hRichEdit, &oParagraphFormat);
-   RichEdit_GetCharFormat(hRichEdit, SCF_SELECTION, &oCharacterFormat);
-
-   // Generate initial state
-   calculatePlainTextGenerateStateFromAttributes(&oCharacterFormat, &oParagraphFormat, &oState);
-
-   /// Replace any existing content with empty paragraph using alignment of the first character
-   deleteListContents(pMessage->pParagraphList);      // Delete existing paragraphs and items, but not the non-rich edit properties: Title, Author, Columns etc.
-   pParagraph = createRichParagraph(oState.eAlignment);
-   appendObjectToList(pMessage->pParagraphList, (LPARAM)pParagraph);
-
    // [CHECK] Ensure RichEdit has text
-   if (iTextLength > 0)
+   if (iTextLength == 0)
+      return TRUE;
+
+   // Hide current selection
+   RichEdit_HideSelection(hRichEdit, TRUE);
+   Edit_GetSelEx(hRichEdit, &oOriginalSel.cpMin, &oOriginalSel.cpMax);
+
+   /// Query first character + Create initial paragraph
+   identifyRichTextAttributes(hRichEdit, 0, &oPhrase.oState);
+   appendRichTextParagraph(pMessage, pParagraph = createRichParagraph(oPhrase.oState.eAlignment));
+   
+   /// Iterate over each character 
+   for (iPos = 0, oPhrase.iStart = 0, oPhrase.iEnd = -1; iPos < iTextLength; iPos++)
    {
-      /// Iterate through text character by character
-      for (iPhraseStart = 0, iButtonIndex = 0, i = 1; i < iTextLength; i++)
+      LANGUAGE_BUTTON*     pButtonData;         // Language button data
+      RICHTEXT_ATTRIBUTES  oNewState;           // Attributes of current character
+      UINT                 iCharType;           // Whether character is text or an OLE object
+
+      // Query character type and attributes
+      identifyRichTextAttributes(hRichEdit, iPos, &oNewState);
+      iCharType = SendMessage(hRichEdit, EM_SELECTIONTYPE, NULL, NULL);
+
+      // [CHECK] Are text attributes unchanged?
+      if (iCharType == SEL_TEXT AND compareRichTextAttributes(&oPhrase.oState, &oNewState) == RTF_FORMATTING_EQUAL)
+         continue; 
+
+      /// [BUTTON or FORMATTING CHANGED] Isolate and save current phrase
+      if (iPos != oPhrase.iStart)      // [CHECK] If previous character was an object, phrase is empty
       {
-         // Select character
-         Edit_SetSel(hRichEdit, i, i + 1);
-
-         /// [OBJECT]
-         if (SendMessage(hRichEdit, EM_SELECTIONTYPE, NULL, NULL) == SEL_OBJECT)
-         {
-            // Save current phrase to the current paragraph. If previous char was also an object there will be no phrase
-            if (iPhraseStart < i)
-            {
-               pItem = createRichItemTextFromEdit(hRichEdit, iPhraseStart, i - iPhraseStart, &oState);
-               appendRichTextItemToParagraph(pParagraph, pItem);
-            }
-
-            // Get object's properties and extract the associated button data
-            oObjectData.cbStruct = sizeof(REOBJECT);
-            pRichEditOLE->GetObject(iButtonIndex++, &oObjectData, REO_GETOBJ_NO_INTERFACES);
-            pButtonData = (LANGUAGE_BUTTON*)oObjectData.dwUser;
-            ASSERT(pButtonData);
-
-            /// Append new button item to the paragraph
-            pItem = createRichItemButton(pButtonData->szText, pButtonData->szID);
-            appendRichTextItemToParagraph(pParagraph, pItem);
-
-            // Start a new phrase using the NEXT character and it's formatting
-            iPhraseStart = i + 1;
-            Edit_SetSel(hRichEdit, iPhraseStart, iPhraseStart + 1);
-            RichEdit_GetParagraphFormat(hRichEdit, &oParagraphFormat);
-            RichEdit_GetCharFormat(hRichEdit, SCF_SELECTION, &oCharacterFormat);
-            calculatePlainTextGenerateStateFromAttributes(&oCharacterFormat, &oParagraphFormat, &oState);
-         }
-         /// [TEXT]
-         else
-         {
-            // Get formatting + alignment attributes for the character
-            RichEdit_GetParagraphFormat(hRichEdit, &oParagraphFormat);
-            RichEdit_GetCharFormat(hRichEdit, SCF_SELECTION, &oCharacterFormat);
-
-            // Determine whether they're the same as the previous character
-            eComparison = comparePlainTextGenerationState(&oCharacterFormat, &oParagraphFormat, &oState);
-
-            // If either has changed then save the current phrase as a new item, and possibly start a new paragraph
-            if (eComparison != RTF_FORMATTING_EQUAL)
-            {
-               /// Save current phrase to the current paragraph
-               pItem = createRichItemTextFromEdit(hRichEdit, iPhraseStart, i - iPhraseStart, &oState);
-               appendRichTextItemToParagraph(pParagraph, pItem);
-
-               /// Start a new phrase from this location (and update the current state)
-               iPhraseStart = i;
-               calculatePlainTextGenerateStateFromAttributes(&oCharacterFormat, &oParagraphFormat, &oState);
-
-               // Create a new paragraph too, if appropriate.  (and using the new state)
-               if (eComparison == RTF_PARAGRAPH_CHANGED OR eComparison == RTF_BOTH_CHANGED)
-               {
-                  /// Start a new paragraph
-                  pParagraph = createRichParagraph(oState.eAlignment);
-                  appendObjectToList(pMessage->pParagraphList, (LPARAM)pParagraph);
-               }
-            }
-         }
+         oPhrase.iEnd = iPos;
+         appendRichTextItemToParagraph(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
       }
 
-      /// Save remaining phrase to the current paragraph
-      if (i > iPhraseStart)
+      // [ALIGNMENT CHANGED] Create a new paragraph
+      if (oPhrase.oState.eAlignment != oNewState.eAlignment)
+         appendRichTextParagraph(pMessage, pParagraph = createRichParagraph(oNewState.eAlignment));   
+         
+      /// [BUTTON] Append new button to the paragraph
+      if (iCharType == SEL_OBJECT)
       {
-         pItem = createRichItemTextFromEdit(hRichEdit, iPhraseStart, i - iPhraseStart, &oState);
+         // Extract data and generate button item
+         if (findButtonInRichEditByIndex(hRichEdit, iButtonIndex++, pButtonData))
+            appendRichTextItemToParagraph(pParagraph, pItem = createRichItemButton(pButtonData->szText, pButtonData->szID));
 
-         // [CHECK] Is final phrase unintelligible formatting chars output by the RichEdit control?
-         //  SOLVED: I think this was due to the RichEdit estimating the number of characters it contains
-
-         ASSERT(lstrlen(pItem->szText) > 0);
-         appendRichTextItemToParagraph(pParagraph, pItem);
+         // Initialise a new phrase using the NEXT character
+         oPhrase.iStart = iPos + 1;
+         oPhrase.iEnd   = -1;
+         identifyRichTextAttributes(hRichEdit, oPhrase.iStart, &oPhrase.oState);
+      }
+      else
+      {
+         /// [TEXT] Initialise a new phrase using the current character
+         oPhrase.iStart = iPos;
+         oPhrase.iEnd   = -1;
+         oPhrase.oState = oNewState;
       }
    }
 
-   // Cleanup and Return
+   /// Save final phrase 
+   if (iPos != oPhrase.iStart)   // [CHECK] If previous character was an object, phrase is empty
+   {
+      oPhrase.iEnd = iPos;
+      appendRichTextItemToParagraph(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
+   }
+
+   // Restore original selection 
    Edit_SetSel(hRichEdit, oOriginalSel.cpMin, oOriginalSel.cpMax);
    RichEdit_HideSelection(hRichEdit, FALSE);
-   utilReleaseInterface(pRichEditOLE);
    return TRUE;
 }
 
@@ -389,18 +328,103 @@ LANGUAGE_BUTTON*   insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CON
    return pButton;
 }
 
+
+/// Function name  : modifyButtonInRichEditByIndex
+// Description     : Replaces a button in a RichEdit with another with different text
+// 
+// HWND               hRichEdit : [in] RichEdit
+// const UINT         iIndex    : [in] Index of button to delete
+// const TCHAR*       szNewText : [in] New Text
+// LANGUAGE_BUTTON*&  pOutput   : [out] New data if succesful, otherwise NULL
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+ControlsAPI
+BOOL  modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput)
+{
+   LANGUAGE_BUTTON*  pOldButton;
+   CHARRANGE         oSelection;    // Original selection, preserved
+   REOBJECT          oObject;       // RichEdit control OLE object attributes
+   TCHAR*            szID;
+
+   // Prepare
+   pOutput = NULL;
+
+   /// Lookup object
+   if (getRichEditObjectByIndex(hRichEdit, iIndex, &oObject))
+   {
+      // Preserve old button ID
+      pOldButton = (LANGUAGE_BUTTON*)oObject.dwUser;
+      szID       = utilDuplicateSimpleString(pOldButton->szID);
+
+      // Preserve selection
+      RichEdit_HideSelection(hRichEdit, TRUE);
+      Edit_GetSelEx(hRichEdit, &oSelection.cpMin, &oSelection.cpMax);
+
+      /// Delete object
+      Edit_SetSel(hRichEdit, oObject.cp, oObject.cp + 1);
+      Edit_ReplaceSel(hRichEdit, TEXT(""));
+
+      /// Insert new object
+      pOutput = insertRichEditButton(hRichEdit, szID, szNewText);
+
+      // Cleanup
+      Edit_SetSel(hRichEdit, oSelection.cpMin, oSelection.cpMax);
+      RichEdit_HideSelection(hRichEdit, FALSE);
+      utilDeleteString(szID);
+   }
+   
+   // Return TRUE if found
+   return pOutput != NULL;
+}
+
+
+/// Function name  : removeButtonFromRichEditByIndex
+// Description     : Deletes a LanguageButton from a RichEdit control
+// 
+// HWND        hRichEdit : [in] RichEdit
+// const UINT  iIndex    : [in] Index of button to delete
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+ControlsAPI
+BOOL  removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex)
+{
+   CHARRANGE      oSelection;   // Original selection, preserved
+   REOBJECT       oObject;      // RichEdit control OLE object attributes
+
+   /// Lookup object
+   if (!getRichEditObjectByIndex(hRichEdit, iIndex, &oObject))
+      return FALSE;
+
+   // Preserve selection
+   RichEdit_HideSelection(hRichEdit, TRUE);
+   Edit_GetSelEx(hRichEdit, &oSelection.cpMin, &oSelection.cpMax);
+
+   /// Delete object
+   Edit_SetSel(hRichEdit, oObject.cp, oObject.cp + 1);
+   Edit_ReplaceSel(hRichEdit, TEXT(""));
+
+   // Restore selection
+   Edit_SetSel(hRichEdit, oSelection.cpMin, oSelection.cpMax);
+   RichEdit_HideSelection(hRichEdit, FALSE);
+   return TRUE;
+}
+
+
 /// Function name  : setRichEditText
 // Description     : Replace RichEdit text with the contents of a RichText object
 // 
-// HWND                    hRichEdit   : [in] RichEdit window handle
-// CONST RICH_TEXT*        pMessage    : [in] RichText message to display
-// CONST GAME_TEXT_COLOUR  eBackground : [in] Defines the background colour. Must be GLC_BLACK or GLC_WHITE to
+// HWND                    hRichEdit    : [in] RichEdit window handle
+// CONST RICH_TEXT*        pMessage     : [in] RichText message to display
+// const bool              bSkipButtons : [in] TRUE to ignore buttons, FALSE to insert
+// CONST GAME_TEXT_COLOUR  eBackground  : [in] Defines the background colour. Must be GLC_BLACK or GLC_WHITE to
 //                                             indicate whether background is light or dark, even if the background
 //                                             colour isn't exactly white or black.  The default text colour
 //                                             will be chosen to contrast the background. Other colours will not be altered.
 // 
 ControlsAPI
-VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TEXT_COLOUR  eBackground)
+VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const bool  bSkipButtons, CONST GAME_TEXT_COLOUR  eBackground)
 {
    CHARFORMAT        oCharacterFormat;     // Text formatting attributes
    PARAFORMAT        oParagraphFormat;     // Paragraph formatting attributes
@@ -418,12 +442,14 @@ VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TE
    oParagraphFormat.cbSize = sizeof(PARAFORMAT);
 
    // Prepare RichEdit
-   Edit_SetSel(hRichEdit, 32768, 32768);
+   //Edit_SetSel(hRichEdit, 32768, 32768);
+   SetWindowText(hRichEdit, TEXT(""));
 
    // Determine the default colour
    eDefaultColour = (eBackground == GTC_BLACK ? GTC_DEFAULT : GTC_BLACK);
    
    // Set formatting that is consistent for all items
+   oParagraphFormat.dwMask  = PFM_ALIGNMENT;
    oCharacterFormat.dwMask  = CFM_BOLD WITH CFM_ITALIC WITH CFM_UNDERLINE WITH CFM_COLOR WITH CFM_SIZE WITH CFM_FACE;
    oCharacterFormat.yHeight = iMessageTextSize * 20;
    StringCchCopy(oCharacterFormat.szFaceName, LF_FACESIZE, TEXT("Arial"));
@@ -432,7 +458,6 @@ VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TE
    for (LIST_ITEM*  pParagraphIterator = getListHead(pMessage->pParagraphList); pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH); pParagraphIterator = pParagraphIterator->pNext)
    {
       // Set paragraph alignment
-      oParagraphFormat.dwMask     = PFM_ALIGNMENT;
       oParagraphFormat.wAlignment = pParagraph->eAlignment;
       RichEdit_SetParagraphFormat(hRichEdit, &oParagraphFormat);
 
@@ -451,11 +476,11 @@ VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, CONST GAME_TE
             Edit_ReplaceSel(hRichEdit, pItem->szText);
          }
          /// [BUTTON] Insert OLE object with appropriate text
-         else 
+         else if (!bSkipButtons)
             insertRichEditButton(hRichEdit, pItem->szID, pItem->szText);
             
          // Move caret beyond item
-         Edit_SetSel(hRichEdit, 32768, 32768);
+         Edit_SetSel(hRichEdit, 65536, 65536);
       }
    }
 }
