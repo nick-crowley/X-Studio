@@ -113,11 +113,11 @@ VOID  onButtonPage_LabelEditBegin(PROPERTIES_DATA*  pSheetData, HWND  hPage, NML
 VOID  onButtonPage_LabelEditEnd(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVDISPINFO*  pLabelData)
 {
    LANGUAGE_DOCUMENT* pDocument = pSheetData->pLanguageDocument;
-   LANGUAGE_BUTTON   *pButton,
+   LANGUAGE_BUTTON   *pOldButton,
                      *pNewButton;
 
    // Lookup language button
-   if (findButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, pButton))
+   if (findButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, pOldButton))
    {
       TCHAR*  szValue = utilGetWindowText(pLabelData->hdr.hwndFrom);
       BOOL    bAccept = TRUE;
@@ -129,7 +129,7 @@ VOID  onButtonPage_LabelEditEnd(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVD
          if (bAccept = lstrlen(szValue))
          {
             // Replace desired button + Store resultant button data
-            if (modifyButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, szValue, pNewButton))
+            if (modifyButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, szValue, pOldButton->eColour, pNewButton))
                insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pNewButton);   
          }
          break;
@@ -137,7 +137,7 @@ VOID  onButtonPage_LabelEditEnd(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVD
       /// [ID] Ensure ID is valid, then replace
       case BUTTON_COLUMN_ID: 
          if (bAccept = validateLanguageButtonID(pDocument, szValue))
-            utilReplaceString(pButton->szID, szValue);
+            utilReplaceString(pOldButton->szID, szValue);
          break;
       }
 

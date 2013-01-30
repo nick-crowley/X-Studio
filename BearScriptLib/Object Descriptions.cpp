@@ -552,7 +552,7 @@ VOID  treeprocGenerateObjectDescription(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_O
          szPopulatedSource = generatePopulatedDescriptionSource(pSourceString->szText, pSourceString->iCount, pVariablesTree, xObject.asCommandSyntax, pSourceString->iPageID, pSourceString->iID, pOperationData->pErrorQueue);
 
          /// Populate description source
-         if (bResult = generateRichTextFromSourceText(szPopulatedSource, lstrlen(szPopulatedSource), ST_INTERNAL, pDescription, RTT_RICH_TEXT, pOperationData->pErrorQueue))
+         if (bResult = generateRichTextFromSourceText(szPopulatedSource, lstrlen(szPopulatedSource), pDescription, RTT_RICH_TEXT, ST_DISPLAY, pOperationData->pErrorQueue))
             // [SUCCESS] Store description
             ((COMMAND_SYNTAX*)xObject.asCommandSyntax)->pTooltipDescription = pDescription;    /// [HACK] Remove 'const' - this is the only time Syntax is edited post-creation
 
@@ -578,7 +578,7 @@ VOID  treeprocGenerateObjectDescription(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_O
       szPopulatedSource = generatePopulatedDescriptionSource(pSourceString->szText, pSourceString->iCount, pVariablesTree, NULL, pSourceString->iPageID, pSourceString->iID, pOperationData->pErrorQueue);
 
       /// Generate description from source text
-      if (bResult = generateRichTextFromSourceText(szPopulatedSource, lstrlen(szPopulatedSource), ST_INTERNAL, pDescription, RTT_RICH_TEXT, pOperationData->pErrorQueue))
+      if (bResult = generateRichTextFromSourceText(szPopulatedSource, lstrlen(szPopulatedSource), pDescription, RTT_RICH_TEXT, ST_DISPLAY, pOperationData->pErrorQueue))
       {
          // Lookup ScriptObject
          if (findScriptObjectByGroup(identifyObjectNameGroupFromGameString(pSourceString), pSourceString->iID, xObject.asObjectName))

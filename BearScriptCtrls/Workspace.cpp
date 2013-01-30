@@ -105,7 +105,7 @@ PANE*  createWindowPane(HWND  hWorkspace, HWND  hWnd, CONST RECT*  pBorderRect)
 // Return Value   : Workspace window if successful, otherwise NULL
 // 
 ControlsAPI
-HWND  createWorkspace(HWND  hParentWnd, CONST RECT*  pParentRect, HWND  hBaseWnd, CONST UINT  clBackground)
+HWND  createWorkspace(HWND  hParentWnd, CONST RECT*  pParentRect, HWND  hBaseWnd, CONST COLORREF  clBackground)
 {
    WORKSPACE_DATA*  pWindowData;    // Window data
    SIZE             siParentSize;   // Parent rectangle size
@@ -146,15 +146,15 @@ HWND  createWorkspace(HWND  hParentWnd, CONST RECT*  pParentRect, HWND  hBaseWnd
 // 
 // Return Value   : New window data, you are responsible for destroying it
 // 
-WORKSPACE_DATA*  createWorkspaceData(HWND  hBaseWnd, CONST RECT*  pWorkspaceRect, CONST UINT  clBackground)
+WORKSPACE_DATA*  createWorkspaceData(HWND  hBaseWnd, CONST RECT*  pWorkspaceRect, CONST COLORREF  clBackground)
 {
    // Create new object
    WORKSPACE_DATA*  pWindowData = utilCreateEmptyObject(WORKSPACE_DATA);
 
    /// Store base window and workspace rectangle
-   pWindowData->hBaseWnd     = hBaseWnd;
-   pWindowData->rcWorkspace  = (*pWorkspaceRect);
-   pWindowData->clBackground = clBackground;
+   pWindowData->hBaseWnd    = hBaseWnd;
+   pWindowData->rcWorkspace = (*pWorkspaceRect);
+   pWindowData->hBackground = CreateSolidBrush(clBackground);
 
    // Return window data
    return pWindowData;
@@ -194,6 +194,7 @@ VOID  deleteWorkspaceData(WORKSPACE_DATA*  &pWindowData)
    deletePane(pWindowData->pBasePane);
 
    // Delete workspace
+   DeleteBrush(pWindowData->hBackground);
    utilDeleteObject(pWindowData);
 }
 
@@ -366,6 +367,26 @@ BOOL  performWorkspacePaneSearch(PANE*  pPane, PANE_SEARCH*  pSearch)
 
    // Return TRUE if all windows were found
    return (pSearch->pOutput != NULL);
+}
+
+
+/// Function name  : setWorkspaceBackgroundColour
+// Description     : Changes the workspace background colour
+// 
+// HWND            hWorkspace   : [in] Workspace
+// const COLORREF  clBackground : [in] Colour
+// 
+ControlsAPI 
+VOID  setWorkspaceBackgroundColour(HWND  hWorkspace, const COLORREF  clBackground)
+{
+   WORKSPACE_DATA*   pWindowData = getWorkspaceWindowData(hWorkspace);
+
+   /// Replace existing background brush
+   if (pWindowData)
+   {
+      DeleteBrush(pWindowData->hBackground);
+      pWindowData->hBackground = CreateSolidBrush(clBackground);
+   }
 }
 
 
@@ -976,7 +997,7 @@ VOID  onWorkspacePaint(WORKSPACE_DATA*  pWindowData, HDC  hDC, CONST RECT*  pUpd
    //drawWorkspaceSplitterBar(hDC, pWindowData->clBackground, pWindowData->pBasePane);
 
    // Blanket entire window
-   utilFillSysColourRect(hDC, pUpdateRect, pWindowData->clBackground);
+   FillRect(hDC, pUpdateRect, pWindowData->hBackground);
 }
 
 

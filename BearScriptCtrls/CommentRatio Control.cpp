@@ -162,7 +162,7 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
    ExcludeClipRect(pPaintData->hdc, rcContentRect.left, rcContentRect.top, rcContentRect.right, rcContentRect.bottom);
 
    // [CHECK] Are themes active?
-   if (hTheme = OpenThemeData(hCtrl, WC_EDIT))
+   if (hTheme = OpenThemeData(hCtrl, TEXT("Edit")))
       /// [THEME BORDER] Draw the border of an edit control
       DrawThemeBackground(hTheme, pPaintData->hdc, EP_BACKGROUNDWITHBORDER, EBWBS_NORMAL, &rcClientRect, NULL);
    else
@@ -212,8 +212,8 @@ LRESULT CALLBACK  wndprocCommentRatioCtrl(HWND  hCtrl, UINT iMessage, WPARAM  wP
       break;
 
    
-   case WM_ERASEBKGND:
-      return NULL;
+   /*case WM_ERASEBKGND:
+      return NULL;*/
 
    default:
       return DefWindowProc(hCtrl, iMessage, wParam, lParam);

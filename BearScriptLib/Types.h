@@ -15,7 +15,7 @@
 #define            MAX_STRING                32768        // Max length for a game string
 
 // Define various totals
-#define            GAME_TEXT_COLOURS         10           // Number of game text colours
+#define            GAME_TEXT_COLOURS         11           // Number of game text colours
 #define            INTERFACE_COLOURS         13           // Number of interface colours
 #define            CODEOBJECT_CLASSES        13           // Number of CodeObject classes
 #define            LANGUAGES                 7            // Number of Languages
@@ -226,7 +226,7 @@ struct  CODEOBJECT
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 // GameString/LanguageMessage text colours
-enum  GAME_TEXT_COLOUR  { GTC_BLACK, GTC_BLUE, GTC_CYAN, GTC_DEFAULT, GTC_GREEN, GTC_ORANGE, GTC_PURPLE, GTC_RED, GTC_WHITE, GTC_YELLOW };
+enum  GAME_TEXT_COLOUR  { GTC_BLACK, GTC_BLUE, GTC_CYAN, GTC_DEFAULT, GTC_GREEN, GTC_ORANGE, GTC_PURPLE, GTC_RED, GTC_SILVER, GTC_WHITE, GTC_YELLOW };
 
 // Application Interface Colours
 enum  INTERFACE_COLOUR  { IC_BLACK, IC_DARK_BLUE, IC_DARK_GREEN, IC_DARK_GREY, IC_DARK_RED, IC_LIGHT_BLUE, IC_LIGHT_GREEN, IC_LIGHT_GREY, IC_LIGHT_RED, IC_ORANGE, IC_PURPLE, IC_YELLOW, IC_WHITE };
@@ -1191,10 +1191,11 @@ struct JUMP_STACK_ITEM
 //
 struct  LANGUAGE_BUTTON
 {
-   TCHAR       *szText,     // Button's Text, as currently displayed as a bitmap
-               *szID;       // Button's ID
-   HBITMAP      hBitmap;    // Button bitmap;
-   IOleObject*  pObject;    // OLE Object
+   GAME_TEXT_COLOUR  eColour;    // Text colour
+   TCHAR            *szText,     // Button's Text, as currently displayed as a bitmap
+                    *szID;       // Button's ID
+   HBITMAP           hBitmap;    // Button bitmap;
+   IOleObject*       pObject;    // OLE Object
 };
 
 /// //////////////////////////////////////////////////////////////////////////////////////////
@@ -1942,7 +1943,7 @@ struct RICHTEXT_POSITION
 enum RICHTEXT_TAG   { RTT_NONE,    RTT_LEFT,   RTT_RIGHT,     RTT_CENTRE,    RTT_JUSTIFY,    // Left,Right,Centre+Justify are equivilent to PARAGRAPH_ALIGNMENT and must not be changed.
                       RTT_ARTICLE, RTT_AUTHOR, RTT_TEXT,      RTT_TITLE,     RTT_RANKING, 
                       RTT_BOLD,    RTT_ITALIC, RTT_UNDERLINE, RTT_SELECT,    RTT_IMAGE,
-                      RTT_BLACK,   RTT_BLUE,   RTT_CYAN,      RTT_DEFAULT,   RTT_GREEN,   RTT_ORANGE, RTT_PURPLE, RTT_RED, RTT_WHITE, RTT_YELLOW };
+                      RTT_BLACK,   RTT_BLUE,   RTT_CYAN,      RTT_DEFAULT,   RTT_GREEN,   RTT_ORANGE, RTT_PURPLE, RTT_RED, RTT_SILVER, RTT_WHITE, RTT_YELLOW };
 
 // Identifies the type of a RichText token
 // 
@@ -1965,6 +1966,7 @@ struct RICHTEXT_TOKENISER
    RICHTEXT_TOKEN_CLASS  eClass;              // Current object's type - either Text or the group of tag
    TCHAR*                szSourceText;        // ST_INTERNAL copy of the source text being parsed
    CONST TCHAR*          szCurrentPosition;   // Current position within the source text
+   UINT                  iPosition;           // Current position within the source text
 
    // Data
    RICHTEXT_TAG          eTag;               // [TAG]  Tag
@@ -2252,8 +2254,11 @@ struct STRING_CONVERTER
 #define  SPC_LANGUAGE_INTERNAL_TO_EXTERNAL (SCF_EXPAND_APOSTROPHE   | SCF_EXPAND_AMPERSAND   | SCF_EXPAND_GREATER_THAN   | SCF_EXPAND_LESS_THAN   | SCF_EXPAND_QUOTES   | SCF_EXPAND_NEWLINE   | SCF_EXPAND_ADDITION   | SCF_EXPAND_TAB)    // SCF_EXPAND_PERCENT   |
 #define  SPC_LANGUAGE_EXTERNAL_TO_INTERNAL (SCF_CONDENSE_APOSTROPHE | SCF_CONDENSE_AMPERSAND | SCF_CONDENSE_GREATER_THAN | SCF_CONDENSE_LESS_THAN | SCF_CONDENSE_QUOTES | SCF_CONDENSE_NEWLINE | SCF_CONDENSE_ADDITION | SCF_CONDENSE_TAB)  // SCF_CONDENSE_PERCENT |
 
-#define  SPC_LANGUAGE_INTERNAL_TO_DISPLAY  (SCF_CONDENSE_SQUARE_BRACKET) // SCF_CONDENSE_BRACKET  |   // | SCF_CONDENSE_CURLY_BRACKET)
-#define  SPC_LANGUAGE_DISPLAY_TO_INTERNAL  (SCF_EXPAND_SQUARE_BRACKET)   // SCF_EXPAND_BRACKET    |   // | SCF_EXPAND_CURLY_BRACKET  )
+#define  SPC_LANGUAGE_INTERNAL_TO_DISPLAY  (SCF_CONDENSE_SQUARE_BRACKET | SCF_CONDENSE_BRACKET | SCF_CONDENSE_CURLY_BRACKET)
+#define  SPC_LANGUAGE_DISPLAY_TO_INTERNAL  (SCF_EXPAND_SQUARE_BRACKET   | SCF_EXPAND_BRACKET   | SCF_EXPAND_CURLY_BRACKET)
+
+#define  SPC_RICHTEXT_INTERNAL_TO_DISPLAY  (SCF_CONDENSE_SQUARE_BRACKET) // SCF_CONDENSE_BRACKET  |   // | SCF_CONDENSE_CURLY_BRACKET)
+#define  SPC_RICHTEXT_DISPLAY_TO_INTERNAL  (SCF_EXPAND_SQUARE_BRACKET)   // SCF_EXPAND_BRACKET    |   // | SCF_EXPAND_CURLY_BRACKET  )
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    SUGGESTION RESULT

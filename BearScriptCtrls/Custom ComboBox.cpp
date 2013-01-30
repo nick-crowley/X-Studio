@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION  /  DESTRUCTION
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +34,7 @@ CUSTOM_COMBO_ITEM*  createCustomComboBoxItem(CONST TCHAR*  szText, CONST TCHAR* 
    pNewItem->szAuxText  = utilSafeDuplicateSimpleString(szAuxText);
    pNewItem->szIconID   = szIcon;
    pNewItem->lParam     = xItemData;
+   pNewItem->clColour   = clNullColour;
    pNewItem->hFont      = NULL;
 
    // Return new data
@@ -290,11 +292,14 @@ VOID  drawCustomComboBoxItem(DRAWITEMSTRUCT*  pDrawInfo, CONST CUSTOM_COMBO_ITEM
 {
    DC_STATE*         pPrevState;         // Previous DC state
    IMAGE_TREE_SIZE   eIconSize;          // Icon size
+   COLORREF          clTextColour;
    RECT              rcBackgroundRect,   // Background drawing rectangle
                      rcTextRect,         // Text drawing rectangle
                      rcIconRect;         // Icon drawing rectangle
    BOOL              bEditItem;          // Whether the item is being drawn in the combo's edit control
    UINT              iIndentation;
+
+   /// Checkpoints added for linux user having access violations throughout this function
 
    // [CHECK] Ensure OwnerDraw data is for a ComboBox
    TRACK_FUNCTION();
@@ -354,8 +359,14 @@ VOID  drawCustomComboBoxItem(DRAWITEMSTRUCT*  pDrawInfo, CONST CUSTOM_COMBO_ITEM
    // [VERBOSE]
    //VERBOSE("drawCustomComboBoxItem: Check point 4");
 
+   // Set appropriate colour
+   if ((pDrawInfo->itemState & ODS_DISABLED) OR pItemData->clColour == clNullColour)
+      clTextColour = getThemeSysColour(TEXT("Window"), pDrawInfo->itemState & ODS_DISABLED ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
+   else
+      clTextColour = pItemData->clColour;
+
    /// [TEXT] Draw main text on the left (in grey if disabled)
-   utilSetDeviceContextFont(pPrevState, pItemData->hFont, utilIncludes(pDrawInfo->itemState, ODS_DISABLED) ? GetSysColor(COLOR_GRAYTEXT) : pItemData->clColour);
+   utilSetDeviceContextFont(pPrevState, pItemData->hFont, clTextColour);
    DrawText(pDrawInfo->hDC, pItemData->szMainText, lstrlen(pItemData->szMainText), &rcTextRect, DT_LEFT WITH DT_VCENTER WITH DT_SINGLELINE);
 
    // [VERBOSE]

@@ -277,9 +277,6 @@ struct  LANGUAGE_DOCUMENT : DOCUMENT
 
    RichEditCallback*    pOleCallback;       // [DIALOG] RichEdit callback interface
    AVL_TREE*            pButtonsByID;       // [DIALOG] Buttons in current message
-
-   // [DEBUG]
-   TCHAR  *szOldGameString;
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////

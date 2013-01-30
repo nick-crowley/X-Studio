@@ -17,8 +17,7 @@
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Colours
-COLORREF  clLightGrey  = RGB(247,247,247),    // ListView sort column
-          clNullColour = 0xff000000;          // Colour sentinel value
+COLORREF  clLightGrey  = RGB(247,247,247);    // ListView sort column
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                      HELPERS
@@ -62,6 +61,9 @@ VOID  initReportModeListView(HWND  hListView, CONST LISTVIEW_COLUMNS*  pListView
       ListView_SetExtendedListViewStyleEx(hListView, LVS_EX_TRACKSELECT, LVS_EX_TRACKSELECT);
       ListView_SetHoverTime(hListView, -2);
    }
+
+   /// Set themed background colour
+   ListView_SetBkColor(hListView, getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +102,8 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    BOOL           bCtrlEnabled;
    HBRUSH         hColumnBrush,     // Column background brush
                   hSortBrush;       // Sort column background brush
+   COLORREF          clBackground;  // Background colour
+   GAME_TEXT_COLOUR  eBackground;   // Background colour broadly converted to white or black
 
    // Prepare
    pDrawData   = &pHeader->nmcd;
@@ -142,12 +146,15 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    if (!IsWindowEnabled(hListView))
       eItemState = CDIS_DISABLED;
 
+   // Determine background colour
+   clBackground = bCtrlEnabled ? ListView_GetBkColor(hListView) : GetSysColor(COLOR_BTNFACE);
+   eBackground  = (GetRValue(clBackground) > 128 AND GetGValue(clBackground) > 128 AND GetBValue(clBackground) > 128 ? GTC_WHITE : GTC_BLACK);
+
    // [COLUMNS] Create background brushes
-   hSortBrush   = CreateSolidBrush(clLightGrey);
+   //hSortBrush   = CreateSolidBrush(clLightGrey);
+   hSortBrush = getThemeSysColourBrush(TEXT("Window"), COLOR_INFOBK);
+   hColumnBrush = CreateSolidBrush(clBackground);
    iSortColumn  = ListView_GetSelectedColumn(hListView);
-   hColumnBrush = CreateSolidBrush(bCtrlEnabled ? ListView_GetBkColor(hListView) : GetSysColor(COLOR_BTNFACE));
-   
-   // Prepare
    iBackgroundMode = SetBkMode(pDrawData->hdc, TRANSPARENT);
 
    /// Iterate through all sub-items
@@ -239,6 +246,8 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
       /// [DISABLED/COLOURED] Set text colour
       if ((pItem->mask & LVIF_COLOUR_TEXT) OR !bCtrlEnabled)
          clOldColour = SetTextColor(pDrawData->hdc, (!bCtrlEnabled ? GetSysColor(COLOR_GRAYTEXT) : (COLORREF)pItem->lParam));
+      else
+         clOldColour = SetTextColor(pDrawData->hdc, getThemeSysColour(TEXT("TAB"), COLOR_WINDOWTEXT));
 
       // [CHECK] Is RichText specified?
       if (pItem->lParam AND utilIncludes(pItem->mask, LVIF_RICHTEXT))
@@ -247,9 +256,9 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
 
          /// [RICH-TEXT] Draw RichText, and optionally destroy
          if (pRichText->eType == RTT_LANGUAGE_MESSAGE)
-            drawLanguageMessageInSingleLine(pDrawData->hdc, rcSubItem, (LANGUAGE_MESSAGE*)pRichText, !IsWindowEnabled(hListView), GTC_WHITE);
+            drawLanguageMessageInSingleLine(pDrawData->hdc, rcSubItem, (LANGUAGE_MESSAGE*)pRichText, !IsWindowEnabled(hListView), eBackground);
          else
-            drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, pRichText, !IsWindowEnabled(hListView), GTC_WHITE);
+            drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, pRichText, !IsWindowEnabled(hListView), eBackground);
 
          // [CHECK] Should the RichText be destroyed?
          if (utilIncludes(pItem->mask, LVIF_DESTROYTEXT))
@@ -271,7 +280,7 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    iBackgroundMode = SetBkMode(pDrawData->hdc, iBackgroundMode);
 
    // Cleanup
-   DeleteBrush(hSortBrush);
+   //DeleteBrush(hSortBrush);
    DeleteBrush(hColumnBrush);
    utilDeleteString(pItem->pszText);
 }

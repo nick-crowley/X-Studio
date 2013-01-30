@@ -644,11 +644,11 @@ VOID               treeprocInsertGameObjectCollisionsIntoGameData(AVL_TREE_NODE*
 BearScriptAPI GAME_PAGE*    createGamePage(CONST UINT  iPageID, CONST TCHAR*  szTitle, CONST TCHAR*  szDescription, CONST BOOL  bVoiced);
 BearScriptAPI GAME_STRING*  createGameString(CONST TCHAR*  szText, CONST UINT  iStringID, CONST UINT  iPageID, CONST STRING_TYPE  eType);
 GAME_STRING_REF*            createGameStringReference(CONST UINT  iPageParameterIndex, CONST UINT  iStringParameterIndex);
-SUBSTRING*                  createSubString(CONST TCHAR*  szSourceText);
+BearScriptAPI SUBSTRING*    createSubString(CONST TCHAR*  szSourceText);
 BearScriptAPI GAME_STRING*  duplicateGameString(const GAME_STRING*  pString);
 BearScriptAPI VOID          deleteGamePage(GAME_PAGE*  &pGamePage);
 BearScriptAPI VOID          deleteGameString(GAME_STRING*  &pGameString);
-VOID                        deleteSubString(SUBSTRING*  &pSubString);
+BearScriptAPI VOID          deleteSubString(SUBSTRING*  &pSubString);
 
 // Helpers
 VOID                appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szFormat, ...);
@@ -663,6 +663,7 @@ BOOL                findGameStringBySubString(CONST TCHAR*  szSubString, CONST U
 CONST TCHAR*        findNextNonEscapedCharacter(CONST TCHAR*  szString, CONST TCHAR  chCharacter);
 CONST TCHAR*        findNextNonEscapedCharacters(CONST TCHAR*  szString, CONST TCHAR*  szCharacters);
 BOOL                findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString, UINT&  iMissingCount, STACK*  pHistoryStack, ERROR_QUEUE*  pErrorQueue);
+BearScriptAPI BOOL  findNextSubStringSimple(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString);
 CONST TCHAR*        findSubStringEndMarker(CONST TCHAR*  szInput);
 TCHAR*              generateGameStringPreview(CONST GAME_STRING*  pGameString, CONST UINT  iPreviewLength);
 TCHAR*              generateInternalGameStringPreview(CONST GAME_STRING*  pGameString, CONST UINT  iPreviewLength);
@@ -733,7 +734,7 @@ BearScriptAPI HICON  getImageTreeIconHandle(CONST IMAGE_TREE*  pImageTree, CONST
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Creation / Destruction
-BearScriptAPI LANGUAGE_BUTTON*  createLanguageButton(HWND  hRichEdit, CONST TCHAR*  szText, CONST TCHAR*  szID);
+BearScriptAPI LANGUAGE_BUTTON*  createLanguageButton(HWND  hRichEdit, CONST TCHAR*  szText, CONST TCHAR*  szID, const GAME_TEXT_COLOUR  eColour);
 BearScriptAPI AVL_TREE*         createLanguageButtonTreeByID();
 BearScriptAPI VOID              deleteLanguageButton(LANGUAGE_BUTTON*  pButton);
 
@@ -977,7 +978,7 @@ BearScriptAPI VOID   setParagraphAlignment(RICH_TEXT*  pRichText, CONST UINT  iI
 BearScriptAPI BOOL   generateSourceTextFromRichText(CONST LANGUAGE_MESSAGE*  pLanguageMessage, GAME_STRING*  pOutput);
 BearScriptAPI BOOL   generateMessageFromGameString(CONST GAME_STRING*  pSourceText, LANGUAGE_MESSAGE*  &pOutput, ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI BOOL   generateRichTextFromGameString(CONST GAME_STRING*  pSourceText, RICH_TEXT*  &pOutput, ERROR_QUEUE*  pErrorQueue);
-BearScriptAPI BOOL   generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTextLength, CONST STRING_TYPE  eStringType, RICH_TEXT*  &pOutput, CONST RICHTEXT_TYPE  eObjectType, ERROR_QUEUE*  pErrorQueue);
+BearScriptAPI BOOL   generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTextLength, RICH_TEXT*  &pOutput, RICHTEXT_TYPE  eType, const STRING_TYPE  eOutputType, ERROR_QUEUE*  pErrorQueue);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    RICH TEXT (OBJECTS)
@@ -985,7 +986,7 @@ BearScriptAPI BOOL   generateRichTextFromSourceText(CONST TCHAR*  szSourceText, 
 
 // Creation
 BearScriptAPI RICH_PARAGRAPH*  createRichParagraph(PARAGRAPH_ALIGNMENT  eAlignment);
-BearScriptAPI RICH_ITEM*       createRichItemButton(CONST TCHAR*  szText, CONST TCHAR*  szID);
+BearScriptAPI RICH_ITEM*       createRichItemButton(const LANGUAGE_BUTTON*  pData);
 RICH_ITEM*                     createRichItemPlainText(CONST TCHAR*  szPlainText, CONST UINT  iTextLength);
 RICH_ITEM*                     createRichItemText(CONST RICH_ITEM*  pExistingItem);
 BearScriptAPI RICH_ITEM*       createRichItemTextFromPhrase(HWND  hRichEdit, const RICHTEXT_PHRASE*  pPhrase);
@@ -1435,11 +1436,15 @@ STRING_CONVERTER*  createStringConverter(CONST TCHAR*  szString);
 VOID               deleteStringConverter(STRING_CONVERTER*  &pStringConverter);
 
 // Helpers
-BOOL               hasSpecialPhrases(CONST TCHAR*  szString);
+BOOL                    hasSpecialPhrases(CONST TCHAR*  szString);
+SPECIAL_CHARACTER_TYPE  identifySpecialPhrase(CONST TCHAR*  szString);
+BearScriptAPI VOID      replaceStringConvert(TCHAR*&  szDestination, const UINT  iFlags, const TCHAR*  szSource);
+BearScriptAPI HRESULT   StringCchCopyConvert(TCHAR*  szDestination, const UINT  iLength, const UINT  iFlags, const TCHAR*  szSource);
+
 
 // Functions
+BearScriptAPI VOID      convertRichEditText(RICH_TEXT*  pRichText, const STRING_TYPE  eNewType);
 BOOL                    findNextSpecialPhrase(STRING_CONVERTER*  pStringConverter);
-SPECIAL_CHARACTER_TYPE  identifySpecialPhrase(CONST TCHAR*  szString);
 BearScriptAPI BOOL      generateConvertedString(CONST TCHAR*  szInput, CONST UINT  iFlags, TCHAR*  &szOutput);
 
 /// Macros:

@@ -38,6 +38,9 @@ extern CONST TCHAR*              szWorkspaceClass;
 // Control library instance
 extern ControlsAPI HINSTANCE     hControlsInstance;
 
+// Colour sentinel value
+extern ControlsAPI const COLORREF   clNullColour;
+
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CODE EDIT (ADVANCED)
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -335,6 +338,10 @@ ControlsAPI BOOL  onWindow_MeasureComboBox(MEASUREITEMSTRUCT*  pMeasureData, CON
 VOID                 drawGradientRect(HDC  hDC, CONST RECT*  pRect, CONST COLORREF  clTopColour, CONST COLORREF  clBottomColour, CONST DIRECTION  eDirection);
 ControlsAPI HBRUSH   getDialogBackgroundBrush();
 ControlsAPI COLORREF getDialogBackgroundColour();
+ControlsAPI COLORREF getThemeColour(const TCHAR*  szClass, const int  iPart, const int  iState, const int  iProperty, const int  iDefault);
+ControlsAPI COLORREF getThemeSysColour(const TCHAR*  szClass, const int  iSysColour);
+ControlsAPI HBRUSH   getThemeSysColourBrush(const TCHAR*  szClass, const int  iSysColour);
+#define             getTabThemeColour()     getThemeColour(TEXT("TAB"), TABP_PANE, 0, TMT_GLOWCOLOR, COLOR_BTNFACE)
 
 // Functions
 ControlsAPI BOOL     drawIcon(HIMAGELIST  hImageList, CONST UINT  iIconIndex, HDC  hDC, CONST UINT  iX, CONST UINT  iY, CONST ICON_STATE  eState);
@@ -347,7 +354,7 @@ ControlsAPI VOID     drawCustomSelectionRectangle(HDC  hDC, CONST RECT*  pDrawRe
 ControlsAPI VOID     drawShadedRoundRectangle(HDC  hDC, CONST RECT*  pDrawRect, CONST COLORREF  clTop, CONST COLORREF  clMiddle, CONST COLORREF  clBottom, CONST COLORREF  clBorder, CONST UINT  iWidthPadding);
 
 // Message Handlers
-ControlsAPI HBRUSH   onDialog_DrawBackground(HDC  hDC, HWND  hWnd);
+ControlsAPI HBRUSH   onDialog_ControlColour(HDC  hDC);
 ControlsAPI BOOL     onWindow_DeleteItem(DELETEITEMSTRUCT*  pDeleteData);
 ControlsAPI BOOL     onWindow_DrawItem(DRAWITEMSTRUCT*  pDrawData);
 ControlsAPI BOOL     onWindow_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID);
@@ -481,8 +488,9 @@ ControlsAPI BOOL   onOwnerDrawCustomMenu(DRAWITEMSTRUCT*  pDrawData);
 // Functions
 ControlsAPI BOOL              findButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_BUTTON* &pOutput);
 ControlsAPI BOOL              getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage);
-ControlsAPI LANGUAGE_BUTTON*  insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CONST TCHAR*  szText);
-ControlsAPI BOOL              modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput);
+ControlsAPI LANGUAGE_BUTTON*  insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CONST TCHAR*  szText, const GAME_TEXT_COLOUR  eColour);
+ControlsAPI BOOL              modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, const GAME_TEXT_COLOUR  eColour, LANGUAGE_BUTTON*& pOutput);
+ControlsAPI BOOL              modifyButtonInRichEditByPosition(HWND  hRichEdit, const UINT  iPosition, const GAME_TEXT_COLOUR  eColour, LANGUAGE_BUTTON* &pOutput);
 ControlsAPI BOOL              removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex);
 ControlsAPI VOID              setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const bool  bSkipButtons, CONST GAME_TEXT_COLOUR  eBackground);
 
@@ -603,8 +611,7 @@ BOOL APIENTRY          DllMain(HMODULE  hModule, DWORD  dwPurpose, LPVOID  lpRes
 
 
 // Helpers
-ControlsAPI COLORREF  calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST GAME_TEXT_COLOUR  eBackground);
-GAME_TEXT_COLOUR      identifyGameTextColourFromRGB(CONST COLORREF  clColour);
+ControlsAPI COLORREF  calculateVisibleRichTextColour(const RICHTEXT_TYPE  eType, const GAME_TEXT_COLOUR  eColour, const GAME_TEXT_COLOUR  eBackground, const BOOL  bDisabled);
 
 // Functions
 ControlsAPI VOID   drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CONST UINT  iDrawFlags);
@@ -620,8 +627,8 @@ ControlsAPI VOID   drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, L
 // Creation / Destruction
 PANE*              createSplitterPane(PANE*  pLeftChild, PANE*  pRightChild, CONST RECT  rcPane, CONST DIRECTION  eSplit, CONST BOOL  bFixed);
 PANE*              createWindowPane(HWND  hWorkspace, HWND  hWnd, CONST RECT*  pBorderRect);
-ControlsAPI HWND   createWorkspace(HWND  hParentWnd, CONST RECT*  pParentRect, HWND  hBaseWnd, CONST UINT  clBackground);
-WORKSPACE_DATA*    createWorkspaceData(HWND  hBaseWnd, CONST RECT*  pWorkspaceRect, CONST UINT  clBackground);
+ControlsAPI HWND   createWorkspace(HWND  hParentWnd, CONST RECT*  pParentRect, HWND  hBaseWnd, CONST COLORREF  clBackground);
+WORKSPACE_DATA*    createWorkspaceData(HWND  hBaseWnd, CONST RECT*  pWorkspaceRect, CONST COLORREF  clBackground);
 VOID               deletePane(PANE*  &pPane);
 VOID               deleteWorkspaceData(WORKSPACE_DATA*  &pWindowData);
 
@@ -631,6 +638,7 @@ BOOL               findSplitterBarPaneAtPoint(PANE*  pCurrentPane, CONST POINT* 
 ControlsAPI BOOL   findWorkspacePaneByHandle(HWND  hWorkspace, HWND  hFirstWindow, HWND  hSecondWindow, HWND  hThirdWindow, PANE*  &pOutput);
 WORKSPACE_DATA*    getWorkspaceWindowData(HWND  hWorkspace);
 BOOL               performWorkspacePaneSearch(PANE*  pPane, PANE_SEARCH*  pSearch);
+ControlsAPI VOID   setWorkspaceBackgroundColour(HWND  hWorkspace, const COLORREF  clBackground);
 VOID               setWorkspaceClippingRegion(PANE*  pPane, HDC  hDC);
 ControlsAPI VOID   setWorkspacePaneProperties(PANE_PROPERTIES*  pProperties, CONST BOOL  bFixed, CONST UINT  iInitialSize, CONST FLOAT  fInitialRatio);
 VOID               setWorkspacePaneRedraw(PANE*  pPane, CONST BOOL  bRedraw);

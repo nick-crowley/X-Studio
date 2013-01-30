@@ -139,6 +139,29 @@ VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  p
 }
 
 
+/// Function name  : onLanguageDocument_DeleteString
+// Description     : 'Delete String' context menu handler
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// GAME_STRING*        pString   : [in] String to delete
+// 
+VOID  onLanguageDocument_DeleteString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString)
+{
+   // [CHECK] Document must not be virtual
+   ASSERT(!pDocument->bVirtual);
+
+   // Hide/Destroy Document PageStrings
+   INT  iSelection = ListView_GetSelected(pDocument->hStringList);
+   ListView_DeSelectAll(pDocument->hStringList);
+
+   /// Delete target string
+   deleteLanguageDocumentGameString(pDocument, pString);
+
+   // Re-create Document PageStrings
+   ListView_SelectItem(pDocument->hStringList, min(iSelection, ListView_GetItemCount(pDocument->hStringList)));
+}
+
+
 /// Function name  : onLanguageDocument_EditPage
 // Description     : 'Edit Page' Context menu handler
 // 
@@ -425,6 +448,57 @@ VOID  onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UI
    }
 }
 
+#define RichEdit_FindTextEx(hCtrl, iFlags, pData)  SendMessage(hCtrl, EM_FINDTEXTEX, iFlags, (LPARAM)(FINDTEXTEX*)(pData))
+
+VOID  highlightSpecial(HWND  hRichEdit)
+{
+   CHARFORMAT2  oFormat;
+   FINDTEXTEX  oStart,
+               oEnd;
+   CHARRANGE   oOriginal;
+
+   // Prepare
+   utilZeroObject(&oStart, FINDTEXTEX);
+   utilZeroObject(&oEnd, FINDTEXTEX);
+   utilZeroObject(&oFormat, CHARFORMAT);
+
+   // Setup search
+   oStart.chrg.cpMax = -1;
+   oStart.lpstrText  = TEXT("\\{");
+   oEnd.lpstrText    = TEXT("\\}");
+   oEnd.chrg.cpMax   = -1;
+
+   // Setup format
+   oFormat.cbSize = sizeof(CHARFORMAT2);
+   oFormat.dwMask = CFM_COLOR | CFM_LINK; // CFM_UNDERLINE | CFM_COLOR | CFM_UNDERLINETYPE; // CFM_ITALIC    //CFM_BACKCOLOR | CFM_COLOR | 
+   oFormat.dwEffects = CFE_LINK; // CFE_UNDERLINE;  // CFE_ITALIC
+   //oFormat.bUnderlineType = CFU_UNDERLINEDOTTED;
+   //oFormat.crBackColor = RGB(255,242,0);
+   oFormat.crTextColor = RGB(255,255,255); // RGB(0,0,0);
+
+   // Search for opening tag
+   if (RichEdit_FindTextEx(hRichEdit, FR_DOWN, &oStart) != -1)
+   {
+      // [FOUND] Search from opening tag
+      oEnd.chrg.cpMin = oStart.chrgText.cpMin;
+
+      // Search for closing tag
+      if (RichEdit_FindTextEx(hRichEdit, FR_DOWN, &oEnd) != -1)
+      {
+         // Preserve selection
+         RichEdit_HideSelection(hRichEdit, TRUE);
+         Edit_GetSelEx(hRichEdit, &oOriginal.cpMin, &oOriginal.cpMax);
+
+         // Highlight tag
+         Edit_SetSel(hRichEdit, oStart.chrgText.cpMin, oEnd.chrgText.cpMax);
+         RichEdit_SetCharFormat(hRichEdit, SCF_SELECTION, &oFormat);
+
+         // Restore selection
+         Edit_SetSel(hRichEdit, oOriginal.cpMin, oOriginal.cpMax);
+         RichEdit_HideSelection(hRichEdit, FALSE);
+      }
+   }
+}
 
 /// Function name  : onLanguageDocument_StringSelectionChanged
 // Description     : Displays new string
@@ -451,12 +525,12 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
          SetWindowText(pDocument->hRichEdit, TEXT(""));
       else
       {
-         /// [DEBUG]
-         //pDocument->szOldGameString = utilDuplicateSimpleString(pDocument->pCurrentString->szText);
-
          // Insert text + buttons
          setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, false, GTC_BLACK);
          Edit_SetModify(pDocument->hRichEdit, FALSE);
+
+         /// [DEBUG]
+         //highlightSpecial(pDocument->hRichEdit);
 
          // Store data for inserted buttons
          for (INT iIndex = 0; findButtonInRichEditByIndex(pDocument->hRichEdit, iIndex, pButtonData); iIndex--)
@@ -475,11 +549,6 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
          getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
          generateSourceTextFromRichText(pDocument->pCurrentMessage, pDocument->pCurrentString);
       }
-
-      /// [DEBUG]
-      /*if (!utilCompareStringVariables(pDocument->szOldGameString, pDocument->pCurrentString->szText))
-         consolePrintf(TEXT("GAME STRING CHANGED:\r\n*** BEFORE: %s\r\n** AFTER: %s"), pDocument->szOldGameString, pDocument->pCurrentString->szText);
-      utilDeleteString(pDocument->szOldGameString);*/
 
       // Disable/Clear RichEdit
       SetWindowText(pDocument->hRichEdit, TEXT(""));

@@ -654,91 +654,6 @@ VOID  onOutputDialogContextMenu(OUTPUT_DIALOG_DATA*  pDialogData, HWND  hCtrl, P
 }
 
 
-/// Function name  : onOutputDialogCustomDraw
-// Description     : Draws the ListView
-// 
-// OUTPUT_DIALOG_DATA*  pDialogData   : [in] Window data
-// NMLVCUSTOMDRAW*      pMessageData  : [in] Custom draw data
-// 
-// Return type : TRUE if processed, FALSE otherwise 
-//
-BOOL   onOutputDialogCustomDraw(OUTPUT_DIALOG_DATA*  pDialogData, NMLVCUSTOMDRAW*  pMessageData)
-{
-   CONST UINT           iIconSize = 16 + (GetSystemMetrics(SM_CXEDGE) * 2);      // Defines distance between start of icon and start of text
-   OUTPUT_DIALOG_ITEM*  pDialogItem;     // Item data
-   NMCUSTOMDRAW*        pDrawData;       // Convenience pointer for the custom draw data
-   BOOL                 bResult;         // Operation result
-   POINT                ptIcon;          // Icon position
-   RECT                 rcItem,          // Bounding rectangle
-                        rcText;          // Text rectangle
-   
-   // Prepare
-   TRACK_FUNCTION();
-   pDrawData = &pMessageData->nmcd;
-   bResult   = FALSE;
-
-   // Examine draw stage
-   switch (pDrawData->dwDrawStage)
-   {
-   /// [PREPAINT]
-   case CDDS_PREPAINT:
-      // Request per-item custom draw.
-      SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
-      bResult = TRUE;
-      break;
-
-   /// [ITEM PAINT]
-   case CDDS_ITEMPREPAINT:
-      // Lookup Item
-      findOutputDialogItem(pDialogData, pDrawData->dwItemSpec, pDialogItem);
-      ASSERT(pDialogItem);
-
-      // Get bounding item rectangle
-      ListView_GetItemRect(pDialogData->hListView, pDrawData->dwItemSpec, &rcItem, LVIR_BOUNDS);
-      rcText = rcItem;
-
-      // Calculate text rectangle and icon position
-      InflateRect(&rcText, -GetSystemMetrics(SM_CXEDGE), NULL);
-      utilConvertRectangleToPoint(&rcText, &ptIcon);
-      rcText.left += iIconSize;
-
-      /// [INDENT] Offset icon/text appropriately
-      if (pDialogItem->iIndent)
-      {
-         ptIcon.x += iIconSize * pDialogItem->iIndent;
-         OffsetRect(&rcText, iIconSize * pDialogItem->iIndent, NULL);
-      }
-
-      // [CHECK] Is non-information item selected?
-      if ((pDrawData->uItemState INCLUDES CDIS_SELECTED) AND pDialogItem->pError)
-      {
-         /// [SELECTED] Draw a highlight rectangle and selected icon
-         drawCustomSelectionRectangle(pDrawData->hdc, &rcItem);
-         drawIcon(getAppImageList(ITS_SMALL), pDialogItem->iIconIndex, pDrawData->hdc, ptIcon.x, ptIcon.y, IS_SELECTED);
-      }
-      else
-      {
-         /// [DEFAULT] Draw a white background and normal icon
-         FillRect(pDrawData->hdc, &rcItem, GetSysColorBrush(COLOR_WINDOW));
-         drawIcon(getAppImageList(ITS_SMALL), pDialogItem->iIconIndex, pDrawData->hdc, ptIcon.x, ptIcon.y, IS_NORMAL);
-      }
-
-      /// [TEXT] Always draw text in blank
-      DrawText(pDrawData->hdc, pDialogItem->szText, lstrlen(pDialogItem->szText), &rcText, DT_LEFT WITH DT_VCENTER WITH DT_SINGLELINE WITH DT_END_ELLIPSIS);
-
-      // Inform dialog we've painted entire item
-      SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, CDRF_SKIPDEFAULT);
-      bResult = TRUE;
-      break;
-
-   }
-
-   // Cleanup and return
-   END_TRACKING();
-   return bResult;
-}
-
-
 /// Function name  : onOutputDialogDoubleClick
 // Description     : Extract and display errors within items
 // 
@@ -1046,6 +961,12 @@ INT_PTR  dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
       case WM_DRAWITEM:    bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);            break;
       case WM_MEASUREITEM: bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);  break;
 
+      /// [VISUAL STYLES]
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+         break;
+
       /// [RESIZING] Stretch ListView
       case WM_SIZE:
          siWindow.cx = LOWORD(lParam);
@@ -1063,9 +984,9 @@ INT_PTR  dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
          onWindow_PaintNonClient(pDialogData->hDialog, (HRGN)wParam);
          break;
 
-      /// [VISUAL STYLES] White background
-      case WM_CTLCOLORSTATIC:
-         bResult = (BOOL)GetStockObject(WHITE_BRUSH);
+      /// [STYLE CHANGED]
+      case WM_THEMECHANGED:
+         ListView_SetBkColor(pDialogData->hListView, getThemeSysColour(TEXT("Tab"), COLOR_WINDOW));
          break;
 
       // [UNHANDLED]

@@ -111,9 +111,91 @@ BOOL     hasSpecialPhrases(CONST TCHAR*  szString)
    return bResult;
 }
 
+
+/// Function name  : replaceStringConvert
+// Description     : Replaces a string with a converted equivilent
+// 
+// TCHAR*&       szDestination : [in/out] String to replace
+// const UINT    iFlags        : [in] Conversion flags
+// const TCHAR*  szSource      : [in] Source
+// 
+BearScriptAPI
+VOID  replaceStringConvert(TCHAR*&  szDestination, const UINT  iFlags, const TCHAR*  szSource)
+{
+   TCHAR*  szConverted = NULL;
+
+   // Prepare
+   utilSafeDeleteString(szDestination);
+
+   // Generate new string
+   szDestination = (generateConvertedString(szSource, iFlags, szConverted) ? szConverted : utilDuplicateSimpleString(szSource));
+}
+
+
+/// Function name  : StringCchCopyConvert
+// Description     : Converts a string into a buffer
+// 
+// TCHAR*        szDestination : [in/out] Destination buffer
+// const UINT    iLength       : [in] Length of destination buffer
+// const UINT    iFlags        : [in] Conversion flags
+// const TCHAR*  szSource      : [in] Source
+// 
+// Return Value   : StringCchCopy return flags
+// 
+BearScriptAPI
+HRESULT  StringCchCopyConvert(TCHAR*  szDestination, const UINT  iLength, const UINT  iFlags, const TCHAR*  szSource)
+{
+   TCHAR*  szConverted = NULL;
+
+   // Convert/Copy string
+   HRESULT hResult = StringCchCopy(szDestination, iLength, generateConvertedString(szSource, iFlags, szConverted) ? szConverted : szSource);
+   
+   // Cleanup
+   utilSafeDeleteString(szConverted);
+   return hResult;
+}
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : convertRichEditText
+// Description     : Converts the string type of all items within a RichText object
+// 
+// RICH_TEXT*         pRichText : [in] RichText
+// const STRING_TYPE  eNewType  : [in] New string type
+// 
+BearScriptAPI
+VOID  convertRichEditText(RICH_TEXT*  pRichText, const STRING_TYPE  eNewType)
+{
+   RICH_PARAGRAPH*  pParagraph;   // LanguageMessage paragraphs iterator
+   RICH_ITEM*       pItem;        // LanguageMessage items iterator
+   TCHAR*           szConverted;
+   UINT             iFlags;
+
+   /// Iterate through all items
+   for (LIST_ITEM*  pParaIter = getListHead(pRichText->pParagraphList); pParagraph = extractListItemPointer(pParaIter, RICH_PARAGRAPH); pParaIter = pParaIter->pNext)
+   {
+      for (LIST_ITEM*  pCharIter = getListHead(pParagraph->pItemList); pItem = extractListItemPointer(pCharIter, RICH_ITEM); pCharIter = pCharIter->pNext)
+      {
+         if (!pItem->szText)
+            continue;
+
+         // Examine current type
+         switch (pItem->eType)
+         {
+         case ST_INTERNAL: iFlags = (eNewType == ST_DISPLAY  ? SPC_LANGUAGE_INTERNAL_TO_DISPLAY : NULL);   break;
+         case ST_DISPLAY:  iFlags = (eNewType == ST_INTERNAL ? SPC_LANGUAGE_DISPLAY_TO_INTERNAL : NULL);   break;
+         }
+
+         // Convert text
+         if (generateConvertedString(pItem->szText, iFlags, szConverted))
+         {
+            utilDeleteString(pItem->szText);
+            pItem->szText = szConverted;
+         }
+      }
+   }
+}
 
 /// Function name  : findNextSpecialPhrase
 // Description     : Iterates through a source string and returns the next special phrase
@@ -164,6 +246,7 @@ BOOL  findNextSpecialPhrase(STRING_CONVERTER*  pStringConverter)
 }
 
 
+
 /// Function name  : generateConvertedString
 // Description     : Examines a string for specific phrases and allocates a new string with alternatives in their place
 // 
@@ -182,6 +265,10 @@ BOOL   generateConvertedString(CONST TCHAR*  szInput, CONST UINT  iFlags, TCHAR*
    // Prepare
    pCurrentPhrase = createStringConverter(szInput);
    szOutput       = NULL;
+
+   // [CHECK] Ensure conversion required
+   if (iFlags == NULL)
+      return FALSE;
 
    /// Search for special phrases in input string
    while (findNextSpecialPhrase(pCurrentPhrase))

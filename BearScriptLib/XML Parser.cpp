@@ -1122,11 +1122,11 @@ OPERATION_RESULT  generateXMLTree(CONST TCHAR*  szXML, CONST UINT  iInputLength,
 
       } // END: for (each XML token)
 
-      /// [CHECK] Detect and open tags remaining
+      /// [CHECK] Detect any open tags remaining
       while (eResult == OR_SUCCESS AND hasItems(pStack))
       {
-         // [WARNING] "An unclosed <%s> tag was detected on an unknown line"
-         pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_XML_UNCLOSED_OPENING_TAG), topXMLTagStack(pStack)));
+         // [WARNING] "An unclosed <%s> tag was detected on line %d"
+         pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_XML_UNCLOSED_OPENING_TAG), topXMLTagStack(pStack), -1));
          // Remove item
          popXMLTagStack(pStack);
       }

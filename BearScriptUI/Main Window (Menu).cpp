@@ -1087,7 +1087,7 @@ VOID   onMainWindowViewPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
    TRACK_FUNCTION();
    VERBOSE_UI_COMMAND();
 
-   // Display/Hide properties window
+   /// Toggle properties window
    displayPropertiesDialog(pWindowData, !pWindowData->hPropertiesSheet);
 
    // [TRACK]

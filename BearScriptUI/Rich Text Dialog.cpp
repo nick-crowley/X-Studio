@@ -159,6 +159,8 @@ UINT  getRichTextDialogButtonCount(LANGUAGE_DOCUMENT*  pDocument)
 // 
 BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 {
+   CHARFORMAT  oCharFormat;
+
    // Store language document as window data
    SetWindowLong(hDialog, DWL_USER, (LONG)pDocument);
 
@@ -168,11 +170,20 @@ BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
    // Save RichEdit control convenience handle
    pDocument->hRichEdit = GetDlgItem(hDialog, IDC_LANGUAGE_EDIT);
 
+   // Set default formatting
+   oCharFormat.cbSize      = sizeof(CHARFORMAT);
+   oCharFormat.dwMask      = CFM_COLOR WITH CFM_FACE;
+   oCharFormat.crTextColor = getGameTextColour(GTC_DEFAULT);
+   StringCchCopy(oCharFormat.szFaceName, LF_FACESIZE, TEXT("Arial"));
+   RichEdit_SetCharFormat(pDocument->hRichEdit, SCF_DEFAULT, &oCharFormat);
+
    /// Setup RichEdit control
    RichEdit_SetBackgroundColour(pDocument->hRichEdit, FALSE, RGB(22,31,46));
    RichEdit_SetEventMask(pDocument->hRichEdit, ENM_UPDATE WITH ENM_SELCHANGE WITH ENM_CHANGE); 
    RichEdit_SetFontSize(pDocument->hRichEdit, 14);
    Edit_SetReadOnly(pDocument->hRichEdit, pDocument->bVirtual);
+
+   // Clear RichEdit
    SetWindowText(pDocument->hRichEdit, TEXT(""));
 
    /// Create ButtonData tree
@@ -380,6 +391,16 @@ BOOL  updateRichTextDialogToolBar(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 ///                                         MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+VOID  onRichTextDialog_FormatButton(LANGUAGE_DOCUMENT*  pDocument, const GAME_TEXT_COLOUR  eColour)
+{
+   LANGUAGE_BUTTON*  pNewButton;
+
+   /// Modify button within text selection
+   if (modifyButtonInRichEditByPosition(pDocument->hRichEdit, LOWORD(Edit_GetSel(pDocument->hRichEdit)), eColour, pNewButton))
+      // [SUCCESS] Store data
+      insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pNewButton);
+}
+
 /// Function name  : onRichTextDialog_Command
 // Description     : RichText dialog WM_COMMAND processing
 // 
@@ -408,6 +429,14 @@ BOOL  onRichTextDialog_Command(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CON
    case IDM_COLOUR_RED:
    case IDM_COLOUR_WHITE:
    case IDM_COLOUR_YELLOW:
+      // [BUTTON] Change button text colour
+      if (SendMessage(pDocument->hRichEdit, EM_SELECTIONTYPE, NULL, NULL) == SEL_OBJECT)
+      {  
+         onRichTextDialog_FormatButton(pDocument, identifyTextColourFromCommandID(iControlID));
+         break;
+      }
+      // Fall through...
+
    /// [ALIGNMENT / FORMATTING]
    case IDM_RICHEDIT_LEFT:
    case IDM_RICHEDIT_CENTRE:
@@ -616,15 +645,11 @@ BOOL  onRichTextDialog_InsertButton(LANGUAGE_DOCUMENT*  pDocument)
    LANGUAGE_BUTTON*  pButton;
 
    // [CHECK] Ensure button ID is unique
-   //if (!isRichEditButtonUnique(pDocument->pCurrentMessage, TEXT("NewID")))
-   //   return FALSE;
-
-   // [CHECK] Ensure button ID is unique
    if (!validateLanguageButtonID(pDocument, TEXT("NewID")))
       return FALSE;
 
    // [CHECK] Attempt to insert new button + store data
-   if (pButton = insertRichEditButton(pDocument->hRichEdit, TEXT("NewID"), TEXT("New Button")))
+   if (pButton = insertRichEditButton(pDocument->hRichEdit, TEXT("NewID"), TEXT("New Button"), GTC_DEFAULT))
       insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pButton);
 
    // Return TRUE if successful
@@ -662,6 +687,28 @@ BOOL   onRichTextDialog_Notify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMH
    END_TRACKING();
    return bResult;
 }
+
+
+/// Function name  : onMainWindowPaint
+// Description     : Paint the area next to the toolbar
+// 
+// MAIN_WINDOW_DATA*  pWindowData : [in] Window data
+// PAINTSTRUCT*       pPaintInfo  : [in] Paint data
+// 
+VOID    onRichTextDialog_Paint(LANGUAGE_DOCUMENT*  pDocument, PAINTSTRUCT  *pPaintInfo)
+{
+   RECT   rcClient;    // MainWindow client rectangle
+
+   // Prepare
+   GetClientRect(pDocument->hRichTextDialog, &rcClient);
+
+   /// Draw sunken edge along the top
+   //DrawEdge(pPaintInfo->hdc, &rcClient, BDR_SUNKENOUTER, BF_TOP WITH BF_ADJUST);
+   
+   /// Colour remainder of the window
+   utilFillSysColourRect(pPaintInfo->hdc, &rcClient, COLOR_BTNFACE);
+}
+
 
 /// Function name  : onRichTextDialog_Resize
 // Description     : Stretches the RichEdit control across the non-toolbar parts of the client area
@@ -714,6 +761,7 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
 {
    LANGUAGE_DOCUMENT*  pDocument;   // Language document data
    ERROR_STACK*        pException;
+   PAINTSTRUCT         oPaintData;
    BOOL                bResult = FALSE;
 
    // Get window data
@@ -765,6 +813,13 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
       case WM_DRAWITEM:    onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                  break;
       case WM_MEASUREITEM: onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);   break;
 
+      /// [PAINT]
+      case WM_PAINT:    
+         BeginPaint(hDialog, &oPaintData);
+         onRichTextDialog_Paint(pDocument, &oPaintData); 
+         EndPaint(hDialog, &oPaintData);
+         break;
+
       /// [RESIZING]
       case WM_SIZE:
          bResult = onRichTextDialog_Resize(pDocument, hDialog, LOWORD(lParam), HIWORD(lParam));
@@ -773,7 +828,7 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
       /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         bResult = (INT_PTR)GetStockObject(WHITE_BRUSH);
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
          break;
 
       // [OBJECT DESTROYED]

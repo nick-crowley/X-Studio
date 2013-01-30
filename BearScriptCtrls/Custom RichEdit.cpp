@@ -20,6 +20,7 @@ CONST UINT   iMessageTextSize       = 10;    // Point size of message text
 // Helpers
 RICHTEXT_FORMATTING   compareRichTextAttributes(const RICHTEXT_ATTRIBUTES*  pOld, const RICHTEXT_ATTRIBUTES*  pNew);
 BOOL                  getRichEditObjectByIndex(HWND  hRichEdit, const UINT  iIndex, REOBJECT*  pObject);
+GAME_TEXT_COLOUR      identifyColourFromRGB(CONST COLORREF  clColour);
 VOID                  identifyRichTextAttributes(HWND  hRichEdit, const INT  iIndex, RICHTEXT_ATTRIBUTES*  pState);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +83,26 @@ BOOL  getRichEditObjectByIndex(HWND  hRichEdit, const UINT  iIndex, REOBJECT*  p
 }
 
 
+
+/// Function name  : identifyColourFromRGB
+// Description     : Match an COLORREF to a text colour enumeration
+// 
+// CONST COLORREF  clColour   : [in] RGB colour
+// 
+// Return Value   : Matching game text colour if found, otherwise GTC_DEFAULT
+// 
+GAME_TEXT_COLOUR   identifyColourFromRGB(CONST COLORREF  clColour)
+{
+   /// Return matching colour
+   for (UINT iIndex = GTC_BLACK; iIndex <= GTC_YELLOW; iIndex++)
+      if (clColour == clTextColours[iIndex])
+         return (GAME_TEXT_COLOUR)iIndex;
+
+   /// [NOT FOUND] Return default
+   return GTC_DEFAULT;
+}
+
+
 /// Function name  : identifyRichTextAttributes
 // Description     : Converts the character/paragraph format of the current selection into an attributes object
 // 
@@ -114,7 +135,7 @@ VOID  identifyRichTextAttributes(HWND  hRichEdit, const INT  iIndex, RICHTEXT_AT
    // Convert alignment
    pState->eAlignment = (PARAGRAPH_ALIGNMENT)oParagraph.wAlignment;
    // Convert colour
-   pState->eColour    = identifyGameTextColourFromRGB(oCharacter.crTextColor);
+   pState->eColour    = identifyColourFromRGB(oCharacter.crTextColor);
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +223,7 @@ BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
       if (iCharType == SEL_TEXT AND compareRichTextAttributes(&oPhrase.oState, &oNewState) == RTF_FORMATTING_EQUAL)
          continue; 
 
-      /// [BUTTON or FORMATTING CHANGED] Isolate and save current phrase
+      /// [CHANGED] Isolate and save current phrase
       if (iPos != oPhrase.iStart)      // [CHECK] If previous character was an object, phrase is empty
       {
          oPhrase.iEnd = iPos;
@@ -218,7 +239,7 @@ BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
       {
          // Extract data and generate button item
          if (findButtonInRichEditByIndex(hRichEdit, iButtonIndex++, pButtonData))
-            appendRichTextItem(pParagraph, pItem = createRichItemButton(pButtonData->szText, pButtonData->szID));
+            appendRichTextItem(pParagraph, pItem = createRichItemButton(pButtonData));
 
          // Initialise a new phrase using the NEXT character
          oPhrase.iStart = iPos + 1;
@@ -258,7 +279,7 @@ BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
 // Return Value: New Button if succesful, otherwise NULL
 //
 ControlsAPI
-LANGUAGE_BUTTON*   insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CONST TCHAR*  szText)
+LANGUAGE_BUTTON*   insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CONST TCHAR*  szText, const GAME_TEXT_COLOUR  eColour)
 {
    LANGUAGE_BUTTON*  pButton = NULL;
    IRichEditOle*   pRichEdit = NULL;
@@ -284,7 +305,7 @@ LANGUAGE_BUTTON*   insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CON
        ::StgCreateDocfileOnILockBytes(pLockBytes, STGM_SHARE_EXCLUSIVE WITH STGM_CREATE WITH STGM_READWRITE, 0, &pStorage) == S_OK)
    {
       /// Create LanguageButton
-      pButton = createLanguageButton(hRichEdit, szText, szID);
+      pButton = createLanguageButton(hRichEdit, szText, szID, eColour);
 
       /// Create the OLE Picture
       pImageObject = new RichEditImage();
@@ -332,15 +353,16 @@ LANGUAGE_BUTTON*   insertRichEditButton(HWND  hRichEdit, CONST TCHAR*  szID, CON
 /// Function name  : modifyButtonInRichEditByIndex
 // Description     : Replaces a button in a RichEdit with another with different text
 // 
-// HWND               hRichEdit : [in] RichEdit
-// const UINT         iIndex    : [in] Index of button to delete
-// const TCHAR*       szNewText : [in] New Text
-// LANGUAGE_BUTTON*&  pOutput   : [out] New data if succesful, otherwise NULL
+// HWND                    hRichEdit : [in] RichEdit
+// const UINT              iIndex    : [in] Index of button to modify
+// const TCHAR*            szNewText : [in] New Text
+// const GAME_TEXT_COLOUR  eColour   : [in] New colour
+// LANGUAGE_BUTTON*&       pOutput   : [out] New data if succesful, otherwise NULL
 // 
 // Return Value   : TRUE if found, FALSE otherwise
 // 
 ControlsAPI
-BOOL  modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, LANGUAGE_BUTTON*& pOutput)
+BOOL  modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, const GAME_TEXT_COLOUR  eColour, LANGUAGE_BUTTON*& pOutput)
 {
    LANGUAGE_BUTTON*  pOldButton;
    CHARRANGE         oSelection;    // Original selection, preserved
@@ -366,7 +388,7 @@ BOOL  modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const T
       Edit_ReplaceSel(hRichEdit, TEXT(""));
 
       /// Insert new object
-      pOutput = insertRichEditButton(hRichEdit, szID, szNewText);
+      pOutput = insertRichEditButton(hRichEdit, szID, szNewText, eColour);
 
       // Cleanup
       Edit_SetSel(hRichEdit, oSelection.cpMin, oSelection.cpMax);
@@ -376,6 +398,44 @@ BOOL  modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const T
    
    // Return TRUE if found
    return pOutput != NULL;
+}
+
+
+/// Function name  : modifyButtonInRichEditByPosition
+// Description     : Changes the colour of a button at a specified position
+// 
+// HWND                    hRichEdit : [in] RichEdit
+// const UINT              iPosition : [in] Character position of button to modify
+// const GAME_TEXT_COLOUR  eColour   : [in] New colour
+// LANGUAGE_BUTTON*&       pOutput   : [out] New data if succesful, otherwise NULL
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+ControlsAPI
+BOOL  modifyButtonInRichEditByPosition(HWND  hRichEdit, const UINT  iPosition, const GAME_TEXT_COLOUR  eColour, LANGUAGE_BUTTON* &pOutput)
+{
+   LANGUAGE_BUTTON*  pData;
+   REOBJECT          oObject;       // RichEdit control OLE object attributes
+   TCHAR*            szButtonText;
+
+   // Prepare
+   pOutput = NULL;
+
+   /// Iterate through all objects
+   for (UINT  iIndex = 0; getRichEditObjectByIndex(hRichEdit, iIndex, &oObject); iIndex++)
+   {
+      // Compare position and extract button data
+      if (oObject.cp == iPosition AND (pData = (LANGUAGE_BUTTON*)oObject.dwUser))
+      {
+         // [FOUND] Attempt to modify button
+         modifyButtonInRichEditByIndex(hRichEdit, iIndex, szButtonText = utilDuplicateSimpleString(pData->szText), eColour, pOutput);
+         utilDeleteString(szButtonText);
+         break;
+      }
+   }
+
+   // Return TRUE if succesful
+   return (pOutput != NULL);
 }
 
 
@@ -477,7 +537,7 @@ VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const bool  b
          }
          /// [BUTTON] Insert OLE object with appropriate text
          else if (!bSkipButtons)
-            insertRichEditButton(hRichEdit, pItem->szID, pItem->szText);
+            insertRichEditButton(hRichEdit, pItem->szID, pItem->szText, pItem->eColour);
             
          // Move caret beyond item
          Edit_SetSel(hRichEdit, 65536, 65536);

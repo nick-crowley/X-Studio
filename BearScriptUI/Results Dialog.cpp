@@ -910,7 +910,7 @@ BOOL  onResultsDialog_RequestTooltipData(RESULTS_DIALOG_DATA*  pDialogData, HWND
    }
    else
       /// [SYSTEM DEFAULT] Return dummy string so Tooltip is created
-      StringCchCopy(pHeader->pszText, pHeader->cchTextMax, TEXT("Big brother is watching you..."));
+      StringCchCopy(pHeader->pszText, pHeader->cchTextMax, TEXT(".")); //Big brother is watching you..."));
 
    // [SUCCESS] Return TRUE
    return TRUE;
@@ -1240,7 +1240,13 @@ INT_PTR    dlgprocResultsDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
       /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         bResult = (BOOL)onDialog_DrawBackground((HDC)wParam, (HWND)lParam);
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+         break;
+
+      /// [STYLE CHANGED]
+      case WM_THEMECHANGED:
+         // Change ListView colour
+         ListView_SetBkColor(pDialogData->hListView, getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
          break;
 
       /// [ACTIVATE]

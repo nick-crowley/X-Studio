@@ -42,17 +42,16 @@ RICH_PARAGRAPH*  createRichParagraph(PARAGRAPH_ALIGNMENT  eAlignment)
 // Return Value   : New button item, you are responsible for destroying it
 // 
 BearScriptAPI
-RICH_ITEM*  createRichItemButton(CONST TCHAR*  szText, CONST TCHAR*  szID)
+RICH_ITEM*  createRichItemButton(const LANGUAGE_BUTTON*  pData)
 {
-   RICH_ITEM*  pNewItem;
-
-   // Create new button item
-   pNewItem         = utilCreateEmptyObject(RICH_ITEM);
-   pNewItem->eType  = RIT_BUTTON;
+   RICH_ITEM*  pNewItem = utilCreateEmptyObject(RICH_ITEM);
 
    // Set attributes
-   pNewItem->szText = utilDuplicateSimpleString(szText);
-   pNewItem->szID   = utilDuplicateSimpleString(szID);
+   pNewItem->eType     = RIT_BUTTON;
+   pNewItem->eTextType = ST_INTERNAL;
+   pNewItem->szText    = utilDuplicateSimpleString(pData->szText);
+   pNewItem->szID      = utilDuplicateSimpleString(pData->szID);
+   pNewItem->eColour   = pData->eColour;
 
    // Return
    return pNewItem;
@@ -73,9 +72,10 @@ RICH_ITEM*  createRichItemPlainText(CONST TCHAR*  szPlainText, CONST UINT  iText
    RICH_ITEM*  pNewItem = utilCreateEmptyObject(RICH_ITEM);
 
    // Set properties
-   pNewItem->eType   = RIT_TEXT;
-   pNewItem->szText  = utilDuplicateString(szPlainText, iTextLength);
-   pNewItem->eColour = GTC_DEFAULT;
+   pNewItem->eType     = RIT_TEXT;
+   pNewItem->eTextType = ST_INTERNAL;
+   pNewItem->szText    = utilDuplicateString(szPlainText, iTextLength);
+   pNewItem->eColour   = GTC_DEFAULT;
 
    // return new item
    return pNewItem;
@@ -95,7 +95,8 @@ RICH_ITEM*  createRichItemText(CONST RICH_ITEM*  pExistingItem)
 
    // Create an empty 'text' object
    pNewItem = utilCreateEmptyObject(RICH_ITEM);
-   pNewItem->eType = RIT_TEXT;
+   pNewItem->eType     = RIT_TEXT;
+   pNewItem->eTextType = ST_INTERNAL;
 
    // [FROM EXISTING] Copy attributes
    if (pExistingItem)
@@ -130,7 +131,7 @@ RICH_ITEM*  createRichItemTextFromPhrase(HWND  hRichEdit, const RICHTEXT_PHRASE*
 
    // Set attributes
    pNewItem->eType      = RIT_TEXT;
-   pNewItem->eTextType  = ST_DISPLAY;
+   pNewItem->eTextType  = ST_INTERNAL;
    pNewItem->szText     = utilCreateEmptyString(iLength + 1);
    pNewItem->bBold      = pPhrase->oState.bBold;
    pNewItem->bItalic    = pPhrase->oState.bItalic;

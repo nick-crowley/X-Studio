@@ -37,9 +37,8 @@ CONST UINT        iJumpBarItemCount              = 6,     // Number of items
 CONST UINT        iToolBarButtonCount            = 2;
 
 // Colour used for highlighting. Cannot extract from visual styles, no matter how hard i try!
-CONST COLORREF    clSortColumnBackground         = RGB(247,247,247),
-                  clJumpItemBackground           = RGB(247,247,247);
-
+CONST COLORREF    clSortColumnBackground         = RGB(247,247,247);
+                  
 // Text Colour used to display virtual files/folders
 CONST COLORREF    clVirtualFile                  = RGB(0,0,255),
                   clVirtualPlaceholder           = RGB(174,186,225);
@@ -450,7 +449,6 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
    POINT      ptIconPosition;     // Icon draw position
    SIZE       siClientSize,       // Size of the button's client rectangle
               siTextSize;         // Size of the text's drawing rectangle
-   HBRUSH     hBackgroundBrush;   // Brush used for drawing the background of an empty button
    UINT       iButtonState;       // Current state of the button as a windows Theme State enum
    BOOL       bResult;            // Operation Result
 
@@ -463,7 +461,6 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
    {
       // Prepare
       hTheme           = OpenThemeData(pJumpItem->hCtrl, TEXT("TOOLBAR"));
-      hBackgroundBrush = CreateSolidBrush(clJumpItemBackground);
       pPrevState       = utilCreateDeviceContextState(pDrawData->hdc);
       iButtonState     = identifyCustomButtonState(pJumpItem->hCtrl, pDrawData->uItemState);
       bResult          = TRUE;
@@ -497,7 +494,7 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
       case TS_DISABLED:
       case TS_NORMAL:
          // Draw background
-         FillRect(pPrevState->hDC, &rcClientRect, hBackgroundBrush);
+         FillRect(pPrevState->hDC, &rcClientRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
 
          // To create the illusion of a box draw 'top' and 'bottom' edges only for buttons at the top + bottom.
          switch (GetDlgCtrlID(pJumpItem->hCtrl))
@@ -532,7 +529,6 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
 
       // Cleanup
       utilDeleteDeviceContextState(pPrevState);
-      DeleteObject(hBackgroundBrush);
       CloseThemeData(hTheme);
    }
  
@@ -553,11 +549,7 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
 // 
 BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTOMDRAW*  pListViewData)
 {
-   //CONST TCHAR    *szNoDescription = TEXT("[No Description]"),       // Text of the description placeholder
-   //               *szNoVersion     = TEXT("[None]"),                 // Text of the version placeholder
-   //               *szPlaceholder;                                    // Pointer to either of the above
    NMCUSTOMDRAW   *pDrawData;          // Convenience pointer for the custom draw data
-   //FILE_ITEM      *pFileItem;          // FileItem associated with the current ListView item
    TCHAR          *szUpdateText;       // Wait string, displayed when listview is updating
    RECT            rcClientRect;       // Rectangle of listView's client area
    BOOL            bResult;            // Operation Result;
@@ -565,7 +557,6 @@ BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTO
    // Prepare
    TRACK_FUNCTION();
    pDrawData     = &pListViewData->nmcd;
-   //szPlaceholder = NULL;
    bResult       = FALSE;
 
    // Examine draw stage
@@ -576,66 +567,8 @@ BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTO
       // [NON-UPDATING] Perform custom drawing
       drawCustomListViewItem(pDialogData->hDialog, pDialogData->hListView, pListViewData);
       SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, CDRF_SKIPDEFAULT);
-
-      //// Request per-subitem notification
-      //SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, CDRF_DODEFAULT WITH CDRF_NOTIFYSUBITEMDRAW);
       bResult = TRUE;
       break;
-
-   ///// [NORMAL MODE - SUBITEM PAINT]
-   //case CDDS_ITEMPREPAINT WITH CDDS_SUBITEM:
-   //   // Lookup associated FileItem 
-   //   if (findFileSearchResultByIndex(pDialogData->pFileSearch, pDrawData->dwItemSpec, pFileItem))
-   //   {
-   //      // Examine sub-item
-   //      switch (pListViewData->iSubItem)
-   //      {
-   //      /// [NAME, TYPE and SIZE] - Set text colour of virtual items to blue
-   //      case FILE_COLUMN_NAME:
-   //      case FILE_COLUMN_TYPE:
-   //      case FILE_COLUMN_SIZE:
-   //         // Set text colour to blue or black
-   //         pListViewData->clrText = (pFileItem->iAttributes INCLUDES FIF_VIRTUAL ? clVirtualFile : GetSysColor(COLOR_WINDOWTEXT));
-   //         // Tell ListView to draw item
-   //         SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, CDRF_DODEFAULT);
-   //         break;
-   //      
-   //      /// [DESCRIPTION, VERSION] - Draw a grey placeholder if none is present
-   //      case FILE_COLUMN_DESCRIPTION:
-   //      case FILE_COLUMN_VERSION:
-   //         // [FOLDER] Don't add a placeholder to folder items
-   //         if (pFileItem->iAttributes INCLUDES FIF_FOLDER)
-   //            SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, CDRF_DODEFAULT);
-   //         else 
-   //         {
-   //            /// Determine whether to draw a placeholder
-   //            switch (pListViewData->iSubItem)
-   //            {
-   //            case FILE_COLUMN_DESCRIPTION: szPlaceholder = (lstrlen(pFileItem->szDescription) ? NULL : szNoDescription);  break;
-   //            case FILE_COLUMN_VERSION:     szPlaceholder = (pFileItem->iFileVersion           ? NULL : szNoVersion);      break;
-   //            }
-
-   //            // [CHECK] Are we drawing a placeholder?
-   //            if (szPlaceholder)
-   //            {
-   //               // Calculate text rectangle
-   //               ListView_GetSubItemRect(pDialogData->hListView, pDrawData->dwItemSpec, pListViewData->iSubItem, LVIR_LABEL, &pListViewData->rcText);
-   //               InflateRect(&pListViewData->rcText, GetSystemMetrics(SM_CXEDGE) * -3, NULL);
-
-   //               // Set text colour to dark blue or grey
-   //               SetTextColor(pDrawData->hdc, (pFileItem->iAttributes INCLUDES FIF_VIRTUAL ? clVirtualPlaceholder : GetSysColor(COLOR_GRAYTEXT)));
-
-   //               // [TEXT] Draw placeholder text 
-   //               DrawText(pDrawData->hdc, szPlaceholder, lstrlen(szPlaceholder), &pListViewData->rcText, DT_LEFT WITH DT_END_ELLIPSIS);
-   //            }
-
-   //            // Inform ListView either to paint normally or not at all
-   //            SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, szPlaceholder ? CDRF_SKIPDEFAULT : CDRF_DODEFAULT);
-   //         }
-   //      }
-   //   }
-   //   bResult = TRUE;
-   //   break;
 
    /// [UPDATING MODE]
    case CDDS_PREPAINT:
@@ -678,15 +611,6 @@ BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTO
    // Cleanup and return
    END_TRACKING();
    return bResult;
-
-   /// [OLD CODE: COLOURED SORT COLUMN] This is most of the old column highlighting code - it would be nice to bring it back at some point
-   //rgnClientRegion = CreateRectRgn(rcClientRect.left, rcClientRect.top, rcClientRect.right, rcClientRect.bottom);
-   //rgnSortRegion   = CreateRectRgn(rcSortRect.left, rcSortRect.top, rcSortRect.right, rcSortRect.bottom);
-   //hHighlightBrush = CreateSolidBrush(clSortColumnBackground);
-   //FillRgn(pDrawData->hdc, rgnSortRegion, GetSysColorBrush(COLOR_INFOBK));
-   //CombineRgn(rgnClientRegion, rgnClientRegion, rgnSortRegion, RGN_DIFF);
-   //FillRgn(pDrawData->hdc, rgnClientRegion, GetSysColorBrush(COLOR_WINDOW));
-   //DeleteObject(hHighlightBrush);
 }
 
 
@@ -1221,11 +1145,10 @@ INT_PTR CALLBACK   dlgprocFileDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
       case WM_DELETEITEM:  bResult = onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);       break;
       case WM_MEASUREITEM: bResult = onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_SMALL);     break;
 
-      // [VISUAL STYLES] -- Use a white background
+      /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         bResult = (INT_PTR)GetSysColorBrush(COLOR_WINDOW);
-         break;
+         return (BOOL)onDialog_ControlColour((HDC)wParam);
 
       // [UNHANDLED] Return FALSE
       default:

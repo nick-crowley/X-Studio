@@ -25,6 +25,8 @@ CONST COLORREF   clWhite         = RGB(255, 255, 255),    // White top
                  clMediumBlue    = RGB(182, 202, 234),    // Medium blue
                  clDarkBlue      = RGB(139, 172, 222);    // Dark blue
 
+ControlsAPI const COLORREF   clNullColour    = 0xff000000;          // Colour sentinel value
+
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CREATION / DESTRUCTION
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -117,6 +119,59 @@ COLORREF  getDialogBackgroundColour()
    return clColour;*/
 
    return GetSysColor(IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
+}
+
+
+ControlsAPI
+COLORREF  getThemeColour(const TCHAR*  szClass, const int  iPart, const int  iState, const int  iProperty, const int  iDefault)
+{
+   HTHEME    hTheme;
+   COLORREF  clColour = NULL;
+
+   // Open theme data
+   if (IsThemeActive() AND (hTheme = OpenThemeData(getAppWindow(), szClass)))
+   {
+      // Extract colour
+      GetThemeColor(hTheme, iPart, iState, iProperty, &clColour);
+      CloseThemeData(hTheme);
+   }
+   else
+      // [FAILED] Return system colour
+      clColour = GetSysColor(iDefault);
+
+   return clColour;
+}
+
+ControlsAPI
+COLORREF  getThemeSysColour(const TCHAR*  szClass, const int  iSysColour)
+{
+   HTHEME    hTheme;
+   COLORREF  clColour = NULL;
+
+   // Open theme data
+   if (IsThemeActive() AND (hTheme = OpenThemeData(getAppWindow(), szClass)))
+   {
+      // Extract colour
+      clColour = GetThemeSysColor(hTheme, iSysColour);
+      CloseThemeData(hTheme);
+   }
+   else
+      // [FAILED] Return system colour
+      clColour = GetSysColor(iSysColour);
+
+   return clColour;
+}
+
+ControlsAPI
+HBRUSH  getThemeSysColourBrush(const TCHAR*  szClass, const int  iSysColour)
+{
+   // Lookup brush
+   HTHEME hTheme = (IsThemeActive() ? OpenThemeData(getAppWindow(), szClass) : NULL);
+   HBRUSH hBrush = GetThemeSysColorBrush(hTheme, iSysColour);
+
+   // Return brush
+   CloseThemeData(hTheme);
+   return hBrush;
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -440,10 +495,14 @@ VOID  drawShadedBar(HDC  hDC, CONST RECT*  pDrawRect, CONST COLORREF  clTopColou
 // Return Value : Brush used to draw background
 // 
 ControlsAPI
-HBRUSH  onDialog_DrawBackground(HDC  hDC, HWND  hWnd)
+HBRUSH  onDialog_ControlColour(HDC  hDC)
 {
-   SetBkColor(hDC, getDialogBackgroundColour());
-   return getDialogBackgroundBrush();
+   // Set text colour: default black
+   SetTextColor(hDC, getThemeSysColour(TEXT("Window"), COLOR_WINDOWTEXT));
+
+   // Set and return background colour: default white
+   SetBkColor(hDC, getThemeSysColour(TEXT("Window"), COLOR_WINDOW));
+   return getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW);
 }
 
 
@@ -597,6 +656,15 @@ VOID  onWindow_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
    /// Get window DC and clip update region
    if (hDC = GetDCEx(hWnd, NULL, DCX_CACHE WITH DCX_CLIPCHILDREN WITH DCX_WINDOW)) //|DCX_CACHE|DCX_INTERSECTRGN|DCX_LOCKWINDOWUPDATE);
    {
+      DC_STATE* pState = utilCreateDeviceContextState(hDC);
+      HFONT     hFont  = utilCreateFont(hDC, TEXT("MS Shell Dlg"), 9, FALSE, FALSE, FALSE);
+      TCHAR*    szText = utilGetWindowText(hWnd);
+      HTHEME    hTheme = OpenThemeData(hWnd, TEXT("Window"));
+
+      // Prepare
+      utilSetDeviceContextFont(pState, hFont, getThemeSysColour(TEXT("Window"), COLOR_WINDOWTEXT));
+      utilSetDeviceContextBackgroundMode(pState, TRANSPARENT);
+
       // [BACKGROUND]
       utilFillSysColourRect(hDC, &rcWindow, COLOR_BTNFACE);
 
@@ -605,9 +673,19 @@ VOID  onWindow_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
 
       // [CAPTION]
       SetRect(&rcCaption, rcWindow.left, rcWindow.top, rcWindow.right - 1, rcWindow.top + GetSystemMetrics(SM_CYSMCAPTION) + GetSystemMetrics(SM_CYEDGE));
-      DrawCaption(hWnd, hDC, &rcCaption, DC_GRADIENT WITH DC_SMALLCAP WITH DC_TEXT); // [FIX] Bug in windows 7 Aero theme means DC_SMALLCAP text may be clipped when using DC_ACTIVE
-
+      //drawGradientRect(hDC, &rcCaption, RGB(191,205,219), RGB(214,227,241), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+      //drawGradientRect(hDC, &rcCaption, GetThemeSysColor(hTheme, COLOR_INACTIVECAPTION), GetThemeSysColor(hTheme, COLOR_GRADIENTINACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+      drawGradientRect(hDC, &rcCaption, getThemeSysColour(TEXT("Window"), COLOR_ACTIVECAPTION), getThemeSysColour(TEXT("Window"), COLOR_GRADIENTACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+      
+      // [TEXT]
+      rcCaption.left += GetSystemMetrics(SM_CXFIXEDFRAME);
+      DrawText(hDC, szText, lstrlen(szText), &rcCaption, DT_SINGLELINE | DT_VCENTER);
+      
       // Cleanup
+      utilDeleteDeviceContextState(pState);
+      DeleteFont(hFont);
+      utilDeleteString(szText);
+      CloseThemeData(hTheme);
       ReleaseDC(hWnd, hDC);
    }
    else
@@ -639,8 +717,8 @@ INT_PTR  dlgprocVistaStyleDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
    {
    /// [CUSTOM BACKGROUND]
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORSTATIC:   bResult = (BOOL)GetStockObject(WHITE_BRUSH);                          break;
-   case WM_CTLCOLORBTN:      bResult = (BOOL)GetSysColorBrush(COLOR_BTNFACE);                      break;
+   case WM_CTLCOLORSTATIC:   bResult = (BOOL)onDialog_ControlColour((HDC)wParam);   break;   //bResult = (BOOL)GetStockObject(WHITE_BRUSH);                          break;
+   case WM_CTLCOLORBTN:      bResult = (BOOL)GetSysColorBrush(COLOR_BTNFACE);       break;
    case WM_ERASEBKGND: 
       // [CHECK] Search for default button
       if (GetControl(hDialog, iButton = IDOK) OR GetControl(hDialog, iButton = IDCANCEL) OR GetControl(hDialog, iButton = IDYES))

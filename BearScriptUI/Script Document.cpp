@@ -377,7 +377,7 @@ VOID  createScriptDialogControls(SCRIPT_DOCUMENT*  pDocument)
    utilGetWindowSize(pDocument->hLabelsCombo, &siComboBox);
 
    /// Create workspace and insert CodeEdit
-   pDocument->hWorkspace = createWorkspace(pDocument->hWnd, &rcDialog, pDocument->hCodeEdit, IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
+   pDocument->hWorkspace = createWorkspace(pDocument->hWnd, &rcDialog, pDocument->hCodeEdit, getTabThemeColour());
 
    // Search for CodeEdit pane
    if (findWorkspacePaneByHandle(pDocument->hWorkspace, pDocument->hCodeEdit, NULL, NULL, pTargetPane))
@@ -1155,6 +1155,9 @@ LRESULT   wndprocScriptDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
       case WM_DELETEITEM:  onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);                 break;
       case WM_MEASUREITEM: pItemSize = (MEASUREITEMSTRUCT*)lParam; 
                            pItemSize->CtlType == ODT_COMBOBOX ? onWindow_MeasureComboBox(pItemSize, ITS_MEDIUM, ITS_MEDIUM) : onWindow_MeasureItem(hDialog, pItemSize);  break;
+
+      /// [THEME CHANGED]
+      case WM_THEMECHANGED:  setWorkspaceBackgroundColour(pDocument->hWorkspace, getTabThemeColour());  break;
 
       /// [DOCUMENT LOADED/SAVED]
       case UN_OPERATION_COMPLETE:

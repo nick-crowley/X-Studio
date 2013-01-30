@@ -919,9 +919,12 @@ INT_PTR   dlgprocAttachmentDialog(HWND  hDialog, UINT  message, WPARAM  wParam, 
       }
       break;
    
-   /// [VISUAL STYLES] 
+   /// [VISUAL STYLES]
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORSTATIC:
+      return (BOOL)onDialog_ControlColour((HDC)wParam);
+
+   /// [VISUAL STYLES] 
    case WM_CTLCOLORBTN:
       return (INT_PTR)GetStockObject(WHITE_BRUSH);
    }

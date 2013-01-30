@@ -489,9 +489,9 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
       SendDlgItemMessage(hPage, IDC_AUTHOR_EDIT, EM_LIMITTEXT, 128, NULL);
       SendDlgItemMessage(hPage, IDC_TITLE_EDIT,  EM_LIMITTEXT, 256, NULL);
       // Compatibility Combo
-      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook Only"),                           NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
-      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook, Incoming Message"),              NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
-      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook, Incoming Message, Custom Menu"), NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
+      //appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook Only"),                           NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
+      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook or Incoming Message"),              NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
+      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook, Incoming Message or Custom Menu"), NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
       break;
 
    /// [ACTION BUTTONS]
@@ -1013,6 +1013,12 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
    case WM_DRAWITEM:    bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);               break;
    case WM_MEASUREITEM: bResult = onWindow_MeasureItem(hPage, (MEASUREITEMSTRUCT*)lParam);  break;
    case WM_DELETEITEM:  bResult = onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);           break;
+
+   /// [VISUAL STYLES]
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORSTATIC:
+      bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+      break;
 
    /// [UNHANDLED] Return FALSE
    default:

@@ -12,7 +12,7 @@
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Toolbar button count
-CONST UINT  iToolBarButtonCount  = 26;
+CONST UINT  iToolBarButtonCount  = 27;
 
 // Menu Sub-Menu indicies
 #define  MAINWINDOW_FILE_MENU_INDEX     0
@@ -131,7 +131,7 @@ BOOL     createMainWindowControls(MAIN_WINDOW_DATA*  pWindowData)
    pWindowData->hDocumentsTab = createDocumentsControl(pWindowData->hMainWnd, &rcClientRect, IDC_DOCUMENTS_TAB);
 
    /// [WORKSPACE] Create the workspace control
-   pWindowData->hWorkspace = createWorkspace(pWindowData->hMainWnd, &rcClientRect, pWindowData->hDocumentsTab, COLOR_BTNFACE);
+   pWindowData->hWorkspace = createWorkspace(pWindowData->hMainWnd, &rcClientRect, pWindowData->hDocumentsTab, GetSysColor(COLOR_BTNFACE));
 
    // Return TRUE if all windows created successfully
    END_TRACKING();
@@ -161,7 +161,7 @@ HWND    createMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
 
    // Define number of toolbar buttons
    pWindowData->iToolBarButtonCount    = iToolBarButtonCount;
-   pWindowData->iToolBarSeparatorCount = 5;
+   pWindowData->iToolBarSeparatorCount = 6;
 
    /// Create ToolBar
    hCtrl = CreateWindowEx(NULL, TOOLBARCLASSNAME, NULL, TBSTYLE_FLAT WITH TBSTYLE_TRANSPARENT WITH TBSTYLE_TOOLTIPS WITH WS_CHILD WITH WS_VISIBLE, 0,0, 0,0, 
@@ -375,11 +375,14 @@ UINT  identifyMainWindowCommandByIndex(CONST UINT  iIndex)
       IDM_FILE_NEW,     IDM_FILE_OPEN,   IDM_FILE_BROWSE,    IDM_FILE_SAVE,      IDM_FILE_SAVE_ALL,   NULL, 
       IDM_EDIT_CUT,     IDM_EDIT_COPY,   IDM_EDIT_PASTE,     IDM_EDIT_DELETE,    NULL,                IDM_EDIT_FIND,       IDM_EDIT_COMMENT,     NULL, 
       
-      // ProjectExplorer, OutputDialog, CommandList, GameObjects, ScriptObjects, DocumentProperties, <Sep>
-      IDM_VIEW_PROJECT_EXPLORER, IDM_VIEW_COMPILER_OUTPUT,  IDM_VIEW_DOCUMENT_PROPERTIES,  IDM_VIEW_COMMAND_LIST,  IDM_VIEW_GAME_OBJECTS_LIST,  IDM_VIEW_SCRIPT_OBJECTS_LIST,  NULL,
-
       // GameStrings, MediaBrowser, <Sep>
       IDM_TOOLS_GAME_STRINGS,    IDM_TOOLS_MEDIA_BROWSER,   NULL, 
+
+      // ProjectExplorer, OutputDialog, CommandList, GameObjects, ScriptObjects, <Sep>
+      IDM_VIEW_PROJECT_EXPLORER, IDM_VIEW_COMPILER_OUTPUT,  IDM_VIEW_COMMAND_LIST,  IDM_VIEW_GAME_OBJECTS_LIST,  IDM_VIEW_SCRIPT_OBJECTS_LIST,  NULL,
+
+      // DocumentProperties, <Sep>
+      IDM_VIEW_DOCUMENT_PROPERTIES,  NULL,  
       
       // Help, Forums
       IDM_HELP_HELP,    IDM_HELP_FORUMS   
@@ -1181,6 +1184,9 @@ LRESULT  wndprocMainWindow(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  l
       /// [CUSTOM MENU]
       case WM_DRAWITEM:      onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);              break;
       case WM_MEASUREITEM:   onWindow_MeasureItem(hWnd, (MEASUREITEMSTRUCT*)lParam);  break;
+
+      /// [THEME CHANGED]
+      case WM_THEMECHANGED:  setWorkspaceBackgroundColour(pWindowData->hWorkspace, getThemeSysColour(TEXT("Window"), COLOR_BTNFACE));  break;
 
       // [DOCUMENT UPDATED]
       case UN_DOCUMENT_UPDATED:

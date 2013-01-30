@@ -22,20 +22,6 @@ CONST UINT   iMessageTitleSize      = 8;    // Point size of message titles
 ///                                             HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : appendRichEditText
-// Description     : Append the text in a RichEdit control with the given string
-// 
-// HWND          hRichEdit : [in] Window handle to a RichEdit control
-// CONST TCHAR*  szText    : [in] String to append
-// 
-//ControlsAPI
-//VOID  appendRichEditText(HWND  hRichEdit, CONST TCHAR*  szText)
-//{
-//   SendMessage(hRichEdit, EM_SETSEL, 32768, 32768);
-//   SendMessage(hRichEdit, EM_REPLACESEL, FALSE, (LPARAM)szText);
-//}
-
-
 /// Function name  : calculateVisibleRichTextColour
 // Description     : Alter a text colour to ensure it's visible, based on the background colour
 // 
@@ -45,33 +31,38 @@ CONST UINT   iMessageTitleSize      = 8;    // Point size of message titles
 // Return Value   : RGB Colour to use instead
 // 
 ControlsAPI
-COLORREF  calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST GAME_TEXT_COLOUR  eBackground)
+COLORREF  calculateVisibleRichTextColour(const RICHTEXT_TYPE  eType, const GAME_TEXT_COLOUR  eColour, const GAME_TEXT_COLOUR  eBackground, const BOOL  bDisabled)
 {
    COLORREF  clOutput;
 
+   // [DISABLED] Always draw in grey
+   if (bDisabled)
+      return GetSysColor(COLOR_GRAYTEXT);
+
    switch (eBackground)
    {
-   // [SELECTED BACKGROUND] -- Always draw in system highlight colour
+   /// [SELECTED BACKGROUND] -- Always draw in system highlight colour
    case GTC_BLUE:
       clOutput = GetSysColor(COLOR_HIGHLIGHTTEXT);
       break;
 
-   // [DARK BACKGROUND] -- Don't use black text
+   /// [DARK BACKGROUND] -- Don't use black text
    case GTC_BLACK:
       switch (eColour)
       {
       case GTC_BLACK:  clOutput = getGameTextColour(GTC_DEFAULT);  break;
-      default:         clOutput = getGameTextColour(eColour);      break;
+      default:         clOutput = (eType == RTT_RICH_TEXT ? getTooltipColour(eColour) : getGameTextColour(eColour));      break;
       }
       break;
 
-   // [LIGHT BACKGROUND] -- Don't use white or light grey text.
+   /// [LIGHT BACKGROUND] -- Don't use white or light grey text.
    case GTC_WHITE:
       switch (eColour)
       {
-      case GTC_WHITE:   
+      case GTC_WHITE: 
+      case GTC_SILVER: 
       case GTC_DEFAULT: clOutput = getGameTextColour(GTC_BLACK);  break;
-      default:          clOutput = getGameTextColour(eColour);    break;
+      default:          clOutput = (eType == RTT_RICH_TEXT ? getTooltipColour(eColour) : getGameTextColour(eColour));    break;
       }
       break;
    }
@@ -79,26 +70,6 @@ COLORREF  calculateVisibleRichTextColour(CONST GAME_TEXT_COLOUR  eColour, CONST 
    return clOutput;
 }
 
-
-
-/// Function name  : identifyGameTextColourFromRGB
-// Description     : Match an COLORREF to a text colour enumeration
-// 
-// CONST COLORREF  clColour   : [in] RGB colour
-// 
-// Return Value   : Matching game text colour if found, otherwise GTC_DEFAULT
-// 
-GAME_TEXT_COLOUR   identifyGameTextColourFromRGB(CONST COLORREF  clColour)
-{
-   // Iterate through game text colours
-   for (UINT iIndex = 0; iIndex < 10; iIndex++)
-      if (clColour == clTextColours[iIndex])
-         /// [FOUND] Convert index to enum
-         return (GAME_TEXT_COLOUR)iIndex;
-
-   /// [NOT FOUND] Return default
-   return GTC_DEFAULT;
-}
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                            FUNCTIONS
@@ -141,7 +112,7 @@ VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSA
       if (lstrlen(szText))
       {
          // Prepare
-         SetTextColor(hDC, bDisabled ? GetSysColor(COLOR_GRAYTEXT) : calculateVisibleRichTextColour(GTC_BLACK, eBackground));
+         SetTextColor(hDC, calculateVisibleRichTextColour(pMessage->eType, GTC_BLACK, eBackground, bDisabled));
          hItemFont = (iProperty == 0 ? utilDuplicateFont(hDC, TRUE, FALSE, TRUE) : utilDuplicateFont(hDC, TRUE, FALSE, FALSE));
          hOldFont  = SelectFont(hDC, hItemFont);
 
@@ -167,11 +138,11 @@ VOID  drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSA
 /// Function name  : drawRichTextInSingleLine
 // Description     : Draws as much RichText as possible on a single line. Any line breaks are converted into spaces.
 // 
-// HDC                    hDC          : [in] Device context to draw to
-// RECT                   rcDrawRect   : [in] Bounding rectangle of the desired area to draw to
-// RICH_TEXT*             pRichText    : [in] RichText message to draw. ** The contents may be altered during drawing **
-// const BOOL             bDisabled    : [in] Whether text should be drawn 'disabled'
-// CONST GAME_TEXT_COLOUR eBackground  : [in] Background colour, must be GTC_BLACK, GTC_WHITE or GTC_BLUE. 
+// HDC                    hDC          : [in]     Device context to draw to
+// RECT                   rcDrawRect   : [in]     Bounding rectangle of the desired area to draw to
+// RICH_TEXT*             pRichText    : [in/out] RichText message to draw. ** The contents may be altered during drawing **
+// const BOOL             bDisabled    : [in]     Whether text should be drawn 'disabled'
+// CONST GAME_TEXT_COLOUR eBackground  : [in]     Background colour, must be GTC_BLACK, GTC_WHITE or GTC_BLUE. 
 //
 ///                                             -> BLACK/WHITE - The default text colour will be altered to contrast this colour. All other colours are unchanged
 ///                                             -> BLUE        - The item has a 'selected' background therefore 'inverse' text colouring should be used throughout, regardless of text colour.     
@@ -194,10 +165,6 @@ VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText
    eDefaultColour = (eBackground == GTC_WHITE ? GTC_BLACK : GTC_DEFAULT);
    clOldColour    = GetTextColor(hDC);
 
-   // [DISABLED] Draw without colour
-   if (bDisabled)
-      SetTextColor(hDC, GetSysColor(COLOR_GRAYTEXT));
-
    /// [TEXT] Iterate through paragraphs (while there is drawing rectangle remaining)
    for (LIST_ITEM*  pParagraphIterator = getListHead(pRichText->pParagraphList); (rcDrawRect.left < rcDrawRect.right) AND (pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH)); pParagraphIterator = pParagraphIterator->pNext)
    {
@@ -211,10 +178,12 @@ VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText
             for (TCHAR*  szChar = utilFindCharacter(pItem->szText, '\n'); szChar; szChar = utilFindCharacter(szChar, '\n'))
                szChar[0] = ' ';
 
-            // Set font, also colour if enabled
-            hOldFont = SelectFont(hDC, hItemFont = utilDuplicateFont(hDC, pItem->bBold, pItem->bItalic, pItem->bUnderline));
-            if (!bDisabled)
-               SetTextColor(hDC, calculateVisibleRichTextColour(pItem->eColour, eBackground));
+            // [WHITE on WHITE] Draw bold
+            BOOL bDrawBold = (eBackground == GTC_WHITE AND (pItem->eColour == GTC_WHITE OR pItem->eColour == GTC_SILVER) ? TRUE : pItem->bBold);
+
+            // Set font + colour
+            hOldFont = SelectFont(hDC, hItemFont = utilDuplicateFont(hDC, bDrawBold, pItem->bItalic, pItem->bUnderline));
+            SetTextColor(hDC, calculateVisibleRichTextColour(pRichText->eType, pItem->eColour, eBackground, bDisabled));
 
             // Draw item text
             DrawText(hDC, pItem->szText, lstrlen(pItem->szText), &rcDrawRect, DT_LEFT WITH DT_VCENTER WITH DT_SINGLELINE WITH DT_END_ELLIPSIS WITH DT_NOPREFIX);

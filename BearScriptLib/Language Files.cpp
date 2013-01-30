@@ -101,12 +101,17 @@ BearScriptAPI
 LANGUAGE_FILE*  createUserLanguageFile(CONST TCHAR*  szFullPath, const GAME_LANGUAGE  eLanguage)
 {
    LANGUAGE_FILE*  pLanguageFile = createLanguageFile(LFT_STRINGS, szFullPath, TRUE);
+   GAME_STRING*    pGameString;
 
    // Set language
    pLanguageFile->eLanguage = eLanguage;
 
-   // Insert empty page
+   /// Insert default page
    insertGamePageIntoLanguageFile(pLanguageFile, 1, TEXT("Title"), TEXT("Description"), FALSE);
+
+   /// Insert default string
+   pGameString = createGameString(TEXT("NEW STRING"), 1, 1, ST_INTERNAL);
+   insertObjectIntoAVLTree(pLanguageFile->pGameStringsByID, (LPARAM)pGameString);
 
    // Return
    return pLanguageFile;
@@ -341,7 +346,7 @@ BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*
 
    // Add schema tags
    appendStringToTextStream(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?>\r\n"));
-   appendStringToTextStreamf(pOutputStream, TEXT("<-- Generated using %s -->\r\n"), getAppName());
+   appendStringToTextStreamf(pOutputStream, TEXT("<!-- Generated using %s -->\r\n"), getAppName());
    appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), pLanguageFile->eLanguage);
 
    /// Create a copy of all strings with order: PAGE_ID, GAME_VERSION, STRING_ID
@@ -996,7 +1001,7 @@ DWORD   threadprocSaveLanguageFile(VOID*  pParameter)
          eResult = OR_FAILURE;
       
       /// Save LanguageFile to disk
-      else if (!saveDocumentToFileSystem(TEXT("c:\\temp\\LanguageFileTest.txt"), pLanguageFile, pOperationData->pErrorQueue))    //pOperationData->szFullPath
+      else if (!saveDocumentToFileSystem(pOperationData->szFullPath, pLanguageFile, pOperationData->pErrorQueue))    //pOperationData->szFullPath
       {
          // [ERROR] "There was an I/O error while loading the %s file '%s'"
          enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_LANGUAGE_FILE_IO_ERROR), identifyGameFileFilename(pLanguageFile)); 

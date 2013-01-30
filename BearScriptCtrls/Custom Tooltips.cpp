@@ -194,7 +194,7 @@ VOID   drawSimpleCustomTooltip(HDC  hDC, RECT*  pOutputRect, CONST UINT  iWidth,
 
    // [CHECK] Ensure title and description exist
    if (!pTitleText OR !pDescriptionText)
-      generateRichTextFromSourceText(szErrorSource, lstrlen(szErrorSource), ST_INTERNAL, pErrorMessage, RTT_RICH_TEXT, NULL);
+      generateRichTextFromSourceText(szErrorSource, lstrlen(szErrorSource), pErrorMessage, RTT_RICH_TEXT, ST_DISPLAY, NULL);
 
    /// [CALCULATION]
    if (bCalculation)
@@ -269,7 +269,7 @@ VOID  drawCommandSyntaxCustomTooltip(HDC  hDC, RECT*  pDrawRect, CONST COMMAND_S
    // [CHECK] Has we written a description yet?
    if (!pSyntax->pTooltipDescription)
       // [FAILED] Generate a placeholder
-      generateRichTextFromSourceText(szNoCommandDescription, lstrlen(szNoCommandDescription), ST_INTERNAL, pRichDescription, RTT_RICH_TEXT, NULL); 
+      generateRichTextFromSourceText(szNoCommandDescription, lstrlen(szNoCommandDescription), pRichDescription, RTT_RICH_TEXT, ST_DISPLAY, NULL); 
 
    /// [DRAW] Draw simple tooltip
    drawSimpleCustomTooltip(hDC, pDrawRect, 500, identifyGameVersionIconID(pSyntax->eGameVersion), pSyntax->pTooltipSyntax, utilEither(pSyntax->pTooltipDescription, pRichDescription), bCalculation);
@@ -301,18 +301,18 @@ VOID  drawGameObjectCustomTooltip(HDC  hDC, RECT*  pDrawRect, CONST OBJECT_NAME*
 
    /// [TITLE] Generate title containing NAME, ID, MAINTYPE and SUBTYPE
    StringCchPrintf(szSource, 1024, TEXT("[center][b]%s[/b]\n") TEXT("%s\n\n") TEXT("[b]ID:[/b] %s\t\t\t") TEXT("[b]SubType[/b]: %u[/center]"), utilEither(pGameObject->oProperties.szRawName, pGameObject->szText), pGameObject->oProperties.szMainType, pGameObject->szObjectID, pGameObject->iID);
-   generateRichTextFromSourceText(szSource, lstrlen(szSource), ST_INTERNAL, pRichTitle, RTT_RICH_TEXT, NULL);
+   generateRichTextFromSourceText(szSource, lstrlen(szSource), pRichTitle, RTT_RICH_TEXT, ST_DISPLAY, NULL);
 
    /// [COMMON PROPERTIES]
    StringCchPrintf(szSource, 1024, TEXT("[b][u]Properties:[/u][/b]\n\n") TEXT("[b]Trading Price[/b]: %u - %u cr\n") TEXT("[b]Unit Volume[/b]: %u units\n") TEXT("[b]Containers[/b]: %s"), pGameObject->oProperties.iMinPrice, pGameObject->oProperties.iMaxPrice, pGameObject->oProperties.iVolume, pGameObject->oProperties.szTransportClass);
-   generateRichTextFromSourceText(szSource, lstrlen(szSource), ST_INTERNAL, pRichBasic, RTT_RICH_TEXT, NULL);
+   generateRichTextFromSourceText(szSource, lstrlen(szSource), pRichBasic, RTT_RICH_TEXT, ST_DISPLAY, NULL);
 
    // Examine GameObject type
    switch (pGameObject->eMainType)
    {
    case MT_SHIP:
       StringCchPrintf(szSource, 1024, TEXT("[right]\n\n") TEXT("%u - %u m/s : [b]Ship Speed[/b]\n") TEXT("%u - %u units : [b]Cargobay Volume[/b]\n") TEXT("%u ships : [b]Docking Ports[/b]\n") TEXT("%s : [b]Manufacturer[/b][/right]"), pGameObject->oProperties.iMaxSpeed, pGameObject->oProperties.iMinSpeed, pGameObject->oProperties.iMinCargobay, pGameObject->oProperties.iMaxCargobay, pGameObject->oProperties.iMaxDocked, pGameObject->oProperties.szManufacturer);
-      generateRichTextFromSourceText(szSource, lstrlen(szSource), ST_INTERNAL, pRichAdvanced, RTT_RICH_TEXT, NULL);
+      generateRichTextFromSourceText(szSource, lstrlen(szSource), pRichAdvanced, RTT_RICH_TEXT, ST_DISPLAY, NULL);
       break;
 
    case MT_DOCK:
@@ -322,13 +322,13 @@ VOID  drawGameObjectCustomTooltip(HDC  hDC, RECT*  pDrawRect, CONST OBJECT_NAME*
    case MT_WARE_LASER:
    case MT_WARE_SHIELD:
       StringCchPrintf(szSource, 1024, TEXT("[right]\n\n") TEXT("%u joules : [b]Total Energy[/b][/right]"), pGameObject->oProperties.iMaxEnergy);
-      generateRichTextFromSourceText(szSource, lstrlen(szSource), ST_INTERNAL, pRichAdvanced, RTT_RICH_TEXT, NULL);
+      generateRichTextFromSourceText(szSource, lstrlen(szSource), pRichAdvanced, RTT_RICH_TEXT, ST_DISPLAY, NULL);
       break;
    }
 
    /// [DESCRIPTION] Generate description
    StringCchPrintf(szSource, 1024, TEXT("[b][u]Description:[/u][/b]\n\n") TEXT("%s"), pGameObject->oProperties.szDescription ? pGameObject->oProperties.szDescription : szNoGameObjectDescription);
-   generateRichTextFromSourceText(szSource, lstrlen(szSource), ST_INTERNAL, pRichDescription, RTT_RICH_TEXT, NULL);     //TEXT("[center]%s[/center]")
+   generateRichTextFromSourceText(szSource, lstrlen(szSource), pRichDescription, RTT_RICH_TEXT, ST_DISPLAY, NULL);     //TEXT("[center]%s[/center]")
 
    /// [DRAW] Draw complex tooltip
    drawComplexCustomTooltip(hDC, pDrawRect, 400, szIcon, pRichTitle, pRichBasic, pRichAdvanced, pRichDescription, bCalculation);
@@ -362,12 +362,12 @@ VOID  drawScriptObjectCustomTooltip(HDC  hDC, RECT*  pDrawRect, CONST OBJECT_NAM
 
    /// [TITLE] Create Bold version of the object name
    szSource = utilCreateStringf(256, TEXT("[b]%s[/b]"), pScriptObject->szText);
-   generateRichTextFromSourceText(szSource, lstrlen(szSource), ST_INTERNAL, pRichTitle, RTT_RICH_TEXT, NULL);
+   generateRichTextFromSourceText(szSource, lstrlen(szSource), pRichTitle, RTT_RICH_TEXT, ST_DISPLAY, NULL);
 
    // [CHECK] Does object have a description?
    if (!pScriptObject->pDescription)
       /// [NO DESCRIPTION] Use fixed string
-      generateRichTextFromSourceText(szNoScriptObjectDescription, lstrlen(szNoScriptObjectDescription), ST_INTERNAL, pRichDescription, RTT_RICH_TEXT, NULL);
+      generateRichTextFromSourceText(szNoScriptObjectDescription, lstrlen(szNoScriptObjectDescription), pRichDescription, RTT_RICH_TEXT, ST_DISPLAY, NULL);
 
    /// [DRAW] Draw simple tooltip
    drawSimpleCustomTooltip(hDC, pDrawRect, 300, szIcon, pRichTitle, utilEither(pScriptObject->pDescription, pRichDescription), bCalculation);

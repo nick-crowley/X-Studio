@@ -372,6 +372,7 @@ AVL_TREE*  getLanguageDocumentGamePageTree(LANGUAGE_DOCUMENT*  pDocument);
 
 // Functions
 VOID       deleteLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage);
+VOID       deleteLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  &pString);
 AVL_TREE*  generateLanguagePageStringsTree(LANGUAGE_DOCUMENT*  pDocument, CONST GAME_PAGE*  pGamePage);
 UINT       identifyLanguagePageStringNextID(LANGUAGE_DOCUMENT*  pDocument);
 BOOL       insertLanguageDocumentGamePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pGamePage);
@@ -409,6 +410,7 @@ VOID  treeprocResolveGameStringIndex(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION* 
 
 // Message Handlers
 VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage);
+VOID  onLanguageDocument_DeleteString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString);
 VOID  onLanguageDocument_EditPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage);
 VOID  onLanguageDocument_EditString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString);
 VOID  onLanguageDocument_EditStringBegin(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader);
@@ -796,7 +798,6 @@ VOID    updateOutputDialogList(OUTPUT_DIALOG_DATA*  pDialogData);
 VOID    onOutputDialogClose(OUTPUT_DIALOG_DATA*  pDialogData);
 BOOL    onOutputDialogCommand(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iControlID, CONST UINT  iNotification);
 VOID    onOutputDialogContextMenu(OUTPUT_DIALOG_DATA*  pDialogData, HWND  hCtrl, POINT*  ptCursor);
-BOOL    onOutputDialogCustomDraw(OUTPUT_DIALOG_DATA*  pDialogData, NMLVCUSTOMDRAW*  pMessageData);
 BOOL    onOutputDialogDoubleClick(OUTPUT_DIALOG_DATA*  pDialogData, NMITEMACTIVATE*  pClickData);
 BOOL    onOutputDialogGetMenuItemState(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iCommandID, UINT*  piState);
 BOOL    onOutputDialogMoving(OUTPUT_DIALOG_DATA*  pDialogData, RECT*  pWindowRect);

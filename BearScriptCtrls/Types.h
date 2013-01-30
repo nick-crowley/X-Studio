@@ -293,7 +293,7 @@ struct CUSTOM_COMBO_ITEM
 
    LPARAM           lParam;         // [OPTIONAL] Custom item data 
    HFONT            hFont;          // [OPTIONAL] Custom item font
-   TCHAR szFont[LF_FACESIZE];
+   TCHAR            szFont[LF_FACESIZE];
    COLORREF         clColour;       // [OPTIONAL] Custom text colour
    HIMAGELIST       hImageList;     // [OPTIONAL] Custom ImageList
    UINT             iIconIndex;     // [OPTIONAL] Custom ImageList icon index
@@ -568,7 +568,7 @@ struct WORKSPACE_DATA
 {
    HWND     hWnd,           // Workspace control
             hBaseWnd;       // Identifies the base window
-   UINT     clBackground;   // System colour index for the background (splitter bars)
+   HBRUSH   hBackground;    // System colour index for the background (splitter bars)
 
    RECT     rcWorkspace;    // Workspace rectangle in parent client co-ordinates
    PANE    *pBasePane,      // Pane tree

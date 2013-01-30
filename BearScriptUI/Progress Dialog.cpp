@@ -345,10 +345,10 @@ INT_PTR   dlgprocProgressDlg(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
          }
          break;
 
-      /// [VISUAL STYLE]
+      /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         bResult = (BOOL)GetStockBrush(WHITE_BRUSH);
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
          break;
       }
    }

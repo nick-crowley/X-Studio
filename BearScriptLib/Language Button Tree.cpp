@@ -11,7 +11,7 @@
 ///                                       CONSTANTS / GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HBITMAP    createLanguageButtonBitmap(HWND  hRichEdit, CONST TCHAR*  szText);
+HBITMAP    createLanguageButtonBitmap(HWND  hRichEdit, CONST TCHAR*  szText, const GAME_TEXT_COLOUR  eColour);
 VOID       deleteLanguageButtonNode(LPARAM  pLanguageButton);
 LPARAM     extractLanguageButtonNode(LPARAM  pNodeData, CONST AVL_TREE_SORT_KEY  eProperty);
 VOID       treeprocFindButtonByObject(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pData);
@@ -29,7 +29,7 @@ VOID       treeprocFindButtonByObject(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPE
 // Return Value   : New language button data, you are responsible for destroying it
 // 
 BearScriptAPI
-LANGUAGE_BUTTON*  createLanguageButton(HWND  hRichEdit, CONST TCHAR*  szText, CONST TCHAR*  szID)
+LANGUAGE_BUTTON*  createLanguageButton(HWND  hRichEdit, CONST TCHAR*  szText, CONST TCHAR*  szID, const GAME_TEXT_COLOUR  eColour)
 {
    LANGUAGE_BUTTON*  pButton;   // New button data
 
@@ -39,7 +39,8 @@ LANGUAGE_BUTTON*  createLanguageButton(HWND  hRichEdit, CONST TCHAR*  szText, CO
    // Set Text+ID and create Bitmap
    pButton->szText  = utilDuplicateSimpleString(szText);
    pButton->szID    = utilDuplicateSimpleString(szID);
-   pButton->hBitmap = createLanguageButtonBitmap(hRichEdit, szText);
+   pButton->eColour = eColour;
+   pButton->hBitmap = createLanguageButtonBitmap(hRichEdit, szText, eColour);
 
    // Return
    return pButton;
@@ -53,7 +54,7 @@ LANGUAGE_BUTTON*  createLanguageButton(HWND  hRichEdit, CONST TCHAR*  szText, CO
 // 
 // Return Value  : Handle of the button's bitmap
 // 
-HBITMAP  createLanguageButtonBitmap(HWND  hRichEdit, CONST TCHAR*  szText)
+HBITMAP  createLanguageButtonBitmap(HWND  hRichEdit, CONST TCHAR*  szText, const GAME_TEXT_COLOUR  eColour)
 {
    DC_STATE oState;
    HBITMAP  hNewBitmap;       // New bitmap
@@ -69,7 +70,7 @@ HBITMAP  createLanguageButtonBitmap(HWND  hRichEdit, CONST TCHAR*  szText)
    oState.hOldBitmap = SelectBitmap(hMemoryDC, hNewBitmap);
    oState.hOldFont   = SelectFont(hMemoryDC, GetStockObject(ANSI_VAR_FONT));
    SetBkMode(hMemoryDC, TRANSPARENT);
-   SetTextColor(hMemoryDC, RGB(255,255,255));
+   SetTextColor(hMemoryDC, getGameTextColour(eColour));
    
    // Draw button text onto Bitmap
    utilSetRectangle(&rcButton, 0, 0, 160, 19);

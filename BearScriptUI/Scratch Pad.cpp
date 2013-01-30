@@ -49,7 +49,7 @@ VOID   treeprocTestRichEditConversion(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*
 
    /// Generate RichText
    if (!generateMessageFromGameString(pString, pMessage, NULL))
-      VERBOSE("*** Failed to generated RichText for PageID:%d StringID:%d", pString->iPageID, pString->iID);
+      VERBOSE("*** Failed to generated RichText for PageID:%d StringID:%d : %s**END**\r\n\r\n", pString->iPageID, pString->iID, pString->szText);
    else
    {
       // Pass through RichEdit
@@ -60,7 +60,7 @@ VOID   treeprocTestRichEditConversion(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*
 
       /// Generate PlainText
       if (!generateSourceTextFromRichText(pMessage, pNewString))
-         VERBOSE("*** Failed to generated PlainText for PageID:%d StringID:%d", pString->iPageID, pString->iID);
+         VERBOSE("*** Failed to generated PlainText for PageID:%d StringID:%d : %s**END**\r\n\r\n", pString->iPageID, pString->iID, pString->szText);
 
       /// Compare input and output
       else if (!utilCompareStringVariables(pString->szText, pNewString->szText))

@@ -992,7 +992,7 @@ BOOL  generateCommandSyntaxTitle(CONST COMMAND_SYNTAX*  pSyntax, CONST RICH_SYNT
    }
 
    // Generate RichText
-   bResult = generateRichTextFromSourceText(szSource, lstrlen(szSource), ST_INTERNAL, pOutput, RTT_RICH_TEXT, pErrorQueue);
+   bResult = generateRichTextFromSourceText(szSource, lstrlen(szSource), pOutput, RTT_RICH_TEXT, ST_DISPLAY, pErrorQueue);
 
    // Cleanup and return result generation result
    deleteCodeObject(pCodeObject);
@@ -1174,7 +1174,8 @@ OPERATION_RESULT   loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, HWND  hParentW
    TCHAR               *szProperty,          // Current token representing a command property
                        *pIterator,           // Tokeniser data
                        *szProperties[iMaxProperties];    // Properties of the command currently being processed
-   UINT                 iPropertyCount;                  // Number of valid properties for the command currently being processed
+   UINT                 iPropertyCount,                  // Number of valid properties for the command currently being processed
+                        iIndex = 0;
 
    // Prepare
    TRACK_FUNCTION();
@@ -1284,7 +1285,8 @@ OPERATION_RESULT   loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, HWND  hParentW
          }
 
          // [PROGRESS] Update operation progress
-         advanceOperationProgressValue(pProgress);
+         if (++iIndex % 10 == 0)
+            advanceOperationProgressValue(pProgress);
 
          // Reset property counter and properties array
          iPropertyCount = 0;
@@ -1328,7 +1330,7 @@ OPERATION_RESULT   loadCommandSyntaxTree(HWND  hParentWnd, OPERATION_PROGRESS*  
    // [INFO/STAGE] "Loading command syntax for script commands"
    pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SYNTAX)));
    ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_COMMAND_SYNTAX);
-   updateOperationProgressMaximum(pProgress, 885);    // Manually define syntax entry count
+   updateOperationProgressMaximum(pProgress, 885 / 10);    // Manually define syntax entry count
 
    // Prepare
    szCustomPath = utilGenerateAppFilePath(TEXT("Custom.Syntax.txt"));

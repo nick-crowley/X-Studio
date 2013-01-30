@@ -657,27 +657,27 @@ OPERATION_RESULT  loadMediaItemTrees(CONST FILE_SYSTEM*  pFileSystem, HWND  hPar
 
       // [PROGRESS] Move to 'Loading Media' stage. 
       ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_MEDIA_ITEMS);
-      updateOperationProgressMaximum(pProgress, 100);    // Define progress as percentage.
+      updateOperationProgressMaximum(pProgress, 10);    // Define progress as percentage.
 
       /// Load Sound Effects
       if ((eResult = loadMediaSoundEffectItems(pFileSystem, hParentWnd, pErrorQueue)) == OR_SUCCESS)
       {
          // [PROGRESS] Manually update progress
-         updateOperationProgressValue(pProgress, 30);
+         updateOperationProgressValue(pProgress, 3);
       
          /// Load Video Clips
          if ((eResult = loadMediaVideoClipItems(pFileSystem, hParentWnd, pErrorQueue)) == OR_SUCCESS)
          {
             // [PROGRESS] Manually update progress
-            updateOperationProgressValue(pProgress, 60);
+            updateOperationProgressValue(pProgress, 6);
 
             /// Index media data trees
             performAVLTreeIndexing(getGameData()->pMediaItemsByID);
-            updateOperationProgressValue(pProgress, 80);
+            updateOperationProgressValue(pProgress, 8);
             
             /// Index groups
             performAVLTreeIndexing(getGameData()->pMediaPagesByGroup);
-            updateOperationProgressValue(pProgress, 100);
+            updateOperationProgressValue(pProgress, 10);
          }
       }
    }

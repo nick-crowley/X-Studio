@@ -417,8 +417,10 @@ BOOL   onCustomDraw_GroupedListView(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRA
    NMCUSTOMDRAW*      pDrawingData;     // Convenience pointer
    DC_STATE*          pPrevState;       // DC State
    LISTVIEW_ITEM      oItemData;        // GroupedListView item data
+   HBRUSH             hBackground;
    RECT               rcHeading,        // Heading text rectangle
                       rcItem;
+   COLORREF           clBackground;
    BOOL               bResult,
                       bEnabled;
 
@@ -461,22 +463,27 @@ BOOL   onCustomDraw_GroupedListView(HWND  hParentWnd, HWND  hCtrl, NMLVCUSTOMDRA
             {
             /// [HEADER GAP] - Draw a blank item
             case GLVIT_BLANK:
-               FillRect(pPrevState->hDC, &rcItem, GetSysColorBrush(IsWindowEnabled(hCtrl) ? COLOR_WINDOW : COLOR_BTNFACE));
+               FillRect(pPrevState->hDC, &rcItem, hBackground = CreateSolidBrush(IsWindowEnabled(hCtrl) ? ListView_GetBkColor(hCtrl) : GetSysColor(COLOR_BTNFACE)) );
+               DeleteBrush(hBackground);
                break;
 
             /// [HEADER] - Draw a bold header with a gradient underline
             case GLVIT_GROUPHEADER:
                // Prepare
-               rcHeading       = rcItem;
-               rcHeading.left += (2 * GetSystemMetrics(SM_CXEDGE));
-               bEnabled        = IsWindowEnabled(hCtrl);
+               SetRect(&rcHeading, rcItem.left + 2 * GetSystemMetrics(SM_CXEDGE), rcItem.top, rcItem.right, rcItem.bottom);
+               clBackground = ((bEnabled = IsWindowEnabled(hCtrl)) ? ListView_GetBkColor(hCtrl) : GetSysColor(COLOR_BTNFACE));
+
+               // Draw background
+               FillRect(pPrevState->hDC, &rcItem, hBackground = CreateSolidBrush(clBackground));
+               utilSetDeviceContextBackgroundMode(pPrevState, TRANSPARENT);
 
                // Draw group name in bold 
-               utilSetDeviceContextFont(pPrevState, pWindowData->hHeaderFont, GetSysColor(bEnabled ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
+               utilSetDeviceContextFont(pPrevState, pWindowData->hHeaderFont, getThemeSysColour(TEXT("TAB"), bEnabled ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
                DrawText(pPrevState->hDC, oItemData.pGroup->szName, lstrlen(oItemData.pGroup->szName), &rcHeading, DT_LEFT WITH DT_SINGLELINE WITH DT_WORD_ELLIPSIS);
 
                // Draw blue gradient line beneath
-               drawHeaderGradient(pPrevState->hDC, &rcItem, (bEnabled ? clLightBlue : GetSysColor(COLOR_GRAYTEXT)), GetSysColor(bEnabled ? COLOR_WINDOW : COLOR_BTNFACE));
+               drawHeaderGradient(pPrevState->hDC, &rcItem, (bEnabled ? clLightBlue : GetSysColor(COLOR_GRAYTEXT)), clBackground);
+               DeleteBrush(hBackground);
                break;
 
             /// [ITEM] Draw Item  [Provide Logical index]

@@ -100,6 +100,7 @@ GAME_STRING_REF*   createGameStringReference(CONST UINT  iPageParameterIndex, CO
 // 
 // Return Value   : New SubString object, you are responsible for destroying it
 // 
+BearScriptAPI
 SUBSTRING*  createSubString(CONST TCHAR*  szSourceText)
 {
    SUBSTRING*  pNewSubString;
@@ -214,6 +215,7 @@ VOID  deleteGamePage(GAME_PAGE*  &pGamePage)
 // 
 // SUBSTRING*  &pSubString   : [in] SubString object to delete
 // 
+BearScriptAPI
 VOID  deleteSubString(SUBSTRING*  &pSubString)
 {
    // Delete calling object
@@ -585,6 +587,93 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
    return TRUE;
 }
 
+
+/// Function name  : findNextSubStringSimple
+// Description     : Searches for the next SubString in a GameString without resolving sub-strings
+// 
+// CONST GAME_STRING*  pGameString    : [in]     GameString currently being resolved
+// SUBSTRING*          pSubString     : [in/out] Contains the resolved SubString on return, if successful
+// 
+// Return Value   : TRUE if substring was found, FALSE if there were no more substrings
+// 
+BearScriptAPI
+BOOL   findNextSubStringSimple(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString)
+{
+   CONST TCHAR*  szEndMarker;    // Marks the position of a matching closing bracket
+
+   // Prepare
+   pSubString->szText[0] = NULL;
+
+   // [CHECK] Is there no more string?
+   if (!pSubString->szMarker OR !pSubString->szMarker[0])
+      return FALSE;
+
+   // Determine sub-string type from first character
+   switch (pSubString->szMarker[0])
+   {
+   /// [TEXT or NORMAL BRACKET] - Indicates TEXT or COMMENT substring
+   default: 
+      // [COMMENT] Search for a matching closing bracket (or EOF)
+      if (pSubString->szMarker[0] == '(')
+      {
+         // Calculate the size. (Include closing bracket, if any)
+         if (szEndMarker = findNextNonEscapedCharacter(pSubString->szMarker, ')'))
+            pSubString->iCount = (szEndMarker - pSubString->szMarker) + 1;
+         // Set type
+         pSubString->eType = SST_COMMENT;
+      }
+      // [TEXT] Search for any opening brackets (or EOF)
+      else
+      {
+         // Calculate the size.  (Exclude opening bracket)
+         if (szEndMarker = findNextNonEscapedCharacters(pSubString->szMarker, TEXT("({")))
+            pSubString->iCount = (szEndMarker - pSubString->szMarker);
+         // Set type
+         pSubString->eType = SST_TEXT;
+      }
+
+      // Determine the sub-string length (if no matching bracket was found)
+      if (szEndMarker == NULL)
+         pSubString->iCount = lstrlen(pSubString->szMarker);
+
+      /// Extract string to the output buffer and update the marker
+      StringCchCopyN(pSubString->szText, MAX_STRING, pSubString->szMarker, pSubString->iCount);
+      pSubString->szMarker += pSubString->iCount;
+      break;
+
+   /// [CURLY BRACKET] - Indicates LOOKUP or MISSION
+   case '{':
+      // Identify the *matching* closing curly bracket (sub-strings may be nested)
+      if (szEndMarker = findSubStringEndMarker(pSubString->szMarker))
+      {
+         // Extend 'end' marker to cover the closing curly bracket
+         szEndMarker += 1;
+
+         /// [MISSION] Copy verbatim
+         pSubString->iCount = (szEndMarker - pSubString->szMarker);
+         StringCchCopyN(pSubString->szText, MAX_STRING, pSubString->szMarker, pSubString->iCount);
+         // Set the type
+         pSubString->eType = SST_MISSION;
+         
+         // Position the marker beyond the closing bracket
+         pSubString->szMarker = szEndMarker;
+      }
+      else
+      {
+         /// [VALIDATION_FIX] Copy string verbatim. They're often used as characters in the MARS scripts without escapes.
+         StringCchCopy(pSubString->szText, MAX_STRING, pSubString->szMarker);
+         pSubString->iCount = lstrlen(pSubString->szText);
+
+         // Return 'TEXT' and ensure further calls return FALSE
+         pSubString->eType    = SST_TEXT;
+         pSubString->szMarker = NULL;
+      }
+      break;
+   }
+
+   // [FOUND] Return TRUE
+   return TRUE;
+}
 
 /// Function name  : findSubStringEndMarker
 // Description     : Search the matching end bracket to a sub-string, which may contain nested substrings

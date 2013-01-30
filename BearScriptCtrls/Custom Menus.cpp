@@ -352,16 +352,17 @@ VOID   drawCustomMenu(DRAWITEMSTRUCT*  pDrawData, CONST CUSTOM_MENU_ITEM*  pItem
    /// [BACKGROUND] Draw a light grey square followed by a dark grey line followed by a white box
    // Draw a light grey square on the left
    rcDrawRect.right = rcDrawRect.left + iCustomMenuGutterWidth;
-   utilFillSysColourRect(pDrawData->hDC, &rcDrawRect, COLOR_BTNFACE);
+   FillRect(pDrawData->hDC, &rcDrawRect, getThemeSysColourBrush(TEXT("Window"), COLOR_BTNFACE));
 
    // Draw a vertical dark grey line one pixel wide
    rcDrawRect.left = rcDrawRect.right - 1;
-   utilFillStockRect(pDrawData->hDC, &rcDrawRect, LTGRAY_BRUSH);
+   //utilFillStockRect(pDrawData->hDC, &rcDrawRect, LTGRAY_BRUSH);
+   FillRect(pDrawData->hDC, &rcDrawRect, getThemeSysColourBrush(TEXT("Window"), COLOR_3DSHADOW));
 
    // Draw remaining item background in white
    rcDrawRect       = pDrawData->rcItem;
    rcDrawRect.left += iCustomMenuGutterWidth;
-   utilFillStockRect(pDrawData->hDC, &rcDrawRect, WHITE_BRUSH);
+   FillRect(pDrawData->hDC, &rcDrawRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
 
    /// [NORMAL MENU ITEM] - Draw a full custom menu item
    if (!pItemData->bIsHeading AND !pItemData->bIsSeparator)

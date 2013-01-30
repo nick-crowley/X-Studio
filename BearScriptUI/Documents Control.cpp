@@ -924,14 +924,13 @@ VOID  onDocumentsControl_DocumentPropertyUpdated(DOCUMENTS_DATA*  pWindowData, C
 {
    DOCUMENT*   pDocument;     // Active document
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // [CHECK] Ensure active document exists
-   ASSERT(getActiveDocument());
-
    // Prepare
+   TRACK_FUNCTION();
    pDocument = getActiveDocument();
+
+   // [CHECK] Ignore notifications sent while a document is being created/destroyed
+   if (!pDocument)
+      return;
 
    // [CHECK] Ensure document is modified
    if (!pDocument->bVirtual AND (!isModified(pDocument) OR iControlID == IDC_SCRIPT_NAME)) // [SPECIAL CASE] Always refresh title when script name changes

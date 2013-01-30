@@ -418,8 +418,12 @@
 #define IDS_RICHTEXT_EXCESS_CLOSING_TAGS                 691
 #define IDS_RICHTEXT_UNSUPPORTED_LANGUAGE_TAG            692
 #define IDS_RICHTEXT_UNSUPPORTED_TOOLTIP_TAG             693
-#define IDS_RICHTEXT_BUTTON_ID_DUPLICATE                 694
-#define IDS_RICHTEXT_UNKNOWN_TAG                         695
+#define IDS_RICHTEXT_UNSUPPORTED_RICH_AUTHOR             694
+#define IDS_RICHTEXT_UNSUPPORTED_ORPHAN_TAG              695
+#define IDS_RICHTEXT_BUTTON_ID_DUPLICATE                 696
+#define IDS_RICHTEXT_UNKNOWN_TAG_PROPERTY                697
+#define IDS_RICHTEXT_UNKNOWN_TAG                         698
+#define IDS_RICHTEXT_TAG_INCOMPLETE                      699
 
 /// Main Window
 // Exception types

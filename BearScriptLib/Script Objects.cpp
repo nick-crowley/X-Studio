@@ -40,8 +40,8 @@ SCRIPT_OBJECT*  createScriptObject(CONST GAME_STRING*  pGameString)
       pScriptObject->szText = utilCreateStringf(32, TEXT("MISSING_NAME_%u"), pGameString->iID);
 
    /// [SUCCESS] Convert GameString to DISPLAY, if necessary
-   else if (!generateConvertedString(pGameString->szText, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, pScriptObject->szText))
-      pScriptObject->szText = utilDuplicateSimpleString(pGameString->szText);
+   else 
+      replaceStringConvert(pScriptObject->szText, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, pGameString->szText);
 
    // Set properties
    pScriptObject->eType       = ONT_SCRIPT;

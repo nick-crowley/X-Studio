@@ -486,6 +486,12 @@ INT_PTR   dlgprocPreferencesPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
       case WM_MEASUREITEM:  bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);  break;
       case WM_DELETEITEM:   bResult = onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);             break;
 
+      /// [VISUAL STYLES]
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+         break;
+
       // [UNHANDLED] Return FALSE
       default:
          bResult = FALSE;

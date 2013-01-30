@@ -11,29 +11,29 @@
 ///                                       CONSTANTS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// LanguageMessage Colours
+BearScriptAPI CONST COLORREF  clTextColours[GAME_TEXT_COLOURS] = 
+{  
+   RGB(0,0,0),       RGB(0,0,255),     RGB(42,168,200),  RGB(200,200,200),     // Black, Blue, Cyan, Default
+   RGB(13,191,25),   RGB(255,150,20),  RGB(210,20,255),  RGB(204,0,0),         // Green, Orange, Purple, Red
+   RGB(233,233,233), RGB(255,255,255), RGB(215,215,0)                          // Silver, White, Yellow
+};
+
 /// Tooltip Colours
 BearScriptAPI CONST COLORREF  clTooltipColours[GAME_TEXT_COLOURS] = 
 {  
-   RGB(0,0,0),       RGB(0,0,255),    RGB(0,230,240),   RGB(200,200,200),     // Black, Blue, Cyan, Default
-   RGB(0,255,0),     RGB(255,150,20), RGB(210,20,255),  RGB(255,0,0),         // Green, Orange, Purple, Red
-   RGB(255,255,255), RGB(0,255,255)                                           // White, Yellow
-};
-
-/// RichText Colours
-BearScriptAPI CONST COLORREF  clTextColours[GAME_TEXT_COLOURS] = 
-{  
-   RGB(0,0,0),       RGB(25,55,242),  RGB(42,168,200),  RGB(200,200,200),     // Black, Blue, Cyan, Default
-   RGB(13,191,25),   RGB(213,145,28), RGB(200,36,167),  RGB(180,37,37),       // Green, Orange, Purple, Red 
-   RGB(255,255,255), RGB(180,180,0)                                           // White, Yellow
+   RGB(0,0,0),       RGB(25,55,242),   RGB(42,168,200),  RGB(200,200,200),     // Black, Blue, Cyan, Default
+   RGB(13,191,25),   RGB(213,145,28),  RGB(200,36,167),  RGB(180,37,37),       // Green, Orange, Purple, Red 
+   RGB(233,233,233), RGB(255,255,255), RGB(180,180,0)                          // Silver, White, Yellow
 };
 
 /// CodeEdit Colours
 BearScriptAPI CONST COLORREF  clInterfaceColours[INTERFACE_COLOURS] = 
 {  
-   RGB(0,0,0),                                                                   // Black
-   RGB(0,0,255),     RGB(0,115,0),    RGB(70,70,60),    RGB(140,0,0),            // D-Blue, D-Green, D-Grey, D-Red
-   RGB(0,230,240),   RGB(0,255,0),    RGB(175,175,175), RGB(255,0,0),            // L-blue, L-green, L-grey, L-red
-   RGB(255,150,20),  RGB(210,20,255), RGB(255,255,0),   RGB(255,255,255)         // Orange, Purple, Yellow, White
+   RGB(0,0,0),                                                                  // Black
+   RGB(0,0,255),     RGB(0,115,0),     RGB(70,70,60),    RGB(140,0,0),          // D-Blue, D-Green, D-Grey, D-Red
+   RGB(0,230,240),   RGB(0,255,0),     RGB(175,175,175), RGB(255,0,0),          // L-blue, L-green, L-grey, L-red
+   RGB(255,150,20),  RGB(210,20,255),  RGB(255,255,0),   RGB(255,255,255)       // Orange, Purple, Yellow, White
 };
 
 /// Colour Schemes

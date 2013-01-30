@@ -679,8 +679,7 @@ BOOL  translateParameterNode(CONST XML_TREE_NODE*  pNode, CONST PARAMETER_SYNTAX
          if (getSourceValueString(pNode, szValue, pError))
          {
             // Convert string to internal and create PARAMETER
-            generateConvertedString(szValue, SPC_SCRIPT_EXTERNAL_TO_DISPLAY, szSafeValue);
-            pOutput = createParameterFromString(szSafeValue ? szSafeValue : szValue, eSyntax, pNode->iLineNumber);
+            pOutput = createParameterFromString(generateConvertedString(szValue, SPC_SCRIPT_EXTERNAL_TO_DISPLAY, szSafeValue) ? szSafeValue : szValue, eSyntax, pNode->iLineNumber);
             utilSafeDeleteString(szSafeValue);
          }
          else
@@ -710,8 +709,7 @@ BOOL  translateParameterNode(CONST XML_TREE_NODE*  pNode, CONST PARAMETER_SYNTAX
       if (getXMLPropertyString(pNode, TEXT("val"), szValue))
       {
          // Convert string to internal and create PARAMETER
-         generateConvertedString(szValue, SPC_SCRIPT_EXTERNAL_TO_DISPLAY, szSafeValue);
-         pOutput = createParameterFromString(szSafeValue ? szSafeValue : szValue, eSyntax, pNode->iLineNumber);
+         pOutput = createParameterFromString(generateConvertedString(szValue, SPC_SCRIPT_EXTERNAL_TO_DISPLAY, szSafeValue) ? szSafeValue : szValue, eSyntax, pNode->iLineNumber);
          utilSafeDeleteString(szSafeValue);
       }
       else
@@ -762,8 +760,7 @@ BOOL  translateParameterTuple(CONST PARAMETER_NODE_TUPLE*  pNodeTuple, CONST PAR
       if (getXMLPropertyString(pNodeTuple->pValue, TEXT("val"), szValue))
       {
          // Convert string to INTERNAL and create a PARAMETER
-         generateConvertedString(szValue, SPC_SCRIPT_EXTERNAL_TO_DISPLAY, szSafeValue);
-         pOutput = createParameterFromString(szSafeValue ? szSafeValue : szValue, eSyntax, pNodeTuple->pValue->iLineNumber);
+         pOutput = createParameterFromString(generateConvertedString(szValue, SPC_SCRIPT_EXTERNAL_TO_DISPLAY, szSafeValue) ? szSafeValue : szValue, eSyntax, pNodeTuple->pValue->iLineNumber);
          utilSafeDeleteString(szSafeValue);
       }
       else
@@ -823,7 +820,6 @@ BOOL  translateParameterToString(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pCom
    CONST TCHAR    *szReturnObject;    // ReturnObject text
    RETURN_OBJECT  *pReturnObject;     // Used for decoding the ReturnObject
    SCRIPT_OBJECT  *pScriptObject;     // ScriptObject lookup
-   TCHAR          *szDisplayText;     // GameString text converted to DISPLAY
    UINT            iStringID;         // ID of the GameString representing the parameter value
 
    // Prepare
@@ -966,14 +962,8 @@ BOOL  translateParameterToString(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pCom
          }
          // [OPERATOR] These have no ScriptObjects
          else if (pParameter->eType == DT_OPERATOR) 
-         {
             // Convert from INTERNAL->DISPLAY
-            generateConvertedString(pGameString->szText, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, szDisplayText);
-            pParameter->szBuffer = utilDuplicateSimpleString(utilEither(szDisplayText, pGameString->szText));
-
-            // Cleanup
-            utilSafeDeleteString(szDisplayText);
-         }
+            replaceStringConvert(pParameter->szBuffer, SPC_LANGUAGE_INTERNAL_TO_DISPLAY, pGameString->szText);
          else
          {
             // Lookup ScriptObject

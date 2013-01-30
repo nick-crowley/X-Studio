@@ -1,529 +1,536 @@
-0x03e4: =============================
-0x03e4:  X-Studio Beta IV 
-0x03e4: =============================
-0x03e4: Generated at 18h:24m on 28 Feb 2013
-0x03e4: Operating System: Windows 7 Service Pack 1
-0x03e4: ================================================================================
-0x03e4: Library Command: initApplication
-0x03e4: ================================================================================
-0x03e4: Determining application interface language
-0x03e4: Loading English resource library
-0x03e4: Adding UI dialog font - success!
-0x03e4: Adding UI dialog font - success!
-0x03e4: Loading application preferences
-0x03e4: --------------------------------------------------------------------------------
-0x03e4: X-Forums Username: mrbear
-0x03e4: --------------------------------------------------------------------------------
-0x03e4: Initialising Common Controls library - success!
-0x03e4: Registering windows classes - success!
-0x03e4: Initialising COM thread - success!
-0x03e4: Loading RichEdit Library - success!
-0x03e4: Initialising HTML Help thread - success!
-0x03e4: Initialising the system ImageList - success!
-0x03e4: Validating heap - success!
-0x03e4: ================================================================================
-0x03e4: Library Command: createMainWindow
-0x03e4: ================================================================================
-0x03e4: creating console window - success!
-0x03e4: creating custom menu - success!
-0x03e4: creating main toolbar - success!
-0x03e4: creating status bar - success!
-0x03e4: creating operation pool control - success!
-0x03e4: creating documents control - success!
-0x03e4: creating workspace - success!
-0x03e4: ================================================================================
-0x03e4: Library Command: displaySearchDialog
-0x03e4: ================================================================================
-0x03e4: creating search results dialog - success!
-0x03e4: creating search results dialog - success!
-0x03e4: creating search results dialog - success!
-0x03e4: creating search container dialog - success!
-0x03e4: ================================================================================
-0x03e4: Library Command: displayOutputDialog
-0x03e4: ================================================================================
-0x03e4: creating output dialog - success!
-0x03e4: creating main window - success!
-0x03e4: ================================================================================
-0x03e4: Library Command: commandLoadGameData
-0x03e4: ================================================================================
-0x03e4: Loading X³ Terran Conflict game data from 'd:\X3 Albion Prelude\'
-0x03e4: launching threaded operation - success!
-0x140c: ================================================================================
-0x140c: Library Command: threadprocLoadGameData
-0x140c: ================================================================================
-0x03e4: creating splash window - success!
-0x140c: ================================================================================
-0x140c: Operation Stage: loadFileSystem
-0x140c: ================================================================================
-0x140c: Enumerating game catalogues in folder 'd:\X3 Albion Prelude\
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\01.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\02.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\03.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\04.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\05.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\06.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\07.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\08.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\09.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\10.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\11.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\12.cat'
-0x140c: Base catalogue detected: 'd:\X3 Albion Prelude\13.cat'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\13.cat'
-0x140c: Loaded 43 virtual files from catalogue '13.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\12.cat'
-0x140c: Loaded 25 virtual files from catalogue '12.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\11.cat'
-0x140c: Loaded 109 virtual files from catalogue '11.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\10.cat'
-0x140c: Loaded 25 virtual files from catalogue '10.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\09.cat'
-0x140c: Loaded 40 virtual files from catalogue '09.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\08.cat'
-0x140c: Loaded 37 virtual files from catalogue '08.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\07.cat'
-0x140c: Loaded 91 virtual files from catalogue '07.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\06.cat'
-0x140c: Loaded 65 virtual files from catalogue '06.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\05.cat'
-0x140c: Loaded 22 virtual files from catalogue '05.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\04.cat'
-0x140c: Loaded 12 virtual files from catalogue '04.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\03.cat'
-0x140c: Loaded 88 virtual files from catalogue '03.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\02.cat'
-0x140c: Loaded 1304 virtual files from catalogue '02.cat'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\01.cat'
-0x140c: Loaded 7008 virtual files from catalogue '01.cat'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded 9043 virtual files from 13 game catalogues
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadGameStringTrees
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading master language file 'd:\X3 Albion Prelude\t\0001-L044.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 't\0001-L044.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x140c: Decrypting virtual file '0001-L044.pck'
-0x140c: Decompressing GZip archive '0001-L044.pck'
-0x140c: Translating master language file 'd:\X3 Albion Prelude\t\0001-L044.pck'
-0x140c: Generating XML-Tree from file '0001-L044.pck'
-0x140c: Converting master language file '0001-L044.pck' strings from external to internal
-0x140c: --------------------------------------------------------------------------------
-0x140c: Searching for supplementary language files
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\0002-L007.pck'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\0002.pck'
-0x140c: Decompressing GZip archive '0002-L007.pck'
-0x1480: Decompressing GZip archive '0002.pck'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\0002-L034.pck'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\0002-L033.pck'
-0x140c: Decompressing GZip archive '0002-L034.pck'
-0x1480: Decompressing GZip archive '0002-L033.pck'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\0002-L042.pck'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\0002-L039.pck'
-0x140c: Decompressing GZip archive '0002-L042.pck'
-0x1480: Decompressing GZip archive '0002-L039.pck'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\0002-L049.pck'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\0002-L048.pck'
-0x140c: Decompressing GZip archive '0002-L049.pck'
-0x1480: Decompressing GZip archive '0002-L048.pck'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\1000-L044.xml'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\0010-L044.pck'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\8387-L007.xml'
-0x1480: Decompressing GZip archive '0010-L044.pck'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\8387-L034.xml'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\7054-L044.xml'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\8387-L044.xml'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\8387-L033.xml'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\8387-L049.xml'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\8387-L039.xml'
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\9999-L044.xml'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\8387-L048.xml'
-0x1480: Loading physical file 'd:\X3 Albion Prelude\t\8540-L044.xml'
-0x1898: Loading virtual file 't\0001-L044.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x148c: Loading virtual file 't\0001-L034.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x0a48: Loading virtual file 't\conversations.pck' from game catalogue 'd:\X3 Albion Prelude\12.dat'
-0x140c: Loading virtual file 't\0001-L048.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x14d0: Loading virtual file 't\0001-L042.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x1abc: Loading physical file 'd:\X3 Albion Prelude\t\0002-L048.pck'
-0x0f18: Loading physical file 'd:\X3 Albion Prelude\t\0002-L049.pck'
-0x19ec: Loading virtual file 't\0001-L033.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x10e8: Loading physical file 'd:\X3 Albion Prelude\t\0002-L039.pck'
-0x1984: Loading physical file 'd:\X3 Albion Prelude\t\0002-L033.pck'
-0x1294: Loading physical file 'd:\X3 Albion Prelude\t\0002-L034.pck'
-0x1668: Loading virtual file 't\0001-L039.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x1314: Loading virtual file 't\0001-L049.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x1478: Loading physical file 'd:\X3 Albion Prelude\t\0002-L007.pck'
-0x1998: Loading physical file 'd:\X3 Albion Prelude\t\0002.pck'
-0x04e0: Loading virtual file 't\0001-L007.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x1898: Decrypting virtual file '0001-L044.pck'
-0x148c: Decrypting virtual file '0001-L034.pck'
-0x0a48: Decrypting virtual file 'conversations.pck'
-0x140c: Decrypting virtual file '0001-L048.pck'
-0x14d0: Decrypting virtual file '0001-L042.pck'
-0x1abc: Decompressing GZip archive '0002-L048.pck'
-0x0f18: Decompressing GZip archive '0002-L049.pck'
-0x19ec: Decrypting virtual file '0001-L033.pck'
-0x10e8: Decompressing GZip archive '0002-L039.pck'
-0x1984: Decompressing GZip archive '0002-L033.pck'
-0x1294: Decompressing GZip archive '0002-L034.pck'
-0x1668: Decrypting virtual file '0001-L039.pck'
-0x1314: Decrypting virtual file '0001-L049.pck'
-0x1478: Decompressing GZip archive '0002-L007.pck'
-0x1998: Decompressing GZip archive '0002.pck'
-0x04e0: Decrypting virtual file '0001-L007.pck'
-0x1898: Decompressing GZip archive '0001-L044.pck'
-0x148c: Decompressing GZip archive '0001-L034.pck'
-0x0a48: Decompressing GZip archive 'conversations.pck'
-0x140c: Decompressing GZip archive '0001-L048.pck'
-0x14d0: Decompressing GZip archive '0001-L042.pck'
-0x19ec: Decompressing GZip archive '0001-L033.pck'
-0x1668: Decompressing GZip archive '0001-L039.pck'
-0x1314: Decompressing GZip archive '0001-L049.pck'
-0x04e0: Decompressing GZip archive '0001-L007.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading supplementary language file 'd:\X3 Albion Prelude\t\0002.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\0002.pck'
-0x140c: Decompressing GZip archive '0002.pck'
-0x140c: Translating supplementary language file 'd:\X3 Albion Prelude\t\0002.pck'
-0x140c: Generating XML-Tree from file '0002.pck'
-0x140c: Converting supplementary language file '0002.pck' strings from external to internal
-0x140c: Merging supplementary language file '0002.pck' into the game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading supplementary language file 'd:\X3 Albion Prelude\t\0010-L044.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\0010-L044.pck'
-0x140c: Decompressing GZip archive '0010-L044.pck'
-0x140c: Translating supplementary language file 'd:\X3 Albion Prelude\t\0010-L044.pck'
-0x140c: Generating XML-Tree from file '0010-L044.pck'
-0x140c: Converting supplementary language file '0010-L044.pck' strings from external to internal
-0x140c: Merging supplementary language file '0010-L044.pck' into the game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading supplementary language file 'd:\X3 Albion Prelude\t\1000-L044.xml'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\1000-L044.xml'
-0x140c: Translating supplementary language file 'd:\X3 Albion Prelude\t\1000-L044.xml'
-0x140c: Generating XML-Tree from file '1000-L044.xml'
-0x140c: Converting supplementary language file '1000-L044.xml' strings from external to internal
-0x140c: Merging supplementary language file '1000-L044.xml' into the game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading supplementary language file 'd:\X3 Albion Prelude\t\7054-L044.xml'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\7054-L044.xml'
-0x140c: Translating supplementary language file 'd:\X3 Albion Prelude\t\7054-L044.xml'
-0x140c: Generating XML-Tree from file '7054-L044.xml'
-0x140c: Converting supplementary language file '7054-L044.xml' strings from external to internal
-0x140c: Merging supplementary language file '7054-L044.xml' into the game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading supplementary language file 'd:\X3 Albion Prelude\t\8387-L044.xml'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\8387-L044.xml'
-0x140c: Translating supplementary language file 'd:\X3 Albion Prelude\t\8387-L044.xml'
-0x140c: Generating XML-Tree from file '8387-L044.xml'
-0x140c: Converting supplementary language file '8387-L044.xml' strings from external to internal
-0x140c: Merging supplementary language file '8387-L044.xml' into the game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading supplementary language file 'd:\X3 Albion Prelude\t\8540-L044.xml'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\8540-L044.xml'
-0x140c: Translating supplementary language file 'd:\X3 Albion Prelude\t\8540-L044.xml'
-0x140c: Generating XML-Tree from file '8540-L044.xml'
-0x140c: Converting supplementary language file '8540-L044.xml' strings from external to internal
-0x140c: Merging supplementary language file '8540-L044.xml' into the game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading supplementary language file 'd:\X3 Albion Prelude\t\9999-L044.xml'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\t\9999-L044.xml'
-0x140c: Translating supplementary language file 'd:\X3 Albion Prelude\t\9999-L044.xml'
-0x140c: Generating XML-Tree from file '9999-L044.xml'
-0x140c: Converting supplementary language file '9999-L044.xml' strings from external to internal
-0x140c: Merging supplementary language file '9999-L044.xml' into the game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded 32996 game strings over 427 game pages
-0x140c: --------------------------------------------------------------------------------
-0x140c: --------------------------------------------------------------------------------
-0x140c: Resovling game string tree substrings
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadScriptObjectsTrees
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Generating Script Objects from language strings
-0x140c: --------------------------------------------------------------------------------
-0x140c: Generating unique ScriptObjects
-0x140c: Merging ScriptObject collisions into game data
-0x140c: --------------------------------------------------------------------------------
-0x140c: Generated 1799 unique ScriptObjects with 1 failures
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadGameObjectTrees
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TDocks.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TDocks.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
-0x140c: Decrypting virtual file 'TDocks.pck'
-0x140c: Decompressing GZip archive 'TDocks.pck'
-0x140c: Generating game objects from T-File 'types\TDocks.pck'
-0x140c: Successfully loaded 51 docks from the object type definitions file 'types\TDocks.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TDocks.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TFactories.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TFactories.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
-0x140c: Decrypting virtual file 'TFactories.pck'
-0x140c: Decompressing GZip archive 'TFactories.pck'
-0x140c: Generating game objects from T-File 'types\TFactories.pck'
-0x140c: Successfully loaded 439 factories from the object type definitions file 'types\TFactories.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TFactories.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TShips.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\types\TShips.pck'
-0x140c: Decompressing GZip archive 'TShips.pck'
-0x140c: Generating game objects from T-File 'types\TShips.pck'
-0x140c: Successfully loaded 374 ships from the object type definitions file 'types\TShips.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TShips.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TLaser.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TLaser.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
-0x140c: Decrypting virtual file 'TLaser.pck'
-0x140c: Decompressing GZip archive 'TLaser.pck'
-0x140c: Generating game objects from T-File 'types\TLaser.pck'
-0x140c: Successfully loaded 39 lasers from the object type definitions file 'types\TLaser.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TLaser.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TShields.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TShields.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
-0x140c: Decrypting virtual file 'TShields.pck'
-0x140c: Decompressing GZip archive 'TShields.pck'
-0x140c: Generating game objects from T-File 'types\TShields.pck'
-0x140c: Successfully loaded 6 shields from the object type definitions file 'types\TShields.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TShields.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TMissiles.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TMissiles.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
-0x140c: Decrypting virtual file 'TMissiles.pck'
-0x140c: Decompressing GZip archive 'TMissiles.pck'
-0x140c: Generating game objects from T-File 'types\TMissiles.pck'
-0x140c: Successfully loaded 36 missiles from the object type definitions file 'types\TMissiles.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TMissiles.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TWareE.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TWareE.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
-0x140c: Decrypting virtual file 'TWareE.pck'
-0x140c: Decompressing GZip archive 'TWareE.pck'
-0x140c: Generating game objects from T-File 'types\TWareE.pck'
-0x140c: Successfully loaded 1 wares from the object type definitions file 'types\TWareE.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TWareE.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TWareN.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TWareN.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
-0x140c: Decrypting virtual file 'TWareN.pck'
-0x140c: Decompressing GZip archive 'TWareN.pck'
-0x140c: Generating game objects from T-File 'types\TWareN.pck'
-0x140c: Successfully loaded 80 wares from the object type definitions file 'types\TWareN.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TWareN.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TWareB.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TWareB.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
-0x140c: Decrypting virtual file 'TWareB.pck'
-0x140c: Decompressing GZip archive 'TWareB.pck'
-0x140c: Generating game objects from T-File 'types\TWareB.pck'
-0x140c: Successfully loaded 16 wares from the object type definitions file 'types\TWareB.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TWareB.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TWareF.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TWareF.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
-0x140c: Decrypting virtual file 'TWareF.pck'
-0x140c: Decompressing GZip archive 'TWareF.pck'
-0x140c: Generating game objects from T-File 'types\TWareF.pck'
-0x140c: Successfully loaded 13 wares from the object type definitions file 'types\TWareF.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TWareF.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TWareM.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TWareM.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
-0x140c: Decrypting virtual file 'TWareM.pck'
-0x140c: Decompressing GZip archive 'TWareM.pck'
-0x140c: Generating game objects from T-File 'types\TWareM.pck'
-0x140c: Successfully loaded 4 wares from the object type definitions file 'types\TWareM.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TWareM.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object definition file 'types\TWareT.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\TWareT.pck' from game catalogue 'd:\X3 Albion Prelude\12.dat'
-0x140c: Decrypting virtual file 'TWareT.pck'
-0x140c: Decompressing GZip archive 'TWareT.pck'
-0x140c: Generating game objects from T-File 'types\TWareT.pck'
-0x140c: Successfully loaded 113 wares from the object type definitions file 'types\TWareT.pck'
-0x140c: Performing non-unique name mangling of game objects in T-File 'types\TWareT.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded 1172 Game Objects with 0 failures
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadMediaItemTrees
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Generating SpeechClip MediaItems from file 'mov\00044.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading speech clip file 'd:\X3 Albion Prelude\mov\00044.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading physical file 'd:\X3 Albion Prelude\mov\00044.xml'
-0x140c: Translating speech clip file 'd:\X3 Albion Prelude\mov\00044.xml'
-0x140c: Generating XML-Tree from file '00044.xml'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded 3230 speech clips over 132 media pages
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadMediaSoundEffectItems
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Generating SoundEffect MediaItems from file 'types\sounds.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\Sounds.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
-0x140c: Decrypting virtual file 'sounds.pck'
-0x140c: Decompressing GZip archive 'sounds.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded 255 sound effects
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadMediaVideoClipItems
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Generating VideoClip MediaItems from file 'types\videos.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading virtual file 'types\Videos.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
-0x140c: Decrypting virtual file 'videos.pck'
-0x140c: Decompressing GZip archive 'videos.pck'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded 199 video clips from stream 1, -56 clips from stream 2 were dropped.
-0x140c: --------------------------------------------------------------------------------
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded 3683 media items over 141 media pages
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadCommandSyntaxTree
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading command syntax definitions
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading resource COMMAND_SYNTAX
-0x140c: loading resource - success!
-0x140c: Generating CommandSyntax tree from 'COMMAND_SYNTAX'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded the syntax for 892 script commands and the hashes for 887. (5 Commands have no hash)
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Operation Stage: loadObjectDescriptions
-0x140c: ================================================================================
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object descriptions
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading resource OBJECT_DESCRIPTIONS
-0x140c: loading resource - success!
-0x140c: Loading resource DESCRIPTION_VARIABLES
-0x140c: loading resource - success!
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading object descriptions file 'OBJECT_DESCRIPTIONS'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Translating object descriptions file 'OBJECT_DESCRIPTIONS'
-0x140c: Generating XML-Tree from file 'OBJECT_DESCRIPTIONS'
-0x140c: Converting object descriptions file 'OBJECT_DESCRIPTIONS' strings from external to internal
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loading description variables file 'DESCRIPTION_VARIABLES'
-0x140c: --------------------------------------------------------------------------------
-0x140c: Translating description variables file 'DESCRIPTION_VARIABLES'
-0x140c: Generating XML-Tree from file 'DESCRIPTION_VARIABLES'
-0x140c: Converting description variables file 'DESCRIPTION_VARIABLES' strings from external to internal
-0x140c: --------------------------------------------------------------------------------
-0x140c: Loaded source text for 580 object descriptions and 235 description variables
-0x140c: --------------------------------------------------------------------------------
-0x140c: Generating RichText object descriptions
-0x140c: --------------------------------------------------------------------------------
-0x140c: Successfully generated 576 object descriptions
-0x140c: --------------------------------------------------------------------------------
-0x140c: ================================================================================
-0x140c: Thread 0x140c:   GAME DATA WORKER THREAD COMPLETED
-0x140c: ================================================================================
-0x03e4: --------------------------------------------------------------------------------
-0x03e4: Appending operation ErrorQueue...
-0x03e4: --------------------------------------------------------------------------------
-0x03e4: Searching for catalogues and data files
-0x03e4: Loading master language file 't\0001-L044.pck'
-0x03e4: Loading supplementary language file 't\0002.pck'
-0x03e4: The supplementary language file 't\0002.pck' has overwritten 128 strings
-0x03e4: Loading supplementary language file 't\0010-L044.pck'
-0x03e4: The command COMMAND_COMMERCIAL_AGENT has overridden the command COMMAND_TYPE_TRADE_2
-0x03e4: The command COMMAND_COMMODITY_LOGISTICS_MK1 has overridden the command COMMAND_TYPE_TRADE_3
-0x03e4: The command COMMAND_COMMODITY_LOGISTICS_MK2 has overridden the command COMMAND_TYPE_TRADE_4
-0x03e4: The command COMMAND_COMMERCIAL_AGENT_STAY has overridden the command COMMAND_TYPE_CUSTOM_0
-0x03e4: The command COMMAND_COMMODITY_LOGISTICS_STAY has overridden the command COMMAND_TYPE_CUSTOM_1
-0x03e4: The command COMMAND_COMMODITY_LOGISTICS_COLLECT_WARE has overridden the command COMMAND_TYPE_CUSTOM_2
-0x03e4: The command COMMAND_COMMODITY_LOGISTICS_SUPPLY_WARE has overridden the command COMMAND_TYPE_CUSTOM_3
-0x03e4: The command COMMAND_COMMERCIAL_AGENT_ADMIN has overridden the command COMMAND_TYPE_GENERAL_0
-0x03e4: The command COMMAND_COMMODITY_LOGISTICS_ADMIN has overridden the command COMMAND_TYPE_GENERAL_1
-0x03e4: The command COMMAND_COMMERCIAL_AGENT_TRADER_LOCK has overridden the command COMMAND_TYPE_STATION_1
-0x03e4: The command COMMAND_COMMERCIAL_AGENT_STATION_ADMIN has overridden the command COMMAND_TYPE_STATION_2
-0x03e4: The command COMMAND_DOCKWARE_MANGER has overridden the command COMMAND_TYPE_STATION_3
-0x03e4: The command COMMAND_MISSILE_DEFENSE_MOSQUITO has overridden the command COMMAND_TYPE_SHIP_0
-0x03e4: The command COMMAND_MISSILE_DEFENSE_MOSQUITO_CONVOY has overridden the command COMMAND_TYPE_SHIP_1
-0x03e4: The supplementary language file 't\0010-L044.pck' has overwritten 31 strings
-0x03e4: Loading supplementary language file 't\1000-L044.xml'
-0x03e4: The command COMMAND_CYCROW_STATIONCHEAT has overridden the command COMMAND_TYPE_STATION_14
-0x03e4: The supplementary language file 't\1000-L044.xml' has overwritten 1 strings
-0x03e4: Loading supplementary language file 't\7054-L044.xml'
-0x03e4: Loading supplementary language file 't\8387-L044.xml'
-0x03e4: Loading supplementary language file 't\8540-L044.xml'
-0x03e4: The command COMMAND_KIDNAP_CIVILIAN has overridden the command COMMAND_TYPE_PIRACY_12
-0x03e4: The command COMMAND_VIEW_SALVAGE has overridden the command COMMAND_TYPE_PIRACY_13
-0x03e4: The command COMMAND_LOOT_WRECK has overridden the command COMMAND_TYPE_PIRACY_14
-0x03e4: The command COMMAND_BLACK_MARKET has overridden the command COMMAND_TYPE_PIRACY_15
-0x03e4: The command COMMAND_ENSLAVE_PASSENGERS has overridden the command COMMAND_TYPE_PIRACY_16
-0x03e4: The command COMMAND_DETECT_PIRATEBASE has overridden the command COMMAND_TYPE_PIRACY_17
-0x03e4: The command COMMAND_PIRATE_NETWORK has overridden the command COMMAND_TYPE_PIRACY_18
-0x03e4: The command COMMAND_SECTOR_ANALYSIS has overridden the command COMMAND_TYPE_PIRACY_19
-0x03e4: The command COMMAND_TARGET_DETAILS has overridden the command COMMAND_TYPE_PIRACY_20
-0x03e4: The command COMMAND_SPACEFLY_BEACON has overridden the command COMMAND_TYPE_PIRACY_21
-0x03e4: The supplementary language file 't\8540-L044.xml' has overwritten 10 strings
-0x03e4: Loading supplementary language file 't\9999-L044.xml'
-0x03e4: Resolving substrings within loaded language strings
-0x03e4: Unresolvable substrings are present in 7 of the loaded language strings
-0x03e4: Generating Script Objects from loaded language strings
-0x03e4: Loading docks from object definitions file 'types\TDocks.pck'
-0x03e4: Loading factories from object definitions file 'types\TFactories.pck'
-0x03e4: Loading ships from object definitions file 'types\TShips.pck'
-0x03e4: Loading lasers from object definitions file 'types\TLaser.pck'
-0x03e4: Loading shields from object definitions file 'types\TShields.pck'
-0x03e4: Loading missiles from object definitions file 'types\TMissiles.pck'
-0x03e4: Loading wares from object definitions file 'types\TWareE.pck'
-0x03e4: Loading wares from object definitions file 'types\TWareN.pck'
-0x03e4: Loading wares from object definitions file 'types\TWareB.pck'
-0x03e4: Loading wares from object definitions file 'types\TWareF.pck'
-0x03e4: Loading wares from object definitions file 'types\TWareM.pck'
-0x03e4: Loading wares from object definitions file 'types\TWareT.pck'
-0x03e4: Loading speech clips from 'mov\00044.pck'
-0x03e4: Loading sound effects from 'types\sounds.pck'
-0x03e4: Loading video clips from 'types\videos.pck'
-0x03e4: Loading syntax for script commands
-0x03e4: Loading command descriptions...
-0x03e4: Discarding the description of unrecognised ScriptObject Object Classes with ID 1000
-0x03e4: Discarding the description of unrecognised ScriptObject Object Classes with ID 2148
-0x03e4: Discarding the description of unrecognised ScriptObject Object Classes with ID 2149
-0x03e4: Discarding the description of unrecognised ScriptObject Object Classes with ID 2150
-0x03e4: --------------------------------------------------------------------------------
+0x1ae0: =============================
+0x1ae0:  X-Studio Beta IV 
+0x1ae0: =============================
+0x1ae0: Generated at 05h:24m on 30 Feb 2013
+0x1ae0: Operating System: Windows 7 Service Pack 1
+0x1ae0: ================================================================================
+0x1ae0: Library Command: initApplication
+0x1ae0: ================================================================================
+0x1ae0: Determining application interface language
+0x1ae0: Loading English resource library
+0x1ae0: Adding UI dialog font - success!
+0x1ae0: Adding UI dialog font - success!
+0x1ae0: Loading application preferences
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: X-Forums Username: mrbear
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: Initialising Common Controls library - success!
+0x1ae0: Registering windows classes - success!
+0x1ae0: Initialising COM thread - success!
+0x1ae0: Loading RichEdit Library - success!
+0x1ae0: Initialising HTML Help thread - success!
+0x1ae0: Initialising the system ImageList - success!
+0x1ae0: Validating heap - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: createMainWindow
+0x1ae0: ================================================================================
+0x1ae0: creating console window - success!
+0x1ae0: creating custom menu - success!
+0x1ae0: creating main toolbar - success!
+0x1ae0: creating status bar - success!
+0x1ae0: creating operation pool control - success!
+0x1ae0: creating documents control - success!
+0x1ae0: creating workspace - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: displaySearchDialog
+0x1ae0: ================================================================================
+0x1ae0: creating search results dialog - success!
+0x1ae0: creating search results dialog - success!
+0x1ae0: creating search results dialog - success!
+0x1ae0: creating search container dialog - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: displayOutputDialog
+0x1ae0: ================================================================================
+0x1ae0: creating output dialog - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: displayProjectDialog
+0x1ae0: ================================================================================
+0x1ae0: creating project dialog - success!
+0x1ae0: creating main window - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: commandLoadGameData
+0x1ae0: ================================================================================
+0x1ae0: Loading X³ Terran Conflict game data from 'd:\X3 Albion Prelude\'
+0x1ae0: launching threaded operation - success!
+0x14e0: ================================================================================
+0x14e0: Library Command: threadprocLoadGameData
+0x14e0: ================================================================================
+0x1ae0: creating splash window - success!
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadFileSystem
+0x14e0: ================================================================================
+0x14e0: Enumerating game catalogues in folder 'd:\X3 Albion Prelude\
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\01.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\02.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\03.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\04.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\05.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\06.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\07.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\08.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\09.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\10.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\11.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\12.cat'
+0x14e0: Base catalogue detected: 'd:\X3 Albion Prelude\13.cat'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\13.cat'
+0x14e0: Loaded 43 virtual files from catalogue '13.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\12.cat'
+0x14e0: Loaded 25 virtual files from catalogue '12.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\11.cat'
+0x14e0: Loaded 109 virtual files from catalogue '11.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\10.cat'
+0x14e0: Loaded 25 virtual files from catalogue '10.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\09.cat'
+0x14e0: Loaded 40 virtual files from catalogue '09.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\08.cat'
+0x14e0: Loaded 37 virtual files from catalogue '08.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\07.cat'
+0x14e0: Loaded 91 virtual files from catalogue '07.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\06.cat'
+0x14e0: Loaded 65 virtual files from catalogue '06.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\05.cat'
+0x14e0: Loaded 22 virtual files from catalogue '05.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\04.cat'
+0x14e0: Loaded 12 virtual files from catalogue '04.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\03.cat'
+0x14e0: Loaded 88 virtual files from catalogue '03.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\02.cat'
+0x14e0: Loaded 1304 virtual files from catalogue '02.cat'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\01.cat'
+0x14e0: Loaded 7008 virtual files from catalogue '01.cat'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded 9043 virtual files from 13 game catalogues
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadGameStringTrees
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading master language file 'd:\X3 Albion Prelude\t\0001-L044.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 't\0001-L044.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x14e0: Decrypting virtual file '0001-L044.pck'
+0x14e0: Decompressing GZip archive '0001-L044.pck'
+0x14e0: Translating master language file 'd:\X3 Albion Prelude\t\0001-L044.pck'
+0x14e0: Generating XML-Tree from file '0001-L044.pck'
+0x14e0: Converting master language file '0001-L044.pck' strings from external to internal
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Searching for supplementary language files
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\0002-L007.pck'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\0002.pck'
+0x14e0: Decompressing GZip archive '0002-L007.pck'
+0x16d0: Decompressing GZip archive '0002.pck'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\0002-L034.pck'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\0002-L033.pck'
+0x14e0: Decompressing GZip archive '0002-L034.pck'
+0x16d0: Decompressing GZip archive '0002-L033.pck'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\0002-L042.pck'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\0002-L039.pck'
+0x14e0: Decompressing GZip archive '0002-L042.pck'
+0x16d0: Decompressing GZip archive '0002-L039.pck'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\0002-L049.pck'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\0002-L048.pck'
+0x14e0: Decompressing GZip archive '0002-L049.pck'
+0x16d0: Decompressing GZip archive '0002-L048.pck'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\1000-L044.xml'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\0010-L044.pck'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L007.xml'
+0x16d0: Decompressing GZip archive '0010-L044.pck'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L034.xml'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\7054-L044.xml'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L044.xml'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L033.xml'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L049.xml'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L039.xml'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\9999-L044.xml'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L048.xml'
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\test.xml'
+0x16d0: Loading physical file 'd:\X3 Albion Prelude\t\8540-L044.xml'
+0x1cac: Loading virtual file 't\0001-L044.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x1160: Loading virtual file 't\0001-L033.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x144c: Loading virtual file 't\conversations.pck' from game catalogue 'd:\X3 Albion Prelude\12.dat'
+0x1d4c: Loading virtual file 't\0001-L039.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x1d00: Loading virtual file 't\0001-L042.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x14e0: Loading virtual file 't\0001-L048.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x134c: Loading physical file 'd:\X3 Albion Prelude\t\0002-L034.pck'
+0x122c: Loading physical file 'd:\X3 Albion Prelude\t\0002-L007.pck'
+0x13f8: Loading physical file 'd:\X3 Albion Prelude\t\0002-L033.pck'
+0x1e08: Loading physical file 'd:\X3 Albion Prelude\t\0002-L039.pck'
+0x1998: Loading virtual file 't\0001-L034.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x1320: Loading virtual file 't\0001-L049.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x1f44: Loading physical file 'd:\X3 Albion Prelude\t\0002-L049.pck'
+0x1660: Loading physical file 'd:\X3 Albion Prelude\t\0002-L048.pck'
+0x12cc: Loading physical file 'd:\X3 Albion Prelude\t\0002.pck'
+0x081c: Loading virtual file 't\0001-L007.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x1cac: Decrypting virtual file '0001-L044.pck'
+0x1160: Decrypting virtual file '0001-L033.pck'
+0x144c: Decrypting virtual file 'conversations.pck'
+0x1d4c: Decrypting virtual file '0001-L039.pck'
+0x1d00: Decrypting virtual file '0001-L042.pck'
+0x14e0: Decrypting virtual file '0001-L048.pck'
+0x134c: Decompressing GZip archive '0002-L034.pck'
+0x122c: Decompressing GZip archive '0002-L007.pck'
+0x13f8: Decompressing GZip archive '0002-L033.pck'
+0x1e08: Decompressing GZip archive '0002-L039.pck'
+0x1998: Decrypting virtual file '0001-L034.pck'
+0x1320: Decrypting virtual file '0001-L049.pck'
+0x1f44: Decompressing GZip archive '0002-L049.pck'
+0x1660: Decompressing GZip archive '0002-L048.pck'
+0x12cc: Decompressing GZip archive '0002.pck'
+0x081c: Decrypting virtual file '0001-L007.pck'
+0x1cac: Decompressing GZip archive '0001-L044.pck'
+0x1160: Decompressing GZip archive '0001-L033.pck'
+0x144c: Decompressing GZip archive 'conversations.pck'
+0x1d4c: Decompressing GZip archive '0001-L039.pck'
+0x1d00: Decompressing GZip archive '0001-L042.pck'
+0x14e0: Decompressing GZip archive '0001-L048.pck'
+0x1998: Decompressing GZip archive '0001-L034.pck'
+0x1320: Decompressing GZip archive '0001-L049.pck'
+0x081c: Decompressing GZip archive '0001-L007.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading supplementary language file 'd:\X3 Albion Prelude\t\0002.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\0002.pck'
+0x14e0: Decompressing GZip archive '0002.pck'
+0x14e0: Translating supplementary language file 'd:\X3 Albion Prelude\t\0002.pck'
+0x14e0: Generating XML-Tree from file '0002.pck'
+0x14e0: Converting supplementary language file '0002.pck' strings from external to internal
+0x14e0: Merging supplementary language file '0002.pck' into the game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading supplementary language file 'd:\X3 Albion Prelude\t\0010-L044.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\0010-L044.pck'
+0x14e0: Decompressing GZip archive '0010-L044.pck'
+0x14e0: Translating supplementary language file 'd:\X3 Albion Prelude\t\0010-L044.pck'
+0x14e0: Generating XML-Tree from file '0010-L044.pck'
+0x14e0: Converting supplementary language file '0010-L044.pck' strings from external to internal
+0x14e0: Merging supplementary language file '0010-L044.pck' into the game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading supplementary language file 'd:\X3 Albion Prelude\t\1000-L044.xml'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\1000-L044.xml'
+0x14e0: Translating supplementary language file 'd:\X3 Albion Prelude\t\1000-L044.xml'
+0x14e0: Generating XML-Tree from file '1000-L044.xml'
+0x14e0: Converting supplementary language file '1000-L044.xml' strings from external to internal
+0x14e0: Merging supplementary language file '1000-L044.xml' into the game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading supplementary language file 'd:\X3 Albion Prelude\t\7054-L044.xml'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\7054-L044.xml'
+0x14e0: Translating supplementary language file 'd:\X3 Albion Prelude\t\7054-L044.xml'
+0x14e0: Generating XML-Tree from file '7054-L044.xml'
+0x14e0: Converting supplementary language file '7054-L044.xml' strings from external to internal
+0x14e0: Merging supplementary language file '7054-L044.xml' into the game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading supplementary language file 'd:\X3 Albion Prelude\t\8387-L044.xml'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\8387-L044.xml'
+0x14e0: Translating supplementary language file 'd:\X3 Albion Prelude\t\8387-L044.xml'
+0x14e0: Generating XML-Tree from file '8387-L044.xml'
+0x14e0: Converting supplementary language file '8387-L044.xml' strings from external to internal
+0x14e0: Merging supplementary language file '8387-L044.xml' into the game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading supplementary language file 'd:\X3 Albion Prelude\t\8540-L044.xml'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\8540-L044.xml'
+0x14e0: Translating supplementary language file 'd:\X3 Albion Prelude\t\8540-L044.xml'
+0x14e0: Generating XML-Tree from file '8540-L044.xml'
+0x14e0: Converting supplementary language file '8540-L044.xml' strings from external to internal
+0x14e0: Merging supplementary language file '8540-L044.xml' into the game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading supplementary language file 'd:\X3 Albion Prelude\t\9999-L044.xml'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\t\9999-L044.xml'
+0x14e0: Translating supplementary language file 'd:\X3 Albion Prelude\t\9999-L044.xml'
+0x14e0: Generating XML-Tree from file '9999-L044.xml'
+0x14e0: Converting supplementary language file '9999-L044.xml' strings from external to internal
+0x14e0: Merging supplementary language file '9999-L044.xml' into the game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded 32996 game strings over 427 game pages
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Resovling game string tree substrings
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadScriptObjectsTrees
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Generating Script Objects from language strings
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Generating unique ScriptObjects
+0x14e0: Merging ScriptObject collisions into game data
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Generated 1799 unique ScriptObjects with 1 failures
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadGameObjectTrees
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TDocks.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TDocks.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
+0x14e0: Decrypting virtual file 'TDocks.pck'
+0x14e0: Decompressing GZip archive 'TDocks.pck'
+0x14e0: Generating game objects from T-File 'types\TDocks.pck'
+0x14e0: Successfully loaded 51 docks from the object type definitions file 'types\TDocks.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TDocks.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TFactories.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TFactories.pck' from game catalogue 'd:\X3 Albion Prelude\13.dat'
+0x14e0: Decrypting virtual file 'TFactories.pck'
+0x14e0: Decompressing GZip archive 'TFactories.pck'
+0x14e0: Generating game objects from T-File 'types\TFactories.pck'
+0x14e0: Successfully loaded 439 factories from the object type definitions file 'types\TFactories.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TFactories.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TShips.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\types\TShips.pck'
+0x14e0: Decompressing GZip archive 'TShips.pck'
+0x14e0: Generating game objects from T-File 'types\TShips.pck'
+0x14e0: Successfully loaded 374 ships from the object type definitions file 'types\TShips.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TShips.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TLaser.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TLaser.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
+0x14e0: Decrypting virtual file 'TLaser.pck'
+0x14e0: Decompressing GZip archive 'TLaser.pck'
+0x14e0: Generating game objects from T-File 'types\TLaser.pck'
+0x14e0: Successfully loaded 39 lasers from the object type definitions file 'types\TLaser.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TLaser.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TShields.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TShields.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
+0x14e0: Decrypting virtual file 'TShields.pck'
+0x14e0: Decompressing GZip archive 'TShields.pck'
+0x14e0: Generating game objects from T-File 'types\TShields.pck'
+0x14e0: Successfully loaded 6 shields from the object type definitions file 'types\TShields.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TShields.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TMissiles.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TMissiles.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
+0x14e0: Decrypting virtual file 'TMissiles.pck'
+0x14e0: Decompressing GZip archive 'TMissiles.pck'
+0x14e0: Generating game objects from T-File 'types\TMissiles.pck'
+0x14e0: Successfully loaded 36 missiles from the object type definitions file 'types\TMissiles.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TMissiles.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TWareE.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TWareE.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
+0x14e0: Decrypting virtual file 'TWareE.pck'
+0x14e0: Decompressing GZip archive 'TWareE.pck'
+0x14e0: Generating game objects from T-File 'types\TWareE.pck'
+0x14e0: Successfully loaded 1 wares from the object type definitions file 'types\TWareE.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TWareE.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TWareN.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TWareN.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
+0x14e0: Decrypting virtual file 'TWareN.pck'
+0x14e0: Decompressing GZip archive 'TWareN.pck'
+0x14e0: Generating game objects from T-File 'types\TWareN.pck'
+0x14e0: Successfully loaded 80 wares from the object type definitions file 'types\TWareN.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TWareN.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TWareB.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TWareB.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
+0x14e0: Decrypting virtual file 'TWareB.pck'
+0x14e0: Decompressing GZip archive 'TWareB.pck'
+0x14e0: Generating game objects from T-File 'types\TWareB.pck'
+0x14e0: Successfully loaded 16 wares from the object type definitions file 'types\TWareB.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TWareB.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TWareF.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TWareF.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
+0x14e0: Decrypting virtual file 'TWareF.pck'
+0x14e0: Decompressing GZip archive 'TWareF.pck'
+0x14e0: Generating game objects from T-File 'types\TWareF.pck'
+0x14e0: Successfully loaded 13 wares from the object type definitions file 'types\TWareF.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TWareF.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TWareM.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TWareM.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
+0x14e0: Decrypting virtual file 'TWareM.pck'
+0x14e0: Decompressing GZip archive 'TWareM.pck'
+0x14e0: Generating game objects from T-File 'types\TWareM.pck'
+0x14e0: Successfully loaded 4 wares from the object type definitions file 'types\TWareM.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TWareM.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object definition file 'types\TWareT.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\TWareT.pck' from game catalogue 'd:\X3 Albion Prelude\12.dat'
+0x14e0: Decrypting virtual file 'TWareT.pck'
+0x14e0: Decompressing GZip archive 'TWareT.pck'
+0x14e0: Generating game objects from T-File 'types\TWareT.pck'
+0x14e0: Successfully loaded 113 wares from the object type definitions file 'types\TWareT.pck'
+0x14e0: Performing non-unique name mangling of game objects in T-File 'types\TWareT.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded 1172 Game Objects with 0 failures
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadMediaItemTrees
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Generating SpeechClip MediaItems from file 'mov\00044.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading speech clip file 'd:\X3 Albion Prelude\mov\00044.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading physical file 'd:\X3 Albion Prelude\mov\00044.xml'
+0x14e0: Translating speech clip file 'd:\X3 Albion Prelude\mov\00044.xml'
+0x14e0: Generating XML-Tree from file '00044.xml'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded 3230 speech clips over 132 media pages
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadMediaSoundEffectItems
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Generating SoundEffect MediaItems from file 'types\sounds.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\Sounds.pck' from game catalogue 'd:\X3 Albion Prelude\11.dat'
+0x14e0: Decrypting virtual file 'sounds.pck'
+0x14e0: Decompressing GZip archive 'sounds.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded 255 sound effects
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadMediaVideoClipItems
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Generating VideoClip MediaItems from file 'types\videos.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading virtual file 'types\Videos.pck' from game catalogue 'd:\X3 Albion Prelude\03.dat'
+0x14e0: Decrypting virtual file 'videos.pck'
+0x14e0: Decompressing GZip archive 'videos.pck'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded 199 video clips from stream 1, -56 clips from stream 2 were dropped.
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded 3683 media items over 141 media pages
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadCommandSyntaxTree
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading command syntax definitions
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading resource COMMAND_SYNTAX
+0x14e0: loading resource - success!
+0x14e0: Generating CommandSyntax tree from 'COMMAND_SYNTAX'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded the syntax for 892 script commands and the hashes for 887. (5 Commands have no hash)
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Operation Stage: loadObjectDescriptions
+0x14e0: ================================================================================
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object descriptions
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading resource OBJECT_DESCRIPTIONS
+0x14e0: loading resource - success!
+0x14e0: Loading resource DESCRIPTION_VARIABLES
+0x14e0: loading resource - success!
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading object descriptions file 'OBJECT_DESCRIPTIONS'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Translating object descriptions file 'OBJECT_DESCRIPTIONS'
+0x14e0: Generating XML-Tree from file 'OBJECT_DESCRIPTIONS'
+0x14e0: Converting object descriptions file 'OBJECT_DESCRIPTIONS' strings from external to internal
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loading description variables file 'DESCRIPTION_VARIABLES'
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Translating description variables file 'DESCRIPTION_VARIABLES'
+0x14e0: Generating XML-Tree from file 'DESCRIPTION_VARIABLES'
+0x14e0: Converting description variables file 'DESCRIPTION_VARIABLES' strings from external to internal
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Loaded source text for 580 object descriptions and 235 description variables
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Generating RichText object descriptions
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: Successfully generated 574 object descriptions
+0x14e0: --------------------------------------------------------------------------------
+0x14e0: ================================================================================
+0x14e0: Thread 0x14e0:   GAME DATA WORKER THREAD COMPLETED
+0x14e0: ================================================================================
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: Appending operation ErrorQueue...
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: Searching for catalogues and data files
+0x1ae0: Loading master language file 't\0001-L044.pck'
+0x1ae0: Loading supplementary language file 't\0002.pck'
+0x1ae0: The supplementary language file 't\0002.pck' has overwritten 128 strings
+0x1ae0: Loading supplementary language file 't\0010-L044.pck'
+0x1ae0: The command COMMAND_COMMERCIAL_AGENT has overridden the command COMMAND_TYPE_TRADE_2
+0x1ae0: The command COMMAND_COMMODITY_LOGISTICS_MK1 has overridden the command COMMAND_TYPE_TRADE_3
+0x1ae0: The command COMMAND_COMMODITY_LOGISTICS_MK2 has overridden the command COMMAND_TYPE_TRADE_4
+0x1ae0: The command COMMAND_COMMERCIAL_AGENT_STAY has overridden the command COMMAND_TYPE_CUSTOM_0
+0x1ae0: The command COMMAND_COMMODITY_LOGISTICS_STAY has overridden the command COMMAND_TYPE_CUSTOM_1
+0x1ae0: The command COMMAND_COMMODITY_LOGISTICS_COLLECT_WARE has overridden the command COMMAND_TYPE_CUSTOM_2
+0x1ae0: The command COMMAND_COMMODITY_LOGISTICS_SUPPLY_WARE has overridden the command COMMAND_TYPE_CUSTOM_3
+0x1ae0: The command COMMAND_COMMERCIAL_AGENT_ADMIN has overridden the command COMMAND_TYPE_GENERAL_0
+0x1ae0: The command COMMAND_COMMODITY_LOGISTICS_ADMIN has overridden the command COMMAND_TYPE_GENERAL_1
+0x1ae0: The command COMMAND_COMMERCIAL_AGENT_TRADER_LOCK has overridden the command COMMAND_TYPE_STATION_1
+0x1ae0: The command COMMAND_COMMERCIAL_AGENT_STATION_ADMIN has overridden the command COMMAND_TYPE_STATION_2
+0x1ae0: The command COMMAND_DOCKWARE_MANGER has overridden the command COMMAND_TYPE_STATION_3
+0x1ae0: The command COMMAND_MISSILE_DEFENSE_MOSQUITO has overridden the command COMMAND_TYPE_SHIP_0
+0x1ae0: The command COMMAND_MISSILE_DEFENSE_MOSQUITO_CONVOY has overridden the command COMMAND_TYPE_SHIP_1
+0x1ae0: The supplementary language file 't\0010-L044.pck' has overwritten 31 strings
+0x1ae0: Loading supplementary language file 't\1000-L044.xml'
+0x1ae0: The command COMMAND_CYCROW_STATIONCHEAT has overridden the command COMMAND_TYPE_STATION_14
+0x1ae0: The supplementary language file 't\1000-L044.xml' has overwritten 1 strings
+0x1ae0: Loading supplementary language file 't\7054-L044.xml'
+0x1ae0: Loading supplementary language file 't\8387-L044.xml'
+0x1ae0: Loading supplementary language file 't\8540-L044.xml'
+0x1ae0: The command COMMAND_KIDNAP_CIVILIAN has overridden the command COMMAND_TYPE_PIRACY_12
+0x1ae0: The command COMMAND_VIEW_SALVAGE has overridden the command COMMAND_TYPE_PIRACY_13
+0x1ae0: The command COMMAND_LOOT_WRECK has overridden the command COMMAND_TYPE_PIRACY_14
+0x1ae0: The command COMMAND_BLACK_MARKET has overridden the command COMMAND_TYPE_PIRACY_15
+0x1ae0: The command COMMAND_ENSLAVE_PASSENGERS has overridden the command COMMAND_TYPE_PIRACY_16
+0x1ae0: The command COMMAND_DETECT_PIRATEBASE has overridden the command COMMAND_TYPE_PIRACY_17
+0x1ae0: The command COMMAND_PIRATE_NETWORK has overridden the command COMMAND_TYPE_PIRACY_18
+0x1ae0: The command COMMAND_SECTOR_ANALYSIS has overridden the command COMMAND_TYPE_PIRACY_19
+0x1ae0: The command COMMAND_TARGET_DETAILS has overridden the command COMMAND_TYPE_PIRACY_20
+0x1ae0: The command COMMAND_SPACEFLY_BEACON has overridden the command COMMAND_TYPE_PIRACY_21
+0x1ae0: The supplementary language file 't\8540-L044.xml' has overwritten 10 strings
+0x1ae0: Loading supplementary language file 't\9999-L044.xml'
+0x1ae0: Resolving substrings within loaded language strings
+0x1ae0: Unresolvable substrings are present in 7 of the loaded language strings
+0x1ae0: Generating Script Objects from loaded language strings
+0x1ae0: Loading docks from object definitions file 'types\TDocks.pck'
+0x1ae0: Loading factories from object definitions file 'types\TFactories.pck'
+0x1ae0: Loading ships from object definitions file 'types\TShips.pck'
+0x1ae0: Loading lasers from object definitions file 'types\TLaser.pck'
+0x1ae0: Loading shields from object definitions file 'types\TShields.pck'
+0x1ae0: Loading missiles from object definitions file 'types\TMissiles.pck'
+0x1ae0: Loading wares from object definitions file 'types\TWareE.pck'
+0x1ae0: Loading wares from object definitions file 'types\TWareN.pck'
+0x1ae0: Loading wares from object definitions file 'types\TWareB.pck'
+0x1ae0: Loading wares from object definitions file 'types\TWareF.pck'
+0x1ae0: Loading wares from object definitions file 'types\TWareM.pck'
+0x1ae0: Loading wares from object definitions file 'types\TWareT.pck'
+0x1ae0: Loading speech clips from 'mov\00044.pck'
+0x1ae0: Loading sound effects from 'types\sounds.pck'
+0x1ae0: Loading video clips from 'types\videos.pck'
+0x1ae0: Loading syntax for script commands
+0x1ae0: Loading command descriptions...
+0x1ae0: Unrecognised tag [ %1 ] detected
+0x1ae0: Unrecognised tag [ %1 ] detected
+0x1ae0: Discarding the description of unrecognised ScriptObject Object Classes with ID 1000
+0x1ae0: Discarding the description of unrecognised ScriptObject Object Classes with ID 2148
+0x1ae0: Discarding the description of unrecognised ScriptObject Object Classes with ID 2149
+0x1ae0: Discarding the description of unrecognised ScriptObject Object Classes with ID 2150
+0x1ae0: --------------------------------------------------------------------------------
 An Warning error has occurred:
 Error IDS_LANGUAGE_SUPPLEMENTARY_FILE_MERGED (659): The supplementary language file 't\0002.pck' has overwritten 128 strings
 Error IDS_ERROR_APPEND_LOCATION (1): loadGameStringTrees(..) has encountered an IDS_LANGUAGE_SUPPLEMENTARY_FILE_MERGED error (ID: 0659) in Game String Trees.cpp, line 504
@@ -644,6 +651,16 @@ An Error error has occurred:
 Error IDS_GAME_STRING_SUBSTRING_MISSING_COUNT (683): Unresolvable substrings are present in 7 of the loaded language strings
 Error IDS_ERROR_APPEND_LOCATION (1): performGameStringTreeSubstringResolution(..) has encountered an IDS_GAME_STRING_SUBSTRING_MISSING_COUNT error (ID: 0683) in Game String Trees.cpp, line 597
 --------------------------------------------------------------------------------
+An Error error has occurred:
+Error IDS_RICHTEXT_UNKNOWN_TAG (698): Unrecognised tag [ %1 ] detected
+Error IDS_ERROR_APPEND_LOCATION (1): findNextRichObject(..) has encountered an IDS_RICHTEXT_UNKNOWN_TAG error (ID: 0698) in Rich Text.cpp, line 512
+Attachment #1: %0 datatyp[ %1 ]
+--------------------------------------------------------------------------------
+An Error error has occurred:
+Error IDS_RICHTEXT_UNKNOWN_TAG (698): Unrecognised tag [ %1 ] detected
+Error IDS_ERROR_APPEND_LOCATION (1): findNextRichObject(..) has encountered an IDS_RICHTEXT_UNKNOWN_TAG error (ID: 0698) in Rich Text.cpp, line 512
+Attachment #1: %0 is datatyp[ %1 ] == %2
+--------------------------------------------------------------------------------
 An Warning error has occurred:
 Error IDS_DESCRIPTION_OBJECT_NOT_FOUND (565): Discarding the description of unrecognised ScriptObject Object Classes with ID 1000
 Error IDS_ERROR_APPEND_LOCATION (1): treeprocGenerateObjectDescription(..) has encountered an IDS_DESCRIPTION_OBJECT_NOT_FOUND error (ID: 0565) in Object Descriptions.cpp, line 594
@@ -660,175 +677,444 @@ An Warning error has occurred:
 Error IDS_DESCRIPTION_OBJECT_NOT_FOUND (565): Discarding the description of unrecognised ScriptObject Object Classes with ID 2150
 Error IDS_ERROR_APPEND_LOCATION (1): treeprocGenerateObjectDescription(..) has encountered an IDS_DESCRIPTION_OBJECT_NOT_FOUND error (ID: 0565) in Object Descriptions.cpp, line 594
 
-0x03e4: Loaded X³ Terran Conflict game data succesfully
-0x03e4: ================================================================================
-0x03e4: Event: onMainWindow_OperationComplete
-0x03e4: ================================================================================
-0x03e4: ================================================================================
-0x03e4: Library Command: commandLoadDocument
-0x03e4: ================================================================================
-0x03e4: Loading project file 'Piracy.xprj'...
-0x03e4: launching threaded operation - success!
-0x1b00: --------------------------------------------------------------------------------
-0x1b00: Loading physical file 'D:\X3 Albion Prelude\scripts\Piracy.xprj'
-0x1b00: Generating XML-Tree from file 'Piracy.xprj'
-0x1b00: ================================================================================
-0x03e4: creating progress dialog - success!
-0x1b00: Thread 0x1b00:   PROJECT TRANSLATION WORKER THREAD COMPLETED
-0x03e4: ================================================================================
-0x1b00: ================================================================================
-0x03e4: Library Command: commandLoadDocument
-0x03e4: ================================================================================
-0x03e4: Loading language file '7216-L044.xml'
-0x03e4: launching threaded operation - success!
-0x1bac: ================================================================================
-0x1bac: Library Command: threadprocLoadLanguageFile
-0x1bac: ================================================================================
-0x1bac: --------------------------------------------------------------------------------
-0x1bac: Loading supplementary language file 'D:\My Projects\BearScript\Data\Test Language Files\7216-L044.xml'
-0x1bac: --------------------------------------------------------------------------------
-0x1bac: Loading physical file 'D:\My Projects\BearScript\Data\Test Language Files\7216-L044.xml'
-0x03e4: --------------------------------------------------------------------------------
-0x1bac: Translating supplementary language file 'D:\My Projects\BearScript\Data\Test Language Files\7216-L044.xml'
-0x03e4: Appending operation ErrorQueue...
-0x1bac: Generating XML-Tree from file '7216-L044.xml'
-0x03e4: --------------------------------------------------------------------------------
-0x03e4: Parsing XML from project file 'Piracy.xprj'
-0x03e4: 
-0x03e4: Loaded project file 'Piracy.xprj' successfully
-0x03e4: ================================================================================
-0x03e4: Event: onProject_LoadComplete
-0x03e4: ================================================================================
-0x1bac: Converting supplementary language file '7216-L044.xml' strings from external to internal
-0x03e4: ================================================================================
-0x03e4: Library Command: createDocumentByType
-0x03e4: ================================================================================
-0x1bac: ================================================================================
-0x1bac: Thread 0x1bac:   LANGUAGE-FILE PARSING WORKER THREAD COMPLETED
-0x1bac: ================================================================================
-0x03e4: --------------------------------------------------------------------------------
-0x03e4: Appending operation ErrorQueue...
-0x03e4: --------------------------------------------------------------------------------
-0x03e4: Parsing XML in language file '7216-L044.xml'
-0x03e4: 
-0x03e4: Loaded language file '7216-L044.xml' successfully
-0x03e4: ================================================================================
-0x03e4: Event: onDocumentsControl_LoadComplete
-0x03e4: ================================================================================
-0x03e4: ================================================================================
-0x03e4: Library Command: createDocumentByType
-0x03e4: ================================================================================
-0x03e4: Creating GamePage listview - success!
-0x03e4: Creating GameString listview - success!
-0x03e4: creating language document toolbar - success!
-0x03e4: Creating RichEdit Dialog - success!
-0x03e4: creating workspace - success!
-0x03e4: Creating temporary RichEdit - success!
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:2600139:
-BEFORE: 
-Ok, transmitting readings [Transmit Dummy Readings]**END**
+0x1ae0: Loaded X³ Terran Conflict game data succesfully
+0x1ae0: ================================================================================
+0x1ae0: Event: onMainWindow_OperationComplete
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: commandLoadDocument
+0x1ae0: ================================================================================
+0x1ae0: Loading project file 'Piracy.xprj'...
+0x1ae0: launching threaded operation - success!
+0x087c: --------------------------------------------------------------------------------
+0x087c: Loading physical file 'D:\X3 Albion Prelude\scripts\Piracy.xprj'
+0x087c: Generating XML-Tree from file 'Piracy.xprj'
+0x087c: ================================================================================
+0x1ae0: creating progress dialog - success!
+0x087c: Thread 0x87c:   PROJECT TRANSLATION WORKER THREAD COMPLETED
+0x1ae0: ================================================================================
+0x087c: ================================================================================
+0x1ae0: Library Command: commandLoadDocument
+0x1ae0: ================================================================================
+0x1ae0: Loading language file '7212-L044.xml'
+0x1ae0: launching threaded operation - success!
+0x1658: ================================================================================
+0x1ae0: ================================================================================
+0x1658: Library Command: threadprocLoadLanguageFile
+0x1ae0: Library Command: commandLoadDocument
+0x1658: ================================================================================
+0x1ae0: ================================================================================
+0x1658: --------------------------------------------------------------------------------
+0x1ae0: Loading MSCI script 'plugin.piracy.blackmarket.xml'...
+0x1658: Loading supplementary language file 'D:\My Projects\BearScript\Data\Test Language Files\7212-L044.xml'
+0x1ae0: launching threaded operation - success!
+0x1014: ================================================================================
+0x1658: --------------------------------------------------------------------------------
+0x1014: Library Command: threadprocLoadScriptFile
+0x1658: Loading physical file 'D:\My Projects\BearScript\Data\Test Language Files\7212-L044.xml'
+0x1014: ================================================================================
+0x1ae0: --------------------------------------------------------------------------------
+0x1658: Translating supplementary language file 'D:\My Projects\BearScript\Data\Test Language Files\7212-L044.xml'
+0x1014: --------------------------------------------------------------------------------
+0x1ae0: Appending operation ErrorQueue...
+0x1658: Generating XML-Tree from file '7212-L044.xml'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.blackmarket.xml'
+0x1ae0: --------------------------------------------------------------------------------
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1ae0: Parsing XML from project file 'Piracy.xprj'
+0x1014: Translating script file 'plugin.piracy.blackmarket.xml' (JustProperties=False)
+0x1ae0: 
+0x1014: Generating XML-Tree from file 'plugin.piracy.blackmarket.xml'
+0x1ae0: Loaded project file 'Piracy.xprj' successfully
+0x1658: Converting supplementary language file '7212-L044.xml' strings from external to internal
+0x1ae0: ================================================================================
+0x1ae0: Event: onProject_LoadComplete
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: createDocumentByType
+0x1ae0: ================================================================================
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.blackmarket.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.blackmarket'
+0x1014: Verifying script meta-data of 'plugin.piracy.blackmarket'
+0x1014: Translating standard and auxiliary command branches of 'plugin.piracy.blackmarket'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1658: ================================================================================
+0x1014: ================================================================================
+0x1658: Thread 0x1658:   LANGUAGE-FILE PARSING WORKER THREAD COMPLETED
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1658: ================================================================================
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: Appending operation ErrorQueue...
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: Parsing XML in language file '7212-L044.xml'
+0x1ae0: 
+0x1ae0: Loaded language file '7212-L044.xml' successfully
+0x1ae0: ================================================================================
+0x1ae0: Event: onDocumentsControl_LoadComplete
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: createDocumentByType
+0x1ae0: ================================================================================
+0x1ae0: Creating GamePage listview - success!
+0x1ae0: Creating GameString listview - success!
+0x1014: Locating crucial XML-Tree nodes
+0x1ae0: creating language document toolbar - success!
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1ae0: Creating RichEdit Dialog - success!
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1ae0: creating workspace - success!
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1ae0: creating document window - success!
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.wares.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.wares.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.wares.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.wares.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.wares.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.wares'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.wares'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.controls.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.controls.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.controls.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.controls.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.controls.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.controls'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.controls'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.wares.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.wares.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.wares.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.wares.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.wares.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.wares'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.wares'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.wares.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.wares.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.wares.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.wares.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.wares.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.wares'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.wares'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.wares.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.wares.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.wares.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.wares.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.wares.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.wares'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.wares'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.controls.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.controls.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.controls.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.controls.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.controls.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.controls'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.controls'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.controls.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.controls.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.controls.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.controls.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.controls.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.controls'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.controls'
+0x1014: --------------------------------------------------------------------------------
+0x1014: Loading external script call 'plugin.piracy.lib.ui.pck'
+0x1014: Loading physical file 'D:\X3 Albion Prelude\scripts\plugin.piracy.lib.ui.xml'
+0x1014: ================================================================================
+0x1014: Operation Stage: translateScript
+0x1014: ================================================================================
+0x1014: Translating script file 'plugin.piracy.lib.ui.xml' (JustProperties=True)
+0x1014: Generating XML-Tree from file 'plugin.piracy.lib.ui.xml'
+0x1014: Locating crucial XML-Tree nodes
+0x1014: Translating script file properties 'plugin.piracy.lib.ui.xml'
+0x1014: Enumerating script arguments and variables of 'plugin.piracy.lib.ui'
+0x1014: Verifying script meta-data of 'plugin.piracy.lib.ui'
+0x1014: --------------------------------------------------------------------------------
+An Error error has occurred:
+Error IDS_COMMAND_SYNTAX_INCOMPATIBLE (296): The command 'add custom menu item to array $0: page=$1x id=$2y returnvalue=$3' (ID:254) is not compatible with X² The Threat
+Error IDS_ERROR_APPEND_LOCATION (1): findCommandSyntaxByID(..) has encountered an IDS_COMMAND_SYNTAX_INCOMPATIBLE error (ID: 0296) in Command Syntax.cpp, line 370
+--------------------------------------------------------------------------------
 
-AFTER: 
-Ok, transmitting readings Transmit Dummy Readings**END**
-
-__
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:2600196:
-BEFORE: 
-\033RWARNING\033X: Hostile vessels detected\033X**END**
-
-AFTER: 
-\033RWARNING\033X: Hostile vessels detected**END**
-
-__
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:2900002:
-BEFORE: 
-(Opening Incoming Message)This is [yellow]Gaga Pi[/yellow] of the Boron ship [yellow]Sea of Tears[/yellow], we have come under attack by Pirates and are in need of assistance.... 
-please respond
-
-[center][select value="yes"][Green]Accept Call for Help[/Green][/select][/center]
-
-[center][select value="no"][Red]Too Busy Ignore Call[/Red][/select][/center]**END**
-
-AFTER: 
-(Opening Incoming Message)This is [yellow]Gaga Pi[/yellow] of the Boron ship [yellow]Sea of Tears[/yellow], we have come under attack by Pirates and are in need of assistance.... 
-please respond
-
-[select value='yes']Accept Call for Help[/select]
-
-[center][select value='no']Too Busy Ignore Call[/select][/center]**END**
-
-__
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:2900120:
-BEFORE: 
-(ask question)This is the [green]Snake Skin[/green] of the Teladi Military, we understand that you have met an unknown ship deep in the sector Chin's Demise
-
-Are we correct in assuming that this was Cai't Plp, if so I assume you are ready to turn him over to us, you have 30 sezuras to respond
-
-[center][select value="yes"][Green]Of course, a deals a deal, sending his tracer ID[/Green][/select][/center]
-
-[center][select value="no"][Red]Sorry, you must be mistaken, that wasn't Cai't Plp[/Red][/select][/center]**END**
-
-AFTER: 
-(ask question)This is the [green]Snake Skin[/green] of the Teladi Military, we understand that you have met an unknown ship deep in the sector Chin's Demise
-
-Are we correct in assuming that this was Cai't Plp, if so I assume you are ready to turn him over to us, you have 30 sezuras to respond
-
-[select value='yes']Of course, a deals a deal, sending his tracer ID[/select]
-
-[center][select value='no']Sorry, you must be mistaken, that wasn't Cai't Plp[/select][/center]**END**
-
-__
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:2900140:
-BEFORE: 
-(Briefing: Text - Find TS){7216,2900028} has told you that the parts you seek are on a TS in Mutual Benefits. This sector has been the target of several pirate attacks and caution should be taken.
-\033YLast known co-ordinates of the {7216,2900143}: \033Rx=\033X  minus 54km \033Ry=\033X minus 40km \033Rz=\033X minus 69km\033X.**END**
-
-AFTER: 
-(Briefing: Text - Find TS){7216,2900028} has told you that the parts you seek are on a TS in Mutual Benefits. This sector has been the target of several pirate attacks and caution should be taken.
-\033YLast known co-ordinates of the {7216,2900143}: \033Rx=\033X  minus 54km \033Ry=\033X minus 40km \033Rz=\033X minus 69km.**END**
-
-__
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:2900149:
-BEFORE: 
-(ask question - pirate question)Stay where you are Pilot.... you have destroyed our valuable prize and we expect to be compensated. You will transfer ¢ 200,000 immediately or face the consequences.
-
-[center][select value="yes"]Of Course, my mistake[/select][/center]
-
-[center][select value="no"]Not a Chance[/select][/center]**END**
-
-AFTER: 
-(ask question - pirate question)Stay where you are Pilot.... you have destroyed our valuable prize and we expect to be compensated. You will transfer ¢ 200,000 immediately or face the consequences.
-
-[select value='yes']Of Course, my mistake[/select]
-
-[center][select value='no']Not a Chance[/select][/center]**END**
-
-__
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:4101020:
-BEFORE: 
-You've been told to get on board the \033YM5033X, not to fool around with it. We don't need people like you. Mission aboarted.**END**
-
-AFTER: 
-You've been told to get on board the \033YM5033X, not to fool around with it. We don't need people like you. Mission aboarted.\033X**END**
-
-__
-0x03e4: *** DIFFERENCE in PageID:7216 StringID:4101504:
-BEFORE: 
-Leave \033Y{object.name@L2M515.PlayerM5}\033X and re-enter your 033Y{object.name@L2M515.TempHostageShip}\033X.**END**
-
-AFTER: 
-Leave \033Y{object.name@L2M515.PlayerM5}\033X and re-enter your 033Y{object.name@L2M515.TempHostageShip}.**END**
-
-__
-0x03e4: creating document window - success!
-0x03e4: ================================================================================
-0x03e4: Library Command: closeDocument
-0x03e4: ================================================================================
-0x03e4: ================================================================================
-0x03e4: Library Command: closeDocument
-0x03e4: ================================================================================
-0x03e4: ================================================================================
-0x03e4: Library Command: unloadApplication
-0x03e4: ================================================================================
-0x03e4: validating heap - success!
-0x03e4: Saving application preferences
+0x1014: ================================================================================
+0x1014: Thread 0x1014:   SCRIPT TRANSLATION WORKER THREAD COMPLETED
+0x1014: ================================================================================
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: Appending operation ErrorQueue...
+0x1ae0: --------------------------------------------------------------------------------
+0x1ae0: Searching for script 'plugin.piracy.blackmarket.xml'...
+0x1ae0: Translating XML in 'plugin.piracy.blackmarket.xml' into MSCI script format...
+0x1ae0: Translating properties from MSCI script 'plugin.piracy.blackmarket.xml'
+0x1ae0: Translating commands from X³ Terran Conflict script 'plugin.piracy.blackmarket'
+0x1ae0: 
+0x1ae0: Loaded X³ Terran Conflict script 'plugin.piracy.blackmarket.xml' successfully
+0x1ae0: ================================================================================
+0x1ae0: Event: onDocumentsControl_LoadComplete
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: createDocumentByType
+0x1ae0: ================================================================================
+0x1ae0: Creating Labels ComboBox - success!
+0x1ae0: Creating Variables ComboBox - success!
+0x1ae0: creating CodeEdit tooltip - success!
+0x1ae0: Creating CodeEdit - success!
+0x1ae0: creating workspace - success!
+0x1ae0: creating document window - success!
+0x1ae0: ================================================================================
+0x1ae0: User Interface Command: onMainWindowViewPropertiesDialog
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: displayPropertiesDialog
+0x1ae0: ================================================================================
+0x1ae0: creating document properties PropertySheet - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: updateScriptDependenciesPage_List
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: updateScriptVariablesPage_List
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: updateScriptStringsPage_List
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: updateScriptDependenciesPage_List
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onArgumentPage_InsertArgument
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onLanguageDocument_ContextMenu
+0x1ae0: ================================================================================
+0x1ae0: creating custom menu - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onLanguageDocument_ContextMenu
+0x1ae0: ================================================================================
+0x1ae0: Creating FindText dialog - success!
+0x1ae0: ================================================================================
+0x1ae0: User Interface Command: onMainWindowViewPreferencesDialog
+0x1ae0: ================================================================================
+0x1ae0: Initialising preferences dialog
+0x1ae0: Initialised preferences dialog property page 'General'
+0x1ae0: Initialised preferences dialog property page 'Game Data'
+0x1ae0: Initialised preferences dialog property page 'Appearance'
+0x1ae0: creating CodeEdit tooltip - success!
+0x1ae0: Initialised preferences dialog property page 'Highlighting'
+0x1ae0: Initialised preferences dialog property page 'Internet'
+0x1ae0: Preferences dialog dismissed with 'Cancel' button
+0x1ae0: Destroying preferences dialog property page 'Internet'
+0x1ae0: Destroying preferences dialog property page 'General'
+0x1ae0: Destroying preferences dialog property page 'Game Data'
+0x1ae0: Destroying preferences dialog property page 'Appearance'
+0x1ae0: Destroying preferences dialog property page 'Highlighting'
+0x1ae0: ================================================================================
+0x1ae0: User Interface Command: onMainWindowFileNewDocument
+0x1ae0: ================================================================================
+0x1ae0: creating message dialog toolbar - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onLanguageDocument_ContextMenu
+0x1ae0: ================================================================================
+0x1ae0: creating custom menu - success!
+0x1ae0: ================================================================================
+0x1ae0: User Interface Command: onMainWindowDataGameStrings
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: createDocumentByType
+0x1ae0: ================================================================================
+0x1ae0: Creating GamePage listview - success!
+0x1ae0: Creating GameString listview - success!
+0x1ae0: creating language document toolbar - success!
+0x1ae0: Creating RichEdit Dialog - success!
+0x1ae0: creating workspace - success!
+0x1ae0: creating document window - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: updateScriptDocumentLabelsCombo
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onScriptDocumentContextMenu
+0x1ae0: ================================================================================
+0x1ae0: creating custom menu - success!
+0x1ae0: ================================================================================
+0x1ae0: User Interface Command: onMainWindowDataGameStrings
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: User Interface Command: onMainWindowViewPropertiesDialog
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: displayPropertiesDialog
+0x1ae0: ================================================================================
+0x1ae0: creating document properties PropertySheet - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onLanguageDocument_ContextMenu
+0x1ae0: ================================================================================
+0x1ae0: creating custom menu - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onLanguageDocument_ContextMenu
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: onLanguageDocument_ContextMenu
+0x1ae0: ================================================================================
+0x1ae0: creating custom menu - success!
+0x1ae0: ================================================================================
+0x1ae0: Library Command: closeDocument
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: closeDocument
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: closeDocument
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: closeDocument
+0x1ae0: ================================================================================
+0x1ae0: ================================================================================
+0x1ae0: Library Command: unloadApplication
+0x1ae0: ================================================================================
+0x1ae0: validating heap - success!
+0x1ae0: Saving application preferences
