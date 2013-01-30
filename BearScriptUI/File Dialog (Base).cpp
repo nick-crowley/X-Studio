@@ -36,13 +36,6 @@ CONST UINT        iJumpBarItemCount              = 6,     // Number of items
 // Toolbar
 CONST UINT        iToolBarButtonCount            = 2;
 
-// Colour used for highlighting. Cannot extract from visual styles, no matter how hard i try!
-CONST COLORREF    clSortColumnBackground         = RGB(247,247,247);
-                  
-// Text Colour used to display virtual files/folders
-CONST COLORREF    clVirtualFile                  = RGB(0,0,255),
-                  clVirtualPlaceholder           = RGB(174,186,225);
-
 // Filters displayed for the system OpenFile dialog
 //
 CONST TCHAR*  szSystemDialogFilter = TEXT("All Supported Documents (*.xml, *.pck, *.xprj)\0") TEXT("*.PCK;*.XML;*.XPRJ\0")
@@ -938,8 +931,10 @@ VOID  onFileDialog_ResizeColumns(FILE_DIALOG_DATA*  pDialogData, CONST RECT*  pL
 // 
 VOID  onFileDialog_RequestData(FILE_DIALOG_DATA*  pDialogData, NMLVDISPINFO*  pItemInfo)
 {
-   LVITEM&     oOutput = pItemInfo->item;   // Conveience pointer for output data
-   FILE_ITEM*  pFileItem;                   // Associated FileItem for the specified item
+   CONST COLORREF   clVirtualFile          = RGB(0,0,255),        // Text Colour used to display virtual files/folders
+                    clVirtualPlaceholder   = RGB(174,186,225);
+   LVITEM&          oOutput = pItemInfo->item;                    // Conveience pointer for output data
+   FILE_ITEM*       pFileItem;                                    // Associated FileItem for the specified item
    
    // [CHECK] Abort is dialog is updating
    if (pDialogData->bIsUpdating)
@@ -1069,7 +1064,6 @@ VOID  onFileDialog_Timer(FILE_DIALOG_DATA*  pDialogData)
 INT_PTR CALLBACK   dlgprocFileDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    FILE_DIALOG_DATA*  pDialogData;   // FileDialog window data
-   PAINTSTRUCT        oPaintData;    // System painting data
    ERROR_STACK*       pError;        // Exception error
    BOOL               bResult;       // Operation result
    TRACK_FUNCTION();
@@ -1133,12 +1127,12 @@ INT_PTR CALLBACK   dlgprocFileDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
          onFileDialog_GetMinMaxSize(pDialogData, (MINMAXINFO*)lParam);
          break;
 
-      /// [PAINT] -- Draw the size box
+      /*/// [PAINT] -- Draw the size box
       case WM_PAINT:
          BeginPaint(hDialog, &oPaintData);
          onFileDialog_Paint(pDialogData, &oPaintData);
          EndPaint(hDialog, &oPaintData);
-         break;
+         break;*/
 
       // [OWNER DRAW] -- Draw ComboBoxes
       case WM_DRAWITEM:    bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);           break;
@@ -1148,7 +1142,7 @@ INT_PTR CALLBACK   dlgprocFileDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
       /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         return (BOOL)onDialog_ControlColour((HDC)wParam);
+         return (BOOL)onDialog_ControlColour((HDC)wParam, IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
 
       // [UNHANDLED] Return FALSE
       default:

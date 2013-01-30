@@ -1240,7 +1240,7 @@ INT_PTR    dlgprocResultsDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
       /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam, IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
          break;
 
       /// [STYLE CHANGED]

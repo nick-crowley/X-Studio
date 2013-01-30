@@ -828,7 +828,7 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
       /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam, IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
          break;
 
       // [OBJECT DESTROYED]

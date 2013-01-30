@@ -318,6 +318,7 @@ ControlsAPI INT            appendCustomComboBoxItemEx(HWND  hCtrl, CONST TCHAR* 
 ControlsAPI INT            appendCustomComboBoxFontItem(HWND  hCtrl, CONST TCHAR*  szText, HFONT  hFont);
 ControlsAPI INT            appendCustomComboBoxImageListItem(HWND  hCtrl, CONST TCHAR*  szText, HIMAGELIST  hImageList, CONST UINT  iIconIndex, CONST UINT  iIndent, LPARAM  xItemData);
 BOOL                       calculateCustomComboBoxSize(MEASUREITEMSTRUCT*  pMeasureData);
+ControlsAPI BOOL           compareCustomComboBoxItems(const UINT  iControl, COMPAREITEMSTRUCT*  pData);
 ControlsAPI CUSTOM_COMBO_ITEM*  getCustomComboBoxItem(HWND  hCtrl, CONST UINT  iIndex);
 ControlsAPI LPARAM         getCustomComboBoxItemParam(HWND  hCtrl, CONST UINT  iIndex);
 ControlsAPI CONST TCHAR*   getCustomComboBoxItemText(HWND  hCtrl, CONST UINT  iIndex);
@@ -328,6 +329,7 @@ VOID     drawCustomComboBoxItem(DRAWITEMSTRUCT*  pDrawInfo, CONST CUSTOM_COMBO_I
 
 // Message Handlers
 BOOL              onOwnerDrawCustomComboBox(DRAWITEMSTRUCT*  pDrawInfo);
+ControlsAPI BOOL  onWindow_CompareComboBoxItems(const UINT  iControl, COMPAREITEMSTRUCT*  pData);
 ControlsAPI BOOL  onWindow_MeasureComboBox(MEASUREITEMSTRUCT*  pMeasureData, CONST IMAGE_TREE_SIZE  eControlSize, CONST IMAGE_TREE_SIZE  eDropDownSize);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -354,12 +356,12 @@ ControlsAPI VOID     drawCustomSelectionRectangle(HDC  hDC, CONST RECT*  pDrawRe
 ControlsAPI VOID     drawShadedRoundRectangle(HDC  hDC, CONST RECT*  pDrawRect, CONST COLORREF  clTop, CONST COLORREF  clMiddle, CONST COLORREF  clBottom, CONST COLORREF  clBorder, CONST UINT  iWidthPadding);
 
 // Message Handlers
-ControlsAPI HBRUSH   onDialog_ControlColour(HDC  hDC);
+ControlsAPI HBRUSH   onDialog_ControlColour(HDC  hDC, INT  iBackground);
+ControlsAPI BOOL     onDialog_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID);
+ControlsAPI VOID     onDialog_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion);
 ControlsAPI BOOL     onWindow_DeleteItem(DELETEITEMSTRUCT*  pDeleteData);
 ControlsAPI BOOL     onWindow_DrawItem(DRAWITEMSTRUCT*  pDrawData);
-ControlsAPI BOOL     onWindow_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID);
 ControlsAPI BOOL     onWindow_MeasureItem(HWND  hMenuParent, MEASUREITEMSTRUCT*  pMeasureData);
-ControlsAPI VOID     onWindow_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion);
 
 // Window procedure
 ControlsAPI INT_PTR  dlgprocVistaStyleDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
@@ -381,22 +383,6 @@ ControlsAPI BOOL     onOwnerDrawStaticText(DRAWITEMSTRUCT*  pDrawData, CONST TCH
 
 ControlsAPI BOOL     onOwnerDrawStaticTitle(LPARAM  lParam);
 ControlsAPI BOOL     onOwnerDrawStaticHeading(LPARAM  lParam);
-
-/// Macro: onOwnerDrawStaticTitle
-//  Description: Convenience macro for drawing a Vista-Style dialog title
-//
-// LPARAM  pDrawData : DRAWITEMSTRUCT* : [in] OwnerDraw data
-//
-//#define onOwnerDrawStaticTitle(pDrawData)                onOwnerDrawStaticText((DRAWITEMSTRUCT*)(pDrawData), TEXT("Segoe UI Light"), 14, RGB(42,84,153), COLOR_WINDOW, FALSE);
-//#define onOwnerDrawStaticTitle(pDrawData)                onOwnerDrawStaticText((DRAWITEMSTRUCT*)(pDrawData), TEXT("Tahoma"), 14, RGB(42,84,153), COLOR_WINDOW, FALSE);
-
-/// Macro: onOwnerDrawStaticHeading
-//  Description: Convenience macro for drawing a Vista-Style dialog sub-heading
-//
-// LPARAM  pDrawData : DRAWITEMSTRUCT* : [in] OwnerDraw data
-//
-//#define onOwnerDrawStaticHeading(pDrawData)              onOwnerDrawStaticText((DRAWITEMSTRUCT*)(pDrawData), TEXT("Segoe UI Bold"), 9, GetSysColor(COLOR_WINDOWTEXT), COLOR_WINDOW, FALSE); 
-//#define onOwnerDrawStaticHeading(pDrawData)              onOwnerDrawStaticText((DRAWITEMSTRUCT*)(pDrawData), TEXT("MS Shell Dlg 2"), 9, GetSysColor(COLOR_WINDOWTEXT), COLOR_WINDOW, TRUE); 
 
 /// Macro: onOwnerDrawStaticIcon
 //  Description: Convenience macro for owner-drawing an icon
@@ -441,6 +427,7 @@ ControlsAPI VOID     initReportModeListView(HWND  hListView, CONST LISTVIEW_COLU
 // Functions
 ControlsAPI VOID     drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pHeader);
 ControlsAPI BOOL     editCustomListViewItem(HWND  hListView, const UINT  iItem, const UINT  iSubItem, const LISTVIEW_LABEL  eCtrlType);
+ControlsAPI BOOL     editCustomListViewItemEx(HWND  hListView, const UINT  iItem, const UINT  iSubItem, const LISTVIEW_LABEL  eCtrlType, const DWORD  dwCustomStyle, COMPARE_COMBO_PROC  pfnComparitor);
 
 // Message Handlers
 ControlsAPI UINT     onCustomDrawListView(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pHeader);
@@ -449,8 +436,6 @@ ControlsAPI BOOL     onCustomListViewNotify(HWND  hParent, BOOL  bIsDialog, CONS
 // Window Proc
 ControlsAPI LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 LRESULT              wndprocCustomListViewLabel(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-
-
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CUSTOM MENUS

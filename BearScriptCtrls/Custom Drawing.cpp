@@ -495,16 +495,118 @@ VOID  drawShadedBar(HDC  hDC, CONST RECT*  pDrawRect, CONST COLORREF  clTopColou
 // Return Value : Brush used to draw background
 // 
 ControlsAPI
-HBRUSH  onDialog_ControlColour(HDC  hDC)
+HBRUSH  onDialog_ControlColour(HDC  hDC, INT  iBackground)
 {
    // Set text colour: default black
    SetTextColor(hDC, getThemeSysColour(TEXT("Window"), COLOR_WINDOWTEXT));
 
-   // Set and return background colour: default white
-   SetBkColor(hDC, getThemeSysColour(TEXT("Window"), COLOR_WINDOW));
-   return getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW);
+   // Set and return background colour
+   SetBkColor(hDC, getThemeSysColour(TEXT("Window"), iBackground));
+   return getThemeSysColourBrush(TEXT("Window"), iBackground);
 }
 
+
+/// Function name  : onDialog_EraseBackground
+// Description     : Draws a Windows Vista style background on a dialog
+// 
+// HWND        hDialog    : [in] Dialog
+// HDC         hDC        : [in] Device Context
+// CONST UINT  iControlID : [in] Resource ID of any button in the 'gutter' area
+// 
+// Return Value : TRUE
+//
+ControlsAPI 
+BOOL  onDialog_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID)
+{
+   RECT  rcButton,
+         rcDialog,
+         rcGutter;
+   UINT  iGutterStart;
+
+   // Prepare
+   TRACK_FUNCTION();
+   GetClientRect(hDialog, &rcDialog);
+   utilGetDlgItemRect(hDialog, iControlID, &rcButton);
+
+   // Calculate height of gutter (Ensure button is centred vertically within it)
+   iGutterStart = rcButton.top - (rcDialog.bottom - rcButton.bottom);
+   
+   // Generate drawing rectangles
+   rcGutter     = rcDialog;
+   rcGutter.top = rcDialog.bottom = iGutterStart;
+
+   /// [DIALOG] Draw background in white
+   utilFillSysColourRect(hDC, &rcDialog, COLOR_WINDOW);
+
+   /// [GUTTER] Draw in grey with an etched border between
+   DrawEdge(hDC, &rcGutter, EDGE_ETCHED, BF_ADJUST WITH BF_TOP);
+   utilFillSysColourRect(hDC, &rcGutter, COLOR_BTNFACE);
+
+   // Return TRUE
+   END_TRACKING();
+   return TRUE;
+}
+
+
+/// Function name  : onDialog_PaintNonClient
+// Description     : Paints a small caption onto a window's non-client area
+// 
+// HWND  hWnd          : [in] Window
+// HRGN  hUpdateRegion : [in] Update region - Ignored
+// 
+ControlsAPI
+VOID  onDialog_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
+{
+   RECT  rcWindow,
+         rcCaption;
+   HDC   hDC;
+
+   // Prepare
+   TRACK_FUNCTION();
+   GetWindowRect(hWnd, &rcWindow);
+   OffsetRect(&rcWindow, -rcWindow.left, -rcWindow.top);
+
+   /// Get window DC and clip update region
+   if (hDC = GetDCEx(hWnd, NULL, DCX_CACHE WITH DCX_CLIPCHILDREN WITH DCX_WINDOW)) //|DCX_CACHE|DCX_INTERSECTRGN|DCX_LOCKWINDOWUPDATE);
+   {
+      DC_STATE* pState = utilCreateDeviceContextState(hDC);
+      HFONT     hFont  = utilCreateFont(hDC, TEXT("MS Shell Dlg"), 9, FALSE, FALSE, FALSE);
+      TCHAR*    szText = utilGetWindowText(hWnd);
+      HTHEME    hTheme = OpenThemeData(hWnd, TEXT("Window"));
+
+      // Prepare
+      utilSetDeviceContextFont(pState, hFont, getThemeSysColour(TEXT("Window"), IsThemeActive() ? COLOR_WINDOWTEXT : COLOR_WINDOW));
+      utilSetDeviceContextBackgroundMode(pState, TRANSPARENT);
+
+      // [BACKGROUND]
+      utilFillSysColourRect(hDC, &rcWindow, COLOR_BTNFACE);
+
+      // [BORDER]
+      DrawEdge(hDC, &rcWindow, EDGE_ETCHED, BF_RECT WITH BF_ADJUST);
+
+      // [CAPTION]
+      SetRect(&rcCaption, rcWindow.left, rcWindow.top, rcWindow.right - 1, rcWindow.top + GetSystemMetrics(SM_CYSMCAPTION) + GetSystemMetrics(SM_CYEDGE));
+      //drawGradientRect(hDC, &rcCaption, RGB(191,205,219), RGB(214,227,241), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+      //drawGradientRect(hDC, &rcCaption, GetThemeSysColor(hTheme, COLOR_INACTIVECAPTION), GetThemeSysColor(hTheme, COLOR_GRADIENTINACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+      drawGradientRect(hDC, &rcCaption, getThemeSysColour(TEXT("Window"), COLOR_ACTIVECAPTION), getThemeSysColour(TEXT("Window"), COLOR_GRADIENTACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+      
+      // [TEXT]
+      rcCaption.left += GetSystemMetrics(SM_CXFIXEDFRAME);
+      DrawText(hDC, szText, lstrlen(szText), &rcCaption, DT_SINGLELINE | DT_VCENTER);
+      
+      // Cleanup
+      utilDeleteDeviceContextState(pState);
+      DeleteFont(hFont);
+      utilDeleteString(szText);
+      CloseThemeData(hTheme);
+      ReleaseDC(hWnd, hDC);
+   }
+   else
+      ERROR_CHECK("Retrieving non-client window DC", hDC);
+
+   // Cleanup
+   END_TRACKING();
+}
 
 /// Function name  : onWindow_DeleteItem
 // Description     : Convenience handler for destroying CustomCombBox items
@@ -563,48 +665,6 @@ BOOL  onWindow_DrawItem(DRAWITEMSTRUCT*  pDrawData)
 }
 
 
-/// Function name  : onWindow_EraseBackground
-// Description     : Draws a Windows Vista style background on a dialog
-// 
-// HWND        hDialog    : [in] Dialog
-// HDC         hDC        : [in] Device Context
-// CONST UINT  iControlID : [in] Resource ID of any button in the 'gutter' area
-// 
-// Return Value : TRUE
-//
-ControlsAPI 
-BOOL  onWindow_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID)
-{
-   RECT  rcButton,
-         rcDialog,
-         rcGutter;
-   UINT  iGutterStart;
-
-   // Prepare
-   TRACK_FUNCTION();
-   GetClientRect(hDialog, &rcDialog);
-   utilGetDlgItemRect(hDialog, iControlID, &rcButton);
-
-   // Calculate height of gutter (Ensure button is centred vertically within it)
-   iGutterStart = rcButton.top - (rcDialog.bottom - rcButton.bottom);
-   
-   // Generate drawing rectangles
-   rcGutter     = rcDialog;
-   rcGutter.top = rcDialog.bottom = iGutterStart;
-
-   /// [DIALOG] Draw background in white
-   utilFillSysColourRect(hDC, &rcDialog, COLOR_WINDOW);
-
-   /// [GUTTER] Draw in grey with an etched border between
-   DrawEdge(hDC, &rcGutter, EDGE_ETCHED, BF_ADJUST WITH BF_TOP);
-   utilFillSysColourRect(hDC, &rcGutter, COLOR_BTNFACE);
-
-   // Return TRUE
-   END_TRACKING();
-   return TRUE;
-}
-
-
 /// Function name  : onWindow_MeasureItem
 // Description     : Convenience handler for any window handling OwnerDraw menus or ComboBoxes
 // 
@@ -635,66 +695,6 @@ BOOL  onWindow_MeasureItem(HWND  hMenuParent, MEASUREITEMSTRUCT*  pMeasureData)
 }
 
 
-/// Function name  : onWindow_PaintNonClient
-// Description     : Paints a small caption onto a window's non-client area
-// 
-// HWND  hWnd          : [in] Window
-// HRGN  hUpdateRegion : [in] Update region - Ignored
-// 
-ControlsAPI
-VOID  onWindow_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
-{
-   RECT  rcWindow,
-         rcCaption;
-   HDC   hDC;
-
-   // Prepare
-   TRACK_FUNCTION();
-   GetWindowRect(hWnd, &rcWindow);
-   OffsetRect(&rcWindow, -rcWindow.left, -rcWindow.top);
-
-   /// Get window DC and clip update region
-   if (hDC = GetDCEx(hWnd, NULL, DCX_CACHE WITH DCX_CLIPCHILDREN WITH DCX_WINDOW)) //|DCX_CACHE|DCX_INTERSECTRGN|DCX_LOCKWINDOWUPDATE);
-   {
-      DC_STATE* pState = utilCreateDeviceContextState(hDC);
-      HFONT     hFont  = utilCreateFont(hDC, TEXT("MS Shell Dlg"), 9, FALSE, FALSE, FALSE);
-      TCHAR*    szText = utilGetWindowText(hWnd);
-      HTHEME    hTheme = OpenThemeData(hWnd, TEXT("Window"));
-
-      // Prepare
-      utilSetDeviceContextFont(pState, hFont, getThemeSysColour(TEXT("Window"), COLOR_WINDOWTEXT));
-      utilSetDeviceContextBackgroundMode(pState, TRANSPARENT);
-
-      // [BACKGROUND]
-      utilFillSysColourRect(hDC, &rcWindow, COLOR_BTNFACE);
-
-      // [BORDER]
-      DrawEdge(hDC, &rcWindow, EDGE_ETCHED, BF_RECT WITH BF_ADJUST);
-
-      // [CAPTION]
-      SetRect(&rcCaption, rcWindow.left, rcWindow.top, rcWindow.right - 1, rcWindow.top + GetSystemMetrics(SM_CYSMCAPTION) + GetSystemMetrics(SM_CYEDGE));
-      //drawGradientRect(hDC, &rcCaption, RGB(191,205,219), RGB(214,227,241), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
-      //drawGradientRect(hDC, &rcCaption, GetThemeSysColor(hTheme, COLOR_INACTIVECAPTION), GetThemeSysColor(hTheme, COLOR_GRADIENTINACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
-      drawGradientRect(hDC, &rcCaption, getThemeSysColour(TEXT("Window"), COLOR_ACTIVECAPTION), getThemeSysColour(TEXT("Window"), COLOR_GRADIENTACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
-      
-      // [TEXT]
-      rcCaption.left += GetSystemMetrics(SM_CXFIXEDFRAME);
-      DrawText(hDC, szText, lstrlen(szText), &rcCaption, DT_SINGLELINE | DT_VCENTER);
-      
-      // Cleanup
-      utilDeleteDeviceContextState(pState);
-      DeleteFont(hFont);
-      utilDeleteString(szText);
-      CloseThemeData(hTheme);
-      ReleaseDC(hWnd, hDC);
-   }
-   else
-      ERROR_CHECK("Retrieving non-client window DC", hDC);
-
-   // Cleanup
-   END_TRACKING();
-}
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                     WINDOW PROCEDURE
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -717,12 +717,12 @@ INT_PTR  dlgprocVistaStyleDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
    {
    /// [CUSTOM BACKGROUND]
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORSTATIC:   bResult = (BOOL)onDialog_ControlColour((HDC)wParam);   break;   //bResult = (BOOL)GetStockObject(WHITE_BRUSH);                          break;
-   case WM_CTLCOLORBTN:      bResult = (BOOL)GetSysColorBrush(COLOR_BTNFACE);       break;
+   case WM_CTLCOLORSTATIC:   bResult = (BOOL)onDialog_ControlColour((HDC)wParam, COLOR_WINDOW);   break;
+   case WM_CTLCOLORBTN:      bResult = (BOOL)GetSysColorBrush(COLOR_BTNFACE);                     break;
    case WM_ERASEBKGND: 
       // [CHECK] Search for default button
       if (GetControl(hDialog, iButton = IDOK) OR GetControl(hDialog, iButton = IDCANCEL) OR GetControl(hDialog, iButton = IDYES))
-         bResult = onWindow_EraseBackground(hDialog, (HDC)wParam, iButton);
+         bResult = onDialog_EraseBackground(hDialog, (HDC)wParam, iButton);
       break;
 
    /// [CUSTOM MENU/COMBOBOX]

@@ -20,7 +20,6 @@
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -89,19 +88,41 @@ BOOL   onArgumentPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONS
 }
 
 
-BOOL  onArgumentsPageCustomDrawTooltip(HWND  hDialog, NMTTCUSTOMDRAW*  pHeader)
+/// Function name  : onArgumentPage_Command
+// Description     : Invokes the menu item handlers
+// 
+// Return Value   : TRUE/FALSE
+// 
+BOOL  onArgumentPage_Command(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, const UINT  iControl, const UINT  iNotification, HWND  hCtrl)
 {
-   /*if (pNotifyHeader->hwndFrom == ListView_GetToolTips(GetControl(hDialog, IDC_ARGUMENTS_LIST)))
-            return onArgumentsPageCustomDrawTooltip(hDialog, (NMTTCUSTOMDRAW*)lParam);
-         else*/
-   switch (pHeader->nmcd.dwDrawStage)
+   BOOL  bResult = TRUE;
+
+   // Examine command source
+   switch (iControl)
    {
-   case CDDS_PREPAINT:
-      SetWindowLong(hDialog, DWL_MSGRESULT, CDRF_DODEFAULT);
+   case IDM_ARGUMENT_INSERT:
+   case IDC_ADD_ARGUMENT:
+      onArgumentPage_InsertArgument(pDocument, hPage);
+      break;
+
+   case IDM_ARGUMENT_EDIT:
+      onArgumentPage_EditArgument(pDocument, GetDlgItem(hPage, IDC_ARGUMENTS_LIST));
+      break;
+
+   case IDM_ARGUMENT_DELETE:
+   case IDC_REMOVE_ARGUMENT:
+      onArgumentPage_DeleteArgument(pDocument, hPage);
+      break;
+
+   default:
+      bResult = FALSE;
       break;
    }
-   return TRUE;
+
+   return bResult;
 }
+
+
 
 /// Function name  : onArgumentPage_CustomDraw
 // Description     : Custom draw handler for the ListView and buttons
@@ -111,31 +132,37 @@ BOOL  onArgumentsPageCustomDrawTooltip(HWND  hDialog, NMTTCUSTOMDRAW*  pHeader)
 // CONST UINT        iControlID   : [in] 
 // NMLVCUSTOMDRAW*   pMessageData : [in] 
 // 
-// Return Value   : 
+// Return Value   : TRUE/FALSE
 // 
-BOOL  onArgumentPage_CustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pMessageHeader)
+BOOL  onArgumentPage_CustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pHeader)
 {  
+   BOOL  bResult = TRUE;
+
    // Examine control
    switch (iControlID)
    {
    /// [BUTTONS] Add icons to each button
    case IDC_ADD_ARGUMENT:
-      onCustomDrawButton(hPage, pMessageHeader, ITS_MEDIUM, TEXT("ADD_ICON"), TRUE);
-      return TRUE;
+      onCustomDrawButton(hPage, pHeader, ITS_MEDIUM, TEXT("ADD_ICON"), TRUE);
+      break;
 
    case IDC_REMOVE_ARGUMENT:
-      onCustomDrawButton(hPage, pMessageHeader, ITS_MEDIUM, TEXT("REMOVE_ICON"), TRUE);
-      return TRUE;
+      onCustomDrawButton(hPage, pHeader, ITS_MEDIUM, TEXT("REMOVE_ICON"), TRUE);
+      break;
 
+   /// [LISTVIEW] CustomDraw ListView
    case IDC_ARGUMENTS_LIST:
-      onCustomListViewNotify(hPage, TRUE, IDC_ARGUMENTS_LIST, pMessageHeader);
-      return TRUE;
+      bResult = onCustomDrawListView(hPage, pHeader->hwndFrom, (NMLVCUSTOMDRAW*)pHeader);
+      SetWindowLong(hPage, DWL_MSGRESULT, bResult);
+      break;
+
+   default:
+      bResult = FALSE;
+      break;
    }
 
-   
-
-   // [NOT HANDLED] Return FALSE
-   return FALSE;
+   // Return result
+   return bResult;
 }
 
 
@@ -153,14 +180,11 @@ VOID   onArgumentPage_DeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
    // [VERBOSE]
    VERBOSE_LIB_COMMAND();
 
-   // Get index of the currently selected item
-   iItemIndex = SendDlgItemMessage(hDialog, IDC_ARGUMENTS_LIST, LVM_GETNEXTITEM, -1, LVNI_ALL WITH LVNI_SELECTED);
-
-   /// Delete from active document's ScriptFile
-   removeArgumentFromScriptFileByIndex(pDocument->pScriptFile, iItemIndex);
+   /// Delete selected ARGUMENT from ScriptFile
+   removeArgumentFromScriptFileByIndex(pDocument->pScriptFile, iItemIndex = ListView_GetSelected(GetDlgItem(hDialog, IDC_ARGUMENTS_LIST)));
 
    /// Update ListView count
-   SendDlgItemMessage(hDialog, IDC_ARGUMENTS_LIST, LVM_SETITEMCOUNT, getScriptFileArgumentCount(pDocument->pScriptFile), NULL);
+   ListView_SetItemCount(GetDlgItem(hDialog, IDC_ARGUMENTS_LIST), getScriptFileArgumentCount(pDocument->pScriptFile));
 
    // Unselected remaining items
    ListView_SetItemState(GetDlgItem(hDialog,IDC_ARGUMENTS_LIST), -1, NULL, LVIS_SELECTED);
@@ -180,72 +204,102 @@ VOID   onArgumentPage_DeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 // 
 VOID   onArgumentPage_EditArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hListView)
 {
-   LISTVIEW_LABEL_DATA&  oLabelData = pDocument->oLabelData;     // Convenience reference for the 'ListView label editing data'
-   ARGUMENT*             pArgument;       // Argument list iterator
-   RECT                  rcSubItemRect;   // Sub-item rectangle
-   SIZE                  siSubItemSize;   // Size of the sub-item rectangle
-   
    // [VERBOSE]
    VERBOSE_LIB_COMMAND();
 
-   /// Get the bounding rectangle for the element to be edited
-   if (oLabelData.iSubItem == 0)
-   {
-      // [ITEM] Get 'label' rect
-      rcSubItemRect.left = LVIR_LABEL;
-      SendMessage(hListView, LVM_GETITEMRECT, oLabelData.iItem, (LPARAM)&rcSubItemRect);
-   }
+   /// Initiate label edit on correct item/subitem
+   if (pDocument->oLabelData.iSubItem == ARGUMENT_COLUMN_TYPE)
+      editCustomListViewItemEx(hListView, pDocument->oLabelData.iItem, pDocument->oLabelData.iSubItem, LVLT_COMBOBOX, CBS_OWNERDRAWFIXED, compareCustomComboBoxItems);
    else
-   {
-      // [SUB-ITEM] Get 'sub-item' rect
-      rcSubItemRect.top  = oLabelData.iSubItem;
-      rcSubItemRect.left = LVIR_LABEL;
-      SendMessage(hListView, LVM_GETSUBITEMRECT, oLabelData.iItem, (LPARAM)&rcSubItemRect);
-   }
+      editCustomListViewItem(hListView, pDocument->oLabelData.iItem, pDocument->oLabelData.iSubItem, LVLT_EDIT);
+}
 
-   /// Find associated ARGUMENT
-   findArgumentInScriptFileByIndex(pDocument->pScriptFile, oLabelData.iItem, pArgument);
+
+/// Function name  : onArgumentPage_EditBegin
+// Description     : Populates argument property into provided Edit/ComboBox
+// 
+// SCRIPT_DOCUMENT*     pDocument : [in] Document
+// const NMLVDISPINFO*  pHeader   : [in] Label editing data
+// 
+VOID  onArgumentPage_EditBegin(SCRIPT_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader)
+{
+   ARGUMENT*  pArgument;
+
+   /// Lookup selected ARGUMENT
+   findArgumentInScriptFileByIndex(pDocument->pScriptFile, pDocument->oLabelData.iItem, pArgument);
    ASSERT(pArgument);
 
-   // Store SCRIPT-FILE in LabelData
-   oLabelData.pParameter = (LPARAM)pDocument->pScriptFile;
-   
-   // Create appropriate control for editing the specified sub-item
-   switch (oLabelData.iSubItem)
+   // Examine property
+   switch (pDocument->oLabelData.iSubItem)
    {
-   /// [NAME/DESCRIPTION] Create Edit control
-   case ARGUMENT_COLUMN_NAME:
-   case ARGUMENT_COLUMN_DESCRIPTION:
-      // Create sub-classed Edit control
-      oLabelData.hCtrl = CreateWindowEx(NULL, szArgumentsLabelEditClass, NULL, WS_CHILD WITH WS_BORDER WITH ES_WANTRETURN WITH ES_AUTOHSCROLL, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_INPLACE_ARGUMENT_EDIT, getAppInstance(), (VOID*)&pDocument->oLabelData);
+   /// [NAME/DESCRIPTION] Provide property
+   case ARGUMENT_COLUMN_NAME:          SetWindowText(pHeader->hdr.hwndFrom, pArgument->szName);          break;
+   case ARGUMENT_COLUMN_DESCRIPTION:   SetWindowText(pHeader->hdr.hwndFrom, pArgument->szDescription);   break;
 
-      // Display NAME/DESCRIPTION and move caret to the final character
-      SetWindowText(oLabelData.hCtrl, (oLabelData.iSubItem == ARGUMENT_COLUMN_NAME ? pArgument->szName : pArgument->szDescription));
-      SendMessage(oLabelData.hCtrl, EM_SETSEL, GetWindowTextLength(oLabelData.hCtrl), GetWindowTextLength(oLabelData.hCtrl));
+   /// [TYPE] Populate Syntax
+   case ARGUMENT_COLUMN_TYPE:
+      SendMessage(pHeader->hdr.hwndFrom, CB_SETDROPPEDWIDTH, 200, NULL);
+      SendMessage(pHeader->hdr.hwndFrom, CB_SETMINVISIBLE,   8,   NULL);
+      performParameterSyntaxComboBoxPopulation(pHeader->hdr.hwndFrom, pArgument->eType);
+      break;
+   }
+}
+
+
+/// Function name  : onArgumentPage_EditEnd
+// Description     : Validate name or change type
+// 
+// SCRIPT_DOCUMENT*     pDocument : [in] Document
+// const NMLVDISPINFO*  pString   : [in] Label editing data
+// 
+BOOL  onArgumentPage_EditEnd(SCRIPT_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader)
+{
+   ARGUMENT*  pArgument;
+   TCHAR*     szNewText;
+   BOOL       bValid = TRUE;
+
+   /// Lookup selected ARGUMENT
+   findArgumentInScriptFileByIndex(pDocument->pScriptFile, pDocument->oLabelData.iItem, pArgument);
+   ASSERT(pArgument);
+
+   // Examine property
+   switch (pDocument->oLabelData.iSubItem)
+   {
+   /// [NAME/DESCRIPTION] Validate/replace property
+   case ARGUMENT_COLUMN_NAME:         
+   case ARGUMENT_COLUMN_DESCRIPTION:   
+      // Prepare
+      szNewText = utilGetWindowText(pHeader->hdr.hwndFrom);
+
+      // [DESCRIPTION] Replace without validation
+      if (pDocument->oLabelData.iSubItem == ARGUMENT_COLUMN_DESCRIPTION)
+         utilReplaceString(pArgument->szDescription, szNewText);
+      
+      // [NAME] Validate before updating
+      else if (bValid = verifyScriptFileArgumentName(pDocument->pScriptFile, szNewText, pArgument))
+         utilReplaceString(pArgument->szName, szNewText);
+      else
+         // [FAILED] Produce a warning BEEP
+         MessageBeep(MB_ICONWARNING);
+
+      if (bValid)
+      {  // [EVENT] Notify document that a property has changed and destroy control
+         sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_ARGUMENTS_LIST);
+         SetFocus(GetParent(pHeader->hdr.hwndFrom));
+      }
+
+      // Cleanup
+      utilDeleteString(szNewText);
       break;
 
-   /// [TYPE] Create ComboBox
+   /// [TYPE] Update syntax
    case ARGUMENT_COLUMN_TYPE:
-      // Create sub-classed ComboBox
-      oLabelData.hCtrl = CreateWindowEx(NULL, szArgumentsLabelComboClass, NULL, WS_CHILD WITH WS_BORDER WITH WS_VSCROLL WITH CBS_DROPDOWNLIST WITH CBS_SORT, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_INPLACE_ARGUMENT_COMBO, getAppInstance(), (VOID*)&pDocument->oLabelData);
-      
-      // Adjust ComboBox size, Populate with 'Argument Types' and select ARGUMENT TYPE
-      SendMessage(oLabelData.hCtrl, CB_SETDROPPEDWIDTH, 200, NULL);
-      SendMessage(oLabelData.hCtrl, CB_SETMINVISIBLE, 8, NULL);
-      performParameterSyntaxComboBoxPopulation(hListView, IDC_INPLACE_ARGUMENT_COMBO, pArgument->eType);
+      pArgument->eType = (PARAMETER_SYNTAX)getCustomComboBoxItemParam(pHeader->hdr.hwndFrom, ComboBox_GetCurSel(pHeader->hdr.hwndFrom));
       break;
    }
 
-   /// Reposition control
-   utilConvertRectangleToSize(&rcSubItemRect, &siSubItemSize);
-   siSubItemSize.cy += 4;
-   MoveWindow(oLabelData.hCtrl, rcSubItemRect.left, rcSubItemRect.top, siSubItemSize.cx, siSubItemSize.cy, TRUE);
-   SetWindowPos(oLabelData.hCtrl, HWND_TOPMOST, rcSubItemRect.left, rcSubItemRect.top, siSubItemSize.cx, siSubItemSize.cy, SWP_NOMOVE WITH SWP_NOSIZE);
-
-   /// Assign normal font, show control and set focus
-   SetWindowFont(oLabelData.hCtrl, GetStockObject(ANSI_VAR_FONT), FALSE);
-   ShowWindow(oLabelData.hCtrl, SW_SHOW);
-   SetFocus(oLabelData.hCtrl);
+   // Return validation result
+   return bValid;
 }
 
 
@@ -265,7 +319,7 @@ VOID   onArgumentPage_InsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
    if (displayInsertArgumentDialog(pDocument->pScriptFile, getAppWindow()))
    {
       // [NEW ARGUMENT] Update ListView item count
-      SendDlgItemMessage(hDialog, IDC_ARGUMENTS_LIST, LVM_SETITEMCOUNT, getScriptFileArgumentCount(pDocument->pScriptFile), NULL);
+      ListView_SetItemCount(GetDlgItem(hDialog, IDC_ARGUMENTS_LIST), getScriptFileArgumentCount(pDocument->pScriptFile));
 
       // [EVENT] Notify document that a property has changed
       sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_ARGUMENTS_LIST);
@@ -284,13 +338,56 @@ VOID   onArgumentPage_InsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 // 
 BOOL   onArgumentPage_ItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialog, NMLISTVIEW*  pItemData)
 {
-   UINT  iSelectedCount;      // Number of items currently selected in the 'Arguments' ListView
-
    // Enable/Disable 'Remove Argument' button based on whether an argument is selected
-   iSelectedCount = SendDlgItemMessage(hDialog, IDC_ARGUMENTS_LIST, LVM_GETSELECTEDCOUNT, NULL, NULL);
-   utilEnableDlgItem(hDialog, IDC_REMOVE_ARGUMENT, (iSelectedCount != 0));
-
+   utilEnableDlgItem(hDialog, IDC_REMOVE_ARGUMENT, ListView_GetSelectedCount(GetDlgItem(hDialog, IDC_ARGUMENTS_LIST)) > 0);
    return TRUE;
+}
+
+
+/// Function name  :  onArgumentPage_Notify
+// Description     : 
+// 
+// SCRIPT_DOCUMENT*  pDocument : [in] 
+// HWND              hDialog   : [in] 
+// NMHDR*            pMessage  : [in] 
+// 
+// Return Value   : 
+// 
+BOOL   onArgumentPage_Notify(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage)
+{
+   BOOL  bResult = FALSE;
+
+   // Examine notification
+   switch (pMessage->code)
+   {
+   /// [LISTVIEW: REQUEST DATA] 
+   case LVN_GETDISPINFO:
+      bResult = onArgumentPage_RequestData(pDocument, hDialog, (NMLVDISPINFO*)pMessage);
+      break;
+
+   /// [LISTVIEW: EDIT ARGUMENT (begin)]
+   case LVN_BEGINLABELEDIT:
+      onArgumentPage_EditBegin(pDocument, (NMLVDISPINFO*)pMessage);
+      break;
+
+   /// [LISTVIEW: EDIT ARGUMENT (end)]
+   case LVN_ENDLABELEDIT:
+      bResult = onArgumentPage_EditEnd(pDocument, (NMLVDISPINFO*)pMessage);
+      SetWindowLong(hDialog, DWL_MSGRESULT, bResult);
+      break;
+
+   /// [LISTVIEW/BUTTON: CUSTOM DRAW]
+   case NM_CUSTOMDRAW:
+      bResult = onArgumentPage_CustomDraw(pDocument, hDialog, pMessage->idFrom, pMessage);
+      break;
+
+   /// [LISTVIEW: SELECTION CHANGED] Enable/Disable 'Remove' button
+   case LVN_ITEMCHANGED:
+      bResult = onArgumentPage_ItemChanged(pDocument, hDialog, (NMLISTVIEW*)pMessage);
+      break;
+   }
+
+   return bResult;
 }
 
 /// Function name  : onArgumentPage_RequestData
@@ -362,6 +459,7 @@ BOOL   onArgumentPage_RequestData(CONST SCRIPT_DOCUMENT*  pDocument, HWND  hDial
 ///                                       DIALOG PROCEDURES
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 /// Function name  : dlgprocArgumentPage
 // Description     : Window procedure for the 'Arguments' properties dialog page
 //
@@ -369,8 +467,8 @@ BOOL   onArgumentPage_RequestData(CONST SCRIPT_DOCUMENT*  pDocument, HWND  hDial
 INT_PTR   dlgprocArgumentPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROPERTIES_DATA*  pDialogData;
-   NMHDR*            pNotifyHeader;
    POINT             ptCursor;
+   BOOL              bResult;
 
    // Get dialog data
    pDialogData = getPropertiesDialogData(hDialog);
@@ -387,235 +485,20 @@ INT_PTR   dlgprocArgumentPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
 
    /// [COMMANDS] - Process Arguments List menu items and button commands
    case WM_COMMAND:
-      // Examine command source
-      switch (LOWORD(wParam))
-      {
-      case IDM_ARGUMENT_INSERT:
-      case IDC_ADD_ARGUMENT:
-         onArgumentPage_InsertArgument(pDialogData->pScriptDocument, hDialog);
-         return TRUE;
-
-      case IDM_ARGUMENT_EDIT:
-         onArgumentPage_EditArgument(pDialogData->pScriptDocument, GetDlgItem(hDialog, IDC_ARGUMENTS_LIST));
-         return TRUE;
-
-      case IDM_ARGUMENT_DELETE:
-      case IDC_REMOVE_ARGUMENT:
-         onArgumentPage_DeleteArgument(pDialogData->pScriptDocument, hDialog);
-         return TRUE;
-      }
+      if (bResult = onArgumentPage_Command(pDialogData->pScriptDocument, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam))
+         return bResult;
       break;
 
    /// [NOTIFICATION] - Handle ListView notifications
    case WM_NOTIFY:
-      pNotifyHeader = (NMHDR*)lParam;
-
-      // Examine notification
-      switch (pNotifyHeader->code)
-      {
-      /// [REQUEST ARGUMENTS DATA] Supply ARGUMENT data
-      case LVN_GETDISPINFO:
-         return onArgumentPage_RequestData(pDialogData->pScriptDocument, hDialog, (NMLVDISPINFO*)lParam);
-
-      /// [IN-PLACE LABEL EDITING] Block system's in place editing 
-      case LVN_BEGINLABELEDIT:
-         SetWindowLong(hDialog, DWL_MSGRESULT, TRUE);
-         return TRUE;
-
-      /// [CUSTOM DRAW BUTTONS]
-      case NM_CUSTOMDRAW:
-         return onArgumentPage_CustomDraw(pDialogData->pScriptDocument, hDialog, wParam, (NMHDR*)lParam);
-
-      /// [SELECTION CHANGED] Enable/Disable 'Remove' button
-      case LVN_ITEMCHANGED:
-         return onArgumentPage_ItemChanged(pDialogData->pScriptDocument, hDialog, (NMLISTVIEW*)lParam);
-      }
+      if (bResult = onArgumentPage_Notify(pDialogData->pScriptDocument, hDialog, (NMHDR*)lParam))
+         return bResult;
       break;
+
    }
 
    // Pass to base proc
    return dlgprocPropertiesPage(hDialog, iMessage, wParam, lParam, PP_SCRIPT_ARGUMENTS);
 }
 
-
-/// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                       WINDOW PROCEDURES
-/// ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-/// Function name  : wndprocArgumentPageComboCtrl
-// Description     : Arguments ComboBox -- Subclassed during 'in-place' label editing
-// 
-// 
-LRESULT   wndprocArgumentPageComboCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
-{
-   static LISTVIEW_LABEL_DATA*  pLabelData = NULL;    // Label Data
-   CREATESTRUCT*                pCreationData;        // WM_CREATE message data
-   ARGUMENT*                    pArgument;            // Argument being edited
-   WNDCLASS                     oClass;               // Base EditCtrl window class
-   INT                          iNewSelection;        // New item index
-   
-   // Prepare
-   GetClassInfo(getAppInstance(), WC_COMBOBOX, &oClass);
-   
-   // Examine message
-   switch (iMessage)
-   {
-   /// [CREATE] Store creation data and pass to the base window
-   case WM_CREATE:
-      pCreationData = (CREATESTRUCT*)lParam;
-      pLabelData    = (LISTVIEW_LABEL_DATA*)pCreationData->lpCreateParams;
-
-      // [CHECK] Ensure ScriptFile has been passed as a parameter
-      ASSERT(pLabelData->pParameter);
-
-      // Continue to base class
-      break;
-
-   /// [DESTROY WINDOW] Zero label data and pass to the base window
-   case WM_DESTROY:
-      pLabelData = NULL;
-      break;
-
-   // [COMMAND]
-   case WM_COMMAND:
-      switch (HIWORD(wParam))
-      {
-      /// [SELECTION CHANGED] Update ARGUMENT TYPE
-      case CBN_SELCHANGE:
-         // Determine new selection
-         iNewSelection = SendMessage(hCtrl, CB_GETCURSEL, NULL, NULL);
-
-         // Find associated ARGUMENT
-         if (findArgumentInScriptFileByIndex((SCRIPT_FILE*)pLabelData->pParameter, pLabelData->iItem, pArgument))
-            // Extract PARAMETER_SYNTAX from item data
-            pArgument->eType = (PARAMETER_SYNTAX)SendMessage(hCtrl, CB_GETITEMDATA, iNewSelection, NULL);
-         break;
-      }
-      break;
-
-   /// [ESCAPE KEY] Cancel editing without updating ARGUMENT
-   case WM_KEYDOWN:
-      if (wParam == VK_ESCAPE)
-      {
-         SetFocus(GetParent(hCtrl));
-         return 0;
-      }
-      break;
-
-   /// [LOST FOCUS] Destroy without updating ARGUMENT
-   case WM_KILLFOCUS:
-      DestroyWindow(hCtrl);
-      return 0;
-   }
-
-   /// [UNHANDLED] Pass to ComboBox base class
-   return CallWindowProc(oClass.lpfnWndProc, hCtrl, iMessage, wParam, lParam);
-}
-
-
-/// Function name  : wndprocArgumentPageEditCtrl
-// Description     : Arguments Edit -- Subclassed EditControl used for 'in-place' label editing of NAME and DESCRIPTION
-///                           LabelData : 'iItem'     : index of the ScriptFile Argument being edited
-///                                     : 'iSubItem'  : index of the property being edited
-///                                     : 'pParameter': ScriptFile containing the Argument
-// 
-LRESULT   wndprocArgumentPageEditCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
-{
-   static LISTVIEW_LABEL_DATA*  pLabelData = NULL;    // Label Data
-   CREATESTRUCT*                pCreationData;        // WM_CREATE message data
-   ARGUMENT*                    pArgument;            // Argument being edited
-   WNDCLASS                     oClass;               // Base EditCtrl window class
-   TCHAR*                       szNewText;            // Current window text
-   
-   // Prepare
-   GetClassInfo(getAppInstance(), WC_EDIT, &oClass);
-   
-   // Examine message
-   switch (iMessage)
-   {
-   /// [CREATE] Store creation data and pass to the base window
-   case WM_CREATE:
-      pCreationData = (CREATESTRUCT*)lParam;
-      pLabelData    = (LISTVIEW_LABEL_DATA*)pCreationData->lpCreateParams;
-
-      // [CHECK] Ensure ScriptFile has been passed as a parameter
-      ASSERT(pLabelData->pParameter);
-
-      // Continue to base class
-      break;
-
-   /// [DESTROY WINDOW] Zero label data and pass to the base window
-   case WM_DESTROY:
-      pLabelData = NULL;
-      break;
-
-   /// [KEYBOARD QUERY] Request all keyboard input
-   case WM_GETDLGCODE:
-      return DLGC_WANTALLKEYS;
-
-   // [KEY PRESS] Trap ENTER and ESCAPE keys
-   case WM_KEYDOWN:
-      // Examine key
-      switch (wParam)
-      {
-      /// [RETURN] Update NAME or DESCRIPTION
-      case VK_RETURN:
-         // Extract associated ARGUMENT from ScriptFile
-         if (findArgumentInScriptFileByIndex((SCRIPT_FILE*)pLabelData->pParameter, pLabelData->iItem, pArgument))
-         {
-            // Prepare
-            szNewText = utilGetWindowText(hCtrl);
-
-            // Examine propery being edited
-            switch (pLabelData->iSubItem)
-            {
-            /// [NAME] Update ARGUMENT name only if validation is successful
-            case ARGUMENT_COLUMN_NAME:
-               // [CHECK] Is the ARGUMENT name unique?
-               if (verifyScriptFileArgumentName((SCRIPT_FILE*)pLabelData->pParameter, szNewText, pArgument))
-               {
-                  /// [SUCCESS] Update NAME
-                  pArgument->szName = utilReplaceString(pArgument->szName, szNewText);
-
-                  // [EVENT] Notify document that a property has changed and destroy control
-                  sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_ARGUMENTS_LIST);
-                  SetFocus(GetParent(hCtrl));
-               }
-               /// [FAILED] Produce a warning BEEP
-               else
-                  MessageBeep(MB_ICONWARNING);
-               break;
-
-            /// [DESCRIPTION] Update ARGUMENT description and destroy control
-            case ARGUMENT_COLUMN_DESCRIPTION:
-               pArgument->szDescription = utilReplaceString(pArgument->szDescription, szNewText);
-
-               // [EVENT] Notify document that a property has changed and destroy control
-               sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, IDC_ARGUMENTS_LIST);
-               SetFocus(GetParent(hCtrl));
-               break;
-            }
-
-            // Cleanup
-            utilDeleteString(szNewText);
-         }
-         return 0;
-      
-      /// [ESCAPE] Cancel editing without updating ARGUMENT or notifying the document that a property has changed
-      case VK_ESCAPE:
-         SetFocus(GetParent(hCtrl));
-         return 0;
-      }
-      break;
-
-   /// [LOST FOCUS] Destroy window
-   case WM_KILLFOCUS:
-      DestroyWindow(hCtrl);
-      return 0;
-   }
-
-   /// [UNHANDLED] Pass to edit base window
-   return CallWindowProc(oClass.lpfnWndProc, hCtrl, iMessage, wParam, lParam);
-}
 

@@ -857,7 +857,7 @@ INT_PTR  dlgprocProjectDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
 
    /// [NON-CLIENT PAINT]
    case WM_NCPAINT:
-      onWindow_PaintNonClient(pDialogData->hDialog, (HRGN)wParam);
+      onDialog_PaintNonClient(pDialogData->hDialog, (HRGN)wParam);
       break;
 
    /// [RESIZE] Stretch Treeview

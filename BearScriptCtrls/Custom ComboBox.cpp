@@ -113,8 +113,11 @@ INT   appendCustomComboBoxItemEx(HWND  hCtrl, CONST TCHAR*  szText, CONST TCHAR*
    pItemData = createCustomComboBoxItem(szText, szAuxText, szIcon, xItemData);
 
    /// Insert item and associate item data
-   iIndex = ComboBox_AddString(hCtrl, szText);
-   ComboBox_SetItemData(hCtrl, iIndex, pItemData);
+   /*iIndex = ComboBox_AddString(hCtrl, szText);
+   ComboBox_SetItemData(hCtrl, iIndex, pItemData);*/
+
+   /// [OWNER DATA] Insert item and associate item data
+   iIndex = ComboBox_AddString(hCtrl, pItemData);
 
    // Return index of new item
    return iIndex;
@@ -196,6 +199,26 @@ BOOL  calculateCustomComboBoxSize(MEASUREITEMSTRUCT*  pMeasureData)
    pMeasureData->itemHeight = ITS_MEDIUM;
    return TRUE;
 }
+
+
+/// Function name  : compareCustomComboBoxItems
+// Description     : Compares two Custom ComboBox items
+// 
+// const UINT          iControl : [in] Control
+// COMPAREITEMSTRUCT*  pData    : [in] Comparison Info
+// 
+// Return Value   : StrCmpI return codes
+// 
+ControlsAPI 
+BOOL  compareCustomComboBoxItems(const UINT  iControl, COMPAREITEMSTRUCT*  pData)
+{
+   CUSTOM_COMBO_ITEM  *pItem1 = (CUSTOM_COMBO_ITEM*)pData->itemData1,
+                      *pItem2 = (CUSTOM_COMBO_ITEM*)pData->itemData2;
+
+   // Compare main text
+   return StrCmpI(pItem1->szMainText, pItem2->szMainText);
+}
+
 
 /// Function name  : getCustomComboBoxItem
 // Description     : Retrieves the item data from the specified CustomComboBox item
@@ -415,6 +438,21 @@ BOOL  onOwnerDrawCustomComboBox(DRAWITEMSTRUCT*  pDrawInfo)
    // Return result
    END_TRACKING();
    return bResult;
+}
+
+ 
+/// Function name  : onWindow_CompareComboBoxItems
+// Description     : Custom ComboBox comparitor stub
+// 
+// const UINT          iControl : [in] ComboBox ID
+// COMPAREITEMSTRUCT*  pData    : [in] Data
+// 
+// Return Value   : 0
+// 
+ControlsAPI
+BOOL  onWindow_CompareComboBoxItems(const UINT  iControl, COMPAREITEMSTRUCT*  pData)
+{
+   return 0;
 }
 
 

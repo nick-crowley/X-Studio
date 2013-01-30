@@ -108,8 +108,8 @@ BOOL  onOwnerDrawStaticImage(DRAWITEMSTRUCT*  pDrawData, CONST TCHAR*  szResourc
 ControlsAPI 
 BOOL   onOwnerDrawStaticTitle(LPARAM  lParam)
 {
-   static CONST COLORREF  clDialogTitleColour = RGB(42,84,153);
-
+static CONST COLORREF  clDialogTitleColour = RGB(42,84,153);
+ 
    // [CHECK] Are we running windows vista?
    if (getAppWindowsVersion() >= WINDOWS_VISTA)
       // [VISTA]

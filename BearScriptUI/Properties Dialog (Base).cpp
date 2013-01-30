@@ -434,7 +434,7 @@ VOID  initPropertiesDialogPage(HWND  hPage, CONST PROPERTY_PAGE  ePage, CONST PR
 // 
 VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
 {
-   LISTVIEW_COLUMNS   oArgumentsListView   = { 3, IDS_ARGUMENTS_COLUMN_NAME,    120, 75,  165,  NULL, NULL };    // ListView column data for the Arguments page     // All widths should sum to 360 pixels
+   LISTVIEW_COLUMNS   oArgumentsListView   = { 3, IDS_ARGUMENTS_COLUMN_NAME,    120, 100, 140,  NULL, NULL };    // ListView column data for the Arguments page     // All widths should sum to 360 pixels
    LISTVIEW_COLUMNS   oDepedenciesListView = { 2, IDS_DEPENDENCIES_COLUMN_NAME, 270, 90,  NULL, NULL, NULL };    // ListView column data for the Dependencies page
    LISTVIEW_COLUMNS   oVariablesListView   = { 3, IDS_VARIABLES_COLUMN_NAME,    240, 60,  60,   NULL, NULL };    // ListView column data for the Variables page
    LISTVIEW_COLUMNS   oStringsListView     = { 3, IDS_STRINGS_COLUMN_PAGE,      60,  60,  240,  NULL, NULL };    // ListView column data for the Strings page
@@ -463,7 +463,8 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
       break;
 
    /// [SCRIPT ARUGMENTS]
-   case PP_SCRIPT_ARGUMENTS:     initReportModeListView(GetControl(hPage, IDC_ARGUMENTS_LIST), &oArgumentsListView, TRUE);       break;
+   case PP_SCRIPT_ARGUMENTS:     initReportModeListView(GetControl(hPage, IDC_ARGUMENTS_LIST), &oArgumentsListView, FALSE);      
+                                 SubclassWindow(GetControl(hPage, IDC_ARGUMENTS_LIST), wndprocCustomListView);                   break;
    /// [SCRIPT DEPENDENCIES]
    case PP_SCRIPT_DEPENDENCIES:  initReportModeListView(GetControl(hPage, IDC_DEPENDENCIES_LIST), &oDepedenciesListView, TRUE);  break;
    /// [SCRIPT STRINGS]
@@ -501,6 +502,10 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
 
    /// [COLUMN ADJUSTMENT]
    case PP_LANGUAGE_COLUMNS:
+      /*if (IsThemeActive())
+         for (UINT  iControlID = IDC_COLUMN_ONE_RADIO; iControlID <= IDC_COLUMN_THREE_RADIO; iControlID++)
+            SetWindowLong(GetDlgItem(hPage, iControlID), GWL_STYLE, WS_CHILD|WS_VISIBLE|BS_OWNERDRAW);*/
+
       // Set slider ranges
       SendDlgItemMessage(hPage, IDC_COLUMN_WIDTH_SLIDER,   TBM_SETRANGE, FALSE, MAKE_LONG(0,500));
       SendDlgItemMessage(hPage, IDC_COLUMN_SPACING_SLIDER, TBM_SETRANGE, FALSE, MAKE_LONG(0,250));
@@ -1017,7 +1022,7 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
    /// [VISUAL STYLES]
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORSTATIC:
-      bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+      bResult = (BOOL)onDialog_ControlColour((HDC)wParam, IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
       break;
 
    /// [UNHANDLED] Return FALSE

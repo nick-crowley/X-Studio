@@ -82,7 +82,7 @@ BOOL  initInsertArgumentDialog(CONST SCRIPT_FILE*  pScriptFile, HWND  hDialog, H
    addTooltipTextToControl(hTooltip, hDialog, IDC_ARGUMENT_DESCRIPTION_EDIT);
 
    /// Populate 'Argument Types' ComboBox and select 'Value'
-   performParameterSyntaxComboBoxPopulation(hDialog, IDC_ARGUMENT_TYPE_COMBO, PS_VALUE);
+   performParameterSyntaxComboBoxPopulation(GetDlgItem(hDialog, IDC_ARGUMENT_TYPE_COMBO), PS_VALUE);
 
    /// Disable 'OK' Button and initially display 'Invalid' Icon
    utilEnableDlgItem(hDialog, IDOK, FALSE);
@@ -108,10 +108,10 @@ BOOL  initInsertArgumentDialog(CONST SCRIPT_FILE*  pScriptFile, HWND  hDialog, H
 // CONST UINT              iControlID         : [in]            Control ID of the combo box
 // CONST PARAMETER_SYNTAX  eInitialSelection  : [in] [optional] Syntax of the item to initially select, or PS_UNDETERMINED to select no syntax
 // 
-VOID  performParameterSyntaxComboBoxPopulation(HWND  hDialog, CONST UINT  iControlID, CONST PARAMETER_SYNTAX  eInitialSelection)
+VOID  performParameterSyntaxComboBoxPopulation(HWND  hCtrl, CONST PARAMETER_SYNTAX  eInitialSelection)
 {
    GAME_STRING*   pSyntaxString;      // Lookup for parameter syntax names
-   INT            iItemIndex;         // ComboBox index of the item currently being inserted
+   INT            iItemIndex;       
 
    /// Iterate through all parameter syntax
    for (UINT eSyntax = FIRST_PARAMETER_SYNTAX; eSyntax <= LAST_PARAMETER_SYNTAX; eSyntax++)
@@ -138,18 +138,19 @@ VOID  performParameterSyntaxComboBoxPopulation(HWND  hDialog, CONST UINT  iContr
 
       /// [VALID SYNTAX] Add to the ComboBox
       default:
-         // Attempt to lookup syntax entry for current game version    (NB: Not all indicies have a matching syntax)
+         // Lookup syntax
          if (findGameStringByID(eSyntax, identifyGamePageIDFromDataType(DT_SCRIPTDEF), pSyntaxString))
          {
-            // Use syntax name as item text
-            iItemIndex = SendDlgItemMessageW(hDialog, iControlID, CB_ADDSTRING, NULL, (LPARAM)pSyntaxString->szText);
+            /// Insert item and store syntax ID as item data
+            iItemIndex = appendCustomComboBoxItemEx(hCtrl, pSyntaxString->szText, NULL, TEXT("FUNCTION_ICON"), eSyntax);
 
-            /// Store syntax ID as 'item data' for later identification
-            SendDlgItemMessage(hDialog, iControlID, CB_SETITEMDATA, iItemIndex, eSyntax);
+            //// Use syntax name as item text
+            //iItemIndex = SendDlgItemMessageW(hDialog, iControlID, CB_ADDSTRING, NULL, (LPARAM)pSyntaxString->szText);
+            //SendDlgItemMessage(hDialog, iControlID, CB_SETITEMDATA, iItemIndex, eSyntax);
 
             // [CHECK] Select this item if appropriate
             if (eSyntax == eInitialSelection)
-               SendDlgItemMessage(hDialog, iControlID, CB_SETCURSEL, iItemIndex, NULL);
+               ComboBox_SetCurSel(hCtrl, iItemIndex);
          }
          break;
       }
@@ -178,7 +179,6 @@ BOOL   onInsertArgumentDialogCommand(SCRIPT_FILE*  pScriptFile, HWND  hDialog, C
    TCHAR         *szArgumentName,         // Name of the new argument
                  *szArgumentDescription;  // Description of the new argument
    BOOL           bValidation;            // Validation result of the current argument name
-   INT            iSelectedSyntax;        // Index of the currently selected 'argument type'
    BOOL           bResult;
 
    // Prepare
@@ -218,8 +218,11 @@ BOOL   onInsertArgumentDialogCommand(SCRIPT_FILE*  pScriptFile, HWND  hDialog, C
       pArgument             = createArgumentFromName(szArgumentName, szArgumentDescription);
 
       // Set argument type (from the currently selected item's item-data)
-      iSelectedSyntax = SendDlgItemMessage(hDialog, IDC_ARGUMENT_TYPE_COMBO, CB_GETCURSEL, NULL, NULL);
-      pArgument->eType = (PARAMETER_SYNTAX)SendDlgItemMessage(hDialog, IDC_ARGUMENT_TYPE_COMBO, CB_GETITEMDATA, iSelectedSyntax, NULL);
+      hCtrl = GetDlgItem(hDialog, IDC_ARGUMENT_TYPE_COMBO);
+      pArgument->eType = (PARAMETER_SYNTAX)getCustomComboBoxItemParam(hCtrl, ComboBox_GetCurSel(hCtrl));
+
+      /*iSelectedSyntax = SendDlgItemMessage(hDialog, IDC_ARGUMENT_TYPE_COMBO, CB_GETCURSEL, NULL, NULL);
+      pArgument->eType = (PARAMETER_SYNTAX)SendDlgItemMessage(hDialog, IDC_ARGUMENT_TYPE_COMBO, CB_GETITEMDATA, iSelectedSyntax, NULL);*/
 
       // Cleanup and return ARGUMENT as the dialog result
       utilDeleteStrings(szArgumentName, szArgumentDescription);
@@ -293,12 +296,18 @@ INT_PTR  dlgprocInsertArgumentDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
    case WM_DRAWITEM:
       switch (wParam)
       {
-      case IDC_ARGUMENT_DIALOG_ICON:      bResult = onOwnerDrawStaticIcon(lParam, TEXT("ARGUMENT_ICON"), 96);    break;
-      case IDC_ARGUMENT_TITLE_STATIC:     bResult = onOwnerDrawStaticTitle(lParam);      break;
-      case IDC_ARGUMENT_REQUIRED_STATIC:  bResult = onOwnerDrawStaticHeading(lParam);    break;
-      case IDC_ARGUMENT_OPTIONAL_STATIC:  bResult = onOwnerDrawStaticHeading(lParam);    break;
+      case IDC_ARGUMENT_DIALOG_ICON:      bResult = onOwnerDrawStaticIcon(lParam, TEXT("ARGUMENT_ICON"), 96);     break;
+      case IDC_ARGUMENT_TITLE_STATIC:     bResult = onOwnerDrawStaticTitle(lParam);                               break;
+      case IDC_ARGUMENT_REQUIRED_STATIC:  bResult = onOwnerDrawStaticHeading(lParam);                             break;
+      case IDC_ARGUMENT_OPTIONAL_STATIC:  bResult = onOwnerDrawStaticHeading(lParam);                             break;
+      default:                            bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                   break;
       }
       break;
+
+   /// [CUSTOM COMBOBOX]
+   case WM_MEASUREITEM:  bResult = onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_SMALL);  break;
+   case WM_DELETEITEM:   bResult = onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);                              break;
+   case WM_COMPAREITEM:  SetWindowLong(hDialog, DWL_MSGRESULT, compareCustomComboBoxItems(wParam, (COMPAREITEMSTRUCT*)lParam));  bResult = TRUE;  break;
    }
 
    // Return result

@@ -152,7 +152,7 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
 
    // [COLUMNS] Create background brushes
    //hSortBrush   = CreateSolidBrush(clLightGrey);
-   hSortBrush = getThemeSysColourBrush(TEXT("Window"), COLOR_INFOBK);
+   hSortBrush = CreateSolidBrush(IsThemeActive() ? getThemeColour(TEXT("Listview"), LVP_LISTSORTEDDETAIL, 0, TMT_EDGEHIGHLIGHTCOLOR, 0) : clLightGrey); //   getThemeSysColourBrush(TEXT("Window"), COLOR_INFOBK);
    hColumnBrush = CreateSolidBrush(clBackground);
    iSortColumn  = ListView_GetSelectedColumn(hListView);
    iBackgroundMode = SetBkMode(pDrawData->hdc, TRANSPARENT);
@@ -280,14 +280,16 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    iBackgroundMode = SetBkMode(pDrawData->hdc, iBackgroundMode);
 
    // Cleanup
-   //DeleteBrush(hSortBrush);
+   DeleteBrush(hSortBrush);
    DeleteBrush(hColumnBrush);
    utilDeleteString(pItem->pszText);
 }
 
 
+ 
 /// Function name  : editCustomListViewItem
-// Description     : Initiate custom ListView label editing by creating a control over a specified sub-item
+// Description     : Initiate custom ListView label editing
+///                        Creates + positions the control, which requests population from the parent before this function returns
 // 
 // HWND                  hListView : [in] ListView
 // const UINT            iItem     : [in] Item
@@ -296,8 +298,28 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
 // 
 // Return Value   : TRUE/FALSE
 // 
-ControlsAPI 
+ControlsAPI
 BOOL   editCustomListViewItem(HWND  hListView, const UINT  iItem, const UINT  iSubItem, const LISTVIEW_LABEL  eCtrlType)
+{
+   return editCustomListViewItemEx(hListView, iItem, iSubItem, eCtrlType, NULL, onWindow_CompareComboBoxItems);
+}
+
+
+/// Function name  : editCustomListViewItem
+// Description     : Initiate custom ListView label editing
+///                        Creates + positions the control, which requests population from the parent before this function returns
+// 
+// HWND                  hListView     : [in] ListView
+// const UINT            iItem         : [in] Item
+// const UINT            iSubItem      : [in] SubItem
+// const LISTVIEW_LABEL  eCtrlType     : [in] LVLT_EDIT or LVLT_COMBOBOX
+// const DWORD           dwCustomStyle : [in] Additional window styles
+// COMPARE_COMBO_PROC    pfnComparitor : [in] Item comparitor function
+// 
+// Return Value   : TRUE/FALSE
+// 
+ControlsAPI 
+BOOL   editCustomListViewItemEx(HWND  hListView, const UINT  iItem, const UINT  iSubItem, const LISTVIEW_LABEL  eCtrlType, const DWORD  dwCustomStyle, COMPARE_COMBO_PROC  pfnComparitor)
 {
    LVITEM  oItem;    // Notification data for setting up the new control
    RECT    rcItem;    // Sub-item rectangle
@@ -311,6 +333,7 @@ BOOL   editCustomListViewItem(HWND  hListView, const UINT  iItem, const UINT  iS
    oItem.iItem    = iItem;
    oItem.iSubItem = iSubItem;
    oItem.lParam   = eCtrlType;
+   oItem.piColFmt = (INT*)pfnComparitor;
 
    // Get the SubItem rectangle
    rcItem.left = LVIR_LABEL;
@@ -323,12 +346,12 @@ BOOL   editCustomListViewItem(HWND  hListView, const UINT  iItem, const UINT  iS
    {
    // [EDIT] 
    case LVLT_EDIT:
-      hCtrl = CreateWindowEx(NULL, WC_EDIT, NULL, WS_CHILD WITH WS_BORDER WITH ES_WANTRETURN WITH ES_AUTOHSCROLL, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
+      hCtrl = CreateWindowEx(NULL, WC_EDIT, NULL, WS_CHILD WITH WS_BORDER WITH ES_WANTRETURN WITH ES_AUTOHSCROLL | dwCustomStyle, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
       break;
 
    // [COMBO] 
    case LVLT_COMBOBOX:
-      hCtrl = CreateWindowEx(NULL, WC_COMBOBOX, NULL, WS_CHILD WITH WS_BORDER WITH WS_VSCROLL WITH CBS_DROPDOWNLIST WITH CBS_SORT, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
+      hCtrl = CreateWindowEx(NULL, WC_COMBOBOX, NULL, WS_CHILD WITH WS_BORDER WITH WS_VSCROLL WITH CBS_DROPDOWNLIST WITH CBS_SORT | dwCustomStyle, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hListView, (HMENU)IDC_LISTVIEW_LABEL_CTRL, getAppInstance(), NULL);
       SendMessage(hCtrl, CB_SETDROPPEDWIDTH, 200, NULL);
       SendMessage(hCtrl, CB_SETMINVISIBLE, 8, NULL);
       break;
@@ -506,6 +529,7 @@ LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARA
 {
    LVHITTESTINFO  oHitTest;
    WNDCLASS       oBaseClass;
+   BOOL           bResult = FALSE;
    /*static HWND    hPrevFocus = NULL;*/
 
    switch (iMessage)
@@ -544,6 +568,23 @@ LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARA
       //// Return focus
       //SetFocus(hPrevFocus);
       break;
+
+   /// [CUSTOM COMBOBOX]
+   case WM_DRAWITEM:  
+   case WM_DELETEITEM: 
+   case WM_COMPAREITEM:
+   case WM_MEASUREITEM:
+      switch (iMessage)
+      {
+      case WM_DRAWITEM:     bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);                                  break;
+      case WM_DELETEITEM:   bResult = onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);                              break;
+      case WM_MEASUREITEM:  bResult = onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_SMALL);  break;
+
+      case WM_COMPAREITEM:  return SendMessage(GetDlgItem(hWnd, wParam), WM_COMPAREITEM, wParam, lParam);          break;
+      }
+
+      if (bResult)
+         return 0;
    }
 
    // Pass to base
@@ -558,6 +599,7 @@ LRESULT  wndprocCustomListView(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARA
 LRESULT  wndprocCustomListViewLabel(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    static NMLVDISPINFO  oLabelData;
+   COMPARE_COMBO_PROC   pfnCompareItem;
    WNDCLASS             oBaseClass;
    
    switch (iMessage)
@@ -620,6 +662,11 @@ LRESULT  wndprocCustomListViewLabel(HWND  hCtrl, UINT  iMessage, WPARAM  wParam,
    /// [KEYBOARD QUERY] -- Request all keyboard input
    case WM_GETDLGCODE:
       return DLGC_WANTALLKEYS;
+
+   /// [COMPARE ITEM (Reflected)]
+   case WM_COMPAREITEM:  
+      pfnCompareItem = (COMPARE_COMBO_PROC)oLabelData.item.piColFmt;
+      return (*pfnCompareItem)(wParam, (COMPAREITEMSTRUCT*)lParam);
    }
 
    // Pass to edit/combo base proc

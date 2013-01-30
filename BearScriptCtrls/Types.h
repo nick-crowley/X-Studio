@@ -299,6 +299,10 @@ struct CUSTOM_COMBO_ITEM
    UINT             iIconIndex;     // [OPTIONAL] Custom ImageList icon index
 };
 
+// Defines item comparitor function
+//
+typedef  BOOL  (*COMPARE_COMBO_PROC)(UINT, COMPAREITEMSTRUCT*);
+
 // Defines a custom menu
 //
 struct CUSTOM_MENU

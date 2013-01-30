@@ -452,31 +452,31 @@ BOOL  registerAppWindowClasses(ERROR_STACK*  &pError)
       return FALSE;  // [FAILED] Return FALSE
    }
 
-   /// [CLASS] Arguments Property page dialog In-place Edit control
-   GetClassInfo(NULL, WC_EDIT, &oWndClass);
-   oWndClass.lpszClassName = szArgumentsLabelEditClass;
-   oWndClass.lpfnWndProc   = wndprocArgumentPageEditCtrl;
+   ///// [CLASS] Arguments Property page dialog In-place Edit control
+   //GetClassInfo(NULL, WC_EDIT, &oWndClass);
+   //oWndClass.lpszClassName = szArgumentsLabelEditClass;
+   //oWndClass.lpfnWndProc   = wndprocArgumentPageEditCtrl;
 
-   // Attempt to register class
-   if (!RegisterClass(&oWndClass))
-   {
-      // [ERROR] "Could not register the window class for the %s window"
-      pError = generateDualError(HERE(IDS_INIT_REGISTER_CLASS_FAILED), TEXT("Arguments dialog Edit label control"));
-      return FALSE;  // [FAILED] Return FALSE
-   }
+   //// Attempt to register class
+   //if (!RegisterClass(&oWndClass))
+   //{
+   //   // [ERROR] "Could not register the window class for the %s window"
+   //   pError = generateDualError(HERE(IDS_INIT_REGISTER_CLASS_FAILED), TEXT("Arguments dialog Edit label control"));
+   //   return FALSE;  // [FAILED] Return FALSE
+   //}
 
-   /// [CLASS] Arguments Property page dialog In-place ComboBox control
-   GetClassInfo(NULL, WC_COMBOBOX, &oWndClass);
-   oWndClass.lpszClassName = szArgumentsLabelComboClass;
-   oWndClass.lpfnWndProc   = wndprocArgumentPageComboCtrl;
+   ///// [CLASS] Arguments Property page dialog In-place ComboBox control
+   //GetClassInfo(NULL, WC_COMBOBOX, &oWndClass);
+   //oWndClass.lpszClassName = szArgumentsLabelComboClass;
+   //oWndClass.lpfnWndProc   = wndprocArgumentPageComboCtrl;
 
-   // Attempt to register class
-   if (!RegisterClass(&oWndClass))
-   {
-      // [ERROR] "Could not register the window class for the %s window"
-      pError = generateDualError(HERE(IDS_INIT_REGISTER_CLASS_FAILED), TEXT("Arguments dialog ComboBox label control"));
-      return FALSE;  // [FAILED] Return FALSE
-   }
+   //// Attempt to register class
+   //if (!RegisterClass(&oWndClass))
+   //{
+   //   // [ERROR] "Could not register the window class for the %s window"
+   //   pError = generateDualError(HERE(IDS_INIT_REGISTER_CLASS_FAILED), TEXT("Arguments dialog ComboBox label control"));
+   //   return FALSE;  // [FAILED] Return FALSE
+   //}
 
    /// [CLASS] FileDialog Edit Ctrl
    GetClassInfo(NULL, WC_EDIT, &oWndClass);

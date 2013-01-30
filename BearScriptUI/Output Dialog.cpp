@@ -964,7 +964,7 @@ INT_PTR  dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
       /// [VISUAL STYLES]
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORSTATIC:
-         bResult = (BOOL)onDialog_ControlColour((HDC)wParam);
+         bResult = (BOOL)onDialog_ControlColour((HDC)wParam, COLOR_WINDOW);
          break;
 
       /// [RESIZING] Stretch ListView
@@ -981,7 +981,7 @@ INT_PTR  dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
 
       /// [NON-CLIENT PAINT]
       case WM_NCPAINT:
-         onWindow_PaintNonClient(pDialogData->hDialog, (HRGN)wParam);
+         onDialog_PaintNonClient(pDialogData->hDialog, (HRGN)wParam);
          break;
 
       /// [STYLE CHANGED]

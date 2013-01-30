@@ -922,7 +922,7 @@ INT_PTR   dlgprocAttachmentDialog(HWND  hDialog, UINT  message, WPARAM  wParam, 
    /// [VISUAL STYLES]
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORSTATIC:
-      return (BOOL)onDialog_ControlColour((HDC)wParam);
+      return (BOOL)onDialog_ControlColour((HDC)wParam, COLOR_WINDOW);
 
    /// [VISUAL STYLES] 
    case WM_CTLCOLORBTN:

@@ -143,7 +143,6 @@ BOOL  onColumnsPage_DrawGroup(PROPERTIES_DATA*  pSheetData, HWND  hPage, DRAWITE
 
    // Prepare
    iDCState = SaveDC(pDrawData->hDC);
-   hTheme = OpenThemeData(pDrawData->hwndItem, TEXT("BUTTON"));
 
    // Get drawing rectangle of relevant CheckBox
    iCheckID = (pDrawData->CtlID == IDC_COLUMN_WIDTH_GROUP ? IDC_COLUMN_WIDTH_CHECK : IDC_COLUMN_SPACING_CHECK);
@@ -153,14 +152,80 @@ BOOL  onColumnsPage_DrawGroup(PROPERTIES_DATA*  pSheetData, HWND  hPage, DRAWITE
    utilScreenToClientRect(pDrawData->hwndItem, &rcCheck);
    ExcludeClipRect(pDrawData->hDC, rcCheck.left, rcCheck.top, rcCheck.right, rcCheck.bottom);
 
-   /// [BORDER]
-   DrawThemeBackground(hTheme, pDrawData->hDC, BP_GROUPBOX, GBS_NORMAL, &pDrawData->rcItem, NULL);
+   /// [THEME]
+   if (hTheme = OpenThemeData(pDrawData->hwndItem, TEXT("BUTTON")))
+   {
+      DrawThemeBackground(hTheme, pDrawData->hDC, BP_GROUPBOX, GBS_NORMAL, &pDrawData->rcItem, NULL);
+      CloseThemeData(hTheme);
+   }
+   else
+      /// [NON-THEME]
+      DrawEdge(pDrawData->hDC, &pDrawData->rcItem, EDGE_ETCHED, BF_RECT);
 
-   // Cleanup
-   CloseThemeData(hTheme);
    RestoreDC(pDrawData->hDC, iDCState);
    return TRUE;
 }
+
+
+/// Function name  : onColumnsPage_DrawRadio
+// Description     : Custom draw the 'Number of Columns' radio buttons
+// 
+// PROPERTIES_DATA*    pSheetData : [in] Properties sheet data
+// HWND                hPage      : [in] Window handle of the 'Columns' properties dialog page
+// HIMAGELIST          hImageList : [in] ImageList containing the large column selection icons
+// NMCUSTOMDRAW*       pDrawData  : [in] WM_NOTIFY custom draw data
+// 
+// Return Value   : TRUE
+// 
+BOOL  onColumnsPage_DrawRadio(PROPERTIES_DATA*  pSheetData, HWND  hPage, DRAWITEMSTRUCT*  pDrawData)
+{
+   CONST UINT iIconSize = 48;
+   DC_STATE   oPrevState;         // Device context state
+   POINT      ptIcon;             // Position of the icon within the draw rectangle
+   BOOL       bIsChecked,         // Whether control is checked
+              bIsHot;             // Whether cursor is over the control
+   SIZE       siDrawSize;         // Size of the drawing rectangle
+   HPEN       hPen;               // Pen used for drawing the coloured rectangled
+   TCHAR      szText[16];         // Control's text, displayed beneath the icon
+
+   
+   // Prepare
+   utilConvertRectangleToSize(&pDrawData->rcItem, &siDrawSize);
+   GetWindowText(pDrawData->hwndItem, szText, 16);
+   
+   // Calculate icon position
+   ptIcon.x = (siDrawSize.cx - iIconSize) / 2;
+   ptIcon.y = (siDrawSize.cy - iIconSize) / 2;
+
+   /// [ICON] Draw appropriate icon
+   ImageList_Draw(pSheetData->hColumnIcons, pDrawData->CtlID - IDC_COLUMN_ONE_RADIO, pDrawData->hDC, ptIcon.x, ptIcon.x, ILD_NORMAL);
+   
+   // Determine state
+   bIsHot     = (pDrawData->itemState INCLUDES CDIS_HOT);
+   bIsChecked = IsDlgButtonChecked(hPage, pDrawData->CtlID);
+
+   if (bIsHot OR bIsChecked)
+   {
+      // Create appropriately coloured pen
+      hPen = CreatePen(PS_SOLID, 3, (bIsHot ? clRadioButtonHot : clRadioButtonSelected));
+      oPrevState.hOldBrush = SelectBrush(pDrawData->hDC, GetStockObject(NULL_BRUSH));
+      oPrevState.hOldPen   = SelectPen(pDrawData->hDC, hPen);
+
+      /// [BORDER] Draw border 
+      Rectangle(pDrawData->hDC, pDrawData->rcItem.left, pDrawData->rcItem.top, pDrawData->rcItem.right, pDrawData->rcItem.bottom);
+
+      // Cleanup
+      SelectPen(pDrawData->hDC, oPrevState.hOldPen);
+      SelectBrush(pDrawData->hDC, oPrevState.hOldBrush);
+      DeleteObject(hPen);
+   }
+
+   /// [TEXT] Draw window text beneath icon
+   pDrawData->rcItem.top += ptIcon.x + iIconSize;
+   DrawText(pDrawData->hDC, szText, lstrlen(szText), &pDrawData->rcItem, DT_CENTER);
+   return TRUE;
+}
+
 
 /// Function name  : onColumnsPage_DrawRadio
 // Description     : Custom draw the 'Number of Columns' radio buttons
@@ -186,6 +251,7 @@ BOOL  onColumnsPage_DrawRadio(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMCUSTO
    switch (pDrawData->dwDrawStage)
    {
    case CDDS_PREERASE:
+   case CDDS_PREPAINT:
       // Prepare
       utilConvertRectangleToSize(&pDrawData->rc, &siDrawSize);
       GetWindowText(pDrawData->hdr.hwndFrom, szText, 16);
@@ -317,8 +383,14 @@ INT_PTR   dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
 
    /// [OWNER DRAW GROUP-BOX]
    case WM_DRAWITEM:
-      if (wParam == IDC_COLUMN_WIDTH_GROUP OR wParam == IDC_COLUMN_SPACING_GROUP)
-         bResult = onColumnsPage_DrawGroup(pDialogData, hPage, (DRAWITEMSTRUCT*)lParam);
+      switch (wParam)
+      {
+      case IDC_COLUMN_WIDTH_GROUP:
+      case IDC_COLUMN_SPACING_GROUP:  bResult = onColumnsPage_DrawGroup(pDialogData, hPage, (DRAWITEMSTRUCT*)lParam);   break;
+      case IDC_COLUMN_ONE_RADIO:
+      case IDC_COLUMN_TWO_RADIO:
+      case IDC_COLUMN_THREE_RADIO:    bResult = onColumnsPage_DrawRadio(pDialogData, hPage, (DRAWITEMSTRUCT*)lParam);   break;
+      }
       break;
 
    /// [CUSTOM DRAW RADIO-BUTTON]
@@ -327,14 +399,16 @@ INT_PTR   dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
 
       // [CUSTOM DRAW] - Only custom draw the 'Number of Columns' radio buttons
       if (pHeader->code == NM_CUSTOMDRAW)
+      {
          switch (pHeader->idFrom)
          {
-            case IDC_COLUMN_ONE_RADIO:
-            case IDC_COLUMN_TWO_RADIO:
-            case IDC_COLUMN_THREE_RADIO:
-               bResult = onColumnsPage_DrawRadio(pDialogData, hPage, (NMCUSTOMDRAW*)pHeader);
-               break;
+         case IDC_COLUMN_ONE_RADIO:
+         case IDC_COLUMN_TWO_RADIO:
+         case IDC_COLUMN_THREE_RADIO:
+            bResult = onColumnsPage_DrawRadio(pDialogData, hPage, (NMCUSTOMDRAW*)pHeader);
+            break;
          }
+      }
       break;
    }
 

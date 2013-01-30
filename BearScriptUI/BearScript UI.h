@@ -327,7 +327,7 @@ INT_PTR       dlgprocGameVersionDialog(HWND  hDialog, UINT  iMessage, WPARAM  wP
 // Functions
 BOOL      displayInsertArgumentDialog(SCRIPT_FILE*  pScriptFile, HWND  hParentWnd);
 BOOL      initInsertArgumentDialog(CONST SCRIPT_FILE*  pScriptFile, HWND  hDialog, HWND  hTooltip);
-VOID      performParameterSyntaxComboBoxPopulation(HWND  hDialog, CONST UINT  iControlID, CONST PARAMETER_SYNTAX  eInitialSelection);
+VOID      performParameterSyntaxComboBoxPopulation(HWND  hCtrl, CONST PARAMETER_SYNTAX  eInitialSelection);
 
 // Message Handlers
 BOOL      onInsertArgumentDialogCommand(SCRIPT_FILE*  pScriptFile, HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
@@ -1002,11 +1002,15 @@ VOID   onScriptPage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPER
 /// Page: Arguments
 // Message Handlers
 BOOL   onArgumentPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, CONST POINT  ptCursor);
-BOOL   onArgumentPage_CustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pMessageHeader);
+BOOL   onArgumentPage_Command(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, const UINT  iControl, const UINT  iNotification, HWND  hCtrl);
+BOOL   onArgumentPage_CustomDraw(SCRIPT_DOCUMENT*  pDocument, HWND  hPage, CONST UINT  iControlID, NMHDR*  pHeader);
 VOID   onArgumentPage_DeleteArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
 VOID   onArgumentPage_EditArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hListView);
+VOID   onArgumentPage_EditBegin(SCRIPT_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader);
+BOOL   onArgumentPage_EditEnd(SCRIPT_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader);
 VOID   onArgumentPage_InsertArgument(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
 BOOL   onArgumentPage_ItemChanged(SCRIPT_DOCUMENT*  pActiveDocument, HWND  hDialog, NMLISTVIEW*  pItemData);
+BOOL   onArgumentPage_Notify(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, NMHDR*  pMessage);
 BOOL   onArgumentPage_RequestData(CONST SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, NMLVDISPINFO*  pMessageData);
 
 /// Pages: Dependencies/Strings/Variables
@@ -1030,8 +1034,6 @@ INT_PTR   dlgprocGeneralPageS(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARA
 INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 INT_PTR   dlgprocStringsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-LRESULT   wndprocArgumentPageComboCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
-LRESULT   wndprocArgumentPageEditCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                        PROPERTIES DIALOG (LANGUAGE)

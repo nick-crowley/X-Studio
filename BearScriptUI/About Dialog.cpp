@@ -278,9 +278,13 @@ INT_PTR   dlgprocLicenseDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LP
 
    /// [VISUAL STYLES]
    case WM_CTLCOLORDLG:
-	case WM_CTLCOLORSTATIC:
+   case WM_CTLCOLORSTATIC:
    case WM_CTLCOLORBTN:
-      return (INT_PTR)GetStockObject(WHITE_BRUSH);
+      return (INT_PTR)onDialog_ControlColour((HDC)wParam, COLOR_WINDOW);
+
+   /// [VISUAL STYLES]
+   
+      //return (INT_PTR)GetStockObject(WHITE_BRUSH);
    }
 
    return FALSE;
