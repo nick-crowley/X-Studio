@@ -355,8 +355,8 @@ BOOL  initMessageDialog(MESSAGE_DIALOG_DATA*  pDialogData, HWND  hDialog)
 
    // [OWNER DRAW]
    utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_TITLE), SS_OWNERDRAW WITH CSS_CENTRE);
-   utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_HEADING_1), SS_OWNERDRAW);
-   utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_HEADING_2), SS_OWNERDRAW);
+   /*utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_HEADING_1), SS_OWNERDRAW);
+   utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_HEADING_2), SS_OWNERDRAW);*/
 
    /// [CHECK] Set dialog title from resource or string
    if (pDialogData->szTitle AND IS_INTRESOURCE(pDialogData->szTitle))
@@ -493,13 +493,12 @@ VOID  updateMessageDialog(MESSAGE_DIALOG_DATA*  pDialogData)
 
       // [CODE] Display code, if any
       SetDlgItemText(pDialogData->hDialog, IDC_MESSAGE_CODE_STATIC, (lstrlen(pDialogData->pErrorMessage->szID) ? pDialogData->pErrorMessage->szID : TEXT("None")));
-      utilShowDlgItem(pDialogData->hDialog, IDC_DIALOG_HEADING_2, lstrlen(pDialogData->pErrorMessage->szID) ? TRUE : FALSE);
+      //utilShowDlgItem(pDialogData->hDialog, IDC_DIALOG_HEADING_2, lstrlen(pDialogData->pErrorMessage->szID) ? TRUE : FALSE);
    }
    else  
    {
       /// [MESSAGE] Lookup and display message
       SetDlgItemText(pDialogData->hDialog, IDC_MESSAGE_TEXT_STATIC, pDialogData->szSimpleMessage);
-      // [CODE] Hide code
       SetDlgItemText(pDialogData->hDialog, IDC_MESSAGE_CODE_STATIC, TEXT("Not appliciable"));
       //utilShowDlgItem(pDialogData->hDialog, IDC_DIALOG_HEADING_2, FALSE);
    }
@@ -767,7 +766,7 @@ BOOL  onMessageDialogDrawItem(MESSAGE_DIALOG_DATA*  pDialogData, CONST UINT  iCo
    switch (iControlID)
    {
    /// [ICON/MENU]
-   case IDC_DIALOG_ICON:   bResult = onOwnerDrawStaticIcon(pDrawInfo, pDialogData->szIcon, 96);    break;
+   case IDC_DIALOG_ICON:   bResult = onOwnerDrawStaticIcon(pDrawInfo, pDialogData->szIcon, 72);    break;
    case NULL:              bResult = onOwnerDrawCustomMenu(pDrawInfo);                             break;
    }      
 

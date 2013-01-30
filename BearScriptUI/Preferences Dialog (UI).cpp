@@ -12,18 +12,19 @@
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Number of Font sizes
-#define       FONT_SIZES                     7
+#define       FONT_SIZES             7
 
 // Font size options available
 CONST UINT     iFontSizes[FONT_SIZES] = { 8, 10, 11, 12, 14, 16, 18 };     
 
 // Number of display CodeObjects  (All CodeObjects excluding the 'Whitespace' and 'Null' classes)
-#define       DISPLAY_CODEOBJECTS            (CODEOBJECT_CLASSES - 2)
+#define       DISPLAY_CODEOBJECTS    (CODEOBJECT_CLASSES - 2)
 
 // Icon resources  (Indicies matching INTERFACE_COLOUR)
 CONST TCHAR*   szColourIcons[13] = { TEXT("BLACK_ICON"), TEXT("BLUE_ICON"), TEXT("DARK_GREEN_ICON"), TEXT("DARK_GREY_ICON"), TEXT("DARK_RED_ICON"), TEXT("CYAN_ICON"), TEXT("GREEN_ICON"),
                                      TEXT("GREY_ICON"),  TEXT("RED_ICON"),  TEXT("ORANGE_ICON"),     TEXT("PURPLE_ICON"),    TEXT("YELLOW_ICON"),   TEXT("WHITE_ICON") }; 
 
+// Maps PageID -> String
 extern CONST TCHAR*  szDebugPageNames[PREFERENCES_PAGES];
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,19 +47,15 @@ extern CONST TCHAR*  szDebugPageNames[PREFERENCES_PAGES];
 //
 INT CALLBACK callbackPreferencesFontEnumeration(CONST ENUMLOGFONTEX*  pFontData, CONST NEWTEXTMETRICEX*  pFontSize, DWORD  dwType, LPARAM  lParam)
 {
-   CONST TCHAR*  szFont;
-   HFONT hFont;
-   HWND  hPage;
-   HDC   hDC;
-   
-   // Extract propery page window handle and add font name to it's fonts combo box
-   hPage = (HWND)lParam;
-   szFont = pFontData->elfLogFont.lfFaceName;
+   CONST TCHAR*  szFont = pFontData->elfLogFont.lfFaceName;
+   HWND          hPage  = (HWND)lParam;
+   HDC           hDC;
    
    // [CHECK] Exclude weird font names
    if (szFont[0] != '@')
    {
-      hFont = utilCreateFont(hDC = GetDC(hPage), pFontData->elfLogFont.lfFaceName, 10, FALSE, FALSE, FALSE);
+      // Add font name to combo box using same font for display
+      HFONT hFont = utilCreateFont(hDC = GetDC(hPage), pFontData->elfLogFont.lfFaceName, 10, FALSE, FALSE, FALSE);
       appendCustomComboBoxFontItem(GetControl(hPage, IDC_FONT_NAME_COMBO), szFont, hFont);
       ReleaseDC(hPage, hDC);
    }
@@ -242,24 +239,24 @@ BOOL  initPreferencesPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONST P
 // 
 BOOL   initPreferencesAppearancePage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
 {
+   const TCHAR*  szSchemeIcons[] = { TEXT("MAIN_WINDOW"), TEXT("EXSCRIPTOR_ICON"), TEXT("THREAT_ICON"), TEXT("VISUAL_STUDIO_ICON") };
    LIST_ITEM*    pSchemeListItem;   // Colour scheme list iterator
    LOGFONT       oFontData;         // Specifies the data for enumerating fonts
    HDC           hDC;               // Dialog device context
 
    // Prepare
    TRACK_FUNCTION();
+   utilZeroObject(&oFontData, LOGFONT);
 
    /// Enumerate Colour schemes in the dialog data
    for (UINT iScheme = 0; findListItemByIndex(pDialogData->pColourSchemeList, iScheme, pSchemeListItem); iScheme++)
-      // Add to scheme names to ComboBox
-      SendDlgItemMessage(hDialog, IDC_COLOUR_SCHEME_COMBO, CB_ADDSTRING, NULL, (LPARAM)extractListItemPointer(pSchemeListItem, COLOUR_SCHEME)->szName);
-   
-   // Prepare
-   hDC = GetDC(hDialog);
-   utilZeroObject(&oFontData, LOGFONT);
+      appendCustomComboBoxItemEx(GetDlgItem(hDialog, IDC_COLOUR_SCHEME_COMBO), extractListItemPointer(pSchemeListItem, COLOUR_SCHEME)->szName, NULL, szSchemeIcons[iScheme], NULL);
 
+   // Select first colour scheme
+   ComboBox_SetCurSel(GetDlgItem(hDialog, IDC_COLOUR_SCHEME_COMBO), 0);
+   
    /// Enumerate Fonts available on the system and add to the Fonts ComboBox
-   EnumFontFamiliesEx(hDC, &oFontData, (FONTENUMPROC)callbackPreferencesFontEnumeration, (LPARAM)hDialog, NULL);
+   EnumFontFamiliesEx(hDC = GetDC(hDialog), &oFontData, (FONTENUMPROC)callbackPreferencesFontEnumeration, (LPARAM)hDialog, NULL);
    ReleaseDC(hDialog, hDC);
 
    // Return TRUE
@@ -446,6 +443,7 @@ BOOL  initPreferencesSyntaxPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
 
    // Setup ListView columns and ImageList
    initReportModeListView(GetControl(hDialog, IDC_CODE_OBJECT_LIST), &oComponentsListView, FALSE);
+   SubclassWindow(GetControl(hDialog, IDC_CODE_OBJECT_LIST), wndprocCustomListView);
 
    // Select first item
    ListView_SetItemCount(GetControl(hDialog, IDC_CODE_OBJECT_LIST), DISPLAY_CODEOBJECTS);
@@ -567,8 +565,7 @@ BOOL  onPreferencesAppearancePage_Command(PREFERENCES_DATA*  pDialogData, HWND  
    COLOUR_SCHEME  *pNewScheme,         // New Colour Scheme convenience pointer
                   *pOldScheme;         // Old Colour scheme convenience pointer
    TCHAR           szFontSize[4];      // New colour scheme Font size, as a string
-   BOOL            bValidName,         // TRUE if colour scheme name isn't empty
-                   bResult;
+   BOOL            bResult;
 
    // Prepare
    TRACK_FUNCTION();
@@ -580,20 +577,16 @@ BOOL  onPreferencesAppearancePage_Command(PREFERENCES_DATA*  pDialogData, HWND  
    {
    /// [FONT NAME CHANGED]
    case IDC_FONT_NAME_COMBO:
-      if (iNotification == CBN_SELCHANGE)
-      {
+      if (bResult = (iNotification == CBN_SELCHANGE))
          // Re-populate FontSize ComboBox
          populateAppearancePageFontSizesCombo(pDialogData, hDialog);
-         bResult = TRUE;
-      }
       break;
 
-   // [COLOUR SCHEME COMBO]
+   /// [COLOUR SCHEME CHANGED]
    case IDC_COLOUR_SCHEME_COMBO:
-      switch (iNotification)
+      /// Set new scheme. Display appropriate font name/size etc.
+      if (bResult = (iNotification == CBN_SELCHANGE))
       {
-      /// [EXISTING SCHEME SELECTED] -- Set new scheme. Display appropriate font name/size etc.
-      case CBN_SELCHANGE:
          // Lookup associated ColourScheme
          findListItemByIndex(pDialogData->pColourSchemeList, ComboBox_GetCurSel(GetControl(hDialog, IDC_COLOUR_SCHEME_COMBO)), pNewSchemeItem);
          ASSERT(pNewScheme = extractListItemPointer(pNewSchemeItem, COLOUR_SCHEME));
@@ -608,17 +601,6 @@ BOOL  onPreferencesAppearancePage_Command(PREFERENCES_DATA*  pDialogData, HWND  
          // Update the Font Size combo
          StringCchPrintf(szFontSize, 4, TEXT("%u"), pNewScheme->iFontSize);
          ComboBox_SelectString(GetControl(hDialog, IDC_FONT_SIZE_COMBO), -1, szFontSize);
-
-         bResult = TRUE;
-         break;
-      
-      /// [NEW SCHEME NAME TYPED] -- Enable the 'save scheme' button if the scheme name is valid
-      case CBN_EDITUPDATE:
-         bValidName = utilGetDlgItemTextLength(hDialog, IDC_COLOUR_SCHEME_COMBO) > 0;
-         utilEnableDlgItem(hDialog, IDC_COLOUR_SCHEME_SAVE, bValidName);
-         
-         bResult = TRUE;
-         break;
       }
       break;
 
@@ -1013,11 +995,10 @@ BOOL  onPreferencesSyntaxPage_Command(PREFERENCES_DATA*  pDialogData, HWND  hDia
    /// [TEXT COLOUR]
    case IDC_TEXT_COLOUR_COMBO:
       // [SELECTION CHANGED]
-      if (iNotification == CBN_SELCHANGE)
+      if (bResult = (iNotification == CBN_SELCHANGE))
       {
          // Save new text colour in the current CodeObject
          pColourScheme->eCodeObjectColours[eCodeObject] = eTextColour;
-         bResult = TRUE;
 
          // [SPECIAL CASE] Use the same colour for VARIABLES as the user chooses for NULL
          if (eCodeObject == CO_VARIABLE)
@@ -1030,13 +1011,9 @@ BOOL  onPreferencesSyntaxPage_Command(PREFERENCES_DATA*  pDialogData, HWND  hDia
 
    /// [BACKGROUND COLOUR]
    case IDC_BACKGROUND_COLOUR_COMBO:
-      // [SELECTION CHANGED]
-      if (iNotification == CBN_SELCHANGE)
-      {
-         // Save new background colour
+      // [SELECTION CHANGED] Save new background colour
+      if (bResult = (iNotification == CBN_SELCHANGE))
          pColourScheme->eBackgroundColour = eBackgroundColour;
-         bResult = TRUE;
-      }
       break;
    }
 
@@ -1150,8 +1127,9 @@ INT_PTR   dlgprocPreferencesAppearancePage(HWND  hDialog, UINT  iMessage, WPARAM
             bResult = TRUE;
          break;
 
-      case WM_MEASUREITEM: 
-         bResult = onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_SMALL);
+      // [CUSTOM COMBO]
+      case WM_MEASUREITEM:  
+         bResult = onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_MEDIUM);  
          break;
       }
 
@@ -1293,26 +1271,22 @@ INT_PTR   dlgprocPreferencesSyntaxPage(HWND  hDialog, UINT  iMessage, WPARAM  wP
       {
       /// [COMMAND] 
       case WM_COMMAND:
-         if (!onPreferencesSyntaxPage_Command(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam)))
-            // [UNHANDLED] Pass to base
-            bResult = dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_SYNTAX);
+         bResult = onPreferencesSyntaxPage_Command(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam));
          break;
 
       /// [NOTIFY]
       case WM_NOTIFY:
-         if (!onPreferencesSyntaxPage_Notify(pDialogData, hDialog, (NMHDR*)lParam))
-            // [UNHANDLED] Pass to base
-            bResult = dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_SYNTAX);
+         bResult = onPreferencesSyntaxPage_Notify(pDialogData, hDialog, (NMHDR*)lParam);
          break;
 
-      // [DEFAULT] Pass to base
-      default:
-         bResult = dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_SYNTAX);
+      // [CUSTOM COMBO]
+      case WM_MEASUREITEM:  
+         bResult = onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_SMALL);  
          break;
       }
 
       // Return result
-      return bResult;
+      return bResult ? TRUE : dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_SYNTAX);
    }
    /// [EXCEPTION HANDLER]
    __except (generateExceptionError(GetExceptionInformation(), pException))

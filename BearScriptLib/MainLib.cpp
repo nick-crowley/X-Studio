@@ -22,8 +22,8 @@ HINSTANCE        hLibraryInstance  = NULL;
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Size of the small/medium ImageTrees
-CONST UINT       iSmallIconCount  = 53,
-                 iMediumIconCount = 91,
+CONST UINT       iSmallIconCount  = 57,
+                 iMediumIconCount = 95,
                  iLargeIconCount  = 10;
 
 // Defines the small icons used by controls
@@ -56,7 +56,7 @@ CONST TCHAR*     szSmallIcons[iSmallIconCount] =
 
    // Preferences Dialog
    TEXT("ENGLISH_ICON"),         TEXT("FRENCH_ICON"),              TEXT("GERMAN_ICON"),           TEXT("ITALIAN_ICON"),          TEXT("POLISH_ICON"),              TEXT("RUSSIAN_ICON"),
-   TEXT("SPANISH_ICON"),
+   TEXT("SPANISH_ICON"),         TEXT("MAIN_WINDOW"),              TEXT("EXSCRIPTOR_ICON"),       TEXT("THREAT_ICON"),           TEXT("VISUAL_STUDIO_ICON"),
 
    // Colours
    TEXT("BLACK_ICON"),           TEXT("BLUE_ICON"),                TEXT("CYAN_ICON"),             TEXT("GREEN_ICON"),            TEXT("ORANGE_ICON"),
@@ -110,6 +110,7 @@ CONST TCHAR*     szMediumIcons[iMediumIconCount] =
    // Preferences Dialog
    TEXT("ENGLISH_ICON"),           TEXT("FRENCH_ICON"),           TEXT("GERMAN_ICON"),              TEXT("ITALIAN_ICON"),        
    TEXT("POLISH_ICON"),            TEXT("RUSSIAN_ICON"),          TEXT("SPANISH_ICON"),
+   TEXT("MAIN_WINDOW"),            TEXT("EXSCRIPTOR_ICON"),       TEXT("THREAT_ICON"),              TEXT("VISUAL_STUDIO_ICON"),
 
    // Colours
    TEXT("BLACK_ICON"),             TEXT("BLUE_ICON"),             TEXT("CYAN_ICON"),                TEXT("GREEN_ICON"),          TEXT("ORANGE_ICON"),

@@ -149,6 +149,7 @@ VOID      onCodeEditReceiveFocus(CODE_EDIT_DATA*  pWindowData, HWND  hSourceWnd)
 LRESULT   onCodeEditNotification(CODE_EDIT_DATA*  pWindowData, CONST UINT  iControlID, NMHDR*  pHeader);
 VOID      onCodeEditPaint(CODE_EDIT_DATA*  pWindowData);
 VOID      onCodeEditPaintNonClient(CODE_EDIT_DATA*  pWindowData, HRGN  hUpdateRgn);
+VOID      onCodeEditPreferencesChanged(CODE_EDIT_DATA*  pWindowData);
 VOID      onCodeEditResize(CODE_EDIT_DATA*  pWindowData, CONST UINT  iWidth, CONST UINT  iHeight);
 VOID      onCodeEditScroll(CODE_EDIT_DATA*  pWindowData, CONST UINT  iScrollType, CONST UINT  iDragPosition, CONST UINT  iDirection);
 
@@ -284,7 +285,7 @@ VOID                  onCodeEditUndoLastAction(CODE_EDIT_DATA*  pWindowData);
 
 // FUnctions
 COLORREF  identifyCommentRatioColour(CONST UINT  iPercentage);
-BOOL      drawGradientBar(HDC  hDC, CONST SIZE*  pSize, CONST COLORREF  clColour);
+BOOL      drawGradientBar(HDC  hDC, CONST SIZE*  pSize, CONST COLORREF  clColour, CONST COLORREF  clBackground);
 
 // Message Handlers
 BOOL      onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPercentage);

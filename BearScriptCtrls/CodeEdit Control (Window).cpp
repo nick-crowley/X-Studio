@@ -1008,6 +1008,44 @@ VOID  onCodeEditPaintNonClient(CODE_EDIT_DATA*  pWindowData, HRGN  hUpdateRgn)
 }
 
 
+/// Function name  : onCodeEditPreferencesChanged
+// Description     : Generates new text font/metrics and redraws the CodeEdit
+// 
+// CODE_EDIT_DATA*  pWindowData   : [in] Window data
+// 
+VOID  onCodeEditPreferencesChanged(CODE_EDIT_DATA*  pWindowData)
+{
+   TEXTMETRIC    oTextMetrics;      // Size of the new font
+   HFONT         hCodeFont,         // Font used to display text
+                 hOldFont;          // Existing font
+   HDC           hDC;               // Destination device context
+
+   // [TRACK]
+   TRACK_FUNCTION();
+
+   // Prepare
+   hDC = GetDC(pWindowData->hWnd);
+
+   /// Create new code font
+   hCodeFont = utilCreateFont(hDC, pWindowData->pColourScheme->szFontName, pWindowData->pColourScheme->iFontSize, pWindowData->pColourScheme->bFontBold, FALSE, FALSE); 
+
+   // Replace existing font
+   hOldFont = (HFONT)SelectObject(hDC, hCodeFont);
+   DeleteObject(hOldFont);
+   
+   /// Determine and store text height and width
+   GetTextMetrics(hDC, &oTextMetrics);
+   utilSetSize(&pWindowData->siCharacterSize, oTextMetrics.tmAveCharWidth, oTextMetrics.tmHeight);
+
+   // Redraw entire window
+   InvalidateRect(pWindowData->hWnd, NULL, FALSE);
+
+   // Cleanup
+   ReleaseDC(pWindowData->hWnd, hDC);
+   END_TRACKING();
+}
+
+
 /// Function name  : onCodeEditResize
 // Description     : Recalculates the size of a page and adjusts the scrollbars to match
 // 
@@ -1299,6 +1337,11 @@ LRESULT   wndprocCodeEdit(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lP
       // [IS SELECITON COMMENTED]
       case UM_IS_SELECTION_COMMENTED:
          iResult = (LRESULT)isCodeEditSelectionCommented(pWindowData);
+         break;
+
+      // [PREFERENCES CHANGED]
+      case UN_PREFERENCES_CHANGED:
+         onCodeEditPreferencesChanged(pWindowData);
          break;
 
       // [LOAD SCRIPT FILE]

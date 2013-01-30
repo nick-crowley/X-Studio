@@ -60,8 +60,9 @@ BOOL  onOwnerDrawStaticImage(DRAWITEMSTRUCT*  pDrawData, CONST TCHAR*  szResourc
    HICON    hIcon;         // Icon handle
    HDC      hMemoryDC;     // Memory DC
 
-   // [CHECK] Ensure control is a static
-   ASSERT(pDrawData->CtlType == ODT_STATIC);
+   // [CHECK] Ensure window is a visible static
+   if (pDrawData->CtlType != ODT_STATIC OR !IsWindowVisible(pDrawData->hwndItem))
+      return FALSE;
 
    // Examine type   
    switch (iType)
@@ -108,17 +109,11 @@ BOOL  onOwnerDrawStaticImage(DRAWITEMSTRUCT*  pDrawData, CONST TCHAR*  szResourc
 ControlsAPI 
 BOOL   onOwnerDrawStaticTitle(LPARAM  lParam)
 {
-static CONST COLORREF  clDialogTitleColour = RGB(42,84,153);
+   static CONST COLORREF  clColour = RGB(42,84,153);
+   CONST TCHAR*           szFont   = (getAppWindowsVersion() >= WINDOWS_VISTA ? TEXT("Segoe UI Light") : TEXT("Tahoma"));
  
-   // [CHECK] Are we running windows vista?
-   if (getAppWindowsVersion() >= WINDOWS_VISTA)
-      // [VISTA]
-      onOwnerDrawStaticText((DRAWITEMSTRUCT*)lParam, TEXT("Segoe UI Light"), 14, clDialogTitleColour, COLOR_WINDOW, FALSE);
-   else
-      // [XP]
-      onOwnerDrawStaticText((DRAWITEMSTRUCT*)lParam, TEXT("Tahoma"), 14, clDialogTitleColour, COLOR_WINDOW, FALSE);
-
-   return TRUE;
+   /// Draw text
+   return onOwnerDrawStaticText((DRAWITEMSTRUCT*)lParam, szFont, 14, clColour, COLOR_WINDOW, FALSE);
 }
 
 
@@ -132,16 +127,13 @@ static CONST COLORREF  clDialogTitleColour = RGB(42,84,153);
 ControlsAPI 
 BOOL   onOwnerDrawStaticHeading(LPARAM  lParam)
 {
-   // [CHECK] Are we running windows vista?
-   if (getAppWindowsVersion() >= WINDOWS_VISTA)
-      // [VISTA]
-      onOwnerDrawStaticText((DRAWITEMSTRUCT*)lParam, TEXT("Segoe UI Bold"), 9, GetSysColor(COLOR_WINDOWTEXT), COLOR_WINDOW, FALSE); 
-   else
-      // [XP]
-      onOwnerDrawStaticText((DRAWITEMSTRUCT*)lParam, TEXT("MS Shell Dlg 2"), 9, GetSysColor(COLOR_WINDOWTEXT), COLOR_WINDOW, TRUE); 
+   WINDOWS_VERSION  eVersion = getAppWindowsVersion();
+   CONST TCHAR*     szFont   = (eVersion >= WINDOWS_VISTA ? TEXT("Segoe UI Bold") : TEXT("MS Shell Dlg 2"));
 
-   return TRUE;
+   /// Draw text
+   return onOwnerDrawStaticText((DRAWITEMSTRUCT*)lParam, szFont, 9, GetSysColor(COLOR_WINDOWTEXT), COLOR_WINDOW, eVersion < WINDOWS_VISTA);
 }
+
 
 /// Function name  : onOwnerDrawStaticText
 // Description     : Owner draws a static text control
@@ -163,10 +155,10 @@ BOOL  onOwnerDrawStaticText(DRAWITEMSTRUCT*  pDrawData, CONST TCHAR*  szFont, CO
    DWORD      dwStyle;          // window style
    UINT       iDrawStyle;       // Window styles converted to DrawText drawing flags
 
-   // [CHECK] Ensure control is a text based static
-   ASSERT(pDrawData->CtlType == ODT_STATIC);
-   ASSERT(GetWindowStyle(pDrawData->hwndItem) INCLUDES ~(SS_ICON WITH SS_BITMAP));
-
+   // [CHECK] Ensure window is a visible static
+   if (pDrawData->CtlType != ODT_STATIC OR !IsWindowVisible(pDrawData->hwndItem)) // /*utilIncludes(GetWindowStyle(pDrawData->hwndItem), SS_ICON WITH SS_BITMAP) OR*/
+      return FALSE;
+   
    // Prepare
    dwStyle    = GetWindowStyle(pDrawData->hwndItem);
    szText     = utilGetWindowText(pDrawData->hwndItem);

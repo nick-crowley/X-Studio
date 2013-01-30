@@ -209,8 +209,8 @@ VOID  calculateCodeEditDisplayRectangle(HDC  hDC, CONST CODE_EDIT_LINE*  pLineDa
    /// [INTERRUPT INDICATOR] The space containing the '@' symbol or a gap
    case CDR_INTERRUPT_INDICATOR:
       // Measure size of 3 interrupt indicators
-      StringCchCopy(szIndicator, 8, TEXT("@@@"));
-      GetTextExtentPoint32(hDC, szIndicator, 3, &siTextSize);
+      StringCchCopy(szIndicator, 8, TEXT("@y"));
+      GetTextExtentPoint32(hDC, szIndicator, 2, &siTextSize);
 
       // Create interrupt indicator rectangle next to the line number indicator
       calculateCodeEditDisplayRectangle(hDC, pLineData, CDR_LINE_NUMBER_INDICATOR, rcLineRect, pOutputRect);
@@ -1011,37 +1011,15 @@ VOID   setCodeEditCaretLocation(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LO
 // 
 VOID   setCodeEditPreferences(CODE_EDIT_DATA*  pWindowData, CONST PREFERENCES*  pPreferences)
 {
-   TEXTMETRIC    oTextMetrics;      // Size of the new font
-   HFONT         hCodeFont,         // Font used to display text
-                 hOldFont;          // Existing font
-   HDC           hDC;               // Destination device context
-
    // [TRACK]
    TRACK_FUNCTION();
-
-   // Prepare
-   hDC = GetDC(pWindowData->hWnd);
 
    /// Store preferences object and update ColourScheme convenience pointer
    pWindowData->pPreferences  = pPreferences;
    pWindowData->pColourScheme = &pPreferences->oColourScheme;
 
-   /// Create new code font
-   hCodeFont = utilCreateFont(hDC, pWindowData->pColourScheme->szFontName, pWindowData->pColourScheme->iFontSize, pWindowData->pColourScheme->bFontBold, FALSE, FALSE); 
-
-   // Replace existing font
-   hOldFont = (HFONT)SelectObject(hDC, hCodeFont);
-   DeleteObject(hOldFont);
-   
-   /// Determine and store text height and width
-   GetTextMetrics(hDC, &oTextMetrics);
-   utilSetSize(&pWindowData->siCharacterSize, oTextMetrics.tmAveCharWidth, oTextMetrics.tmHeight);
-
-   // Redraw entire window
-   InvalidateRect(pWindowData->hWnd, NULL, FALSE);
-
-   // Cleanup
-   ReleaseDC(pWindowData->hWnd, hDC);
+   // [EVENT] Preferences Changed
+   onCodeEditPreferencesChanged(pWindowData);
    END_TRACKING();
 }
 

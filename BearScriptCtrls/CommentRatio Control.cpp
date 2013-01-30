@@ -58,7 +58,7 @@ COLORREF  identifyCommentRatioColour(CONST UINT  iPercentage)
 // 
 // Return Value   : TRUE
 // 
-BOOL  drawGradientBar(HDC  hDC, CONST SIZE*  pSize, CONST COLORREF  clColour)
+BOOL  drawGradientBar(HDC  hDC, CONST SIZE*  pSize, CONST COLORREF  clColour, CONST COLORREF  clBackground)
 {
    TRIVERTEX        oCorners[2];       // Corners of the gradient rectangles
    GRADIENT_RECT    oGradientRect;     // Defines a gradient rectangle
@@ -72,9 +72,9 @@ BOOL  drawGradientBar(HDC  hDC, CONST SIZE*  pSize, CONST COLORREF  clColour)
    // Define white corner
    oCorners[0].x      = 0;
    oCorners[0].y      = 0;
-   oCorners[0].Red    = 255 << 8;
-   oCorners[0].Green  = 255 << 8;
-   oCorners[0].Blue   = 255 << 8;
+   oCorners[0].Red    = GetRValue(clBackground) << 8;
+   oCorners[0].Green  = GetGValue(clBackground) << 8;
+   oCorners[0].Blue   = GetBValue(clBackground) << 8;
    oCorners[0].Alpha  = 255 << 8;
    oGradientRect.UpperLeft  = 0;
 
@@ -157,8 +157,9 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
    hMemoryDC     = CreateCompatibleDC(pPaintData->hdc);
    hMemoryBitmap = CreateCompatibleBitmap(pPaintData->hdc, siContentSize.cx, siContentSize.cy);
    hOldBitmap    = SelectBitmap(hMemoryDC, hMemoryBitmap);
-
+   
    // Clip the content rectangle to avoid flickering
+   FillRect(pPaintData->hdc, &rcContentRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
    ExcludeClipRect(pPaintData->hdc, rcContentRect.left, rcContentRect.top, rcContentRect.right, rcContentRect.bottom);
 
    // [CHECK] Are themes active?
@@ -174,12 +175,12 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
    SelectClipRgn(pPaintData->hdc, hClipRegion);
    
    /// Create the progress bar effect by generating a gradient bar and masking it through a custom bitmap
-   drawGradientBar(hMemoryDC, &siContentSize, identifyCommentRatioColour(iPercentage));
+   drawGradientBar(hMemoryDC, &siContentSize, identifyCommentRatioColour(iPercentage), getThemeSysColour(TEXT("Window"), COLOR_WINDOW));
    hMaskBitmap = LoadBitmap(getResourceInstance(), TEXT("PROGRESS_BAR_MASK"));
-   MaskBlt(pPaintData->hdc, rcContentRect.left, rcContentRect.top, iBarWidth, siContentSize.cy, hMemoryDC, 0, 0, hMaskBitmap, 0, 0, MAKEROP4(SRCCOPY, WHITENESS));
+   MaskBlt(pPaintData->hdc, rcContentRect.left, rcContentRect.top, iBarWidth, siContentSize.cy, hMemoryDC, 0, 0, hMaskBitmap, 0, 0, MAKEROP4(SRCCOPY, SRCPAINT));
 
-   // Erase Non-bar area
-   utilFillSysColourRect(pPaintData->hdc, &rcNonBarContentRect, COLOR_WINDOW);
+   /// Draw any remaining background
+   FillRect(pPaintData->hdc, &rcNonBarContentRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
 
    // Cleanup
    SelectBitmap(hMemoryDC, hOldBitmap);
