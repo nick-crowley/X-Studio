@@ -898,7 +898,7 @@ BOOL  onResultsDialog_RequestTooltipData(RESULTS_DIALOG_DATA*  pDialogData, HWND
    if (pHeader->dwFlags == LVGIT_CUSTOM)
    {
       // Lookup requested item
-      if (!findObjectInAVLTreeByIndex(pDialogData->pResultsTree, pHeader->iItem, (LPARAM&)xResult))
+      if (!findResultsDialogItemByIndex(pDialogData, pHeader->iItem, xResult))
          // [FAILED] Invalid index, return FALSE
          return FALSE;
 

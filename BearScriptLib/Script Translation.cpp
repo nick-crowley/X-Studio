@@ -1339,7 +1339,7 @@ OPERATION_RESULT  translateScriptFileMacros(SCRIPT_FILE*  pScriptFile, HWND  hPa
                switch (iSubCommand)
                {
                // [CHECK] Ensure next command is 'while $iterator'
-               case 1: bMatchFound = isExpressionSimpleLoopConditional(pSubCommand, szIteratorVariable);                                                   break;
+               case 1: bMatchFound = isExpressionSimpleLoopConditional(pSubCommand, szIteratorVariable);   break;
                // [CHECK] Ensure next command is 'dec $iterator'
                case 2: bMatchFound = isCommandID(pSubCommand, CMD_DECREMENT) AND isVariableParameterInCommandAtIndex(pSubCommand, 0, szIteratorVariable);  break;
                // [CHECK] Ensure next command is '$item = $Array[$iterator.1]'
@@ -1350,34 +1350,8 @@ OPERATION_RESULT  translateScriptFileMacros(SCRIPT_FILE*  pScriptFile, HWND  hPa
             // [CHECK] Ensure we found the necessary commands
             if (bMatchFound)
             {
-               // Prepare
-               bMatchFound = FALSE;
-
-               // [CHECK] Search for any other uses of 'iterator' within the loop
-               for (UINT  iSubCommand = 4, iDepth = 1; iDepth > 0 AND findCommandInTranslatorOutput(pScriptFile->pTranslator, iIndex + iSubCommand, pSubCommand); iSubCommand++)
-               {
-                  // Calculate current depth
-                  switch (pSubCommand->eConditional)
-                  {
-                  case CI_IF: 
-                  case CI_WHILE:
-                  case CI_IF_NOT:
-                  case CI_WHILE_NOT: 
-                     iDepth++;  
-                     break;
-                  }
-
-                  // [CHECK] Ensure we catch 'end'
-                  if (pSubCommand->eConditional == CI_END OR isCommandID(pSubCommand, CMD_END))
-                     iDepth--;
-
-                  // [CHECK] Does this command use the 'iterator' variable?
-                  if (isVariableParameterInCommand(pSubCommand, szIteratorVariable))
-                     bMatchFound = TRUE;
-               }
-
-               // [USE COUNTER] Use different syntax if iterator variable is required during the loop
-               if (bMatchFound)
+               // [FOR EACH USING COUNTER] Use counter macro if Iterator isn't in format XS.Iteratorxx
+               if (!isVariableMacroIterator(szIteratorVariable))
                   StringCchPrintf(szCommandText, LINE_LENGTH, TEXT("for each $%s in array $%s using counter $%s"), szReturnVariable, szArrayVariable, szIteratorVariable);
                // [FOR EACH] Hide iterator if not required
                else

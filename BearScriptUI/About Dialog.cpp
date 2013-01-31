@@ -29,7 +29,57 @@
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+BOOL  setDialogStrings(HWND  hDialog, const UINT  iStringID, const UINT  iSkipCount, ...)
+{
+   CONST TCHAR  *szClasses[] = { WC_STATIC, WC_BUTTON, WC_LINK },      // Supported window classes
+                *szCtrlText;        // Text for current control
+   TCHAR        *szAllStrings,      // All strings
+                *pIterator;         // tokeniser
+   TCHAR         szCtrlClass[32];   // Window class of current control
+   UINT          iCtrlID,
+                 iIndex = 0,
+                 iSkipIDs[10];
+          
+   // Load dialog string
+   if ((szAllStrings = utilLoadString(getResourceInstance(), iStringID, 4096)) == NULL)
+      return FALSE;
 
+   // Enumerate IDs of controls to skip, if any
+   for (va_list  pArgument = utilGetFirstVariableArgument(&iSkipCount); iIndex < iSkipCount AND iIndex < 10; pArgument = utilGetNextVariableArgument(pArgument, UINT))
+      iSkipIDs[iIndex++] = utilGetCurrentVariableArgument(pArgument, UINT);
+   
+   // Extract first text
+   szCtrlText = utilTokeniseString(szAllStrings, "$", &pIterator);
+
+   /// Iterate through dialog child windows
+   for (HWND  hCtrl = GetFirstChild(hDialog); szCtrlText AND GetClassName(hCtrl, szCtrlClass, 32) AND (iCtrlID = GetWindowID(hCtrl)); hCtrl = GetNextSibling(hCtrl))
+   {
+      BOOL  bMatch = FALSE,
+            bSkip  = FALSE;
+
+      // [CHECK] Ensure control ID isn't in the skip list
+      for (UINT  i = 0; !bSkip AND i < iSkipCount; i++)
+         if (bSkip = (iCtrlID == iSkipIDs[i]))
+            break;
+
+      // [CHECK] Ensure control is: STATIC, BUTTON or LINK
+      for (UINT  iClass = 0; !bSkip AND !bMatch AND iClass < 3; iClass++)
+         if (bMatch = utilCompareStringVariables(szCtrlClass, szClasses[iClass]))
+            break;
+      
+      // [FAILED] Move to next child
+      if (bSkip OR !bMatch)
+         continue;
+
+      /// [FOUND] Set control text and extract next string
+      SetWindowText(hCtrl, szCtrlText);
+      szCtrlText = utilGetNextToken("$", &pIterator);
+   }
+
+   // Cleanup and return
+   utilDeleteString(szAllStrings);
+   return TRUE;
+}
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
@@ -59,9 +109,11 @@ BOOL   initAboutDialog(HWND  hDialog)
    utilAddWindowStyle(GetDlgItem(hDialog, IDC_ABOUT_DIALOG_VERSION_HEADING), SS_OWNERDRAW WITH CSS_CENTRE);
    utilAddWindowStyle(GetDlgItem(hDialog, IDC_ABOUT_DIALOG_THANKS_HEADING), SS_OWNERDRAW);
    
-   
    // Centre dialog
    utilCentreWindow(getAppWindow(), hDialog);
+
+   /// Localize dialog strings
+   setDialogStrings(hDialog, IDS_ABOUT_DIALOG_STRINGS, 4, IDC_ABOUT_DIALOG_ICON, IDC_ABOUT_EXSCRIPTOR_ICON, IDC_ABOUT_DOUBLESHADOW_ICON, IDC_ABOUT_XUNIVERSE_BITMAP);
 
    // Return TRUE
    return TRUE;

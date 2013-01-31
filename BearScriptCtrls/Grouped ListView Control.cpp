@@ -583,15 +583,15 @@ BOOL  onGroupedListView_CustomDrawTooltip(GROUPED_LISTVIEW*  pWindowData, HWND  
    utilZeroObject(&oDataRequest, NMLVGETINFOTIP);
    utilGetWindowCursorPos(pWindowData->hCtrl, &oHitTest.pt);
    
-   /// Calculate logical index
-   if (calculateLogicalIndex(pWindowData, ListView_HitTest(pWindowData->hCtrl, &oHitTest), &oItem) AND oItem.eType == GLVIT_ITEM)
+   /// Lookup logical index of target item
+   if (ListView_HitTest(pWindowData->hCtrl, &oHitTest) != -1)     //if (calculateLogicalIndex(pWindowData, ListView_HitTest(pWindowData->hCtrl, &oHitTest), &oItem) AND oItem.eType == GLVIT_ITEM)
    {
       // Setup RichTooltip data request
       oDataRequest.hdr.code     = LVN_GETINFOTIP;
       oDataRequest.hdr.hwndFrom = hTooltip;
       oDataRequest.hdr.idFrom   = GetWindowID(pWindowData->hCtrl);
       oDataRequest.dwFlags      = LVGIT_CUSTOM;
-      oDataRequest.iItem        = oItem.iLogicalIndex;
+      oDataRequest.iItem        = oHitTest.iItem;
 
       /// Request data from parent
       if (SendMessage(GetParent(pWindowData->hCtrl), WM_NOTIFY, oDataRequest.hdr.idFrom, (LPARAM)&oDataRequest))

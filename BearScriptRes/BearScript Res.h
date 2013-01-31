@@ -956,6 +956,9 @@
 #define IDS_GENERAL_PROJECT_EXPORT_BROWSE                1563
 #define IDS_GENERAL_PROJECT_EXPORT_SUCCESS               1564
 
+// Localisation Dialog Strings
+#define IDS_ABOUT_DIALOG_STRINGS                         1600
+
 /// ///////////////////////////////////////////////////////
 ///                     MENU INDICIES
 /// ///////////////////////////////////////////////////////
@@ -1256,7 +1259,8 @@
 #define IDC_ABOUT_LINK_FORUMS                            3085
 #define IDC_ABOUT_EXSCRIPTOR_ICON                        3086
 #define IDC_ABOUT_DOUBLESHADOW_ICON                      3087
-#define IDC_ABOUT_LICENSE                                3088
+#define IDC_ABOUT_XUNIVERSE_BITMAP                       3088
+#define IDC_ABOUT_LICENSE                                3089
 
 // About-License Dialog
 #define IDC_LICENSE_EDIT                                 3090

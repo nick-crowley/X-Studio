@@ -1278,6 +1278,7 @@ BOOL                        convertStringIDToSectorCoordinates(CONST UINT  iStri
 CONST TCHAR*                identifyDataTypeString(CONST DATA_TYPE  eType);
 BearScriptAPI GAME_PAGE_ID  identifyGamePageIDFromDataType(CONST DATA_TYPE  eDataType);
 PARAMETER_NODE_TYPE         identifyParameterSyntaxType(CONST PARAMETER_SYNTAX  eSyntax);
+BOOL                        isVariableMacroIterator(const TCHAR*  szVariable);
 BOOL                        verifyDataType(CONST DATA_TYPE  eType);
 
 // Functions

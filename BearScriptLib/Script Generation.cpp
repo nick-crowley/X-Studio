@@ -909,7 +909,15 @@ BOOL  generateScript(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_PROGR
    return (identifyErrorQueueType(pErrorQueue) != ET_ERROR);
 }
 
-
+/// Function name  : generateCustomMenuMacro
+// Description     : Generates the physical commands necessary to perform the 'add custom menu' macro
+// 
+// SCRIPT_FILE*    pScriptFile     : [in/out] ScriptFile
+// CONST COMMAND*  pVirtualCommand : [in]     Macro command to expand
+// ERROR_QUEUE*    pErrorQueue     : [in/out] Error queue
+// 
+// Return Value   : TRUE/FALSE
+// 
 BOOL  generateCustomMenuMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtualCommand, ERROR_QUEUE*  pErrorQueue)
 {
    CONST TCHAR  *szReturnVariable,     // Return variable
@@ -987,6 +995,15 @@ BOOL  generateCustomMenuMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtua
    return !pError AND bResult;
 }
 
+/// Function name  : generateDefineArrayMacro
+// Description     : Generates the physical commands necessary to perform the 'dim' macro
+// 
+// SCRIPT_FILE*    pScriptFile     : [in/out] ScriptFile
+// CONST COMMAND*  pVirtualCommand : [in]     Macro command to expand
+// ERROR_QUEUE*    pErrorQueue     : [in/out] Error queue
+// 
+// Return Value   : TRUE/FALSE
+// 
 BOOL  generateDefineArrayMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtualCommand, ERROR_QUEUE*  pErrorQueue)
 {
    CONST TCHAR  *szArrayVariable;      // Array variable
@@ -1050,6 +1067,15 @@ BOOL  generateDefineArrayMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtu
    return !pError AND bResult;
 }
 
+/// Function name  : generateForEachMacro
+// Description     : Generates the physical commands necessary to perform the 'for each' macro
+// 
+// SCRIPT_FILE*    pScriptFile     : [in/out] ScriptFile
+// CONST COMMAND*  pVirtualCommand : [in]     Macro command to expand
+// ERROR_QUEUE*    pErrorQueue     : [in/out] Error queue
+// 
+// Return Value   : TRUE/FALSE
+// 
 BOOL  generateForEachMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtualCommand, ERROR_QUEUE*  pErrorQueue)
 {
    CONST TCHAR  *szReturnVariable,     // Return variable
@@ -1064,17 +1090,17 @@ BOOL  generateForEachMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtualCo
    bResult = TRUE;
    pError  = NULL;
 
-   // [CHECK] Lookup return variable 
+   /// [CHECK] Lookup RetVar
    if (!findVariableParameterInCommandByIndex(pVirtualCommand, 0, szReturnVariable))
       // [ERROR] "Missing iterator variable in the 'for each' macro on line %u : '%s'"
       pError = generateDualError(HERE(IDS_GENERATION_FOREACH_ITERATOR_MISSING), pVirtualCommand->iLineNumber + 1, pVirtualCommand->szBuffer);
 
-   // [CHECK] Lookup array variable
+   /// [CHECK] Lookup Array
    else if (!findVariableParameterInCommandByIndex(pVirtualCommand, 1, szArrayVariable)) 
       // [ERROR] "Missing array variable in the 'for each' macro on line %u : '%s'"
       pError = generateDualError(HERE(IDS_GENERATION_FOREACH_ARRAY_MISSING), pVirtualCommand->iLineNumber + 1, pVirtualCommand->szBuffer);
 
-   // [CHECK] Lookup return variable 
+   /// [CHECK] Lookup Iterator
    else if (isCommandID(pVirtualCommand, CMD_FOR_EACH_COUNTER) AND !findVariableParameterInCommandByIndex(pVirtualCommand, 2, szIteratorVariable))
       // [ERROR] "Missing counter variable in the 'for each ... using counter' macro on line %u : '%s'"
       pError = generateDualError(HERE(IDS_GENERATION_FOREACH_COUNTER_MISSING), pVirtualCommand->iLineNumber + 1, pVirtualCommand->szBuffer);
@@ -1084,7 +1110,7 @@ BOOL  generateForEachMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtualCo
       // Prepare
       szCommandText = utilCreateEmptyString(LINE_LENGTH);
 
-      // [FOR-EACH] Generate iterator name
+      // [FOR-EACH] Generate hidden iterator name
       if (isCommandID(pVirtualCommand, CMD_FOR_EACH))
          szIteratorVariable = utilCreateStringf(64, TEXT("XS.Iterator%d"), ++pScriptFile->pGenerator->iIteratorID);  // [FIX]  calculateGeneratorForEachCommandCount(pScriptFile->pGenerator) + 1
 
@@ -1128,6 +1154,15 @@ BOOL  generateForEachMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtualCo
    return !pError AND bResult;
 }
 
+/// Function name  : generateForLoopMacro
+// Description     : Generates the physical commands necessary to perform the 'for loop' macro
+// 
+// SCRIPT_FILE*    pScriptFile     : [in/out] ScriptFile
+// CONST COMMAND*  pVirtualCommand : [in]     Macro command to expand
+// ERROR_QUEUE*    pErrorQueue     : [in/out] Error queue
+// 
+// Return Value   : TRUE/FALSE
+// 
 BOOL  generateForLoopMacro(SCRIPT_FILE*  pScriptFile, CONST COMMAND*  pVirtualCommand, ERROR_QUEUE*  pErrorQueue)
 {
    CONST TCHAR  *szLoopVariable;       // For loop variable

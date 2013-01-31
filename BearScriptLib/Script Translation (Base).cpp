@@ -259,6 +259,19 @@ PARAMETER_NODE_TYPE  identifyParameterSyntaxType(CONST PARAMETER_SYNTAX  eSyntax
 }
 
 
+/// Function name  : isVariableMacroIterator
+// Description     : Checks whether a variable name is an X-Studio hidden iterator
+// 
+// const TCHAR*  szVariable : [in] Variable name
+// 
+// Return Value   : TRUE/FALSE
+// 
+BOOL  isVariableMacroIterator(const TCHAR*  szVariable)
+{
+   return utilCompareStringN(szVariable, "XS.Iterator", 11);
+}
+
+
 /// Function name  : verifyDataType
 // Description     : Ensure a DataType enumeration (read from a script) is within it's property limits. 
 // 
