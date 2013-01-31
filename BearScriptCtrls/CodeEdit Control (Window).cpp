@@ -348,10 +348,20 @@ LRESULT  onCodeEditInterfaceMessage(CODE_EDIT_DATA*  pWindowData, CONST UINT  iM
    // Examine message
    switch (iMessage)
    {
+   /// Message: WM_GETTEXT
+   // wParam : UINT   : [in]     Length of buffer
+   // lParam : TCHAR* : [in/out] Buffer
+   case WM_GETTEXT:
+      xResult = (LRESULT)getCodeEditText(pWindowData, (TCHAR*)lParam, (UINT)wParam);
+      break;
+
+   /// Message: WM_GETTEXTLENGTH
+   case WM_GETTEXTLENGTH:
+      xResult = (LRESULT)getCodeEditLength(pWindowData);
+      break;
+
    /// Message: UM_GET_CARET_LOCATION
-   //
    // lParam : CODE_EDIT_LOCATION* : [in/out] CodeEdit Caret location
-   //
    case UM_GET_CARET_LOCATION:
       // Prepare
       pLocation = (CODE_EDIT_LOCATION*)lParam;
@@ -362,9 +372,7 @@ LRESULT  onCodeEditInterfaceMessage(CODE_EDIT_DATA*  pWindowData, CONST UINT  iM
       break;
 
    /// Message: UM_GET_LINE_TEXT
-   //
    // wParam : UINT : [in] Zero based line number 
-   //
    case UM_GET_LINE_TEXT:
       // Prepare
       iLineNumber = (UINT)wParam;
@@ -376,16 +384,13 @@ LRESULT  onCodeEditInterfaceMessage(CODE_EDIT_DATA*  pWindowData, CONST UINT  iM
       break;
 
    /// Message: EM_GETLINECOUNT
-   //
    case EM_GETLINECOUNT:
       // Return line count
       xResult = (LRESULT)getCodeEditLineCount(pWindowData);
       break;
 
    /// Message: EM_LINELENGTH
-   //
    // wParam : UINT : [in] Zero based line number 
-   //
    case EM_LINELENGTH:
       // Prepare
       iLineNumber = (UINT)wParam;
@@ -397,16 +402,13 @@ LRESULT  onCodeEditInterfaceMessage(CODE_EDIT_DATA*  pWindowData, CONST UINT  iM
       break;
 
    /// Message: EM_SETSEL
-   //
    // wParam : UINT : [in] Zero based start index
    // lParam : UINT : [in] Zero based end index
-   //
    case EM_SETSEL:
       // [SELECT ALL] Invoke manually
       if (wParam == 0 AND lParam == -1)
          onCodeEditSelectAll(pWindowData);
       break;
-
 
    /// Message: EM_CANUNDO and EM_CANREDO
    case EM_CANUNDO:  xResult = (getStackItemCount(pWindowData->oUndo.pUndoStack) > 0 ? TRUE : FALSE); break;
@@ -1377,6 +1379,8 @@ LRESULT   wndprocCodeEdit(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lP
          break;
 
       /// [TEXT RELATED MESSAGES]
+      case WM_GETTEXT:
+      case WM_GETTEXTLENGTH:
       case EM_GETLINECOUNT:
       case EM_LINELENGTH:
       case EM_SETSEL:

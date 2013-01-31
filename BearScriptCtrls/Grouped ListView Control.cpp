@@ -576,7 +576,6 @@ BOOL  onGroupedListView_CustomDrawTooltip(GROUPED_LISTVIEW*  pWindowData, HWND  
 {
    NMLVGETINFOTIP  oDataRequest;    // Custom data request
    LVHITTESTINFO   oHitTest;        // ListView hit test
-   LISTVIEW_ITEM   oItem;
    BOOL            iResultCode;
 
    // Prepare

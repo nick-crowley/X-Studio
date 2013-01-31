@@ -11,7 +11,7 @@
 ///                                       CONSTANTS / GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CONST UINT      iLabelsTickerID      = 1;
+CONST UINT      AUTOSAVE_TICKER      = 1;
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       CREATION / DESTRUCTION
@@ -137,6 +137,49 @@ VOID     updateScriptDocumentVariablesCombo(SCRIPT_DOCUMENT*  pDocument)
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : onScriptDocumentAutoSave
+// Description     : Silently saves a backup of the current document text
+// 
+// SCRIPT_DOCUMENT*  pDocument : [in] Document
+// 
+VOID  onScriptDocumentAutoSave(SCRIPT_DOCUMENT*  pDocument)
+{
+   TCHAR   *szPath,        // Backup path
+           *szText;        // CodeEdit text
+   CHAR    *szOutput;      // CodeEdit text in aNSI
+   UINT     iLength,       // Length of CodeEdit text
+            iOutput = 0;   // Number of bytes output
+   HANDLE   hFile;         // File handle
+
+   // Ensure document is modified
+   if (!isModified(pDocument) OR pDocument->bUntitled)
+      return;
+
+   // Generate full path of backup file
+   szPath = utilDuplicatePath(pDocument->szFullPath);
+   PathRenameExtension(szPath, TEXT(".bak"));
+      
+   // Retrieve null-terminated window text
+   szText = utilCreateString(iLength = GetWindowTextLength(pDocument->hCodeEdit));
+   GetWindowText(pDocument->hCodeEdit, szText, iLength);
+
+   // Convert to ANSI
+   szOutput = utilTranslateStringToANSI(szText, iLength);
+      
+   /// Overwrite previous backup file, if any
+   if ((hFile = CreateFile(szPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE)
+   {
+      WriteFile(hFile, szOutput, iLength, (DWORD*)&iOutput, NULL);
+      utilCloseHandle(hFile);
+   }
+
+   // [DEBUG] VERBOSE("** CodeEdit Length = %d, Text='%s'", iLength, szText);
+
+   // Cleanup
+   utilDeleteStrings(szPath, szText);
+   utilDeleteStringA(szOutput);
+}
 
 /// Function name  : onScriptDocumentContextMenu
 // Description     : Display the CodeEdit popup menu
@@ -404,16 +447,16 @@ VOID  createScriptDialogControls(SCRIPT_DOCUMENT*  pDocument)
 // Description     : Initialises the ScriptDocument controls and the ScriptDocument convenience pointers.
 // 
 // SCRIPT_DOCUMENT*  pDocument : [in] ScriptDocument data
-// HWND              hDialog   : [in] Document window handle
+// HWND              hWnd      : [in] Document window handle
 // 
-VOID   onScriptDocumentCreate(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
+VOID   onScriptDocumentCreate(SCRIPT_DOCUMENT*  pDocument, HWND  hWnd)
 {  
    // [TRACK]
    TRACK_FUNCTION();
 
    // Associate data with dialog
-   SetWindowLong(hDialog, 0, (LONG)pDocument);
-   pDocument->hWnd = hDialog;
+   SetWindowLong(hWnd, 0, (LONG)pDocument);
+   pDocument->hWnd = hWnd;
 
    // Create document convenience pointer
    pDocument->pScriptFile = (SCRIPT_FILE*)pDocument->pGameFile;
@@ -433,6 +476,9 @@ VOID   onScriptDocumentCreate(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
 
    /// Display Script
    CodeEdit_SetScriptFile(pDocument->hCodeEdit, pDocument->pScriptFile);
+
+   // Create auto-save timer  (5 minute delay)
+   SetTimer(pDocument->hWnd, AUTOSAVE_TICKER, 5 * (60 * 1000), NULL);
 
    // Show windows
    ShowWindow(pDocument->hLabelsCombo, SW_SHOWNORMAL);
@@ -455,7 +501,7 @@ VOID     onScriptDocumentDestroy(SCRIPT_DOCUMENT*  pDocument)
    TRACK_FUNCTION();
 
    // Delete ticker
-   KillTimer(pDocument->hWnd, iLabelsTickerID);
+   KillTimer(pDocument->hWnd, AUTOSAVE_TICKER);
    
    // Destroy workspace
    utilDeleteWindow(pDocument->hWorkspace);
@@ -714,7 +760,7 @@ VOID  onScriptDocumentLoseFocus(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
    TRACK_FUNCTION();
    
    // Destroy labels refresh timer + Refresh Toolbar
-   KillTimer(pDocument->hWnd, iLabelsTickerID);
+   //KillTimer(pDocument->hWnd, AUTOSAVE_TICKER);
    //updateMainWindowToolBar(getMainWindowData());
 
    // [TRACK]
@@ -802,7 +848,7 @@ VOID  onScriptDocumentReceiveFocus(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog)
    TRACK_FUNCTION();
 
    // Setup labels refresh timer
-   SetTimer(pDocument->hWnd, iLabelsTickerID, 2000, NULL);
+   //SetTimer(pDocument->hWnd, AUTOSAVE_TICKER, 2000, NULL);
 
    // Set focus to the CodeEdit
    SetFocus(pDocument->hCodeEdit);
@@ -1139,6 +1185,12 @@ LRESULT   wndprocScriptDocument(HWND  hDialog, UINT  iMessage, WPARAM  wParam, L
       /// [RECEIVE/LOSE FOCUS]
       case WM_SETFOCUS:    onScriptDocumentReceiveFocus(pDocument, hDialog);  break;
       case WM_KILLFOCUS:   onScriptDocumentLoseFocus(pDocument, hDialog);     break;
+
+      /// [TIMER]
+      case WM_TIMER:
+         if (wParam == AUTOSAVE_TICKER)
+            onScriptDocumentAutoSave(pDocument);
+         break;
 
       /// [CONTEXT HELP]
       case WM_HELP:

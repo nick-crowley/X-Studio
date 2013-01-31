@@ -1460,16 +1460,16 @@ BearScriptAPI BOOL      generateConvertedString(CONST TCHAR*  szInput, CONST UIN
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 // Creation / Destruction
-TEXT_STREAM*  createTextStream(CONST UINT  iInitialSize);
-VOID          deleteTextStream(TEXT_STREAM*  pTextStream);
+BearScriptAPI TEXT_STREAM*  createTextStream(CONST UINT  iInitialSize);
+BearScriptAPI VOID          deleteTextStream(TEXT_STREAM*  pTextStream);
 
 // Helpers
-TCHAR*        getTextStreamBuffer(CONST TEXT_STREAM*  pTextStream);
+BearScriptAPI TCHAR*        getTextStreamBuffer(CONST TEXT_STREAM*  pTextStream);
 
 // Functions
-VOID          appendCharToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR  chCharacter);
-VOID          appendStringToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR*  szText);
-VOID          appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szFormat, ...);
+BearScriptAPI VOID          appendCharToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR  chCharacter);
+BearScriptAPI VOID          appendStringToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR*  szText);
+BearScriptAPI VOID          appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szFormat, ...);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    THREAD LISTS

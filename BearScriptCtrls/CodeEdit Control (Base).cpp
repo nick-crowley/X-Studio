@@ -102,6 +102,28 @@ VOID  enableCodeEditEvents(CODE_EDIT_DATA*  pWindowData, CONST BOOL  bEnable)
 }
 
 
+/// Function name  : getCodeEditLength
+// Description     : Retrieves the size of the buffer required to hold entire CodeEdit text
+// 
+// const CODE_EDIT_DATA*  pWindowData   : [in] Window data
+// 
+// Return Value   : Total length of text, in characters
+// 
+UINT  getCodeEditLength(const CODE_EDIT_DATA*  pWindowData)
+{
+   CODE_EDIT_LINE*  pLineData;
+   LIST_ITEM*       pIterator;
+   UINT             iLength = 0;
+
+   // Return the length of each line plus two for CRLF
+   for (findCodeEditLineListItemByIndex(pWindowData, 0, pIterator); pLineData = extractListItemPointer(pIterator, CODE_EDIT_LINE); pIterator = pIterator->pNext)
+      iLength += getCodeEditLineLength(pLineData) + 2;
+
+   // Return length
+   return iLength;
+}
+
+
 /// Function name  : getCodeEditLineCount
 // Description     : Retrieves the current number of lines in a CodeEdit control
 // 
@@ -152,6 +174,50 @@ UINT  getCodeEditLineLengthByIndex(CONST CODE_EDIT_DATA*  pWindowData, CONST UIN
    // Return length
    END_TRACKING();
    return iLength;
+}
+
+/// Function name  : getCodeEditText
+// Description     : Retrieves the entire text of the window.  Handler for WM_GETWINDOWTEXT
+// 
+// const CODE_EDIT_DATA*  pWindowData : [in]     Window data
+// TCHAR*                 szBuffer    : [in/out] Buffer
+// const INT              iLength     : [in]     Length of buffer
+// 
+// Return Value   : Number of characters copied, excluding NULL 
+// 
+UINT  getCodeEditText(const CODE_EDIT_DATA*  pWindowData, TCHAR*  szBuffer, const UINT  iLength)
+{
+   CODE_EDIT_LINE* pLineData;
+   TEXT_STREAM*    pStream;
+   LIST_ITEM*      pIterator;
+   TCHAR*          szLineText,
+                   szIndent[32];
+         
+   // Prepare
+   pStream = createTextStream(getCodeEditLength(pWindowData));
+
+   // Iterate through all lines
+   for (findCodeEditLineListItemByIndex(pWindowData, 0, pIterator); pStream->iBufferUsed < iLength AND (pLineData = extractListItemPointer(pIterator, CODE_EDIT_LINE)); pIterator = pIterator->pNext)
+   {
+      // [INDENT]
+      if (pLineData->iIndent)
+      {
+         StringCchCopy(szIndent, 1 + min(pLineData->iIndent, 31), TEXT("                               "));
+         appendStringToTextStream(pStream, szIndent);
+      }
+
+      /// Copy each line and add a trailing CRLF
+      appendStringToTextStream(pStream, szLineText = generateCodeEditLineText(pLineData));
+      appendStringToTextStream(pStream, TEXT("\r\n"));
+      utilDeleteString(szLineText);
+   }
+
+   /// Copy to output buffer
+   StringCchCopy(szBuffer, iLength, pStream->szBuffer);
+
+   // Cleanup and return number of chars copied
+   deleteTextStream(pStream);
+   return min(iLength - 1, pStream->iBufferUsed);
 }
 
 

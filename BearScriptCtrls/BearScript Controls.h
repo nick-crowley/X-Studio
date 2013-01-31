@@ -93,9 +93,11 @@ VOID    calculateCodeEditPageSize(CODE_EDIT_DATA*  pWindowData);
 VOID    calculateCodeEditScrollBarLimits(CODE_EDIT_DATA*  pWindowData);
 VOID    drawCodeEditTextStream(HDC  hDC, CONST TCHAR*  szText, CONST UINT  iLength, RECT*  pDrawRect);
 VOID    enableCodeEditEvents(CODE_EDIT_DATA*  pWindowData, CONST BOOL  bEnable);
+UINT    getCodeEditLength(const CODE_EDIT_DATA*  pWindowData);
 UINT    getCodeEditLineCount(CONST CODE_EDIT_DATA*  pWindowData);
 UINT    getCodeEditLineLength(CONST CODE_EDIT_LINE*  pLineData);
 UINT    getCodeEditLineLengthByIndex(CONST CODE_EDIT_DATA*  pWindowData, CONST UINT  iLineNumber);
+UINT    getCodeEditText(const CODE_EDIT_DATA*  pWindowData, TCHAR*  szBuffer, const UINT  iLength);
 BOOL    hasCodeEditSelection(CONST CODE_EDIT_DATA*  pWindowData);
 
 // Functions

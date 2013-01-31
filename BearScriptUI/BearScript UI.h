@@ -1173,7 +1173,7 @@ VOID    updateScriptDocumentVariablesCombo(SCRIPT_DOCUMENT*  pDocument);
 // Message Handlers
 VOID    onScriptDocumentContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog, CONST POINT*  ptCursor, HWND  hCtrl);
 BOOL    onScriptDocumentCommand(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iControlID, CONST UINT  iNotification);
-VOID    onScriptDocumentCreate(SCRIPT_DOCUMENT*  pDocument, HWND  hDialog);
+VOID    onScriptDocumentCreate(SCRIPT_DOCUMENT*  pDocument, HWND  hWnd);
 VOID    onScriptDocumentDestroy(SCRIPT_DOCUMENT*  pDocument);
 BOOL    onScriptDocumentGetMenuItemState(SCRIPT_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState);
 BOOL    onScriptDocumentGetScriptVersion(SCRIPT_DOCUMENT*  pDocument, GAME_VERSION*  pOutput);

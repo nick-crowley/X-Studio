@@ -24,6 +24,7 @@
 // 
 // Return Value   : New TextStream object, you are responsible for destroying it
 // 
+BearScriptAPI 
 TEXT_STREAM*  createTextStream(CONST UINT  iInitialSize)
 {
    TEXT_STREAM*   pTextStream;
@@ -46,6 +47,7 @@ TEXT_STREAM*  createTextStream(CONST UINT  iInitialSize)
 // 
 // TEXT_STREAM*  pTextStream   : [in] TextStream object to destroy
 // 
+BearScriptAPI 
 VOID   deleteTextStream(TEXT_STREAM*  pTextStream)
 {
    // Delete buffers
@@ -66,6 +68,7 @@ VOID   deleteTextStream(TEXT_STREAM*  pTextStream)
 // 
 // Return Value   : Next un-used character in the buffer
 // 
+BearScriptAPI 
 TCHAR*  getTextStreamBuffer(CONST TEXT_STREAM*  pTextStream)
 {
    // Return the position of the next unused character
@@ -82,6 +85,7 @@ TCHAR*  getTextStreamBuffer(CONST TEXT_STREAM*  pTextStream)
 // TEXT_STREAM*  pTextStream : [in/out] TextStream to append
 // CONST TCHAR*  szText      : [in]     Text
 // 
+BearScriptAPI 
 VOID  appendStringToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR*  szText)
 {
    // Extend stream if buffer more than 85% full
@@ -107,6 +111,7 @@ VOID  appendStringToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR*  szText)
 // CONST TCHAR*  szFormat    : [in]           Printf-style formatting string
 // ...           ...         : [in][optional] Arguments
 // 
+BearScriptAPI 
 VOID  appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szFormat, ...)
 {
    va_list  pArguments;       // Variable argument pointer
@@ -139,6 +144,7 @@ VOID  appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szForma
 // TEXT_STREAM*  pTextStream : [in/out] TextStream to be appended
 // CONST TCHAR   chCharacter : [in]     Character to append
 // 
+BearScriptAPI 
 VOID  appendCharToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR  chCharacter)
 {
    // Append character to text stream
