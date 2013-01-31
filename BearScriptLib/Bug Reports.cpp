@@ -45,12 +45,12 @@ TCHAR*   generateBugReportFileName(CONST SUBMISSION_OPERATION*  pOperationData)
    TCHAR*         szOutput;       // Complete filename
 
    // Preppare
-   szOutput = utilCreateEmptyString(64);
+   szOutput = utilCreateEmptyString(96);
    GetSystemTime(&oCurrentTime);
    
    // Generate filename
    szFileName = (pOperationData->eType == OT_SUBMIT_BUG_REPORT ? TEXT("Report") : TEXT("Correction"));
-   StringCchPrintf(szOutput, 64, TEXT("%s.(%u-%02u-%02u).(%02uh.%02um.%02us).zip"), szFileName, oCurrentTime.wYear, oCurrentTime.wMonth, oCurrentTime.wDay, oCurrentTime.wHour, oCurrentTime.wMinute, oCurrentTime.wSecond);
+   StringCchPrintf(szOutput, 96, TEXT("%s.(%u-%02u-%02u).(%02uh.%02um.%02us).zip"), szFileName, oCurrentTime.wYear, oCurrentTime.wMonth, oCurrentTime.wDay, oCurrentTime.wHour, oCurrentTime.wMinute, oCurrentTime.wSecond);
 
    // Return result
    return szOutput;
@@ -144,7 +144,8 @@ VOID   cleanSubmissionForumUserName(TCHAR*  szUserName, CONST UINT  iBufferLengt
 UINT  performBugReportCompression(SUBMISSION_OPERATION*  pOperationData, RAW_FILE*  &szOutput)
 {
    TCHAR        *szApplicationPath,       // Full path of the application EXE
-                *szConsolePath;           // Full path of 'Console.log' file
+                *szConsolePath,           // Full path of 'Console.log' file
+                *szFileName;              // Name of file within archive
    RAW_FILE     *szInput;                 // 'Console.log' file, uncompressed
    UINT          iFileSize;               // Size of 'Console.log' file, uncompressed
    
@@ -160,21 +161,23 @@ UINT  performBugReportCompression(SUBMISSION_OPERATION*  pOperationData, RAW_FIL
    GetModuleFileName(NULL, szApplicationPath, MAX_PATH);
    szConsolePath = utilRenameFilePath(szApplicationPath, TEXT("Console.log"));
 
+   // Generate archive filename
+   szFileName = generateBugReportFileName(pOperationData);
+   PathRenameExtension(szFileName, TEXT(".log"));
+
    /// Attempt to load console.log
    if ((iFileSize = loadRawFileFromFileSystemByPath(getFileSystem(), szConsolePath, NULL, szInput, pOperationData->pErrorQueue)) == NULL)
       // [ERROR] "The bug report '%s' is unavailable or could not be accessed"
       pushErrorQueue(pOperationData->pErrorQueue, generateDualError(HERE(IDS_SUBMISSION_LOADING_FAILED), szConsolePath));
    
    /// [SUCCESS] Attempt to compress console.log
-   else if ((iFileSize = performGZipFileCompression(TEXT("Console.log"), szInput, iFileSize, szOutput, pOperationData->pProgress, pOperationData->pErrorQueue)) == NULL)
+   else if ((iFileSize = performGZipFileCompression(szFileName, szInput, iFileSize, szOutput, pOperationData->pProgress, pOperationData->pErrorQueue)) == NULL)
       // [ERROR] "There was an error during the preparation of the %s '%s'"
       pushErrorQueue(pOperationData->pErrorQueue, generateDualError(HERE(IDS_SUBMISSION_COMPRESSION_FAILED), identifySubmissionOperationString(pOperationData), szConsolePath));
    
-   // Cleanup
+   // Cleanup + return compressed size
    deleteRawFileBuffer(szInput);
-   utilDeleteStrings(szApplicationPath, szConsolePath);
-
-   // Return size of compressed file
+   utilDeleteStrings(szApplicationPath, szConsolePath, szFileName);
    END_TRACKING();
    return iFileSize;
 }
@@ -190,9 +193,10 @@ UINT  performBugReportCompression(SUBMISSION_OPERATION*  pOperationData, RAW_FIL
 // 
 UINT  performCorrectionReportCompression(SUBMISSION_OPERATION*  pOperationData, RAW_FILE*  &szOutput)
 {
-   UINT  iFileSize;           // Size of compressed buffer
-   CHAR* szCorrectionA;       // ANSI submission
-   UINT  iCorrectionLength;   // Length of ANSI submission
+   TCHAR*  szFileName;          // Name of file within archive
+   UINT    iFileSize;           // Size of compressed buffer
+   CHAR*   szCorrectionA;       // ANSI submission
+   UINT    iCorrectionLength;   // Length of ANSI submission
    
    // [TRACK]
    TRACK_FUNCTION();
@@ -205,10 +209,14 @@ UINT  performCorrectionReportCompression(SUBMISSION_OPERATION*  pOperationData, 
    iCorrectionLength = lstrlen(pOperationData->szCorrection);
    szCorrectionA     = utilTranslateStringToANSI(pOperationData->szCorrection, iCorrectionLength, 115);
 
+   // Generate archive filename
+   szFileName = generateBugReportFileName(pOperationData);
+   PathRenameExtension(szFileName, TEXT(".txt"));
+
    // [CHECK] Ensure conversion succeeded
    if (szCorrectionA)
       /// Attempt to compress submission buffer
-      iFileSize = performGZipFileCompression(TEXT("Correction.txt"), (BYTE*)szCorrectionA, iCorrectionLength, szOutput, pOperationData->pProgress, pOperationData->pErrorQueue);
+      iFileSize = performGZipFileCompression(szFileName, (BYTE*)szCorrectionA, iCorrectionLength, szOutput, pOperationData->pProgress, pOperationData->pErrorQueue);
 
    // [CHECK] Abort on failure
    if (!szCorrectionA OR !iFileSize)
@@ -217,6 +225,7 @@ UINT  performCorrectionReportCompression(SUBMISSION_OPERATION*  pOperationData, 
    
    // Return size of compressed file
    END_TRACKING();
+   utilDeleteString(szFileName);
    return iFileSize;
 }
 
