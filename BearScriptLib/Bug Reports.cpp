@@ -23,9 +23,9 @@
 //
 CONST TCHAR   *szServerHostName = TEXT("x-studio.fbnz.de"),
               *szServerUserName = TEXT("x-studio-bugs@fbnz.de"),
-              *szServerPassword = TEXT("thereisnobear");
+              *szServerPassword = TEXT("xxx");
 
-//#error X-Studio username/password has been intentionally removed.  Please see X-Universe member 'ScRaT_GER' regarding hosting details
+#error X-Studio username/password has been intentionally removed.  Please see X-Universe member 'ScRaT_GER' regarding hosting details
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
