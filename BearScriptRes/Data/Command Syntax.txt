@@ -123,7 +123,7 @@ X2,X3R,X3TC,X3AP
 110
 http://forum.egosoft.com/viewtopic.php?t=286397
 $0 random value between $1x and $2y
-RetVar/IF
+RetVar
 Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
@@ -235,7 +235,7 @@ SCRIPT_PROPERTY
 X2,X3R,X3TC,X3AP
 124
 http://forum.egosoft.com/viewtopic.php?t=286534
-$0 datatyp[$1]
+$0 datatype[$1]
 RetVar
 Value
 -------------- END DEFINITION ---------------
@@ -243,7 +243,7 @@ SCRIPT_PROPERTY
 X2,X3R,X3TC,X3AP
 125
 http://forum.egosoft.com/viewtopic.php?t=286535
-$0 is datatyp[$1] == $2
+$0 is datatype[$1] == $2
 RetVar/IF
 Value
 Var/Script Data Type
@@ -674,7 +674,7 @@ USER_INTERFACE
 X2,X3R,X3TC,X3AP
 402
 http://forum.egosoft.com/viewtopic.php?t=287086
-write to player logbook: printf: fmt=$0, $1, $2, $3, $4, $5
+write to player logbook: printf: fmt=$0, $1o, $2x, $3y, $4z, $5a
 Var/String
 Value
 Value
@@ -686,7 +686,7 @@ USER_INTERFACE
 X2,X3R,X3TC,X3AP
 403
 http://forum.egosoft.com/viewtopic.php?t=287153
-write to player logbook: printf: pageid=$0 textid=$1, $2, $3, $4, $5, $6
+write to player logbook: printf: pageid=$0x textid=$1y, $2o, $3x, $4y, $5z, $6a
 Var/Number
 Var/Number
 Value
@@ -2266,7 +2266,7 @@ RefObj
 RetVar/IF
 Var/Race
 -------------- END DEFINITION ---------------
-PLAYER
+UNIVERSE_PROPERTY
 X2,X3R,X3TC,X3AP
 726
 NONE
@@ -2629,8 +2629,8 @@ $1 $0 is in active sector
 RefObj
 RetVar/IF
 -------------- END DEFINITION ---------------
-UNIVERSE_PROPERTY
-X2,X3R,X3TC,X3AP
+OBJECT_PROPERTY
+X2,X3R
 762
 NONE
 $1 get ware type of SectorObject $0
@@ -2638,7 +2638,7 @@ Var/Number
 RetVar
 -------------- END DEFINITION ---------------
 OBJECT_PROPERTY
-X2,X3R,X3TC,X3AP
+X2,X3R
 763
 NONE
 $1 exists SectorObject $0
@@ -2646,7 +2646,7 @@ Var/Number
 RetVar
 -------------- END DEFINITION ---------------
 OBJECT_PROPERTY
-X2,X3R,X3TC,X3AP
+X2,X3R
 764
 NONE
 $1 get object from SectorObject $0
@@ -2696,8 +2696,8 @@ Var/Number
 Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
-X2,X3R,X3TC,X3AP
+OBJECT_ACTION
+X2,X3R
 769
 NONE
 set position of sector object $0 : x=$1 y=$2 z=$3
@@ -2706,8 +2706,8 @@ Var/Number
 Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
-X2,X3R,X3TC,X3AP
+OBJECT_ACTION
+X2,X3R
 770
 NONE
 set safe position of sector object $0 : x=$1 y=$2 z=$3
@@ -2716,8 +2716,8 @@ Var/Number
 Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
-X2,X3R,X3TC,X3AP
+OBJECT_ACTION
+X2,X3R
 771
 NONE
 set rotation of sector object $0 : x=$1 y=$2 z=$3
@@ -2727,7 +2727,7 @@ Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
 UNIVERSE_DATA
-X2,X3R,X3TC,X3AP
+X2,X3R
 772
 NONE
 $0 create sector object: maintype=$1x subtype=$2y
@@ -2736,14 +2736,14 @@ Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
 OBJECT_ACTION
-X2,X3R,X3TC,X3AP
+X2,X3R
 773
 NONE
 free sector object $0
 Var/Number
 -------------- END DEFINITION ---------------
 OBJECT_ACTION
-X2,X3R,X3TC,X3AP
+X2,X3R
 774
 NONE
 kill sector object $0 : reason=$1 , killer sector object=$2
@@ -2752,7 +2752,7 @@ Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
 OBJECT_ACTION
-X2,X3R,X3TC,X3AP
+X2,X3R
 775
 NONE
 initialise sector object $0 in space $1
@@ -3634,7 +3634,7 @@ USER_INTERFACE
 X2,X3R,X3TC,X3AP
 1042
 http://forum.egosoft.com/viewtopic.php?t=287364
-$0 speak text: page=$1 id=$2 priority=$3
+$0 speak text: page=$1x id=$2y priority=$3z
 RetVar/IF/START
 Var/Number
 Var/Number
@@ -3816,7 +3816,7 @@ RefObj
 RetVar/IF
 -------------- END DEFINITION ---------------
 SHIP_PROPERTY
-X3R,X3TC,X3AP
+X3R
 1065
 NONE
 $1 $0 get formation
@@ -3947,7 +3947,7 @@ Var/String
 Var/String
 -------------- END DEFINITION ---------------
 STRING
-X3R,X3TC,X3AP
+X3R,X3TC
 1080
 NONE
 $0 format seconds=$1 to Zura time string
@@ -4293,7 +4293,7 @@ Value
 Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
+SHIP_PROPERTY
 X3R,X3TC,X3AP
 1131
 http://forum.egosoft.com/viewtopic.php?t=286610
@@ -4904,7 +4904,7 @@ RetVar
 Var/Number
 -------------- END DEFINITION ---------------
 SHIP_ACTION
-X3R,X3TC,X3AP
+X3R
 1190
 NONE
 $1 $0 turn turret $2 to pos $3 relativ:$4 timeout:$5
@@ -4953,7 +4953,7 @@ NONE
 $0 remove all patrol group references
 RefObj
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
+OBJECT_ACTION
 X3R,X3TC,X3AP
 1196
 NONE
@@ -4962,7 +4962,7 @@ RefObj
 Var/Number
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
+OBJECT_ACTION
 X3R,X3TC,X3AP
 1197
 http://forum.egosoft.com/viewtopic.php?t=299103
@@ -4986,7 +4986,7 @@ $0 set asteroid scanned to $1
 RefObj
 Var/Number
 -------------- END DEFINITION ---------------
-PLAYER
+UNIVERSE_PROPERTY
 X3R,X3TC,X3AP
 1200
 NONE
@@ -5044,7 +5044,7 @@ Var/Number
 Var/Race
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
+UNIVERSE_PROPERTY
 X3R,X3TC,X3AP
 1207
 NONE
@@ -5189,7 +5189,7 @@ $0 set pilot aggression: $1
 RefObj
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
+OBJECT_ACTION
 X3R,X3TC,X3AP
 1224
 http://forum.egosoft.com/viewtopic.php?t=286475
@@ -6341,7 +6341,7 @@ $0 get all global variable keys, starting with=$1
 RetVar
 Var/String
 -------------- END DEFINITION ---------------
-SHIP_PROPERTY
+MARINE
 X3TC,X3AP
 1437
 NONE
@@ -6638,7 +6638,7 @@ NONE
 $0 get fight rank percentage
 RetVar
 -------------- END DEFINITION ---------------
-PLAYER
+OBJECT_PROPERTY
 X3TC,X3AP
 1472
 NONE
@@ -6648,7 +6648,7 @@ RetVar
 Var/Race
 Var/Boolean
 -------------- END DEFINITION ---------------
-PLAYER
+OBJECT_PROPERTY
 X3TC,X3AP
 1473
 NONE
@@ -6741,7 +6741,7 @@ RefObj
 RetVar/IF
 Var/Number
 -------------- END DEFINITION ---------------
-OBJECT_PROPERTY
+STATION_PROPERTY
 X3TC,X3AP
 1484
 NONE
@@ -7117,14 +7117,6 @@ $1 $0 move marine to board: $2, timeout=$3
 RefObj
 @RetVar/IF
 Value
-Value
--------------- END DEFINITION ---------------
-OBJECT_PROPERTY
-X3TC,X3AP
-1529
-NONE
-$0 get subtype integer of data [ $1 ]
-RetVar
 Value
 -------------- END DEFINITION ---------------
 USER_INTERFACE

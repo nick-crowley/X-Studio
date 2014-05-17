@@ -109,7 +109,7 @@ UINT  calculateEngineVersionFromGameVersion(CONST GAME_VERSION  eGameVersion)
    switch (eGameVersion)
    {
    case GV_THREAT:           iOutput = 24;   break;
-   case GV_REUNION:          iOutput = 39;   break;
+   case GV_REUNION:          iOutput = 32;   break;
    case GV_TERRAN_CONFLICT:  iOutput = 44;   break;
    case GV_ALBION_PRELUDE:   iOutput = 50;   break;
    }
@@ -127,7 +127,7 @@ UINT  calculateEngineVersionFromGameVersion(CONST GAME_VERSION  eGameVersion)
 // 
 // Return Value   : String ID of sector name  (which uses ONE-based co-ordinates)
 // 
-UINT   convertSectorCoordinatesToStringID(CONST POINT*  ptSector)
+UINT   convertSectorCoordinatesToStringID(CONST POINTS*  ptSector)
 {
    TCHAR  szSector[16];    // SectorID as a string
 
@@ -147,7 +147,7 @@ UINT   convertSectorCoordinatesToStringID(CONST POINT*  ptSector)
 // 
 // Return Value   : TRUE if successful, FALSE if the sector StringID was invalid
 // 
-BOOL   convertStringIDToSectorCoordinates(CONST UINT  iStringID, POINT*  pOutput)
+BOOL   convertStringIDToSectorCoordinates(CONST UINT  iStringID, POINTS*  pOutput)
 {
    TCHAR   szSectorID[8],     // SectorID as a string
            szCoordinate[3];   // X or Y co-ordinate as a string
@@ -156,7 +156,7 @@ BOOL   convertStringIDToSectorCoordinates(CONST UINT  iStringID, POINT*  pOutput
    utilZeroString(szCoordinate, 3);
    
    // Convert to string
-   StringCchPrintf(szSectorID, 8, TEXT("%u"), iStringID);
+   StringCchPrintf(szSectorID, 8, TEXT("%d"), iStringID);
 
    // [CHECK] Ensure string is a sector ID.  ie. 102xxxx
    if (!utilCompareStringN(szSectorID, "102", 3) OR lstrlen(szSectorID) != 7)
@@ -350,37 +350,6 @@ BOOL  calculateParameterSyntaxByIndex(CONST COMMAND*  pCommand, CONST UINT  iPar
    
    // Return TRUE if there were no errors
    return  (pError == NULL);
-}
-
-
-/// Function name  : calculateScriptCallTargetFilePath
-// Description     : Creates a string containing the full path of the target script identified separately from
-//                    the working directory of the calling script and the COMMAND parameter containing the script name.
-// 
-// CONST TCHAR*    szScriptCallFilePath : [in] Full file path of the calling script
-// CONST COMMAND*  pScriptCallCommand   : [in] Command containing the target script as a parameter
-// 
-// Return Value   : New string containing the target script file path (as .pck) if found, otherwise NULL. You are responsible for destroying it
-// 
-BearScriptAPI 
-TCHAR*  calculateScriptCallTargetFilePath(CONST TCHAR*  szCallerPath, CONST COMMAND*  pScriptCall)
-{
-   PARAMETER*  pTargetScript;   // PARAMETER of the input COMMAND containing the script name
-   TCHAR*      szOutput;            // New string containing the script name, if found
-
-   // Prepare
-   szOutput = NULL;
-
-   /// [FOUND] Extract the script name from the PARAMETER and assemble with calling script folder
-   if (findScriptCallParameterInCommand(pScriptCall, pTargetScript) AND pTargetScript->eType == DT_STRING)
-   {
-      // Generate Folder + Filename + .PCK
-      szOutput = utilDuplicateFolderPath(szCallerPath);
-      utilStringCchCatf(szOutput, MAX_PATH, TEXT("%s.pck"), pTargetScript->szValue);
-   }
-
-   // Return script name if found, otherwise NULL
-   return szOutput;
 }
 
 
@@ -788,7 +757,7 @@ BOOL  performScriptTypeConversion(CONST PARAMETER*  pParameter, CONST DATA_TYPE 
 BOOL  performScriptValueConversion(SCRIPT_FILE*  pScriptFile, CONST PARAMETER*  pInput, INT&  iOutput, CONST SCRIPT_VALUE_TYPE  eInputType, CONST SCRIPT_VALUE_TYPE  eOutputType, ERROR_STACK*  &pError)
 {
    GAME_STRING*  pParameterType;         // GameString associated with the DataType of the input parameter, used for error reporting only
-   POINT         ptSector;               // Converted sector co-ordinates
+   POINTS        ptSector;               // Converted sector co-ordinates
 
    // Prepare
    pError  = NULL;
@@ -815,7 +784,7 @@ BOOL  performScriptValueConversion(SCRIPT_FILE*  pScriptFile, CONST PARAMETER*  
          }
          break;
 
-      /// [STATION SERIAL] -- Subtract 100 to the string ID
+      /// [STATION SERIAL] -- Subtract 100 from the string ID
       case DT_STATIONSERIAL:
          iOutput = pInput->iValue - 100;
          break;
@@ -872,7 +841,8 @@ BOOL  performScriptValueConversion(SCRIPT_FILE*  pScriptFile, CONST PARAMETER*  
          iOutput = MAKE_LONG(ptSector.x, ptSector.y);
    
          // [LIVE DATA] Indicates a sector has been specified literally   [VALIDATION_FIX]
-         pScriptFile->bLiveData = TRUE;
+         if (pScriptFile)
+            pScriptFile->bLiveData = TRUE;
          break;
 
       /// [ARRAY/EXPRESSION/QUEST/UNKNOWN/PASSENGER] -- Unsupported

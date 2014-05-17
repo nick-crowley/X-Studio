@@ -11,6 +11,9 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -53,8 +56,10 @@ GAME_PAGE*  displayInsertPageDialog(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  p
 {
    PAGE_DIALOG_DATA  oData = { pDocument, pPageToEdit };
 
+   CONSOLE_COMMAND();
+
    // Display 'Insert Page' dialog
-   return (GAME_PAGE*)DialogBoxParam(getResourceInstance(), TEXT("INSERT_PAGE_DIALOG"), hParentWnd, dlgprocInsertPageDialog, (LPARAM)&oData);
+   return (GAME_PAGE*)showDialog(TEXT("INSERT_PAGE_DIALOG"), hParentWnd, dlgprocInsertPageDialog, (LPARAM)&oData);
 }
 
 
@@ -198,40 +203,46 @@ INT_PTR  dlgprocInsertPageDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
    static HWND        hTooltip    = NULL;
    BOOL               bResult     = FALSE;
 
-   // Examine message
-   switch (iMessage)
+   TRY
    {
-   /// [CREATION] Initialise dialog
-   case WM_INITDIALOG:
-      // Store data + Init Dialog
-      SetWindowLong(hDialog, DWL_USER, lParam);
-      bResult = initInsertPageDialog((PAGE_DIALOG_DATA*)lParam, hDialog, hTooltip = createTooltipWindow(hDialog));
-      break;
+      // Examine message
+      switch (iMessage)
+      {
+      /// [CREATION] Initialise dialog
+      case WM_INITDIALOG:
+         // Store data + Init Dialog
+         SetWindowLong(hDialog, DWL_USER, lParam);
+         bResult = initInsertPageDialog((PAGE_DIALOG_DATA*)lParam, hDialog, hTooltip = createTooltipWindow(hDialog));
+         break;
 
-   /// [DESTROY] Destroy Tooltip
-   case WM_DESTROY:
-      utilDeleteWindow(hTooltip);
-      break;
+      /// [DESTROY] Destroy Tooltip
+      case WM_DESTROY:
+         utilDeleteWindow(hTooltip);
+         break;
 
-   /// [COMMAND PROCESSING] -- Process name change, OK and CANCEL
-   case WM_COMMAND:
-      bResult = onInsertPageDialogCommand(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
-      break;
+      /// [COMMAND PROCESSING] -- Process name change, OK and CANCEL
+      case WM_COMMAND:
+         bResult = onInsertPageDialogCommand(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+         break;
 
-   /// [OWNER DRAW]
-   case WM_DRAWITEM:
-      if (wParam == IDC_DIALOG_ICON)
-         bResult = onOwnerDrawStaticIcon(lParam, pDialogData->pEditPage ? TEXT("EDIT_PAGE_ICON") : TEXT("INSERT_PAGE_ICON"), 96);
-      break;
+      /// [OWNER DRAW]
+      case WM_DRAWITEM:
+         if (wParam == IDC_DIALOG_ICON)
+            bResult = onOwnerDrawStaticIcon(lParam, pDialogData->pEditPage ? TEXT("EDIT_PAGE_ICON") : TEXT("INSERT_PAGE_ICON"), 96);
+         break;
 
-   /// [HELP] Invoke help
-   case WM_HELP:
-      bResult = displayHelp(TEXT("TODO"));
-      break;
+      /// [HELP] Invoke help
+      case WM_HELP:
+         bResult = displayHelp(TEXT("Language_Pages"));
+         break;
+      }
+
+      // Return result
+      return (bResult ? TRUE : dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam));
    }
-
-   // Return result
-   return (bResult ? TRUE : dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam));
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam);
 }
 
 

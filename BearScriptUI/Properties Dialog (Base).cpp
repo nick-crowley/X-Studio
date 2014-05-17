@@ -34,6 +34,9 @@ CONST PROPERTY_PAGE_DEFINITION  oPropertyPages[PROPERTY_PAGE_COUNT] =
       dlgprocPropertiesBlankPage, TEXT("PROPERTIES_NONE"),             TEXT("MAIN_WINDOW"),           IDS_NONE_PAGE_TITLE    
 };
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                 CREATION  /  DESTRUCTION
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,14 +145,14 @@ VOID  createPropertiesDialogPageData(PROPERTIES_DATA*  pPropertiesData, PROPSHEE
 
    // Set common properties
    pPageData->dwSize      = sizeof(PROPSHEETPAGE);
-   pPageData->dwFlags     = PSP_USEICONID WITH PSP_USETITLE WITH PSP_PREMATURE;
+   pPageData->dwFlags     = PSP_USEICONID WITH PSP_USETITLE WITH PSP_PREMATURE WITH PSP_DLGINDIRECT;
    pPageData->lParam      = (LPARAM)pPropertiesData;
    pPageData->pfnCallback = NULL;
    pPageData->hInstance   = getResourceInstance();
 
    // Define page specific properties
    pPageData->pfnDlgProc  = oPropertyPages[ePage].dlgProc;
-   pPageData->pszTemplate = oPropertyPages[ePage].szTemplateResource;
+   pPageData->pResource   = loadDialogTemplate(oPropertyPages[ePage].szTemplateResource);    //pPageData->pszTemplate = oPropertyPages[ePage].szTemplateResource;
    pPageData->pszIcon     = oPropertyPages[ePage].szIconResource;
    pPageData->pszTitle    = MAKEINTRESOURCE(oPropertyPages[ePage].iTitleResource);
 }
@@ -235,32 +238,25 @@ VOID  destroyPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  displayPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND();
 
    /// [CHECK] Create dialog if necessary
    if (bShow AND !pWindowData->hPropertiesSheet)
    {
       // [SHOW] Create properties dialog
+      CONSOLE("Creating properties dialog");
       pWindowData->hPropertiesSheet = createPropertiesDialog(pWindowData);
-
-      // [MODAL WINDOW] Add window to stack
-      /*pushModalWindowStack(pWindowData->hPropertiesSheet);*/
    }
    /// [CHECK] Destroy dialog if necessary
    else if (!bShow AND pWindowData->hPropertiesSheet)
    {
       // [HIDE] Destroy properties dialog
+      CONSOLE("Destroying properties dialog");
       destroyPropertiesDialog(pWindowData);
-
-      // [MODAL WINDOW] Remove window from stack
-      /*popModalWindowStack();*/
    }
    
    // Update toolbar to reflect new state
    updateMainWindowToolBar(pWindowData);
-   END_TRACKING();
 }
 
 
@@ -277,7 +273,6 @@ PROPERTY_PAGE  getPropertiesDialogCurrentPageID(PROPERTIES_DATA*  pPropertiesDat
    UINT           iPageIndex;    // Zero-based current page index
    
    // Prepare
-   TRACK_FUNCTION();
    eOutput = PP_NO_DOCUMENT;
 
    // Get current page index
@@ -312,7 +307,6 @@ PROPERTY_PAGE  getPropertiesDialogCurrentPageID(PROPERTIES_DATA*  pPropertiesDat
    }
 
    // Return page ID
-   END_TRACKING();
    return eOutput;
 }
 
@@ -441,7 +435,6 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
    LISTVIEW_COLUMNS   oButtonsListView     = { 2, IDS_BUTTONS_COLUMN_ID,        160, 200, NULL, NULL, NULL };    // ListView column data for the Buttons page
 
    // [DEBUG]
-   TRACK_FUNCTION();
 
    // Examine page
    switch (ePage)
@@ -460,24 +453,26 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
 
       // Setup Comment Ratio Ctrl
       SendDlgItemMessage(hPage, IDC_SCRIPT_COMMENT_RATIO, PBM_SETRANGE, 0, 100);
+
+      // Localise dialog strings
+      //setDialogStrings(hDialog, IDS_GENERAL_S_PROPERTIES_STRINGS, 1, IDC_SCRIPT_SIGNATURE);
       break;
 
    /// [SCRIPT ARUGMENTS]
-   case PP_SCRIPT_ARGUMENTS:     initReportModeListView(GetControl(hPage, IDC_ARGUMENTS_LIST), &oArgumentsListView, FALSE);      
-                                 SubclassWindow(GetControl(hPage, IDC_ARGUMENTS_LIST), wndprocCustomListView);                   break;
+   case PP_SCRIPT_ARGUMENTS:     initPropertiesDialogPageListView(GetControl(hPage, IDC_ARGUMENTS_LIST), &oArgumentsListView);                   break;
    /// [SCRIPT DEPENDENCIES]
-   case PP_SCRIPT_DEPENDENCIES:  initReportModeListView(GetControl(hPage, IDC_DEPENDENCIES_LIST), &oDepedenciesListView, TRUE);  break;
+   case PP_SCRIPT_DEPENDENCIES:  initPropertiesDialogPageListView(GetControl(hPage, IDC_DEPENDENCIES_LIST), &oDepedenciesListView);              break;
    /// [SCRIPT STRINGS]
-   case PP_SCRIPT_STRINGS:       initReportModeListView(GetControl(hPage, IDC_STRINGS_LIST), &oStringsListView, TRUE);           break;
+   case PP_SCRIPT_STRINGS:       initPropertiesDialogPageListView(GetControl(hPage, IDC_STRINGS_LIST), &oStringsListView);                       break; 
    /// [SCRIPT VARIABLES]
-   case PP_SCRIPT_VARIABLES:     initReportModeListView(GetControl(hPage, IDC_VARIABLES_LIST), &oVariablesListView, TRUE);       break;
+   case PP_SCRIPT_VARIABLES:     initPropertiesDialogPageListView(GetControl(hPage, IDC_VARIABLES_LIST), &oVariablesListView);                   break;  
 
    /// [LANGUAGE: GENERAL]
    case PP_LANGUAGE_GENERAL:
       // Populate languages ComboBox
       for (APP_LANGUAGE eLanguage = AL_ENGLISH; eLanguage <= AL_SPANISH; eLanguage = (APP_LANGUAGE)(eLanguage + 1))
       {
-         TCHAR* szLanguage = utilLoadString(getResourceInstance(), IDS_LANGUAGE_ENGLISH + eLanguage, 64);
+         TCHAR* szLanguage = loadString(IDS_LANGUAGE_ENGLISH + eLanguage, 64);
          appendCustomComboBoxItemEx(GetControl(hPage, IDC_LANGUAGE_COMBO), szLanguage, NULL, szLanguageIcons[eLanguage], NULL);
          utilDeleteString(szLanguage);
       }
@@ -490,22 +485,15 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
       SendDlgItemMessage(hPage, IDC_AUTHOR_EDIT, EM_LIMITTEXT, 128, NULL);
       SendDlgItemMessage(hPage, IDC_TITLE_EDIT,  EM_LIMITTEXT, 256, NULL);
       // Compatibility Combo
-      //appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook Only"),                           NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
-      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook or Incoming Message"),              NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
-      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), TEXT("Logbook, Incoming Message or Custom Menu"), NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
+      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), loadTempString(IDS_COMPATIBILITY_LOGBOOK), NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
+      appendCustomComboBoxItemEx(GetControl(hPage, IDC_COMPATIBILITY_COMBO), loadTempString(IDS_COMPATIBILITY_MENU), NULL, TEXT("NEW_LANGUAGE_FILE_ICON"), NULL);
       break;
 
    /// [ACTION BUTTONS]
-   case PP_LANGUAGE_BUTTON:      
-      initReportModeListView(GetControl(hPage, IDC_BUTTONS_LIST), &oButtonsListView, TRUE);   
-      break;
+   case PP_LANGUAGE_BUTTON:      initPropertiesDialogPageListView(GetControl(hPage, IDC_BUTTONS_LIST), &oButtonsListView);                      break;
 
    /// [COLUMN ADJUSTMENT]
    case PP_LANGUAGE_COLUMNS:
-      /*if (IsThemeActive())
-         for (UINT  iControlID = IDC_COLUMN_ONE_RADIO; iControlID <= IDC_COLUMN_THREE_RADIO; iControlID++)
-            SetWindowLong(GetDlgItem(hPage, iControlID), GWL_STYLE, WS_CHILD|WS_VISIBLE|BS_OWNERDRAW);*/
-
       // Set slider ranges
       SendDlgItemMessage(hPage, IDC_COLUMN_WIDTH_SLIDER,   TBM_SETRANGE, FALSE, MAKE_LONG(0,500));
       SendDlgItemMessage(hPage, IDC_COLUMN_SPACING_SLIDER, TBM_SETRANGE, FALSE, MAKE_LONG(0,250));
@@ -531,7 +519,23 @@ VOID  initPropertiesDialogPageControls(PROPERTIES_DATA*  pSheetData, HWND  hPage
    }
 
    // Cleanup
-   END_TRACKING();
+}
+
+
+/// Function name  : initPropertiesDialogPageListView
+// Description     : Helper function for initialising property page listview
+// 
+// HWND                     hListView   : [in] ListView
+// const LISTVIEW_COLUMNS*  pColumnData : [in] Colum data
+// 
+VOID  initPropertiesDialogPageListView(HWND  hListView, const LISTVIEW_COLUMNS*  pColumnData)
+{
+   // Setup + Subclass window
+   initReportModeListView(hListView, pColumnData, FALSE);   
+   SubclassWindow(hListView, wndprocCustomListView);
+
+   // [THEME] Set background colour appropriately
+   ListView_SetBkColor(hListView, getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
 }
 
 
@@ -639,10 +643,14 @@ HWND  initPropertiesDialogPageTooltips(PROPERTIES_DATA*  pSheetData, HWND  hPage
 // Description     : Enables/Disables window transparency
 // 
 // HWND        hSheet  : [in] Properties sheet
-// CONST UINT  iFlags  : [in] Activation source: WA_ACTIVE, WA_MOUSEACTIVE, WA_INACTIVE
+// CONST UINT  iFlags  : [in] Activation source: WA_ACTIVE, WA_CLICKACTIVE, WA_INACTIVE
 // 
 VOID  onPropertiesDialog_Activate(HWND  hSheet, CONST UINT  iFlags)
 {
+   // [DEBUG] Print on activation
+   if (LOWORD(iFlags) == WA_ACTIVE OR LOWORD(iFlags) == WA_CLICKACTIVE)
+      CONSOLE_ACTION();    //CONSOLE("Activating properties dialog");
+
    // [CHECK] Is transparent dialog preference set?
    if (getAppPreferences()->bTransparentProperties)
       /// [SUCCESS] Set window to transparent when it loses focus
@@ -671,7 +679,6 @@ INT    onPropertiesDialog_Create(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
    //HIMAGELIST    hTabImageList;    // Existing imagelist of the tab control            
 
    // [DEBUG]
-   TRACK_FUNCTION();
 
    // Examine state
    switch (iMessage)
@@ -717,8 +724,8 @@ INT    onPropertiesDialog_Create(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
       SetRect(&rcSheet, 0, 0, siTabCtrl.cx + (4 * GetSystemMetrics(SM_CXDLGFRAME)), siTabCtrl.cy + (4 * GetSystemMetrics(SM_CYDLGFRAME)) + GetSystemMetrics(SM_CYSMCAPTION));
 
       /// Resize sheet and reposition tab control
-      utilSetClientRect(hSheet, &rcSheet, FALSE);
-      utilSetClientRect(hTabCtrl, &rcTabCtrl, FALSE);
+      utilSetWindowRect(hSheet, &rcSheet, FALSE);
+      utilSetWindowRect(hTabCtrl, &rcTabCtrl, FALSE);
 
       // Turn transparency 'Off' initially
       SetLayeredWindowAttributes(hSheet, NULL, 0xFF, LWA_ALPHA);
@@ -729,7 +736,6 @@ INT    onPropertiesDialog_Create(HWND  hSheet, UINT  iMessage, LPARAM  lParam)
       break;
    }
 
-   END_TRACKING();
    return 0;
 }
 
@@ -749,7 +755,6 @@ VOID    onPropertiesDialog_DocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUME
    UINT             iOriginalTabIndex;     // Index of the currently selected tab        
 
    // [DEBUG]
-   TRACK_FUNCTION();
 
    // [CHECK] Is the new document the same type as the old?
    if (pSheetData->eType == identifyPropertiesDialogType(pNewDocument))
@@ -812,7 +817,6 @@ VOID    onPropertiesDialog_DocumentSwitched(PROPERTIES_DATA*  pSheetData, DOCUME
    }
 
    // [DEBUG]
-   END_TRACKING();
 }
 
 
@@ -832,6 +836,10 @@ VOID  onPropertiesDialog_Help(PROPERTIES_DATA*  pSheetData, PROPERTY_PAGE  ePage
    case PP_SCRIPT_DEPENDENCIES:  displayHelp(TEXT("Properties_Dependencies"));  break;
    case PP_SCRIPT_VARIABLES:     displayHelp(TEXT("Properties_Variables"));     break;
    case PP_SCRIPT_STRINGS:       displayHelp(TEXT("Properties_Strings"));       break;
+   case PP_LANGUAGE_GENERAL:     displayHelp(TEXT("Properties_Language"));      break;
+   case PP_LANGUAGE_COLUMNS:     displayHelp(TEXT("Properties_Columns"));       break;
+   case PP_LANGUAGE_BUTTON:      displayHelp(TEXT("Properties_Buttons"));       break;
+   case PP_LANGUAGE_SPECIAL:     displayHelp(TEXT("Properties_Advanced"));      break;
    }
 }
 
@@ -858,6 +866,7 @@ BOOL  onPropertiesDialog_Notify(PROPERTIES_DATA*  pSheetData, HWND  hPage, PROPE
    {
    /// [PRE-DISPLAY] -- Update page to reflect current document state
    case PSN_SETACTIVE:
+      CONSOLE("User switching to properties page '%s'", oPropertyPages[ePage].szTemplateResource);
       onPropertiesDialog_PageShow(pSheetData, hPage, ePage);
       SetWindowLong(hPage, DWL_MSGRESULT, FALSE);
       break;
@@ -908,7 +917,6 @@ VOID  onPropertiesDialog_PageHide(PROPERTIES_DATA*  pSheetData, HWND  hPage, CON
 VOID  onPropertiesDialog_PageShow(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERTY_PAGE  ePage)
 {
    // [DEBUG]
-   TRACK_FUNCTION();
    pSheetData->bRefreshing = TRUE;
 
    // Examine page
@@ -934,7 +942,6 @@ VOID  onPropertiesDialog_PageShow(PROPERTIES_DATA*  pSheetData, HWND  hPage, CON
 
    // Cleanup
    pSheetData->bRefreshing = FALSE;
-   END_TRACKING();
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -966,7 +973,6 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
    BOOL               bResult;
 
    // Get dialog data
-   TRACK_FUNCTION();
    pSheetData = getPropertiesDialogData(hPage);
    bResult    = TRUE;
 
@@ -1035,7 +1041,6 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
    updateMainWindowToolBar(iMessage, wParam, lParam);
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -1048,17 +1053,14 @@ INT_PTR CALLBACK  dlgprocPropertiesPage(HWND  hPage, UINT  iMessage, WPARAM  wPa
 INT_PTR   dlgprocPropertiesSheet(HWND  hSheet, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROPERTIES_DATA*  pSheetData;    // Properties sheet dialog data
-   ERROR_STACK*      pException;    // Exception error
    BOOL              bPassToBase;
 
-   // Prepare
-   TRACK_FUNCTION();
-   pSheetData  = getMainWindowData()->pPropertiesSheetData;
-   bPassToBase = TRUE;
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
+      // Prepare
+      pSheetData  = getMainWindowData()->pPropertiesSheetData;
+      bPassToBase = TRUE;
+
       // Examine message
       switch (iMessage)
       {
@@ -1071,12 +1073,6 @@ INT_PTR   dlgprocPropertiesSheet(HWND  hSheet, UINT  iMessage, WPARAM  wParam, L
       /// [DOCUMENT SWITCHED] -- Change the pages if necessary and refresh all page values
       case UN_DOCUMENT_SWITCHED:
          onPropertiesDialog_DocumentSwitched(pSheetData, (DOCUMENT*)lParam);
-         bPassToBase = FALSE;
-         break;
-
-      /// [SCRIPT-CALL OPERATION COMPLETE] Inform dependencies page
-      case UN_SCRIPTCALL_OPERATION_COMPLETE:
-         onDependenciesPage_OperationComplete(pSheetData, (AVL_TREE*)lParam);
          bPassToBase = FALSE;
          break;
 
@@ -1107,16 +1103,11 @@ INT_PTR   dlgprocPropertiesSheet(HWND  hSheet, UINT  iMessage, WPARAM  wParam, L
          GetWindowRect(hSheet, getAppPreferencesWindowRect(AW_PROPERTIES));
          break;
       }
+
+      // Return result
+      return (!bPassToBase OR !pSheetData ? TRUE : CallDialogProc(pSheetData->dlgprocSheetBase, hSheet, iMessage, wParam, lParam));
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the document properties window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_PROPERTIES_DIALOG));
-      displayException(pException);
-   }
-
-   // Return result
-   END_TRACKING();
-   return (!bPassToBase OR !pSheetData ? TRUE : CallDialogProc(pSheetData->dlgprocSheetBase, hSheet, iMessage, wParam, lParam));
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }

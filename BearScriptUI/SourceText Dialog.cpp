@@ -19,6 +19,7 @@ struct DIALOG_DATA
 {
    GAME_STRING*  pGameString;
    BOOL          bVirtualDoc;
+   SIZE          siMinimum;
 };
 
 // Functions
@@ -53,8 +54,11 @@ BOOL  displaySourceTextDialog(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pTarg
 {
    DIALOG_DATA  oDialogData = { pTargetString, pDocument->bVirtual };
 
+   // [TRACK]
+   CONSOLE_COMMAND_BOLD();
+
    // Display 'Insert Page' dialog
-   return DialogBoxParam(getResourceInstance(), TEXT("SOURCETEXT_DIALOG"), hParentWnd, dlgprocSourceTextDialog, (LPARAM)&oDialogData);
+   return showDialog(TEXT("SOURCETEXT_DIALOG"), hParentWnd, dlgprocSourceTextDialog, (LPARAM)&oDialogData);
 }
 
 
@@ -87,6 +91,11 @@ BOOL  initSourceTextDialog(DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  hTool
    // [DIALOG]
    SetWindowText(hDialog, getAppName());
    utilCentreWindow(GetParent(hDialog), hDialog);
+
+   // Store window size
+   utilGetWindowSize(hDialog, &pDialogData->siMinimum);
+   pDialogData->siMinimum.cx += GetSystemMetrics(SM_CXSIZEFRAME) * 2;
+   pDialogData->siMinimum.cy += GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CYCAPTION);
 
    // Return TRUE
    return TRUE;
@@ -133,6 +142,60 @@ BOOL   onSourceTextDialogCommand(DIALOG_DATA*  pDialogData, HWND  hDialog, CONST
    return FALSE;
 }
 
+/// Function name  : onGetMinimumSize
+// Description     : Restricts dialog size to it's initial size
+// 
+// DIALOG_DATA*  pDialogData : [in] Data
+// HWND          hDialog     : [in] Dialog
+// MINMAXINFO*   pSize       : [in/out] Minimum Size
+// 
+// Return Value   : 
+// 
+BOOL  onGetMinimumSize(DIALOG_DATA*  pDialogData, HWND  hDialog, MINMAXINFO*  pSize)
+{
+   pSize->ptMinTrackSize.x = pDialogData->siMinimum.cx;
+   pSize->ptMinTrackSize.y = pDialogData->siMinimum.cy;
+   return 0;
+}
+
+
+/// Function name  : onSourceTextDialogResize
+// Description     : Resizes RichEdit and moves dialog buttons
+// 
+// DIALOG_DATA*  pDialogData : [in] Data
+// HWND          hDialog     : [in] Dialog
+// const UINT    iWidth      : [in] Width
+// const UINT    iHeight     : [in] Height
+// 
+// Return Value   : 
+// 
+BOOL  onSourceTextDialogResize(DIALOG_DATA*  pDialogData, HWND  hDialog, const UINT  iWidth, const UINT  iHeight)
+{
+   RECT   rcButton1,
+          rcButton2,
+          rcEdit;
+   POINT  ptGuide = { iWidth - 14, iHeight - 10 };
+
+   // Move Cancel
+   utilGetDlgItemRect(hDialog, IDCANCEL, &rcButton1);
+   OffsetRect(&rcButton1, ptGuide.x - rcButton1.right, ptGuide.y - rcButton1.bottom);
+   utilSetDlgItemRect(hDialog, IDCANCEL, &rcButton1, TRUE);
+
+   // Move OK
+   utilGetDlgItemRect(hDialog, IDOK, &rcButton2);
+   OffsetRect(&rcButton2, (rcButton1.left - 14) - rcButton2.right, ptGuide.y - rcButton2.bottom);
+   utilSetDlgItemRect(hDialog, IDOK, &rcButton2, TRUE);
+
+   // Extend Edit
+   utilGetDlgItemRect(hDialog, IDC_SOURCE_EDIT, &rcEdit);
+   rcEdit.right  = ptGuide.x;
+   rcEdit.bottom = rcButton2.top - 28;
+   utilSetDlgItemRect(hDialog, IDC_SOURCE_EDIT, &rcEdit, TRUE);
+
+   // Repaint dialog
+   InvalidateRect(hDialog, NULL, TRUE);
+   return 0;
+}
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                     WINDOW PROCEDURE
@@ -163,9 +226,19 @@ INT_PTR  dlgprocSourceTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
       utilDeleteWindow(hTooltip);
       break;
 
-   /// [COMMAND PROCESSING] -- Process OK / CANCEL
+   /// [BUTTONS] -- Process OK / CANCEL
    case WM_COMMAND:
       bResult = onSourceTextDialogCommand(pDialogData, hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+      break;
+
+   /// [GET MIN SIZE]
+   case WM_GETMINMAXINFO:
+      bResult = onGetMinimumSize(pDialogData, hDialog, (MINMAXINFO*)lParam);
+      break;
+
+   /// [RESIZE]
+   case WM_SIZE:
+      bResult = onSourceTextDialogResize(pDialogData, hDialog, LOWORD(lParam), HIWORD(lParam));
       break;
 
    /// [OWNER DRAW]
@@ -176,7 +249,7 @@ INT_PTR  dlgprocSourceTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
 
    /// [HELP] Invoke help
    case WM_HELP:
-      bResult = displayHelp(TEXT("TODO"));
+      bResult = displayHelp(TEXT("Language_Errors"));
       break;
    }
 

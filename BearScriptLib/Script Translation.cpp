@@ -28,24 +28,28 @@
 // Return Value : TRUE if successful, FALSE otherwise
 // 
 BearScriptAPI 
-BOOL  loadScriptCallCommandTargetScript(CONST SCRIPT_FILE*  pCallingScript, CONST COMMAND* pCommand, HWND  hParentWnd, SCRIPT_FILE* &pOutputScript, ERROR_QUEUE*  pErrorQueue)
+BOOL  loadScriptCallCommandTargetScript(const SCRIPT_FILE*  pCallingScript, const COMMAND* pCommand, HWND  hParentWnd, SCRIPT_FILE*&  pOutput, ERROR_QUEUE*  pErrorQueue)
 {
-   TCHAR*    szTargetScriptPath;    // Full path of the target script
+   const TCHAR *szScriptName;     // Target script
+   TCHAR       *szFullPath;       // Full path of target script
 
    // Prepare
-   pOutputScript = NULL;
+   pOutput = NULL;
 
-   /// Generate full path of target script (Script must be in the same folder)
-   szTargetScriptPath = calculateScriptCallTargetFilePath(pCallingScript->szFullPath, pCommand);
+   /// Lookup ScriptName within COMMAND
+   if (findScriptCallTargetInCommand(pCommand, szScriptName))
+   {
+      /// Load the target script properties into a new ScriptFile
+      if (loadScriptProperties(szFullPath = generateScriptCallPath(pCallingScript->szFullPath, szScriptName), hParentWnd, pOutput, pErrorQueue) != OR_SUCCESS)
+         // [FAILED] Return NULL
+         deleteScriptFile(pOutput);
 
-   /// Load the target script properties into a new ScriptFile
-   if (szTargetScriptPath AND loadScriptProperties(szTargetScriptPath, hParentWnd, pOutputScript, pErrorQueue) != OR_SUCCESS)
-      // [ERROR] Destroy output ScriptFile
-      deleteScriptFile(pOutputScript);
+      // Cleanup
+      utilDeleteString(szFullPath);
+   }
 
-   // Cleanup and return TRUE if successful
-   utilSafeDeleteString(szTargetScriptPath);
-   return (pOutputScript != NULL);
+   // Return TRUE if successful
+   return (pOutput != NULL);
 }
 
 
@@ -74,10 +78,7 @@ OPERATION_RESULT  loadScriptProperties(CONST TCHAR*  szFullPath, HWND  hParentWn
 
    // Create ScriptFile and set PATH
    pScriptFile = createScriptFileByOperation(SFO_TRANSLATION, szFullPath);
-
-   // [vERBOSE]
-   VERBOSE_SMALL_PARTITION();
-   VERBOSE("Loading external script call '%s'", identifyScriptName(pScriptFile));
+   CONSOLE("Loading external script call '%s'", identifyScriptName(pScriptFile));
 
    /// [LOAD] Load external script into ScriptFile buffer
    if (!loadGameFileFromFileSystemByPath(getFileSystem(), pScriptFile, TEXT(".xml"), pOutputErrorQueue))
@@ -87,7 +88,7 @@ OPERATION_RESULT  loadScriptProperties(CONST TCHAR*  szFullPath, HWND  hParentWn
       utilFindCharacterReverse(szScriptName, '.')[0] = NULL;   // Script is guaranteed to have .pck on the end
 
       // [OUTPUT-ERROR] "The external MSCI script '%s' is unavailable or could not be accessed"
-      enhanceLastWarning(pOutputErrorQueue, ERROR_ID(IDS_SCRIPT_CALL_LOAD_IO_ERROR), szScriptName);
+      enhanceLastWarning(pOutputErrorQueue, ERROR_ID(IDS_SCRIPT_CALL_LOAD_IO_ERROR), PathFindFileName(szFullPath));
       generateOutputTextFromLastError(pOutputErrorQueue);
 
       // [FAILURE]
@@ -105,7 +106,7 @@ OPERATION_RESULT  loadScriptProperties(CONST TCHAR*  szFullPath, HWND  hParentWn
       while (pError = popErrorQueue(pTranslationErrors))
       {
          // [WARNING] "Minor errors were detected in the external script '%s' which may have affected translation"
-         enhanceWarning(pError, ERROR_ID(IDS_TRANSLATION_SCRIPT_TARGET_MINOR_ERRORS), pScriptFile->szScriptname);
+         enhanceWarning(pError, ERROR_ID(IDS_TRANSLATION_SCRIPT_TARGET_MINOR_ERRORS), PathFindFileName(szFullPath));
          generateOutputTextFromError(pError);
          // Add to output queue
          pushErrorQueue(pOutputErrorQueue, pError);
@@ -249,7 +250,7 @@ OPERATION_RESULT  translateCommandNode(CONST SCRIPT_FILE*  pScriptFile, CONST CO
       // [CHECK] Was the syntax identified?
       if (pOutput->pSyntax)
          // [SYNTAX FOUND] Display the suggestion text
-         StringCchCopy(pOutput->szBuffer, LINE_LENGTH, pOutput->pSyntax->szSuggestionText);
+         StringCchCopy(pOutput->szBuffer, LINE_LENGTH, pOutput->pSyntax->szSuggestion);
       else
          // [UNRECOGNISED COMMAND] Display a placeholder
          StringCchCopy(pOutput->szBuffer, LINE_LENGTH, TEXT("<Unrecognised Command>"));
@@ -424,7 +425,7 @@ OPERATION_RESULT  translateCommandToString(CONST SCRIPT_FILE*  pScriptFile, COMM
    if (!isCommandSyntaxCompatible(pCommand->pSyntax, pScriptFile->eGameVersion))
    {
       // [ERROR] "Incompatible %s command detected on line %u : '%s'"
-      pError = generateDualError(HERE(IDS_SCRIPT_COMMAND_INCOMPATIBLE), identifyGameVersionString(pCommand->pSyntax->eGameVersion), pCommand->iLineNumber, pCommand->pSyntax->szSyntax);
+      pError = generateDualError(HERE(IDS_SCRIPT_COMMAND_INCOMPATIBLE), identifyGameVersionString(pCommand->pSyntax->eGameVersion), pCommand->iLineNumber, pCommand->pSyntax->szContent);
       pushCommandAndOutputQueues(pError, pErrorQueue, pCommand->pErrorQueue, ET_ERROR);
    }
 
@@ -1056,28 +1057,27 @@ OPERATION_RESULT  translateScript(SCRIPT_FILE*  pScriptFile, CONST BOOL  bJustPr
    ERROR_STACK*       pError;         // Operation error
    
    // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
+   if (!bJustProperties)
+   {
+      CONSOLE_COMMAND_BOLD1(identifyScriptName(pScriptFile));
+      CONSOLE("Translating script file '%s'", pScriptFile->szFullPath);
+   }
 
    // Prepare
    eResult = OR_SUCCESS;
    pError  = NULL;
 
    // [INFO] "Translating XML from file '%s' into an MSCI script"
-   VERBOSE("Translating script file '%s' (JustProperties=%s)", identifyScriptName(pScriptFile), bJustProperties ? TEXT("True") : TEXT("False"));
    if (!bJustProperties)
       pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_PARSING_SCRIPT_XML), identifyScriptName(pScriptFile)));
 
    /// [XML] Build XML Tree and locate the key nodes
    if (!translateXMLToScriptFile(pScriptFile, hParentWnd, pProgress, pErrorQueue))
       // [FAILED] Return FAILURE
-      eResult = OR_FAILURE;
-      
-   // [SUCCESS]
+      eResult = OR_FAILURE;     
    else 
    {
       // [INFO] "Translating properties from MSCI script '%s'"
-      VERBOSE("Translating script file properties '%s'", identifyScriptName(pScriptFile));
       if (!bJustProperties)
          pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_TRANSLATING_SCRIPT_PROPERTIES), identifyScriptName(pScriptFile)));
 
@@ -1101,7 +1101,6 @@ OPERATION_RESULT  translateScript(SCRIPT_FILE*  pScriptFile, CONST BOOL  bJustPr
    }
    
    // Cleanup and return result
-   END_TRACKING();
    return  eResult;
 } 
 
@@ -1126,11 +1125,12 @@ OPERATION_RESULT  translateScriptFile(SCRIPT_FILE*  pScriptFile, CONST BOOL  bJu
    COMMAND*           pCommand;       // COMMAND generated from the current 'Command node'
    ERROR_STACK*       pError;         // Operation error, caused by structural errors in the XML
    
+   //VERBOSE("Verifying script meta-data of '%s'", identifyScriptName(pScriptFile));
+
    // Prepare
    eResult = OR_SUCCESS;
 
    // [INFO] "Translating commands from %s script '%s'"
-   VERBOSE("Verifying script meta-data of '%s'", identifyScriptName(pScriptFile));
    if (!bJustProperties)
       pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_TRANSLATING_SCRIPT_COMMANDS), identifyGameVersionString(pScriptFile->eGameVersion), identifyScriptName(pScriptFile)));
 
@@ -1150,8 +1150,8 @@ OPERATION_RESULT  translateScriptFile(SCRIPT_FILE*  pScriptFile, CONST BOOL  bJu
    /// Process Standard and Auxiliary commands
    if (!bJustProperties)
    {
-      // [VERBOSE]
-      VERBOSE("Translating standard and auxiliary command branches of '%s'", identifyScriptName(pScriptFile));
+      // [DEBUG]
+      CONSOLE("Translating standard and auxiliary command branches of '%s'", identifyScriptName(pScriptFile));
 
       // Iterate through the standard and auxiliary commands in their proper order
       while (findNextCommandNode(pScriptFile->pTranslator, pCommandNode, pError) AND eResult != OR_ABORTED)
@@ -1458,13 +1458,13 @@ BOOL  translateScriptFileProperties(SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pEr
    }
 
    // [VERBOSE]
-   VERBOSE("Enumerating script arguments and variables of '%s'", identifyScriptName(pScriptFile));
+   //VERBOSE("Enumerating script arguments and variables of '%s'", identifyScriptName(pScriptFile));
 
-   // Iterate through ARGUMENTS branch
+   // Iterate through ARGUMENT nodes (or argument CodeArray branch)
    for (UINT iIndex = 0; !pError AND findXMLTreeNodeByIndex(pLayout->pArgumentsNode, iIndex, pArgumentNode); iIndex++)
    {
       /// Create new ARGUMENT in SCRIPT-FILE
-      if (pArgument = createArgumentFromNode(pArgumentNode, iIndex, pError))
+      if (pArgument = createArgumentFromNode(pArgumentNode, pLayout, iIndex, pError))
          appendArgumentToScriptFile(pScriptFile, pArgument);
       else
          pushErrorQueue(pErrorQueue, pError);
@@ -1510,8 +1510,8 @@ BOOL  translateXMLToScriptFile(SCRIPT_FILE*  pScriptFile, HWND  hParentWnd, OPER
    if (generateXMLTree(pScriptFile->szInputBuffer, pScriptFile->iInputSize, identifyScriptName(pScriptFile), hParentWnd, pScriptFile->pTranslator->pXMLTree, pProgress, pErrorQueue) != OR_SUCCESS)
    {
       // [ERROR] "One or more syntax errors were discovered during processing that have prevented translation being attempted"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_SCRIPT_XML_ERROR));
-      generateOutputTextFromLastError(pErrorQueue);
+      /*enhanceLastError(pErrorQueue, ERROR_ID(IDS_SCRIPT_XML_ERROR));
+      generateOutputTextFromLastError(pErrorQueue);*/    /// No enhancement necessary
 
       // [CRITICAL ERROR] Return FALSE
       bResult = FALSE;
@@ -1556,56 +1556,44 @@ DWORD   threadprocLoadScriptFile(VOID*  pParameter)
    SCRIPT_FILE*         pScriptFile;      // Convenience pointer
    OPERATION_RESULT     eResult;          // Operation result, defaults to SUCCESS
 
-   // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
-   SET_THREAD_NAME("Script Translation");
-   setThreadLanguage(getAppPreferences()->eAppLanguage);
-
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
-   
-   // Prepare
-   pOperationData = (DOCUMENT_OPERATION*)pParameter;
-   pScriptFile    = (SCRIPT_FILE*)pOperationData->pGameFile;
-   eResult        = OR_SUCCESS;
-
-   // [STAGE] Set parsing stage
-   ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PARSING_SCRIPT);
-
-   /// [GUARD BLOCK]
    __try
    {
+      // [TRACKING]
+      CONSOLE_COMMAND_BOLD();
+      SET_THREAD_NAME("Script Translation");
+      setThreadLanguage(getAppPreferences()->eAppLanguage);
+
+      // [CHECK] Ensure parameter exists
+      ASSERT(pParameter);
+      
+      // Prepare
+      pOperationData = (DOCUMENT_OPERATION*)pParameter;
+      pScriptFile    = (SCRIPT_FILE*)pOperationData->pGameFile;
+      eResult        = OR_SUCCESS;
+
+      // [STAGE] Set parsing stage
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PARSING_SCRIPT);
+      pOperationData->pErrorQueue->bLiveReport = TRUE;
+
       // [INFO] "Loading XML from file '%s'"
       pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SCRIPT_XML), PathFindFileName(pOperationData->szFullPath)));
-      VERBOSE_SMALL_PARTITION();
 
       /// [LOAD] Load XML into ScriptFile buffer
       if (!loadGameFileFromFileSystemByPath(getFileSystem(), pScriptFile, NULL, pOperationData->pErrorQueue))
-      {
-         // [ERROR] "The MSCI script '%s' is unavailable or could not be accessed"
-         enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_LOAD_IO_ERROR), pOperationData->szFullPath);
+         // No enhancement necessary
          eResult = OR_FAILURE;
-      }
+      
       else
          /// [SUCCESS] Attempt to translate XML into a ScriptFile
          eResult = translateScript(pScriptFile, FALSE, pOperationData->hParentWnd, pOperationData->pProgress, pOperationData->pErrorQueue);
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   __except (pushException(pOperationData->pErrorQueue))
    {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while translating the script '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_SCRIPT_FILE), pOperationData->szFullPath);
-      
-      // [FAILURE]
       eResult = OR_FAILURE;
    }
 
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("SCRIPT TRANSLATION WORKER THREAD COMPLETED");
-   
    // Cleanup and return result
+   CONSOLE_COMPLETE("SCRIPT TRANSLATION", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
-   return  THREAD_RETURN;
+   return THREAD_RETURN;
 }

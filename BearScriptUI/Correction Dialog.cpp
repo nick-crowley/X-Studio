@@ -79,16 +79,16 @@ VOID   displayCorrectionDialog(HWND  hParentWnd, CONST RESULT_TYPE  eType, SUGGE
    CORRECTION_DIALOG_DATA*  pDialogData;
 
    // [VERBOSE]
-   VERBOSE_UI_COMMAND();
+   CONSOLE_COMMAND();
 
-   // [CHECK] Ensure object has a description
-   if ((eType == RT_COMMANDS AND xResult.asCommandSyntax->pTooltipDescription) OR (eType != RT_COMMANDS AND xResult.asObjectName->pDescription))
+   // [CHECK] Ensure object has a description      // [FIX] Existing Description is now optional
+   //if ((eType == RT_COMMANDS AND xResult.asCommandSyntax->pTooltipDescription) OR (eType != RT_COMMANDS AND xResult.asObjectName->pDescription))
    {
       // Create dialog data
       pDialogData = createCorrectionDialogData(eType, xResult);
 
       /// [CHECK] Display correction dialog
-      if (DialogBoxParam(getResourceInstance(), TEXT("CORRECTION_DIALOG"), hParentWnd, dlgprocCorrectionDialog, (LPARAM)pDialogData) == IDOK)
+      if (showDialog(TEXT("CORRECTION_DIALOG"), hParentWnd, dlgprocCorrectionDialog, (LPARAM)pDialogData) == IDOK)
          /// [SUBMIT] Launch submission thread
          commandSubmitReport(getMainWindowData(), pDialogData->szCorrection);
          
@@ -105,23 +105,29 @@ VOID   displayCorrectionDialog(HWND  hParentWnd, CONST RESULT_TYPE  eType, SUGGE
 // 
 VOID   initCorrectionDialog(HWND  hDialog, CORRECTION_DIALOG_DATA*  pDialogData)
 {
+   RICH_TEXT*  pDescription = NULL;
+
    /// Store dialog data
    pDialogData->hDialog = hDialog;
    SetWindowLong(hDialog, DWL_USER, (LONG)pDialogData);
 
-   // Limit forum name to 32 characters
-   SendDlgItemMessage(hDialog, IDC_SUBMISSION_FORUM_USERNAME_EDIT, EM_LIMITTEXT, 32, NULL);
-
    /// Display existing forum name (if any)
+   Edit_LimitText(GetDlgItem(hDialog, IDC_SUBMISSION_FORUM_USERNAME_EDIT), 32);
    SetDlgItemText(hDialog, IDC_SUBMISSION_FORUM_USERNAME_EDIT, getAppPreferences()->szForumUserName);
 
-   /// Display description 
+   // Identify description (if any)
    switch (pDialogData->eObjectType)
    {
-   case RT_COMMANDS:        setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asCommandSyntax->pTooltipDescription, true, GTC_WHITE);   break;
-   case RT_GAME_OBJECTS:    setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asObjectName->pDescription,           true, GTC_WHITE);   break;
-   case RT_SCRIPT_OBJECTS:  setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDialogData->xResult.asObjectName->pDescription,           true, GTC_WHITE);   break;
+   case RT_COMMANDS:        pDescription = pDialogData->xResult.asCommandSyntax->pTooltipDescription;    break;
+   case RT_GAME_OBJECTS:    
+   case RT_SCRIPT_OBJECTS:  pDescription = pDialogData->xResult.asObjectName->pDescription;              break;
    }
+
+   /// Display description (or placeholder)
+   if (pDescription)
+      setRichEditText(GetControl(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT), pDescription, 8, true, GTC_WHITE);
+   else
+      SetDlgItemText(hDialog, IDC_CORRECTION_DESCRIPTION_RICHEDIT, TEXT("This item currently has no description"));
 
    // [DIALOG] Center dialog and set text
    utilCentreWindow(getAppWindow(), hDialog);
@@ -132,7 +138,8 @@ VOID   initCorrectionDialog(HWND  hDialog, CORRECTION_DIALOG_DATA*  pDialogData)
    utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_HEADING_1), SS_OWNERDRAW);
    utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_HEADING_2), SS_OWNERDRAW);
 
-   // [FOCUS]
+   // Set title + Focus Edit
+   SetDlgItemText(hDialog, IDC_DIALOG_TITLE, pDescription ? TEXT("Submit Description Correction") : TEXT("Submit New Description"));
    SetFocus(GetControl(hDialog, IDC_CORRECTION_SUBMISSION_EDIT));
 }
 
@@ -175,11 +182,11 @@ BOOL   onCorrectionDialog_Command(CORRECTION_DIALOG_DATA*  pDialogData, CONST UI
    case IDC_SUBMISSION_FORUM_USERNAME_EDIT:
    case IDC_CORRECTION_SUBMISSION_EDIT:
       // [TEXT CHANGED]
-      if (iNotification == EN_CHANGE)
+      if (bResult = (iNotification == EN_CHANGE))
       {
-         bEnabled = utilGetDlgItemTextLength(pDialogData->hDialog, IDC_SUBMISSION_FORUM_USERNAME_EDIT) AND utilGetDlgItemTextLength(pDialogData->hDialog, IDC_CORRECTION_SUBMISSION_EDIT);
+         bEnabled = utilGetDlgItemTextLength(pDialogData->hDialog, IDC_SUBMISSION_FORUM_USERNAME_EDIT) AND 
+                    utilGetDlgItemTextLength(pDialogData->hDialog, IDC_CORRECTION_SUBMISSION_EDIT);
          utilEnableDlgItem(pDialogData->hDialog, IDOK, bEnabled);
-         bResult = TRUE;
       }
       break;
    }

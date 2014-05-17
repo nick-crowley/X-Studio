@@ -170,30 +170,37 @@ SEARCH_OPERATION*   createSearchOperationData()
 }
 
 
-/// Function name  : createScriptCallOperationData
+/// Function name  : createScriptOperationData
 // Description     : Creates operation data for searching for external script-calls
 ///                        Number of stages must be set here to prevent division by zero by the progress dialog
 //
-// Return type : New SUBMISSION_OPERATION structure, you are responsible for destroying it
+// Return type : New SCRIPT_OPERATION structure, you are responsible for destroying it
 //
 BearScriptAPI
-SCRIPTCALL_OPERATION*   createScriptCallOperationData(CONST TCHAR*  szScriptName) 
+SCRIPT_OPERATION*   createScriptOperationData(const CONTENT_TYPE  eType, const TCHAR*  szFolder, SCRIPT_CONTENT  xContent)
 {
-   SCRIPTCALL_OPERATION*   pOperationData;
-
-   // Create new object
-   pOperationData = utilCreateEmptyObject(SCRIPTCALL_OPERATION);
+   SCRIPT_OPERATION*   pOperationData = utilCreateEmptyObject(SCRIPT_OPERATION);
 
    // Setup object   
-   pOperationData->eType       = OT_SEARCH_SCRIPT_CALLS;
+   pOperationData->eType       = OT_SEARCH_SCRIPT_CONTENT;
    pOperationData->pProgress   = createOperationProgress();
    pOperationData->pErrorQueue = createErrorQueue();
 
    /// Create output tree
    pOperationData->pCallersTree = createScriptDependencyTreeByText();
 
-   /// Pass ScriptName
-   StringCchCopy(pOperationData->szScriptName, MAX_PATH, szScriptName);
+   // [PROPERTIES] Set properties
+   pOperationData->szFolder = utilDuplicateSimpleString(szFolder);
+   pOperationData->eContent = eType;
+   pOperationData->xContent = xContent;
+
+   // Set display string
+   switch (eType)
+   {
+   case CT_SYNTAX:  pOperationData->szContent = xContent.asSyntax->szContent; break;
+   case CT_OBJECT:  pOperationData->szContent = xContent.asObject->szText;    break;
+   case CT_SCRIPT:  pOperationData->szContent = xContent.asScript;            break;
+   }
 
    /// Define single stage
    addStageToOperationProgress(pOperationData->pProgress, IDS_PROGRESS_SEARCHING_SCRIPTS);
@@ -236,6 +243,29 @@ SUBMISSION_OPERATION*   createSubmissionOperationData(CONST TCHAR*  szCorrection
 }
 
 
+/// Function name  : createUpdateOperation
+// Description     : Creates operation data for update checking
+//
+// Return type : New UPDATE_OPERATION, you are responsible for destroying it
+//
+BearScriptAPI
+UPDATE_OPERATION*  createUpdateOperation()
+{
+   UPDATE_OPERATION*  pOperationData = utilCreateEmptyObject(UPDATE_OPERATION);
+
+   // Set properties
+   pOperationData->eType       = OT_AUTOMATIC_UPDATE;
+   pOperationData->pProgress   = createOperationProgress();
+   pOperationData->pErrorQueue = createErrorQueue(); 
+
+   /// Define single stage
+   addStageToOperationProgress(pOperationData->pProgress, IDS_PROGRESS_UPDATE_DOWNLOADING);
+
+   // Return new object
+   return pOperationData;
+}
+
+
 /// Function name  : deleteOperationData
 // Description     : Deletes a OperationData structure
 // 
@@ -245,43 +275,64 @@ VOID   deleteOperationData(OPERATION_DATA*  &pOperationData)
 {
    SUBMISSION_OPERATION*  pSubmissionOperation;   // Convenience pointer
    DOCUMENT_OPERATION*    pDocumentOperation;     // Convenience pointer
+   SCRIPT_OPERATION*      pScriptOperation;
+   UPDATE_OPERATION*      pUpdateOperation;
    
    // Prepare
-   pDocumentOperation   = (DOCUMENT_OPERATION*)pOperationData;
-   pSubmissionOperation = (SUBMISSION_OPERATION*)pOperationData;
-
+   pDocumentOperation = (DOCUMENT_OPERATION*)pOperationData;
+   
    /// Delete error queue
    deleteErrorQueue(pOperationData->pErrorQueue);
 
    /// Delete progress object
    deleteOperationProgress(pOperationData->pProgress);
 
-   /// [CHECK] Destroy attached GameFile, if 'Load Document' operation failed.
+   // Destroy custom data
    switch (pOperationData->eType)
    {
-   // [LANGUAGE-FILE] Destroy LanguageFile, if present
+   /// [LANGUAGE-FILE] Destroy LanguageFile, if present
    case OT_LOAD_LANGUAGE_FILE:  
-      if (pDocumentOperation->pGameFile)
-         deleteLanguageFile((LANGUAGE_FILE*&)pDocumentOperation->pGameFile);  
+      if (pDocumentOperation->pGameFile)    
+         deleteLanguageFile((LANGUAGE_FILE*&)pDocumentOperation->pGameFile);      // Present if operation failed
       break;
 
-   // [PROJECT-FILE] Destroy ProjectFile, if present
+   /// [PROJECT-FILE] Destroy ProjectFile, if present
    case OT_LOAD_PROJECT_FILE:   
       if (pDocumentOperation->pGameFile)
-         deleteProjectFile((PROJECT_FILE*&)pDocumentOperation->pGameFile);    
+         deleteProjectFile((PROJECT_FILE*&)pDocumentOperation->pGameFile);        // Present if operation failed
       break;
 
-   // [SCRIPT-FILE] Destroy ScriptFile, if present
+   /// [SCRIPT-FILE] Destroy ScriptFile, if present
    case OT_LOAD_SCRIPT_FILE:
    case OT_VALIDATE_SCRIPT_FILE:
       if (pDocumentOperation->pGameFile)
-         deleteScriptFile((SCRIPT_FILE*&)pDocumentOperation->pGameFile);      
+         deleteScriptFile((SCRIPT_FILE*&)pDocumentOperation->pGameFile);       // Present if operation failed
       break;
-   }
 
    /// [CORRECTION] Destroy correction text
-   if (pOperationData->eType == OT_SUBMIT_CORRECTION)
+   case OT_SUBMIT_CORRECTION:
+      pSubmissionOperation = (SUBMISSION_OPERATION*)pOperationData;
+
       utilDeleteString(pSubmissionOperation->szCorrection);
+      break;
+
+   /// [SCRIPT SEARCH] Destroy Dependencies tree
+   case OT_SEARCH_SCRIPT_CONTENT:
+      pScriptOperation = (SCRIPT_OPERATION*)pOperationData;
+
+      deleteAVLTree(pScriptOperation->pCallersTree);
+      utilDeleteString(pScriptOperation->szFolder);
+      break;
+
+   /// [AUTOMATIC UPDATE]
+   case OT_AUTOMATIC_UPDATE:
+      pUpdateOperation = (UPDATE_OPERATION*)pOperationData;
+
+      utilSafeDeleteStrings(pUpdateOperation->szName, pUpdateOperation->szDate, pUpdateOperation->szURL);
+      if (pUpdateOperation->pDescription) 
+         deleteRichText(pUpdateOperation->pDescription);
+      break;
+   }      
    
    /// Close thread handle
    if (pOperationData->hThread)
@@ -308,12 +359,35 @@ VOID  destructorOperationData(LPARAM  pOperationData)
 ///                                           HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : identifyOperationResultString
+// Description     : Resolves operation result
+// 
+// CONST OPERATION_RESULT  eResult : [in] Operation result
+// 
+// Return Value   : string
+// 
+BearScriptAPI
+CONST TCHAR*  identifyOperationResultString(CONST OPERATION_RESULT  eResult)
+{
+   CONST TCHAR*  szOutput;
+
+   switch (eResult)
+   {
+   case OR_SUCCESS:  szOutput = TEXT("SUCCESS!");    break;
+   case OR_FAILURE:  szOutput = TEXT("FAILURE!");    break;
+   case OR_ABORTED:  szOutput = TEXT("ABORTED!");    break;
+   default:          szOutput = TEXT("CORRUPTED!");  break;
+   }
+
+   return szOutput;
+}
+
 /// Function name  : identifyOperationTypeString
-// Description     : Get operationd description for error strings
+// Description     : Resolves operation type
 // 
 // CONST OPERATION_TYPE  eType : [in] Operation type
 // 
-// Return Value   : Debugging string
+// Return Value   : string
 // 
 BearScriptAPI
 CONST TCHAR*  identifyOperationTypeString(CONST OPERATION_TYPE  eType)
@@ -323,23 +397,24 @@ CONST TCHAR*  identifyOperationTypeString(CONST OPERATION_TYPE  eType)
    // Examine type
    switch (eType)
    {
-   case OT_LOAD_GAME_DATA:       szOutput = TEXT("load game data");              break;       // Loading game data
+   case OT_LOAD_GAME_DATA:          szOutput = TEXT("load game data");              break;         // Loading game data
 
-   case OT_LOAD_LANGUAGE_FILE:   szOutput = TEXT("load language file");          break;         // Loading a language file
-   case OT_LOAD_SCRIPT_FILE:     szOutput = TEXT("load MSCI script");            break;         // Loading a script
-   case OT_LOAD_PROJECT_FILE:    szOutput = TEXT("load project");                break;         // Loading a project file
+   case OT_LOAD_LANGUAGE_FILE:      szOutput = TEXT("load language file");          break;         // Loading a language file
+   case OT_LOAD_SCRIPT_FILE:        szOutput = TEXT("load MSCI script");            break;         // Loading a script
+   case OT_LOAD_PROJECT_FILE:       szOutput = TEXT("load project");                break;         // Loading a project file
 
-   case OT_SAVE_LANGUAGE_FILE:   szOutput = TEXT("save language file");          break;         // Saving a language file
-   case OT_SAVE_SCRIPT_FILE:     szOutput = TEXT("save MSCI script");            break;         // Saving a script
-   case OT_SAVE_PROJECT_FILE:    szOutput = TEXT("save project");                break;         // Saving a project file
+   case OT_SAVE_LANGUAGE_FILE:      szOutput = TEXT("save language file");          break;         // Saving a language file
+   case OT_SAVE_SCRIPT_FILE:        szOutput = TEXT("save MSCI script");            break;         // Saving a script
+   case OT_SAVE_PROJECT_FILE:       szOutput = TEXT("save project");                break;         // Saving a project file
 
-   case OT_VALIDATE_SCRIPT_FILE: szOutput = TEXT("script validation");           break;         // Generates/Validates script code
+   case OT_VALIDATE_SCRIPT_FILE:    szOutput = TEXT("script validation");           break;         // Generates/Validates script code
                           
-   case OT_SEARCH_FILE_SYSTEM:   szOutput = TEXT("file system search");          break;         // FileDialog file search
-   case OT_SEARCH_SCRIPT_CALLS:  szOutput = TEXT("external dependency search");  break;         // External ScriptCall dependencies search
+   case OT_SEARCH_FILE_SYSTEM:      szOutput = TEXT("file system search");          break;         // FileDialog file search
+   case OT_SEARCH_SCRIPT_CONTENT:   szOutput = TEXT("script content search");       break;         // Script content search
 
-   case OT_SUBMIT_BUG_REPORT:    szOutput = TEXT("bug report submission");       break;         // Bug report submission
-   case OT_SUBMIT_CORRECTION:    szOutput = TEXT("correction submission");       break;         // Correction submission 
+   case OT_SUBMIT_BUG_REPORT:       szOutput = TEXT("bug report submission");       break;         // Bug report submission
+   case OT_SUBMIT_CORRECTION:       szOutput = TEXT("correction submission");       break;         // Correction submission 
+   default:                         szOutput = TEXT("Corrupted");                   break;
    };
 
    return szOutput;
@@ -410,10 +485,15 @@ BOOL   launchThreadedOperation(LPTHREAD_START_ROUTINE  pfnOperationFunction, OPE
    //return utilLaunchThreadpoolThread(pfnOperationFunction, pOperationData);
 
    // Attempt to create new thread and save handle
-   pOperationData->hThread = utilLaunchThread(pfnOperationFunction, pOperationData);
-
-   // [ERROR] Print error to console
+   pOperationData->hThread = utilLaunchThread(pfnOperationFunction, pOperationData, TRUE, &pOperationData->dwThreadID);
    ERROR_CHECK("launching threaded operation", pOperationData->hThread);
+
+   // Set thread priorty and execute
+   if (pOperationData->hThread)
+   {
+      SetThreadPriority(pOperationData->hThread, THREAD_PRIORITY_ABOVE_NORMAL);
+      ResumeThread(pOperationData->hThread);
+   }
 
    // Return TRUE if successful
    return (pOperationData->hThread != NULL);

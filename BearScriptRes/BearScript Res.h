@@ -1,4 +1,6 @@
 
+#include "../Build Rules.h"
+
 /// ///////////////////////////////////////////////////////
 ///                    RESOURCE FILES
 /// ///////////////////////////////////////////////////////
@@ -29,12 +31,9 @@
 #define IDS_INIT_WINDOW_CLASSES_FAILED                   13
 #define IDS_INIT_REGISTER_CLASS_FAILED                   14
 #define IDS_INIT_PREFERENCES_CORRUPT                     15
-#define IDS_INIT_PREFERENCES_UPGRADED                    16
 #define IDS_INIT_RICH_EDIT_FAILED                        17
 #define IDS_INIT_NO_GAME_DATA                            18
 #define IDS_INIT_NO_GAME_FOLDER                          19
-#define IDS_INIT_GAME_DATA_LOST                          20
-#define IDS_INIT_GAME_DATA_FOUND                         21
 
 /// Error messages
 // General
@@ -61,6 +60,7 @@
 #define IDS_LOAD_FILE_NOT_FOUND                          51
 #define IDS_LOAD_ALTERNATE_FILE_NOT_FOUND                52
 #define IDS_SAVE_FILE_SYSTEM_ERROR                       53
+#define IDS_UNICODE_CONVERSION_ANSI_FAILED               54
 
 // GZip
 #define IDS_GZIP_MAGIC_NUMBER                            60
@@ -78,7 +78,7 @@
 #define IDS_GENERATION_CONDITIONAL_HASH_UNRECOGNISED     100
 #define IDS_GENERATION_COMMAND_SYNTAX_NOT_FOUND          101
 #define IDS_GENERATION_COMMAND_SYNTAX_INVALID            102
-
+#define IDS_GENERATION_COMMAND_TEXT_UNEXPECTED           103
 
 // Return/Reference Objects
 #define IDS_GENERATION_RETURN_OBJECT_MISSING             105
@@ -159,14 +159,15 @@
 
 /// Script Translation
 // Script structural Errors
-#define IDS_SCRIPT_ENGINE_VERSION_HIGHER                 212
-#define IDS_SCRIPT_NAME_MISMATCH                         213
-#define IDS_SCRIPT_ARGUMENT_TYPE_NAME_INVALID            214
-#define IDS_SCRIPT_ARGUMENT_TYPE_ID_INVALID              215
-#define IDS_SCRIPT_ARGUMENT_CORRUPT                      216
-#define IDS_SCRIPT_PROPERTY_MISSING                      217
-#define IDS_SCRIPT_PROPERTY_TAG_MISSING                  218
-#define IDS_SCRIPT_COMMAND_ID_NOT_FOUND                  219
+#define IDS_SCRIPT_ENGINE_VERSION_HIGHER                 210
+#define IDS_SCRIPT_NAME_MISMATCH                         211
+#define IDS_SCRIPT_ARGUMENT_CORRUPT                      212
+#define IDS_SCRIPT_ARGUMENT_CODEARRAY_CORRUPT            213
+#define IDS_SCRIPT_ARGUMENT_TYPE_INVALID                 214
+#define IDS_SCRIPT_ARGUMENT_NAME_MISSING                 215
+#define IDS_SCRIPT_PROPERTY_MISSING                      216
+#define IDS_SCRIPT_PROPERTY_TAG_MISSING                  217
+#define IDS_SCRIPT_COMMAND_ID_NOT_FOUND                  218
 #define IDS_SCRIPT_STRUCTURE_INVALID                     220
 #define IDS_SCRIPT_TAG_MISSING                           221
 #define IDS_SCRIPT_TREE_EMPTY                            222
@@ -284,29 +285,29 @@
 
 /// XML Parsing
 // Original
-#define IDS_XML_TAG_UNKNOWN_PROPERTY                     407
-#define IDS_XML_TAG_PARSE_ERROR                          408
-#define IDS_XML_UNEXPECTED_SCHEMA_TOKEN                  410
-#define IDS_XML_UNEXPECTED_TOKEN                         411
-#define IDS_XML_LANGUAGE_MISMATCH                        412
-#define IDS_XML_ID_PROPERTY_MISSING                      413
+///#define IDS_XML_TAG_UNKNOWN_PROPERTY                     407   /// REMOVED
+///#define IDS_XML_TAG_PARSE_ERROR                          408   /// REMOVED
+///#define IDS_XML_UNEXPECTED_SCHEMA_TOKEN                  410   /// REMOVED
+///#define IDS_XML_UNEXPECTED_TOKEN                         411   /// REMOVED
+///#define IDS_XML_LANGUAGE_MISMATCH                        412   /// REMOVED
+///#define IDS_XML_ID_PROPERTY_MISSING                      413   /// REMOVED
 
-// New
-#define IDS_XML_UNEXPECTED_OPENING_BRACKET               420
-#define IDS_XML_UNEXPECTED_CLOSING_BRACKET               421
-#define IDS_XML_UNEXPECTED_OPENING_TAG                   422
-#define IDS_XML_UNEXPECTED_CLOSING_TAG                   423
-#define IDS_XML_MISMATCHED_CLOSING_TAG                   424
-#define IDS_XML_UNCLOSED_OPENING_TAG                     425
-#define IDS_XML_UNEXPECTED_TEXT                          426
-#define IDS_XML_MINOR_SYNTAX_ERROR                       427
-#define IDS_XML_MINOR_PARSING_ERROR                      428
-#define IDS_XML_MINOR_SYNTAX_ERROR_QUESTION              429
-#define IDS_XML_MINOR_PARSING_ERROR_QUESTION             430
+/// XML Parsing
+#define IDS_XML_UNEXPECTED_OPENING_BRACKET               420   // CHANGED:
+#define IDS_XML_UNEXPECTED_CLOSING_BRACKET               421   // CHANGED:
+///#define IDS_XML_UNEXPECTED_OPENING_TAG                   422   /// REMOVED
+#define IDS_XML_UNEXPECTED_CLOSING_TAG                   422   // CHANGED:
+#define IDS_XML_MISMATCHED_CLOSING_TAG                   423   // CHANGED:
+#define IDS_XML_UNCLOSED_OPENING_TAG                     424   // CHANGED:
+#define IDS_XML_UNEXPECTED_TEXT                          425   // CHANGED:
+#define IDS_XML_TEXT_EXCEEDS_BUFFER                      426   // CHANGED:
+#define IDS_XML_UNCLOSED_TAG_REMAINING                   427   // NEW:
+///#define IDS_XML_MINOR_SYNTAX_ERROR                       428   /// REMOVED
+///#define IDS_XML_MINOR_PARSING_ERROR                      429   /// REMOVED
 
 /// Game Data
 // TFiles
-#define IDS_TFILE_IO_ERROR                               499
+#define IDS_TFILE_IO_ERROR                               499   // REMOVE
 #define IDS_TFILE_VERSION_UNSUPPORTED                    500
 #define IDS_TFILE_OBJECT_COUNT_NOT_FOUND                 501
 #define IDS_TFILE_OBJECT_COUNT_INCORRECT                 502
@@ -320,12 +321,12 @@
 #define IDS_TFILE_WARE_NAME_NOT_FOUND                    510
 #define IDS_TFILE_OBJECT_NAME_DUPLICATE                  511
 #define IDS_TFILE_INCOMPLETE_OBJECT_COUNT                512
-#define IDS_TFILE_MINOR_ERROR                            513
+#define IDS_TFILE_MINOR_ERROR                            513   // REMOVE
 #define IDS_TFILE_EXCESSIVE_PROPERTIES                   514
 
 // Media Items
-#define IDS_MEDIA_SFX_FILE_IO_ERROR                      520
-#define IDS_MEDIA_SFX_MINOR_ERROR                        521
+#define IDS_MEDIA_SFX_FILE_IO_ERROR                      520   // REMOVE
+#define IDS_MEDIA_SFX_MINOR_ERROR                        521   // REMOVE
 #define IDS_MEDIA_SFX_ENTRY_INVALID                      522
 #define IDS_MEDIA_SFX_DUPLICATE_ITEM                     523
 #define IDS_MEDIA_SFX_DUPLICATE_PAGE                     524
@@ -336,7 +337,7 @@
 #define IDS_MEDIA_VIDEO_DUPLICATE_PAGE                   529
 
 // Command Syntax
-#define IDS_SYNTAX_FILE_IO_ERROR                         540
+#define IDS_SYNTAX_FILE_IO_ERROR                         540   // REMOVE
 #define IDS_SYNTAX_PARAMETER_NOT_FOUND                   541
 #define IDS_SYNTAX_CUSTOM_COMMAND                        542
 #define IDS_SYNTAX_MINOR_ERROR                           543
@@ -347,12 +348,17 @@
 #define IDS_VARIABLES_FILE_IO_ERROR                      562
 #define IDS_VARIABLES_FILE_TRANSLATION_FAILED            563
 #define IDS_DESCRIPTION_DUPLICATE                        564
-#define IDS_DESCRIPTION_OBJECT_NOT_FOUND                 565
-#define IDS_DESCRIPTION_SYNTAX_NOT_FOUND                 566
-#define IDS_DESCRIPTION_PARAMETER_UNKNOWN                567
-#define IDS_DESCRIPTION_VARIABLE_UNKNOWN                 568
-#define IDS_DESCRIPTION_VARIABLE_PARAMETER_COUNT         569
-#define IDS_DESCRIPTION_VARIABLE_DUPLICATE               570
+#define IDS_DESCRIPTION_DISCARD_COUNT                    565     // NEW:
+#define IDS_DESCRIPTION_OBJECT_DUPLICATE                 566     /// NEW:
+#define IDS_DESCRIPTION_OBJECT_FORMAT_ERROR              567     /// NEW:
+#define IDS_DESCRIPTION_OBJECT_NOT_FOUND                 568     /// CHANGED:
+#define IDS_DESCRIPTION_SYNTAX_DUPLICATE                 569     /// NEW:
+#define IDS_DESCRIPTION_SYNTAX_FORMAT_ERROR              570     /// NEW:
+#define IDS_DESCRIPTION_SYNTAX_NOT_FOUND                 571     /// CHANGED:
+#define IDS_DESCRIPTION_PARAMETER_UNKNOWN                572
+#define IDS_DESCRIPTION_VARIABLE_UNKNOWN                 573
+#define IDS_DESCRIPTION_VARIABLE_PARAMETER_COUNT         574
+#define IDS_DESCRIPTION_VARIABLE_DUPLICATE               575
 
 // Script-Objects
 #define IDS_SCRIPT_OBJECT_DUPLICATE                      580
@@ -369,32 +375,36 @@
 #define IDS_SUBMISSION_NAVIGATE_FOLDER_FAILED            605
 #define IDS_SUBMISSION_UPLOAD_FAILED                     606
 
+/// Auto-Update
+#define IDS_UPDATE_NO_CONNECTION                         608
+#define IDS_UPDATE_CONNECTION_FAILED                     609
+#define IDS_UPDATE_DOWNLOAD_FAILED                       610
+
 /// Project files
-#define IDS_PROJECT_LOAD_IO_ERROR                        620
+#define IDS_PROJECT_LOAD_IO_ERROR                        620   // REMOVE
 #define IDS_PROJECT_NODE_MISSING                         621
 #define IDS_PROJECT_NODE_UNRECOGNISED                    622
 #define IDS_PROJECT_DOCUMENT_CORRUPT                     623
 #define IDS_PROJECT_DOCUMENT_MISSING                     624
 #define IDS_PROJECT_VARIABLE_CORRUPT                     625
 #define IDS_PROJECT_TRANSLATION_FAILED                   626
-#define IDS_PROJECT_SAVE_IO_ERROR                        627
+#define IDS_PROJECT_SAVE_IO_ERROR                        627   // REMOVE
 
 /// Scripts
 // General
-#define IDS_SCRIPT_LOAD_IO_ERROR                         640
+#define IDS_SCRIPT_LOAD_IO_ERROR                         640   // REMOVE
 #define IDS_SCRIPT_CALL_LOAD_IO_ERROR                    641
 #define IDS_SCRIPT_LOAD_MINOR_ERROR                      642
-#define IDS_SCRIPT_SAVE_PCK_IO_ERROR                     643
-#define IDS_SCRIPT_SAVE_IO_ERROR                         644
+#define IDS_SCRIPT_SAVE_PCK_IO_ERROR                     643   // REMOVE
+#define IDS_SCRIPT_SAVE_IO_ERROR                         644   // REMOVE
 
 /// Language Files
 // General
-#define IDS_LANGUAGE_FILE_IO_ERROR                       650
 #define IDS_LANGUAGE_FILE_MINOR_ERROR                    651
 #define IDS_LANGUAGE_FILE_TRANSLATION_FAILED             652
 #define IDS_LANGUAGE_MASTER_FILE_FAILED                  653
-#define IDS_LANGUAGE_LOAD_ERROR                          654
-#define IDS_LANGUAGE_SAVE_ERROR                          655
+#define IDS_LANGUAGE_LOAD_ERROR                          654   // REMOVE
+#define IDS_LANGUAGE_SAVE_ERROR                          655   // REMOVE
 #define IDS_LANGUAGE_SUPPLEMENTARY_FILE_FAILED           658
 #define IDS_LANGUAGE_SUPPLEMENTARY_FILE_MERGED           659
 
@@ -408,10 +418,11 @@
 #define IDS_LANGUAGE_SUPPLEMENTARY_COMMAND_MERGED        676
 
 // Game Strings
-#define IDS_GAME_STRING_SUBSTRING_RECURSIVE              680
-#define IDS_GAME_STRING_SUBSTRING_NOT_FOUND              681
-#define IDS_GAME_STRING_SUBSTRING_CORRUPT                682
-#define IDS_GAME_STRING_SUBSTRING_MISSING_COUNT          683
+#define IDS_GAME_STRING_SUBSTRING_RECURSIVE              680   /// CHANGED:
+#define IDS_GAME_STRING_SUBSTRING_NOT_FOUND              681   /// CHANGED:
+///#define IDS_GAME_STRING_SUBSTRING_CORRUPT                682   /// REMOVED:
+#define IDS_GAME_STRING_SUBSTRING_MISSING_COUNT          683   /// CHANGED:
+#define IDS_GAME_STRING_EXCEEDS_BUFFER                   684   /// CHANGED:
 
 // Language string formatting
 #define IDS_RICHTEXT_OPEN_TAGS_REMAINING                 690
@@ -431,51 +442,6 @@
 #define IDS_UNHANDLED_ACCESS_VIOLATION                   701
 #define IDS_UNHANDLED_DEBUG_ASSERTION                    702
 
-// Thread Exception handlers
-#define IDS_EXCEPTION_LOAD_GAME_DATA                     705
-#define IDS_EXCEPTION_LOAD_PROJECT_FILE                  706
-#define IDS_EXCEPTION_SAVE_PROJECT_FILE                  707
-#define IDS_EXCEPTION_LOAD_SCRIPT_FILE                   708
-#define IDS_EXCEPTION_SAVE_SCRIPT_FILE                   709
-#define IDS_EXCEPTION_LOAD_LANGUAGE_FILE                 710
-#define IDS_EXCEPTION_SAVE_LANGUAGE_FILE                 711
-#define IDS_EXCEPTION_SUBMIT_REPORT                      712
-#define IDS_EXCEPTION_VALIDATE_SCRIPT_FILE               713
-#define IDS_EXCEPTION_SEARCH_SCRIPT_CALLS                714
-
-// Window Exception handlers
-#define IDS_EXCEPTION_MAIN_WINDOW                        720
-#define IDS_EXCEPTION_CODE_EDIT                          721
-#define IDS_EXCEPTION_PROGRESS_DIALOG                    722
-#define IDS_EXCEPTION_SCRIPT_DOCUMENT                    723
-#define IDS_EXCEPTION_SEARCH_RESULTS_DIALOG              724
-#define IDS_EXCEPTION_SEARCH_TAB_DIALOG                  725
-#define IDS_EXCEPTION_OUTPUT_DIALOG                      726
-#define IDS_EXCEPTION_OPERATION_POOL                     727
-#define IDS_EXCEPTION_FILE_DIALOG                        728
-#define IDS_EXCEPTION_PROPERTIES_DIALOG                  729
-#define IDS_EXCEPTION_DOCUMENTS_WINDOW                   730
-#define IDS_EXCEPTION_SPLASH_DIALOG                      731
-#define IDS_EXCEPTION_PREFERENCES_BASE                   732
-#define IDS_EXCEPTION_PREFERENCES_DIALOG                 733
-#define IDS_EXCEPTION_LANGUAGE_DOCUMENT                  734
-#define IDS_EXCEPTION_FIRST_RUN_DIALOG                   735
-#define IDS_EXCEPTION_RICHTEXT_DIALOG                    736
-
-// Function Exception Handlers
-#define IDS_EXCEPTION_MESSAGE_PUMP                       740
-#define IDS_EXCEPTION_GENERATE_XML_TREE                  741
-#define IDS_EXCEPTION_DISPLAY_PREFERENCES                742
-#define IDS_EXCEPTION_TREE_WORKER_THREAD                 743
-#define IDS_EXCEPTION_LOAD_GAME_STRING_TREES             744
-#define IDS_EXCEPTION_RESOLVE_SUBSTRINGS                 745
-#define IDS_EXCEPTION_LOAD_SCRIPT_OBJECTS                746
-#define IDS_EXCEPTION_UPDATE_LINE_COMMAND                747
-#define IDS_EXCEPTION_OPERATION_COMPLETE                 748
-#define IDS_EXCEPTION_UPDATE_RESULTS_DIALOG              749
-#define IDS_EXCEPTION_DESTROY_DOCUMENTS_CTRL             750
-#define IDS_EXCEPTION_INIT_APPLICATION                   751
-#define IDS_EXCEPTION_DELETE_DOCUMENT                    752
 
 /// ///////////////////////////////////////////////////////
 ///                   DIALOG STRINGS
@@ -546,9 +512,13 @@
 #define IDS_STRINGS_COLUMN_ID                            937
 #define IDS_STRINGS_COLUMN_TEXT                          938
 
+// Language: General
+#define IDS_COMPATIBILITY_LOGBOOK                        940
+#define IDS_COMPATIBILITY_MENU                           941
+
 // Language: Buttons
-#define IDS_BUTTONS_COLUMN_ID                            940
-#define IDS_BUTTONS_COLUMN_TEXT                          941
+#define IDS_BUTTONS_COLUMN_ID                            945
+#define IDS_BUTTONS_COLUMN_TEXT                          946
 
 /// Search Dialog
 // Tab Titles
@@ -613,18 +583,18 @@
 #define IDS_SCRIPT_OBJECT_GROUP_CONSTANT                 1027      // Script Constant
 #define IDS_SCRIPT_OBJECT_GROUP_DATA_TYPE                1028      // Variable Data Type
 #define IDS_SCRIPT_OBJECT_GROUP_FLIGHT_RETURN            1029      // Flight Return Code
-#define IDS_SCRIPT_OBJECT_GROUP_FORMATION                1030      // Ship Formation
-#define IDS_SCRIPT_OBJECT_GROUP_OBJECT_CLASS             1031      // Object Class
-#define IDS_SCRIPT_OBJECT_GROUP_RACE                     1032      // Race
-#define IDS_SCRIPT_OBJECT_GROUP_RELATION                 1033      // Relation
-#define IDS_SCRIPT_OBJECT_GROUP_PARAMETER_TYPE           1034      // Parameter Syntax
-#define IDS_SCRIPT_OBJECT_GROUP_SECTOR                   1035      // Sector
-#define IDS_SCRIPT_OBJECT_GROUP_STATION_SERIAL           1036      // Station Serial
-#define IDS_SCRIPT_OBJECT_GROUP_OBJECT_COMMAND           1037      // Object Command
-#define IDS_SCRIPT_OBJECT_GROUP_WING_COMMAND             1038      // Wing Command
-#define IDS_SCRIPT_OBJECT_GROUP_SIGNAL                   1039      // Signal
-#define IDS_SCRIPT_OBJECT_GROUP_TRANSPORT_CLASS          1040      // Transport Class
-#define IDS_SCRIPT_OBJECT_GROUP_OPERATOR                 1041      // Operator
+///#define IDS_SCRIPT_OBJECT_GROUP_FORMATION                1030      // Ship Formation      REM: These don't really exist!
+#define IDS_SCRIPT_OBJECT_GROUP_OBJECT_CLASS             1030      // Object Class
+#define IDS_SCRIPT_OBJECT_GROUP_RACE                     1031      // Race
+#define IDS_SCRIPT_OBJECT_GROUP_RELATION                 1032      // Relation
+#define IDS_SCRIPT_OBJECT_GROUP_PARAMETER_TYPE           1033      // Parameter Syntax
+#define IDS_SCRIPT_OBJECT_GROUP_SECTOR                   1034      // Sector
+#define IDS_SCRIPT_OBJECT_GROUP_STATION_SERIAL           1035      // Station Serial
+#define IDS_SCRIPT_OBJECT_GROUP_OBJECT_COMMAND           1036      // Object Command
+#define IDS_SCRIPT_OBJECT_GROUP_WING_COMMAND             1037      // Wing Command
+#define IDS_SCRIPT_OBJECT_GROUP_SIGNAL                   1038      // Signal
+#define IDS_SCRIPT_OBJECT_GROUP_TRANSPORT_CLASS          1039      // Transport Class
+#define IDS_SCRIPT_OBJECT_GROUP_OPERATOR                 1040      // Operator
 
 /// Preferences Dialog:
 // Titles
@@ -695,10 +665,10 @@
 #define IDS_PROJECT_VARIABLES_COLUMN_VALUE               1151
 
 /// Project dialog
-// Folder names
-#define IDS_PROJECT_FOLDER_SCRIPT                        1160
-#define IDS_PROJECT_FOLDER_LANGUAGE                      1161
-#define IDS_PROJECT_FOLDER_MISSION                       1162
+#define IDS_PROJECT_NOT_LOADED                           1160
+#define IDS_PROJECT_FOLDER_SCRIPT                        1161
+#define IDS_PROJECT_FOLDER_LANGUAGE                      1162
+#define IDS_PROJECT_FOLDER_MISSION                       1163
 
 /// Output dialog
 #define IDS_OUTPUT_COLUMN                                1170
@@ -803,13 +773,35 @@
 #define IDS_OUTPUT_VALIDATION_ABORTED                    1307
 
 // External Dependency Search
-#define IDS_OUTPUT_SEARCHING_FOLDER                      1310
+#define IDS_OUTPUT_SEARCHING_SCRIPTS                     1310    /// CHANGED:
+#define IDS_OUTPUT_ENUMERATING_SCRIPTS                   1311    /// NEW:
+#define IDS_OUTPUT_FINDING_CONTENT                       1312    /// NEW:
 
-#define IDS_OUTPUT_SCRIPT_SEARCH_SUCCESS                 1312
-#define IDS_OUTPUT_SCRIPT_SEARCH_FAILURE                 1313
-#define IDS_OUTPUT_SCRIPT_SEARCH_ABORTED                 1314
+#define IDS_OUTPUT_SCRIPT_SEARCH_SUCCESS                 1313    /// CHANGED:
+#define IDS_OUTPUT_SCRIPT_SEARCH_FAILURE                 1314    /// CHANGED:
+#define IDS_OUTPUT_SCRIPT_SEARCH_ABORTED                 1315    /// CHANGED:
 
+// Automatic Update
+#define IDS_OUTPUT_UPDATE_CHECK                          1316  /// NEW:
+#define IDS_OUTPUT_DOWNLOADING_UPDATE                    1317  /// NEW:
 
+#define IDS_OUTPUT_UPDATE_CHECK_SUCCESS                  1318  /// NEW:   // NB: The order of success/failure/abort is required by printOperationResultToOutputDialog
+#define IDS_OUTPUT_UPDATE_CHECK_FAILURE                  1319  /// NEW:  
+#define IDS_OUTPUT_UPDATE_CHECK_ABORTED                  1320  /// NEW:  
+
+// Message Titles
+#define IDS_OUTPUT_GAME_DATA_ITEM                        1325
+#define IDS_OUTPUT_PROJECT_LOAD_ITEM                     1326
+#define IDS_OUTPUT_PROJECT_SAVE_ITEM                     1327
+#define IDS_OUTPUT_SCRIPT_LOAD_ITEM                      1328
+#define IDS_OUTPUT_SCRIPT_SAVE_ITEM                      1329
+#define IDS_OUTPUT_LANGUAGE_LOAD_ITEM                    1330
+#define IDS_OUTPUT_LANGUAGE_SAVE_ITEM                    1331
+#define IDS_OUTPUT_SUBMISSION_ITEM                       1332
+#define IDS_OUTPUT_CORRECTION_ITEM                       1333
+#define IDS_OUTPUT_DEPENDENCY_ITEM                       1334
+#define IDS_OUTPUT_VALIDATION_ITEM                       1335
+#define IDS_OUTPUT_UPDATE_ITEM                           1336 /// NEW:
 
 ///                                                  **FUTURE STAGES**
 
@@ -846,6 +838,9 @@
 #define IDS_PROGRESS_CONNECTING_SERVER                      1366
 #define IDS_PROGRESS_UPLOADING_REPORT                       1367
 
+// Automatic Update
+#define IDS_PROGRESS_UPDATE_DOWNLOADING                     1369  /// NEW:
+
 // File System Search
 #define IDS_PROGRESS_SEARCHING_PHYSICAL                     1370
 #define IDS_PROGRESS_SEARCHING_VIRTUAL                      1371
@@ -855,7 +850,7 @@
 #define IDS_PROGRESS_SAVING_PROJECT                         1376
 
 // External Dependencies Search
-#define IDS_PROGRESS_SEARCHING_SCRIPTS                      1378
+#define IDS_PROGRESS_SEARCHING_SCRIPTS                      1378    /// CHANGED
 
 // Load LanguageFile
 #define IDS_PROGRESS_PARSING_LANGUAGE                       1380
@@ -865,6 +860,11 @@
 // Save LanguageFile
 #define IDS_PROGRESS_GENERATING_LANGUAGE                    1385
 
+/// Script Document
+#define IDS_SCRIPT_DOCUMENT_VARIABLES                       1415
+#define IDS_SCRIPT_GLOBAL_SCOPE                             1416
+#define IDS_SCRIPT_COMPILER_ERROR                           1417
+#define IDS_SCRIPT_DEPENDENCY_MISSING                       1418    /// NEW::
 
 /// Language Document
 // Columns
@@ -873,18 +873,19 @@
 #define IDS_LANGUAGE_PAGE_COLUMN_DESCRIPTION                1422
 #define IDS_LANGUAGE_STRING_COLUMN_ID                       1423
 #define IDS_LANGUAGE_STRING_COLUMN_TEXT                     1424
+#define IDS_LANGUAGE_FORMATTING_ERROR                       1425
 
-#define IDS_LANGUAGE_GROUP_DATA                             1425
-#define IDS_LANGUAGE_GROUP_DIALOGUE                         1426
-#define IDS_LANGUAGE_GROUP_MISC                             1427
-#define IDS_LANGUAGE_GROUP_QUEST                            1428
-#define IDS_LANGUAGE_GROUP_BONUS                            1429
-#define IDS_LANGUAGE_GROUP_MENU                             1430
-#define IDS_LANGUAGE_GROUP_EDITOR                           1431
-#define IDS_LANGUAGE_GROUP_NEWS                             1432
-#define IDS_LANGUAGE_GROUP_PLOT                             1433
-#define IDS_LANGUAGE_GROUP_NPC                              1434
-#define IDS_LANGUAGE_GROUP_USER                             1435
+#define IDS_LANGUAGE_GROUP_DATA                             1430
+#define IDS_LANGUAGE_GROUP_DIALOGUE                         1431
+#define IDS_LANGUAGE_GROUP_MISC                             1432
+#define IDS_LANGUAGE_GROUP_QUEST                            1433
+#define IDS_LANGUAGE_GROUP_BONUS                            1434
+#define IDS_LANGUAGE_GROUP_MENU                             1435
+#define IDS_LANGUAGE_GROUP_EDITOR                           1436
+#define IDS_LANGUAGE_GROUP_NEWS                             1437
+#define IDS_LANGUAGE_GROUP_PLOT                             1438
+#define IDS_LANGUAGE_GROUP_NPC                              1439
+#define IDS_LANGUAGE_GROUP_USER                             1440
 
 #define IDS_FIRST_LANGUAGE_GROUP                            IDS_LANGUAGE_GROUP_DATA
 #define LANGUAGE_GROUP_COUNT                                11
@@ -923,41 +924,53 @@
 #define IDS_COLOUR_DARK_BLUE                             1521
 #define IDS_COLOUR_DARK_GREEN                            1522
 #define IDS_COLOUR_DARK_GREY                             1523
-#define IDS_COLOUR_DARK_RED                              1524
-#define IDS_COLOUR_LIGHT_BLUE                            1525
-#define IDS_COLOUR_LIGHT_GREEN                           1526
-#define IDS_COLOUR_LIGHT_GREY                            1527
-#define IDS_COLOUR_LIGHT_RED                             1528
-#define IDS_COLOUR_ORANGE                                1529
-#define IDS_COLOUR_PURPLE                                1530
-#define IDS_COLOUR_YELLOW                                1531
-#define IDS_COLOUR_WHITE                                 1532
+#define IDS_COLOUR_DARK_ORANGE                           1524
+#define IDS_COLOUR_PURPLE                                1525
+#define IDS_COLOUR_DARK_RED                              1526
+#define IDS_COLOUR_DARK_YELLOW                           1527
+#define IDS_COLOUR_LIGHT_BLUE                            1528
+#define IDS_COLOUR_LIGHT_GREEN                           1529
+#define IDS_COLOUR_LIGHT_GREY                            1530
+#define IDS_COLOUR_LIGHT_ORANGE                          1531
+#define IDS_COLOUR_LIGHT_RED                             1532
+#define IDS_COLOUR_PINK                                  1533
+#define IDS_COLOUR_LIGHT_YELLOW                          1534
+#define IDS_COLOUR_WHITE                                 1535
 
 
 // General
-#define IDS_FEATURE_NOT_IMPLEMENTED                      1540
-#define IDS_FEATURE_DISABLED                             1541
-#define IDS_TITLE_NOT_IMPLEMENTED                        1542
-#define IDS_TITLE_EXCEPTION                              1543
+#define IDS_GENERAL_FILE_NOT_FOUND                       1540
+#define IDS_GENERAL_DEPENDENCY_NOT_FOUND                 1541  /// CHANGED
+#define IDS_GENERAL_OVERWRITE_PHYSICAL_FILE              1542
+#define IDS_GENERAL_OVERWRITE_VIRTUAL_FILE               1543
+#define IDS_GENERAL_GALAXY_MAPS_UNSUPPORTED              1544
+#define IDS_GENERAL_UNKNOWN_FILE_TYPE                    1545
 
-#define IDS_GENERAL_GALAXY_MAPS_UNSUPPORTED              1550
-#define IDS_GENERAL_UNKNOWN_FILE_TYPE                    1551
-#define IDS_GENERAL_DEPENDENCY_NOT_FOUND                 1552
-#define IDS_GENERAL_OVERWRITE_PHYSICAL_FILE              1553
-#define IDS_GENERAL_OVERWRITE_VIRTUAL_FILE               1554
-#define IDS_GENERAL_FILE_NOT_FOUND                       1555
-#define IDS_GENERAL_LANGUAGE_RESTART                     1556
-#define IDS_GENERAL_FIRST_RUN                            1557
-#define IDS_GENERAL_DOCUMENT_CLOSE_CONFIRMATION          1558
-#define IDS_GENERAL_PROJECT_CLOSE_CONFIRMATION           1559
-#define IDS_GENERAL_CONFIRM_DEPENDENCY_SEARCH            1560
-#define IDS_GENERAL_VALIDATION_DOCUMENTS_OPEN            1561
-#define IDS_GENERAL_RELOAD_DOCUMENTS_OPEN                1562
-#define IDS_GENERAL_PROJECT_EXPORT_BROWSE                1563
-#define IDS_GENERAL_PROJECT_EXPORT_SUCCESS               1564
+#define IDS_GENERAL_GAME_DATA_LOST                       1546
+#define IDS_GENERAL_GAME_DATA_FOUND                      1547
+#define IDS_GENERAL_PREFERENCES_UPGRADED                 1548
 
-// Localisation Dialog Strings
-#define IDS_ABOUT_DIALOG_STRINGS                         1600
+#define IDS_GENERAL_CONFIRM_DOCUMENT_CLOSE               1550
+#define IDS_GENERAL_CONFIRM_PROJECT_CLOSE                1551
+#define IDS_GENERAL_CONFIRM_DEPENDENCY_SEARCH            1552
+#define IDS_GENERAL_CONFIRM_CONTENT_SEARCH               1553     /// NEW:
+#define IDS_GENERAL_REQUIREMENTS_LANGUAGE                1554
+#define IDS_GENERAL_REQUIREMENTS_VALIDATION              1555
+#define IDS_GENERAL_REQUIREMENTS_RELOAD                  1556
+
+#define IDS_GENERAL_NOT_IMPLEMENTED                      1558
+#define IDS_GENERAL_NOT_ENABLED                          1559
+
+#define IDS_GENERAL_FIRST_RUN                            1560
+#define IDS_GENERAL_BUG_REPORT_MANUAL                    1561
+#define IDS_GENERAL_PROJECT_MENU_STRINGS                 1562
+#define IDS_GENERAL_DOCUMENT_MENU_STRINGS                1563
+#define IDS_GENERAL_INSTALLATIONS_NOT_FOUND              1564
+
+#define IDS_GENERAL_PROJECT_EXPORT_BROWSE                1570
+#define IDS_GENERAL_PROJECT_EXPORT_FILE_EXISTS           1571
+#define IDS_GENERAL_PROJECT_EXPORT_SUCCESS               1572
+#define IDS_GENERAL_PROJECT_EXPORT_FAILED                1573
 
 /// ///////////////////////////////////////////////////////
 ///                     MENU INDICIES
@@ -1020,6 +1033,7 @@
 #define IDM_EDIT_SELECT_ALL                              1976
 #define IDM_EDIT_COMMENT                                 1977
 #define IDM_EDIT_FIND                                    1978
+#define IDM_EDIT_FIND_NEXT                               1979     /// NEW:
 
 // Edit interface
 #define IDM_EDIT_WORD_LEFT                               1980
@@ -1064,7 +1078,7 @@
 
 // Help Menu
 #define IDM_HELP_HELP                                    2078
-#define IDM_HELP_UPDATES                                 2079
+#define IDM_HELP_UPDATES                                 2079  /// CHANGED:
 #define IDM_HELP_FORUMS                                  2080
 #define IDM_HELP_SUBMIT_FILE                             2081
 #define IDM_HELP_ABOUT                                   2082
@@ -1104,21 +1118,19 @@
 #define IDM_RESULTS_INSERT_RESULT                        2105
 #define IDM_RESULTS_MSCI_LOOKUP                          2106
 #define IDM_RESULTS_SUBMIT_CORRECTION                    2107
+#define IDM_RESULTS_SEARCH_CONTENT                       2108
 
 /// CodeEdit Window
 // Context Menu
-//#define IDM_CODE_EDIT_CUT                                2115
-//#define IDM_CODE_EDIT_COPY                               2116
-//#define IDM_CODE_EDIT_PASTE                              2117
-//#define IDM_CODE_EDIT_DELETE                             2118
 #define IDM_CODE_EDIT_VIEW_SUGGESTIONS                   2119
 #define IDM_CODE_EDIT_LOOKUP_COMMAND                     2120
 #define IDM_CODE_EDIT_OPEN_TARGET_SCRIPT                 2121
-#define IDM_CODE_EDIT_GOTO_LABEL                         2122
-#define IDM_CODE_EDIT_VIEW_LANGUAGE_STRING               2123
-#define IDM_CODE_EDIT_VIEW_ERROR                         2124
-#define IDM_CODE_EDIT_VIEW_WARNING                       2125
-#define IDM_CODE_EDIT_PROPERTIES                         2126
+#define IDM_CODE_EDIT_VIEW_LABEL                         2122
+#define IDM_CODE_EDIT_GOTO_SUBROUTINE                    2123
+#define IDM_CODE_EDIT_VIEW_LANGUAGE_STRING               2124
+#define IDM_CODE_EDIT_VIEW_ERROR                         2125
+#define IDM_CODE_EDIT_VIEW_WARNING                       2126
+#define IDM_CODE_EDIT_PROPERTIES                         2127
 
 /// Language Document Window
 // RichEdit Toolbar
@@ -1167,6 +1179,8 @@
 #define IDM_ARGUMENT_INSERT                              2220
 #define IDM_ARGUMENT_EDIT                                2221
 #define IDM_ARGUMENT_DELETE                              2222
+#define IDM_ARGUMENT_MOVE_UP                             2223
+#define IDM_ARGUMENT_MOVE_DOWN                           2224
 
 // Dependencies Menu
 #define IDM_DEPENDENCIES_LOAD                            2230
@@ -1251,19 +1265,27 @@
 #define IDC_PROGRESS_BAR                                 3064
 
 // About Dialog
-#define IDC_ABOUT_DIALOG_ICON                            3080
-#define IDC_ABOUT_DIALOG_TITLE                           3081
-#define IDC_ABOUT_DIALOG_VERSION_HEADING                 3082
-#define IDC_ABOUT_DIALOG_THANKS_HEADING                  3083
-#define IDC_ABOUT_LINK_EGOSOFT                           3084
-#define IDC_ABOUT_LINK_FORUMS                            3085
-#define IDC_ABOUT_EXSCRIPTOR_ICON                        3086
-#define IDC_ABOUT_DOUBLESHADOW_ICON                      3087
-#define IDC_ABOUT_XUNIVERSE_BITMAP                       3088
-#define IDC_ABOUT_LICENSE                                3089
+#define IDC_ABOUT_ZLIB_STATIC                            3070
+#define IDC_ABOUT_LICENSE                                3071
+
+// Credits Dialog
+//#define IDC_ABOUT_DIALOG_TITLE                           3072
+//#define IDC_ABOUT_DIALOG_VERSION_HEADING                 3073
+//#define IDC_ABOUT_DIALOG_THANKS_HEADING                  3074
+#define IDC_ABOUT_LINK_FORUMS                            3072
+#define IDC_ABOUT_EXSCRIPTOR_ICON                        3073
+#define IDC_ABOUT_DOUBLESHADOW_ICON                      3074
+//#define IDC_ABOUT_XUNIVERSE_BITMAP                       3078
+//#define IDC_ABOUT_LITCUBE_ICON                           3079
+//#define IDC_ABOUT_JACK08_ICON                            3080
 
 // About-License Dialog
-#define IDC_LICENSE_EDIT                                 3090
+#define IDC_LICENSE_EDIT                                 3075
+
+// Update dialog
+#define IDC_UPDATE_STATIC                                3080
+#define IDC_UPDATE_EDIT                                  3081
+#define IDC_UPDATE_LINK                                  3082
 
 // Message Dialog
 #define IDC_MESSAGE_TEXT_STATIC                          3100
@@ -1305,7 +1327,7 @@
 #define IDC_VARIABLES_STATIC                             3171
 
 // ScriptCall Dialog
-#define IDC_SCRIPTCALL_TEXT_STATIC                       3175
+#define IDC_SCRIPTCALL_STATIC                            3175
 
 // Results Dialog
 #define IDC_RESULTS_LIST                                 3180
@@ -1350,6 +1372,11 @@
 #define IDC_PAGE_DESCRIPTION_EDIT                        4103
 #define IDC_PAGE_VOICED_CHECK                            4104
 
+// Insert Language String
+#define IDC_STRING_ID_EDIT                               4106    /// NEW STRING
+#define IDC_STRING_ID_ICON                               4107    /// NEW STRING
+#define IDC_STRING_ID_STATIC                             4108
+
 // Find Text Dialog
 #define IDC_FIND_SEARCH_EDIT                             4110
 #define IDC_FIND_REPLACE_EDIT                            4111
@@ -1357,7 +1384,8 @@
 #define IDC_FIND_REPLACE                                 4113
 #define IDC_FIND_CASE_SENSITIVE_CHECK                    4114
 #define IDC_FIND_FROM_TOP_CHECK                          4115
-#define IDC_FIND_COMPLETE_STATIC                         4116
+#define IDC_FIND_ALL_DOCUMENTS                           4116
+#define IDC_FIND_COMPLETE_STATIC                         4117
 
 // Insert Script Argument
 #define IDC_ARGUMENT_DIALOG_ICON                         4120
@@ -1404,16 +1432,23 @@
 #define IDC_CORRECTION_DESCRIPTION_RICHEDIT              4165
 #define IDC_CORRECTION_SUBMISSION_EDIT                   4166
 
+// Export Project Dialog
+#define IDC_EXPORT_FILE_RADIO                            4170
+#define IDC_EXPORT_ZIP_RADIO                             4171
+#define IDC_EXPORT_FILENAME_EDIT                         4172
+#define IDC_EXPORT_FOLDER_EDIT                           4173
+#define IDC_EXPORT_FOLDER_BROWSE                         4174
+
 /// Preferences Property Pages
 // 'General' Preferences PropertyPage
 #define IDC_APPLICATION_LANGUAGE_COMBO                   4198
-#define IDC_PRESERVE_SESSION_CHECK                       4199
-#define IDC_USE_SYSTEM_DIALOG_CHECK                      4200
-#define IDC_PROPERTIES_TRANSPARENCY_CHECK                4201
-#define IDC_TUTORIAL_MODE_CHECK                          4202
+#define IDC_USE_SYSTEM_DIALOG_CHECK                      4199
+#define IDC_PROPERTIES_TRANSPARENCY_CHECK                4200
+#define IDC_TUTORIAL_MODE_CHECK                          4201
 
-#define IDC_CODE_INDENTATION_CHECK                       4203
-#define IDC_CODE_MACROS_CHECK                            4204
+#define IDC_CODE_INDENTATION_CHECK                       4202
+#define IDC_CODE_MACROS_CHECK                            4203
+#define IDC_CODE_INCREMENT_CHECK                         4204
 #define IDC_CODE_DO_IF_CHECK                             4205
 #define IDC_CODE_TOOLTIPS_CHECK                          4206
 #define IDC_CODE_TOOLTIPS_SLIDER                         4207

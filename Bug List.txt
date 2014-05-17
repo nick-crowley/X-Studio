@@ -114,9 +114,59 @@ INTERNAL
 1054. Can't use 'dim' macro with numbers, strings or objects
 
 
+*** NEW *** 
+
+1055. [FIXED] Editing a language string ID doesn't initially select the text
+
+1056. 'View Game String' script editor command displays the game data instead of the language file when said file is within current project
+
+
+
+*** MY FEATURE REQUESTS ****
+
+1. Auto-complete for subroutines/labels for 'gosub/goto label' command
+2. Delete empty lines (Ctrl+K) script editor command
+3. Rename Symbol command - Refactor variable/label names within a script
+4. [COMPLETE] Remove the label enumeration from the console log
+5. Project folders...
+6. [COMPLETE] Command to somehow backup individual files
+7. Add preference to disable 'variable not assigned' warning
 
 EXTERNAL
 --------
+
+074. [FIXED] Type of all script arguments is reset to type of first argument when script is loaded
+073. [FIXED] Project backup incorrectly says it has backed up zero files
+072. [FIXED] Auto-complete lists commands that are incompatible with the script being edited
+071. [IN PROGRESS] Interrupt symbols are sometimes displayed for commands that do not yield without START  (eg. speak array)
+070. [IN PROGRESS] Cannot scroll the code editor by holding the mouse-wheel
+069. [FIXED] Cannot navigate the strings in a language file with direction keys or page up/down
+068. [FIXED] Script arguments are not listed in the auto-complete list of script variables
+067. [FIXED] Tooltips in the script editor sometimes incorrectly state there is no description for a command
+066. [FIXED] The compiler message displayed when saving scripts doesn't reflect the script game version
+065. [FIXED] When saving new documents you have already named on creation, program asks for filename
+064. [FIXED] Export project files command only exports scripts (not language/project files)
+063. [IN PROGRESS] Find & Replace in 'all documents' sometimes produceds garbled text
+062. [FIXED] Backup files are sometimes truncated
+061. [FIXED] Program cannot load scripts saved in a foreign language (unknown datatype error)
+060. [FIXED] Program doesn't load language files using the X³ Reunion naming convention
+059. [FIXED] All scripts written by the program crash X³ Reunion on startup
+058. [IN PROGRESS] Auto-complete can cause access violations in unknown circumstances 
+
+057. [FIXED] German translation displays as English under Windows XP/2000
+056. [FIXED] Program crashes when version 1.02 fails to load game data
+055. [FIXED] Language files aren't loaded by the game because of an error in the heading
+054. [FIXED] Unexpected code following the 'else' command causes X-Studio to hang while compiling
+053. [FIXED] Corrupted text displayed when using 'Open Target Script' menu command
+052. [FIXED] Writing any operator (including 'or', 'and') between square brackets causes a 'debug assertion' message
+051. [FIXED] 'Close', 'Save', 'Save As' menu items don't reflect current document/project
+050. [FIXED] Race names that conflict with other script objects aren't made unique
+049. [FIXED] Using conditionals with 'random value between x and y' command causes an error within MSCI
+048. [FIXED] An access violation occurs when you search for text in a script
+047. [FIXED] Windows XP users receive 'Entry Point Not Found' error trying to start the program
+046. [FIXED] Windows Explorer 'open file' dialog doesn't remember the last folder used 
+
+045. [FIXED] Saving a script without a return command causes an access violation
 
 038. Find & Replace is case sensitive
 
@@ -160,7 +210,7 @@ EXTERNAL
 
 018. [FIXED] Auto-complete deletes the entire line when inserting a command 
 
----
+--- THESE ARE IN REVERSE ORDER ----
 
 001. [FIXED] Syntax is not highlighted when viewing scripts in a web-browser
 

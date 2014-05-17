@@ -754,7 +754,7 @@ BOOL   performFileDialogInputValidation(FILE_DIALOG_DATA*  pDialogData, CONST TC
    else if (PathFileExists(szFullPath))
    {
       // [QUESTION] "The file '%s' already exists, would you like to overwrite it?"
-      if (pDialogData->eType == FDT_SAVE AND displayMessageDialogf(NULL, IDS_GENERAL_OVERWRITE_PHYSICAL_FILE, TEXT("File Already Exists"), MDF_YESNO WITH MDF_QUESTION, PathFindFileName(szFullPath)) == IDNO)
+      if (pDialogData->eType == FDT_SAVE AND displayMessageDialogf(NULL, IDS_GENERAL_OVERWRITE_PHYSICAL_FILE, MDF_YESNO WITH MDF_QUESTION, PathFindFileName(szFullPath)) == IDNO)
          // [NO] Return 'stay open'
          bResult = FALSE;     
 
@@ -780,7 +780,7 @@ BOOL   performFileDialogInputValidation(FILE_DIALOG_DATA*  pDialogData, CONST TC
       else
       {
          // [ERROR] "The file '%s' is part of the virtual file system and cannot be overwritten"
-         displayMessageDialogf(NULL, IDS_GENERAL_OVERWRITE_VIRTUAL_FILE, TEXT("Virtual Files Are Read-Only"), MDF_OK WITH MDF_ERROR, PathFindFileName(szFullPath));
+         displayMessageDialogf(NULL, IDS_GENERAL_OVERWRITE_VIRTUAL_FILE, MDF_OK WITH MDF_ERROR, PathFindFileName(szFullPath));
          bResult = FALSE;
       }
    }
@@ -788,7 +788,7 @@ BOOL   performFileDialogInputValidation(FILE_DIALOG_DATA*  pDialogData, CONST TC
    else if (pDialogData->eType == FDT_OPEN)
    {
       // [ERROR] "The file '%s' cannot be opened because it does not exist"
-      displayMessageDialogf(NULL, IDS_GENERAL_FILE_NOT_FOUND, TEXT("File Not Found"), MDF_OK WITH MDF_ERROR, PathFindFileName(szFullPath));
+      displayMessageDialogf(NULL, IDS_GENERAL_FILE_NOT_FOUND, MDF_OK WITH MDF_ERROR, PathFindFileName(szFullPath));
       bResult = FALSE;
    }
    /// [NEW FILE (SAVE)] Store file and close dialog

@@ -81,19 +81,16 @@ XML_TREE_NODE*  createSourceValueNodeFromInteger(XML_TREE_NODE*  pParent, CONST 
 // 
 XML_TREE_NODE*   createXMLTreeNodeFromString(XML_TREE_NODE*  pParent, CONST TCHAR*  szName, CONST TCHAR*  szText)
 {
-   XML_TREE_NODE*   pNewNode;  // New tree node
-
-   // Create new node
-   pNewNode = utilCreateEmptyObject(XML_TREE_NODE);
+   XML_TREE_NODE*   pNewNode = utilCreateEmptyObject(XML_TREE_NODE);  // New tree node
 
    // Set properties
-   pNewNode->pParent = pParent;
-   pNewNode->szText  = utilSafeDuplicateSimpleString(szText);
    StringCchCopy(pNewNode->szName, 24, szName);
-
+   pNewNode->szText = utilSafeDuplicateSimpleString(szText);
+   
    // Create children and properties lists
-   pNewNode->pChildren   = createList(destructorXMLTreeNode);
-   pNewNode->pProperties = createList(destructorXMLProperty);
+   pNewNode->pParent                   = pParent;
+   pNewNode->oChildren.pfnDeleteItem   = destructorXMLTreeNode;      //pNewNode->pChildren   = createList(destructorXMLTreeNode);
+   pNewNode->oProperties.pfnDeleteItem = destructorXMLProperty;      //pNewNode->pProperties = createList(destructorXMLProperty);
 
    // Return new node
    return pNewNode;
@@ -111,20 +108,16 @@ XML_TREE_NODE*   createXMLTreeNodeFromString(XML_TREE_NODE*  pParent, CONST TCHA
 // 
 XML_TREE_NODE*   createXMLTreeNodeFromInteger(XML_TREE_NODE*  pParent, CONST TCHAR*  szName, CONST INT  iValue)
 {
-   XML_TREE_NODE*   pNewNode;  // New tree node
-
-   // Create new node
-   pNewNode = utilCreateEmptyObject(XML_TREE_NODE);
-   pNewNode->szText = utilCreateEmptyString(32);
+   XML_TREE_NODE*   pNewNode = utilCreateEmptyObject(XML_TREE_NODE);;  // New tree node
 
    // Set properties
-   pNewNode->pParent = pParent;
    StringCchCopy(pNewNode->szName, 24, szName);
-   utilConvertIntegerToString(pNewNode->szText, iValue);
+   pNewNode->szText = utilCreateStringf(32, TEXT("%d"), iValue);
 
    // Create children and properties lists
-   pNewNode->pChildren   = createList(destructorXMLTreeNode);
-   pNewNode->pProperties = createList(destructorXMLProperty);
+   pNewNode->pParent                   = pParent;
+   pNewNode->oChildren.pfnDeleteItem   = destructorXMLTreeNode;      //pNewNode->pChildren   = createList(destructorXMLTreeNode);
+   pNewNode->oProperties.pfnDeleteItem = destructorXMLProperty;      //pNewNode->pProperties = createList(destructorXMLProperty);
 
    // Return new node
    return pNewNode;
@@ -141,13 +134,10 @@ XML_TREE_NODE*   createXMLTreeNodeFromInteger(XML_TREE_NODE*  pParent, CONST TCH
 // 
 XML_PROPERTY*  createXMLPropertyFromString(CONST TCHAR*  szName, CONST TCHAR*  szValue)
 {
-   XML_PROPERTY*  pNewProperty;  // New property
-
-   // Create new object
-   pNewProperty = utilCreateEmptyObject(XML_PROPERTY);
+   XML_PROPERTY*  pNewProperty = utilCreateEmptyObject(XML_PROPERTY);  // New property
 
    // Set properties
-   StringCchCopy(pNewProperty->szName, 24, szName);
+   StringCchCopy(pNewProperty->szName, 32, szName);
    pNewProperty->szValue = utilDuplicateSimpleString(szValue);
 
    // Return new object
@@ -164,14 +154,11 @@ XML_PROPERTY*  createXMLPropertyFromString(CONST TCHAR*  szName, CONST TCHAR*  s
 // 
 XML_PROPERTY*  createXMLPropertyFromInteger(CONST TCHAR*  szName, CONST INT  iValue)
 {
-   XML_PROPERTY*  pNewProperty;  // New property
-
-   // Create new object
-   pNewProperty = utilCreateEmptyObject(XML_PROPERTY);
+   XML_PROPERTY*  pNewProperty = utilCreateEmptyObject(XML_PROPERTY);  // New property
 
    // Set properties
-   StringCchCopy(pNewProperty->szName, 24, szName);
-   pNewProperty->szValue = utilCreateStringFromInteger(iValue);
+   StringCchCopy(pNewProperty->szName, 32, szName);
+   pNewProperty->szValue = utilCreateStringf(24, TEXT("%d"), iValue);
 
    // Return new object
    return pNewProperty;
@@ -294,37 +281,6 @@ XML_TREE_NODE*  appendSourceValueArrayNodeToXMLTree(XML_TREE*  pTree, XML_TREE_N
 }
 
 
-/// Function name  : findXMLPropertyByIndex
-// Description     : Finds the specified property of an XML node by index
-// 
-// XML_TREE_NODE*  pNode   : [in]  Node containing the property
-// CONST UINT      iIndex  : [in]  Zero-based index of the property to retrieve
-// XML_PROPERTY*  &pOutput : [out] Desired property if found, otherwise NULL
-// 
-// Return Value   : TRUE if found, FALSE otherwise
-// 
-BOOL  findXMLPropertyByIndex(CONST XML_TREE_NODE*  pNode, CONST UINT  iIndex, XML_PROPERTY*  &pOutput)
-{
-   LIST_ITEM*  pIterator;        // Child nodes list iterator
-   UINT        iCurrentIndex;    // Child nodes list iterator index
-
-   // Prepare
-   iCurrentIndex = 0;
-   pOutput       = NULL;
-   
-   /// Iterate through child node list
-   for (pIterator = getFirstXMLPropertyListItem(pNode); pOutput == NULL AND iCurrentIndex < getListItemCount(pNode->pProperties); pIterator = pIterator->pNext)
-      // Check whether current item is the desired item
-      if (iIndex == iCurrentIndex++)
-         /// [FOUND] Set result and abort search
-         pOutput = getXMLPropertyFromItem(pIterator);
-   
-   // Return TRUE if node was found
-   return (pOutput != NULL);
-}
-
-
-
 /// Function name  : setXMLPropertyInteger
 // Description     : Set the value of an existing integer property within an XMLTreeNode
 // 
@@ -336,20 +292,16 @@ BOOL  findXMLPropertyByIndex(CONST XML_TREE_NODE*  pNode, CONST UINT  iIndex, XM
 // 
 BOOL   setXMLPropertyInteger(XML_TREE_NODE*  pNode, CONST TCHAR*  szProperty, CONST INT  iValue)
 {
-   XML_PROPERTY*  pProperty;     // Property list iterator
-   
-   /// Iterate through node properties
-   for (LIST_ITEM*  pIterator = getListHead(pNode->pProperties); pIterator AND (pProperty = extractListItemPointer(pIterator, XML_PROPERTY)); pIterator = pIterator->pNext)
-      /// Determine whether property name matches
-      if (utilCompareStringVariables(pProperty->szName, szProperty))
-      {
-         // [FOUND] Replace existing value and return TRUE
-         utilConvertIntegerToString(pProperty->szValue, iValue);
-         return TRUE;
-      }
-   
-   // [NOT FOUND] Return FALSE
-   return FALSE;
+   XML_PROPERTY*  pProperty;     
+   BOOL           bResult;
+
+   /// Find property
+   if (bResult = findXMLPropertyByName(pNode, szProperty, pProperty))
+      // [FOUND] Set value
+      StringCchPrintf(pProperty->szValue, 32, TEXT("%d"), iValue);
+
+   // Return TRUE/FALSE
+   return bResult;
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -361,10 +313,11 @@ BOOL   setXMLPropertyInteger(XML_TREE_NODE*  pNode, CONST TCHAR*  szProperty, CO
 // 
 // CONST XML_TREE*  pTree   : [in]     Tree to convert to a string
 // TEXT_STREAM*     pOutput : [in/out] TextStream object to hold the string
+// const bool       bIndent : [in]     Whether to indent XML  (Incompatible with X3:R)
 // 
 // Return Value   : TRUE if the tree is not empty, otherwise FALSE
 // 
-BOOL  generateTextStreamFromXMLTree(CONST XML_TREE*  pTree, TEXT_STREAM*  pOutput)
+BOOL  generateTextStreamFromXMLTree(CONST XML_TREE*  pTree, TEXT_STREAM*  pOutput, const bool bIndent)
 {
    XML_TREE_NODE*  pRootChild;      // First child of the root node
 
@@ -373,12 +326,12 @@ BOOL  generateTextStreamFromXMLTree(CONST XML_TREE*  pTree, TEXT_STREAM*  pOutpu
       return FALSE;
 
    // Add program name
-   appendStringToTextStreamf(pOutput, TEXT("<!-- Generated using %s -->\r\n\r\n"), getAppName());
+   appendStringToTextStreamf(pOutput, TEXT("<!-- Generated using %s -->\r\n"), getAppName());
    
    // Locate the first child of the root node
    if (findXMLTreeNodeByIndex(pTree->pRoot, 0, pRootChild))
       /// Flatten entire tree into a string
-      generateTextStreamFromXMLTreeNode(pRootChild, pOutput, 0);
+      generateTextStreamFromXMLTreeNode(pRootChild, pOutput, bIndent, 0);
 
    // Return TRUE
    return TRUE;
@@ -390,19 +343,21 @@ BOOL  generateTextStreamFromXMLTree(CONST XML_TREE*  pTree, TEXT_STREAM*  pOutpu
 // 
 // CONST XML_TREE_NODE*  pCurrentNode : [in]     Node to convert to a string
 // TEXT_STREAM*          pOutput      : [in/out] TextStream object to hold the string
+// const bool            bIndent      : [in]     Whether to indent XML  (Incompatible with X3:R)
 // CONST UINT            iIndentation : [in]     Number of tabs to indent the current tag by
 // 
-VOID  generateTextStreamFromXMLTreeNode(CONST XML_TREE_NODE*  pCurrentNode, TEXT_STREAM*  pOutput, CONST UINT  iIndentation)
+VOID  generateTextStreamFromXMLTreeNode(CONST XML_TREE_NODE*  pCurrentNode, TEXT_STREAM*  pOutput, const bool bIndent, CONST UINT  iIndentation)
 {
    XML_PROPERTY*   pProperty;    // Input node property iterator
    XML_TREE_NODE*  pChildNode;   // Input node child iterator
 
    // [CHECK] Ensure tag does not have inline text AND children
-   ASSERT((hasChildren(pCurrentNode) AND pCurrentNode->szText) == FALSE);
+   ASSERT((getXMLNodeCount(pCurrentNode) AND pCurrentNode->szText) == FALSE);
 
    // [INDENTATION] Indent tag appropriately
-   for (UINT i = 0; i < iIndentation; i++)
-      appendCharToTextStream(pOutput, TEXT('\t'));
+   if (bIndent)
+      for (UINT i = 0; i < iIndentation; i++)
+         appendCharToTextStream(pOutput, TEXT('\t'));
 
    // Open current tag
    appendStringToTextStreamf(pOutput, TEXT("<%s"), pCurrentNode->szName);
@@ -412,14 +367,12 @@ VOID  generateTextStreamFromXMLTreeNode(CONST XML_TREE_NODE*  pCurrentNode, TEXT
       // Append name+value pair to the current tag
       appendStringToTextStreamf(pOutput, TEXT(" %s=\"%s\""), pProperty->szName, pProperty->szValue);
    
-
-
    /// [INLINE TEXT] Close tag, output text and create a matching closing tag
-   if (!hasChildren(pCurrentNode) AND pCurrentNode->szText)
+   if (!getXMLNodeCount(pCurrentNode) AND pCurrentNode->szText)
       appendStringToTextStreamf(pOutput, TEXT(">%s</%s>\r\n"), pCurrentNode->szText, pCurrentNode->szName);
    
    /// [NO CHILDREN] Convert tag to a 'self-closing' tag
-   else if (!hasChildren(pCurrentNode))
+   else if (!getXMLNodeCount(pCurrentNode))
       appendStringToTextStreamf(pOutput, TEXT(" />\r\n"), pCurrentNode->szName);
 
    /// [CHILDREN] Output each child-tag under the current tag
@@ -430,11 +383,14 @@ VOID  generateTextStreamFromXMLTreeNode(CONST XML_TREE_NODE*  pCurrentNode, TEXT
 
       // Print each child-tag on a separate line
       for (UINT iIndex = 0; findXMLTreeNodeByIndex(pCurrentNode, iIndex, pChildNode); iIndex++)
-         generateTextStreamFromXMLTreeNode(pChildNode, pOutput, iIndentation + 1);
+         generateTextStreamFromXMLTreeNode(pChildNode, pOutput, bIndent, iIndentation + 1);
       
-      // Close tag on next line
-      for (UINT i = 0; i < iIndentation; i++)
-         appendCharToTextStream(pOutput, TEXT('\t'));
+      // Indent close-tag
+      if (bIndent)
+         for (UINT i = 0; i < iIndentation; i++)
+            appendCharToTextStream(pOutput, TEXT('\t'));
+
+      // Close tag 
       appendStringToTextStreamf(pOutput, TEXT("</%s>\r\n"), pCurrentNode->szName);
    }
 }

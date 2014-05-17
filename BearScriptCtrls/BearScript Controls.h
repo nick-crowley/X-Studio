@@ -7,6 +7,7 @@
 
 #pragma once
 
+// Headers
 #include "Types.h"
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +23,6 @@
 // Convenience descriptions of WM_COMMAND message sources
 //
 enum COMMAND_SOURCE  { CS_MENU_ITEM = 0, CS_ACCELERATOR = 1 };
-
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CONSTANTS / GLOBALS
@@ -54,6 +54,8 @@ ControlsAPI VOID  destructorCodeEditLabel(LPARAM  pCodeEditLabel);
 COMMAND*          getCodeEditCaretLineCommand(CODE_EDIT_DATA*  pWindowData);
 ERROR_QUEUE*      getCodeEditCaretLineError(CODE_EDIT_DATA*  pWindowData);
 UINT              getCodeEditLineIndentation(CODE_EDIT_DATA*   pWindowData, CONST UINT  iLine);
+ControlsAPI
+const TCHAR*      identifySuggestionResult(const RESULT_TYPE  eType, const SUGGESTION_RESULT  xResult);
 BOOL              isCodeEditLineWhitespace(CONST CODE_EDIT_LINE*  pLineData);
 
 // Functions
@@ -79,8 +81,9 @@ VOID    onCodeEditClipboardPaste(CODE_EDIT_DATA*  pWindowData);
 BOOL    onCodeEditFindText(CODE_EDIT_DATA*  pWindowData, CONST TCHAR*  szSearchText, CONST TCHAR*  szReplaceText, CONST UINT  eFlags);
 VOID    onCodeEditInsertTextAtCaret(CODE_EDIT_DATA*  pWindowData, CONST TCHAR*  szText);
 VOID    onCodeEditScriptCallOperator(CODE_EDIT_DATA*  pWindowData, CODE_EDIT_LINE*  pLineData);
-VOID    onCodeEditScrollToLocation(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LOCATION*  pTarget);
+VOID    onCodeEditScrollToLocation(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LOCATION*  pTarget, const BOOL  bScrollTop);
 VOID    onCodeEditSelectAll(CODE_EDIT_DATA*  pWindowData);
+VOID    onCodeEditSelectLine(CODE_EDIT_DATA*  pWindowData, const UINT  iLine);
 VOID    onCodeEditSetLineError(CODE_EDIT_DATA*  pWindowData, CONST UINT  iLineNumber, CONST ERROR_TYPE  eType, CONST ERROR_QUEUE*  pErrorQueue);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -210,13 +213,8 @@ BOOL      findNextCodeEditCharacter(CODE_EDIT_ITERATOR*  pIterator);
 ///                                 CODE EDIT (IDENTATION)
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-// Helpers
-LINE_CLASS  identifyLineClassFromCommandConditional(CONST UINT  iCommandID, CONST CONDITIONAL_ID  eConditional);
-BOOL        isCodeEditLineIndentedDueToSkipIf(CONST LIST_ITEM*  pLineItem, CODE_EDIT_LINE*  &pOutput);
-
 // Functions
-VOID    calculateCodeEditIndentationForMultipleLines(CODE_EDIT_DATA*  pWindowData, CONST UINT  iStartLine);
-INT     calculateCodeEditIndentationForSingleLine(CONST CODE_EDIT_LINE*  pCurrentLine, CONST LIST_ITEM*  pLineIterator);
+VOID    calculateCodeEditIndentation(CODE_EDIT_DATA*  pWindowData, CONST UINT  iStartLine);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CODE EDIT (SUGGESTIONS)
@@ -345,7 +343,6 @@ ControlsAPI HBRUSH   getDialogBackgroundBrush();
 ControlsAPI COLORREF getDialogBackgroundColour();
 ControlsAPI COLORREF getThemeColour(const TCHAR*  szClass, const int  iPart, const int  iState, const int  iProperty, const int  iDefault);
 ControlsAPI COLORREF getThemeSysColour(const TCHAR*  szClass, const int  iSysColour);
-ControlsAPI HBRUSH   getThemeSysColourBrush(const TCHAR*  szClass, const int  iSysColour);
 #define             getTabThemeColour()     getThemeColour(TEXT("TAB"), TABP_PANE, 0, TMT_GLOWCOLOR, COLOR_BTNFACE)
 
 // Functions
@@ -426,6 +423,7 @@ ControlsAPI BOOL     onCustomDrawTooltip(HWND  hTooltip, NMTTCUSTOMDRAW*  pHeade
 
 // Helpers
 ControlsAPI VOID     initReportModeListView(HWND  hListView, CONST LISTVIEW_COLUMNS*  pListViewData, CONST BOOL  bEnableHover);
+ControlsAPI VOID     setMissingListViewItem(LVITEM*  pItem, const UINT  iCount);
 
 // Functions
 ControlsAPI VOID     drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pHeader);
@@ -480,10 +478,21 @@ ControlsAPI LANGUAGE_BUTTON*  insertRichEditButton(HWND  hRichEdit, CONST TCHAR*
 ControlsAPI BOOL              modifyButtonInRichEditByIndex(HWND  hRichEdit, const UINT  iIndex, const TCHAR*  szNewText, const GAME_TEXT_COLOUR  eColour, LANGUAGE_BUTTON*& pOutput);
 ControlsAPI BOOL              modifyButtonInRichEditByPosition(HWND  hRichEdit, const UINT  iPosition, const GAME_TEXT_COLOUR  eColour, LANGUAGE_BUTTON* &pOutput);
 ControlsAPI BOOL              removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex);
-ControlsAPI VOID              setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const bool  bSkipButtons, CONST GAME_TEXT_COLOUR  eBackground);
+ControlsAPI VOID              setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const int  iSize, const bool  bSkipButtons, CONST GAME_TEXT_COLOUR  eBackground);
 
 // Window Procedures
 ControlsAPI LRESULT           wndprocCustomRichEditControl(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                                    DEBUGGING
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Functions
+VOID              debugCodeEditData(const CODE_EDIT_DATA*  pWindowData);
+ControlsAPI VOID  debugCodeEditLabel(const CODE_EDIT_LABEL*  pLabel);
+VOID              debugCodeEditSuggestion(const CODE_EDIT_SUGGESTION*  pSuggestion);
+VOID              debugCodeEditUndo(const CODE_EDIT_UNDO*  pUndo);
+VOID              debugCodeEditUndoItem(const CODE_EDIT_UNDO_ITEM*  pItem);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    GROUPED LISTVIEW 
@@ -604,7 +613,7 @@ ControlsAPI COLORREF  calculateVisibleRichTextColour(const RICHTEXT_TYPE  eType,
 // Functions
 ControlsAPI VOID   drawRichText(HDC  hDC, CONST RICH_TEXT*  pRichText, RECT*  pTargetRect, CONST UINT  iDrawFlags);
 ControlsAPI VOID   drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText, const BOOL  bDisabled, CONST GAME_TEXT_COLOUR  eBackground);
-RICHTEXT_DRAWING   drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, CONST BOOL  bMeasurement);
+RICHTEXT_DRAWING   drawRichTextItemInRect(HDC  hDC, const TCHAR*  szText, const RECT*  pLineRect, const RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, const BOOL  bMeasurement);
 VOID               drawRichTextItemsInLine(HDC  hDC, CONST RICHTEXT_POSITION*  pStartPos, CONST RECT*  pLineRect, RICHTEXT_POSITION*  pEndPos, INT*  piRemainingWidth, INT*  piLineHeight, CONST BOOL  bMeasurement);
 ControlsAPI VOID   drawLanguageMessageInSingleLine(HDC  hDC, RECT  rcDrawRect, LANGUAGE_MESSAGE*  pMessage, const BOOL  bDisabled, CONST GAME_TEXT_COLOUR  eBackground);
 

@@ -38,11 +38,14 @@ CONST UINT        iToolBarButtonCount            = 2;
 
 // Filters displayed for the system OpenFile dialog
 //
-CONST TCHAR*  szSystemDialogFilter = TEXT("All Supported Documents (*.xml, *.pck, *.xprj)\0") TEXT("*.PCK;*.XML;*.XPRJ\0")
-                                     TEXT("Project Files (*.xprj)\0") TEXT("*.XPRJ\0")
-                                     TEXT("Compressed Files (*.pck)\0") TEXT("*.PCK\0")
-                                     TEXT("Uncompressed Files (*.xml)\0") TEXT("*.XML\0")
+CONST TCHAR*  szSystemDialogFilter = TEXT("All Supported Documents (*.xml, *.pck, *.xprj)\0") TEXT("*.xml;*.pck;*.xprj\0")
+                                     TEXT("Project Files (*.xprj)\0") TEXT("*.xprj\0")
+                                     TEXT("Compressed Files (*.pck)\0") TEXT("*.pck\0")
+                                     TEXT("Uncompressed Files (*.xml)\0") TEXT("*.xml\0")
                                      TEXT("All Files (*.*)\0") TEXT("*.*\0\0");
+
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION  /  DESTRUCTION
@@ -76,7 +79,7 @@ BOOL    displayFileDialog(FILE_DIALOG_DATA*  pDialogData, HWND  hParentWnd, CONS
    if (!bSystemDialog)
    {
       /// Display browser dialog
-      bResult = (INT_PTR)DialogBoxParam(getResourceInstance(), TEXT("FILE_DIALOG"), hParentWnd, dlgprocFileDialog, (LPARAM)pDialogData);
+      bResult = (INT_PTR)showDialog(TEXT("FILE_DIALOG"), hParentWnd, dlgprocFileDialog, (LPARAM)pDialogData);
 
       // [CHECK] Ensure dialog was created successfully
       ERROR_CHECK("displaying FileBrowser dialog", bResult != -1);
@@ -112,23 +115,32 @@ BOOL    displayFileDialog(FILE_DIALOG_DATA*  pDialogData, HWND  hParentWnd, CONS
       if (bResult = (pDialogData->eType == FDT_OPEN ? GetOpenFileName(&oDialogData) : GetSaveFileName(&oDialogData)))
       {
          // Prepare
-         szFolder = oDialogData.lpstrFile;
          bResult  = IDOK;
 
          // [SINGLE FILE] Extract single filename
-         if (oDialogData.nFileOffset < lstrlen(szFolder))
-            appendFileDialogOutputFile(pDialogData, szFolder, identifyFileType(getFileSystem(), szFolder));
-
-         // [MULTIPLE FILES] Parse returned filenames
-         else for (CONST TCHAR*  szFileName = szFolder + lstrlen(szFolder) + 1; szFileName[0]; szFileName += lstrlen(szFileName) + 1)
+         if (oDialogData.nFileOffset < lstrlen(szFullPath = oDialogData.lpstrFile))
          {
-            // Generate full filepath
-            szFullPath = utilDuplicatePath(szFolder);
-            PathAppend(szFullPath, szFileName);
-
-            // Add to DialogData
             appendFileDialogOutputFile(pDialogData, szFullPath, identifyFileType(getFileSystem(), szFullPath));
-            utilDeleteString(szFullPath);
+
+            // Store 'Last Used' folder
+            utilFindCharacterReverse(szFullPath, '\\')[0] = NULL;
+            setAppPreferencesLastFolder(szFullPath, FF_DOCUMENT_FILES);
+         }
+         // [MULTIPLE FILES] Parse returned filenames
+         else 
+         {
+            // Store 'Last Used' folder
+            setAppPreferencesLastFolder(szFolder = oDialogData.lpstrFile, FF_DOCUMENT_FILES);
+
+            for (CONST TCHAR*  szFileName = szFolder + lstrlen(szFolder) + 1; szFileName[0]; szFileName += lstrlen(szFileName) + 1)
+            {
+               // Generate full filepath
+               PathAppend(szFullPath = utilDuplicatePath(szFolder), szFileName);
+
+               // Add to DialogData
+               appendFileDialogOutputFile(pDialogData, szFullPath, identifyFileType(getFileSystem(), szFullPath));
+               utilDeleteString(szFullPath);
+            }
          }
       }
       else
@@ -196,7 +208,6 @@ VOID  initFileDialogControls(FILE_DIALOG_DATA*  pDialogData)
    LISTVIEW_COLUMNS  oListView                        = { 5, IDS_FILE_DIALOG_COLUMN_NAME, 200, 180, 50, 100, 60 };
    CONST TCHAR*      szFilterIcons[FILE_FILTER_COUNT] = { TEXT("NEW_SCRIPT_FILE_ICON"), TEXT("NEW_SCRIPT_FILE_ICON"), TEXT("NEW_SCRIPT_FILE_ICON"), TEXT("NEW_LANGUAGE_FILE_ICON"), TEXT("NEW_MISSION_FILE_ICON"), TEXT("NEW_PROJECT_FILE_ICON"), TEXT("NEW_FILE_ICON"), TEXT("ALL_FILES_ICON") };
    SHFILEINFO        oShellInfo;      // Used to get the system image list   
-   TCHAR*            szFilterText;    // 'File Type' filter string
    
    /// [LISTVIEW]
    initReportModeListView(pDialogData->hListView, &oListView, TRUE);
@@ -211,13 +222,8 @@ VOID  initFileDialogControls(FILE_DIALOG_DATA*  pDialogData)
 
    /// [FILTER COMBO] Add filter strings
    for (UINT iFilter = 0; iFilter < FILE_FILTER_COUNT; iFilter++)
-   {
       // Load and insert item text
-      szFilterText = utilLoadString(getResourceInstance(), IDS_FILE_DIALOG_FILTER_SCRIPT_FILES + iFilter, 64);
-      appendCustomComboBoxItemEx(pDialogData->hFilterCombo, szFilterText, NULL, szFilterIcons[iFilter], NULL);
-      // Cleanup
-      utilDeleteString(szFilterText);
-   }
+      appendCustomComboBoxItemEx(pDialogData->hFilterCombo, loadTempString(IDS_FILE_DIALOG_FILTER_SCRIPT_FILES + iFilter), NULL, szFilterIcons[iFilter], NULL);
    
    // Select first filter
    pDialogData->eFilter = getAppPreferences()->eLastFileFilter;
@@ -337,9 +343,7 @@ BOOL  onFileDialog_Command(FILE_DIALOG_DATA*  pDialogData, CONST UINT  iControlI
 {
    BOOL   bResult;
  
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    bResult = TRUE;
 
@@ -419,7 +423,6 @@ BOOL  onFileDialog_Command(FILE_DIALOG_DATA*  pDialogData, CONST UINT  iControlI
    }
 
    // Cleanup and return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -437,6 +440,7 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
 {
    DC_STATE*  pPrevState;         // Previous DeviceContext state
    HTHEME     hTheme;             // Toolbar theme handle
+   HBRUSH     hBackground;        // Background brush
    RECT       rcClientRect,       // Button's client rectangle
               rcTextRect;         // Text drawing rectangle
    POINT      ptIconPosition;     // Icon draw position
@@ -446,7 +450,6 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
    BOOL       bResult;            // Operation Result
 
    // Prepare
-   TRACK_FUNCTION();
    bResult = FALSE;
    
    /// [PRE-PAINT] Perform all drawing manually
@@ -487,14 +490,15 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
       case TS_DISABLED:
       case TS_NORMAL:
          // Draw background
-         FillRect(pPrevState->hDC, &rcClientRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
+         FillRect(pPrevState->hDC, &rcClientRect, hBackground = getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
+         DeleteBrush(hBackground);
 
          // To create the illusion of a box draw 'top' and 'bottom' edges only for buttons at the top + bottom.
          switch (GetDlgCtrlID(pJumpItem->hCtrl))
          {
          case IDC_LOCATION_JUMP1:   DrawEdge(pPrevState->hDC, &rcClientRect, EDGE_SUNKEN, BF_LEFT WITH BF_RIGHT WITH BF_TOP);      break;
          case IDC_LOCATION_JUMP6:   DrawEdge(pPrevState->hDC, &rcClientRect, EDGE_SUNKEN, BF_LEFT WITH BF_RIGHT WITH BF_BOTTOM);   break;
-         default:                   DrawEdge(pPrevState->hDC, &rcClientRect, EDGE_SUNKEN, BF_LEFT WITH BF_RIGHT);               break;
+         default:                   DrawEdge(pPrevState->hDC, &rcClientRect, EDGE_SUNKEN, BF_LEFT WITH BF_RIGHT);                  break;
          }
          break;
       
@@ -526,7 +530,6 @@ BOOL  onFileDialog_CustomDrawJumpItem(FILE_DIALOG_DATA*  pDialogData, JUMPBAR_IT
    }
  
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -548,7 +551,6 @@ BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTO
    BOOL            bResult;            // Operation Result;
 
    // Prepare
-   TRACK_FUNCTION();
    pDrawData     = &pListViewData->nmcd;
    bResult       = FALSE;
 
@@ -575,12 +577,12 @@ BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTO
          if (pDialogData->pSearchOperation)
          {
             // [SUCCESS] Generate progress string
-            szUpdateText = utilLoadString(getResourceInstance(), getOperationProgressStageID(pDialogData->pSearchOperation->pProgress), 96);
+            szUpdateText = loadString(getOperationProgressStageID(pDialogData->pSearchOperation->pProgress), 96);
             utilStringCchCatf(szUpdateText, 96, TEXT(" %u%%"), calculateOperationProgressStagePercentage(pDialogData->pSearchOperation->pProgress) / 100);
          }
          else
             // [FAILED] Load update string
-            szUpdateText = utilLoadString(getResourceInstance(), IDS_FILE_DIALOG_UPDATING, 96);
+            szUpdateText = loadString(IDS_FILE_DIALOG_UPDATING, 96);
 
          /// [BACKGROUND] Draw the client region in white except for the sort column rectangle
          FillRect(pDrawData->hdc, &rcClientRect, GetSysColorBrush(COLOR_WINDOW));
@@ -602,7 +604,6 @@ BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTO
    }
 
    // Cleanup and return
-   END_TRACKING();
    return bResult;
 }
 
@@ -615,9 +616,6 @@ BOOL   onFileDialog_CustomDrawListView(FILE_DIALOG_DATA*  pDialogData, NMLVCUSTO
 // 
 VOID  onFileDialog_Destroy(FILE_DIALOG_DATA*  pDialogData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
    /// Save current folder
    setAppPreferencesLastFolder(pDialogData->szFolder, pDialogData->eFilter);
 
@@ -637,7 +635,6 @@ VOID  onFileDialog_Destroy(FILE_DIALOG_DATA*  pDialogData)
    pDialogData->hImageList = NULL;
    
    // Cleanup
-   END_TRACKING();
 }
 
 
@@ -675,9 +672,7 @@ BOOL  onFileDialog_Notify(FILE_DIALOG_DATA*  pDialogData, NMHDR*  pMessage)
    JUMPBAR_ITEM      *pJumpItem;          // JumpBar item convenience pointer
    BOOL               bResult;            // Operation result
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    bResult = FALSE;
 
@@ -754,7 +749,6 @@ BOOL  onFileDialog_Notify(FILE_DIALOG_DATA*  pDialogData, NMHDR*  pMessage)
    }
 
    // Cleanup and return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -941,7 +935,6 @@ VOID  onFileDialog_RequestData(FILE_DIALOG_DATA*  pDialogData, NMLVDISPINFO*  pI
       return;
 
    // Prepare
-   TRACK_FUNCTION();
 
    // Lookup FileItem
    if (findFileSearchResultByIndex(pDialogData->pFileSearch, oOutput.iItem, pFileItem))
@@ -1042,7 +1035,6 @@ VOID  onFileDialog_RequestData(FILE_DIALOG_DATA*  pDialogData, NMLVDISPINFO*  pI
       oOutput.pszText = TEXT("ERROR: Unknown item");
 
    // Cleanup
-   END_TRACKING();
 }
 
 
@@ -1064,15 +1056,10 @@ VOID  onFileDialog_Timer(FILE_DIALOG_DATA*  pDialogData)
 INT_PTR CALLBACK   dlgprocFileDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    FILE_DIALOG_DATA*  pDialogData;   // FileDialog window data
-   ERROR_STACK*       pError;        // Exception error
-   BOOL               bResult;       // Operation result
-   TRACK_FUNCTION();
+   BOOL               bResult = TRUE;// Operation result
 
-   // Prepare
-   bResult = TRUE;
 
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
       // Get window data
       pDialogData = getFileDialogData(hDialog);
@@ -1149,18 +1136,13 @@ INT_PTR CALLBACK   dlgprocFileDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
          bResult = FALSE;
          break;
       }
+
+      // Return result
+      return bResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pError))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the open file window"
-      enhanceError(pError, ERROR_ID(IDS_EXCEPTION_FILE_DIALOG));
-      displayException(pError);
-   }
-
-   // Return result
-   END_TRACKING();
-   return bResult;
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 
 

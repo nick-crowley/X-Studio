@@ -359,7 +359,6 @@ TCHAR*  generateGameObjectShipName(CONST TCHAR*  szNameID, CONST TCHAR*  szRaceI
    CONST TCHAR  *szObjectIDTail;     // Last four characters of the ObjectID -- used to identify Pirate ship declarations
 
    // Prepare
-   TRACK_FUNCTION();
    szShipName  = utilCreateEmptyString(COMPONENT_LENGTH);
    pRaceString = NULL;
    pError      = NULL;
@@ -466,7 +465,6 @@ TCHAR*  generateGameObjectShipName(CONST TCHAR*  szNameID, CONST TCHAR*  szRaceI
    // [ERROR] Cleanup and return Ship Name / NULL
    if (isError(pError))
       utilDeleteString(szShipName);
-   END_TRACKING();
    return szShipName;
 }
 
@@ -498,7 +496,6 @@ TCHAR*  generateGameObjectStationName(CONST TCHAR*  szNameID, CONST TCHAR*  szRa
    CONST TCHAR  *szCustomRace;       // Used to detect whether stations names are prefixed with the word 'Aldrin' or not
 
    // Prepare
-   TRACK_FUNCTION();
    szStationName = utilCreateEmptyString(COMPONENT_LENGTH);
    szCustomRace  = NULL;
    pRaceString   = NULL;
@@ -591,7 +588,6 @@ TCHAR*  generateGameObjectStationName(CONST TCHAR*  szNameID, CONST TCHAR*  szRa
    // [ERROR] Cleanup and return Station Name / NULL
    if (isError(pError)) 
       utilDeleteString(szStationName);
-   END_TRACKING();
    return szStationName;
 }
 
@@ -615,7 +611,6 @@ TCHAR*  generateGameObjectWareName(CONST TCHAR*  szNameID, CONST TCHAR*  szObjec
    TCHAR        *szWareName;      // Operation result
 
    // Prepare
-   TRACK_FUNCTION();
    szWareName = utilCreateEmptyString(COMPONENT_LENGTH);
    pError     = NULL;
 
@@ -657,7 +652,6 @@ TCHAR*  generateGameObjectWareName(CONST TCHAR*  szNameID, CONST TCHAR*  szObjec
       utilDeleteString(szWareName);
 
    // Cleanup and return
-   END_TRACKING();
    return szWareName;
 }
 
@@ -678,244 +672,208 @@ TCHAR*  generateGameObjectWareName(CONST TCHAR*  szNameID, CONST TCHAR*  szObjec
 //               OR_ABORTED - TFile was PARTIALLY parsed and some objects MAY have been created, but the user aborted after minor errors.
 //               OR_FAILURE - Unsupported TFile structure - indicates an old version of X2.  No objects were loaded
 // 
-OPERATION_RESULT  generateGameObjectsFromTypeFile(TCHAR*  szFileBuffer, CONST TCHAR*  szSubPath, CONST GAME_DATA_FILE*  pTypeFile, HWND  hParentWnd, ERROR_QUEUE*  pErrorQueue)
+OPERATION_RESULT  generateGameObjectsFromTypeFile(TCHAR*  szFileBuffer, CONST TCHAR*  szSubPath, CONST GAME_DATA_FILE*  pTypeFile, HWND  hParentWnd, ERROR_QUEUE*  pOutputQueue)
 {
-   ERROR_STACK        *pError;                  // Error encountered by name generation due to an invalid/incomplete declaration
-   OPERATION_RESULT    eResult;                 // Operation result, defaults to OR_SUCCESS
-   AVL_TREE           *pDuplicateObjectsTree;   // Temporary storage for GameObjects with duplicate names
-   CONST TCHAR       **aObjectProperties,       // Component properties in the current object declaration
-                      *szObjectID;              // Object ID
-   GAME_OBJECT        *pGameObject;             // GameObject being generated
-   TCHAR              *szObjectName,            // Generated name of the GameObject being generated
-                      *szDeclaration,           // Full text of the current object declaration
-                      *szProperty,              // Property currently being parsed (tokenised)
-                      *pDeclarationIterator;    // Tokeniser data
-   UINT                iCurrentSubType,         // Object subtype, zero-based. Defined by the order in which the objects are declared
-                       iCurrentLine,            // One-based line number of the line currently being parsed (Used for error reporting only)
-                       iLinePropertyCount;      // Number of properties parsed from the current line
-   INT                 iExpectedObjectCount,    // Number of objects within the input T-File
-                       iActualObjectCount,      // Number of objects loaded
-                       iIncompleteObjectCount;  // Number of objects with missing game strings
+   ERROR_STACK        *pError = NULL;             // Error encountered by name generation due to an invalid/incomplete declaration
+   OPERATION_RESULT    eResult = OR_SUCCESS;      // Operation result, defaults to OR_SUCCESS
+   AVL_TREE           *pDuplicateObjectsTree;     // Temporary storage for GameObjects with duplicate names
+   CONST TCHAR       **aObjectProperties,         // Component properties in the current object declaration
+                      *szObjectID;                // Object ID
+   GAME_OBJECT        *pGameObject;               // GameObject being generated
+   TCHAR              *szObjectName,              // Generated name of the GameObject being generated
+                      *szDeclaration = NULL,      // Full text of the current object declaration
+                      *szProperty,                // Property currently being parsed (tokenised)
+                      *pDeclarationIterator;      // Tokeniser data
+   UINT                iCurrentSubType = 0,       // Object subtype, zero-based. Defined by the order in which the objects are declared
+                       iCurrentLine = 0,          // One-based line number of the line currently being parsed (Used for error reporting only)
+                       iLinePropertyCount;        // Number of properties parsed from the current line
+   INT                 iExpectedObjectCount = -1, // Number of objects within the input T-File  (-1 is used to distinguish between an object count of zero, and a missing object count)
+                       iActualObjectCount = 0;    // Number of objects loaded
+   ERROR_QUEUE        *pIncompleteQueue;          // Errors for objects with missing game strings
    
-   // Prepare
-   TRACK_FUNCTION();
-   eResult              = OR_SUCCESS;
-   pError               = NULL;
-   iCurrentLine         = 0;
-   iCurrentSubType      = 0;
-   iExpectedObjectCount = -1;            // -1 is used to distinguish between an object count of zero, and a missing object count
-   iActualObjectCount   = 0;
-   iIncompleteObjectCount = 0;
-
-   // [INFO] "Loading %s from object type definitions file '%s'"
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_TFILE), identifyMainTypeString(pTypeFile->eMainType), szSubPath));
-   VERBOSE("Generating game objects from T-File '%s'", szSubPath);
-
-   // Create a copy tree to temporarily store GameObjects with duplicate names
-   pDuplicateObjectsTree = createGameObjectTreeForCollisions();   
-
-   // Create storage for properties
-   aObjectProperties = utilCreateObjectArray(CONST TCHAR*, iMaxValidProperties);
-
-   /// Tokenise T-File into declarations (lines). Stop if the user aborts
-   for (szDeclaration = utilTokeniseString(szFileBuffer, "\r\n", &pDeclarationIterator); szDeclaration AND (eResult == OR_SUCCESS); szDeclaration = utilGetNextToken("\r\n", &pDeclarationIterator))
+   __try
    {
-      // Increment line count
-      iCurrentLine++;
+      // [INFO] "Loading %s from object type definitions file '%s'"
+      pushErrorQueue(pOutputQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_TFILE), identifyMainTypeString(pTypeFile->eMainType), szSubPath));
 
-      // [COMMENT/EMPTY LINE] Skip these lines
-      if (utilCompareStringN(szDeclaration, "//", 2) OR !lstrlen(szDeclaration))
-         continue;
+      // Prepare
+      pDuplicateObjectsTree = createGameObjectTreeForCollisions();                         // Create a copy tree to temporarily store GameObjects with duplicate names
+      aObjectProperties     = utilCreateObjectArray(CONST TCHAR*, iMaxValidProperties);    // Create storage for properties
+      pIncompleteQueue      = createErrorQueue();
 
-      // [DEBUG]
-      /*if (iCurrentLine >= 500 AND iCurrentLine <= 600)
+      /// Tokenise T-File into declarations (lines). Stop if the user aborts
+      for (szDeclaration = utilTokeniseString(szFileBuffer, "\r\n", &pDeclarationIterator); szDeclaration AND (eResult == OR_SUCCESS); szDeclaration = utilGetNextToken("\r\n", &pDeclarationIterator))
       {
-         TCHAR*  szTemp = utilCreateStringf(4096, TEXT("Line %u: %s"), iCurrentLine, szDeclaration);
-         consolePrint(szTemp);
-         utilDeleteString(szTemp);
-      }*/
+         // Increment line count
+         iCurrentLine++;
 
-      /// Reset properties array
-      utilZeroObjectArray(aObjectProperties, CONST TCHAR*, iMaxValidProperties);
-      iLinePropertyCount = 0;
+         // [COMMENT/EMPTY LINE] Skip these lines
+         if (utilCompareStringN(szDeclaration, "//", 2) OR !lstrlen(szDeclaration))
+            continue;
 
-      // [SHIP] Extract the object ID from the rear because they're a variable size structure
-      if (pTypeFile->eMainType == MT_SHIP AND lstrlen(szDeclaration) > 10) // AND (szObjectID = utilFindSubString(szDeclaration, "SS_SH_")))
-         // Remove the trailing semi-colon 
-         if (szProperty = utilFindCharacterReverse(szDeclaration, ';'))
-         {
-            szProperty[0] = NULL;
-            // Remove prefixed semi-colon
+         /// Reset properties array
+         utilZeroObjectArray(aObjectProperties, CONST TCHAR*, iMaxValidProperties);
+         iLinePropertyCount = 0;
+
+         // [SHIP] Extract the object ID from the rear because they're a variable size structure
+         if (pTypeFile->eMainType == MT_SHIP AND lstrlen(szDeclaration) > 10) // AND (szObjectID = utilFindSubString(szDeclaration, "SS_SH_")))
+            // Remove the trailing semi-colon 
             if (szProperty = utilFindCharacterReverse(szDeclaration, ';'))
             {
                szProperty[0] = NULL;
-               szObjectID = (szProperty + 1);
+               // Remove prefixed semi-colon
+               if (szProperty = utilFindCharacterReverse(szDeclaration, ';'))
+               {
+                  szProperty[0] = NULL;
+                  szObjectID = (szProperty + 1);
+               }
             }
-         }
 
-      // Store first property
-      aObjectProperties[iLinePropertyCount++] = szDeclaration;
+         // Store first property
+         aObjectProperties[iLinePropertyCount++] = szDeclaration;
 
-      /// Tokenise declaration into array
-      for (szProperty = szDeclaration; szProperty[0] AND (iLinePropertyCount < iMaxValidProperties); szProperty++)
-      {
-         // [CHECK] Is this the start of a new property?
-         if (szProperty[0] == ';')
+         /// Tokenise declaration into array
+         for (szProperty = szDeclaration; szProperty[0] AND (iLinePropertyCount < iMaxValidProperties); szProperty++)
          {
-            // [SUCCESS] Isolate and store property
-            szProperty[0] = NULL;
-            aObjectProperties[iLinePropertyCount++] = (szProperty + 1);
-         }
-      }
-
-      /*if (iLinePropertyCount == iMaxValidProperties)
-      {
-      }*/
-
-      // Determine the meaning of the line by the number of properties it contains
-      switch (iLinePropertyCount)
-      {
-      /// [FILE HEADER] Extract the expected object count
-      case 2:
-      case 3:
-         // Store the number of properties for later verification
-         if (aObjectProperties[GOPI_OBJECT_COUNT])
-            iExpectedObjectCount = utilConvertStringToInteger(aObjectProperties[GOPI_OBJECT_COUNT]);
-
-         // [CHECK] Ensure version is supported
-         if (utilSafeConvertStringToInteger(aObjectProperties[GOPI_FILE_VERSION]) <= 14)
-         {
-            // [FAILURE] "The object type definitions file '%s' is from an unsupported version of %s, please update to the lastest version"
-            pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_TFILE_VERSION_UNSUPPORTED), szSubPath, identifyGameVersionString(GV_THREAT)));
-            eResult = OR_FAILURE;
-         }
-         continue;
-
-      case iMaxValidProperties:
-         // [WARNING] "The %s on line %u contains over 512 properties, this object is most likely corrupted and has not been loaded"
-         generateQueuedWarning(pErrorQueue, HERE(IDS_TFILE_EXCESSIVE_PROPERTIES), identifyMainTypeString(pTypeFile->eMainType), iCurrentLine);
-         break;
-      
-      // [OBJECT DECLARATION] Use various properties to generate a GameObject
-      default:
-         // [CHECK] Was the header's object count missing?
-         if (iCurrentSubType == 0 AND iExpectedObjectCount == -1)
-            // [WARNING] "The object count is missing from the header of the object type definition file '%s'"
-            generateQueuedWarning(pErrorQueue, HERE(IDS_TFILE_OBJECT_COUNT_NOT_FOUND), szSubPath);
-            
-         // Determine which of the three methods to use for generating the correct name
-         switch (pTypeFile->eDataType)
-         {
-         /// [SHIP] Generate the ship name from the NAME, RACE, VARIATION and OBJECT ID properties
-         case DT_SHIP:
-            szObjectName = generateGameObjectShipName(aObjectProperties[GOPI_NAME_ID], aObjectProperties[GOPI_SHIP_RACE_ID], aObjectProperties[GOPI_SHIP_VARIATION_ID], szObjectID, iCurrentLine, pError);
-            break;
-
-         /// [STATION] Generate the station name from NAME, RACE and FACTORY SIZE
-         case DT_STATION:
-            // Extract the ObjectID from a different index for docks and factories
-            szObjectID = (TCHAR*)aObjectProperties[pTypeFile->eMainType == MT_FACTORY ? GOPI_FACTORY_OBJECT_ID : GOPI_DOCK_OBJECT_ID];
-            // Generate pretty station name
-            szObjectName = generateGameObjectStationName(aObjectProperties[GOPI_NAME_ID], aObjectProperties[GOPI_STATION_RACE_ID], aObjectProperties[GOPI_FACTORY_SIZE_ID], szObjectID, pTypeFile->eMainType, iCurrentLine, pError);
-            break;
-
-         /// [WARE] Generate ware name from NAME alone
-         case DT_WARE:
-            // Extract the ObjectID from a appropriate fixed index
-            switch (pTypeFile->eMainType)
+            // [CHECK] Is this the start of a new property?
+            if (szProperty[0] == ';')
             {
-            case MT_WARE_LASER:   szObjectID = (TCHAR*)aObjectProperties[GOPI_LASER_OBJECT_ID]; break;
-            case MT_WARE_SHIELD:  szObjectID = (TCHAR*)aObjectProperties[GOPI_SHIELD_OBJECT_ID]; break;
-            case MT_WARE_MISSILE: szObjectID = (TCHAR*)aObjectProperties[GOPI_MISSILE_OBJECT_ID]; break;
-            default:              szObjectID = (TCHAR*)aObjectProperties[GOPI_WARE_OBJECT_ID]; break;
+               // [SUCCESS] Isolate and store property
+               szProperty[0] = NULL;
+               aObjectProperties[iLinePropertyCount++] = (szProperty + 1);
             }
-            
-            // Generate pretty ware name
-            szObjectName = generateGameObjectWareName(aObjectProperties[GOPI_NAME_ID], szObjectID, pTypeFile->eMainType, iCurrentLine, pError);
-            break;
          }
 
-      } // END: Switch (property count)
+         // Determine the meaning of the line by the number of properties it contains
+         switch (iLinePropertyCount)
+         {
+         /// [FILE HEADER] Extract the expected object count
+         case 2:
+         case 3:
+            // Store the number of properties for later verification
+            if (aObjectProperties[GOPI_OBJECT_COUNT])
+               iExpectedObjectCount = utilConvertStringToInteger(aObjectProperties[GOPI_OBJECT_COUNT]);
 
-      // [ERROR:INDIVIDUAL] Report each object with missing properties
-      if (pError AND getAppPreferences()->bReportIncompleteGameObjects)
-      {
-         iIncompleteObjectCount++;
-         pushErrorQueue(pErrorQueue, pError);
-         pError = NULL;
-      }
-      // [ERROR:BATCH] Just count the number with missing properties
-      else if (pError)
-      {
-         iIncompleteObjectCount++;
-         deleteErrorStack(pError);
-      }
+            // [CHECK] Ensure version is supported
+            if (utilSafeConvertStringToInteger(aObjectProperties[GOPI_FILE_VERSION]) <= 14)
+            {
+               // [FAILURE] "The object type definitions file '%s' is from an unsupported version of %s, please update to the lastest version"
+               pushErrorQueue(pOutputQueue, generateDualWarning(HERE(IDS_TFILE_VERSION_UNSUPPORTED), szSubPath, identifyGameVersionString(GV_THREAT)));
+               eResult = OR_FAILURE;
+            }
+            continue;
 
-      /// [SUCCESS] Create new GameObject from the generated name
-      if (szObjectName)
-      {
-         ASSERT(utilValidateMemory());
-
-         // Trim whitespace
-         StrTrim(szObjectName, TEXT(" "));
-
-         // Generate GameObject
-         pGameObject = createGameObject(pTypeFile->eMainType, iCurrentSubType, szObjectName, szObjectID);
-
-         // Parse properties
-         translateGameObjectProperties(pGameObject, aObjectProperties, pErrorQueue);
+         case iMaxValidProperties:
+            // [WARNING] "The %s on line %u contains over 512 properties, this object is most likely corrupted and has not been loaded"
+            generateQueuedWarning(pOutputQueue, HERE(IDS_TFILE_EXCESSIVE_PROPERTIES), identifyMainTypeString(pTypeFile->eMainType), iCurrentLine);
+            break;
          
-         // Attempt to insert into the game data
-         if (!insertGameObjectIntoGameData(pGameObject))
-            // [FAILED] Temporarily store in the collisions tree, for later mangling
-            insertObjectIntoAVLTree(pDuplicateObjectsTree, (LPARAM)pGameObject);
+         // [OBJECT DECLARATION] Use various properties to generate a GameObject
+         default:
+            // [CHECK] Was the header's object count missing?
+            if (iCurrentSubType == 0 AND iExpectedObjectCount == -1)
+               // [WARNING] "The object count is missing from the header of the object type definition file '%s'"
+               generateQueuedWarning(pOutputQueue, HERE(IDS_TFILE_OBJECT_COUNT_NOT_FOUND), szSubPath);
+               
+            // Determine which of the three methods to use for generating the correct name
+            switch (pTypeFile->eDataType)
+            {
+            /// [SHIP] Generate the ship name from the NAME, RACE, VARIATION and OBJECT ID properties
+            case DT_SHIP:
+               szObjectName = generateGameObjectShipName(aObjectProperties[GOPI_NAME_ID], aObjectProperties[GOPI_SHIP_RACE_ID], aObjectProperties[GOPI_SHIP_VARIATION_ID], szObjectID, iCurrentLine, pError);
+               break;
 
-         // Count successful objects
-         iActualObjectCount++;
+            /// [STATION] Generate the station name from NAME, RACE and FACTORY SIZE
+            case DT_STATION:
+               // Extract the ObjectID from a different index for docks and factories
+               szObjectID = (TCHAR*)aObjectProperties[pTypeFile->eMainType == MT_FACTORY ? GOPI_FACTORY_OBJECT_ID : GOPI_DOCK_OBJECT_ID];
+               // Generate pretty station name
+               szObjectName = generateGameObjectStationName(aObjectProperties[GOPI_NAME_ID], aObjectProperties[GOPI_STATION_RACE_ID], aObjectProperties[GOPI_FACTORY_SIZE_ID], szObjectID, pTypeFile->eMainType, iCurrentLine, pError);
+               break;
+
+            /// [WARE] Generate ware name from NAME alone
+            case DT_WARE:
+               // Extract the ObjectID from a appropriate fixed index
+               switch (pTypeFile->eMainType)
+               {
+               case MT_WARE_LASER:   szObjectID = (TCHAR*)aObjectProperties[GOPI_LASER_OBJECT_ID]; break;
+               case MT_WARE_SHIELD:  szObjectID = (TCHAR*)aObjectProperties[GOPI_SHIELD_OBJECT_ID]; break;
+               case MT_WARE_MISSILE: szObjectID = (TCHAR*)aObjectProperties[GOPI_MISSILE_OBJECT_ID]; break;
+               default:              szObjectID = (TCHAR*)aObjectProperties[GOPI_WARE_OBJECT_ID]; break;
+               }
+               
+               // Generate pretty ware name
+               szObjectName = generateGameObjectWareName(aObjectProperties[GOPI_NAME_ID], szObjectID, pTypeFile->eMainType, iCurrentLine, pError);
+               break;
+            }
+
+         } // END: Switch (property count)
+
+         // [ERROR] Store details of incomplete objects
+         if (pError)
+         {
+            pushErrorQueue(pIncompleteQueue, pError);    //getAppPreferences()->bReportIncompleteGameObjects ? pushErrorQueue(pOutputQueue, pError) : deleteErrorStack(pError);
+            pError = NULL;
+         }
+
+         /// [SUCCESS] Create new GameObject from the generated name
+         if (szObjectName)
+         {
+            // Generate GameObject + Parse properties
+            StrTrim(szObjectName, TEXT(" "));
+            pGameObject = createGameObject(pTypeFile->eMainType, iCurrentSubType, szObjectName, szObjectID);
+            translateGameObjectProperties(pGameObject, aObjectProperties, pOutputQueue);
+            
+            // Attempt to insert into the game data
+            if (!insertGameObjectIntoGameData(pGameObject))
+               // [FAILED] Temporarily store in the collisions tree, for later mangling
+               insertObjectIntoAVLTree(pDuplicateObjectsTree, (LPARAM)pGameObject);
+
+            // Count successful objects
+            iActualObjectCount++;
+         }
+
+         // Cleanup object name and increment current SubType
+         utilSafeDeleteString(szObjectName);
+         iCurrentSubType++;
+         
+      } // END: for (each line)
+
+      // [CHECK] Were any objects incomplete?
+      if (getQueueItemCount(pIncompleteQueue) > 0)
+         // [ERROR] "Missing property strings detected in %u %s with object definitions file '%s'"
+         generateAttachmentError(pOutputQueue, pIncompleteQueue, generateDualError(HERE(IDS_TFILE_INCOMPLETE_OBJECT_COUNT), getQueueItemCount(pIncompleteQueue), identifyMainTypeString(pTypeFile->eMainType), szSubPath));
+
+      // [DEBUG]
+      CONSOLE("Successfully loaded %d %s from the object type definitions file '%s'", iActualObjectCount, identifyMainTypeString(pTypeFile->eMainType), szSubPath);
+
+      /// [SUCCESS] Mangle duplicate names
+      if (eResult == OR_SUCCESS)
+      {
+         // [CHECK] Ensure object count was correct
+         if ((iExpectedObjectCount != -1) AND (iCurrentSubType != iExpectedObjectCount))
+            // [WARNING] "The object type definitions file '%s' contains %u %s, but the header indicates there should be %u"
+            pushErrorQueue(pOutputQueue, generateDualWarning(HERE(IDS_TFILE_OBJECT_COUNT_INCORRECT), szSubPath, identifyMainTypeString(pTypeFile->eMainType), iCurrentSubType, iExpectedObjectCount));
+
+         // Mangle the names of all the objects with duplicate names and insert them into the game data
+         CONSOLE("Performing non-unique name mangling of game objects in T-File '%s'", szSubPath);
+         insertGameObjectCollisionsIntoGameData(pDuplicateObjectsTree, pOutputQueue);
       }
-
-      ASSERT(utilValidateMemory());
-
-      // Cleanup object name and increment current SubType
-      utilSafeDeleteString(szObjectName);
-      iCurrentSubType++;
+      else
+         /// [FAILURE] Delete the contents of the unprocessed duplicate names tree
+         pDuplicateObjectsTree->pfnDeleteNode = deleteObjectNameTreeNode;
       
-   } // END: for (each line)
-
-   // [CHECK] Were any objects incomplete?
-   if (iIncompleteObjectCount > 0)
-      // [ERROR] "Missing property strings detected in %u %s with object definitions file '%s'"
-      pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_TFILE_INCOMPLETE_OBJECT_COUNT), iIncompleteObjectCount, identifyMainTypeString(pTypeFile->eMainType), szSubPath));
-   
-   /// Print result to console
-   switch (eResult)
-   {
-   case OR_SUCCESS:  CONSOLE("Successfully loaded %d %s from the object type definitions file '%s'", iActualObjectCount, identifyMainTypeString(pTypeFile->eMainType), szSubPath);                                break;
-   case OR_ABORTED:  CONSOLE("User aborted loading of %s from the object type definitions file '%s' after %d objects were loaded", identifyMainTypeString(pTypeFile->eMainType), szSubPath, iActualObjectCount);  break;
-   case OR_FAILURE:  CONSOLE("Object type definitions file '%s' has unsupported file version %s, no objects were loaded", szSubPath, aObjectProperties[GOPI_FILE_VERSION]);                                       break;
+      // Cleanup,debug and return result
+      deleteErrorQueue(pIncompleteQueue);
+      deleteAVLTree(pDuplicateObjectsTree);
+      utilDeleteObject(aObjectProperties);
+      return eResult;
    }
-
-   /// [SUCCESS] Mangle duplicate names
-   if (eResult == OR_SUCCESS)
+   __except (pushException(pOutputQueue))
    {
-      // [CHECK] Ensure object count was correct
-      if ((iExpectedObjectCount != -1) AND (iCurrentSubType != iExpectedObjectCount))
-         // [WARNING] "The object type definitions file '%s' contains %u %s, but the header indicates there should be %u"
-         pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_TFILE_OBJECT_COUNT_INCORRECT), szSubPath, identifyMainTypeString(pTypeFile->eMainType), iCurrentSubType, iExpectedObjectCount));
-
-      // Mangle the names of all the objects with duplicate names and insert them into the game data
-      VERBOSE("Performing non-unique name mangling of game objects in T-File '%s'", szSubPath);
-      insertGameObjectCollisionsIntoGameData(pDuplicateObjectsTree, pErrorQueue);
+      EXCEPTION3("Unable to the load %s from object type definitions file '%s' while processing '%s'", identifyMainTypeString(pTypeFile->eMainType), szSubPath, szDeclaration);
+      return OR_FAILURE;
    }
-   else
-      /// [FAILURE] Delete the contents of the unprocessed duplicate names tree
-      pDuplicateObjectsTree->pfnDeleteNode = deleteObjectNameTreeNode;
-
-   // Cleanup,debug and return result
-   deleteAVLTree(pDuplicateObjectsTree);
-   utilDeleteObject(aObjectProperties);
-   END_TRACKING();
-   return eResult;
 }
 
 
@@ -930,7 +888,6 @@ VOID  insertGameObjectCollisionsIntoGameData(CONST AVL_TREE*  pDuplicateObjectsT
    AVL_TREE_OPERATION*  pOperationData;
 
    // [FUNCTION]
-   TRACK_FUNCTION();
 
    // Create operation data
    pOperationData = createAVLTreeOperationEx(treeprocInsertGameObjectCollisionsIntoGameData, ATT_INORDER, pErrorQueue, NULL);
@@ -941,7 +898,6 @@ VOID  insertGameObjectCollisionsIntoGameData(CONST AVL_TREE*  pDuplicateObjectsT
    // Sever ErrorQueue and clean up
    pOperationData->pErrorQueue = NULL;
    deleteAVLTreeOperation(pOperationData);
-   END_TRACKING();
 }
 
 
@@ -974,85 +930,75 @@ BOOL  insertGameObjectIntoGameData(CONST GAME_OBJECT*  pGameObject)
 ///                                 NB: ObjectNames are stored using the MainType for primary key and SubType for secondary
 // 
 // CONST FILE_SYSTEM*  pFileSystem  : [in]     FileSystem object
-// HWND                hParentWnd   : [in]     Window to handle WM_PROCESSING_ERROR messages
+// HWND                hParentWnd   : [in]     Ignored
 // OPERATION_PROGRESS* pProgress    : [in]     Operation progress
 // ERROR_QUEUE*        pErrorQueue  : [in/out] Error messages, if any
 // 
 /// [Operation Stages : ONE]
 //
-// Return type : OR_SUCCESS - GameObjectName trees were created succesfully. If there were any minor errors the user ignored them.
-//               OR_FAILURE - GameObjectName trees were NOT created due to critical errors (missing files)
-//               OR_ABORTED - GameObjectName trees were NOT created due to the user aborting after minor errors
+// Return type : OR_SUCCESS - GameObjectName trees were created succesfully. 
+//               OR_FAILURE - Some GameObjectName trees may have been created
 //
 OPERATION_RESULT  loadGameObjectTrees(CONST FILE_SYSTEM*  pFileSystem, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
-   OPERATION_RESULT       eResult;           // Operation result
-   CONST GAME_DATA_FILE*  pFileInfo;         // Properties of the current TypesFile (T-File)
-   GAME_FILE*             pGameFile;         // TFile being processed
+   OPERATION_RESULT       eResult = OR_SUCCESS; // Operation result
+   CONST GAME_DATA_FILE*  pFileInfo;            // Properties of the current TypesFile (T-File)
+   GAME_FILE*             pGameFile;            // TFile being processed
    CONST TCHAR*           szSubPath;
    
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
-   
-   // [STAGE] Define progress as the number of T-Files processed
-   ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_OBJECT_NAMES);
-   updateOperationProgressMaximum(pProgress, iObjectNameFileCount);
-
-   // Prepare
-   eResult = OR_SUCCESS;
-   
-   /// Create the GameObject trees
-   getGameData()->pGameObjectsByMainType = createGameObjectTreeByMainType();
-   getGameData()->pGameObjectsByText     = createGameObjectTreeByText();
-
-   /// Load and parse each T-File.  Stop if the user aborts
-   for (MAIN_TYPE  eObjectType = MT_DOCK; (eResult == OR_SUCCESS) AND (eObjectType <= MT_WARE_TECHNOLOGY) AND findGameObjectDataFileByMainType(eObjectType, pFileInfo); eObjectType = (MAIN_TYPE)(eObjectType + 1))
+   __try
    {
-      // [INFO/PROGRESS]
-      VERBOSE_HEADING("Loading object definition file '%s'", findGameObjectDataFileSubPathByMainType(eObjectType, getAppPreferences()->eGameVersion));
-      advanceOperationProgressValue(pProgress);
-
-      // Prepare
-      szSubPath = findGameObjectDataFileSubPathByMainType(eObjectType, getAppPreferences()->eGameVersion);
-      pGameFile = createGameFileFromSubPath(szSubPath);      
-
-      /// Load T-File
-      if (!loadGameFileFromFileSystemByPath(pFileSystem, pGameFile, pFileInfo->szAlternateExtension, pErrorQueue))
-      {
-         // [ERROR] "There was an error while loading object properties from the TFile '%s', please check the file exists."
-         enhanceLastError(pErrorQueue, ERROR_ID(IDS_TFILE_IO_ERROR), szSubPath);
-         generateOutputTextFromLastError(pErrorQueue);
-
-         // Return FAILURE
-         eResult = OR_FAILURE;
-      }
-      else
-         /// Generate new ObjectNames from current TFile
-         eResult = generateGameObjectsFromTypeFile(pGameFile->szInputBuffer, szSubPath, pFileInfo, hParentWnd, pErrorQueue);
+      CONSOLE_STAGE();
       
-      // Cleanup
-      deleteGameFile(pGameFile);
-   } 
+      // [STAGE] Define progress as the number of T-Files processed
+      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_OBJECT_NAMES);
+      updateOperationProgressMaximum(pProgress, iObjectNameFileCount);
+      
+      /// Create the GameObject trees
+      getGameData()->pGameObjectsByMainType = createGameObjectTreeByMainType();
+      getGameData()->pGameObjectsByText     = createGameObjectTreeByText();
 
-   /// Print result to logfile
-   switch (eResult)
-   {
-   // [SUCCESS] Process reverse-lookup tree
-   case OR_SUCCESS:  VERBOSE_HEADING("Loaded %d Game Objects with %d failures", getTreeNodeCount(getGameData()->pGameObjectsByMainType), getTreeNodeCount(getGameData()->pGameObjectsByMainType) - getTreeNodeCount(getGameData()->pGameObjectsByText));  break;
-   // [ABORT] User aborted due to non-critical errors
-   case OR_ABORTED:  VERBOSE_HEADING("ABORT: ObjectNames were not loaded because user aborted due to a non-critical error");     break;
-   // [FAILURE] Syntax error or missing T-File
-   case OR_FAILURE:  VERBOSE_HEADING("ERROR: ObjectNames were not loaded due to a critical error.");      break;
+      /// Load and parse each T-File.  Stop if the user aborts
+      for (MAIN_TYPE  eObjectType = MT_DOCK; (eResult == OR_SUCCESS) AND (eObjectType <= MT_WARE_TECHNOLOGY) AND findGameObjectDataFileByMainType(eObjectType, pFileInfo); eObjectType = (MAIN_TYPE)(eObjectType + 1))
+      {
+         // [INFO/PROGRESS]
+         CONSOLE("Loading object definition file '%s'", findGameObjectDataFileSubPathByMainType(eObjectType, getAppPreferences()->eGameVersion));
+         advanceOperationProgressValue(pProgress);
+
+         // Prepare
+         szSubPath = findGameObjectDataFileSubPathByMainType(eObjectType, getAppPreferences()->eGameVersion);
+         pGameFile = createGameFileFromSubPath(szSubPath);      
+
+         /// Load T-File
+         if (!loadGameFileFromFileSystemByPath(pFileSystem, pGameFile, pFileInfo->szAlternateExtension, pErrorQueue))
+         {
+            // No enhancement necessary
+            generateOutputTextFromLastError(pErrorQueue);            // [ERROR] "There was an error while loading object properties from the TFile '%s', please check the file exists."
+            eResult = OR_FAILURE;                                    // enhanceLastError(pErrorQueue, ERROR_ID(IDS_TFILE_IO_ERROR), szSubPath);
+         }
+         else
+            /// Generate new ObjectNames from current TFile
+            eResult = generateGameObjectsFromTypeFile(pGameFile->szInputBuffer, szSubPath, pFileInfo, hParentWnd, pErrorQueue);
+         
+         // Cleanup
+         deleteGameFile(pGameFile);
+         CONSOLE(SMALL_PARTITION);
+      } 
+
+      CONSOLE_HEADING("Loaded %d Game Objects with %d failures", getTreeNodeCount(getGameData()->pGameObjectsByMainType), getTreeNodeCount(getGameData()->pGameObjectsByMainType) - getTreeNodeCount(getGameData()->pGameObjectsByText));
+
+      /// [SUCCESS] Index the reverse-lookup tree
+      if (eResult == OR_SUCCESS)
+         performAVLTreeIndexing(getGameData()->pGameObjectsByText);
+
+      // Return operation result
+      return eResult;
    }
-
-   /// [SUCCESS] Index the reverse-lookup tree
-   if (eResult == OR_SUCCESS)
-      performAVLTreeIndexing(getGameData()->pGameObjectsByText);
-
-   // Return operation result
-   END_TRACKING();
-   return eResult;
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION1("Unable to load game object names from '%s'", pGameFile ? pGameFile->szFullPath : NULL);
+      return OR_FAILURE;
+   }
 }
 
 

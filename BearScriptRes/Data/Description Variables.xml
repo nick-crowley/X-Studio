@@ -6,6 +6,8 @@
 
 <!--Headings-->
 <t id="HEADING" parameters="1">[b][u]%s:[/u][/b]</t>                            <!--  {HEADING:szText}        Format headings in bold with underline -->
+<t id="SUBMISSION" parameters="1">[right][i](Submitted by %s)[/i][/right]</t>   <!--  {SUBMISSION:szText}     Format credits in right-aligned italics -->
+<t id="CORRECTION" parameters="1">[right][i](Updated by %s)[/i][/right]</t>     <!--  {CORRECTION:szText}     Format credits in right-aligned italics -->
 
 <!--Formatting Types-->
 <t id="VALUE" parameters="1">[b][red]`%s`[/red][/b]</t>                         <!--  {VALUE:szValue}         Format values in red  -->
@@ -37,6 +39,7 @@
 <t id="ASTEROIDS">{TYPE:asteroids}</t>
 <t id="ASTRONAUT">{TYPE:astronaut}</t>
 <t id="ASTRONAUTS">{TYPE:astronauts}</t>
+<t id="CORPORATION">{TYPE:corporation}</t>
 <t id="DEBRIS">{TYPE:debris}</t>
 <t id="DOCK">{TYPE:dock}</t>
 <t id="DOCKS">{TYPE:docks}</t>
@@ -88,6 +91,8 @@
 <t id="SUNS">{TYPE:suns}</t>
 <t id="TURRET">{TYPE:turret}</t>
 <t id="TURRETS">{TYPE:turrets}</t>
+<t id="WING">{TYPE:wing}</t>
+<t id="WINGS">{TYPE:wings}</t>
 <t id="WARE">{TYPE:ware}</t>
 <t id="WARES">{TYPE:wares}</t>
 
@@ -117,6 +122,7 @@
 <t id="OWNEDBY">{PROPERTY:owned by}</t>
 <t id="MANUFACTUREDBY">{PROPERTY:manufactured by}</t>
 <t id="SECURITY">{PROPERTY:security}</t> 
+<t id="NOTORIETY">{PROPERTY:notoriety}</t>
 <t id="PRODUCTS">{PROPERTY:products}</t>
 <t id="PRODUCT">{PROPERTY:product}</t>
 <t id="RESOURCES">{PROPERTY:resources}</t>
@@ -169,6 +175,7 @@
 <t id="X_SERIES">{TERMINOLOGY:X-Series}</t>
 <t id="X_STUDIO">{TERMINOLOGY:X-Studio}</t>
 <t id="EXSCRIPTOR">{TERMINOLOGY:eXscriptor}</t>
+<t id="MD">{TERMINOLOGY:Mission Director}</t>
 <t id="MSCI">{TERMINOLOGY:M.S.C.I.}</t>
 <t id="X2">{TERMINOLOGY:X² - The Threat}</t>
 <t id="X3R">{TERMINOLOGY:X³ - Reunion}</t>
@@ -194,7 +201,7 @@
 Macros are not real commands, they are convenient placeholders for a small series of commands.  As such they will appear in EXSCRIPTOR and MSCI as an ordinary block of commands.  This macro will appear as:</t>
 
 
-<t id="UNDOCUMENTED">[b][red]The functionality of this command is unknown.[/b][/red]
+<t id="UNDOCUMENTED">[b][red]The functionality of this command is unknown.[/red][/b]
 
 If you know how this command works, please right-click on this command and click `Submit Correction`.</t>
 
@@ -207,6 +214,10 @@ If you know how this command works, please right-click on this command and click
 
 The code below will not copy the contents of the array {VARIABLE:$aShips}, it will link {VARIABLE:$aShipsCopy} to the contents of the array {VARIABLE:$aShips} so that any changes to the array will be reflected in both variables.
 [center]{VARIABLE:$aShipsCopy} = {VARIABLE:$aShips}[/center]</t>
+
+
+<!--Asteroids-->
+<t id="ABOUT_MINERAL_TYPES">The {PROPERTY:mineral type} is the SUBTYPE of a WARE from the 'WareM' TFILE, the default values are: [center]{OBJECT:Ore} = 0\t{OBJECT:Silicon} = 1\t{OBJECT:Nvidium} = 2\t{OBJECT:Ice} = 3[/center]</t>
 
 
 
@@ -225,6 +236,18 @@ In the vanilla map, each {PROPERTY:jump gate ID} corresponds to the direction of
 
 
 <!--Game Concepts-->
+
+<t id="ABOUT_AL_PLUGINS">{HEADING:Artificial Life Plugins}
+
+ AL_PLUGINS are scripts that are called by the game engine in response to a timer to create the illusion of a changing galaxy.  The events are listed below:
+
+{CONSTANT:init} - User started a new game
+{CONSTANT:reinit} - User loaded a save game
+{CONSTANT:start} - User has commanded plugin to start
+{CONSTANT:stop} - User has commanded plugin to stop
+{CONSTANT:timer} - Sent every x seconds so plugin can perform tasks
+{CONSTANT:isenabled} - Queries whether the plugin is enabled</t>
+
 <t id="ABOUT_ENVIRONMENT">{HEADING:Environment}
 
 The {CONSTANT:\[ENVIRONMENT\]} constant reflects the container of an OBJ.  If an OBJ is in space then the {PROPERTY:environment} is the SECTOR, if an OBJ is DOCKED then the {PROPERTY:environment} is the {CLASS:Carrier} or STATION with which it is DOCKED.</t>
@@ -240,8 +263,9 @@ The {PROPERTY:main turret} on any SHIP is always TURRET zero.</t>
 <t id="ABOUT_LOCAL_AND_GLOBAL_VARIABLES">{HEADING:Local and Global Variables}
 
 You can store any value in a SHIP or STATION using a {PROPERTY:local variable}.  This value will remain until you alter it, or the OBJ is destroyed.  Each {PROPERTY:local variable} within an OBJ must have a unique name.
+Only {TERMINOLOGY:Albion Prelude 2.5.3} or newer will allow you to store values in SECTORS.
 
-You can store any value into the game universe using a {PROPERTY:global variable}.  This value will remain until you set it to NULL.  Each {PROPERTY:global variable} must have a unique name.</t>
+You can store any value into the game universe using a {PROPERTY:global variable}.  This value will remain until you set it to NULL.  Each {PROPERTY:global variable} must have a unique name.{CORRECTION:Jack08}</t>
 
 
 <t id="ABOUT_MAINTYPES_AND_SUBTYPES">{HEADING:MainTypes and SubTypes}
@@ -253,31 +277,33 @@ This only defines the OBJTYPE of an OBJ - each {TYPE:Firefly Missile} fired in t
 
 <t id="ABOUT_NOTORIETY">{HEADING:Notoriety}
 
-{PROPERTY:Notoriety} determines how friendly a RACE is towards another race.  It is reflected in the following rankings:
+{PROPERTY:Notoriety} determines how friendly a RACE, CORPORATION or the player is towards another RACE.  These values also define the player`s {PROPERTY:trade rank}, {PROPERTY:fight rank} and {PROPERTY:mission rank}, although the titles used for each type are different.
 
-{PROPERTY:Race Rank} {VARIABLE:-4} = {PROPERTY:Notoriety} less than -100,000
-{PROPERTY:Race Rank} {VARIABLE:-3} = {PROPERTY:Notoriety} less than -10,000
-{PROPERTY:Race Rank} {VARIABLE:-2} = {PROPERTY:Notoriety} less than -1,000
-{PROPERTY:Race Rank} {VARIABLE:-1} = {PROPERTY:Notoriety} less than -100
-{PROPERTY:Race Rank}  {VARIABLE:0} = {PROPERTY:Notoriety} less than -10
-{PROPERTY:Race Rank}  {VARIABLE:1} = {PROPERTY:Notoriety} between -10 and 10
-{PROPERTY:Race Rank}  {VARIABLE:2} = {PROPERTY:Notoriety} greater than 10
-{PROPERTY:Race Rank}  {VARIABLE:3} = {PROPERTY:Notoriety} greater than 40
-{PROPERTY:Race Rank}  {VARIABLE:4} = {PROPERTY:Notoriety} greater than 100
-{PROPERTY:Race Rank}  {VARIABLE:5} = {PROPERTY:Notoriety} greater than 400
-{PROPERTY:Race Rank}  {VARIABLE:6} = {PROPERTY:Notoriety} greater than 1,000
-{PROPERTY:Race Rank}  {VARIABLE:7} = {PROPERTY:Notoriety} greater than 3,000
-{PROPERTY:Race Rank}  {VARIABLE:8} = {PROPERTY:Notoriety} greater than 10,000
-{PROPERTY:Race Rank}  {VARIABLE:9} = {PROPERTY:Notoriety} greater than 30,000
-{PROPERTY:Race Rank} {VARIABLE:10} = {PROPERTY:Notoriety} greater than 10,0000
-{PROPERTY:Race Rank} {VARIABLE:11} = {PROPERTY:Notoriety} greater than 350,000
+{HEADING:Notoriety Ranks}
+
+Rank index {CONSTANT:-5} = Raw value between -1,000,000 and -100,000
+Rank index {CONSTANT:-4} = Raw value between -100,000 and -10,000
+Rank index {CONSTANT:-3} = Raw value between -10,000 and -1,000
+Rank index {CONSTANT:-2} = Raw value between -1,000 and -100
+Rank index {CONSTANT:-1} = Raw value between -100 and -10
+Rank index  {CONSTANT:0} = Raw value between -10 and +10
+Rank index  {CONSTANT:1} = Raw value between 10 and 33
+Rank index  {CONSTANT:2} = Raw value between 33 and 100
+Rank index  {CONSTANT:3} = Raw value between 100 and 333
+Rank index  {CONSTANT:4} = Raw value between 333 and 1,000
+Rank index  {CONSTANT:5} = Raw value between 1,000 and 3,333
+Rank index  {CONSTANT:6} = Raw value between 3,333 and 10,000
+Rank index  {CONSTANT:7} = Raw value between 10,000 and 33,333
+Rank index  {CONSTANT:8} = Raw value between 33,333 and 100,000
+Rank index  {CONSTANT:9} = Raw value between 100,000 and 333,333
+Rank index {CONSTANT:10} = Raw value between 333,333 and 1,000,000
 
 {HEADING:Effects of Rank}
 
-At {PROPERTY:Race Rank} -3 or below, SHIPS are attacked in {PROPERTY:border sectors}
-At {PROPERTY:Race Rank} -2 or below, SHIPS are attacked in {PROPERTY:core sectors}
-At {PROPERTY:Race Rank} 0 or above, SHIPS may dock in {PROPERTY:border sectors}
-At {PROPERTY:Race Rank} 1 or above, SHIPS may dock in {PROPERTY:core sectors}</t>
+At rank index {CONSTANT:-3} or below, SHIPS are attacked in {PROPERTY:border sectors}
+At rank index {CONSTANT:-2} or below, SHIPS are attacked in {PROPERTY:core sectors}
+At rank index {CONSTANT:0} or above, SHIPS may dock in {PROPERTY:border sectors}
+At rank index {CONSTANT:1} or above, SHIPS may dock in {PROPERTY:core sectors}</t>
 
 
 <t id="ABOUT_OBJECT_CLASSES">{HEADING:Object Classes}
@@ -514,12 +540,12 @@ This command is compatible with: {%s}.</t>
 <t id="COMPATIBILITY_2" parameters="2">{HEADING:Compatibility}
 
 This is one of the few commands Egosoft modified over the course of the X_SERIES.
-This command is compatible with: {%s}, {%s}.</t>
+This command is compatible with: {%s} and {%s}.</t>
 
 <t id="COMPATIBILITY_3" parameters="3">{HEADING:Compatibility}
 
 This is one of the few commands Egosoft modified over the course of the X_SERIES.
-This command is compatible with: {%s}, {%s}, {%s}.</t>
+This command is compatible with: {%s}, {%s} and {%s}.</t>
 
 <t id="COMMAND_NAME_CHANGED" parameters="1">{HEADING:X-Studio Specific}
 
@@ -577,7 +603,7 @@ Original command name: {COMMAND:%s}</t>
 
 <t id="SEARCH_BY_QUANITY_BUY" parameters="2">Only return %s willing to buy a {PROPERTY:ware quantity} of $%s units or more</t>
 <t id="SEARCH_BY_QUANITY_SELL" parameters="2">Only return %s with a {PROPERTY:ware quantity} of $%s units or more</t>
-
+<t id="SEARCH_BY_TRADER" parameters="2">Only return {PROPERTY:known} %s at which $%s may dock and trade</t>
 
 
 <!--Search Command Flags-->
@@ -590,6 +616,12 @@ Original command name: {COMMAND:%s}</t>
 <t id="FLAG_VISIBLE" parameters="2">{CONSTANT:\[Find.Visible\]} - Return %s that are within scanner range of the {TYPE:object} $%s</t>
 
 <t id="FLAG_KNOWN" parameters="1">{CONSTANT:\[Find.Known\]} - Return %s that are known to the player</t>
+
+<t id="FLAG_RACE_LOGIC">{CONSTANT:\[Find.RaceLogicEnabled\]} - Return only SHIPS that have {PROPERTY:race logic} enabled</t>
+
+<t id="FLAG_INCLUDE_DOCKED">{CONSTANT:\[Find.IncludeDocked\]} - Return SHIPS that are currently docked</t>
+
+<t id="FLAG_WING_ONLY">{CONSTANT:\[Find.WingOnly\]} - Return only SHIPS that are part of a WING</t>
 
 <t id="FLAG_EXACT_JUMPS" parameters="2">{CONSTANT:\[Find.ExactJumps\]} - Return %s with a precise {PROPERTY:jump distance} of $%s</t>
 
@@ -615,6 +647,8 @@ Original command name: {COMMAND:%s}</t>
 <t id="FLAGS_COMBINING" parameters="2">{TERMINOLOGY:Search flags} can be combined using the {TERMINOLOGY:bitwise-or} operator but you must save them in a variable before use. eg. {VARIABLE:$iFlags} = {CONSTANT:\[Find.%s\]} | {CONSTANT:\[Find.%s\]}</t>
 
 <t id="FLAGS_DEPENDENCY" parameters="2">{CONSTANT:\[Find.%s\]} requires you also use {CONSTANT:\[Find.%s\]}</t>
+
+<t id="FLAGS_MULTIPLE_NEAREST">Combining {CONSTANT:\[Find.Multiple\]} and {CONSTANT:\[Find.Nearest\]} sorts the results by ascending {PROPERTY:distance}.</t>
 
 <t id="FLAGS_MUTUTALLY_EXCLUSIVE_2" parameters="2">{CONSTANT:\[Find.%s\]} and {CONSTANT:\[Find.%s\]} are mutually exclusive</t>
 

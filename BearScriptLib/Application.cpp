@@ -67,6 +67,17 @@ BOOL  getAppError(CONST APPLICATION_ERROR  eError)
 }
 
 
+/// Function name  : getAppFolder
+// Description     : Global access to the application folder
+// 
+// Return Value   : Application folder path (Guaranteed to have a trailing backslash)
+// 
+BearScriptAPI
+const TCHAR*  getAppFolder()
+{
+   return pApplication->szFolder;
+}
+
 /// Function name  : getAppInstance
 // Description     : Global access to the application instance
 // 
@@ -194,6 +205,7 @@ CONST TCHAR*  getAppRegistrySubKey(CONST APPLICATION_REGISTRY_KEY  eSubKey)
    case ARK_CURRENT_SCHEME:  szOutput = TEXT("CurrentScheme");    break;
    case ARK_SCHEME_LIST:     szOutput = TEXT("ColourSchemes");    break;
    case ARK_RECENT_FILES:    szOutput = TEXT("MRU");              break;
+   case ARK_RECENT_FOLDERS:  szOutput = TEXT("Folders");          break;
    }
    
    // Return result
@@ -222,6 +234,32 @@ BearScriptAPI
 APPLICATION_STATE  getAppState()
 {
    return pApplication->eState;
+}
+
+
+/// Function name  : getAppThemeBrush
+// Description     : Retrieves a themed system colour brush
+// 
+// const UINT  iSysColour : [in] System colour
+//
+// Return Value : Brush
+// 
+BearScriptAPI  
+HBRUSH  getAppThemeBrush(const UINT  iSysColour)
+{
+   return pApplication->hBrushes[iSysColour <= COLOR_MENUBAR ? iSysColour : NULL];
+}
+
+
+/// Function name  : getAppVersion
+// Description     : Global access to the app version
+// 
+// Return Value   : App version
+// 
+BearScriptAPI 
+APPLICATION_VERSION  getAppVersion()
+{
+   return pApplication->eVersion;
 }
 
 
@@ -438,6 +476,7 @@ VOID  setAppError(CONST APPLICATION_ERROR  eError)
 BearScriptAPI
 VOID   setAppState(CONST APPLICATION_STATE  eNewState)
 {
+   CONSOLE("Changing Application state from %d to %d", pApplication->eState, eNewState);
    // Save new state
    pApplication->eState = eNewState;
 }
@@ -482,5 +521,46 @@ VOID  setFileSystem(FILE_SYSTEM*  pFileSystem)
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : generateAppThemeBrushes
+// Description     : Creates/Destroys app theme brushes
+//
+// const BOOL  bCreate : [in] TRUE to create, FALSE to destroy
+// 
+BearScriptAPI
+VOID  generateAppThemeBrushes(const BOOL  bCreate)
+{
+   for (UINT  iColour = 0; iColour <= COLOR_MENUBAR; iColour++)
+   {
+      // [DESTROY]
+      if (!bCreate AND pApplication->hBrushes[iColour])
+         DeleteBrush(pApplication->hBrushes[iColour]);
 
+      // [CREATE]
+      if (bCreate)
+         pApplication->hBrushes[iColour] = getThemeSysColourBrush(TEXT("Window"), iColour);
+   }
+}
+
+
+/// Function name  : getThemeSysColourBrush
+// Description     : Retrieves system colour brush
+// 
+// const TCHAR*  szClass    : [in] Class name
+// const int     iSysColour : [in] System colour
+// 
+// Return Value   : Brush, must be destroyed
+//
+/// [HACK] I have moved this from Controls->Logic library so it can be used by generateAppThemeBrushes()
+// 
+BearScriptAPI
+HBRUSH  getThemeSysColourBrush(const TCHAR*  szClass, const int  iSysColour)
+{
+   // Lookup brush
+   HTHEME hTheme = (IsThemeActive() ? OpenThemeData(getAppWindow(), szClass) : NULL);
+   HBRUSH hBrush = GetThemeSysColorBrush(hTheme, iSysColour);
+
+   // Return brush
+   CloseThemeData(hTheme);
+   return hBrush;
+}
 

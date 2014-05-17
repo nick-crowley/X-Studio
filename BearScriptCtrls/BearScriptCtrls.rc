@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,4,0,0
- PRODUCTVERSION 0,4,0,0
+ FILEVERSION 1,0,0,8
+ PRODUCTVERSION 1,0,0,8
  FILEFLAGSMASK 0x37L
 #ifdef _DEBUG
  FILEFLAGS 0x23L
@@ -71,13 +71,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "For more information visit http://forum.egosoft.com/viewtopic.php?t=301433"
             VALUE "FileDescription", "X-Studio: Custom Controls Library"
-            VALUE "FileVersion", "Beta IV"
+            VALUE "FileVersion", "1.08"
             VALUE "InternalName", "BearScriptCtrls"
-            VALUE "LegalCopyright", "Copyright © 2012 Mister Bear"
+            VALUE "LegalCopyright", "Copyright © 2012-2014 Mister Bear"
             VALUE "OriginalFilename", "X-Studio.Controls.dll"
             VALUE "ProductName", "X-Studio: X² and X³ Integrated Development Environment"
-            VALUE "ProductVersion", "Beta IV"
-            VALUE "SpecialBuild", "X-Universe forums pre-release"
+            VALUE "ProductVersion", "1.08"
         END
     END
     BLOCK "VarFileInfo"

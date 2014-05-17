@@ -22,13 +22,13 @@
 // 
 // Return Value   : IDOK or IDCANCEL
 // 
-BOOL   displayBugReportDialog(HWND  hParentWnd, CONST BOOL  bManualInvoke)
+BOOL   displayBugReportDialog(HWND  hParent, CONST BOOL  bManualInvoke)
 {
    // [VERBOSE]
-   VERBOSE_UI_COMMAND();
+   CONSOLE_ACTION_BOLD();
 
    // Display modal dialog box and return result
-   return DialogBoxParam(getResourceInstance(), TEXT("BUG_REPORT_DIALOG"), hParentWnd, dlgprocBugReportDialog, bManualInvoke);
+   return showDialog(TEXT("BUG_REPORT_DIALOG"), utilEither(hParent, utilGetTopWindow(getAppWindow())), dlgprocBugReportDialog, bManualInvoke);
 }
 
 
@@ -40,9 +40,6 @@ BOOL   displayBugReportDialog(HWND  hParentWnd, CONST BOOL  bManualInvoke)
 // 
 VOID   initBugReportDialog(HWND  hDialog, CONST BOOL  bManualInvoke)
 {
-   CONST TCHAR*  szManualInvokeText = TEXT("You can manually submit a bug report if the program has displayed unexpected behaviour. ")
-                                      TEXT("Click the 'Submit' button to transmit the report to the author for analysis.");
-
    /// Populate error causes
    for (APPLICATION_ERROR  eErrorType = AE_ACCESS_VIOLATION; eErrorType <= AE_LOAD_SCRIPT; eErrorType = (APPLICATION_ERROR)(eErrorType + 1))
       // Check/Uncheck associated CheckBox
@@ -59,7 +56,7 @@ VOID   initBugReportDialog(HWND  hDialog, CONST BOOL  bManualInvoke)
 
    // [MANUAL INVOKE] Display slightly different description
    if (bManualInvoke)
-      SetDlgItemText(hDialog, IDC_SUBMISSION_DESCRIPTION_STATIC, szManualInvokeText);
+      SetDlgItemText(hDialog, IDC_SUBMISSION_DESCRIPTION_STATIC, loadTempString(IDS_GENERAL_BUG_REPORT_MANUAL));
 
    // [DIALOG] Center dialog and set text
    utilCentreWindow(getAppWindow(), hDialog);
@@ -156,27 +153,30 @@ VOID  onBugReportDialogOK(HWND  hDialog)
 // 
 VOID  onBugReportDialogViewReport(HWND  hDialog)
 {
-   TCHAR   *szNotepadPath,       // Full path to 'notepad.exe'
+   TCHAR   *szViewerPath,        // Full path to 'notepad.exe'
            *szConsoleLogPath;    // Full path to 'console.log'
+   int      iResult;
 
    // [VERBOSE]
-   VERBOSE_UI_COMMAND();
-
-   // Prepare
-   szNotepadPath = utilCreateEmptyPath();
+   CONSOLE_ACTION();
 
    // Generate path to 'Notepad.exe'
-   GetWindowsDirectory(szNotepadPath, MAX_PATH);
-   PathAppend(szNotepadPath, TEXT("notepad.exe"));
+   /*GetWindowsDirectory(szViewerPath = utilCreateEmptyPath(), MAX_PATH);
+   PathAppend(szViewerPath, TEXT("notepad.exe"));*/
 
-   // Generate path to 'Console.log'
-   szConsoleLogPath = generateConsoleLogFilePath();
+   // Generate path to 'ConsoleViewer.exe'
+   szViewerPath = utilGenerateAppFilePath(TEXT("LogViewer.exe"));
 
-   /// Launch Console.log in notepad
-   ShellExecute(hDialog, TEXT("open"), szNotepadPath, szConsoleLogPath, NULL, SW_SHOWNORMAL);
+   /// Launch Console.log in viewer
+   switch (iResult = (int)ShellExecute(hDialog, TEXT("open"), szViewerPath, szConsoleLogPath = generateConsoleLogFilePath(), NULL, SW_SHOWNORMAL))
+   {
+   case ERROR_FILE_NOT_FOUND:     
+   case ERROR_PATH_NOT_FOUND:     CONSOLE_ERROR2("Cannot find file '%s' or '%s'", szViewerPath, szConsoleLogPath);            break;
+   default:  if (iResult <= 32)   CONSOLE_ERROR2("Unspecified error opening '%s' or '%s'", szViewerPath, szConsoleLogPath);   break;
+   }
 
-   // Cleanup and return TRUE
-   utilDeleteStrings(szConsoleLogPath, szNotepadPath);
+   // Cleanup
+   utilDeleteStrings(szConsoleLogPath, szViewerPath);
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////

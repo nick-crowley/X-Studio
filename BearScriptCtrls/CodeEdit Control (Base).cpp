@@ -7,6 +7,9 @@
 
 #include "stdafx.h"
 
+// onException: Pass to MainWindow for display
+#define  ON_EXCEPTION()         debugCodeEditData(pWindowData);  SendMessage(getAppWindow(), UN_CODE_EDIT_EXCEPTION, NULL, (LPARAM)pException);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -53,17 +56,13 @@ VOID  calculateCodeEditPageSize(CODE_EDIT_DATA*  pWindowData)
 // 
 VOID  calculateCodeEditScrollBarLimits(CODE_EDIT_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// [HORIZONTAL] Length of longest line converted into average character widths + plus 40 widths
    pWindowData->ptLastCharacter.iIndex = (pWindowData->iLongestLine / pWindowData->siCharacterSize.cx) + 40;
 
    /// [VERTICAL] Number of lines + half a page
    pWindowData->ptLastCharacter.iLine = getCodeEditLineCount(pWindowData) + (pWindowData->siPageSize.cy / 2);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -164,7 +163,6 @@ UINT  getCodeEditLineLengthByIndex(CONST CODE_EDIT_DATA*  pWindowData, CONST UIN
    UINT             iLength;
 
    // Prepare
-   TRACK_FUNCTION();
    iLength = NULL;
    
    // Calculate result from LineData if found
@@ -172,7 +170,6 @@ UINT  getCodeEditLineLengthByIndex(CONST CODE_EDIT_DATA*  pWindowData, CONST UIN
       iLength = getCodeEditLineLength(pLineData);
 
    // Return length
-   END_TRACKING();
    return iLength;
 }
 
@@ -256,7 +253,6 @@ VOID  calculateCodeEditDisplayRectangle(HDC  hDC, CONST CODE_EDIT_LINE*  pLineDa
          *szLineText;         // Used for measuring the text of an entire line
 
    // Prepare
-   TRACK_FUNCTION();
    utilConvertRectangleToSize(&rcLineRect, &siLineSize);
 
    // Examine required constant
@@ -315,8 +311,6 @@ VOID  calculateCodeEditDisplayRectangle(HDC  hDC, CONST CODE_EDIT_LINE*  pLineDa
       break;
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -332,9 +326,7 @@ VOID  calculateCodeEditLineRectangle(CONST CODE_EDIT_DATA*  pWindowData, UINT  i
    RECT   rcClientRect;    // Client rectangle
    POINT  ptDrawOrigin;    // Top-left corner of the first visible line, in client co-ordinates
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    GetClientRect(pWindowData->hWnd, &rcClientRect);
 
@@ -345,8 +337,6 @@ VOID  calculateCodeEditLineRectangle(CONST CODE_EDIT_DATA*  pWindowData, UINT  i
    // Create line rectangle from the origin above
    SetRect(pOutput, ptDrawOrigin.x, ptDrawOrigin.y, rcClientRect.right, ptDrawOrigin.y + pWindowData->siCharacterSize.cy);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -371,7 +361,6 @@ BOOL  calculateCodeEditLocationFromPoint(CONST CODE_EDIT_DATA*  pWindowData, CON
    HDC              hDC;             // CodeEdit window DC for calculating text size
 
    // Prepare
-   TRACK_FUNCTION();
    hDC = GetDC(pWindowData->hWnd);
    GetClientRect(pWindowData->hWnd, &rcClientRect);
    
@@ -407,7 +396,6 @@ BOOL  calculateCodeEditLocationFromPoint(CONST CODE_EDIT_DATA*  pWindowData, CON
    
    // Cleanup and return result
    ReleaseDC(pWindowData->hWnd, hDC);
-   END_TRACKING();
    return bResult;
 }
 
@@ -426,7 +414,6 @@ VOID  calculateCodeEditMaximumLineLength(CODE_EDIT_DATA*  pWindowData, CONST UIN
    HDC   hDC;           // Destination device context
 
    // Prepare
-   TRACK_FUNCTION();
    hDC = GetDC(pWindowData->hWnd);
 
    /// Get text rectangle to input line, which defines it's length in pixels
@@ -445,7 +432,6 @@ VOID  calculateCodeEditMaximumLineLength(CODE_EDIT_DATA*  pWindowData, CONST UIN
 
    // Cleanup
    ReleaseDC(pWindowData->hWnd, hDC);
-   END_TRACKING();
 }
 
 
@@ -469,9 +455,7 @@ BOOL  calculateCodeEditPointFromLocation(CONST CODE_EDIT_DATA*  pWindowData, CON
    BOOL              bResult;       // Operation result
    HDC               hDC;           // CodeEdit window DC
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Lookup line data for the input line
    if (bResult = findCodeEditLineDataByIndex(pWindowData, ptLocation->iLine, pLineData))
    {
@@ -499,7 +483,6 @@ BOOL  calculateCodeEditPointFromLocation(CONST CODE_EDIT_DATA*  pWindowData, CON
       ptOutput->x = ptOutput->y = NULL;
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -517,7 +500,6 @@ UINT  calculateCodeEditSelectionLength(CONST CODE_EDIT_DATA*  pWindowData)
    UINT                  iLength;     // Operation result
 
    // Prepare
-   TRACK_FUNCTION();
    iLength = NULL;
 
    // [CHECK] Ensure selection exists
@@ -537,7 +519,6 @@ UINT  calculateCodeEditSelectionLength(CONST CODE_EDIT_DATA*  pWindowData)
    }
 
    // Return selection length, or NULL
-   END_TRACKING();
    return iLength;
 }
 
@@ -635,7 +616,6 @@ VOID  drawCodeEditLine(HDC  hDC, CONST COLOUR_SCHEME*  pColourScheme, CONST SCRI
    TCHAR            szIndicator[8];    // Temporary buffer for formatting the line number and interrupt indicator
 
    // Prepare
-   TRACK_FUNCTION();
    hBackgroundBrush = CreateSolidBrush(getInterfaceColour(pColourScheme->eBackgroundColour));
    SetBkMode(hDC, TRANSPARENT);
 
@@ -731,7 +711,6 @@ VOID  drawCodeEditLine(HDC  hDC, CONST COLOUR_SCHEME*  pColourScheme, CONST SCRI
    
    // Cleanup
    DeleteObject(hBackgroundBrush);
-   END_TRACKING();
 }
 
 
@@ -751,7 +730,6 @@ VOID  drawCodeEditLineSquiggle(HDC  hDC, CONST CODE_EDIT_SQUIGGLE  eSquiggle, CO
    RECT        rcDrawRect;    // Squiggle drawing rectangle
 
    // Prepare
-   TRACK_FUNCTION();
    hBitmap = LoadBitmap(getResourceInstance(), TEXT("SQUIGGLE_PATTERN"));
    hBrush  = CreatePatternBrush(hBitmap);
 
@@ -772,7 +750,6 @@ VOID  drawCodeEditLineSquiggle(HDC  hDC, CONST CODE_EDIT_SQUIGGLE  eSquiggle, CO
    SelectObject(hDC, GetStockObject(WHITE_BRUSH));
    DeleteObject(hBrush);
    DeleteObject(hBitmap);
-   END_TRACKING();
 }
 
 
@@ -842,12 +819,11 @@ VOID  drawCodeEditLineSquiggle(HDC  hDC, CONST CODE_EDIT_SQUIGGLE  eSquiggle, CO
 // 
 VOID  ensureCodeEditLocationIsVisible(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LOCATION*  ptLocation)
 {
+   const INT  SNAP_DIST = 30; // Distance to scroll the window when cursor hits left/right edge
+
    POINT  ptPoint;            // Input location in client co-ordinates
    UINT   iHorizontalTarget;  // Input character index converted into horizontal scroll units (average character widths)
-
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Since the horizontal scroll units are average character widths and the desired location is in character
    //  -> indicies, they are not equal.  Convert the index into pixels, and that into average character widths
 
@@ -860,12 +836,12 @@ VOID  ensureCodeEditLocationIsVisible(CODE_EDIT_DATA*  pWindowData, CONST CODE_E
       /// [CHARACTER BEFORE] Make equivilent index the first visible
       if ((iHorizontalTarget - 1) < pWindowData->ptFirstCharacter.iIndex)
          // Scroll to the character
-         onCodeEditScroll(pWindowData, SB_THUMBTRACK, (iHorizontalTarget - 1), SB_HORZ);
+         onCodeEditScroll(pWindowData, SB_THUMBTRACK, (iHorizontalTarget - 1) - SNAP_DIST, SB_HORZ);
 
       /// [CHARACTER AFTER] Make equivilent index the last visible
       else if (iHorizontalTarget >= pWindowData->ptFirstCharacter.iIndex + (pWindowData->siPageSize.cx - 1))
          // Scroll to one page before the character
-         onCodeEditScroll(pWindowData, SB_THUMBTRACK, (iHorizontalTarget - (pWindowData->siPageSize.cx - 1)), SB_HORZ);
+         onCodeEditScroll(pWindowData, SB_THUMBTRACK, (iHorizontalTarget - (pWindowData->siPageSize.cx - 1)) + SNAP_DIST, SB_HORZ);
    }
    // else
    //    do nothing, target location couldn't contain the caret anyway.
@@ -881,8 +857,6 @@ VOID  ensureCodeEditLocationIsVisible(CODE_EDIT_DATA*  pWindowData, CONST CODE_E
       // Scroll to one page above the line
       onCodeEditScroll(pWindowData, SB_THUMBTRACK, (ptLocation->iLine - pWindowData->siPageSize.cy + 1), SB_VERT);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -899,7 +873,6 @@ TCHAR*  generateCodeEditLineText(CONST CODE_EDIT_LINE*  pLineData)
    TCHAR*                szOutput;     // Output string
 
    // Prepare
-   TRACK_FUNCTION();
    pIterator = createCodeEditSingleLineIterator(pLineData);
    szOutput  = utilCreateEmptyString(getCodeEditLineLength(pLineData) + 1);      // Naturally null terminated
 
@@ -910,7 +883,6 @@ TCHAR*  generateCodeEditLineText(CONST CODE_EDIT_LINE*  pLineData)
 
    // Cleanup and return Null terminated string
    deleteCodeEditIterator(pIterator);
-   END_TRACKING();
    return szOutput;
 }
 
@@ -929,7 +901,6 @@ TCHAR*  generateCodeEditSelectionText(CONST CODE_EDIT_DATA*  pWindowData)
    TCHAR*                szOutput;     // Output string
 
    // Prepare
-   TRACK_FUNCTION();
    szOutput = NULL;
 
    // [CHECK] Ensure selection exists
@@ -958,7 +929,6 @@ TCHAR*  generateCodeEditSelectionText(CONST CODE_EDIT_DATA*  pWindowData)
    }
 
    // Return null terminated output string
-   END_TRACKING();
    return szOutput;
 }
 
@@ -974,17 +944,13 @@ VOID  invalidateCodeEditLine(CODE_EDIT_DATA*  pWindowData, CONST UINT  iLineNumb
 {
    RECT   rcLineRect;      // Line rectangle of input line
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Calculate line rectangle
    calculateCodeEditLineRectangle(pWindowData, iLineNumber, &rcLineRect);
 
    // Add to update rectangle
    InvalidateRect(pWindowData->hWnd, &rcLineRect, FALSE);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 /// Function name  : isCodeEditLocationSelected
@@ -1003,7 +969,6 @@ BOOL  isCodeEditLocationSelected(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_L
    BOOL                bResult;      // Operation result
 
    // Prepare
-   TRACK_FUNCTION();
    bResult = FALSE;
 
    // [CHECK] Ensure there is a selection
@@ -1023,7 +988,6 @@ BOOL  isCodeEditLocationSelected(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_L
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -1039,9 +1003,7 @@ VOID   setCodeEditCaretLocation(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LO
    CODE_EDIT_LINE*  pLineData;            // LineData for the specified location
    LIST_ITEM*       pCharacterListItem;   // ListItem containing the CharacterData for the specified location
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// Locate LineData for the specified location
    if (findCodeEditLineDataByIndex(pWindowData, ptLocation->iLine, pLineData))
    {
@@ -1064,8 +1026,6 @@ VOID   setCodeEditCaretLocation(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LO
          updateCodeEditScope(pWindowData);
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1077,16 +1037,13 @@ VOID   setCodeEditCaretLocation(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LO
 // 
 VOID   setCodeEditPreferences(CODE_EDIT_DATA*  pWindowData, CONST PREFERENCES*  pPreferences)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// Store preferences object and update ColourScheme convenience pointer
    pWindowData->pPreferences  = pPreferences;
    pWindowData->pColourScheme = &pPreferences->oColourScheme;
 
    // [EVENT] Preferences Changed
    onCodeEditPreferencesChanged(pWindowData);
-   END_TRACKING();
 }
 
 
@@ -1109,9 +1066,7 @@ VOID  setCodeEditSelection(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LOCATIO
    UINT                iCurrentLine,         // Line number of the line currently being processed
                        iCurrentIndex;        // Character index of the character currently being processed
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Ensure our start point actually preceeds our end point
    switch (eComparison = compareCodeEditLocations(oLocation1, oLocation2))
    {
@@ -1181,8 +1136,6 @@ VOID  setCodeEditSelection(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LOCATIO
       }
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1204,9 +1157,7 @@ CODE_EDIT_AREA  performCodeEditHitTest(CODE_EDIT_DATA*  pWindowData, CONST POINT
                        rcLine;         // Line rectangle
    HDC                 hDC;            // CodeEdit DC
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Lookup client area
    GetClientRect(pWindowData->hWnd, &rcArea);
 
@@ -1284,7 +1235,6 @@ CODE_EDIT_AREA  performCodeEditHitTest(CODE_EDIT_DATA*  pWindowData, CONST POINT
    }
 
    // Return result
-   END_TRACKING();
    return eOutput;
 }
 
@@ -1299,17 +1249,13 @@ VOID   updateCodeEditCaretPosition(CODE_EDIT_DATA*  pWindowData)
 {
    POINT   ptCaretPosition;      // New caret position in client co-ordinates
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Calculate new client co-ordinates of the current caret location
    calculateCodeEditPointFromLocation(pWindowData, &pWindowData->oCaret.oLocation, &ptCaretPosition);
 
    // Move caret to the co-ordinates
    SetCaretPos(ptCaretPosition.x, ptCaretPosition.y);
    
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1322,9 +1268,7 @@ VOID    updateCodeEditScrollBarLimits(CODE_EDIT_DATA*  pWindowData)
 {
    SCROLLINFO  oScrollBarInfo;    // Holds Scrollbar ranges
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    oScrollBarInfo.cbSize = sizeof(SCROLLINFO);
    oScrollBarInfo.fMask  = SIF_RANGE WITH SIF_PAGE WITH SIF_DISABLENOSCROLL;
@@ -1349,8 +1293,6 @@ VOID    updateCodeEditScrollBarLimits(CODE_EDIT_DATA*  pWindowData)
 
    SetScrollInfo(pWindowData->hWnd, SB_VERT, &oScrollBarInfo, TRUE);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1365,9 +1307,7 @@ VOID  updateCodeEditSelection(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LOCA
    CODE_EDIT_LOCATION  oNewCaret,      // Convenience reference for the current location of the caret
                        oOrigin;        // Convenience reference for the origin of the current selection
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    oNewCaret = pWindowData->oCaret.oLocation;
    oOrigin   = pWindowData->oSelection.oOrigin;
@@ -1417,9 +1357,7 @@ VOID  updateCodeEditSelection(CODE_EDIT_DATA*  pWindowData, CONST CODE_EDIT_LOCA
       setCodeEditSelection(pWindowData, oNewCaret, oOrigin, TRUE);
    }
 
-   // [TRACK]
-   END_TRACKING();
-}
+   }
 
 
 
@@ -1435,65 +1373,67 @@ VOID  updateCodeEditLine(CODE_EDIT_DATA*  pWindowData, CONST UINT  iLineNumber, 
    CODE_EDIT_LINE*  pLineData;         // LineData for the input line
    UINT             iEventFlags;
 
-   // Prepare
-   TRACK_FUNCTION();
-   iEventFlags = iUpdateFlags INCLUDES (CCF_TEXT_CHANGED WITH CCF_SELECTION_CHANGED);
-
-   /// [SELECTION] Repaint line and inform main window of the change, so it can update the toolbar
-   if (iUpdateFlags INCLUDES CCF_SELECTION_CHANGED) // BUG: Main window Toolbar isn't updating after a selection change
-      // Invalidate line
-      invalidateCodeEditLine(pWindowData, iLineNumber);
-   
-   /// [ERROR/INDENTATION] Repaint line
-   if (iUpdateFlags INCLUDES CCF_ERROR_CHANGED OR iUpdateFlags INCLUDES CCF_INDENTATION_CHANGED)
-      // Invalidate line
-      invalidateCodeEditLine(pWindowData, iLineNumber);
-
-   /// [TEXT] Recalculate CommandID, conditional and indentation.  Repaint affected lines.
-   if (iUpdateFlags INCLUDES CCF_TEXT_CHANGED)
+   TRY
    {
       // Prepare
-      findCodeEditLineDataByIndex(pWindowData, iLineNumber, pLineData);
+      iEventFlags = iUpdateFlags INCLUDES (CCF_TEXT_CHANGED WITH CCF_SELECTION_CHANGED);
 
-      // Clear any error previously associated with this line as the text has now changed
-      if (pLineData->pErrorQueue)
-         deleteErrorQueue(pLineData->pErrorQueue);
-
-      // Update the length of the longest line, if appropriate
-      calculateCodeEditMaximumLineLength(pWindowData, iLineNumber, pLineData);
-
-      /// Update COMMAND and extract ID, conditional and interruptability
-      updateCodeEditLineCommand(pWindowData, pLineData, NULL);
-
-      /// Recalculate line indentation, and invalidate those that have changed
-      calculateCodeEditIndentationForMultipleLines(pWindowData, iLineNumber);
-
-      // Repaint caret and current line
-      updateCodeEditCaretPosition(pWindowData);
-      invalidateCodeEditLine(pWindowData, iLineNumber);
-   }
-
-   /// [EVENT] Inform the parent window that the text and/or selection has changed
-   if (pWindowData->bEventsEnabled)
-      SendMessage(GetParent(pWindowData->hWnd), UN_CODE_EDIT_CHANGED, iEventFlags, NULL);
-
-   /// [LINE COUNT] Recalculate scrollbar ranges, repaint all lines following the input line
-   if (iUpdateFlags INCLUDES CCF_LINES_CHANGED)
-   {
-      // Recalculate scrollbar ranges
-      updateCodeEditScrollBarLimits(pWindowData);
-
-      /// Repaint current and subsequent lines
-      for (UINT iCurrentLine = iLineNumber; iCurrentLine < (pWindowData->ptFirstCharacter.iLine + pWindowData->siPageSize.cy); iCurrentLine++)
+      /// [SELECTION] Repaint line and inform main window of the change, so it can update the toolbar
+      if (iUpdateFlags INCLUDES CCF_SELECTION_CHANGED) // BUG: Main window Toolbar isn't updating after a selection change
          // Invalidate line
-         invalidateCodeEditLine(pWindowData, iCurrentLine);
+         invalidateCodeEditLine(pWindowData, iLineNumber);
+      
+      /// [ERROR/INDENTATION] Repaint line
+      if (iUpdateFlags INCLUDES CCF_ERROR_CHANGED OR iUpdateFlags INCLUDES CCF_INDENTATION_CHANGED)
+         // Invalidate line
+         invalidateCodeEditLine(pWindowData, iLineNumber);
+
+      /// [TEXT] Recalculate CommandID, conditional and indentation.  Repaint affected lines.
+      if (iUpdateFlags INCLUDES CCF_TEXT_CHANGED)
+      {
+         // Prepare
+         findCodeEditLineDataByIndex(pWindowData, iLineNumber, pLineData);
+
+         // Clear any error previously associated with this line as the text has now changed
+         if (pLineData->pErrorQueue)
+            deleteErrorQueue(pLineData->pErrorQueue);
+
+         // Update the length of the longest line, if appropriate
+         calculateCodeEditMaximumLineLength(pWindowData, iLineNumber, pLineData);
+
+         /// Update COMMAND and extract ID, conditional and interruptability
+         updateCodeEditLineCommand(pWindowData, pLineData, NULL);
+
+         /// Recalculate all line indentation, and invalidate those that have changed
+         if (pWindowData->pPreferences->bCodeIndentation)
+            calculateCodeEditIndentation(pWindowData, 0); 
+
+         // Repaint caret and current line
+         updateCodeEditCaretPosition(pWindowData);
+         invalidateCodeEditLine(pWindowData, iLineNumber);
+      }
+
+      /// [EVENT] Inform the parent window that the text and/or selection has changed
+      if (pWindowData->bEventsEnabled)
+         SendMessage(GetParent(pWindowData->hWnd), UN_CODE_EDIT_CHANGED, iEventFlags, NULL);
+
+      /// [LINE COUNT] Recalculate scrollbar ranges, repaint all lines following the input line
+      if (iUpdateFlags INCLUDES CCF_LINES_CHANGED)
+      {
+         // Recalculate scrollbar ranges
+         updateCodeEditScrollBarLimits(pWindowData);
+
+         /// Repaint current and subsequent lines
+         for (UINT iCurrentLine = iLineNumber; iCurrentLine < (pWindowData->ptFirstCharacter.iLine + pWindowData->siPageSize.cy); iCurrentLine++)
+            // Invalidate line
+            invalidateCodeEditLine(pWindowData, iCurrentLine);
+      }
    }
+   CATCH0("");
 
    // Redraw window
    UpdateWindow(pWindowData->hWnd);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1506,11 +1446,7 @@ VOID  updateCodeEditLine(CODE_EDIT_DATA*  pWindowData, CONST UINT  iLineNumber, 
 // 
 VOID  updateCodeEditLineCommand(CONST CODE_EDIT_DATA*  pWindowData, CODE_EDIT_LINE*  pLineData, CONST COMMAND*  pExistingCommand)
 {
-   ERROR_STACK*  pException;     // Exception
-   TCHAR*        szLineText;     // Text of the input line
-
-   // Prepare
-   TRACK_FUNCTION();
+   TCHAR*   szLineText;     // Text of the input line
 
    // [CHECK] Do not attempt to generate if we have no game data 
    if (getAppState() == AS_GAME_DATA_LOADED)        // Happens in the 'Preview' CodeEdit in the preferences dialog
@@ -1518,52 +1454,51 @@ VOID  updateCodeEditLineCommand(CONST CODE_EDIT_DATA*  pWindowData, CODE_EDIT_LI
       // Prepare
       szLineText = generateCodeEditLineText(pLineData);
 
-      // Delete any existing COMMAND
-      if (pLineData->pCommand)
-         deleteCommand(pLineData->pCommand);
-
-      __try
+      TRY
       {
-         /// [INPUT COMMAND] Duplicate the input COMMAND
-         if (pExistingCommand)
-            pLineData->pCommand = duplicateCommand(pExistingCommand);
+         __try
+         {
+            // Delete any existing COMMAND
+            if (pLineData->pCommand)
+               deleteCommand(pLineData->pCommand);
          
-         /// [GENERATE COMMAND] Generate a new COMMAND from the current line text
-         else
-         {
-            // Ensure line has an error queue
-            if (pLineData->pErrorQueue)
-               deleteErrorQueue(pLineData->pErrorQueue);
-            pLineData->pErrorQueue = createErrorQueue();
-
-            /// Reset existing generation data
-            initScriptFileGenerator(pWindowData->pScriptFile);
+            /// [INPUT COMMAND] Duplicate the input COMMAND
+            if (pExistingCommand)
+               pLineData->pCommand = duplicateCommand(pExistingCommand);
             
-            // Generate new COMMAND from the current line text
-            generateCommandFromString(pWindowData->pScriptFile, szLineText, NULL, pLineData->pCommand, pLineData->pErrorQueue);
-
-            // [CHECK] Determine severity of the errors
-            if (hasErrors(pLineData->pErrorQueue))
-               // [SUCCESS] Determine severity indicator
-               pLineData->eSeverity = identifyErrorQueueType(pLineData->pErrorQueue);
+            /// [GENERATE COMMAND] Generate a new COMMAND from the current line text
             else
-               // [FAILURE] Remove the ErrorQueue to indicate there were no errors
-               deleteErrorQueue(pLineData->pErrorQueue);
-         }
-      }
-      __except (generateExceptionError(GetExceptionInformation(), pException))
-      {
-         // [ERROR] "An unidentified and unexpected critical error has occurred while compiling line '%s' of script '%s'"
-         enhanceError(pException, ERROR_ID(IDS_EXCEPTION_UPDATE_LINE_COMMAND), szLineText, pWindowData->pScriptFile->szScriptname);
-         SendMessage(getAppWindow(), UN_CODE_EDIT_EXCEPTION, (WPARAM)pWindowData->hWnd, (LPARAM)pException);
+            {
+               // Ensure line has an error queue
+               if (pLineData->pErrorQueue)
+                  deleteErrorQueue(pLineData->pErrorQueue);
+               pLineData->pErrorQueue = createErrorQueue();
 
-         // [CHECK] Ensure COMMAND exists
-         if (!pLineData->pCommand)
+               /// Reset existing generation data
+               initScriptFileGenerator(pWindowData->pScriptFile);
+               
+               // Generate new COMMAND from the current line text
+               generateCommandFromString(pWindowData->pScriptFile, szLineText, NULL, pLineData->pCommand, pLineData->pErrorQueue);
+
+               // [CHECK] Determine severity of the errors
+               if (hasErrors(pLineData->pErrorQueue))
+                  pLineData->eSeverity = identifyErrorQueueType(pLineData->pErrorQueue);
+               else
+                  // [FAILURE] Remove the ErrorQueue to indicate there were no errors
+                  deleteErrorQueue(pLineData->pErrorQueue);
+            }
+         }
+         __finally
          {
-            pLineData->pCommand      = createCommandFromText(szLineText, NULL);
-            pLineData->pCommand->iID = CMD_NOP;
+            // [EXCEPTION] Ensure a COMMAND exists
+            if (AbnormalTermination() AND !pLineData->pCommand)
+            {
+               pLineData->pCommand      = createCommandFromText(szLineText, NULL);
+               pLineData->pCommand->iID = CMD_NOP;
+            }
          }
       }
+      CATCH1("Unable to update COMMAND for line '%s'", szLineText);
 
       /// Store conditional
       pLineData->eConditional = pLineData->pCommand->eConditional;
@@ -1595,8 +1530,6 @@ VOID  updateCodeEditLineCommand(CONST CODE_EDIT_DATA*  pWindowData, CODE_EDIT_LI
       utilDeleteString(szLineText);
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 

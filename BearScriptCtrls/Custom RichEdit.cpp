@@ -8,10 +8,17 @@
 #include "stdafx.h"
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                     MACROS
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// OnException: Print to console
+#define ON_EXCEPTION()     printException(pException)
+
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       CONSTANTS / GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CONST UINT   iMessageTextSize       = 10;    // Point size of message text
+CONST UINT   iMessageTextSize  = 10;    // Point size of message text
              
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          DECLARATIONS
@@ -179,92 +186,99 @@ BOOL  findButtonInRichEditByIndex(HWND  hRichEdit, CONST UINT  iIndex, LANGUAGE_
 ControlsAPI
 BOOL   getRichEditText(HWND  hRichEdit, RICH_TEXT*  pMessage)
 {
-   GETTEXTLENGTHEX       oTextLength;         // Text length
-   CHARRANGE             oOriginalSel;        // Original selection, preserved
-   RICH_PARAGRAPH*       pParagraph;          // Current paragraph 
-   RICH_ITEM*            pItem;               // Current item 
-   RICHTEXT_PHRASE       oPhrase;             // Current phrase
-   UINT                  iTextLength,         // Exactly length of RichEdit
-                         iButtonIndex = 0,    // Current button index
+   GETTEXTLENGTHEX       oTextLength;          // Text length
+   CHARRANGE             oOriginalSel = {0,0}; // Original selection, preserved
+   RICH_PARAGRAPH*       pParagraph;           // Current paragraph 
+   RICH_ITEM*            pItem;                // Current item 
+   RICHTEXT_PHRASE       oPhrase;              // Current phrase
+   UINT                  iTextLength,          // Exactly length of RichEdit
+                         iButtonIndex = 0,     // Current button index
                          iPos;
    
-   /// Reset RichText object
-   deleteListContents(pMessage->pParagraphList);
-
-   // Get exact text length
-   oTextLength.codepage = 1200;
-   oTextLength.flags = GTL_PRECISE WITH GTL_NUMCHARS;
-   iTextLength = SendMessage(hRichEdit, EM_GETTEXTLENGTHEX, (WPARAM)&oTextLength, NULL);
-
-   // [CHECK] Ensure RichEdit has text
-   if (iTextLength == 0)
-      return TRUE;
-
-   // Hide current selection
-   RichEdit_HideSelection(hRichEdit, TRUE);
-   Edit_GetSelEx(hRichEdit, &oOriginalSel.cpMin, &oOriginalSel.cpMax);
-
-   /// Query first character + Create initial paragraph
-   identifyRichTextAttributes(hRichEdit, 0, &oPhrase.oState);
-   appendRichTextParagraph(pMessage, pParagraph = createRichParagraph(oPhrase.oState.eAlignment));
-   
-   /// Iterate over each character 
-   for (iPos = 0, oPhrase.iStart = 0, oPhrase.iEnd = -1; iPos < iTextLength; iPos++)
+   TRY
    {
-      LANGUAGE_BUTTON*     pButtonData;         // Language button data
-      RICHTEXT_ATTRIBUTES  oNewState;           // Attributes of current character
-      UINT                 iCharType;           // Whether character is text or an OLE object
+      /// Reset RichText object
+      deleteListContents(pMessage->pParagraphList);
 
-      // Query character type and attributes
-      identifyRichTextAttributes(hRichEdit, iPos, &oNewState);
-      iCharType = SendMessage(hRichEdit, EM_SELECTIONTYPE, NULL, NULL);
+      // Get exact text length
+      oTextLength.codepage = 1200;
+      oTextLength.flags = GTL_PRECISE WITH GTL_NUMCHARS;
+      iTextLength = SendMessage(hRichEdit, EM_GETTEXTLENGTHEX, (WPARAM)&oTextLength, NULL);
 
-      // [CHECK] Are text attributes unchanged?
-      if (iCharType == SEL_TEXT AND compareRichTextAttributes(&oPhrase.oState, &oNewState) == RTF_FORMATTING_EQUAL)
-         continue; 
+      // [CHECK] Ensure RichEdit has text
+      if (iTextLength == 0)
+         return TRUE;
 
-      /// [CHANGED] Isolate and save current phrase
-      if (iPos != oPhrase.iStart)      // [CHECK] If previous character was an object, phrase is empty
+      // Hide current selection
+      SetWindowRedraw(hRichEdit, FALSE);
+      RichEdit_HideSelection(hRichEdit, TRUE);
+      Edit_GetSelEx(hRichEdit, &oOriginalSel.cpMin, &oOriginalSel.cpMax);
+
+      /// Query first character + Create initial paragraph
+      identifyRichTextAttributes(hRichEdit, 0, &oPhrase.oState);
+      appendRichTextParagraph(pMessage, pParagraph = createRichParagraph(oPhrase.oState.eAlignment));
+      
+      /// Iterate over each character 
+      for (iPos = 0, oPhrase.iStart = 0, oPhrase.iEnd = -1; iPos < iTextLength; iPos++)
+      {
+         LANGUAGE_BUTTON*     pButtonData;         // Language button data
+         RICHTEXT_ATTRIBUTES  oNewState;           // Attributes of current character
+         UINT                 iCharType;           // Whether character is text or an OLE object
+
+         // Query character type and attributes
+         identifyRichTextAttributes(hRichEdit, iPos, &oNewState);
+         iCharType = SendMessage(hRichEdit, EM_SELECTIONTYPE, NULL, NULL);
+
+         // [CHECK] Are text attributes unchanged?
+         if (iCharType == SEL_TEXT AND compareRichTextAttributes(&oPhrase.oState, &oNewState) == RTF_FORMATTING_EQUAL)
+            continue; 
+
+         /// [CHANGED] Isolate and save current phrase
+         if (iPos != oPhrase.iStart)      // [CHECK] If previous character was an object, phrase is empty
+         {
+            oPhrase.iEnd = iPos;
+            appendRichTextItem(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
+         }
+
+         // [ALIGNMENT CHANGED] Create a new paragraph
+         if (oPhrase.oState.eAlignment != oNewState.eAlignment)
+            appendRichTextParagraph(pMessage, pParagraph = createRichParagraph(oNewState.eAlignment));   
+            
+         /// [BUTTON] Append new button to the paragraph
+         if (iCharType == SEL_OBJECT)
+         {
+            // Extract data and generate button item
+            if (findButtonInRichEditByIndex(hRichEdit, iButtonIndex++, pButtonData))
+               appendRichTextItem(pParagraph, pItem = createRichItemButton(pButtonData));
+
+            // Initialise a new phrase using the NEXT character
+            oPhrase.iStart = iPos + 1;
+            oPhrase.iEnd   = -1;
+            identifyRichTextAttributes(hRichEdit, oPhrase.iStart, &oPhrase.oState);
+         }
+         else
+         {
+            /// [TEXT] Initialise a new phrase using the current character
+            oPhrase.iStart = iPos;
+            oPhrase.iEnd   = -1;
+            oPhrase.oState = oNewState;
+         }
+      }
+
+      /// Save final phrase 
+      if (iPos != oPhrase.iStart)   // [CHECK] If previous character was an object, phrase is empty
       {
          oPhrase.iEnd = iPos;
          appendRichTextItem(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
       }
-
-      // [ALIGNMENT CHANGED] Create a new paragraph
-      if (oPhrase.oState.eAlignment != oNewState.eAlignment)
-         appendRichTextParagraph(pMessage, pParagraph = createRichParagraph(oNewState.eAlignment));   
-         
-      /// [BUTTON] Append new button to the paragraph
-      if (iCharType == SEL_OBJECT)
-      {
-         // Extract data and generate button item
-         if (findButtonInRichEditByIndex(hRichEdit, iButtonIndex++, pButtonData))
-            appendRichTextItem(pParagraph, pItem = createRichItemButton(pButtonData));
-
-         // Initialise a new phrase using the NEXT character
-         oPhrase.iStart = iPos + 1;
-         oPhrase.iEnd   = -1;
-         identifyRichTextAttributes(hRichEdit, oPhrase.iStart, &oPhrase.oState);
-      }
-      else
-      {
-         /// [TEXT] Initialise a new phrase using the current character
-         oPhrase.iStart = iPos;
-         oPhrase.iEnd   = -1;
-         oPhrase.oState = oNewState;
-      }
    }
-
-   /// Save final phrase 
-   if (iPos != oPhrase.iStart)   // [CHECK] If previous character was an object, phrase is empty
-   {
-      oPhrase.iEnd = iPos;
-      appendRichTextItem(pParagraph, pItem = createRichItemTextFromPhrase(hRichEdit, &oPhrase));
-   }
+   CATCH0("");
 
    // Restore original selection 
    Edit_SetSel(hRichEdit, oOriginalSel.cpMin, oOriginalSel.cpMax);
    RichEdit_HideSelection(hRichEdit, FALSE);
+   SetWindowRedraw(hRichEdit, TRUE);
+   InvalidateRect(hRichEdit, NULL, FALSE);
    return TRUE;
 }
 
@@ -484,7 +498,7 @@ BOOL  removeButtonFromRichEditByIndex(HWND  hRichEdit, const UINT  iIndex)
 //                                             will be chosen to contrast the background. Other colours will not be altered.
 // 
 ControlsAPI
-VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const bool  bSkipButtons, CONST GAME_TEXT_COLOUR  eBackground)
+VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const int  iSize, const bool  bSkipButtons, CONST GAME_TEXT_COLOUR  eBackground)
 {
    CHARFORMAT        oCharacterFormat;     // Text formatting attributes
    PARAFORMAT        oParagraphFormat;     // Paragraph formatting attributes
@@ -511,7 +525,7 @@ VOID  setRichEditText(HWND  hRichEdit, CONST RICH_TEXT*  pMessage, const bool  b
    // Set formatting that is consistent for all items
    oParagraphFormat.dwMask  = PFM_ALIGNMENT;
    oCharacterFormat.dwMask  = CFM_BOLD WITH CFM_ITALIC WITH CFM_UNDERLINE WITH CFM_COLOR WITH CFM_SIZE WITH CFM_FACE;
-   oCharacterFormat.yHeight = iMessageTextSize * 20;
+   oCharacterFormat.yHeight = iSize * 20;
    StringCchCopy(oCharacterFormat.szFaceName, LF_FACESIZE, TEXT("Arial"));
 
    /// Iterate through each paragraph in the message

@@ -38,8 +38,11 @@
 // 
 BOOL  displayProjectVariablesDialog(HWND  hParent)
 {
+   // [TRACK]
+   CONSOLE_ACTION1(getActiveProjectFileName());
+
    /// Display dialog
-   return (getActiveProject() ? (BOOL)DialogBox(getResourceInstance(), TEXT("PROJECT_VARIABLES_DIALOG"), hParent, dlgprocProjectVariablesDialog) : FALSE);
+   return (getActiveProject() ? (BOOL)showDialog(TEXT("PROJECT_VARIABLES_DIALOG"), hParent, dlgprocProjectVariablesDialog, NULL) : FALSE);
 }
 
 
@@ -91,10 +94,10 @@ BOOL  initProjectVariablesDialog(HWND  hDialog)
 // 
 VOID   onProjectVariablesDialog_AddVariable(HWND  hDialog, HWND  hListView)
 {
-   PROJECT_DOCUMENT*  pProject;
+   PROJECT_DOCUMENT*  pProject = getActiveProject();
 
-   // Prepare
-   pProject = getActiveProject();
+   // [TRACK]
+   CONSOLE_ACTION();
 
    /// Display InsertVariable dialog
    if (pProject AND displayInsertVariableDialog(pProject->pProjectFile, hDialog))
@@ -118,10 +121,7 @@ VOID   onProjectVariablesDialog_AddVariable(HWND  hDialog, HWND  hListView)
 // 
 BOOL  onProjectVariablesDialog_Command(HWND  hDialog, CONST UINT  iControlID, HWND  hCtrl)
 {
-   BOOL    bResult;
-
-   // Prepare
-   bResult = FALSE;
+   BOOL  bResult = FALSE;
 
    // Examine source
    switch (iControlID)
@@ -187,14 +187,11 @@ VOID  onProjectVariablesDialog_ContextMenu(HWND  hDialog, HWND  hListView, CONST
 // 
 VOID   onProjectVariablesDialog_RemoveVariable(HWND  hDialog, HWND  hListView)
 {
-   PROJECT_DOCUMENT*  pProject;
-   UINT               iIndex;
+   PROJECT_DOCUMENT*  pProject = getActiveProject();
+   UINT               iIndex   = ListView_GetSelected(hListView);
 
-   // Prepare
-   pProject = getActiveProject();
-
-   // Get selected item
-   iIndex = ListView_GetNextItem(hListView, -1, LVNI_SELECTED);
+   // [TRACK]
+   CONSOLE_ACTION();
 
    // [CHECK] Ensure item is selected
    if (iIndex != -1)
@@ -218,12 +215,8 @@ VOID   onProjectVariablesDialog_RemoveVariable(HWND  hDialog, HWND  hListView)
 //
 VOID   onProjectVariablesDialog_RequestData(HWND  hDialog, LVITEM&  oOutput)
 {
-   PROJECT_VARIABLE*   pVariable;                     // ScriptDependency associated with the selected item
-   PROJECT_DOCUMENT*   pProject;
-     
-   // Prepare
-   pVariable = NULL;
-   pProject  = getActiveProject();
+   PROJECT_VARIABLE*   pVariable = NULL;                     // ScriptDependency associated with the selected item
+   PROJECT_DOCUMENT*   pProject  = getActiveProject();
 
    // Find SCRIPT_DEPENDECY associated with item
    if (findVariableInProjectFileByIndex(pProject->pProjectFile, oOutput.iItem, pVariable))
@@ -250,10 +243,9 @@ VOID   onProjectVariablesDialog_RequestData(HWND  hDialog, LVITEM&  oOutput)
          break;
       }
    }
-   else if (oOutput.mask INCLUDES LVIF_TEXT)
-      StringCchPrintf(oOutput.pszText, oOutput.cchTextMax, TEXT("Error: Item %d Not found"), oOutput.iItem);
-   else
-      oOutput.pszText = TEXT("ERROR: Item not found");
+   else 
+      // [ERROR]
+      setMissingListViewItem(&oOutput, getTreeNodeCount(pProject->pProjectFile->pVariablesTree));
 }
 
 

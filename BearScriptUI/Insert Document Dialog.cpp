@@ -1,5 +1,5 @@
 //
-// New Dialog.cpp : 'Insert Document' dialog
+// Insert Document Dialog.cpp : 'Insert Document' dialog
 //
 // NB: Best viewed with tab size of 3 characters and Visual Studio's 'XML Doc Comment' syntax colouring
 //         set to a colour that highly contrasts the 'C/C++ comment' syntax colouring
@@ -104,7 +104,7 @@ NEW_DOCUMENT_DATA*   displayInsertDocumentDialog(MAIN_WINDOW_DATA*  pMainWindowD
    pDialogData = createInsertDocumentDialogData();
 
    // Display dialog
-   if (!DialogBoxParam(getResourceInstance(), TEXT("INSERT_DOCUMENT_DIALOG"), pMainWindowData->hMainWnd, dlgprocInsertDocumentDialog, (LPARAM)pDialogData))
+   if (!showDialog(TEXT("INSERT_DOCUMENT_DIALOG"), pMainWindowData->hMainWnd, dlgprocInsertDocumentDialog, (LPARAM)pDialogData))
       deleteInsertDocumentDialogData(pDialogData);
 
    // Return dialog data or NULL
@@ -168,6 +168,9 @@ BOOL   initInsertDocumentDialog(NEW_DOCUMENT_DATA*  pDialogData, HWND  hDialog)
    // Display description and disable OK button
    SetDlgItemText(pDialogData->hDialog, IDC_DOCUMENT_DESCRIPTION_STATIC, TEXT("None"));
    updateInsertDocumentDialog(pDialogData);
+
+   // Initially Select 'MSCI Script'
+   ListView_SetItemState(pDialogData->hListView, 0, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
 
    // Cleanup and return TRUE
    utilDeleteStrings(szProgramFolder, szScriptFolder);
@@ -354,7 +357,7 @@ VOID  onInsertDocumentDialog_RequestData(NEW_DOCUMENT_DATA*  pDialogData, NMLVDI
 
    // [TEXT]
    if (pItem->mask INCLUDES LVIF_TEXT)
-      LoadString(getResourceInstance(), IDS_DOCUMENT_TYPE_SCRIPT + pItem->iItem, pItem->pszText, pItem->cchTextMax);
+      loadString(IDS_DOCUMENT_TYPE_SCRIPT + pItem->iItem, pItem->pszText, pItem->cchTextMax);
 
    // [ICON]
    if (pItem->mask INCLUDES LVIF_IMAGE)
@@ -381,7 +384,7 @@ VOID  onInsertDocumentDialog_SelectionChange(NEW_DOCUMENT_DATA*  pDialogData, NM
    // [CHECK] Display appropriate document description
    if (iSelection != -1)
       /// [SELECTION] Display new document type description
-      utilSetDlgItemText(pDialogData->hDialog, IDC_DOCUMENT_DESCRIPTION_STATIC, getResourceInstance(), IDS_DOCUMENT_DESCRIPTION_SCRIPT + iSelection);
+      SetDlgItemText(pDialogData->hDialog, IDC_DOCUMENT_DESCRIPTION_STATIC, loadTempString(IDS_DOCUMENT_DESCRIPTION_SCRIPT+iSelection));
    else
       /// [NO SELECTION] Erase description
       SetDlgItemText(pDialogData->hDialog, IDC_DOCUMENT_DESCRIPTION_STATIC, TEXT("None"));

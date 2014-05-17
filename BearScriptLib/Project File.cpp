@@ -439,7 +439,6 @@ OPERATION_RESULT  generateProjectFileFromXML(PROJECT_FILE*  pProjectFile, HWND  
    OPERATION_RESULT      eResult;
 
    // Prepare
-   TRACK_FUNCTION();
    eResult = OR_SUCCESS;
 
    /// Load project file
@@ -487,7 +486,7 @@ OPERATION_RESULT  generateProjectFileFromXML(PROJECT_FILE*  pProjectFile, HWND  
                else
                {
                   // [WARNING] "The %s file '%s' appears to be missing"
-                  szFileType = utilLoadString(getResourceInstance(), IDS_DOCUMENT_TYPE_SCRIPT + eFolder, 32);
+                  szFileType = loadString(IDS_DOCUMENT_TYPE_SCRIPT + eFolder, 32);
                   pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_PROJECT_DOCUMENT_MISSING), szFileType, pDocument->szFullPath));
                   utilDeleteString(szFileType);
                }
@@ -526,7 +525,6 @@ OPERATION_RESULT  generateProjectFileFromXML(PROJECT_FILE*  pProjectFile, HWND  
    
    // Cleanup and return result
    deleteXMLTree(pProjectFile->pXMLTree);
-   END_TRACKING();
    return eResult;
 }
 
@@ -553,7 +551,7 @@ BOOL  generateProjectFileOutputBuffer(PROJECT_FILE*  pProjectFile)
    appendStringToTextStreamf(pOutputStream, TEXT("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"));
 
    /// Flatten XMLTree
-   generateTextStreamFromXMLTree(pProjectFile->pXMLTree, pOutputStream);
+   generateTextStreamFromXMLTree(pProjectFile->pXMLTree, pOutputStream, true);
 
    /// Copy output to ScriptFile
    pProjectFile->szOutputBuffer = utilDuplicateString(pOutputStream->szBuffer, pOutputStream->iBufferUsed);
@@ -597,12 +595,15 @@ BOOL  generateXMLTreeFromProjectFile(PROJECT_FILE*  pProjectFile, OPERATION_PROG
    pProjectNode = appendStringNodeToXMLTree(pXMLTree, pXMLTree->pRoot, TEXT("project"), NULL);
    appendPropertyToXMLTreeNode(pProjectNode, createXMLPropertyFromInteger(TEXT("version"), 1));
 
-   // Iterate through document list
-   for (LIST_ITEM*  pIterator = getListHead(pProjectFile->pFileList[0]); pDocument = extractListItemPointer(pIterator, STORED_DOCUMENT); pIterator = pIterator->pNext)
+   // Iterate through document lists
+   for (PROJECT_FOLDER  eFolder = PF_SCRIPT; eFolder <= PF_MISSION; eFolder = (PROJECT_FOLDER)(eFolder + 1))
    {
-      /// [DOCUMENT] Append new <document> node
-      pDocumentNode = appendStringNodeToXMLTree(pXMLTree, pProjectNode, TEXT("document"), pDocument->szFullPath);
-      appendPropertyToXMLTreeNode(pDocumentNode, createXMLPropertyFromString(TEXT("type"), calculateDocumentTypeStringFromFileType(pDocument->eType)));
+      for (LIST_ITEM*  pIterator = getListHead(pProjectFile->pFileList[eFolder]); pDocument = extractListItemPointer(pIterator, STORED_DOCUMENT); pIterator = pIterator->pNext)
+      {
+         /// [DOCUMENT] Append new <document> node
+         pDocumentNode = appendStringNodeToXMLTree(pXMLTree, pProjectNode, TEXT("document"), pDocument->szFullPath);
+         appendPropertyToXMLTreeNode(pDocumentNode, createXMLPropertyFromString(TEXT("type"), calculateDocumentTypeStringFromFileType(pDocument->eType)));
+      }
    }
 
    // Iterate through variables
@@ -635,58 +636,45 @@ BOOL  generateXMLTreeFromProjectFile(PROJECT_FILE*  pProjectFile, OPERATION_PROG
 BearScriptAPI
 DWORD   threadprocLoadProjectFile(VOID*  pParameter)
 {
-   OPERATION_RESULT     eResult;          // Operation result, defaults to SUCCESS
-   DOCUMENT_OPERATION*  pOperationData;   // Convenience pointer
-   PROJECT_FILE*        pProjectFile;     // Convenience pointer
+   OPERATION_RESULT     eResult = OR_SUCCESS;   // Operation result
+   DOCUMENT_OPERATION*  pOperationData;         // Convenience pointer
+   PROJECT_FILE*        pProjectFile;           // Convenience pointer
 
-   // [DEBUGGING]
-   TRACK_FUNCTION();
-   SET_THREAD_NAME("Project Translation");
-   setThreadLanguage(getAppPreferences()->eAppLanguage);
-
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
-   
-   // Prepare
-   pOperationData = (DOCUMENT_OPERATION*)pParameter;
-   pProjectFile   = (PROJECT_FILE*)pOperationData->pGameFile;
-   eResult        = OR_SUCCESS;
-
-   // [STAGE] Set only progress state
-   ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_LOADING_PROJECT);
-
-   /// [GUARD BLOCK]
    __try
    {
-      // [INFO] "Parsing XML from project file '%s'"
+      // [DEBUGGING]
+      CONSOLE_COMMAND_BOLD();
+      SET_THREAD_NAME("Project Translation");
+      setThreadLanguage(getAppPreferences()->eAppLanguage);
+
+      // [CHECK] Ensure parameter exists
+      ASSERT(pParameter);
+      
+      // Prepare
+      pOperationData = (DOCUMENT_OPERATION*)pParameter;
+      pProjectFile   = (PROJECT_FILE*)pOperationData->pGameFile;
+      debugGameFile(pOperationData->pGameFile);
+
+      // [INFO/STAGE] "Parsing XML from project file '%s'"
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_LOADING_PROJECT);
       pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_PROJECT_XML), PathFindFileName(pOperationData->szFullPath)));
-      VERBOSE_SMALL_PARTITION();
 
       /// [LOAD] Load XML into GameFile 
       if (!loadGameFileFromFileSystemByPath(getFileSystem(), pProjectFile, NULL, pOperationData->pErrorQueue))
-      {
-         // [ERROR] "The project file '%s' is unavailable or could not be accessed"
-         enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_PROJECT_LOAD_IO_ERROR), pOperationData->szFullPath);
-         eResult = OR_FAILURE;
-      }
+         // No enhancement necessary         // [ERROR] "The project file '%s' is unavailable or could not be accessed"
+         eResult = OR_FAILURE;               // enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_PROJECT_LOAD_IO_ERROR), pOperationData->szFullPath);
       else
          /// [SUCCESS] Attempt to translate XML into a Project
          eResult = generateProjectFileFromXML(pProjectFile, pOperationData->hParentWnd, pOperationData->pErrorQueue);
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   __except (pushException(pOperationData->pErrorQueue))
    {
-      // [FAILURE] "An unidentified and unexpected critical error has occurred while translating the project '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_PROJECT_FILE), pOperationData->szFullPath);
       eResult = OR_FAILURE;
    }
 
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("PROJECT TRANSLATION WORKER THREAD COMPLETED");
-   
    // Cleanup and return result
+   CONSOLE_COMPLETE("PROJECT TRANSLATION", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return  THREAD_RETURN;
 }
 
@@ -702,30 +690,27 @@ DWORD   threadprocLoadProjectFile(VOID*  pParameter)
 BearScriptAPI
 DWORD    threadprocSaveProjectFile(VOID*  pParameter)
 {
-   DOCUMENT_OPERATION*  pOperationData;      // Operation data
-   PROJECT_FILE*        pProjectFile;        // Convenience pointer
-   OPERATION_RESULT     eResult;             // Operation result
+   DOCUMENT_OPERATION*  pOperationData;         // Operation data
+   PROJECT_FILE*        pProjectFile;           // Convenience pointer
+   OPERATION_RESULT     eResult = OR_SUCCESS;   // Operation result
 
    // [DEBUGGING]
-   TRACK_FUNCTION();
    SET_THREAD_NAME("Script Generation");
    setThreadLanguage(getAppPreferences()->eAppLanguage);
 
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
-   
-   // Prepare
-   pOperationData = (DOCUMENT_OPERATION*)pParameter;
-   pProjectFile   = (PROJECT_FILE*)pOperationData->pGameFile;
-   eResult        = OR_SUCCESS;
-
-   // [STAGE] "Saving project file '%s' to disc"
-   ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_SAVING_PROJECT);
-   pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_SAVING_PROJECT_XML), PathFindFileName(pOperationData->szFullPath)));
-
-   /// [GUARD BLOCK]
    __try
    {
+      // [CHECK] Ensure parameter exists
+      ASSERT(pParameter);
+
+      // Prepare
+      pOperationData = (DOCUMENT_OPERATION*)pParameter;
+      pProjectFile   = (PROJECT_FILE*)pOperationData->pGameFile;
+
+      // [STAGE] "Saving project file '%s' to disc"
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_SAVING_PROJECT);
+      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_SAVING_PROJECT_XML), PathFindFileName(pOperationData->szFullPath)));
+
       /// Generate an XML-Tree from the Project
       if (!generateXMLTreeFromProjectFile(pProjectFile, pOperationData->pProgress, pOperationData->pErrorQueue))
          // [ERROR] No further enhancement necessary
@@ -738,28 +723,18 @@ DWORD    threadprocSaveProjectFile(VOID*  pParameter)
 
          /// [SUCCESS] Attempt to save output to disc
          if (!saveDocumentToFileSystem(pOperationData->szFullPath, pProjectFile, pOperationData->pErrorQueue))
-         {
-            // [ERROR] "There was an error while saving the MSCI script '%s', the file was not saved"
-            enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_PROJECT_SAVE_IO_ERROR), pOperationData->szFullPath); 
-            eResult = OR_FAILURE;
-         }
+            // No enhancement necessary            // [ERROR] "There was an error while saving the MSCI script '%s', the file was not saved"
+            eResult = OR_FAILURE;                  // enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_PROJECT_SAVE_IO_ERROR), pOperationData->szFullPath); 
       }
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   __except (pushException(pOperationData->pErrorQueue))
    {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while generating the project file '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_SAVE_PROJECT_FILE), PathFindFileName(pOperationData->szFullPath));
-      
       // [FAILURE]
       eResult = OR_FAILURE;
    }
 
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("PROJECT GENERATION WORKER THREAD COMPLETED");
-   
    // Cleanup and return result
+   CONSOLE_COMPLETE("PROJECT GENERATION", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return  THREAD_RETURN;
 }

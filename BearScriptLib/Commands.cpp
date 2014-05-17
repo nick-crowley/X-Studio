@@ -146,7 +146,7 @@ COMMAND*  createCustomCommandf(CONST UINT  iID, CONST UINT  iFlags, CONST UINT  
    else
    {
       // [FAILED] Print error to console
-      consolePrintError(pError);
+      consolePrintTopError(pError);
       deleteErrorStack(pError);
    }
 
@@ -362,6 +362,8 @@ BOOL  isCommandComment(CONST COMMAND*  pCommand)
 BearScriptAPI
 BOOL  isCommandScriptCall(CONST COMMAND*  pCommand)
 {
+   PARAMETER_SYNTAX  eSyntax;
+
    switch (pCommand->iID)
    {
    /// [SCRIPTNAME IS PARAMETER ZERO]
@@ -417,6 +419,12 @@ BOOL  isCommandScriptCall(CONST COMMAND*  pCommand)
       return TRUE;
 
    default:
+      // Search for 'PS_SCRIPT_NAME'
+      for (UINT iIndex = 0; pCommand->pSyntax != NULL && findParameterSyntaxByPhysicalIndex(pCommand->pSyntax, iIndex, eSyntax); iIndex++)
+         if (eSyntax == PS_SCRIPT_NAME)
+            return TRUE;
+
+      // [NOT FOUND] Return FALSE
       return FALSE;
    }
 }
@@ -516,6 +524,60 @@ BOOL   findScriptCallTargetInCommand(CONST COMMAND*  pCommand, CONST TCHAR*  &sz
    return szOutput != NULL;
 }
 
+/// Function name  : isObjectNameInCommand
+// Description     : Checks whether a COMMAND contains a given GameObject/ScriptObject
+// 
+// const COMMAND*      pCommand : [in] Command
+// const OBJECT_NAME*  pObject  : [in] GameObject/ScriptObject
+// 
+// Return Value   : TRUE/FALSE
+// 
+BOOL   isObjectNameInCommand(const COMMAND*  pCommand, const OBJECT_NAME*  pObject)
+{
+   PARAMETER*  pParameter;
+   ERROR_STACK* pError;
+   INT         iExtValue;
+   BOOL        bResult = FALSE;
+
+   // Examine all Parameters
+   for (UINT  iIndex = 0; !bResult AND findParameterInCommandByIndex(pCommand, PT_DEFAULT, iIndex, pParameter); iIndex++)
+   {
+      // [GAME OBJECT] All stored as packed 'DT_WARE' integers
+      if (pObject->eType == ONT_GAME)
+         bResult = (pParameter->eType == DT_WARE AND pParameter->iValue == calculateWareEncoding(pObject));
+
+      // [SCRIPT OBJECT] All stored using different data types
+      else switch (pObject->eGroup)
+      {
+      case ONG_CONSTANT:            // Script Constant
+      case ONG_DATA_TYPE:           // Variable Data Type
+      case ONG_FLIGHT_RETURN:       // Flight Return Code
+      ///case ONG_FORMATION:           // Formation      REM: Don't exist
+      case ONG_OBJECT_CLASS:        // Object Class
+      case ONG_RACE:                // Race
+      case ONG_PARAMETER_TYPE:      // Parameter Syntax
+      case ONG_OBJECT_COMMAND:      // Object Command
+      case ONG_WING_COMMAND:        // Wing Command
+      case ONG_SIGNAL:              // Signal
+      case ONG_TRANSPORT_CLASS:     // Transport class
+
+      case ONG_RELATION:            // Relation
+      case ONG_SECTOR:              // Sector
+      case ONG_STATION_SERIAL:      // Station Serial
+         // Ensure parameter type matches
+         if (pParameter->eType == identifyDataTypeFromScriptObject(pObject))
+         {
+            // Convert value to internal and compare
+            performScriptValueConversion(NULL, pParameter, iExtValue, SVT_EXTERNAL, SVT_INTERNAL, pError);
+            bResult = (iExtValue == pObject->iID);
+         }
+         break;
+      }
+   }
+
+   // Return result
+   return bResult;
+}
 
 /// Function name  : setCommandJumpDestination
 // Description     : Target any branching COMMAND at another COMMAND

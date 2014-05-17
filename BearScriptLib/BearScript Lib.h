@@ -26,11 +26,6 @@
    #define TESTING_ONLY(xExpression)   
 #endif
 
-/// DEBUGGING: Enable printing window properties
-//#define PRINT_WINDOW_PROPERTIES
-//#define BULLWINKLE
-//#define ANDREW_WILDE
-
 // ////////////////////////////////////////////////////////////////////////////////////////
 //                                           HEADERS
 // ////////////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +38,7 @@
 #include "../BearScriptUtil/BearScript Util.h"
 #include "Types.h"
 #include "../Messages.h"
+#include "../Build Rules.h"
 
 // ////////////////////////////////////////////////////////////////////////////////////////
 //                                       EXPORTED GLOBALS
@@ -63,6 +59,8 @@ extern CONST COLOUR_SCHEME              oDefaultScheme[4];                // Col
 extern CONST TCHAR*                     szParameterSyntax[PARAMETER_SYNTAX_COUNT];  // Parameter syntax
 extern CONST TCHAR*                     szSyntaxSubScripts[5];
 
+extern CONST BYTE                       iByteOrderingUTF8[3];                       // UTF-8 byte ordering header
+            
 #endif
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,17 +72,19 @@ BearScriptAPI HWND              getAppActiveDialog();
 BearScriptAPI CALL_STACK_LIST*  getAppCallStackList();
 BearScriptAPI CONSOLE_DATA*     getAppConsole();
 BearScriptAPI BOOL              getAppError(CONST APPLICATION_ERROR  eError);
+BearScriptAPI const TCHAR*      getAppFolder();
 BearScriptAPI HINSTANCE         getAppInstance();
 BearScriptAPI HIMAGELIST        getAppImageList(CONST IMAGE_TREE_SIZE  eSize);
 BearScriptAPI IMAGE_TREE*       getAppImageTree(CONST IMAGE_TREE_SIZE  eSize);
 BearScriptAPI UINT              getAppImageTreeIconIndex(CONST IMAGE_TREE_SIZE  eSize, CONST TCHAR*  szIconID);
 BearScriptAPI HICON             getAppImageTreeIconHandle(CONST IMAGE_TREE_SIZE  eSize, CONST TCHAR*  szIconID);
-BearScriptAPI APP_LANGUAGE      getAppLanguage();
 BearScriptAPI CONST TCHAR*      getAppName();
 BearScriptAPI CONST TCHAR*      getAppRegistryKey();
 BearScriptAPI CONST TCHAR*      getAppRegistrySubKey(CONST APPLICATION_REGISTRY_KEY  eSubKey);
 BearScriptAPI CONST TCHAR*      getAppResourceLibraryPath();
 BearScriptAPI APPLICATION_STATE getAppState();
+BearScriptAPI HBRUSH            getAppThemeBrush(const UINT  iSysColour);
+BearScriptAPI APPLICATION_VERSION  getAppVersion();
 BearScriptAPI HWND              getAppWindow();
 BearScriptAPI WINDOWS_VERSION   getAppWindowsVersion();
 BearScriptAPI FILE_SYSTEM*      getFileSystem();
@@ -105,12 +105,16 @@ BearScriptAPI VOID              setAppVerboseMode(CONST BOOL  bVerboseMode);
 BearScriptAPI VOID              setAppWindow(HWND  hAppWindow);
 BearScriptAPI VOID              setFileSystem(FILE_SYSTEM*  pFileSystem);
 
+// Functions
+BearScriptAPI VOID    generateAppThemeBrushes(const BOOL  bCreate);
+BearScriptAPI HBRUSH  getThemeSysColourBrush(const TCHAR*  szClass, const int  iSysColour);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                      ARGUMENTS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 // Creation / Destruction
-ARGUMENT*                 createArgumentFromNode(CONST XML_TREE_NODE*  pArgumentNode, CONST UINT  iIndex, ERROR_STACK*  &pError);
+ARGUMENT*                 createArgumentFromNode(CONST XML_TREE_NODE*  pArgumentNode, CONST XML_SCRIPT_LAYOUT*  pCodeArrayNode, CONST UINT  iIndex, ERROR_STACK*  &pError);
 BearScriptAPI ARGUMENT*   createArgumentFromName(CONST TCHAR*  szName, CONST TCHAR*  szDescription);
 AVL_TREE*                 createArgumentTreeByID();
 VOID                      deleteArgument(ARGUMENT*  &pArgument);
@@ -118,6 +122,13 @@ VOID                      deleteArgumentTreeNode(LPARAM  pData);
 
 // Helpers
 LPARAM                    extractArgumentTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty);
+
+/// /////////////////////////////////////////////////////////////////////////////////////////
+///                                      AUTO-UPDATE
+/// /////////////////////////////////////////////////////////////////////////////////////////
+
+// Functions
+BearScriptAPI DWORD   threadprocAutomaticUpdate(VOID*  pParameter);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    BINARY TREE OPERATIONS
@@ -138,8 +149,8 @@ VOID   treeprocReplicateMediaPage(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pO
 
 // Helpers
 TCHAR*   generateBugReportFileName(CONST SUBMISSION_OPERATION*  pOperationData);
-VOID     getBugReportServerResponse(TCHAR*  szOutput, DWORD  dwLength);
-BOOL     getLastSystemError(TCHAR*  szOutput, CONST UINT  iLength);
+TCHAR*   getBugReportServerResponse();
+TCHAR*   getLastSystemError();
 CONST TCHAR*  identifySubmissionOperationString(SUBMISSION_OPERATION*  pOperationData);
 
 // Functions
@@ -220,6 +231,7 @@ BearScriptAPI BOOL          isCommandType(CONST COMMAND*  pCommand, CONST COMMAN
 
 // Functions
 BearScriptAPI BOOL      findScriptCallTargetInCommand(CONST COMMAND*  pCommand, CONST TCHAR*  &szOutput);
+BOOL                    isObjectNameInCommand(const COMMAND*  pCommand, const OBJECT_NAME*  pObject);
 VOID                    setCommandJumpDestination(COMMAND*  pCommand, CONST COMMAND*  pTarget);
 VOID                    setCommandJumpDestinationByIndex(COMMAND*  pCommand, CONST UINT  iIndex);
 
@@ -263,7 +275,8 @@ OPERATION_RESULT  loadObjectDescriptions(OPERATION_PROGRESS*  pProgress, HWND  h
 VOID              populateDescriptionSyntax(CONST TCHAR*  szText, TCHAR*  szOutput, CONST UINT  iOutputLength, CONST COMMAND_SYNTAX*  pSyntax, ERROR_QUEUE*  pErrorQueue);
 
 // Tree operations
-VOID              treeprocConvertDescriptionVariableToInternal(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
+VOID              treeprocConvertDescriptionVariableType(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
+VOID              treeprocGenerateObjectCommandDescriptions(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
 VOID              treeprocGenerateObjectDescription(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -300,8 +313,9 @@ BOOL                 insertCommandSyntaxIntoGameData(COMMAND_SYNTAX*  pCommandSy
 BearScriptAPI BOOL   isCommandInterruptable(CONST COMMAND_SYNTAX*  pSyntax);
 BearScriptAPI BOOL   isCommandSyntaxCompatible(CONST COMMAND_SYNTAX*  pCommandSyntax, CONST GAME_VERSION  eGameVersion);
 BearScriptAPI BOOL   isCommandReferenceURLPresent(CONST COMMAND_SYNTAX*  pSyntax);
-OPERATION_RESULT     loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
-OPERATION_RESULT     loadCommandSyntaxTree(HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
+OPERATION_RESULT     loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
+OPERATION_RESULT     loadCommandSyntaxTree(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
+BearScriptAPI VOID   printMissingSyntax();
 BOOL                 verifyParameterSyntax(CONST DATA_TYPE  eType, CONST PARAMETER_SYNTAX  eSyntax);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -323,12 +337,13 @@ BearScriptAPI  BOOL    attachConsole(HWND  hParent);
 BearScriptAPI  VOID    consolePrint(CONST TCHAR* szText);
 BearScriptAPI  VOID    consolePrintError(CONST ERROR_STACK*  pError);
 BearScriptAPI  VOID    consolePrintErrorQueue(CONST ERROR_QUEUE*  pErrorQueue);
+BearScriptAPI  VOID    consolePrintTopError(CONST ERROR_STACK*  pError);
 BearScriptAPI  VOID    consolePrintf(CONST TCHAR* szFormat, ...);
 BearScriptAPI  VOID    consolePrintfA(CONST CHAR* szFormatA, ...);
+BearScriptAPI  VOID    consolePrintHeadingA(CONST CHAR*  szFormat, ...);
 BearScriptAPI  VOID    consolePrintLastError(CONST TCHAR*  szActivity, CONST TCHAR*  szFunction, CONST TCHAR*  szFile, CONST UINT  iLineNumber);
 BearScriptAPI  VOID    consolePrintLastErrorEx(CONST DWORD  dwErrorCode, CONST TCHAR*  szActivity, CONST TCHAR*  szFunction, CONST TCHAR*  szFile, CONST UINT  iLineNumber);
 BearScriptAPI  VOID    consolePrintVerboseA(CONST CHAR*  szFormat, ...);
-BearScriptAPI  VOID    consolePrintVerboseHeadingA(CONST CHAR*  szFormat, ...);
 BearScriptAPI  VOID    consoleVPrintf(CONST TCHAR* szFormat, va_list  pArgList);
 BearScriptAPI  VOID    consoleVPrintfA(CONST CHAR* szFormatA, va_list  pArgList);
 BearScriptAPI  VOID    deleteConsoleLogFile();
@@ -338,9 +353,11 @@ BearScriptAPI  VOID    showConsole(CONST BOOL  bShow);
 // Window procedure
 LRESULT CALLBACK       wndprocConsole(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
-// Defines uniform console separators
-#define  LARGE_PARTITION                       "================================================================================"
-#define  SMALL_PARTITION                       "--------------------------------------------------------------------------------"
+
+/// Macro: VERBOSE
+// Description: Prints a console message only in VERBOSE mode
+//
+#define  VERBOSE                               consolePrintVerboseA
 
 /// Macro: CONSOLE
 // Description: Prints a console message 
@@ -348,40 +365,159 @@ LRESULT CALLBACK       wndprocConsole(HWND hWnd, UINT iMessage, WPARAM wParam, L
 #define  CONSOLE                               consolePrintfA
 
 /// Macro: CONSOLE_ERROR
-// Description: Prints a console debugging message
+// Description: Prints a console message with standard 'error' formatting
 //
 #define  CONSOLE_ERROR(szError)                consolePrintfA("ERROR: " __FUNCTION__ " : " szError)
+#define  CONSOLE_ERROR1(szError,pArg)          consolePrintfA("ERROR: " __FUNCTION__ " : " szError, pArg)
+#define  CONSOLE_ERROR2(szError,pArg1,pArg2)   consolePrintfA("ERROR: " __FUNCTION__ " : " szError, pArg1, pArg2)
 
-/// Macro: VERBOSE
-// Description: Prints a console message only in VERBOSE mode
+/// Macro: CONSOLE_FUNCTION
+// Description: Prints a console message with function name
 //
-#define  VERBOSE                               consolePrintVerboseA
+#define  CONSOLE_FUNCTION(szText)              consolePrintfA("Function: " __FUNCTION__ " : " szText)
 
-/// Macro: VERBOSE_HEADING
-// Description: Prints a verbose-mode heading with a small parititon
+/// Macro: CONSOLE_HEADING
+// Description: Prints a heading with a small parititon
 //
-#define  VERBOSE_HEADING                       consolePrintVerboseHeadingA
+#define  CONSOLE_HEADING                       consolePrintHeadingA
 
-/// Macro: VERBOSE_COMMAND
-// Description: Highlights a command in VERBOSE mode
+/// Macro: CONSOLE_PARTITION
+// Description: Highlights a command between partitions
 // 
 // CONST CHAR*  szCommand : [in] (ANSI) Name of the command to highlight
 // CONST CHAR*  eSize     : [in] Either SMALL_PARITION or LARGE_PARTIION
 //
-#define  VERBOSE_COMMAND(szCommand, eSize)   { consolePrintfA(LARGE_PARTITION);   consolePrintfA(szCommand __FUNCTION__);    consolePrintfA(LARGE_PARTITION);   }
+#define  CONSOLE_PARTITION(szText,eSize)      consolePrintfA(eSize "\r\n        " szText "\r\n        " eSize)
+#define  CONSOLE_PARTITION1(szText,eSize,Arg) consolePrintfA(eSize "\r\n        " szText "\r\n        " eSize, Arg)
 
-/// Macro: VERBOSE_UI_COMMAND / VERBOSE_LIB_COMMAND / VERBOSE_LIB_EVENT
-// Description: Highlights user-invoked or internal commands/events in VERBOSE mode
+/// Macro: CONSOLE_STAGE / CONSOLE_ACTION / CONSOLE_COMMAND / CONSOLE_EVENT
+// Description: Highlights user-invoked or internal commands/events 
 // 
-#define  VERBOSE_UI_COMMAND()                  VERBOSE_COMMAND("User Interface Command: ", LARGE_PARTITION)
-#define  VERBOSE_LIB_COMMAND()                 VERBOSE_COMMAND("Library Command: ", LARGE_PARTITION)
-#define  VERBOSE_LIB_EVENT()                   VERBOSE_COMMAND("Event: ", LARGE_PARTITION)
-#define  VERBOSE_THREAD_COMMAND()              VERBOSE_COMMAND("Operation Stage: ", LARGE_PARTITION)
+#define  CONSOLE_STAGE()                       CONSOLE_PARTITION("Operation Stage: " __FUNCTION__,  LARGE_PARTITION)
+#define  CONSOLE_ACTION()                      CONSOLE_PARTITION("Interaction: " __FUNCTION__,      SMALL_PARTITION)
+#define  CONSOLE_ACTION_BOLD()                 CONSOLE_PARTITION("Interaction: " __FUNCTION__,      LARGE_PARTITION)
+#define  CONSOLE_COMMAND()                     CONSOLE_PARTITION("Command: " __FUNCTION__,          SMALL_PARTITION)
+#define  CONSOLE_COMMAND_BOLD()                CONSOLE_PARTITION("Command: " __FUNCTION__,          LARGE_PARTITION)
+#define  CONSOLE_EVENT()                       CONSOLE_PARTITION("Event: " __FUNCTION__,            SMALL_PARTITION)
+#define  CONSOLE_EVENT_BOLD()                  CONSOLE_PARTITION("Event: " __FUNCTION__,            LARGE_PARTITION)
 
-/// Macro: VERBOSE_LIB_COMMAND_MINOR
-// Description: Provides minor highlighting for an internal command
+/// Macro: CONSOLE_STAGE1 / CONSOLE_ACTION1 / CONSOLE_COMMAND1 / CONSOLE_EVENT1
+// Description: Customized highlighting of user-invoked or internal commands/events
 // 
-#define  VERBOSE_LIB_COMMAND_MINOR()           VERBOSE_COMMAND("Library Command: ", SMALL_PARTITION)
+#define  CONSOLE_STAGE1(pArg)                  CONSOLE_PARTITION1("Operation Stage: " __FUNCTION__ " ---> %s", LARGE_PARTITION, pArg)
+#define  CONSOLE_ACTION1(pArg)                 CONSOLE_PARTITION1("Interaction: " __FUNCTION__ " ---> %s",     SMALL_PARTITION, pArg)
+#define  CONSOLE_ACTION_BOLD1(pArg)            CONSOLE_PARTITION1("Interaction: " __FUNCTION__ " ---> %s",     LARGE_PARTITION, pArg)
+#define  CONSOLE_COMMAND1(pArg)                CONSOLE_PARTITION1("Command: " __FUNCTION__ " ---> %s",         SMALL_PARTITION, pArg)
+#define  CONSOLE_COMMAND_BOLD1(pArg)           CONSOLE_PARTITION1("Command: " __FUNCTION__ " ---> %s",         LARGE_PARTITION, pArg)
+#define  CONSOLE_EVENT1(pArg)                  CONSOLE_PARTITION1("Event: " __FUNCTION__ " ---> %s",           SMALL_PARTITION, pArg)
+#define  CONSOLE_EVENT_BOLD1(pArg)             CONSOLE_PARTITION1("Event: " __FUNCTION__ " ---> %s",           LARGE_PARTITION, pArg)
+
+/// Macro: CONSOLE_UI / CONSOLE_UI_BOLD / CONSOLE_MENU
+// Description: Highlights user-interface interaction
+// 
+#define  CONSOLE_UI(iID,iMsg)                  CONSOLE_PARTITION("Message: " __FUNCTION__ " : " #iID " : " #iMsg, SMALL_PARTITION)
+#define  CONSOLE_UI_BOLD(iID,iMsg)             CONSOLE_PARTITION("Message: " __FUNCTION__ " : " #iID " : " #iMsg, LARGE_PARTITION)
+#define  CONSOLE_MENU(iID)                     CONSOLE_PARTITION("Menu Cmd: " __FUNCTION__ " : " #iID, SMALL_PARTITION)
+
+// Defines uniform console separators
+#define  LARGE_PARTITION                       "================================================================================"
+#define  SMALL_PARTITION                       "--------------------------------------------------------------------------------"
+#define  ERROR_PARTITION                       "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+/// Macro: CONSOLE_COMPLETE
+// Description: Prints a large separator indicating a worker thread has completed
+// 
+// CONST CHAR*  szOperation : [in] (ANSI) Name of the operation that completed
+//
+//#define  CONSOLE_COMPLETE(szOperation)         CONSOLE_PARTITION("=             " szOperation, LARGE_PARTITION)
+
+#define  CONSOLE_COMPLETE(szName, eResult)     CONSOLE(LARGE_PARTITION "\r\n        =             " szName " WORKER THREAD COMPLETED : %s\r\n        " LARGE_PARTITION, identifyOperationResultString(eResult))
+
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                                    DEBUGGING
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Helpers
+BearScriptAPI VOID  debugAccessViolation();
+
+// Functions
+BearScriptAPI VOID  debugArgument(const ARGUMENT*  pArgument);
+BearScriptAPI VOID  debugCommand(const COMMAND*  pCommand);
+BearScriptAPI VOID  debugCommandSyntax(const COMMAND_SYNTAX*  pSyntax);
+BearScriptAPI VOID  debugList(const LIST*  pList);
+BearScriptAPI VOID  debugErrorQueue(const ERROR_QUEUE*  pQueue);
+BearScriptAPI VOID  debugGameFile(const GAME_FILE*  pGameFile);
+BearScriptAPI VOID  debugGameString(const GAME_STRING*  pGameString);
+BearScriptAPI VOID  debugJumpStack(const STACK*  pStack);
+BearScriptAPI VOID  debugJumpStackItem(const JUMP_STACK_ITEM*  pItem);
+BearScriptAPI VOID  debugOperationData(const OPERATION_DATA*  pOperation);
+BearScriptAPI VOID  debugObjectName(const OBJECT_NAME*  pObjectName);
+BearScriptAPI VOID  debugProjectFile(const PROJECT_FILE*  pProjectFile);
+BearScriptAPI VOID  debugProjectVariable(const PROJECT_VARIABLE*  pVariable);
+BearScriptAPI VOID  debugQueue(const QUEUE*  pQueue);
+BearScriptAPI VOID  debugScriptDependency(const SCRIPT_DEPENDENCY*  pDependency);
+BearScriptAPI VOID  debugScriptDependencyTree(const AVL_TREE*  pTree);
+BearScriptAPI VOID  debugScriptFile(const SCRIPT_FILE*  pScriptFile);
+BearScriptAPI VOID  debugStack(const STACK*  pStack);
+BearScriptAPI VOID  debugStoredDocument(const STORED_DOCUMENT*  pDocument);
+BearScriptAPI VOID  debugTree(const AVL_TREE*  pTree);
+BearScriptAPI VOID  debugVariableName(const VARIABLE_NAME*  pName);
+BearScriptAPI VOID  debugXMLToken(const XML_TOKENISER*  pToken);
+
+// Functions
+BearScriptAPI VOID          debugQueryWindow(HWND  hWnd, CONST TCHAR*  szName, CONST BOOL  bIncludeParent);
+BearScriptAPI LIST*         generateStackTrace(CONTEXT  oContext);
+BearScriptAPI const TCHAR*  identifyMessage(UINT  iMessage);
+
+/// Macro: printException
+// Description: Prints an error to the console then deletes it
+//
+#define       printException(pException)                setAppError(AE_EXCEPTION);  consolePrintError(pException);  deleteErrorStack(pException);
+
+/// Macro: printLastError
+// Description: Prints the last error in a queue to the console
+//
+#define       printLastError(pQueue)                    consolePrintError(lastErrorQueue(pQueue))
+
+/// Macro: getException
+// Description: Generates an ErrorStack from the current exception   (__except filter function only)
+//
+#define       getException(pException)                  generateExceptionError(GetExceptionInformation(), pException)
+
+/// Macro: getException
+// Description: Generates an ErrorStack from the current exception and pushes it into an error queue   (__except filter function only)
+//
+#define       pushException(pQueue)                     generateQueuedExceptionError(GetExceptionInformation(), pQueue)
+
+/// Macro: BUG
+// Description: Prints a bug description to the console
+//
+// CONST CHAR*  szTask : [in] (ANSI) Description of the bug
+//
+#define  BUG                                            "BUG: " __FUNCTION__ "() :" 
+
+/// Macro: DEBUG_WINDOW
+// Description: Prints properties of a window to the console      [Used for debugging errors in WINE]
+// 
+// CONST CHAR*  szWindowNameA : [in] Name of the window
+// HWND         hWnd          : [in] Window handle
+// 
+#ifdef PRINT_WINDOW_PROPERTIES
+   #define  DEBUG_WINDOW(szNameA, hWnd)                 debugQueryWindow(hWnd, TEXT(szNameA), TRUE)
+   #define  DEBUG_WINDOW_VAR(szName, hWnd)              debugQueryWindow(hWnd, szName, TRUE)
+#else
+   #define  DEBUG_WINDOW(szNameA, hWnd) 
+   #define  DEBUG_WINDOW_VAR(szName, hWnd)
+#endif
+
+/// Macro: EXCEPTION
+// Description: Prefaces a console output string with 'EXCEPTION:' and location, to aide analysis
+//
+#define  EXCEPTION(szText)                              CONSOLE(ERROR_PARTITION "\r\n" "EXCEPTION: " __FUNCTION__ "() : " szText)
+#define  EXCEPTION1(szText,Arg)                         CONSOLE(ERROR_PARTITION "\r\n" "EXCEPTION: " __FUNCTION__ "() : " szText, (Arg))
+#define  EXCEPTION2(szText,Arg1,Arg2)                   CONSOLE(ERROR_PARTITION "\r\n" "EXCEPTION: " __FUNCTION__ "() : " szText, (Arg1), (Arg2))
+#define  EXCEPTION3(szText,Arg1,Arg2,Arg3)              CONSOLE(ERROR_PARTITION "\r\n" "EXCEPTION: " __FUNCTION__ "() : " szText, (Arg1), (Arg2), (Arg3))
+#define  EXCEPTION4(szText,Arg1,Arg2,Arg3,Arg4)         CONSOLE(ERROR_PARTITION "\r\n" "EXCEPTION: " __FUNCTION__ "() : " szText, (Arg1), (Arg2), (Arg3), (Arg4))
 
 /// Macro: ERROR_CHECK
 // Description: Prints the contents of GetLastError to the console
@@ -389,73 +525,49 @@ LRESULT CALLBACK       wndprocConsole(HWND hWnd, UINT iMessage, WPARAM wParam, L
 // CONST CHAR*  szActivityA : [in] (ANSI) Description the activity that failed
 // ...   ....   xExpression : [in] Expression to test
 // 
-#define  ERROR_CHECK(szActivityA, xExpression) if ((xExpression) == FALSE) consolePrintLastError(TEXT(szActivityA), __WFUNCTION__, __SWFILE__, __LINE__); else VERBOSE(szActivityA " - success!");
+#define  ERROR_CHECK(szActivityA, xExpression)          SILENT_ERROR_CHECK(szActivityA, xExpression) else VERBOSE(szActivityA " - success!");
+#define  SILENT_ERROR_CHECK(szActivityA, xExpression)   if ((xExpression) == FALSE) consolePrintLastError(TEXT(szActivityA), __WFUNCTION__, __SWFILE__, __LINE__);
 
-/// Macro: DEBUG_WINDOW
-// Description: Prints properties of a window to the console
+/// Macro: TRY/CATCH
+// Description: Inserts a try/catch using a hidden ErrorStack 
 // 
-// CONST CHAR*  szWindowNameA : [in] Name of the window
-// HWND         hWnd          : [in] Window handle
+#define   TRY                                           ERROR_STACK*  pException = NULL;  __try
+#define   CATCH                                         __except (getException(pException)) 
+#define   PUSH_CATCH(pQueue)                            __except (pushException(pQueue))
+
+/// Macro: CATCH<n>
+// Description: Fills the hidden ErrorStack and prints formatted text to the console 
 // 
-#ifdef PRINT_WINDOW_PROPERTIES
-   #define  DEBUG_WINDOW(szNameA, hWnd)        debugQueryWindow(hWnd, TEXT(szNameA), TRUE)
-#else
-   #define  DEBUG_WINDOW(szNameA, hWnd) 
-#endif
+#define   CATCH0(szText)                                __except (getException(pException))  {  EXCEPTION(szText);                       ON_EXCEPTION();  }
+#define   CATCH1(szText,Arg1)                           __except (getException(pException))  {  EXCEPTION1(szText,Arg1);                 ON_EXCEPTION();  }
+#define   CATCH2(szText,Arg1,Arg2)                      __except (getException(pException))  {  EXCEPTION2(szText,Arg1,Arg2);            ON_EXCEPTION();  }
+#define   CATCH3(szText,Arg1,Arg2,Arg3)                 __except (getException(pException))  {  EXCEPTION3(szText,Arg1,Arg2,Arg3);       ON_EXCEPTION();  }
+#define   CATCH4(szText,Arg1,Arg2,Arg3,Arg4)            __except (getException(pException))  {  EXCEPTION4(szText,Arg1,Arg2,Arg3,Arg4);  ON_EXCEPTION();  }
 
-/// Macro: VERBOSE_SMALL_PARTITION / VERBOSE_LARGE_PARTITION
-// Description: Prints a console separator only in VERBOSE mode
+/// Macro: PUSH_CATCH<n>
+// Description: Pushes exception Error to a queue and prints formatted text to the console 
 // 
-#define  VERBOSE_SMALL_PARTITION()             VERBOSE(SMALL_PARTITION)
-#define  VERBOSE_LARGE_PARTITION()             VERBOSE(LARGE_PARTITION)
+#define   PUSH_CATCH0(pQueue,szText)                    __except (pushException(pQueue))     {  EXCEPTION(szText);                       ON_EXCEPTION();  }
+#define   PUSH_CATCH1(pQueue,szText,Arg1)               __except (pushException(pQueue))     {  EXCEPTION1(szText,Arg1);                 ON_EXCEPTION();  }
 
-/// Macro: VERBOSE_THREAD_COMPLETE
-// Description: Prints a large separator indicating a worker thread has completed
-// 
-// CONST CHAR*  szOperation : [in] (ANSI) Name of the operation that completed
-//
-#define  VERBOSE_THREAD_COMPLETE(szOperation)  VERBOSE_LARGE_PARTITION();  CONSOLE("Thread %#x:   " szOperation, GetCurrentThreadId()); VERBOSE_LARGE_PARTITION()
-
-/// Macro: BUG
-// Description: Prints a bug description to the console
-//
-// CONST CHAR*  szTask : [in] (ANSI) Description of the bug
-//
-#define  BUG                                   "BUG: " __FUNCTION__ "() :" 
-
-/// Macro: OFFICIAL_BUG
-// Description: Prints a bug description and bug ID to the console
-//
-// CONST UINT   iID    : [in] Bug ID
-// CONST CHAR*  szTask : [in] (ANSI) Description of the bug
-//
-#define  OFFICIAL_BUG(iID, szBug)              CONSOLE("BUG " #iID ": " szBug " in " __FUNCTION__)
-
-/// ////////////////////////////////////////////////////////////////////////////////////////
-///                                    DEBUGGING
-/// ////////////////////////////////////////////////////////////////////////////////////////
-
-// Functions
-BearScriptAPI VOID    debugQueryWindow(HWND  hWnd, CONST TCHAR*  szName, CONST BOOL  bIncludeParent);
-BearScriptAPI TCHAR*  generateStackTrace(HANDLE  hProcess);
-
+/// Macro: ON_EXCEPTION
+// Description: Performs a custom per-file custom action after an exception
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    ERROR QUEUES
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
 /// Macros: Creation / Destruction
-#define       createErrorQueue()                       createQueue(destructorErrorStack)
-#define       deleteErrorQueue                         deleteQueue
+#define       deleteErrorQueue(pErrorQueue)             deleteQueue((QUEUE*&)pErrorQueue)
 
 /// Macros: Helpers
-#define       clearErrorQueue(pErrorQueue)             deleteListContents(pErrorQueue)
-#define       pushErrorQueue(pErrorQueue, pError)      pushLastQueueObject(pErrorQueue, (LPARAM)(pError))
-#define       popErrorQueue(pErrorQueue)               (ERROR_STACK*)popFirstQueueObject(pErrorQueue)
-#define       lastErrorQueue(pErrorQueue)              (ERROR_STACK*)lastObjectFromQueue(pErrorQueue)
-#define       firstErrorQueue(pErrorQueue)             (ERROR_STACK*)firstObjectFromQueue(pErrorQueue)
+#define       clearErrorQueue(pErrorQueue)              deleteListContents((QUEUE*&)pErrorQueue)
+#define       popErrorQueue(pErrorQueue)                ((ERROR_STACK*)popFirstQueueObject(pErrorQueue))
+#define       lastErrorQueue(pErrorQueue)               ((ERROR_STACK*)lastObjectFromQueue(pErrorQueue))
+#define       firstErrorQueue(pErrorQueue)              ((ERROR_STACK*)firstObjectFromQueue(pErrorQueue))
 
 // Creation / Destruction
+BearScriptAPI ERROR_QUEUE*  createErrorQueue();
 BearScriptAPI ERROR_QUEUE*  duplicateErrorQueue(CONST ERROR_QUEUE*  pErrorQueue);
 
 // Helpers
@@ -463,12 +575,14 @@ BearScriptAPI BOOL          findErrorStackByIndex(CONST ERROR_QUEUE*  pErrorQueu
 BearScriptAPI BOOL          hasErrors(CONST ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI ERROR_TYPE    identifyErrorQueueType(CONST ERROR_QUEUE*  pErrorQueue);
 BearScriptAPI ERROR_STACK*  getErrorQueueItem(CONST ERROR_QUEUE*  pErrorQueue, CONST UINT  iIndex);
+BearScriptAPI VOID          pushErrorQueue(ERROR_QUEUE* pErrorQueue, ERROR_STACK*  pError);
 
 // Functions
-VOID  attachLocationToLastError(ERROR_QUEUE*  pErrorQueue, CONST UINT  iErrorCode, CONST TCHAR*  szErrorCode, CONST TCHAR*  szFunction, CONST TCHAR*  szFile, CONST UINT  iLine);
-VOID  attachXMLToLastError(ERROR_QUEUE*  pErrorQueue, CONST TCHAR*  szXML, CONST UINT  iPosition);
-VOID  pushCommandAndOutputQueues(ERROR_STACK*  pError, ERROR_QUEUE*  pOutputQueue, ERROR_QUEUE*  pCommandQueue, CONST ERROR_TYPE  eType = ET_ERROR);
-VOID  pushCommandAndCodeEditErrorQueue(COMMAND*  pCommand, HWND  hCodeEdit, ERROR_STACK*  pError);
+VOID   attachLocationToLastError(ERROR_QUEUE*  pErrorQueue, CONST UINT  iErrorCode, CONST TCHAR*  szErrorCode, CONST TCHAR*  szFunction, CONST TCHAR*  szFile, CONST UINT  iLine);
+VOID   attachXMLToLastError(ERROR_QUEUE*  pErrorQueue, CONST TCHAR*  szXML, CONST UINT  iPosition);
+VOID   generateAttachmentError(ERROR_QUEUE*  pOutput, const ERROR_QUEUE*  pAttachments, ERROR_STACK*  pError);
+VOID   pushCommandAndOutputQueues(ERROR_STACK*  pError, ERROR_QUEUE*  pOutputQueue, ERROR_QUEUE*  pCommandQueue, CONST ERROR_TYPE  eType = ET_ERROR);
+VOID   pushCommandAndCodeEditErrorQueue(COMMAND*  pCommand, HWND  hCodeEdit, ERROR_STACK*  pError);
 
 // Functions
 BearScriptAPI VOID   attachTextToLastError(ERROR_QUEUE*  pErrorQueue, CONST TCHAR*  szText);
@@ -651,12 +765,9 @@ BearScriptAPI VOID          deleteGameString(GAME_STRING*  &pGameString);
 BearScriptAPI VOID          deleteSubString(SUBSTRING*  &pSubString);
 
 // Helpers
-VOID                appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szFormat, ...);
-UINT                calculateOutputPageID(const UINT  iPageID, const GAME_VERSION  eVersion);
-BearScriptAPI BOOL  findGameStringByID(CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
-BearScriptAPI BOOL  findGameStringInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
-BearScriptAPI BOOL  findGamePageInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iPageID, GAME_PAGE*  &pOutput);
-BearScriptAPI VOID  updateGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szNewText);
+VOID                  appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szFormat, ...);
+UINT                  calculateOutputPageID(const UINT  iPageID, const GAME_VERSION  eVersion);
+BearScriptAPI VOID    updateGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szNewText);
 
 // Functions
 BOOL                findGameStringBySubString(CONST TCHAR*  szSubString, CONST UINT  iLength, CONST UINT  iDefaultPageID, GAME_STRING*  &pOutput);
@@ -668,17 +779,11 @@ CONST TCHAR*        findSubStringEndMarker(CONST TCHAR*  szInput);
 TCHAR*              generateGameStringPreview(CONST GAME_STRING*  pGameString, CONST UINT  iPreviewLength);
 TCHAR*              generateInternalGameStringPreview(CONST GAME_STRING*  pGameString, CONST UINT  iPreviewLength);
 BOOL                isSubStringLookup(CONST TCHAR*  szSubString, CONST UINT  iLength);
-UINT                performGameStringResolution(CONST GAME_STRING*  pGameString, TCHAR*  szOutput, CONST UINT  iOutputLength, STACK*  pHistoryStack, ERROR_QUEUE*  pErrorQueue);
+UINT                resolveGameStringSubStrings(CONST GAME_STRING*  pGameString, TCHAR*  szOutput, CONST UINT  iOutputLength, STACK*  pHistoryStack, ERROR_QUEUE*  pErrorQueue);
 
-// Tree operations
-VOID                treeprocConvertGameStringToInternal(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
-
-/// ////////////////////////////////////////////////////////////////////////////////////////
-///                                  GAME STRING (OLD)
-/// ////////////////////////////////////////////////////////////////////////////////////////
-
-BOOL                performCharacterReplacement(TCHAR*  szInputBuffer, CONST UINT  iBufferLength, CONST UINT  iFlags);
-BearScriptAPI BOOL  performStringConversion(TCHAR*  szBuffer, CONST UINT  iBufferLength, CONST STRING_TYPE  eFromType, CONST STRING_TYPE  eToType);
+// Tree Functions
+VOID                treeprocConvertGameStringType(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
+VOID                treeprocResolveGameStringSubstrings(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  GAME STRING TREES
@@ -687,29 +792,19 @@ BearScriptAPI BOOL  performStringConversion(TCHAR*  szBuffer, CONST UINT  iBuffe
 // Creation / Destruction
 AVL_TREE*  createGamePageTreeByID();
 AVL_TREE*  createGameStringTreeByPageID();
-AVL_TREE*  createGameStringTreeByText();
 AVL_TREE*  createGameStringTreeByVersion();
-VOID       deleteGamePageTreeNode(LPARAM  pData);
-VOID       deleteGameStringTreeNode(LPARAM  pData);
+VOID       deleteGamePageNode(LPARAM  pData);
+VOID       deleteGameStringNode(LPARAM  pData);
 
 // Helpers
-BearScriptAPI LPARAM    extractGameStringTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty);
-BearScriptAPI LPARAM    extractGamePageTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty);
+BearScriptAPI LPARAM  extractGameStringNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty);
+BearScriptAPI LPARAM  extractGamePageNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty);
+BearScriptAPI BOOL    findGameStringByID(CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
+BearScriptAPI BOOL    findGameStringInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput);
+BearScriptAPI BOOL    findGamePageInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iPageID, GAME_PAGE*  &pOutput);
 
 // Functions
-UINT                insertLanguageFileIntoGameData(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue);
-BOOL                insertSpecialCasesIntoGameStringTrees();
-BOOL                isResultSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult);
-BOOL                isResultDuplicateSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult);
 OPERATION_RESULT    loadGameStringTrees(CONST FILE_SYSTEM*  pFileSystem, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
-VOID                performGameStringTreeSubstringResolution(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
-VOID                performLanguageFileGamePageMerge(LANGUAGE_FILE*  pLanguageFile);
-UINT                performLanguageFileGameStringMerge(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue);
-
-// Tree operations
-VOID                treeprocResolveGameStringSubstrings(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData);
-VOID                treeprocMergeSupplementaryGamePages(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
-VOID                treeprocMergeSupplementaryGameStrings(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  IMAGE TREE
@@ -766,7 +861,6 @@ BOOL              insertGameStringIntoDescriptionsFile(LANGUAGE_FILE*  pDescript
 BOOL              insertGameStringIntoLanguageFile(LANGUAGE_FILE*  pLanguageFile, CONST TCHAR*  szString, CONST UINT  iID, CONST UINT  iPageID, ERROR_STACK*  &pError);
 OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FILE*  pTargetFile, CONST BOOL  bSubStrings, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE* pErrorQueue);
 VOID              performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, const UINT  iConversionFlags, OPERATION_PROGRESS*  pProgress);
-VOID              performVariablesFileStringConversion(VARIABLES_FILE*  pVariablesFile);
 OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 VOID              treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pData);
 
@@ -791,10 +885,19 @@ BearScriptAPI CONST TCHAR*  identifyAppLanguageString(CONST APP_LANGUAGE  eLangu
 BearScriptAPI CONST TCHAR*  identifyGameVersionString(CONST GAME_VERSION  eVersion);
 BearScriptAPI BOOL          loadAppDialogFonts();
 BearScriptAPI VOID          loadAppImageTrees();
+BearScriptAPI HWND          loadDialog(const TCHAR*  szID, HWND  hParent, DLGPROC  dlgProc, LPARAM  lParam);
+BearScriptAPI DLGTEMPLATE*  loadDialogTemplate(const TCHAR*  szID);
+BearScriptAPI HMENU         loadMenu(const TCHAR*  szID);
 BearScriptAPI BOOL          loadHelpLibrary();
 BearScriptAPI BOOL          loadResourceLibrary(CONST APP_LANGUAGE  eLanguage, ERROR_STACK*  &pError);
 BearScriptAPI BOOL          loadRichEditLibrary();
+BearScriptAPI TCHAR*        loadString(const UINT  iResourceID, const UINT  iLength = 96);
+BearScriptAPI INT           loadString(const UINT  iResourceID, TCHAR* szBuffer, const UINT  iLength);
+BearScriptAPI const TCHAR*  loadStringf(const UINT  iResourceID, const UINT  iLength, ...);
 BearScriptAPI BOOL          loadSystemImageListIcons();
+BearScriptAPI const TCHAR*  loadTempString(const UINT  iResourceID);
+BearScriptAPI const TCHAR*  loadTempStringf(const UINT  iResourceID, ...);
+BearScriptAPI INT_PTR       showDialog(const TCHAR*  szID, HWND  hParent, DLGPROC  dlgProc, LPARAM  lParam);
 BearScriptAPI VOID          unloadApplication();
 BearScriptAPI VOID          unloadHelpLibrary();
 BearScriptAPI VOID          unloadResourceLibrary();
@@ -834,14 +937,16 @@ UINT                     identifyOperatorPrecedence(CONST OPERATOR_TYPE  eOperat
 BearScriptAPI DOCUMENT_OPERATION*    createDocumentOperationData(CONST OPERATION_TYPE  eOperation, GAME_FILE*  pGameFile);
 BearScriptAPI OPERATION_DATA*        createGameDataOperationData();
 BearScriptAPI SEARCH_OPERATION*      createSearchOperationData();
-BearScriptAPI SCRIPTCALL_OPERATION*  createScriptCallOperationData(CONST TCHAR*  szScriptName);
+BearScriptAPI SCRIPT_OPERATION*      createScriptOperationData(const CONTENT_TYPE  eType, const TCHAR*  szFolder, SCRIPT_CONTENT  xContent);
 BearScriptAPI SUBMISSION_OPERATION*  createSubmissionOperationData(CONST TCHAR*  szCorrection);
+BearScriptAPI UPDATE_OPERATION*      createUpdateOperation();
 
 // Destruction
 BearScriptAPI VOID  deleteOperationData(OPERATION_DATA*  &pOperationData);
 BearScriptAPI VOID  destructorOperationData(LPARAM  pOperationData);
 
 // Helpers
+BearScriptAPI CONST TCHAR*  identifyOperationResultString(CONST OPERATION_RESULT  eResult);
 BearScriptAPI CONST TCHAR*  identifyOperationTypeString(CONST OPERATION_TYPE  eType);
 BearScriptAPI BOOL  isOperationComplete(CONST OPERATION_DATA*  pOperationData);
 BearScriptAPI BOOL  isOperationSuccessful(CONST OPERATION_DATA*  pOperationData);
@@ -941,6 +1046,8 @@ BearScriptAPI BOOL                getAppPreferencesLanguage(APP_LANGUAGE*  pLang
 BearScriptAPI RECT*               getAppPreferencesWindowRect(CONST APPLICATION_WINDOW  eWindow);
 BearScriptAPI SIZE*               getAppPreferencesWindowSize(CONST APPLICATION_WINDOW  eWindow);
 BOOL                              getAppPreferencesVersion(APPLICATION_VERSION*  pversion);
+BearScriptAPI VOID                setAppPreferencesBackupFileName(CONST TCHAR*  szLastFileName);
+BearScriptAPI VOID                setAppPreferencesBackupFolder(CONST TCHAR*  szLastFolder);
 BearScriptAPI VOID                setAppPreferencesDialogSplit(CONST APPLICATION_WINDOW  eWindow, CONST UINT  iSize);
 BearScriptAPI VOID                setAppPreferencesDialogVisibility(CONST APPLICATION_WINDOW  eWindow, CONST BOOL  bVisible);
 BearScriptAPI VOID                setAppPreferencesForumUserName(CONST TCHAR*  szUserName);
@@ -1035,17 +1142,15 @@ BearScriptAPI AVL_TREE*           createScriptDependencyTreeByText();
 VOID                              deleteScriptDependencyTreeNode(LPARAM  pScriptDependency);
 
 // Helpers
-LPARAM  extractScriptDependencyTreeNode(LPARAM  pNodeData, CONST AVL_TREE_SORT_KEY  eProperty);
+LPARAM                extractScriptDependencyTreeNode(LPARAM  pNodeData, CONST AVL_TREE_SORT_KEY  eProperty);
+BearScriptAPI TCHAR*  generateScriptCallPath(const TCHAR*  szCallerPath, const TCHAR*  szTargetName);
 
 // Functions
-BearScriptAPI VOID    insertScriptDependencyIntoAVLTree(AVL_TREE*  pTree, CONST TCHAR*  szScriptName);
+BearScriptAPI SCRIPT_DEPENDENCY*  insertScriptDependencyIntoAVLTree(AVL_TREE*  pTree, CONST TCHAR*  szScriptName);
 
 // Thread Functions
-BearScriptAPI DWORD   threadprocFindCallingScripts(VOID*  pParameter);
-
-// Tree operations
-VOID  treeprocSearchCallingScript(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
-
+//BearScriptAPI DWORD   threadprocFindScriptCalls(VOID*  pParameter);
+BearScriptAPI DWORD   threadprocFindScriptContent(VOID*  pParameter);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                      SCRIPT OBJECTS
@@ -1067,7 +1172,7 @@ OBJECT_NAME_GROUP     identifyObjectNameGroupFromGameString(CONST GAME_STRING*  
 TCHAR*                generateScriptObjectGroupString(CONST OBJECT_NAME_GROUP  eGroup);
 
 // Functions
-VOID               loadScriptObjectsTrees(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
+BOOL               loadScriptObjectsTrees(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 VOID               performScriptObjectNameMangling(SCRIPT_OBJECT*  pScriptObject);
 
 // Tree Operations
@@ -1202,6 +1307,7 @@ BOOL                 destroyCommandsInTranslatorOutputByIndex(CONST SCRIPT_TRANS
 BOOL                 findCommandInGeneratorInput(CONST SCRIPT_GENERATOR*  pGenerator, CONST UINT  iIndex, COMMAND*  &pOutput);
 BearScriptAPI BOOL   findCommandInGeneratorOutput(CONST SCRIPT_GENERATOR*  pGenerator, CONST COMMAND_TYPE  eType, CONST UINT  iIndex, COMMAND*  &pOutput);
 BearScriptAPI BOOL   findCommandInTranslatorOutput(CONST SCRIPT_TRANSLATOR*  pTranslator, CONST UINT  iIndex, COMMAND*  &pOutput);
+BOOL                 findLastCommandInGeneratorOutput(CONST SCRIPT_GENERATOR*  pGenerator, COMMAND*  &pOutput);
 BOOL                 findVariableNameInGeneratorByIndex(CONST SCRIPT_GENERATOR*  pGenerator, CONST UINT  iIndex, VARIABLE_NAME*  &pOutput);
 BOOL                 findVariableNameInTranslatorByIndex(CONST SCRIPT_TRANSLATOR*  pTranslator, CONST UINT  iIndex, VARIABLE_NAME*  &pOutput);
 UINT                 getScriptGeneratorVariablesCount(CONST SCRIPT_GENERATOR*  pGenerator);
@@ -1231,6 +1337,7 @@ BearScriptAPI VOID   appendArgumentToScriptFile(SCRIPT_FILE*  pScriptFile, CONST
 BearScriptAPI BOOL   findArgumentInScriptFileByIndex(CONST SCRIPT_FILE*  pScriptFile, CONST UINT  iIndex, ARGUMENT*  &pOutput);
 BearScriptAPI BOOL   isArgumentInScriptFile(CONST SCRIPT_FILE*  pScriptFile, CONST TCHAR*  szVariableName);
 BearScriptAPI BOOL   removeArgumentFromScriptFileByIndex(CONST SCRIPT_FILE*  pScriptFile, CONST UINT  iIndex);
+BearScriptAPI BOOL   reorderScriptFileArgument(SCRIPT_FILE*  pScriptFile, CONST UINT  iIndex, CONST BOOL  iOffset);
 BearScriptAPI VOID   setScriptNameFromPath(SCRIPT_FILE*  pScriptFile);
 BearScriptAPI VOID   setPathFromScriptName(SCRIPT_FILE*  pScriptFile);
 BearScriptAPI VOID   setScriptName(SCRIPT_FILE*  pScriptFile, CONST TCHAR*  szScriptName);
@@ -1242,7 +1349,7 @@ BearScriptAPI BOOL   verifyScriptFileArgumentName(CONST SCRIPT_FILE*  pScriptFil
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 // Functions
-BearScriptAPI BOOL loadScriptCallCommandTargetScript(CONST SCRIPT_FILE*  pCallingScript, CONST COMMAND* pCommand, HWND  hParentWnd, SCRIPT_FILE* &pOutputScript, ERROR_QUEUE*  pErrorQueue);
+BearScriptAPI BOOL loadScriptCallCommandTargetScript(const SCRIPT_FILE*  pCallingScript, const  COMMAND* pCommand, HWND  hParentWnd, SCRIPT_FILE*&  pOutput, ERROR_QUEUE*  pErrorQueue);
 OPERATION_RESULT   loadScriptProperties(CONST TCHAR*  szFullPath, HWND  hParentWnd, SCRIPT_FILE*  &pScriptFile, ERROR_QUEUE*  pOutputErrorQueue);
 BOOL               translateCommandExpression(COMMAND*  pCommand, CONST PARAMETER_COUNT*  pParameterCount, ERROR_STACK* &pError);
 OPERATION_RESULT   translateCommandNode(CONST SCRIPT_FILE* pScriptFile, CONST COMMAND_NODE*  pCommandNode, HWND  hParentWnd, COMMAND*  &pOutput, ERROR_QUEUE*  pErrorQueue);
@@ -1273,8 +1380,8 @@ VOID                        deleteCommandComponent(COMMAND_COMPONENT*  pCommandC
 // Helpers
 GAME_VERSION                calculateGameVersionFromEngineVersion(CONST UINT  iEngineVersion);
 UINT                        calculateEngineVersionFromGameVersion(CONST GAME_VERSION  eGameVersion);
-UINT                        convertSectorCoordinatesToStringID(CONST POINT*  ptSector);
-BOOL                        convertStringIDToSectorCoordinates(CONST UINT  iStringID, POINT*  pOutput);
+UINT                        convertSectorCoordinatesToStringID(CONST POINTS*  ptSector);
+BOOL                        convertStringIDToSectorCoordinates(CONST UINT  iStringID, POINTS*  pOutput);
 CONST TCHAR*                identifyDataTypeString(CONST DATA_TYPE  eType);
 BearScriptAPI GAME_PAGE_ID  identifyGamePageIDFromDataType(CONST DATA_TYPE  eDataType);
 PARAMETER_NODE_TYPE         identifyParameterSyntaxType(CONST PARAMETER_SYNTAX  eSyntax);
@@ -1283,7 +1390,6 @@ BOOL                        verifyDataType(CONST DATA_TYPE  eType);
 
 // Functions
 BOOL                 calculateParameterSyntaxByIndex(CONST COMMAND*  pCommand, CONST UINT  iParameterIndex, PARAMETER_SYNTAX  &eOutput, ERROR_STACK*  &pError);
-BearScriptAPI TCHAR* calculateScriptCallTargetFilePath(CONST TCHAR*  szCallerPath, CONST COMMAND*  pScriptCall);
 BOOL                 convertLabelNumberParameterToLabel(CONST COMMAND_NODE*  pCommandNode, COMMAND*  pCommand, ERROR_STACK*  &pError);
 BearScriptAPI BOOL   findGameStringDependency(CONST COMMAND*  pCommand, GAME_STRING*  &pOutput);
 BOOL                 findNextCommandComponent(COMMAND_COMPONENT*  pCommandComponent);
@@ -1371,6 +1477,7 @@ VOID                 deleteJumpStackItem(JUMP_STACK_ITEM*  pItem);
 // Helpers
 VOID              destroyJumpStackItemByIndex(STACK*  pStack, CONST UINT  iIndex);
 BOOL              isIfConditional(CONST CONDITIONAL_ID   eConditional);
+BOOL              isSkipIfConditional(CONST CONDITIONAL_ID   eConditional);
 BOOL              isWhileConditional(CONST JUMP_STACK_ITEM*  pItem);
 VOID              popJumpStack(STACK*  pStack);
 VOID              pushJumpStack(STACK*  pStack, COMMAND*  pCommand, COMMAND*  pJumpCommand);
@@ -1381,9 +1488,9 @@ BOOL              appendEndCommandToScriptFile(HWND  hCodeEdit, SCRIPT_FILE*  pS
 BOOL              findLastConditionalInJumpStack(STACK*  pStack, CONST UINT  eType, JUMP_STACK_ITEM*  &pOutput);
 BOOL              findLabelInJumpStack(STACK*  pStack, JUMP_STACK_ITEM*  &pOutput);
 BOOL              findLabelInJumpStackByName(STACK*  pLabelStack, CONST TCHAR*  szLabelName, JUMP_STACK_ITEM*  &pOutput);
-BOOL              generateBranchingCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
-BOOL              generateLabelStackItem(STACK*  pLabelStack, COMMAND*  pCommand, ERROR_STACK*  &pError);
-BOOL              generateSubroutineCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
+BOOL              generateBranchingCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue);
+BOOL              generateSubroutineCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue);
+BOOL              validateSubroutineLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                      SCRIPT GENERATION
@@ -1420,7 +1527,7 @@ BearScriptAPI DWORD  threadprocSaveScriptFile(VOID*  pThreadParameter);
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 // FUnctions
-BOOL                  validateScriptFileProperties(CONST SCRIPT_FILE*  pValidationFile, CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue);
+OPERATION_RESULT      validateScriptFileProperties(CONST SCRIPT_FILE*  pValidationFile, CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue);
 OPERATION_RESULT      validateScriptFile(CONST SCRIPT_FILE*  pValidationFile, CONST SCRIPT_FILE*  pScriptFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 OPERATION_RESULT      validateScriptFileByText(CONST SCRIPT_FILE*  pValidationFile, CONST SCRIPT_FILE*  pScriptFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue);
 
@@ -1483,6 +1590,7 @@ BearScriptAPI VOID          appendStringToTextStreamf(TEXT_STREAM*  pTextStream,
 CALL_STACK*                    createCallStack(CONST DWORD  dwThreadID);
 BearScriptAPI CALL_STACK_LIST* createCallStackList();
 FUNCTION_CALL*                 createFunctionCall(CONST TCHAR*  szFileName, CONST TCHAR*  szFunction, CONST UINT  iLineNumber);
+FUNCTION_CALL*                 createFunctionCall2(CONST TCHAR*  szFileName, CONST TCHAR*  szFunction, CONST UINT  iLineNumber);
 BearScriptAPI VOID             deleteCallStackList(CALL_STACK_LIST*  &pCallStackList);
 BearScriptAPI VOID             destructorCallStack(LPARAM  pCallStack);
 BearScriptAPI VOID             destructorFunctionCall(LPARAM  pFunctionCall);
@@ -1555,7 +1663,7 @@ VOID                 removeAVLTreePredecessorNode(AVL_TREE*  pTree, AVL_TREE_NOD
 // Creation
 BearScriptAPI AVL_TREE_GROUP_COUNTER*  createAVLTreeGroupCounter(CONST UINT  iMaxGroups);
 BearScriptAPI AVL_TREE_OPERATION*      createAVLTreeOperation(CONST AVL_TREE_FUNCTOR  pfnFunctor, CONST AVL_TREE_TRAVERSAL  eOrder);
-BearScriptAPI AVL_TREE_OPERATION*      createAVLTreeOperationEx(CONST AVL_TREE_FUNCTOR  pfnFunctor, CONST AVL_TREE_TRAVERSAL  eOrder, QUEUE*  pErrorQueue, OPERATION_PROGRESS*  pProgress);
+BearScriptAPI AVL_TREE_OPERATION*      createAVLTreeOperationEx(CONST AVL_TREE_FUNCTOR  pfnFunctor, CONST AVL_TREE_TRAVERSAL  eOrder, ERROR_QUEUE*  pErrorQueue, OPERATION_PROGRESS*  pProgress);
 BearScriptAPI AVL_TREE_OPERATION*      createAVLTreeThreadedOperation(CONST AVL_TREE_FUNCTOR  pfnFunctor, CONST AVL_TREE_TRAVERSAL  eOrder, OPERATION_PROGRESS*  pProgress, CONST UINT  iNodesPerThread);
 
 // Destruction
@@ -1721,59 +1829,52 @@ XML_TREE_NODE*  appendIntegerNodeToXMLTree(XML_TREE*  pTree, XML_TREE_NODE*  pPa
 XML_TREE_NODE*  appendSourceValueStringNodeToXMLTree(XML_TREE*  pTree, XML_TREE_NODE*  pParent, CONST TCHAR*  szValue);
 XML_TREE_NODE*  appendSourceValueIntegerNodeToXMLTree(XML_TREE*  pTree, XML_TREE_NODE*  pParent, CONST INT  iValue);
 XML_TREE_NODE*  appendSourceValueArrayNodeToXMLTree(XML_TREE*  pTree, XML_TREE_NODE*  pParent, CONST UINT  iSize);
-BOOL            findXMLPropertyByIndex(CONST XML_TREE_NODE*  pNode, CONST UINT  iIndex, XML_PROPERTY*  &pOutput);
 BOOL            setXMLPropertyInteger(XML_TREE_NODE*  pNode, CONST TCHAR*  szProperty, CONST INT  iValue);
 
 // Functions
-BOOL            generateTextStreamFromXMLTree(CONST XML_TREE*  pTree, TEXT_STREAM*  pOutput);
-VOID            generateTextStreamFromXMLTreeNode(CONST XML_TREE_NODE*  pCurrentNode, TEXT_STREAM*  pOutput, CONST UINT  iIndentation);
+BOOL            generateTextStreamFromXMLTree(CONST XML_TREE*  pTree, TEXT_STREAM*  pOutput, const bool bIndent = true);
+VOID            generateTextStreamFromXMLTreeNode(CONST XML_TREE_NODE*  pCurrentNode, TEXT_STREAM*  pOutput, const bool bIndent, CONST UINT  iIndentation);
 
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                          XML PARSER
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-// Creation / Destruction
-XML_PROPERTY*   createXMLProperty(CONST TCHAR*  szName);
-XML_TAG_STACK*  createXMLTagStack();
-XML_TOKENISER*  createXMLTokeniser(CONST TCHAR*  szInput);
-XML_TREE_NODE*  createXMLTreeNode(XML_TREE_NODE*  pParent, CONST XML_TOKENISER*  pToken);
-XML_TREE_NODE*  createXMLTreeRoot();
-VOID            deleteXMLProperty(XML_PROPERTY*  &pProperty);
-VOID            destructorXMLProperty(LPARAM  pListItem);
-VOID            deleteXMLTagStack(XML_TAG_STACK*  &pStack);
-VOID            deleteXMLTokeniser(XML_TOKENISER*  &pTokeniser);
-VOID            deleteXMLTreeNode(XML_TREE_NODE*  &pNode);
-VOID            destructorXMLTreeNode(LPARAM  pItemData);
+// Macros
+#define createXMLTagStack()        (XML_TAG_STACK*)createStack(destructorSimpleObject)
+#define deleteXMLTagStack(pStack)  deleteStack(pStack);
 
-// (Exported) Creation / Destruction
-BearScriptAPI XML_TREE*   createXMLTree();
-BearScriptAPI VOID        deleteXMLTree(XML_TREE*  &pTree);
+// Creation / Destruction
+BearScriptAPI XML_TREE*  createXMLTree();
+BearScriptAPI VOID       deleteXMLTree(XML_TREE*  &pTree);
+
+XML_PROPERTY*    createXMLProperty(CONST TCHAR*  szName);
+XML_TOKENISER*   createXMLTokeniser(const TCHAR*  szFileName, const TCHAR*  szInput);
+XML_TREE_NODE*   createXMLTreeNode(const XML_TOKENISER*  pToken);
+XML_TREE_NODE*   createXMLTreeRoot();
+VOID             deleteXMLProperty(XML_PROPERTY*  &pProperty);
+VOID             deleteXMLTokeniser(XML_TOKENISER*  &pTokeniser);
+VOID             deleteXMLTreeNode(XML_TREE_NODE*  &pNode);
+VOID             destructorXMLProperty(LPARAM  pListItem);
+VOID             destructorXMLTreeNode(LPARAM  pItemData);
+
 
 // Helpers
-TCHAR*         duplicateNodeText(CONST XML_TREE_NODE*  pNode);
-XML_PROPERTY*  getXMLPropertyFromItem(CONST LIST_ITEM*  pListItem);
-UINT           getXMLTreeItemCount(CONST XML_TREE*  pTree);
-XML_TREE_NODE* getXMLTreeNodeFromItem(CONST LIST_ITEM*  pListItem);
-LIST_ITEM*     getFirstXMLPropertyListItem(CONST XML_TREE_NODE*  pNode);
-LIST_ITEM*     getFirstXMLTreeNodeListItem(CONST XML_TREE_NODE*  pNode);
-BOOL           hasChildren(CONST XML_TREE_NODE*  pNode);
-BOOL           hasItems(CONST XML_TAG_STACK*  pStack);
-BOOL           hasProperties(CONST XML_TREE_NODE*  pNode);
-VOID           pushXMLTagStack(XML_TAG_STACK*  pStack, CONST TCHAR*  szTag, CONST UINT  iTagLength);
-VOID           popXMLTagStack(XML_TAG_STACK*  pStack);
-CONST TCHAR*   topXMLTagStack(CONST XML_TAG_STACK*  pStack);
-
-// (Exported) Helpers
 BearScriptAPI UINT  getXMLNodeCount(CONST XML_TREE_NODE*  pNode);
+UINT                getXMLTreeItemCount(CONST XML_TREE*  pTree);
 BearScriptAPI BOOL  isStringNumeric(CONST TCHAR*  szString);
 BearScriptAPI BOOL  isStringWhitespace(CONST TCHAR*  szString);
+VOID                pushXMLTagStack(XML_TAG_STACK*  pStack, const XML_TOKENISER*  pTag);
+VOID                popXMLTagStack(XML_TAG_STACK*  pStack);
+CONST TCHAR*        topXMLTagStack(CONST XML_TAG_STACK*  pStack);
 
 // Functions
 VOID    appendChildToXMLTreeNode(XML_TREE*  pTree, XML_TREE_NODE*  pParent, XML_TREE_NODE*  pChild);
 VOID    appendPropertyToXMLTreeNode(XML_TREE_NODE*  pNode, XML_PROPERTY*  pProperty);
 UINT    calculateCharacterCountInString(CONST TCHAR*  szString, CONST TCHAR  chCharacter);
-BOOL    findNextXMLToken(XML_TOKENISER*  &pOutput, ERROR_STACK*  &pError);
+BOOL    findNextXMLToken(XML_TOKENISER*  pOutput, ERROR_STACK*  &pError);
+BOOL    findXMLPropertyByIndex(CONST XML_TREE_NODE*  pNode, CONST UINT  iIndex, XML_PROPERTY*  &pOutput);
+BOOL    findXMLPropertyByName(CONST XML_TREE_NODE*  pNode, CONST TCHAR*  szProperty, XML_PROPERTY*  &pOutput);
 BOOL    getXMLPropertyInteger(CONST XML_TREE_NODE*  pNode, CONST TCHAR*  szProperty, INT&  iOutput);
 UINT    performXMLCharacterEntityReplacement(TCHAR*  szInput, CONST UINT  iInputLength);
 VOID    translateXMLTagIntoNode(CONST TCHAR*  szTag, CONST UINT  iLength, XML_TREE_NODE*  pOutput);

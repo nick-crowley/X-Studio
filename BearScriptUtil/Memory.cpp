@@ -27,7 +27,10 @@ extern HANDLE    hUtilityHeap;     // Low fragmentation process heap
 UtilityAPI 
 VOID*   utilAllocateMemory(CONST UINT  iBytes)
 {
-   return HeapAlloc(hUtilityHeap, NULL, iBytes);
+   VOID*  pNew = HeapAlloc(hUtilityHeap, NULL, iBytes);
+   ASSERT(pNew!= NULL);
+
+   return pNew;
 }
 
 /// Function name  : utilAllocateEmptyMemory
@@ -42,10 +45,12 @@ VOID*   utilAllocateEmptyMemory(CONST UINT  iBytes)
 {
    VOID*  pNewMemory;
    
-   /// Allocate memory and zero
+   /// Allocate memory 
    pNewMemory = HeapAlloc(hUtilityHeap, HEAP_ZERO_MEMORY, iBytes);
-   utilZeroMemory(pNewMemory, iBytes);
+   ASSERT(pNewMemory != NULL);
 
+   // Zero and return
+   utilZeroMemory(pNewMemory, iBytes);
    return pNewMemory;
 }
 

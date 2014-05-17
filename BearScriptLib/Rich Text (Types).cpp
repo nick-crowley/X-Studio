@@ -91,10 +91,9 @@ RICH_ITEM*  createRichItemPlainText(CONST TCHAR*  szPlainText, CONST UINT  iText
 // 
 RICH_ITEM*  createRichItemText(CONST RICH_ITEM*  pExistingItem)
 {
-   RICH_ITEM*  pNewItem;
+   RICH_ITEM*  pNewItem = utilCreateEmptyObject(RICH_ITEM);
 
    // Create an empty 'text' object
-   pNewItem = utilCreateEmptyObject(RICH_ITEM);
    pNewItem->eType     = RIT_TEXT;
    pNewItem->eTextType = ST_INTERNAL;
 

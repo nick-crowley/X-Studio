@@ -8,15 +8,29 @@
 #include "stdafx.h"
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
-///                                        MACROS
+///                                        DECLARATIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+struct FIND_TEXT_DIALOG
+{
+   HWND       hDialog;
+   DOCUMENT*  pDocument;
+};
 
+
+// Functions
+VOID     initFindTextDialog(FIND_TEXT_DIALOG*  pDialogData, HWND  hDialog);
+
+// Message Handlers
+BOOL     onFindTextDialogCommand(FIND_TEXT_DIALOG*  pDialogData, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
+VOID     onFindTextDialogFindText(FIND_TEXT_DIALOG*  pDialogData, CONST CODE_EDIT_SEARCH_FLAG  eAction);
+
+// Dialog procedure
+INT_PTR  dlgprocFindTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -44,11 +58,17 @@
 // 
 HWND   displayFindTextDialog(HWND  hParentWnd)
 {
-   HWND  hDialog;
+   FIND_TEXT_DIALOG*  pDialogData = utilCreateObject(FIND_TEXT_DIALOG);
+
+   // [TRACK]
+   CONSOLE_ACTION1(getActiveDocumentFileName());
+
+   // Set dialog data
+   pDialogData->pDocument = getActiveScriptDocument();
 
    /// Create FindText dialog
-   hDialog = CreateDialog(getResourceInstance(), TEXT("FIND_TEXT_DIALOG"), hParentWnd, dlgprocFindTextDialog);
-   ERROR_CHECK("Creating FindText dialog", hDialog);
+   HWND  hDialog = loadDialog(TEXT("FIND_TEXT_DIALOG"), hParentWnd, dlgprocFindTextDialog, (LPARAM)pDialogData);
+   ERROR_CHECK("creating 'FindText' dialog", hDialog);
 
    // [CHECK] Ensure dialog was created succesfully
    if (hDialog)
@@ -68,16 +88,20 @@ HWND   displayFindTextDialog(HWND  hParentWnd)
 // 
 // HWND  hDialog : [in] 
 // 
-VOID   initFindTextDialog(HWND  hDialog)
+VOID   initFindTextDialog(FIND_TEXT_DIALOG*  pDialogData, HWND  hDialog)
 {
    TCHAR    *szNewLine,
             *szSelection;    // Currently selected text
 
+   // Prepare
+   pDialogData->hDialog = hDialog;
+   SetWindowLong(hDialog, DWL_USER, (LONG)pDialogData);
+
    // [CAPTION] 
-   SetWindowText(hDialog, getAppName());
+   SetWindowText(pDialogData->hDialog, getAppName());
 
    // [POSITION] Set last position
-   SetWindowPos(hDialog, NULL, getAppPreferencesWindowRect(AW_FIND)->left, getAppPreferencesWindowRect(AW_FIND)->top, NULL, NULL, SWP_NOSIZE WITH SWP_NOZORDER);
+   SetWindowPos(pDialogData->hDialog, NULL, getAppPreferencesWindowRect(AW_FIND)->left, getAppPreferencesWindowRect(AW_FIND)->top, NULL, NULL, SWP_NOSIZE WITH SWP_NOZORDER);
 
    // [CHECK] Is there a current text selection?
    if (szSelection = CodeEdit_GetSelectionText(getActiveScriptCodeEdit()))
@@ -87,19 +111,87 @@ VOID   initFindTextDialog(HWND  hDialog)
          szNewLine[0] = NULL;
 
       // [SELECTION] Display text currently selected
-      SetDlgItemText(hDialog, IDC_FIND_SEARCH_EDIT, szSelection);
+      SetDlgItemText(pDialogData->hDialog, IDC_FIND_SEARCH_EDIT, szSelection);
       utilDeleteString(szSelection);
    }
    else
       // [NO SELECTION] Display last search text
-      SetDlgItemText(hDialog, IDC_FIND_SEARCH_EDIT, getAppPreferences()->szFindText);
+      SetDlgItemText(pDialogData->hDialog, IDC_FIND_SEARCH_EDIT, getAppPreferences()->szFindText);
 
    // Prevent EditCtrl from initially selecting text
-   SubclassWindow(GetControl(hDialog, IDC_FIND_SEARCH_EDIT), wndprocCustomEditControl);
+   SubclassWindow(GetControl(pDialogData->hDialog, IDC_FIND_SEARCH_EDIT), wndprocCustomEditControl);
    
    // [OWNER DRAW]
-   utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_ICON), SS_OWNERDRAW);
-   utilAddWindowStyle(GetControl(hDialog, IDC_DIALOG_TITLE), SS_OWNERDRAW);
+   utilAddWindowStyle(GetControl(pDialogData->hDialog, IDC_DIALOG_ICON), SS_OWNERDRAW);
+   utilAddWindowStyle(GetControl(pDialogData->hDialog, IDC_DIALOG_TITLE), SS_OWNERDRAW);
+}
+
+
+/// Function name  : generateDocumentList
+// Description     : Generate list of ScriptDocuments, containing active document first
+// 
+// DOCUMENT*  pActiveDoc   : [in] Active document
+// 
+// Return Value   : New list of documents
+// 
+LIST*  generateDocumentList(DOCUMENT*  pActiveDoc)
+{
+   HWND   hDocumentsTab = getMainWindowData()->hDocumentsTab;
+   LIST*  pOutput       = createList(NULL);
+   INT    iInitialIndex;
+
+   // Get Index of current document
+   findDocumentIndexByPath(hDocumentsTab, pActiveDoc->szFullPath, iInitialIndex);
+
+   // ITerate through open documents
+   for (UINT  i = 0; i < getDocumentCount(); i++)
+   {
+      UINT       iLogicalIndex = (iInitialIndex + i) % getDocumentCount();
+      DOCUMENT*  pDocument;
+
+      // [SCRIPT DOCUMENT] Add to list
+      if (findDocumentByIndex(hDocumentsTab, iLogicalIndex, pDocument) && pDocument->eType == DT_SCRIPT)
+         appendObjectToList(pOutput, (LPARAM)pDocument);
+   }
+
+   // Return document list
+   return pOutput;
+}
+
+/// Function name  : findNextScriptDocumentMatch
+// Description     : Find next match in other script documents, set document to active if found
+// 
+// FIND_TEXT_DIALOG*  pDialogData      : [in] Dialog data
+// SCRIPT_DOCUMENT*   pActiveDocument  : [in] Active document
+// CODE_EDIT_SEARCH*  pSearchData      : [in] Search data
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BOOL  findNextScriptDocumentMatch(FIND_TEXT_DIALOG*  pDialogData, SCRIPT_DOCUMENT*   pActiveDocument, CODE_EDIT_SEARCH*  pSearchData)
+{
+   SCRIPT_DOCUMENT*  pDocument;
+   LIST*             pScripts = generateDocumentList(pActiveDocument);
+   BOOL              bFound = FALSE;
+
+   // Always search other documents 'from top'
+   pSearchData->eFlags ^= CSF_FROM_CARET;
+   pSearchData->eFlags |= CSF_FROM_TOP;
+
+   // Search each script document
+   for (UINT  iIndex = 1; findListObjectByIndex(pScripts, iIndex, (LPARAM&)pDocument); iIndex++)
+   {
+      /// [SEARCH] Find/replace and select next match
+      if (bFound = CodeEdit_FindText(pDocument->hCodeEdit, pSearchData))
+      {
+         // [FOUND] Display document
+         displayDocument(getMainWindowData()->hDocumentsTab, pDocument);
+         break;
+      }
+   }
+
+   // Cleanup and return result
+   deleteList(pScripts);
+   return bFound;
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -112,29 +204,34 @@ VOID   initFindTextDialog(HWND  hDialog)
 // HWND                         hDialog : [in] Dialog
 // CONST CODE_EDIT_SEARCH_FLAG  eAction : [in] Whether to search or replace
 // 
-VOID  onFindTextDialogFindText(HWND  hDialog, CONST CODE_EDIT_SEARCH_FLAG  eAction)
+VOID  onFindTextDialogFindText(FIND_TEXT_DIALOG*  pDialogData, CONST CODE_EDIT_SEARCH_FLAG  eAction)
 {
    CODE_EDIT_SEARCH       oSearchData;
    SCRIPT_DOCUMENT*       pDocument;
    BOOL                   bMatchFound;
 
    // [CHECK] Ensure document and search phrase exist
-   if ((pDocument = getActiveScriptDocument()) AND utilGetDlgItemTextLength(hDialog, IDC_FIND_SEARCH_EDIT))
+   if ((pDocument = getActiveScriptDocument()) AND utilGetDlgItemTextLength(pDialogData->hDialog, IDC_FIND_SEARCH_EDIT))
    {
       // Prepare
-      oSearchData.szSearch  = utilGetDlgItemText(hDialog, IDC_FIND_SEARCH_EDIT);
-      oSearchData.szReplace = utilGetDlgItemText(hDialog, IDC_FIND_REPLACE_EDIT);
+      oSearchData.szSearch  = utilGetDlgItemText(pDialogData->hDialog, IDC_FIND_SEARCH_EDIT);
+      oSearchData.szReplace = utilGetDlgItemText(pDialogData->hDialog, IDC_FIND_REPLACE_EDIT);
+
       // [CHECK] Set 'Find from Top' and 'Case sensitive' options
-      oSearchData.eFlags    = eAction WITH (IsDlgButtonChecked(hDialog, IDC_FIND_FROM_TOP_CHECK) ? CSF_FROM_TOP : CSF_FROM_CARET);
-      oSearchData.eFlags   |= (IsDlgButtonChecked(hDialog, IDC_FIND_CASE_SENSITIVE_CHECK) ? CSF_CASE_SENSITIVE : NULL);
+      oSearchData.eFlags  = eAction WITH (IsDlgButtonChecked(pDialogData->hDialog, IDC_FIND_FROM_TOP_CHECK) ? CSF_FROM_TOP : CSF_FROM_CARET);
+      oSearchData.eFlags |= (IsDlgButtonChecked(pDialogData->hDialog, IDC_FIND_CASE_SENSITIVE_CHECK) ? CSF_CASE_SENSITIVE : NULL);
 
       /// [SEARCH] Find/replace and select next match
       bMatchFound = CodeEdit_FindText(pDocument->hCodeEdit, &oSearchData);
 
+      // [ALL DOCUMENTS] Search next document
+      if (!bMatchFound && IsDlgButtonChecked(pDialogData->hDialog, IDC_FIND_ALL_DOCUMENTS))
+         bMatchFound = findNextScriptDocumentMatch(pDialogData, pDocument, &oSearchData);
+
       // Display 'no more matches' if no match was found
-      utilShowDlgItem(hDialog, IDC_FIND_COMPLETE_STATIC, !bMatchFound);
+      utilShowDlgItem(pDialogData->hDialog, IDC_FIND_COMPLETE_STATIC, !bMatchFound);
       // Untick 'Search from top' if a match was found
-      CheckDlgButton(hDialog, IDC_FIND_FROM_TOP_CHECK, !bMatchFound);
+      CheckDlgButton(pDialogData->hDialog, IDC_FIND_FROM_TOP_CHECK, !bMatchFound);
 
       // Cleanup
       utilDeleteStrings(oSearchData.szSearch, oSearchData.szReplace);
@@ -142,16 +239,16 @@ VOID  onFindTextDialogFindText(HWND  hDialog, CONST CODE_EDIT_SEARCH_FLAG  eActi
 }
 
 /// Function name  : onFindTextDialogCommand
-// Description     : WM_COMMAND processing for the 'Insert Argument' dialog
+// Description     : WM_COMMAND processing 
 // 
-// HWND          hDialog        : [in] Window handle of the 'Insert Argument' dialog
+// HWND          hDialog        : [in] Window handle 
 // CONST UINT    iControlID     : [in] ID of the control sending the command
 // CONST UINT    iNotification  : [in] Notification code
 // HWND          hCtrl          : [in] Window handle of the control sending the command
 // 
 // Return Value   : TRUE if processed, FALSE otherwise
 // 
-BOOL   onFindTextDialogCommand(HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl)
+BOOL   onFindTextDialogCommand(FIND_TEXT_DIALOG*  pDialogData, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl)
 {
    TCHAR*   szSearchText;
    BOOL     bResult;
@@ -165,30 +262,38 @@ BOOL   onFindTextDialogCommand(HWND  hDialog, CONST UINT  iControlID, CONST UINT
    /// [SEARCH CHANGED] Enable/disable 'Find Next'
    case IDC_FIND_SEARCH_EDIT:
       if (bResult = (iNotification == EN_CHANGE))
-         utilEnableDlgItem(hDialog, IDC_FIND_NEXT, utilGetDlgItemTextLength(hDialog, IDC_FIND_SEARCH_EDIT) != 0);
+         utilEnableDlgItem(pDialogData->hDialog, IDC_FIND_NEXT, utilGetDlgItemTextLength(pDialogData->hDialog, IDC_FIND_SEARCH_EDIT) != 0);
       break;
 
    /// [REPLACE CHANGED] Enable/disable 'Replace' 
    case IDC_FIND_REPLACE_EDIT:
       if (bResult = (iNotification == EN_CHANGE))
-         utilEnableDlgItem(hDialog, IDC_FIND_REPLACE, utilGetDlgItemTextLength(hDialog, IDC_FIND_REPLACE_EDIT) != 0);
+         utilEnableDlgItem(pDialogData->hDialog, IDC_FIND_REPLACE, utilGetDlgItemTextLength(pDialogData->hDialog, IDC_FIND_REPLACE_EDIT) != 0);
       break;
 
    /// [FIND/REPLACE] Search for next match
-   case IDC_FIND_NEXT:     onFindTextDialogFindText(hDialog, CSF_SEARCH);   break;
-   case IDC_FIND_REPLACE:  onFindTextDialogFindText(hDialog, CSF_REPLACE);  break;
+   case IDC_FIND_NEXT:     onFindTextDialogFindText(pDialogData, CSF_SEARCH);   break;
+   case IDC_FIND_REPLACE:  onFindTextDialogFindText(pDialogData, CSF_REPLACE);  break;
+
+   /// [ALL DOCUMENTS] Ensure 'From Top' is also checked
+   case IDC_FIND_ALL_DOCUMENTS:
+      utilEnableDlgItem(pDialogData->hDialog, IDC_FIND_FROM_TOP_CHECK, !IsDlgButtonChecked(pDialogData->hDialog, IDC_FIND_ALL_DOCUMENTS));
+
+      if (IsDlgButtonChecked(pDialogData->hDialog, IDC_FIND_ALL_DOCUMENTS))
+         CheckDlgButton(pDialogData->hDialog, IDC_FIND_FROM_TOP_CHECK, TRUE);
+      break;
 
    /// [CANCEL] Close dialog and zero window handle
    case IDCANCEL:
       // Save position to preferences
-      GetWindowRect(hDialog, getAppPreferencesWindowRect(AW_FIND));
+      GetWindowRect(pDialogData->hDialog, getAppPreferencesWindowRect(AW_FIND));
 
       // Save search to preferences
-      setAppPreferencesLastFindText(szSearchText = utilGetDlgItemText(hDialog, IDC_FIND_SEARCH_EDIT));
+      setAppPreferencesLastFindText(szSearchText = utilGetDlgItemText(pDialogData->hDialog, IDC_FIND_SEARCH_EDIT));
       utilDeleteString(szSearchText);
 
       // Close dialog
-      EndDialog(hDialog, iControlID);
+      EndDialog(pDialogData->hDialog, iControlID);
       getMainWindowData()->hFindTextDlg = NULL;
       break;
 
@@ -212,10 +317,8 @@ BOOL   onFindTextDialogCommand(HWND  hDialog, CONST UINT  iControlID, CONST UINT
 // 
 INT_PTR  dlgprocFindTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
-   BOOL   bResult;
-
-   // Prepare
-   bResult = FALSE;
+   FIND_TEXT_DIALOG* pDialogData = (FIND_TEXT_DIALOG*)GetWindowLong(hDialog, DWL_USER);
+   BOOL              bResult     = FALSE;
 
    // Examine message
    switch (iMessage)
@@ -223,13 +326,19 @@ INT_PTR  dlgprocFindTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LP
    /// [CREATION] -- Setup dialog
    case WM_INITDIALOG:
       // Init dialog
-      initFindTextDialog(hDialog);
+      initFindTextDialog((FIND_TEXT_DIALOG*)lParam, hDialog);
       bResult = TRUE;
+      break;
+
+   /// [DESTRUCTION]
+   case WM_DESTROY:
+      utilDeleteObject(pDialogData);
+      SetWindowLong(hDialog, DWL_USER, NULL);
       break;
 
    /// [COMMAND PROCESSING] -- Process name change, OK and CANCEL
    case WM_COMMAND:
-      bResult = onFindTextDialogCommand(hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+      bResult = onFindTextDialogCommand(pDialogData, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
       break;
 
    /// [ENABLED]

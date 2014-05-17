@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib &quot;$(TargetDir)X-Studio.Utils.lib&quot; zdll.lib htmlhelp.lib Wininet.lib comctl32.lib Dbghelp.lib"
+				AdditionalDependencies="shlwapi.lib &quot;$(TargetDir)X-Studio.Utils.lib&quot; zdll.lib htmlhelp.lib Wininet.lib comctl32.lib DbgHelp.lib uxtheme.lib"
 				OutputFile="$(OutDir)\X-Studio.Logic.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -115,14 +115,16 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_BearScriptDLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -136,11 +138,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib &quot;$(TargetDir)X-Studio.Utils.lib&quot; zdll.lib htmlhelp.lib Wininet.lib comctl32.lib Dbghelp.lib"
+				AdditionalDependencies="shlwapi.lib &quot;$(TargetDir)X-Studio.Utils.lib&quot; zdll.lib htmlhelp.lib Wininet.lib comctl32.lib DbgHelp.lib uxtheme.lib"
 				OutputFile="$(OutDir)\X-Studio.Logic.dll"
 				LinkIncremental="1"
 				UACExecutionLevel="2"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -169,81 +171,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug -- Testing|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_BearScriptDLL;_TESTING"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
-				WarningLevel="3"
-				DebugInformationFormat="4"
-				CallingConvention="2"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib &quot;$(TargetDir)X-Studio.Utils.lib&quot; zdll.lib htmlhelp.lib Wininet.lib comctl32.lib Dbghelp.lib"
-				OutputFile="$(OutDir)\X-Studio.Logic.dll"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release -- Testing|Win32"
+			Name="Release (Symbols)|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
@@ -267,12 +195,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_BearScriptDLL;_TESTING"
+				FavorSizeOrSpeed="1"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_BearScriptDLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CallingConvention="2"
@@ -288,9 +217,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib &quot;$(TargetDir)X-Studio.Utils.lib&quot; zdll.lib htmlhelp.lib Wininet.lib comctl32.lib Dbghelp.lib"
+				AdditionalDependencies="shlwapi.lib &quot;$(TargetDir)X-Studio.Utils.lib&quot; zdll.lib htmlhelp.lib Wininet.lib comctl32.lib DbgHelp.lib uxtheme.lib"
 				OutputFile="$(OutDir)\X-Studio.Logic.dll"
 				LinkIncremental="1"
+				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -339,6 +269,18 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Automatic Update.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\Binary Tree Functors.cpp"
@@ -352,7 +294,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -372,7 +314,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -391,12 +333,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Call Stacks.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -416,7 +374,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -436,7 +394,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -449,6 +407,14 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -468,7 +434,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -488,7 +454,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -501,6 +467,14 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -520,7 +494,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -540,7 +514,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -559,12 +533,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Error Messages.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -583,6 +573,14 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Error Stacks.cpp"
@@ -595,12 +593,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Game Data.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -620,7 +634,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -633,6 +647,14 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -652,7 +674,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -665,6 +687,14 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -684,7 +714,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -703,12 +733,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Language Button Tree.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -728,7 +774,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -748,7 +794,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -768,7 +814,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -788,7 +834,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -808,7 +854,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -821,6 +867,14 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -840,7 +894,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -860,7 +914,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -879,12 +933,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Project Variables Tree.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -904,7 +974,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -924,7 +994,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -944,7 +1014,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -963,12 +1033,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Script Arguments.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -987,12 +1073,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Script Dependency Tree.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1012,7 +1114,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1025,6 +1127,14 @@
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1044,7 +1154,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1063,12 +1173,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Script Generation.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1087,12 +1213,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Script Translation (Base).cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1111,6 +1253,14 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Script Translation.cpp"
@@ -1123,12 +1273,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Script Validation.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1156,15 +1322,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug -- Testing|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1183,12 +1341,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\String Conversion.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1207,12 +1381,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Text Stream.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1231,12 +1421,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Trees.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1255,12 +1461,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Variable Names Tree.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1280,7 +1502,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1300,7 +1522,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release -- Testing|Win32"
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1319,12 +1541,28 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\XML Generator.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1343,6 +1581,14 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Symbols)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -1352,6 +1598,10 @@
 			>
 			<File
 				RelativePath=".\BearScript Lib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Build Rules.h"
 				>
 			</File>
 			<File

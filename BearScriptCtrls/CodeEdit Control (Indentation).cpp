@@ -6,23 +6,87 @@
 // 
 
 #include "stdafx.h"
+#include <set>
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// Helpers
+LINE_CLASS  identifyLineClass(CONST UINT  iCommandID, CONST CONDITIONAL_ID  eConditional);
+BOOL        isLineIndentedDueToSkipIf(CONST LIST_ITEM*  pLineItem, CODE_EDIT_LINE*  &pOutput);
 
+// Functions
+INT     calculateLineIndentation(CONST CODE_EDIT_LINE*  pCurrentLine, CONST LIST_ITEM*  pLineIterator);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+public string[]  GetLines(XStringLibrary  lib, XTypeLibrary  types, int  indent)
+{
+   if (lib==null) throw new ArgumentNullException("lib");
+   if (types==null) throw new ArgumentNullException("types");
+
+   // Prepare
+   var lines = new List<string>(StdCommands.Count+AuxCommands.Count); 
+   var branch = new Stack<XBranchLogic>();
+   
+   // Examine commands
+   foreach (var c in Commands)
+   {
+      // Push/pop branching logic from stack
+      var logic = c.BranchLogic;
+      switch (logic)
+      {
+      case XBranchLogic.Break:
+      case XBranchLogic.Continue: 
+         branch.Push(logic); 
+         break;
+
+      case XBranchLogic.Else:    
+      case XBranchLogic.End:      
+         branch.Pop();       
+         break;
+      }
+
+      // Resolve/Indent/Append command text
+      lines.Add(new string(' ', indent*branch.Count) + c.Lookup(lib, types));
+
+      // Re-Examine stack
+      switch (logic)
+      {
+      case XBranchLogic.If:
+      case XBranchLogic.Else:
+         branch.Push(logic);
+         break;
+
+      case XBranchLogic.Break:
+      case XBranchLogic.Continue:
+         branch.Pop();
+         break;
+
+      case XBranchLogic.SkipIf:
+         branch.Push(logic); 
+         continue;
+      }
+
+      // Pop 'SkipIf' after next standard command
+      if (branch.Count > 0 && c.Syntax.Type == XCommandType.Standard && branch.Peek() == XBranchLogic.SkipIf)
+         branch.Pop();
+   }
+
+   // Return formatted commands
+   return lines.ToArray();
+}
+*/
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : identifyLineClassFromCommandConditional
+/// Function name  : identifyLineClass
 // Description     : Classifies a line depending on how it affects code indentation
 // 
 // CONST UINT            iCommandID   : [in] Command ID
@@ -30,7 +94,7 @@
 // 
 // Return Value   : Line class
 // 
-LINE_CLASS  identifyLineClassFromCommandConditional(CONST UINT  iCommandID, CONST CONDITIONAL_ID  eConditional)
+LINE_CLASS  identifyLineClass(CONST UINT  iCommandID, CONST CONDITIONAL_ID  eConditional)
 {
    LINE_CLASS   eOutput;    // Operation result
 
@@ -97,7 +161,7 @@ LINE_CLASS  identifyLineClassFromCommandConditional(CONST UINT  iCommandID, CONS
 }
 
 
-/// Function name  : isCodeEditLineIndentedDueToSkipIf
+/// Function name  : isLineIndentedDueToSkipIf
 // Description     : Determines whether a line is indented due a previous SKIP-IF command, and returns the SKIP-IF if found
 // 
 // CONST LIST_ITEM*  pLineItem : [in]  ListItem containing the line to test
@@ -105,13 +169,12 @@ LINE_CLASS  identifyLineClassFromCommandConditional(CONST UINT  iCommandID, CONS
 // 
 // Return Value   : TRUE if input line is indented due to a SKIP-IF, otherwise FALSE
 // 
-BOOL  isCodeEditLineIndentedDueToSkipIf(CONST LIST_ITEM*  pLineItem, CODE_EDIT_LINE*  &pOutput)
+BOOL  isLineIndentedDueToSkipIf(CONST LIST_ITEM*  pLineItem, CODE_EDIT_LINE*  &pOutput)
 {
    CODE_EDIT_LINE*  pCurrentLine;
    BOOL             bSearching;
 
    // Prepare
-   TRACK_FUNCTION();
    pCurrentLine = extractListItemPointer(pLineItem, CODE_EDIT_LINE);
    pOutput      = NULL;
    bSearching   = TRUE;
@@ -153,7 +216,6 @@ BOOL  isCodeEditLineIndentedDueToSkipIf(CONST LIST_ITEM*  pLineItem, CODE_EDIT_L
    }
 
    // Return TRUE if SKIP-IF was found, otherwise return FALSE
-   END_TRACKING();
    return (pOutput != NULL);
 }
 
@@ -161,6 +223,60 @@ BOOL  isCodeEditLineIndentedDueToSkipIf(CONST LIST_ITEM*  pLineItem, CODE_EDIT_L
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : calculateSubroutineIndentation
+// Description     : Calculates indentation for all lines within a subroutine
+// 
+// CODE_EDIT_DATA*  pWindowData : [in] Window data
+// std::set<int>    updates     : [in/out] Line numbers to be redrawn
+// CONST UINT       iEndSub     : [in] Line number of 'endsub' command
+// LIST_ITEM*       pEndSub     : [in] Line iterator for 'endsub' command
+// 
+VOID   calculateSubroutineIndentation(CODE_EDIT_DATA*  pWindowData, std::set<int>  updates, CONST UINT  iEndSub, LIST_ITEM*  pEndSub)
+{
+   CODE_EDIT_LINE*  pLine;
+   LIST_ITEM*       pIterator;
+   UINT             iLine;
+
+   // Prepare
+   iLine = iEndSub;
+
+   // Search backwards for matching label
+   for (pIterator = pEndSub->pPrev; pLine = extractListItemPointer(pIterator, CODE_EDIT_LINE); pIterator = pIterator->pPrev)
+   {
+      iLine--;
+
+      // [CHECK] Define label?
+      if (pLine->iCommandID == CMD_DEFINE_LABEL)
+      {
+         // Move to the first line of the sub-routine
+         pIterator = pIterator->pNext;
+         pLine = extractListItemPointer(pIterator, CODE_EDIT_LINE);
+         iLine++;
+
+         // [CHECK] Ensure subroutine isn't empty
+         if (pLine->iCommandID != CMD_END_SUB)
+         {
+            // Indent +1 first line 
+            pLine->iIndent = 1 + calculateLineIndentation(pLine, pIterator);
+            updates.insert(iLine); 
+
+            /// Iterate thru remaining subroutine  [excluding 'endsub']
+            for (pIterator = pIterator->pNext; (pLine = extractListItemPointer(pIterator, CODE_EDIT_LINE)) AND (pIterator != pEndSub); pIterator = pIterator->pNext)
+            {
+               iLine++;
+
+               // Recalculate indent + defer redraw
+               pLine->iIndent = calculateLineIndentation(pLine, pIterator);
+               updates.insert(iLine); 
+            }
+         }
+
+         // [DONE] 
+         break;
+      }
+   }
+}
 
 /// Function name  : calculateCodeEditIndentationForMultipleLines
 // Description     : Calculates the indentation of a specified line and all subsequent lines
@@ -170,12 +286,13 @@ BOOL  isCodeEditLineIndentedDueToSkipIf(CONST LIST_ITEM*  pLineItem, CODE_EDIT_L
 // 
 // Return type : Zero based indentation value
 //
-VOID   calculateCodeEditIndentationForMultipleLines(CODE_EDIT_DATA*  pWindowData, CONST UINT  iStartLine)
+VOID   calculateCodeEditIndentation(CODE_EDIT_DATA*  pWindowData, CONST UINT  iStartLine)
 {
    CODE_EDIT_LINE*   pCurrentLine;     // LineData of the line currently being processed
    LIST_ITEM*        pLineIterator;    // LineData iterator
    INT               iIndentation,     // New indentation for the line currently being processed
                      iLineNumber;      // Zero-based line number of the line currently being processed
+   std::set<int>     updates;          // HACK: Line numbers with modified indentation
 
    // Prepare
    iLineNumber = iStartLine;
@@ -193,73 +310,32 @@ VOID   calculateCodeEditIndentationForMultipleLines(CODE_EDIT_DATA*  pWindowData
       /// [SUBSEQUENT LINE] Calculate line indentation based on previous lines
       else
       {
-         iIndentation = calculateCodeEditIndentationForSingleLine(pCurrentLine, pLineIterator);
+         iIndentation = calculateLineIndentation(pCurrentLine, pLineIterator);
          iIndentation = max(0, iIndentation);   // Ensure calculate indentation hasn't become negative due a syntax error, like lots of ENDs without matching IFs
       }
 
-      /// [CHANGED] Save new indentation and redraw line
+      /// [CHANGED] Save new indentation and defer line update
       if (pCurrentLine->iIndent != iIndentation)
       {
          pCurrentLine->iIndent = iIndentation;
-         updateCodeEditLine(pWindowData, iLineNumber, CCF_INDENTATION_CHANGED);
+         updates.insert(iLineNumber); 
       }
 
       /// [SUB-ROUTINE] Indent code within sub-routines
-      //if (pCurrentLine->iCommandID == CMD_END_SUB)
-      //{
-      //   CODE_EDIT_LINE*  pSubroutineLine;
-      //   LIST_ITEM*       pSubIterator;
-      //   UINT             iSubLineNumber;
-
-      //   iSubLineNumber = iLineNumber - 1;
-
-      //   // Iterate backwards through the lines we've just calculated
-      //   for (pSubIterator = pLineIterator->pPrev; pSubroutineLine = extractListItemPointer(pSubIterator, CODE_EDIT_LINE); pSubIterator = pSubIterator->pPrev)
-      //   {
-      //      // [CHECK] Search for a matching label (if any)
-      //      if (pSubroutineLine->iCommandID == CMD_DEFINE_LABEL)
-      //      {
-      //         // Move to the first line of the sub-routine
-      //         pSubIterator = pSubIterator->pNext;
-      //         iSubLineNumber++;
-
-      //         // [CHECK] Ensure subroutine isn't empty
-      //         if ((pSubroutineLine = extractListItemPointer(pSubIterator, CODE_EDIT_LINE)) AND pSubroutineLine->iCommandID != CMD_END_SUB)
-      //         {
-      //            /// [FOUND] Increase the indentation of the first line of the subroutine
-      //            pSubroutineLine->iIndent = 1 + calculateCodeEditIndentationForSingleLine(pSubroutineLine, pSubIterator);
-      //            updateCodeEditLine(pWindowData, iSubLineNumber, CCF_INDENTATION_CHANGED);
-
-      //            iSubLineNumber++;
-
-      //            /// Recalculate indentation for the remaining lines of the subroutine
-      //            for (pSubIterator = pSubIterator->pNext; (pSubroutineLine = extractListItemPointer(pSubIterator, CODE_EDIT_LINE)) AND (pSubIterator != pLineIterator); pSubIterator = pSubIterator->pNext)
-      //            {
-      //               pSubroutineLine->iIndent = calculateCodeEditIndentationForSingleLine(pSubroutineLine, pSubIterator);
-      //               updateCodeEditLine(pWindowData, iSubLineNumber, CCF_INDENTATION_CHANGED);
-      //               iSubLineNumber++;
-      //            }
-      //         }
-
-      //         // [DONE] Abort..
-      //         break;
-      //      }
-      //      // [CHECK] Abort if another 'end-sub' command is found
-      //      else if (pSubroutineLine->iCommandID == CMD_END_SUB)
-      //         break;
-
-      //      // Update sub line number
-      //      iSubLineNumber--;
-      //   }
-      //}
+      if (pCurrentLine->iCommandID == CMD_END_SUB && pCurrentLine->iIndent == 0)    // Ensure this is the final 'endsub', not within if/skip-if
+         calculateSubroutineIndentation(pWindowData, updates, iLineNumber, pLineIterator);
 
       // Update line number iterator
       iLineNumber++;
    }
+
+   // Redraw affected lines
+   for (std::set<int>::const_iterator  it = updates.begin(); it != updates.end(); ++it)
+      updateCodeEditLine(pWindowData, *it, CCF_INDENTATION_CHANGED);
 }
 
 
-/// Function name  : calculateCodeEditIndentationForSingleLine
+/// Function name  : calculateLineIndentation
 // Description     : Calculates the indentation of a single line of code, depending on the previous lines
 ///                                       NB: Cannot be used on the first line of code
 // 
@@ -268,14 +344,13 @@ VOID   calculateCodeEditIndentationForMultipleLines(CODE_EDIT_DATA*  pWindowData
 // 
 // Return Value   : Line indentation, may be negative
 // 
-INT  calculateCodeEditIndentationForSingleLine(CONST CODE_EDIT_LINE*  pCurrentLine, CONST LIST_ITEM*  pLineIterator)
+INT  calculateLineIndentation(CONST CODE_EDIT_LINE*  pCurrentLine, CONST LIST_ITEM*  pLineIterator)
 {
    CODE_EDIT_LINE  *pPreviousLine,      // LineData of the previous line
-                   *pSkipIfLine,        // [DUMMY] LineData used for detecting a SKIP-IF causing an indent of the previous line
-                   *pSearchLine;        // LineData used for scanning for end of a subroutine
+                   *pSkipIfLine;        // [DUMMY] LineData used for detecting a SKIP-IF causing an indent of the previous line
    LINE_CLASS       eCurrentClass,      // Class of the input line
                     ePreviousClass;     // Class of the previous line
-   INT              iOutput;            // Operation result
+   INT              newIndent;            // Operation result
 
    // [CHECK] Ensure this not the first line
    ASSERT(pLineIterator->pPrev != NULL);
@@ -284,36 +359,36 @@ INT  calculateCodeEditIndentationForSingleLine(CONST CODE_EDIT_LINE*  pCurrentLi
    pPreviousLine = extractListItemPointer(pLineIterator->pPrev, CODE_EDIT_LINE);
 
    // Determine class of input line and previous line
-   eCurrentClass  = identifyLineClassFromCommandConditional(pCurrentLine->iCommandID,  pCurrentLine->eConditional);
-   ePreviousClass = identifyLineClassFromCommandConditional(pPreviousLine->iCommandID, pPreviousLine->eConditional);
+   eCurrentClass  = identifyLineClass(pCurrentLine->iCommandID,  pCurrentLine->eConditional);
+   ePreviousClass = identifyLineClass(pPreviousLine->iCommandID, pPreviousLine->eConditional);
 
-   // Examine class
+   // Examine line
    switch (eCurrentClass)
    {
    /// [COMMENT/NOP]
    case LC_COMMENT_NOP:
-      // Examine previous line class
+      // Examine previous 
       switch (ePreviousClass)
       {
       // [COMMENT/END] Equal
       case LC_COMMENT_NOP:
       case LC_END:
-         iOutput = pPreviousLine->iIndent;
+         newIndent = pPreviousLine->iIndent;
          break;
 
       // [IF/WHILE/SKIP-IF/ELSE/ELSE-IF] Plus 1
       case LC_IF_WHILE:
       case LC_SKIP_IF:
       case LC_ELSE_IF:
-         iOutput = pPreviousLine->iIndent + 1;
+         newIndent = pPreviousLine->iIndent + 1;
          break;
 
       // [COMMAND] Equal unless previous is indented due to SKIP-IF, then Minus 1
       case LC_COMMAND:
-         if (!isCodeEditLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
-            iOutput = pPreviousLine->iIndent;
+         if (!isLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
+            newIndent = pPreviousLine->iIndent;
          else
-            iOutput = pPreviousLine->iIndent - 1;
+            newIndent = pPreviousLine->iIndent - 1;
          break;
       }
       break;
@@ -321,28 +396,28 @@ INT  calculateCodeEditIndentationForSingleLine(CONST CODE_EDIT_LINE*  pCurrentLi
    /// [IF/WHILE/SKIP-IF]
    case LC_IF_WHILE:
    case LC_SKIP_IF:
-      // Examine previous line class
+      // Examine previous 
       switch (ePreviousClass)
       {
       // [SKIP-IF/END] Equal
       case LC_SKIP_IF:
       case LC_END:
-         iOutput = pPreviousLine->iIndent;
+         newIndent = pPreviousLine->iIndent;
          break;
 
       // [IF/WHILE/ELSE/ELSE-IF] Plus 1
       case LC_IF_WHILE:
       case LC_ELSE_IF:
-         iOutput = pPreviousLine->iIndent + 1;
+         newIndent = pPreviousLine->iIndent + 1;
          break;
 
       // [COMMAND/COMMENT/NOP] Equal unless previous is indented due to SKIP-IF, then Minus 1
       case LC_COMMAND:
       case LC_COMMENT_NOP:
-         if (!isCodeEditLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
-            iOutput = pPreviousLine->iIndent;
+         if (!isLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
+            newIndent = pPreviousLine->iIndent;
          else
-            iOutput = pPreviousLine->iIndent - 1;
+            newIndent = pPreviousLine->iIndent - 1;
          break;
       }
       break;
@@ -350,82 +425,63 @@ INT  calculateCodeEditIndentationForSingleLine(CONST CODE_EDIT_LINE*  pCurrentLi
    /// [ELSE/ELSE-IF/END]
    case LC_ELSE_IF:
    case LC_END:
-      // Examine previous line class
+      // Examine previous 
       switch (ePreviousClass)
       {
       // [IF/WHILE/SKIP-IF/ELSE/ELSE-IF] Equal
       case LC_IF_WHILE:
       case LC_SKIP_IF:
       case LC_ELSE_IF:
-         iOutput = pPreviousLine->iIndent;
+         newIndent = pPreviousLine->iIndent;
          break;
 
       // [END/COMMENT] Minus 1
       case LC_END:
       case LC_COMMENT_NOP:
-         iOutput = pPreviousLine->iIndent - 1;
+         newIndent = pPreviousLine->iIndent - 1;
          break;
 
       // [COMMAND] Minus one unless previous is indented due to SKIP-IF, then Minus 2
       case LC_COMMAND:
-         if (!isCodeEditLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
-            iOutput = pPreviousLine->iIndent - 1;
+         if (!isLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
+            newIndent = pPreviousLine->iIndent - 1;
          else
-            iOutput = pPreviousLine->iIndent - 2;
+            newIndent = pPreviousLine->iIndent - 2;
          break;
       }
       break;
 
    /// [COMMAND]
    case LC_COMMAND:
-      // Examine previous line class
+      // Examine previous 
       switch (ePreviousClass)
       {
       // [IF/WHILE/SKIP-IF/ELSE/ELSE-IF] Plus 1
       case LC_IF_WHILE:
       case LC_SKIP_IF:
       case LC_ELSE_IF:
-         iOutput = pPreviousLine->iIndent + 1;
+         newIndent = pPreviousLine->iIndent + 1;
          break;
 
       // [END/COMMENT] Equal
       case LC_END:
       case LC_COMMENT_NOP:
-         iOutput = pPreviousLine->iIndent;
+         newIndent = pPreviousLine->iIndent;
          break;
 
       // [COMMAND] Equal unless previous is indented due to SKIP-IF, then Minus 1
       case LC_COMMAND:
-         if (!isCodeEditLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
-            iOutput = pPreviousLine->iIndent;
+         if (!isLineIndentedDueToSkipIf(pLineIterator->pPrev, pSkipIfLine))
+            newIndent = pPreviousLine->iIndent;
          else
-            iOutput = pPreviousLine->iIndent - 1;
+            newIndent = pPreviousLine->iIndent - 1;
          break;
       }
       break;
    }
 
-   /// NEW: Indent subroutine
-   // [CHECK] Is line beneath a define label?
-   if (pPreviousLine->iCommandID == CMD_DEFINE_LABEL)
-   {
-      // Search for a matching 'end sub' command, but abort if 'Define Label' is found
-      for (CONST LIST_ITEM*  pIterator = pLineIterator; (pSearchLine = extractListItemPointer(pIterator, CODE_EDIT_LINE)) AND pSearchLine->iCommandID != CMD_DEFINE_LABEL; pIterator = pIterator->pNext)
-      {
-         // [FOUND] Indent current line
-         if (pSearchLine->iCommandID == CMD_END_SUB)
-         {
-            iOutput++;
-            break;
-         }
-      }
-   }
-   // [END-SUB] Undent current line
-   else if (pCurrentLine->iCommandID == CMD_END_SUB)
-      iOutput--;
-
    // Return indentation for input line
-   return iOutput;
+   return newIndent;
 }
 
 

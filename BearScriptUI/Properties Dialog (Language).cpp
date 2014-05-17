@@ -82,13 +82,12 @@ VOID  onLanguagePage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPE
    TCHAR*              szFolder  = NULL;                                // Document folder path
    
    // Examine page
-   TRACK_FUNCTION();
    switch (ePage)
    {
    /// [LANGUAGE: GENERAL]
    case PP_LANGUAGE_GENERAL:
       // Enable/Disable controls appropriately
-      utilEnableDlgItems(hPage, bEnabled, 4, IDC_AUTHOR_EDIT, IDC_TITLE_EDIT, IDC_LANGUAGE_COMBO, IDC_STRING_VERSION_COMBO);
+      utilEnableDlgItems(hPage, bEnabled, 5, IDC_AUTHOR_EDIT, IDC_TITLE_EDIT, IDC_LANGUAGE_COMBO, IDC_COMPATIBILITY_COMBO, IDC_STRING_VERSION_COMBO);    // , 
 
       // Calculate path + language
       szFolder  = (pDocument->pLanguageFile ? utilDuplicateFolderPath(pDocument->szFullPath) : generateGameDataFilePath(GFI_LANGUAGE_FOLDER, getAppPreferences()->szGameFolder, getAppPreferences()->eGameVersion));
@@ -164,7 +163,6 @@ VOID  onLanguagePage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPE
 
    // Cleanup
    utilSafeDeleteString(szFolder);
-   END_TRACKING();
 }
 
 /// Function name  : onGeneralPage_CommandL
@@ -189,7 +187,6 @@ BOOL    onGeneralPage_CommandL(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONS
       return FALSE;
 
    // Examine control
-   TRACK_FUNCTION();
    switch (iControl)
    {
    case IDC_AUTHOR_EDIT:
@@ -215,6 +212,12 @@ BOOL    onGeneralPage_CommandL(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONS
             performLanguageMessageCompatibilityChange(pMessage, (COMPATIBILITY)ComboBox_GetCurSel(hCtrl) );
          break;*/
 
+      /// [COMPATIBILITY] Change the colour usage flag
+      case IDC_COMPATIBILITY_COMBO:
+         if (bResult = (iNotification == CBN_SELCHANGE))
+            pMessage->eCompatibility = (COMPATIBILITY)ComboBox_GetCurSel(hCtrl);
+         break;
+
       /// [GAME VERSION] Update GameVersion
       case IDC_STRING_VERSION_COMBO:
          if (bResult = (iNotification == CBN_SELCHANGE))
@@ -233,7 +236,6 @@ BOOL    onGeneralPage_CommandL(PROPERTIES_DATA*  pSheetData, HWND  hDialog, CONS
          sendDocumentPropertyUpdated(AW_DOCUMENTS_CTRL, iControl);
    }
 
-   END_TRACKING();
    return bResult;
 }
 

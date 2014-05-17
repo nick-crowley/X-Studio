@@ -96,7 +96,7 @@ BOOL  onTooltipRequestText(NMTTDISPINFO*  pData)
    UINT          iTooltipLength;
    
    // Load string resource using the target control's dialog controlID
-   iTooltipLength  = LoadString(getResourceInstance(), getTooltipControlID(pData), szLargeTooltip, 512);
+   iTooltipLength  = loadString(getTooltipControlID(pData), szLargeTooltip, 512);
    pData->lpszText = szLargeTooltip;
    pData->hinst    = NULL;
 
@@ -123,7 +123,7 @@ BOOL  onTooltipRequestSpecifiedText(NMTTDISPINFO*  pData, CONST UINT  iResourceI
    UINT          iTooltipLength;
    
    // Load specified string resource
-   iTooltipLength  = LoadString(getResourceInstance(), iResourceID, szLargeTooltip, 512);
+   iTooltipLength  = loadString(iResourceID, szLargeTooltip, 512);
    pData->lpszText = szLargeTooltip;
    pData->hinst    = NULL;
 

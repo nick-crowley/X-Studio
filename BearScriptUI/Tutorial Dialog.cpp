@@ -43,63 +43,65 @@ BOOL  displayTutorialDialog(HWND  hParentWnd, CONST TUTORIAL_WINDOW  eDialogID, 
    /// [CHECK] Are we in tutorial mode?
    if (bForceDisplay OR (getAppPreferences()->bTutorialMode AND getAppPreferences()->bTutorialsRemaining[eDialogID]))
    {
+      CONSOLE_COMMAND_BOLD();
+
       /// [SUCCESS] Display approprate dialog
       switch (eDialogID)
       {
       // [FILE OPTIONS]
       case TW_FILE_OPTIONS: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_FILE_OPTIONS"), hParentWnd, dlgprocTutorialDialog);  
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_FILE_OPTIONS"), hParentWnd, dlgprocTutorialDialog, NULL);  
          ERROR_CHECK("Creating FileOptions Tutorial dialog", bResult > 0);
          break;
 
       // [GAME DATA]
       case TW_GAME_DATA: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_GAME_DATA"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_GAME_DATA"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating Game-Data Tutorial dialog", bResult > 0);
          break;
 
       // [GAME FOLDER]
       case TW_GAME_FOLDER: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_GAME_FOLDER"), hParentWnd, dlgprocTutorialDialog);  
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_GAME_FOLDER"), hParentWnd, dlgprocTutorialDialog, NULL);  
          ERROR_CHECK("Creating Game-Folder Tutorial dialog", bResult > 0);
          break;
 
       // [GAME OBJECTS]
       case TW_GAME_OBJECTS: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_GAME_OBJECTS"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_GAME_OBJECTS"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating GameObjects Tutorial dialog", bResult > 0);
          break;
 
       // [OPEN FILE]
       case TW_OPEN_FILE: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_OPEN_FILE"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_OPEN_FILE"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating FileDialog Tutorial dialog", bResult > 0);
          break;
 
       // [PROJECTS]
       case TW_PROJECTS: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_PROJECTS"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_PROJECTS"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating Projects Tutorial dialog", bResult > 0);
          break;
 
       // [SCRIPT COMMANDS]
       case TW_SCRIPT_COMMANDS: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_SCRIPT_COMMANDS"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_SCRIPT_COMMANDS"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating ScriptCommands Tutorial dialog", bResult > 0);
          break;
 
       // [SCRIPT EDITING]
       case TW_SCRIPT_EDITING: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_SCRIPT_EDITING"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_SCRIPT_EDITING"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating ScriptEditing Part 1 Tutorial dialog", bResult > 0);
 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_SCRIPT_EDITING_2"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_SCRIPT_EDITING_2"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating ScriptEditing Part 2 Tutorial dialog", bResult > 0);
          break;
 
       // [SCRIPT OBJECTS]
       case TW_SCRIPT_OBJECTS: 
-         bResult = (BOOL)DialogBox(getResourceInstance(), TEXT("TUTORIAL_SCRIPT_OBJECTS"), hParentWnd, dlgprocTutorialDialog);    
+         bResult = (BOOL)showDialog(TEXT("TUTORIAL_SCRIPT_OBJECTS"), hParentWnd, dlgprocTutorialDialog, NULL);    
          ERROR_CHECK("Creating ScriptObjects Tutorial dialog", bResult > 0);
          break;
       }

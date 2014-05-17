@@ -33,7 +33,7 @@
 // 
 GAME_VERSION  displayGameVersionDialog(HWND  hParent, CONST BOOL  bOnlyTCAndAP)
 {
-   return (GAME_VERSION)DialogBoxParam(getResourceInstance(), TEXT("GAME_VERSION_DIALOG"), hParent, dlgprocGameVersionDialog, bOnlyTCAndAP);
+   return (GAME_VERSION)showDialog(TEXT("GAME_VERSION_DIALOG"), hParent, dlgprocGameVersionDialog, bOnlyTCAndAP);
 }
 
 

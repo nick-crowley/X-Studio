@@ -130,31 +130,32 @@ INT   calculateWareEncoding(CONST GAME_OBJECT*  pGameObject)
 // 
 DATA_TYPE   identifyDataTypeFromScriptObject(CONST SCRIPT_OBJECT*  pScriptObject)
 {
-   DATA_TYPE    eResult;      // Operation result
+   DATA_TYPE  eOutput;      // Operation result
 
    // Convert common page IDs into associated data types
    switch (pScriptObject->eGroup)
    {
-   case ONG_SECTOR:                   eResult = DT_SECTOR;             break;
-   case ONG_STATION_SERIAL:           eResult = DT_STATIONSERIAL;      break;
-   case ONG_RELATION:                 eResult = DT_RELATION;           break;
-   case ONG_RACE:                     eResult = DT_RACE;               break;
-   case ONG_TRANSPORT_CLASS:          eResult = DT_TRANSPORTCLASS;     break;
-   case ONG_PARAMETER_TYPE:           eResult = DT_SCRIPTDEF;          break;
-   case ONG_CONSTANT:                 eResult = DT_CONSTANT;           break;
-   case ONG_OBJECT_CLASS:             eResult = DT_OBJECTCLASS;        break;
-   case ONG_SIGNAL:
-   case ONG_OBJECT_COMMAND:           eResult = DT_OBJECTCOMMAND;      break;
-   case ONG_FLIGHT_RETURN:            eResult = DT_FLIGHTRETURN;       break;
-   case ONG_DATA_TYPE:                eResult = DT_DATATYPE;           break;
-   case ONG_WING_COMMAND:             eResult = DT_WINGCOMMAND;        break;
+   case ONG_CONSTANT:         eOutput = DT_CONSTANT;         break;    // Constant
+   ///case ONG_FORMATION:        eOutput = DT_CONSTANT;         break;    // Formation       REM: Don't exist
+   case ONG_DATA_TYPE:        eOutput = DT_DATATYPE;         break;    // Variable Data Type
+   case ONG_FLIGHT_RETURN:    eOutput = DT_FLIGHTRETURN;     break;    // Flight Return Code
+   case ONG_OBJECT_CLASS:     eOutput = DT_OBJECTCLASS;      break;    // Object Class
+   case ONG_RACE:             eOutput = DT_RACE;             break;    // Race
+   case ONG_RELATION:         eOutput = DT_RELATION;         break;    // Relation
+   case ONG_PARAMETER_TYPE:   eOutput = DT_SCRIPTDEF;        break;    // Parameter Syntax
+   case ONG_SECTOR:           eOutput = DT_SECTOR;           break;    // Sector
+   case ONG_STATION_SERIAL:   eOutput = DT_STATIONSERIAL;    break;    // Station Serial
+   case ONG_SIGNAL:                                                    // Signal
+   case ONG_OBJECT_COMMAND:   eOutput = DT_OBJECTCOMMAND;    break;    // Object Command
+   case ONG_WING_COMMAND:     eOutput = DT_WINGCOMMAND;      break;    // Wing Command
+   case ONG_TRANSPORT_CLASS:  eOutput = DT_TRANSPORTCLASS;   break;    // Transport class
 
    // [REMAINDER] ERROR: These are not ScriptObjects, they have no equivilient datatype and should be resolved in this way
-   default:    ASSERT(FALSE);         eResult = DT_NULL;               break;
+   default:    ASSERT(FALSE); eOutput = DT_NULL;               break;
    }
 
    // Return result
-   return eResult;
+   return eOutput;
 }
 
 
@@ -387,6 +388,34 @@ BOOL  findPostfixParameterIndexByID(CONST COMMAND*  pCommand, CONST UINT  iID, U
    return bFound;
 }
 
+/// Function name  : isExpressionConditional
+// Description     : Checks whether a conditional is compatible with an expression
+// 
+// const CONDITIONAL_ID  eConditional   : [in] Conditional to test
+// 
+// Return Value   : TRUE/FALSE
+// 
+BOOL  isExpressionConditional(const CONDITIONAL_ID  eConditional)
+{
+   switch (eConditional)
+   {
+   // [IF/WHILE]
+   default:
+      return TRUE;
+
+   // [EVERYTHING ELSE]
+   case CI_START:
+   case CI_BREAK:
+   case CI_CONTINUE:
+   case CI_ELSE:
+   case CI_END:
+   case CI_LABEL:
+   case CI_GOTO_LABEL:
+   case CI_GOTO_SUB:
+   case CI_END_SUB:
+      return FALSE;
+   }
+}
 
 /// Function name  : identifyCommandFromHash
 // Description     : Set the ID and syntax of a COMMAND from a hash
@@ -408,7 +437,8 @@ BOOL  identifyCommandFromHash(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pComman
       pCommand->iID = CMD_COMMENT;
 
    // [ELSE] -- 'ELSE' has no command hash but a conditional of 'else'
-   else if (!lstrlen(pCommandHash->szCommandHash) AND pCommand->eConditional == CI_ELSE)
+   //else if (!lstrlen(pCommandHash->szCommandHash) AND pCommand->eConditional == CI_ELSE)
+   else if (pCommand->eConditional == CI_ELSE)
       pCommand->iID = CMD_ELSE;
 
    // [NOP] -- 'NOP' cannot be identified by a hash
@@ -428,20 +458,17 @@ BOOL  identifyCommandFromHash(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pComman
       pCommand->iID = CMD_DEFINE_ARRAY;
    
    // [EXPRESSION] -- Identified by having a hash that contains only operators
-   else if (identifyExpressionHash(pCommandHash->szCommandHash))   
+   else if (isExpressionConditional(pCommand->eConditional) AND identifyExpressionHash(pCommandHash->szCommandHash))   
       pCommand->iID = CMD_EXPRESSION;
 
-
-   // [CHECK] Was the command identified?
+   /// [PRE-IDENTIFIED] Lookup syntax from the ID
    if (pCommand->iID != CMD_NONE)
-      /// [IDENTIFIED] Lookup syntax from the ID
       findCommandSyntaxByID(pCommand->iID, pScriptFile->eGameVersion, pCommand->pSyntax, pError);
    
    /// [UNIDENTIFIED] Resolve syntax from the hash 
    else if (findCommandSyntaxByHash(pCommandHash->szCommandHash, pScriptFile->eGameVersion, pCommand->pSyntax, pError))
       // [SUCCESS] Set ID using the syntax
-      pCommand->iID = pCommand->pSyntax->iID;   
-
+      pCommand->iID = pCommand->pSyntax->iID; 
 
    /// [COMMAND TYPE] -- Determine the Command type from it's ID
    switch (pCommand->iID)
@@ -453,13 +480,13 @@ BOOL  identifyCommandFromHash(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pComman
    case CMD_END:
    case CMD_ELSE:
    case CMD_BREAK:
-   case CMD_CONTINUE:      pCommand->iFlags = CT_AUXILIARY;                       break;
+   case CMD_CONTINUE:               pCommand->iFlags = CT_AUXILIARY;                       break;
    // [SCRIPT-CALL]
    case CMD_CALL_SCRIPT_VAR_ARGS:   pCommand->iFlags = CT_STANDARD WITH CT_SCRIPTCALL;     break;
    // [EXPRESSION]
-   case CMD_EXPRESSION:    pCommand->iFlags = CT_STANDARD WITH CT_EXPRESSION;     break;
+   case CMD_EXPRESSION:             pCommand->iFlags = CT_STANDARD WITH CT_EXPRESSION;     break;
    // [STANDARD]
-   default:                pCommand->iFlags = CT_STANDARD;                        break;
+   default:                         pCommand->iFlags = CT_STANDARD;                        break;
    }
 
    // [SCRIPT-CALL]
@@ -934,29 +961,26 @@ BOOL   verifyParameterDataType(CONST PARAMETER*  pParameter)
 BearScriptAPI
 DWORD    threadprocSaveScriptFile(VOID*  pParameter)
 {
-   DOCUMENT_OPERATION*  pOperationData;      // Operation data
-   OPERATION_RESULT     eResult;             // Operation result
-   SCRIPT_FILE*         pScriptFile;         // Convenience pointer
+   DOCUMENT_OPERATION*  pOperationData;         // Operation data
+   OPERATION_RESULT     eResult = OR_SUCCESS;   // Operation result
+   SCRIPT_FILE*         pScriptFile = NULL;     // Convenience pointer
 
    // [TRACKING]
-   TRACK_FUNCTION();
    SET_THREAD_NAME("Script Generation");
    setThreadLanguage(getAppPreferences()->eAppLanguage);
 
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
-   
-   // Prepare
-   pOperationData = (DOCUMENT_OPERATION*)pParameter;
-   pScriptFile    = (SCRIPT_FILE*)pOperationData->pGameFile;
-   eResult        = OR_SUCCESS;
-
-   // [STAGE] Set parsing stage
-   ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PARSING_COMMANDS);
-
-   /// [GUARD BLOCK]
    __try
    {
+      // [CHECK] Ensure parameter exists
+      ASSERT(pParameter);
+      
+      // Prepare
+      pOperationData = (DOCUMENT_OPERATION*)pParameter;
+      pScriptFile    = (SCRIPT_FILE*)pOperationData->pGameFile;
+
+      // [STAGE] Set parsing stage
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PARSING_COMMANDS);
+
       /// [GENERATION] Parse and Compile all commands. Generate XML tree. Flatten into output buffer.
       if (!generateScript(pOperationData->hCodeEdit, pScriptFile, pOperationData->pProgress, pOperationData->pErrorQueue))
          // [ERROR] No further enhancement necessary
@@ -972,11 +996,8 @@ DWORD    threadprocSaveScriptFile(VOID*  pParameter)
 
          /// [COMPRESS] Compress file and save to disc
          if (!saveDocumentToFileSystemEx(pOperationData->szFullPath, pScriptFile, pOperationData->pProgress, pOperationData->pErrorQueue))
-         {
-            // [ERROR] "There was an error while saving or compressing the MSCI script '%s', the file was not saved"
-            enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_SAVE_PCK_IO_ERROR), pOperationData->szFullPath); 
-            eResult = OR_FAILURE;
-         }
+            // No enhancement necessary      // [ERROR] "There was an error while saving or compressing the MSCI script '%s', the file was not saved"
+            eResult = OR_FAILURE;            // enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_SAVE_PCK_IO_ERROR), pOperationData->szFullPath); 
       }
       /// [XML] Output to disc without compression
       else
@@ -987,27 +1008,18 @@ DWORD    threadprocSaveScriptFile(VOID*  pParameter)
 
          /// [SAVE] Save file to disc
          if (!saveDocumentToFileSystem(pOperationData->szFullPath, pScriptFile, pOperationData->pErrorQueue))
-         {
-            // [ERROR] "There was an error while saving the MSCI script '%s', the file was not saved"
-            enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_SAVE_IO_ERROR), pOperationData->szFullPath); 
-            eResult = OR_FAILURE;
-         }
+            // No enhancement necessary      // [ERROR] "There was an error while saving the MSCI script '%s', the file was not saved"
+            eResult = OR_FAILURE;            //enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_SAVE_IO_ERROR), pOperationData->szFullPath); 
       }
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   PUSH_CATCH(pOperationData->pErrorQueue)
    {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while compiling the script '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_SAVE_SCRIPT_FILE), identifyScriptName(pScriptFile));
       eResult = OR_FAILURE;
    }
 
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("SCRIPT GENERATION WORKER THREAD COMPLETED");
-   
    // Cleanup and return result
+   CONSOLE_COMPLETE("SCRIPT GENERATION", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return  THREAD_RETURN;
 }
 

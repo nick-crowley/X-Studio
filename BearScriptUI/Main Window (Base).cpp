@@ -19,10 +19,19 @@ CONST UINT  iToolBarButtonCount  = 27;
 #define  MAINWINDOW_EDIT_MENU_INDEX     1
 #define  MAINWINDOW_VIEW_MENU_INDEX     2
 #define  MAINWINDOW_TOOLS_MENU_INDEX    3
+
+#ifdef DISPLAY_TEST_MENU
 #define  MAINWINDOW_WINDOW_MENU_INDEX   5
 #define  MAINWINDOW_HELP_MENU_INDEX     6
+#else
+#define  MAINWINDOW_WINDOW_MENU_INDEX   4
+#define  MAINWINDOW_HELP_MENU_INDEX     5
+#endif
 
 #define  MAINWINDOW_RECENT_SUBMENU_INDEX  10
+
+// OnException: Display+Print
+#define    ON_EXCEPTION()    displayException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION  /  DESTRUCTION
@@ -41,8 +50,7 @@ HWND   createMainWindow()
    HWND                hWnd;              // Window handle
    
    // [VERBOSE]
-   VERBOSE_LIB_COMMAND();
-   TRACK_FUNCTION();
+   CONSOLE_COMMAND();
 
    // Create main window data
    pWindowData = createMainWindowData();
@@ -80,7 +88,6 @@ HWND   createMainWindow()
    }
 
    /// Return handle if successful, otherwise NULL
-   END_TRACKING();
    return hWnd;
 }
 
@@ -97,9 +104,7 @@ BOOL     createMainWindowControls(MAIN_WINDOW_DATA*  pWindowData)
    RECT    rcClientRect;         // Main window client rectangle which takes account of statusbars and the toolbar
    INT     iStatusBarWidths[2];
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// [CUSTOM MENU] Create CustomMenu and attach to the window
    pWindowData->pCustomMenu = createCustomMenu(szMainWindowClass, FALSE, NULL);
    SetMenu(pWindowData->hMainWnd, pWindowData->pCustomMenu->hMenuBar);
@@ -134,7 +139,6 @@ BOOL     createMainWindowControls(MAIN_WINDOW_DATA*  pWindowData)
    pWindowData->hWorkspace = createWorkspace(pWindowData->hMainWnd, &rcClientRect, pWindowData->hDocumentsTab, GetSysColor(COLOR_BTNFACE));
 
    // Return TRUE if all windows created successfully
-   END_TRACKING();
    return pWindowData->pCustomMenu->hMenuBar AND pWindowData->hToolBar AND pWindowData->hStatusBar AND
           pWindowData->hOperationPoolCtrl AND pWindowData->hWorkspace AND pWindowData->hDocumentsTab;
 }
@@ -153,9 +157,7 @@ HWND    createMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
    TBBUTTON*     pButtonData;       // Button data
    HWND          hCtrl;             // Output window handle
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pButtonData = utilCreateObjectArray(TBBUTTON, iToolBarButtonCount);
 
@@ -209,7 +211,6 @@ HWND    createMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
 
    // Cleanup and return toolbar handle (or NULL)
    utilDeleteObject(pButtonData);
-   END_TRACKING();
    return hCtrl;
 }
 
@@ -222,7 +223,6 @@ HWND    createMainWindowToolBar(MAIN_WINDOW_DATA*  pWindowData)
 MAIN_WINDOW_DATA*  createMainWindowData()
 {
    MAIN_WINDOW_DATA*  pWindowData = utilCreateEmptyObject(MAIN_WINDOW_DATA);
-   TRACK_FUNCTION();
 
    /// Create output dialog data
    pWindowData->pOutputDlgData = createOutputDialogData();
@@ -237,7 +237,6 @@ MAIN_WINDOW_DATA*  createMainWindowData()
    setMainWindowAccelerators(pWindowData, szMainWindowClass);
 
    // Return new window data
-   END_TRACKING();
    return pWindowData;
 }
 
@@ -265,6 +264,22 @@ VOID  deleteMainWindowData(MAIN_WINDOW_DATA*  pWindowData)
 ///                                           HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : displayError
+// Description     : Displays and then destroys an error
+// 
+// ERROR_STACK*  &pError : [in] Error
+// 
+VOID  displayError(ERROR_STACK*  &pError)
+{
+   // [CHECK] Display in OutputDialog
+   if (getAppWindow())
+      printErrorToOutputDialog(pError);
+
+   // Print to console + destroy
+   consolePrintError(pError);
+   deleteErrorStack(pError);
+}
+
 /// Function name  : displayException
 // Description     : Displays and then destroys an exception error
 // 
@@ -272,22 +287,12 @@ VOID  deleteMainWindowData(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  displayException(ERROR_STACK*  &pException)
 {
-   // Generate output message
-   //generateOutputTextFromError(pException);
-
-   // [CHECK] Does app window exist yet?
+   // [CHECK] Display in OutputDialog if main window has been created
    if (getAppWindow())
-   {
-      /// [SUCCESS] Display in OutputDialog and MessageDialog
       printErrorToOutputDialog(pException);
-      //displayErrorMessageDialog(NULL, pException, MAKEINTRESOURCE(IDS_TITLE_EXCEPTION), MDF_OK WITH MDF_ERROR);
-   }
-   else
-      /// [FAILED] Print to console
-      consolePrintError(pException);
 
-   // Cleanup
-   deleteErrorStack(pException);
+   // Print to console + destroy
+   printException(pException);
 }
 
 
@@ -310,9 +315,12 @@ DOCUMENT*  getFocusedDocument(MAIN_WINDOW_DATA*  pWindowData)
    pDocument = getActiveDocument();
 
    /// [BOTH EXIST] Return ActiveProject if project window has keyboard focus, otherwise the ActiveDocument
-   if (pProject AND pWindowData->hProjectDlg AND pDocument)
-      pActive = (GetFocus() == getProjectDialogData(pWindowData->hProjectDlg)->hTreeView ? pProject : pDocument);
+   if (pDocument AND (pProject AND pWindowData->hProjectDlg))
+   {
+      PROJECT_DIALOG_DATA*  pProjDialog = getProjectDialogData(pWindowData->hProjectDlg);
 
+      pActive = (pProjDialog AND pProjDialog->hTreeView == GetFocus() ? pProject : pDocument);
+   }
    /// [DOCUMENT or PROJECT] Return whichever exists
    else if (pDocument OR (pProject AND pWindowData->hProjectDlg))
       pActive = utilEither(pDocument, pProject);
@@ -456,7 +464,7 @@ VOID  setMainWindowStatusBarTextf(CONST UINT  iPaneID, CONST UINT  iMessageID, .
       szOutput   = utilCreateEmptyString(256);
       
       /// Load and format string
-      szFormat = utilLoadString(getResourceInstance(), iMessageID, 256);
+      szFormat = loadString(iMessageID, 256);
       StringCchVPrintf(szOutput, 256, szFormat, pArguments);
 
       /// Display string
@@ -551,9 +559,7 @@ VOID     onMainWindowCreate(HWND  hMainWnd, CONST CREATESTRUCT*  pCreationData)
 {
    MAIN_WINDOW_DATA*  pWindowData;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Extract window data
    pWindowData = (MAIN_WINDOW_DATA*)pCreationData->lpCreateParams;
    pWindowData->hMainWnd = hMainWnd;
@@ -586,8 +592,6 @@ VOID     onMainWindowCreate(HWND  hMainWnd, CONST CREATESTRUCT*  pCreationData)
    if (getAppPreferences()->bProjectDialogVisible)
       displayProjectDialog(pWindowData, TRUE);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -598,8 +602,7 @@ VOID     onMainWindowCreate(HWND  hMainWnd, CONST CREATESTRUCT*  pCreationData)
 // 
 VOID     onMainWindowDestroy(MAIN_WINDOW_DATA*  &pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
+   CONSOLE_COMMAND();
 
    /// Destroy Properties dialog (if present)
    if (pWindowData->hPropertiesSheet)
@@ -637,8 +640,6 @@ VOID     onMainWindowDestroy(MAIN_WINDOW_DATA*  &pWindowData)
    deleteConsole();
    PostQuitMessage(0);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -685,9 +686,7 @@ VOID  onMainWindowMenuHover(MAIN_WINDOW_DATA* pWindowData, HMENU  hMenu, CONST U
    CUSTOM_MENU_ITEM*  pItemData;      // Item data for a 'recent' menu item
    DOCUMENT*          pDocument;      // Document associated with 'Window' menu item
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// [MENU CLOSED or OPENED] Display nothing
    if ((iFlags == 0xFFFF AND hMenu == NULL) OR (iFlags INCLUDES MF_POPUP))
       setMainWindowStatusBarTextf(0, IDS_MAIN_STATUS_READY);
@@ -716,8 +715,6 @@ VOID  onMainWindowMenuHover(MAIN_WINDOW_DATA* pWindowData, HMENU  hMenu, CONST U
    else
       setMainWindowStatusBarTextf(0, iMenuID);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -737,12 +734,10 @@ VOID    onMainWindowMenuInitialise(MAIN_WINDOW_DATA*  pWindowData, HMENU  hPopup
    LIST*              pRecentFilesList;
    UINT               iCommandState,      // State of the menu item currently being processed
                       iCommandID,         // ID of the menu item currently being processed
-                      iMenuItemIcon;
-   BOOL               bShowProject;       // Whether to display Project or Document menu items
-
-   // [TRACK]
-   TRACK_FUNCTION();
-
+                      iMenuItemIcon,
+                      iMenuStrings;
+   const TCHAR*       szMenuItem;         // Document/Project menu item string
+ 
    // Examine index
    switch (iIndex)
    {
@@ -753,44 +748,42 @@ VOID    onMainWindowMenuInitialise(MAIN_WINDOW_DATA*  pWindowData, HMENU  hPopup
       {
          // Prepare
          pDocument    = getFocusedDocument(pWindowData);
-         bShowProject = (pDocument AND pDocument->eType == DT_PROJECT);
+         iMenuStrings = (pDocument AND pDocument->eType == DT_PROJECT ? IDS_GENERAL_PROJECT_MENU_STRINGS : IDS_GENERAL_DOCUMENT_MENU_STRINGS);
 
-         pMenuItemData = getCustomMenuItemData(hPopupMenu, IDM_FILE_CLOSE, FALSE);
-         utilReplaceString(pMenuItemData->szText, bShowProject ? TEXT("Close Project\tCtrl+W") : TEXT("Close Document\tCtrl+W"));
-
-         pMenuItemData = getCustomMenuItemData(hPopupMenu, IDM_FILE_SAVE, FALSE);
-         utilReplaceString(pMenuItemData->szText, bShowProject ? TEXT("Save Project\tCtrl+S") : TEXT("Save Document\tCtrl+S"));
-
-         pMenuItemData = getCustomMenuItemData(hPopupMenu, IDM_FILE_SAVE_AS, FALSE);
-         utilReplaceString(pMenuItemData->szText, bShowProject ? TEXT("Save Project As") : TEXT("Save Document As"));
+         // Rename 'Close', 'Save' and 'Save_As'
+         setCustomMenuItemText(hPopupMenu, IDM_FILE_CLOSE,   FALSE, szMenuItem = loadTempString(iMenuStrings));
+         setCustomMenuItemText(hPopupMenu, IDM_FILE_SAVE,    FALSE, szMenuItem = findNextPackedString(szMenuItem));
+         setCustomMenuItemText(hPopupMenu, IDM_FILE_SAVE_AS, FALSE, findNextPackedString(szMenuItem));
       }
       break;
 
    /// [RECENT POPUP] Build the recent documents menu
    case MAINWINDOW_RECENT_SUBMENU_INDEX:
-      // Delete existing custom menu data
-      emptyCustomMenu(hPopupMenu);
-
-      // [CHECK] Generate RecentFiles list
-      if (getListItemCount(pRecentFilesList = generateRecentDocumentList(pWindowData)) == 0)
-         // [EMPTY] Append placeholder
-         appendCustomMenuItem(hPopupMenu, IDM_FILE_RECENT_EMPTY, 0, MF_DISABLED WITH MF_GRAYED, TEXT("No Recent Files"));
-
-      /// [NON-EMPTY] Build RecentFiles menu
-      else for (UINT  iIndex = 0; findListObjectByIndex(pRecentFilesList, iIndex, (LPARAM&)pRecentFile); iIndex++)
+      // Generate MRU list
+      if (getListItemCount(pRecentFilesList = generateRecentDocumentList(pWindowData)))
       {
-         // Set icon based on document type
-         switch (pRecentFile->eType)
-         {
-         case FIF_SCRIPT:   iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_SCRIPT);    break;
-         case FIF_LANGUAGE: iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_LANGUAGE);  break;
-         case FIF_MISSION:  iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_MISSION);   break;
-         case FIF_PROJECT:  iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_PROJECT);   break;
-         }
+         // Delete existing custom menu data
+         emptyCustomMenu(hPopupMenu);
 
-         // Append menu item
-         appendCustomMenuItem(hPopupMenu, IDM_FILE_RECENT_FIRST + iIndex, iMenuItemIcon, MF_ENABLED, pRecentFile->szFullPath);
+         /// Build RecentFiles menu
+         for (UINT  iIndex = 0; findListObjectByIndex(pRecentFilesList, iIndex, (LPARAM&)pRecentFile); iIndex++)
+         {
+            // Set icon based on document type
+            switch (pRecentFile->eType)
+            {
+            case FIF_SCRIPT:   iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_SCRIPT);    break;
+            case FIF_LANGUAGE: iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_LANGUAGE);  break;
+            case FIF_MISSION:  iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_MISSION);   break;
+            case FIF_PROJECT:  iMenuItemIcon = identifyCustomMenuIconByID(IDM_FILE_NEW_PROJECT);   break;
+            }
+
+            // Append menu item
+            appendCustomMenuItem(hPopupMenu, IDM_FILE_RECENT_FIRST + iIndex, iMenuItemIcon, MF_ENABLED, pRecentFile->szFullPath);
+         }
       }
+      else
+         // [EMPTY] Display no icon
+         getCustomMenuItemData(hPopupMenu, IDM_FILE_RECENT_EMPTY, FALSE)->iIconIndex = -1;
 
       // Cleanup
       deleteList(pRecentFilesList);
@@ -860,8 +853,6 @@ VOID    onMainWindowMenuInitialise(MAIN_WINDOW_DATA*  pWindowData, HMENU  hPopup
       }
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -873,9 +864,7 @@ VOID    onMainWindowMenuInitialise(MAIN_WINDOW_DATA*  pWindowData, HMENU  hPopup
 // 
 VOID   onMainWindowNotify(MAIN_WINDOW_DATA*  pWindowData, NMHDR*  pMessage)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Examine notification
    switch (pMessage->code)
    {
@@ -904,8 +893,6 @@ VOID   onMainWindowNotify(MAIN_WINDOW_DATA*  pWindowData, NMHDR*  pMessage)
       break;
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -967,7 +954,7 @@ VOID      onMainWindowResize(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iWidth,
    /// [WORKSPACE] Resize workspace
    rcClientRect.left += 2;
    rcClientRect.bottom--;
-   utilSetClientRect(pWindowData->hWorkspace, &rcClientRect, TRUE);
+   utilSetWindowRect(pWindowData->hWorkspace, &rcClientRect, TRUE);
 
    /// Resize status bar
    SendMessage(pWindowData->hStatusBar, WM_SIZE, NULL, MAKE_LONG(iWidth, siClientSize.cy));
@@ -976,6 +963,22 @@ VOID      onMainWindowResize(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iWidth,
    iStatusBarWidths[0] = (rcClientRect.right - 200);
    iStatusBarWidths[1] = -1;
    SendMessage(pWindowData->hStatusBar, SB_SETPARTS, 2, (LPARAM)iStatusBarWidths); 
+}
+
+
+/// Function name  :  onMainWindowThemeChanged
+// Description     : Reset brushes / workspace colour
+// 
+// MAIN_WINDOW_DATA*  pWindowData   : [in] Main window data
+// 
+VOID   onMainWindowThemeChanged(MAIN_WINDOW_DATA*  pWindowData)
+{
+   // Re-create app brushes
+   generateAppThemeBrushes(FALSE);
+   generateAppThemeBrushes(TRUE);
+
+   // Adjust Workspace colour
+   setWorkspaceBackgroundColour(pWindowData->hWorkspace, getThemeSysColour(TEXT("Window"), COLOR_BTNFACE)); 
 }
 
 
@@ -989,17 +992,13 @@ VOID  onMainWindowToolbarClick(MAIN_WINDOW_DATA*  pWindowData, NMMOUSE*  pMessag
 {
    UINT  iCommandID;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// Extract ID of the command
    iCommandID = pMessage->dwItemSpec;
 
    /// Launch command
    onMainWindowCommand(pWindowData, iCommandID);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1055,7 +1054,6 @@ BOOL  onMainWindowSystemCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCom
    BOOL   bResult;
 
    // Prepare
-   TRACK_FUNCTION();
    bResult = TRUE;
 
    // Examine message
@@ -1068,6 +1066,7 @@ BOOL  onMainWindowSystemCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCom
 
    /// [CLOSE] Close main window and submit a bug report if appropriate
    case SC_CLOSE:
+      CONSOLE_UI_BOLD(WM_SYSCOMMAND, SC_CLOSE);
       postAppClose(MWS_CLOSING);
       break;
 
@@ -1078,7 +1077,6 @@ BOOL  onMainWindowSystemCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCom
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -1093,19 +1091,13 @@ LRESULT  wndprocMainWindow(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  l
 {
    MAIN_WINDOW_DATA*  pWindowData;      // Window data
    PAINTSTRUCT        oPaintInfo;       // System paint data
-   ERROR_STACK*       pException;       // Exception error
-   UINT               iResult;          // Operation result
+   UINT               iResult = 0;      // Operation result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Prepare
-   pWindowData = getMainWindowData(hWnd);
-   iResult = 0;
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
+      // Prepare
+      pWindowData = getMainWindowData(hWnd);
+
       // Examine message
       switch (iMessage)
       {
@@ -1186,7 +1178,9 @@ LRESULT  wndprocMainWindow(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  l
       case WM_MEASUREITEM:   onWindow_MeasureItem(hWnd, (MEASUREITEMSTRUCT*)lParam);  break;
 
       /// [THEME CHANGED]
-      case WM_THEMECHANGED:  setWorkspaceBackgroundColour(pWindowData->hWorkspace, getThemeSysColour(TEXT("Window"), COLOR_BTNFACE));  break;
+      case WM_THEMECHANGED:  
+         onMainWindowThemeChanged(pWindowData);
+         break;
 
       // [DOCUMENT UPDATED]
       case UN_DOCUMENT_UPDATED:
@@ -1241,19 +1235,13 @@ LRESULT  wndprocMainWindow(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  l
          break;
    #endif
       }
-   }
-   /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the application window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_MAIN_WINDOW));
-      displayException(pException);
-      // [HACK] Ensure main window is re-enabled  (Incase exception happens during threaded operation)
-      EnableWindow(getAppWindow(), TRUE);
-   }
 
-   // Return result
-   END_TRACKING();
-   return iResult;
+      // Return result
+      return iResult;
+   }
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   
+   EnableWindow(getAppWindow(), TRUE);    // [HACK] Ensure main window is re-enabled  (In case exception happens during threaded operation)
+   return 0;
 }
 

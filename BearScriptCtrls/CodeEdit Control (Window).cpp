@@ -14,7 +14,11 @@
 ///                                    CONSTANTS/GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-#define     UNDO_COMMIT_TICKER        2
+// Undo ticker TimerID
+#define  UNDO_COMMIT_TICKER     2
+
+// onException: Pass to MainWindow for display
+#define  ON_EXCEPTION()         debugCodeEditData(pWindowData);  SendMessage(getAppWindow(), UN_CODE_EDIT_EXCEPTION, NULL, (LPARAM)pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
@@ -47,37 +51,37 @@ VOID  onCodeEditCharacterPress(CODE_EDIT_DATA*  pWindowData, CONST TCHAR  chChar
 {
    BOOL   bControlPressed;    // Whether CTRL was pressed
 
-   // Prepare
-   TRACK_FUNCTION();
-   bControlPressed = HIBYTE(GetKeyState(VK_CONTROL));
-
-   /// [CHECK] Allow only letters, numbers and operators
-   if (chCharacter == VK_RETURN OR chCharacter == VK_TAB OR (chCharacter >= 32 AND chCharacter <= 126))
+   TRY
    {
-      // [TOOLTIP] Destroy Tooltip
-      if (pWindowData->bTooltipVisible) 
-         displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
+      // Prepare
+      bControlPressed = HIBYTE(GetKeyState(VK_CONTROL));
 
-      // [PRE-PROCESS] Determine whether SuggestionList should process this instead
-      if (!onCodeEditSuggestionKeyDown(pWindowData, chCharacter, FALSE, FALSE))
+      /// [CHECK] Allow only letters, numbers and operators
+      if (chCharacter == VK_RETURN OR chCharacter == VK_TAB OR (chCharacter >= 32 AND chCharacter <= 126))
       {
-         /// [SELECTION] Delete selection text
-         if (hasCodeEditSelection(pWindowData))
-            removeCodeEditSelectionText(pWindowData, TRUE);
+         // [TOOLTIP] Destroy Tooltip
+         if (pWindowData->bTooltipVisible) 
+            displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
 
-         /// Insert character at the caret
-         insertCodeEditCharacterAtCaret(pWindowData, chCharacter);
+         // [PRE-PROCESS] Determine whether SuggestionList should process this instead
+         if (!onCodeEditSuggestionKeyDown(pWindowData, chCharacter, FALSE, FALSE))
+         {
+            /// [SELECTION] Delete selection text
+            if (hasCodeEditSelection(pWindowData))
+               removeCodeEditSelectionText(pWindowData, TRUE);
 
-         // Ensure location is visible
-         ensureCodeEditLocationIsVisible(pWindowData, &pWindowData->oCaret.oLocation);
+            /// Insert character at the caret
+            insertCodeEditCharacterAtCaret(pWindowData, chCharacter);
 
-         // [POST-PROCESS] Inform SuggestionList
-         onCodeEditSuggestionKeyDown(pWindowData, chCharacter, FALSE, TRUE);
+            // Ensure location is visible
+            ensureCodeEditLocationIsVisible(pWindowData, &pWindowData->oCaret.oLocation);
+
+            // [POST-PROCESS] Inform SuggestionList
+            onCodeEditSuggestionKeyDown(pWindowData, chCharacter, FALSE, TRUE);
+         }
       }
    }
-
-   // [TRACK]
-   END_TRACKING();
+   CATCH0("");
 }
 
 
@@ -115,31 +119,29 @@ VOID  onCodeEditCreate(HWND  hWnd)
 {
    CODE_EDIT_DATA*  pWindowData;
 
-   // [TRACK]
-   TRACK_FUNCTION();
+   TRY
+   {
+      // Create window data
+      pWindowData = createCodeEditData(hWnd);
 
-   // Create window data
-   pWindowData = createCodeEditData(hWnd);
+      // Store in first four bytes of window handle storage
+      SetWindowLong(hWnd, 0, (LONG)pWindowData);
 
-   // Store in first four bytes of window handle storage
-   SetWindowLong(hWnd, 0, (LONG)pWindowData);
+      /// NEW: Create tooltip
+      pWindowData->hTooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP WITH TTS_ALWAYSTIP, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hWnd, NULL, getAppInstance(), NULL);
+      ERROR_CHECK("creating CodeEdit tooltip", pWindowData->hTooltip);     //  WITH TTF_SUBCLASS  WITH TTF_TRANSPARENT
 
-   /// NEW: Create tooltip
-   pWindowData->hTooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP WITH TTS_ALWAYSTIP, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hWnd, NULL, getAppInstance(), NULL);
-   ERROR_CHECK("creating CodeEdit tooltip", pWindowData->hTooltip);     //  WITH TTF_SUBCLASS  WITH TTF_TRANSPARENT
+      //if (pWindowData->hTooltip)
+      //{
+      //   //SetWindowPos(pWindowData->hTooltip, HWND_TOPMOST,0, 0, 0, 0, SWP_NOMOVE WITH SWP_NOSIZE WITH SWP_NOACTIVATE);     //
+      //   SendMessage(pWindowData->hTooltip, TTM_SETDELAYTIME, TTDT_AUTOPOP, 30 * 1000);
+      //   SendMessage(pWindowData->hTooltip, TTM_SETDELAYTIME, TTDT_INITIAL, 5000);
+      //}
 
-   //if (pWindowData->hTooltip)
-   //{
-   //   //SetWindowPos(pWindowData->hTooltip, HWND_TOPMOST,0, 0, 0, 0, SWP_NOMOVE WITH SWP_NOSIZE WITH SWP_NOACTIVATE);     //
-   //   SendMessage(pWindowData->hTooltip, TTM_SETDELAYTIME, TTDT_AUTOPOP, 30 * 1000);
-   //   SendMessage(pWindowData->hTooltip, TTM_SETDELAYTIME, TTDT_INITIAL, 5000);
-   //}
-
-   // Disable updates
-   SetWindowRedraw(hWnd, FALSE);
-
-   // [TRACK]
-   END_TRACKING();
+      // Disable updates
+      SetWindowRedraw(hWnd, FALSE);
+   }
+   CATCH0("");
 }
 
 
@@ -151,20 +153,18 @@ VOID  onCodeEditCreate(HWND  hWnd)
 // 
 VOID  onCodeEditDestroy(CODE_EDIT_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
+   TRY
+   {
+      /// Destroy Tooltip
+      utilDeleteWindow(pWindowData->hTooltip);
 
-   /// Destroy Tooltip
-   utilDeleteWindow(pWindowData->hTooltip);
+      // Disconnect from window handle storage
+      SetWindowLong(pWindowData->hWnd, 0, NULL);
 
-   // Disconnect from window handle storage
-   SetWindowLong(pWindowData->hWnd, 0, NULL);
-
-   // Destroy window data
-   deleteCodeEditData(pWindowData);
-
-   // [TRACK]
-   END_TRACKING();
+      // Destroy window data
+      deleteCodeEditData(pWindowData);
+   }
+   CATCH0("");
 }
 
 
@@ -182,146 +182,144 @@ VOID  onCodeEditKeyDown(CODE_EDIT_DATA*  pWindowData, CONST UINT  iVirtualKey)
    BOOL                bExtendSelection,     // Whether SHIFT is pressed
                        bSpecialAction;       // Whether CONTROL is pressed
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // [SHIFT PRESSED] Extend/Create a text selection with this action
-   bExtendSelection = HIBYTE(GetKeyState(VK_SHIFT));
-   bSpecialAction   = HIBYTE(GetKeyState(VK_CONTROL));
-
-   // [PRE-PROCESS] Determine whether SuggestionList should process this instead
-   if (!onCodeEditSuggestionKeyDown(pWindowData, iVirtualKey, TRUE, FALSE))
+   TRY
    {
-      // [TOOLTIP] Destroy Tooltip
-      if (pWindowData->bTooltipVisible) 
-         displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
+      // [SHIFT PRESSED] Extend/Create a text selection with this action
+      bExtendSelection = HIBYTE(GetKeyState(VK_SHIFT));
+      bSpecialAction   = HIBYTE(GetKeyState(VK_CONTROL));
 
-      // [CHECK] Create new selection if SHIFT is pressed
-      if (bExtendSelection AND !hasCodeEditSelection(pWindowData))
+      // [PRE-PROCESS] Determine whether SuggestionList should process this instead
+      if (!onCodeEditSuggestionKeyDown(pWindowData, iVirtualKey, TRUE, FALSE))
       {
-         pWindowData->oSelection.oOrigin = pWindowData->oCaret.oLocation;
-         pWindowData->oSelection.bExists = TRUE;
-      }
+         // [TOOLTIP] Destroy Tooltip
+         if (pWindowData->bTooltipVisible) 
+            displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
 
-      // Examine key code
-      switch (iVirtualKey)
-      {
-      /// [DIRECTION KEY] Perform one of several different actions depending on whether CONTROL is pressed
-      case VK_UP:
-      case VK_DOWN:
-      case VK_LEFT:
-      case VK_RIGHT:
-         // [CONTROL] Perform corresponding special action
-         if (bSpecialAction)
+         // [CHECK] Create new selection if SHIFT is pressed
+         if (bExtendSelection AND !hasCodeEditSelection(pWindowData))
          {
-            switch (iVirtualKey)
-            {
-            // [CONTROL + LEFT/RIGHT] Move the next/previous word
-            case VK_LEFT:     performCodeEditCaretCommand(pWindowData, IDM_EDIT_WORD_LEFT,  bExtendSelection);    break;
-            case VK_RIGHT:    performCodeEditCaretCommand(pWindowData, IDM_EDIT_WORD_RIGHT, bExtendSelection);    break;
-            // [CONTROL + UP/DOWN] Scroll up or down a line
-            case VK_UP:       onCodeEditScroll(pWindowData, SB_LINEUP,   NULL, SB_VERT);                         break;
-            case VK_DOWN:     onCodeEditScroll(pWindowData, SB_LINEDOWN, NULL, SB_VERT);                         break;
-            }
+            pWindowData->oSelection.oOrigin = pWindowData->oCaret.oLocation;
+            pWindowData->oSelection.bExists = TRUE;
          }
-         // [NORMAL] Move caret in specified direction
-         else
-            performCodeEditCaretCommand(pWindowData, iVirtualKey, bExtendSelection);
 
-         // Ensure location is visible
-         ensureCodeEditLocationIsVisible(pWindowData, &pWindowData->oCaret.oLocation);
-         break;
+         // Examine key code
+         switch (iVirtualKey)
+         {
+         /// [DIRECTION KEY] Perform one of several different actions depending on whether CONTROL is pressed
+         case VK_UP:
+         case VK_DOWN:
+         case VK_LEFT:
+         case VK_RIGHT:
+            // [CONTROL] Perform corresponding special action
+            if (bSpecialAction)
+            {
+               switch (iVirtualKey)
+               {
+               // [CONTROL + LEFT/RIGHT] Move the next/previous word
+               case VK_LEFT:     performCodeEditCaretCommand(pWindowData, IDM_EDIT_WORD_LEFT,  bExtendSelection);    break;
+               case VK_RIGHT:    performCodeEditCaretCommand(pWindowData, IDM_EDIT_WORD_RIGHT, bExtendSelection);    break;
+               // [CONTROL + UP/DOWN] Scroll up or down a line
+               case VK_UP:       onCodeEditScroll(pWindowData, SB_LINEUP,   NULL, SB_VERT);                         break;
+               case VK_DOWN:     onCodeEditScroll(pWindowData, SB_LINEDOWN, NULL, SB_VERT);                         break;
+               }
+            }
+            // [NORMAL] Move caret in specified direction
+            else
+               performCodeEditCaretCommand(pWindowData, iVirtualKey, bExtendSelection);
 
-      /// [PAGE UP/DOWN] Scroll an entire page and attempt to move the caret to an equivilent position in the new page
-      case VK_NEXT:
-      case VK_PRIOR:
-         // [CONTROL] Return without doing anything
-         if (bSpecialAction)
+            // Ensure location is visible
+            ensureCodeEditLocationIsVisible(pWindowData, &pWindowData->oCaret.oLocation);
             break;
 
-         // [NO SHIFT] Cancel current selection
-         if (!bExtendSelection)
-            removeCodeEditSelection(pWindowData);
+         /// [PAGE UP/DOWN] Scroll an entire page and attempt to move the caret to an equivilent position in the new page
+         case VK_NEXT:
+         case VK_PRIOR:
+            // [CONTROL] Return without doing anything
+            if (bSpecialAction)
+               break;
 
-         // Calculate caret position in client co-ordinates
-         calculateCodeEditPointFromLocation(pWindowData, &pWindowData->oCaret.oLocation, &ptCaretPosition);
+            // [NO SHIFT] Cancel current selection
+            if (!bExtendSelection)
+               removeCodeEditSelection(pWindowData);
 
-         // Scroll a page
-         onCodeEditScroll(pWindowData, (iVirtualKey == VK_NEXT ? SB_PAGEDOWN : SB_PAGEUP), NULL, SB_VERT);
+            // Calculate caret position in client co-ordinates
+            calculateCodeEditPointFromLocation(pWindowData, &pWindowData->oCaret.oLocation, &ptCaretPosition);
 
-         // Calculate equivilent caret position. If none exists then use the end of the text
-         if (!calculateCodeEditLocationFromPoint(pWindowData, &ptCaretPosition, &oNewCaretLocation))
-            calculateCodeEditFinalCharacterLocation(pWindowData, &oNewCaretLocation);
+            // Scroll a page
+            onCodeEditScroll(pWindowData, (iVirtualKey == VK_NEXT ? SB_PAGEDOWN : SB_PAGEUP), NULL, SB_VERT);
 
-         // Reposition caret
-         oOldCaretLocation = pWindowData->oCaret.oLocation;
-         setCodeEditCaretLocation(pWindowData, &oNewCaretLocation);
-
-         // [SHIFT] Update selection
-         if (bExtendSelection)
-            updateCodeEditSelection(pWindowData, oOldCaretLocation);
-         break;
-
-      /// [HOME/END] Performs different actions depending on whether SHIFT and/or CONTROL are pressed
-      case VK_HOME:
-      case VK_END:
-         // Prepare
-         oNewCaretLocation = pWindowData->oCaret.oLocation;
-
-         // [NO SHIFT] Cancel current selection
-         if (!bExtendSelection)
-            removeCodeEditSelection(pWindowData);
-
-         // [CONTROL] Scroll to the first or last page and move the caret to the first or last character in the edit
-         if (bSpecialAction)
-         {
-            // Scroll to the first or last page
-            onCodeEditScroll(pWindowData, (iVirtualKey == VK_HOME ? SB_TOP : SB_BOTTOM), NULL, SB_VERT);
-
-            // [HOME] Move caret to the first character in the edit
-            if (iVirtualKey == VK_HOME)
-               oNewCaretLocation.iLine = oNewCaretLocation.iIndex = 0;
-            // [END] Move the caret to the last character in the edit
-            else
+            // Calculate equivilent caret position. If none exists then use the end of the text
+            if (!calculateCodeEditLocationFromPoint(pWindowData, &ptCaretPosition, &oNewCaretLocation))
                calculateCodeEditFinalCharacterLocation(pWindowData, &oNewCaretLocation);
+
+            // Reposition caret
+            oOldCaretLocation = pWindowData->oCaret.oLocation;
+            setCodeEditCaretLocation(pWindowData, &oNewCaretLocation);
+
+            // [SHIFT] Update selection
+            if (bExtendSelection)
+               updateCodeEditSelection(pWindowData, oOldCaretLocation);
+            break;
+
+         /// [HOME/END] Performs different actions depending on whether SHIFT and/or CONTROL are pressed
+         case VK_HOME:
+         case VK_END:
+            // Prepare
+            oNewCaretLocation = pWindowData->oCaret.oLocation;
+
+            // [NO SHIFT] Cancel current selection
+            if (!bExtendSelection)
+               removeCodeEditSelection(pWindowData);
+
+            // [CONTROL] Scroll to the first or last page and move the caret to the first or last character in the edit
+            if (bSpecialAction)
+            {
+               // Scroll to the first or last page
+               onCodeEditScroll(pWindowData, (iVirtualKey == VK_HOME ? SB_TOP : SB_BOTTOM), NULL, SB_VERT);
+
+               // [HOME] Move caret to the first character in the edit
+               if (iVirtualKey == VK_HOME)
+                  oNewCaretLocation.iLine = oNewCaretLocation.iIndex = 0;
+               // [END] Move the caret to the last character in the edit
+               else
+                  calculateCodeEditFinalCharacterLocation(pWindowData, &oNewCaretLocation);
+            }
+            // [HOME] Move the caret to the first character on the line
+            else if (iVirtualKey == VK_HOME)
+               oNewCaretLocation.iIndex = 0;
+            // [END] Move the caret to the last character on the line
+            else
+               oNewCaretLocation.iIndex = getCodeEditLineLengthByIndex(pWindowData, oNewCaretLocation.iLine);
+               
+            // Reposition caret
+            oOldCaretLocation = pWindowData->oCaret.oLocation;
+            setCodeEditCaretLocation(pWindowData, &oNewCaretLocation);      
+
+            // [SHIFT] Update selection
+            if (bExtendSelection)
+               updateCodeEditSelection(pWindowData, oOldCaretLocation);
+
+            // Ensure location is visible
+            ensureCodeEditLocationIsVisible(pWindowData, &pWindowData->oCaret.oLocation);
+            break;
+
+         /// [DELETE/BACKSPACE] Delete the current selection or the next/prev character
+         case VK_BACK:
+         case VK_DELETE:
+            // [SELECTION] Delete selection text
+            if (hasCodeEditSelection(pWindowData))
+               removeCodeEditSelectionText(pWindowData, TRUE);
+            // [NO SELECTION] Delete next/prev character
+            else
+               removeCodeEditCharacterAtCaret(pWindowData, iVirtualKey);
+            break;
          }
-         // [HOME] Move the caret to the first character on the line
-         else if (iVirtualKey == VK_HOME)
-            oNewCaretLocation.iIndex = 0;
-         // [END] Move the caret to the last character on the line
-         else
-            oNewCaretLocation.iIndex = getCodeEditLineLengthByIndex(pWindowData, oNewCaretLocation.iLine);
-            
-         // Reposition caret
-         oOldCaretLocation = pWindowData->oCaret.oLocation;
-         setCodeEditCaretLocation(pWindowData, &oNewCaretLocation);      
 
-         // [SHIFT] Update selection
-         if (bExtendSelection)
-            updateCodeEditSelection(pWindowData, oOldCaretLocation);
-
-         // Ensure location is visible
-         ensureCodeEditLocationIsVisible(pWindowData, &pWindowData->oCaret.oLocation);
-         break;
-
-      /// [DELETE/BACKSPACE] Delete the current selection or the next/prev character
-      case VK_BACK:
-      case VK_DELETE:
-         // [SELECTION] Delete selection text
-         if (hasCodeEditSelection(pWindowData))
-            removeCodeEditSelectionText(pWindowData, TRUE);
-         // [NO SELECTION] Delete next/prev character
-         else
-            removeCodeEditCharacterAtCaret(pWindowData, iVirtualKey);
-         break;
+         // [POST-PROCESS] Inform the SuggestionList a key has been processed
+         onCodeEditSuggestionKeyDown(pWindowData, iVirtualKey, TRUE, TRUE);
       }
-
-      // [POST-PROCESS] Inform the SuggestionList a key has been processed
-      onCodeEditSuggestionKeyDown(pWindowData, iVirtualKey, TRUE, TRUE);
    }
-
-   // [TRACK]
-   END_TRACKING();
+   CATCH0("");
 }
 
 
@@ -330,98 +328,98 @@ VOID  onCodeEditKeyDown(CODE_EDIT_DATA*  pWindowData, CONST UINT  iVirtualKey)
 // Description     : Handles a series of simple messages for interacting with the CodeEdit
 // 
 // CODE_EDIT_DATA*  pWindowData : [in] Window data
-// CONST UINT        iMessage    : [in] Message to handle
+// CONST UINT       iMessage    : [in] Message to handle
 // 
 // Return Value   : Depends on the message, but NULL indicates failure or that the message was unhandled
 // 
 LRESULT  onCodeEditInterfaceMessage(CODE_EDIT_DATA*  pWindowData, CONST UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    CODE_EDIT_LOCATION*  pLocation;
-   CODE_EDIT_LINE*  pLineData;         // LineData for the line being examined
-   LRESULT          xResult;           // Operation result
-   UINT             iLineNumber;       // Convenience description for an input parameter
+   CODE_EDIT_LINE*      pLineData;         // LineData for the line being examined
+   LRESULT              xResult = NULL;    // Operation result
+   UINT                 iLineNumber;       // Convenience description for an input parameter
    
-   // Prepare
-   TRACK_FUNCTION();
-   xResult = NULL;
-
-   // Examine message
-   switch (iMessage)
+   TRY
    {
-   /// Message: WM_GETTEXT
-   // wParam : UINT   : [in]     Length of buffer
-   // lParam : TCHAR* : [in/out] Buffer
-   case WM_GETTEXT:
-      xResult = (LRESULT)getCodeEditText(pWindowData, (TCHAR*)lParam, (UINT)wParam);
-      break;
+      // Examine message
+      switch (iMessage)
+      {
+      /// Message: WM_GETTEXT
+      // wParam : UINT   : [in]     Length of buffer
+      // lParam : TCHAR* : [in/out] Buffer
+      case WM_GETTEXT:
+         xResult = (LRESULT)getCodeEditText(pWindowData, (TCHAR*)lParam, (UINT)wParam);
+         break;
 
-   /// Message: WM_GETTEXTLENGTH
-   case WM_GETTEXTLENGTH:
-      xResult = (LRESULT)getCodeEditLength(pWindowData);
-      break;
+      /// Message: WM_GETTEXTLENGTH
+      case WM_GETTEXTLENGTH:
+         xResult = (LRESULT)getCodeEditLength(pWindowData);
+         break;
 
-   /// Message: UM_GET_CARET_LOCATION
-   // lParam : CODE_EDIT_LOCATION* : [in/out] CodeEdit Caret location
-   case UM_GET_CARET_LOCATION:
-      // Prepare
-      pLocation = (CODE_EDIT_LOCATION*)lParam;
+      /// Message: UM_GET_CARET_LOCATION
+      // lParam : CODE_EDIT_LOCATION* : [in/out] CodeEdit Caret location
+      case UM_GET_CARET_LOCATION:
+         // Prepare
+         pLocation = (CODE_EDIT_LOCATION*)lParam;
 
-      // Copy current caret location and return TRUE
-      (*pLocation) = pWindowData->oCaret.oLocation;
-      xResult      = TRUE;
-      break;
+         // Copy current caret location and return TRUE
+         (*pLocation) = pWindowData->oCaret.oLocation;
+         xResult      = TRUE;
+         break;
 
-   /// Message: UM_GET_LINE_TEXT
-   // wParam : UINT : [in] Zero based line number 
-   case UM_GET_LINE_TEXT:
-      // Prepare
-      iLineNumber = (UINT)wParam;
+      /// Message: UM_GET_LINE_TEXT
+      // wParam : UINT : [in] Zero based line number 
+      case UM_GET_LINE_TEXT:
+         // Prepare
+         iLineNumber = (UINT)wParam;
 
-      // Lookup line data
-      if (findCodeEditLineDataByIndex(pWindowData, iLineNumber, pLineData))
-         // Generate output text
-         xResult = (LRESULT)generateCodeEditLineText(pLineData);
-      break;
+         // Lookup line data
+         if (findCodeEditLineDataByIndex(pWindowData, iLineNumber, pLineData))
+            // Generate output text
+            xResult = (LRESULT)generateCodeEditLineText(pLineData);
+         break;
 
-   /// Message: EM_GETLINECOUNT
-   case EM_GETLINECOUNT:
-      // Return line count
-      xResult = (LRESULT)getCodeEditLineCount(pWindowData);
-      break;
+      /// Message: EM_GETLINECOUNT
+      case EM_GETLINECOUNT:
+         // Return line count
+         xResult = (LRESULT)getCodeEditLineCount(pWindowData);
+         break;
 
-   /// Message: EM_LINELENGTH
-   // wParam : UINT : [in] Zero based line number 
-   case EM_LINELENGTH:
-      // Prepare
-      iLineNumber = (UINT)wParam;
+      /// Message: EM_LINELENGTH
+      // wParam : UINT : [in] Zero based line number 
+      case EM_LINELENGTH:
+         // Prepare
+         iLineNumber = (UINT)wParam;
 
-      // Lookup line data
-      if (findCodeEditLineDataByIndex(pWindowData, iLineNumber, pLineData))
-         // Return line text
-         xResult = (LRESULT)getCodeEditLineLength(pLineData);
-      break;
+         // Lookup line data
+         if (findCodeEditLineDataByIndex(pWindowData, iLineNumber, pLineData))
+            // Return line text
+            xResult = (LRESULT)getCodeEditLineLength(pLineData);
+         break;
 
-   /// Message: EM_SETSEL
-   // wParam : UINT : [in] Zero based start index
-   // lParam : UINT : [in] Zero based end index
-   case EM_SETSEL:
-      // [SELECT ALL] Invoke manually
-      if (wParam == 0 AND lParam == -1)
-         onCodeEditSelectAll(pWindowData);
-      break;
+      /// Message: EM_SETSEL
+      // wParam : UINT : [in] Zero based start index
+      // lParam : UINT : [in] Zero based end index
+      case EM_SETSEL:
+         // [SELECT ALL] Invoke manually
+         if (wParam == 0 AND lParam == -1)
+            onCodeEditSelectAll(pWindowData);
+         break;
 
-   /// Message: EM_CANUNDO and EM_CANREDO
-   case EM_CANUNDO:  xResult = (getStackItemCount(pWindowData->oUndo.pUndoStack) > 0 ? TRUE : FALSE); break;
-   case EM_CANREDO:  xResult = (getStackItemCount(pWindowData->oUndo.pRedoStack) > 0 ? TRUE : FALSE); break;
+      /// Message: EM_CANUNDO and EM_CANREDO
+      case EM_CANUNDO:  xResult = (getStackItemCount(pWindowData->oUndo.pUndoStack) > 0 ? TRUE : FALSE); break;
+      case EM_CANREDO:  xResult = (getStackItemCount(pWindowData->oUndo.pRedoStack) > 0 ? TRUE : FALSE); break;
 
-   // [UNSUPPORTED] Return NULL
-   default:
-      break;
+      // [UNSUPPORTED] Return NULL
+      default:
+         break;
+      }
+
+      // Return result
+      return xResult;
    }
-
-   // Return result
-   END_TRACKING();
-   return xResult;
+   CATCH0("");
+   return NULL;
 }
 
 
@@ -438,30 +436,30 @@ VOID  onCodeEditLButtonDoubleClick(CODE_EDIT_DATA*  pWindowData, CONST POINT*  p
                         oWordEnd;      // Location defining the end of the word
    CODE_EDIT_LINE*      pLineData;     // LineData for the line beneath the click (at the caret)
    
-   // Prepare
-   TRACK_FUNCTION();
-   oWordStart = oWordEnd = pWindowData->oCaret.oLocation;
-
-   // Lookup line data
-   if (findCodeEditLineDataByIndex(pWindowData, pWindowData->oCaret.oLocation.iLine, pLineData))
+   TRY
    {
-      /// Cancel current selection
-      removeCodeEditSelection(pWindowData);
+      // Prepare
+      oWordStart = oWordEnd = pWindowData->oCaret.oLocation;
 
-      // Determine the location of the start+end of the word beneath the caret
-      oWordStart.iIndex = findPrevCodeEditWord(pLineData, pWindowData->oCaret.oLocation.iIndex);
-      oWordEnd.iIndex   = findNextCodeEditWord(pLineData, pWindowData->oCaret.oLocation.iIndex);
+      // Lookup line data
+      if (findCodeEditLineDataByIndex(pWindowData, pWindowData->oCaret.oLocation.iLine, pLineData))
+      {
+         /// Cancel current selection
+         removeCodeEditSelection(pWindowData);
 
-      /// Define the origin as the start, and move the caret to the end
-      pWindowData->oSelection.oOrigin = oWordStart;
-      setCodeEditCaretLocation(pWindowData, &oWordEnd);
+         // Determine the location of the start+end of the word beneath the caret
+         oWordStart.iIndex = findPrevCodeEditWord(pLineData, pWindowData->oCaret.oLocation.iIndex);
+         oWordEnd.iIndex   = findNextCodeEditWord(pLineData, pWindowData->oCaret.oLocation.iIndex);
 
-      /// Display selection
-      updateCodeEditSelection(pWindowData, oWordStart);
+         /// Define the origin as the start, and move the caret to the end
+         pWindowData->oSelection.oOrigin = oWordStart;
+         setCodeEditCaretLocation(pWindowData, &oWordEnd);
+
+         /// Display selection
+         updateCodeEditSelection(pWindowData, oWordStart);
+      }
    }
-
-   // [TRACK]
-   END_TRACKING();
+   CATCH0("");
 }
 
 
@@ -478,42 +476,42 @@ VOID  onCodeEditLButtonDown(CODE_EDIT_DATA*  pWindowData, CONST POINT*  ptClick,
                        oOldCaretLocation;       // Original location of the caret
    BOOL                bExtendSelection;        // Whether the SHIFT key is pressed or not
 
-   // Prepare
-   TRACK_FUNCTION();
-   bExtendSelection = (iButtons INCLUDES MK_SHIFT);
+   TRY
+   {
+      // Prepare
+      bExtendSelection = (iButtons INCLUDES MK_SHIFT);
 
-   // [SUGGESTIONS] Hide suggestions
-   destroyCodeEditSuggestionList(pWindowData);
+      // [SUGGESTIONS] Hide suggestions
+      destroyCodeEditSuggestionList(pWindowData);
 
-   /// Set focus to the CodeEdit and capture the mouse
-   SetFocus(pWindowData->hWnd);
-   SetCapture(pWindowData->hWnd);
+      /// Set focus to the CodeEdit and capture the mouse
+      SetFocus(pWindowData->hWnd);
+      SetCapture(pWindowData->hWnd);
 
-   // Convert click into a valid location, if possible
-   if (!calculateCodeEditLocationFromPoint(pWindowData, ptClick, &ptClickLocation))
-      // [CLICK BENEATH TEXT] Use the final character
-      calculateCodeEditFinalCharacterLocation(pWindowData, &ptClickLocation);
-   
-   /// [NEW SELECTION] Cancel current selection
-   if (!bExtendSelection)
-      removeCodeEditSelection(pWindowData);
+      // Convert click into a valid location, if possible
+      if (!calculateCodeEditLocationFromPoint(pWindowData, ptClick, &ptClickLocation))
+         // [CLICK BENEATH TEXT] Use the final character
+         calculateCodeEditFinalCharacterLocation(pWindowData, &ptClickLocation);
+      
+      /// [NEW SELECTION] Cancel current selection
+      if (!bExtendSelection)
+         removeCodeEditSelection(pWindowData);
 
-   // Save caret location
-   oOldCaretLocation = pWindowData->oCaret.oLocation;
+      // Save caret location
+      oOldCaretLocation = pWindowData->oCaret.oLocation;
 
-   /// Move the caret to the cursor
-   setCodeEditCaretLocation(pWindowData, &ptClickLocation);
+      /// Move the caret to the cursor
+      setCodeEditCaretLocation(pWindowData, &ptClickLocation);
 
-   /// [NEW SELECTION] Define a new selection origin
-   if (!bExtendSelection)
-      pWindowData->oSelection.oOrigin = ptClickLocation;
+      /// [NEW SELECTION] Define a new selection origin
+      if (!bExtendSelection)
+         pWindowData->oSelection.oOrigin = ptClickLocation;
 
-   /// [EXTEND SELECTION] Update selection to reflect new caret position
-   else
-      updateCodeEditSelection(pWindowData, oOldCaretLocation);
-   
-   // [TRACK]
-   END_TRACKING();
+      /// [EXTEND SELECTION] Update selection to reflect new caret position
+      else
+         updateCodeEditSelection(pWindowData, oOldCaretLocation);
+   }
+   CATCH0("");
 }
 
 
@@ -547,49 +545,48 @@ VOID  onCodeEditMouseHover(CODE_EDIT_DATA*  pWindowData, CONST POINT*  ptCursor,
    CODEOBJECT*         pCodeObject;
    TCHAR*              szLineText;
 
-   // Prepare
-   TRACK_FUNCTION();
-   eObjectType = CST_NONE;
-
-   //VERBOSE("CODE-EDIT: WM_MOUSEHOVER received");
-
-   // Cancel hover request
-   utilTrackMouseEvent(pWindowData->hWnd, TME_HOVER WITH TME_CANCEL, NULL);
-
-   /// [CHECK] Have we hovered over code?
-   if (performCodeEditHitTest(pWindowData, ptCursor, &oHoverLocation) == CDR_LINE_TEXT)
+   TRY
    {
-      // [SUCCESS] Lookup line data
-      findCodeEditLineDataByIndex(pWindowData, oHoverLocation.iLine, pLineData);
+      // Prepare
+      eObjectType = CST_NONE;
 
-      /// Generate a CodeObject from the line text
-      szLineText  = generateCodeEditLineText(pLineData);
-      pCodeObject = createCodeObject(szLineText);
+      // Cancel hover request
+      utilTrackMouseEvent(pWindowData->hWnd, TME_HOVER WITH TME_CANCEL, NULL);
 
-      /// [CHECK] Determine the CodeObject preceeding the cursor (if possible)
-      if (szLineText[0] AND findCodeObjectByCharacterIndex(pCodeObject, oHoverLocation.iIndex ? oHoverLocation.iIndex - 1 : 0))
+      /// [CHECK] Have we hovered over code?
+      if (performCodeEditHitTest(pWindowData, ptCursor, &oHoverLocation) == CDR_LINE_TEXT)
       {
-         // [FOUND] Determine suggestion type from CodeObject
-         switch (pCodeObject->eClass)
+         // [SUCCESS] Lookup line data
+         findCodeEditLineDataByIndex(pWindowData, oHoverLocation.iLine, pLineData);
+
+         /// Generate a CodeObject from the line text
+         szLineText  = generateCodeEditLineText(pLineData);
+         pCodeObject = createCodeObject(szLineText);
+
+         /// [CHECK] Determine the CodeObject preceeding the cursor (if possible)
+         if (szLineText[0] AND findCodeObjectByCharacterIndex(pCodeObject, oHoverLocation.iIndex ? oHoverLocation.iIndex - 1 : 0))
          {
-         case CO_ENUMERATION:    eObjectType = CST_GAME_OBJECT;     break;
-         case CO_CONSTANT:       eObjectType = CST_SCRIPT_OBJECT;   break;
-         default:                eObjectType = CST_COMMAND;         break;
+            // [FOUND] Determine suggestion type from CodeObject
+            switch (pCodeObject->eClass)
+            {
+            case CO_ENUMERATION:    eObjectType = CST_GAME_OBJECT;     break;
+            case CO_CONSTANT:       eObjectType = CST_SCRIPT_OBJECT;   break;
+            default:                eObjectType = CST_COMMAND;         break;
+            }
+
+            VERBOSE("CODE-EDIT: CodeObject '%s' identified for tooltip", pCodeObject->szText);
+
+            /// Display tooltip
+            displayCodeEditTooltip(pWindowData, TRUE, oHoverLocation.iLine, pCodeObject);
          }
 
-         //VERBOSE("CODE-EDIT: CodeObject '%s' identified for tooltip", pCodeObject->szText);
-
-         /// Display tooltip
-         displayCodeEditTooltip(pWindowData, TRUE, oHoverLocation.iLine, pCodeObject);
+         // Cleanup
+         deleteCodeObject(pCodeObject);
+         utilDeleteString(szLineText);
       }
-
-      // Cleanup
-      deleteCodeObject(pCodeObject);
-      utilDeleteString(szLineText);
    }
+   CATCH0("");
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -606,49 +603,48 @@ VOID  onCodeEditMouseMove(CODE_EDIT_DATA*  pWindowData, POINT  ptCursor, CONST U
    CODE_EDIT_LOCATION  oCursorLocation,            // Location of the cursor
                        oPreviousCaretLocation;     // Existing location of the caret
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   /// [LEFT BUTTON HELD] Extend the selection if the left button is pressed
-   if (GetCapture() == pWindowData->hWnd)
+   TRY
    {
-      // Convert cursor co-ordinates into a valid location
-      if (!calculateCodeEditLocationFromPoint(pWindowData, &ptCursor, &oCursorLocation))
-         // [FAILED] Use final character
-         calculateCodeEditFinalCharacterLocation(pWindowData, &oCursorLocation);
-    
-      // [CHECK] Do nothing if the cursor hasn't moved to a different character
-      if (compareCodeEditLocations(oCursorLocation, pWindowData->oCaret.oLocation) != CR_EQUAL)
+      /// [LEFT BUTTON HELD] Extend the selection if the left button is pressed
+      if (GetCapture() == pWindowData->hWnd)
       {
-         // Store current caret location
-         oPreviousCaretLocation = pWindowData->oCaret.oLocation;
+         // Convert cursor co-ordinates into a valid location
+         if (!calculateCodeEditLocationFromPoint(pWindowData, &ptCursor, &oCursorLocation))
+            // [FAILED] Use final character
+            calculateCodeEditFinalCharacterLocation(pWindowData, &oCursorLocation);
+       
+         // [CHECK] Do nothing if the cursor hasn't moved to a different character
+         if (compareCodeEditLocations(oCursorLocation, pWindowData->oCaret.oLocation) != CR_EQUAL)
+         {
+            // Store current caret location
+            oPreviousCaretLocation = pWindowData->oCaret.oLocation;
 
-         /// Move the caret to cursor location
-         setCodeEditCaretLocation(pWindowData, &oCursorLocation);
+            /// Move the caret to cursor location
+            setCodeEditCaretLocation(pWindowData, &oCursorLocation);
 
-         /// Update selection
-         updateCodeEditSelection(pWindowData, oPreviousCaretLocation);
+            /// Update selection
+            updateCodeEditSelection(pWindowData, oPreviousCaretLocation);
 
-         // [CURSOR ON TOP LINE] Scroll window upwards
-         if (pWindowData->oCaret.oLocation.iLine == pWindowData->ptFirstCharacter.iLine)
-            onCodeEditScroll(pWindowData, SB_LINEUP, NULL, SB_VERT);
+            // [CURSOR ON TOP LINE] Scroll window upwards
+            if (pWindowData->oCaret.oLocation.iLine == pWindowData->ptFirstCharacter.iLine)
+               onCodeEditScroll(pWindowData, SB_LINEUP, NULL, SB_VERT);
 
-         // [CURSOR ON BOTTOM LINE] Scroll window downwards
-         else if (pWindowData->oCaret.oLocation.iLine >= (pWindowData->ptFirstCharacter.iLine + pWindowData->siPageSize.cy - 1))
-            onCodeEditScroll(pWindowData, SB_LINEDOWN, NULL, SB_VERT);
+            // [CURSOR ON BOTTOM LINE] Scroll window downwards
+            else if (pWindowData->oCaret.oLocation.iLine >= (pWindowData->ptFirstCharacter.iLine + pWindowData->siPageSize.cy - 1))
+               onCodeEditScroll(pWindowData, SB_LINEDOWN, NULL, SB_VERT);
+         }
       }
+      /// [NO BUTTONS and NO SUGGESTIONS]
+      else if (utilExcludes(iButtons, MK_LBUTTON WITH MK_RBUTTON WITH MK_MBUTTON) AND !pWindowData->oSuggestion.hCtrl AND pWindowData->pPreferences->bEditorTooltips)
+         // Request mouse hover
+         utilTrackMouseEvent(pWindowData->hWnd, TME_HOVER, 1000 * pWindowData->pPreferences->iEditorTooltipDelay);
+      
+      // [TOOLTIP] Destroy Tooltip
+      if (pWindowData->bTooltipVisible) 
+         displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
    }
-   /// [NO BUTTONS and NO SUGGESTIONS]
-   else if (utilExcludes(iButtons, MK_LBUTTON WITH MK_RBUTTON WITH MK_MBUTTON) AND !pWindowData->oSuggestion.hCtrl AND pWindowData->pPreferences->bEditorTooltips)
-      // Request mouse hover
-      utilTrackMouseEvent(pWindowData->hWnd, TME_HOVER, 1000 * pWindowData->pPreferences->iEditorTooltipDelay);
-   
-   // [TOOLTIP] Destroy Tooltip
-   if (pWindowData->bTooltipVisible) 
-      displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
+   CATCH0("");
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -663,44 +659,43 @@ VOID  onCodeEditMouseWheel(CODE_EDIT_DATA*  pWindowData, CONST INT  iWheelDelta)
    INT    iLineDelta;      // Number of lines to scroll up/down
    UINT   eScrollCommand;  // Scrolling constant to send to the CodeEdit/SuggestionList
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Determine number of lines to scroll
-   iLineDelta = (iWheelDelta / WHEEL_DELTA);
-
-   /// Determine direction of scroll by positive/negative value
-   eScrollCommand = (iLineDelta > 0 ? SB_LINEUP : SB_LINEDOWN);
-
-#ifdef BUG_FIX
-   /// Determine direction of scroll by positive/negative value
-   if (iLineDelta > 0)
-      // [POSITIVE] Determine amount of scroll by magnitude of delta
-      eScrollCommand = (iLineDelta > 1 ? SB_PAGEUP : SB_LINEUP);
-   else
-      // [NEGATIVE] Determine amount of scroll by magnitude of delta
-      eScrollCommand = (iLineDelta < -1 ? SB_PAGEDOWN : SB_LINEDOWN);
-#endif
-
-   // Repeat the command as necessary if the user did some kind of mega scroll      // [FIX] BUG:016 'Scrolling the mouse wheel very fast causes the script editor to 'jump''
-   for (INT iRepetitions = utilCalculateMagnitude(iLineDelta); iRepetitions >= 0; iRepetitions--)
+   TRY
    {
-      /// Determine where to send the command
-      if (!pWindowData->oSuggestion.hCtrl)
-         // [CODE-EDIT] Command the window to scroll directly
-         onCodeEditScroll(pWindowData, eScrollCommand, NULL, SB_VERT);
+      // Determine number of lines to scroll
+      iLineDelta = (iWheelDelta / WHEEL_DELTA);
+
+      /// Determine direction of scroll by positive/negative value
+      eScrollCommand = (iLineDelta > 0 ? SB_LINEUP : SB_LINEDOWN);
+
+   #ifdef BUG_FIX
+      /// Determine direction of scroll by positive/negative value
+      if (iLineDelta > 0)
+         // [POSITIVE] Determine amount of scroll by magnitude of delta
+         eScrollCommand = (iLineDelta > 1 ? SB_PAGEUP : SB_LINEUP);
       else
-         // [SUGGESTION-LIST] Pass the list a WM_VSCROLL message
-         SendMessage(pWindowData->oSuggestion.hCtrl, WM_VSCROLL, eScrollCommand, NULL);
+         // [NEGATIVE] Determine amount of scroll by magnitude of delta
+         eScrollCommand = (iLineDelta < -1 ? SB_PAGEDOWN : SB_LINEDOWN);
+   #endif
+
+      // Repeat the command as necessary if the user did some kind of mega scroll      // [FIX] BUG:016 'Scrolling the mouse wheel very fast causes the script editor to 'jump''
+      for (INT iRepetitions = utilCalculateMagnitude(iLineDelta); iRepetitions >= 0; iRepetitions--)
+      {
+         /// Determine where to send the command
+         if (!pWindowData->oSuggestion.hCtrl)
+            // [CODE-EDIT] Command the window to scroll directly
+            onCodeEditScroll(pWindowData, eScrollCommand, NULL, SB_VERT);
+         else
+            // [SUGGESTION-LIST] Pass the list a WM_VSCROLL message
+            SendMessage(pWindowData->oSuggestion.hCtrl, WM_VSCROLL, eScrollCommand, NULL);
+      }
+
+      // [CHECK] Is the Tooltip visible?
+      if (pWindowData->bTooltipVisible) 
+         // [TOOLTIP] Destroy Tooltip
+         displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
    }
+   CATCH0("");
 
-   // [CHECK] Is the Tooltip visible?
-   if (pWindowData->bTooltipVisible) 
-      // [TOOLTIP] Destroy Tooltip
-      displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
-
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -715,35 +710,34 @@ VOID  onCodeEditRButtonDown(CODE_EDIT_DATA*  pWindowData, CONST POINT*  ptClick,
 {
    CODE_EDIT_LOCATION  oClickLocation;       // Location of the input click
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // [SUGGESTIONS] Hide suggestions
-   destroyCodeEditSuggestionList(pWindowData);
-
-   /// Set focus to the CodeEdit
-   SetFocus(pWindowData->hWnd);
-
-   // Convert click into a valid location, if possible
-   if (!calculateCodeEditLocationFromPoint(pWindowData, ptClick, &oClickLocation))
-      // [CLICK BENEATH TEXT] Use the final character
-      calculateCodeEditFinalCharacterLocation(pWindowData, &oClickLocation);
-   
-   /// [OUTSIDE SELECTION] Cancel selection and move caret to the cursor
-   if (!isCodeEditLocationSelected(pWindowData, oClickLocation))
+   TRY
    {
-      // Cancel current selection
-      removeCodeEditSelection(pWindowData);
+      // [SUGGESTIONS] Hide suggestions
+      destroyCodeEditSuggestionList(pWindowData);
 
-      // Move the caret to the cursor
-      setCodeEditCaretLocation(pWindowData, &oClickLocation);
+      /// Set focus to the CodeEdit
+      SetFocus(pWindowData->hWnd);
 
-      // Remove selection between CARET and ORIGIN
-      setCodeEditSelection(pWindowData, pWindowData->oSelection.oOrigin, pWindowData->oCaret.oLocation, FALSE);
+      // Convert click into a valid location, if possible
+      if (!calculateCodeEditLocationFromPoint(pWindowData, ptClick, &oClickLocation))
+         // [CLICK BENEATH TEXT] Use the final character
+         calculateCodeEditFinalCharacterLocation(pWindowData, &oClickLocation);
+      
+      /// [OUTSIDE SELECTION] Cancel selection and move caret to the cursor
+      if (!isCodeEditLocationSelected(pWindowData, oClickLocation))
+      {
+         // Cancel current selection
+         removeCodeEditSelection(pWindowData);
+
+         // Move the caret to the cursor
+         setCodeEditCaretLocation(pWindowData, &oClickLocation);
+
+         // Remove selection between CARET and ORIGIN
+         setCodeEditSelection(pWindowData, pWindowData->oSelection.oOrigin, pWindowData->oCaret.oLocation, FALSE);
+      }
    }
+   CATCH0("");
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -755,28 +749,26 @@ VOID  onCodeEditRButtonDown(CODE_EDIT_DATA*  pWindowData, CONST POINT*  ptClick,
 // 
 VOID  onCodeEditLoseFocus(CODE_EDIT_DATA*  pWindowData, HWND  hDestinationWnd)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   /// [CHECK] Ensure we're not losing focus to the suggestion control
-   if (pWindowData AND hDestinationWnd != pWindowData->oSuggestion.hCtrl)  // [HACK] Sometimes received after window data is destroyed! 
+   TRY
    {
-      // Destroy caret
-      DestroyCaret();
+      /// [CHECK] Ensure we're not losing focus to the suggestion control
+      if (pWindowData AND hDestinationWnd != pWindowData->oSuggestion.hCtrl)  // [HACK] Sometimes received after window data is destroyed! 
+      {
+         // Destroy caret
+         DestroyCaret();
 
-      // Hide tooltip
-      displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
+         // Hide tooltip
+         displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
 
-      // Destroy suggestion ListView and data tree
-      destroyCodeEditSuggestionList(pWindowData);
+         // Destroy suggestion ListView and data tree
+         destroyCodeEditSuggestionList(pWindowData);
+      }
+
+      // Send EN_KILLFOCUS
+      if (pWindowData)
+         SendMessage(GetParent(pWindowData->hWnd), WM_COMMAND, MAKE_LONG(GetWindowID(pWindowData->hWnd), EN_KILLFOCUS), (LPARAM)pWindowData->hWnd);
    }
-
-   // Send EN_KILLFOCUS
-   if (pWindowData)
-      SendMessage(GetParent(pWindowData->hWnd), WM_COMMAND, MAKE_LONG(GetWindowID(pWindowData->hWnd), EN_KILLFOCUS), (LPARAM)pWindowData->hWnd);
-
-   // [TRACK]
-   END_TRACKING();
+   CATCH0("");
 }
 
 
@@ -788,26 +780,24 @@ VOID  onCodeEditLoseFocus(CODE_EDIT_DATA*  pWindowData, HWND  hDestinationWnd)
 // 
 VOID  onCodeEditReceiveFocus(CODE_EDIT_DATA*  pWindowData, HWND  hSourceWnd)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   
-   /// [CHECK] Ensure we're not receiving focus from the Suggestion control
-   if (pWindowData AND hSourceWnd != pWindowData->oSuggestion.hCtrl AND hSourceWnd != NULL)
+   TRY
    {
-      // Create Caret
-      CreateCaret(pWindowData->hWnd, NULL, 1, pWindowData->siCharacterSize.cy);
+      /// [CHECK] Ensure we're not receiving focus from the Suggestion control
+      if (pWindowData AND hSourceWnd != pWindowData->oSuggestion.hCtrl AND hSourceWnd != NULL)
+      {
+         // Create Caret
+         CreateCaret(pWindowData->hWnd, NULL, 1, pWindowData->siCharacterSize.cy);
 
-      // Position and display
-      updateCodeEditCaretPosition(pWindowData);
-      ShowCaret(pWindowData->hWnd);
+         // Position and display
+         updateCodeEditCaretPosition(pWindowData);
+         ShowCaret(pWindowData->hWnd);
+      }
+
+      // Send EN_SETFOCUS
+      if (pWindowData)
+         SendMessage(GetParent(pWindowData->hWnd), WM_COMMAND, MAKE_LONG(GetWindowID(pWindowData->hWnd), EN_SETFOCUS), (LPARAM)pWindowData->hWnd);
    }
-
-   // Send EN_SETFOCUS
-   if (pWindowData)
-      SendMessage(GetParent(pWindowData->hWnd), WM_COMMAND, MAKE_LONG(GetWindowID(pWindowData->hWnd), EN_SETFOCUS), (LPARAM)pWindowData->hWnd);
-
-   // [TRACK]
-   END_TRACKING();
+   CATCH0("");
 }
 
 
@@ -825,89 +815,88 @@ LRESULT  onCodeEditNotification(CODE_EDIT_DATA*  pWindowData, CONST UINT  iContr
    //NMLVKEYDOWN*        pKeyPress;
    NMLVDISPINFO*       pDataRequest;      // LVN_GETDISPINFO header
    NMLVCUSTOMDRAW*     pCustomListView;   // ListView NM_CUSTOMDRAW header
-   LRESULT             iResult;           // Message Result
-   BOOL                bHandled;
+   LRESULT             iResult = 0;       // Message Result
+   BOOL                bHandled = FALSE;
 
-   // Prepare
-   TRACK_FUNCTION();
-   bHandled = FALSE;
-   iResult  = 0;
-
-   /// [SUGGESTION LISTVIEW]
-   if (pHeader->hwndFrom == pWindowData->oSuggestion.hCtrl)
+   TRY
    {
-      // Prepare
-      pDataRequest     = (NMLVDISPINFO*)pHeader;
-      pCustomListView  = (NMLVCUSTOMDRAW*)pHeader;
-
-      // Examine notification
-      switch (pHeader->code)
+      /// [SUGGESTION LISTVIEW]
+      if (pHeader->hwndFrom == pWindowData->oSuggestion.hCtrl)
       {
-      /// [DOUBLE CLICK] Simulate the action of pressing TAB
-      case NM_DBLCLK:
-         onCodeEditSuggestionListKeyDown(pWindowData, VK_TAB);
-         bHandled = TRUE;
-         break;
+         // Prepare
+         pDataRequest     = (NMLVDISPINFO*)pHeader;
+         pCustomListView  = (NMLVCUSTOMDRAW*)pHeader;
 
-      /// [CUSTOM DRAW]
-      case NM_CUSTOMDRAW:
-         iResult  = onCustomDrawListView(pWindowData->hWnd, pHeader->hwndFrom, pCustomListView);
-         bHandled = TRUE;
-         break;
+         // Examine notification
+         switch (pHeader->code)
+         {
+         /// [DOUBLE CLICK] Simulate the action of pressing TAB
+         case NM_DBLCLK:
+            onCodeEditSuggestionListKeyDown(pWindowData, VK_TAB);
+            bHandled = TRUE;
+            break;
 
-      ///// [KEY PRESS] 
-      //case LVN_KEYDOWN:
-      //   pKeyPress = (NMLVKEYDOWN*)pHeader;
-      //   // 
-      //   onCodeEditSuggestionListKeyDown(pWindowData, pKeyPress->wVKey);
-      //   bHandled = TRUE;
-      //   break;
+         /// [CUSTOM DRAW]
+         case NM_CUSTOMDRAW:
+            iResult  = onCustomDrawListView(pWindowData->hWnd, pHeader->hwndFrom, pCustomListView);
+            bHandled = TRUE;
+            break;
 
-      /// [LOST FOCUS] Destroy ListView 
-      case NM_KILLFOCUS:
-         // [CHECK] Destroy caret if CodeEdit did not receive the focus
-         if (GetFocus() != pWindowData->hWnd)
-            DestroyCaret();
+         ///// [KEY PRESS] 
+         //case LVN_KEYDOWN:
+         //   pKeyPress = (NMLVKEYDOWN*)pHeader;
+         //   // 
+         //   onCodeEditSuggestionListKeyDown(pWindowData, pKeyPress->wVKey);
+         //   bHandled = TRUE;
+         //   break;
 
-         // Destroy ListView
-         destroyCodeEditSuggestionList(pWindowData);
-         bHandled = TRUE;
-         break;
+         /// [LOST FOCUS] Destroy ListView 
+         case NM_KILLFOCUS:
+            // [CHECK] Destroy caret if CodeEdit did not receive the focus
+            if (GetFocus() != pWindowData->hWnd)
+               DestroyCaret();
 
-      /// [REQUEST DATA] Provide item data
-      case LVN_GETDISPINFO:
-         onCodeEditSuggestionItemRequest(pWindowData, pDataRequest->item.iItem, &pDataRequest->item);
-         bHandled = TRUE;
-         break;
+            // Destroy ListView
+            destroyCodeEditSuggestionList(pWindowData);
+            bHandled = TRUE;
+            break;
+
+         /// [REQUEST DATA] Provide item data
+         case LVN_GETDISPINFO:
+            onCodeEditSuggestionItemRequest(pWindowData, pDataRequest->item.iItem, &pDataRequest->item);
+            bHandled = TRUE;
+            break;
+         }
       }
-   }
-   /// [TOOLTIP]
-   else if (pHeader->hwndFrom == pWindowData->hTooltip)
-   {
-      // Examine notification
-      switch (pHeader->code)
+      /// [TOOLTIP]
+      else if (pHeader->hwndFrom == pWindowData->hTooltip)
       {
-      /// [CUSTOM DRAW]
-      case NM_CUSTOMDRAW:
-         //VERBOSE("CODE-EDIT: Custom drawing Tooltip");
+         // Examine notification
+         switch (pHeader->code)
+         {
+         /// [CUSTOM DRAW]
+         case NM_CUSTOMDRAW:
+            //VERBOSE("CODE-EDIT: Custom drawing Tooltip");
 
-         // Perform CustomDraw
-         iResult = onCustomDrawTooltip(pHeader->hwndFrom, (NMTTCUSTOMDRAW*)pHeader, pWindowData->pTooltipData);
-         bHandled = TRUE;
-         break;
+            // Perform CustomDraw
+            iResult = onCustomDrawTooltip(pHeader->hwndFrom, (NMTTCUSTOMDRAW*)pHeader, pWindowData->pTooltipData);
+            bHandled = TRUE;
+            break;
 
-      /// [REQUEST TEXT]
-      case TTN_GETDISPINFO:
-         //VERBOSE("CODE-EDIT: TTN_GETDISPINFO received");
-         StringCchCopy(((NMTTDISPINFO*)pHeader)->szText, 80, TEXT("Dummy Tooltip text"));
-         bHandled = TRUE;
-         break;
+         /// [REQUEST TEXT]
+         case TTN_GETDISPINFO:
+            //VERBOSE("CODE-EDIT: TTN_GETDISPINFO received");
+            StringCchCopy(((NMTTDISPINFO*)pHeader)->szText, 80, TEXT("Dummy Tooltip text"));
+            bHandled = TRUE;
+            break;
+         }
       }
-   }
 
-   // Return result or pass to base
-   END_TRACKING();
-   return (bHandled ? iResult : DefWindowProc(pWindowData->hWnd, WM_NOTIFY, iControlID, (LPARAM)pHeader));
+      // Return result or pass to base
+      return (bHandled ? iResult : DefWindowProc(pWindowData->hWnd, WM_NOTIFY, iControlID, (LPARAM)pHeader));
+   }
+   CATCH0("");
+   return DefWindowProc(pWindowData->hWnd, WM_NOTIFY, iControlID, (LPARAM)pHeader);
 }
 
 /// Function name  : onCodeEditPaint
@@ -926,55 +915,56 @@ VOID  onCodeEditPaint(CODE_EDIT_DATA*  pWindowData)
    HRGN          rgnClippingArea;   // Clipping region for the window, which excludes the 3D border
    HDC           hDC;               // Destination device context
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Prepare
-   GetClientRect(pWindowData->hWnd, &rcClientRect);
-   iLineNumber = pWindowData->ptFirstCharacter.iLine;
-
-   /// Draw a 3D border around the control
-   hDC = BeginPaint(pWindowData->hWnd, &oPaintData);
-   DrawEdge(hDC, &rcClientRect, EDGE_ETCHED, BF_TOPLEFT);
-
-   // Define clipping region within the border
-   rgnClippingArea = CreateRectRgn(rcClientRect.left + 1, rcClientRect.top + 1, rcClientRect.right, rcClientRect.bottom);
-   SelectClipRgn(hDC, rgnClippingArea);
-
-   // Determine the bounding rectangle of the first visible line
-   calculateCodeEditLineRectangle(pWindowData, iLineNumber, &rcLineRect);
-
-   /// Iterate through visible lines of script code
-   for (findCodeEditLineListItemByIndex(pWindowData, iLineNumber, pIterator); pIterator AND rcLineRect.top <= rcClientRect.bottom; pIterator = pIterator->pNext)
+   TRY
    {
-      // Determine whether line intersects the update region
-      if (IntersectRect(&rcDummyRect, &rcLineRect, &oPaintData.rcPaint))
-         // Draw current line
-         drawCodeEditLine(hDC, pWindowData->pColourScheme, pWindowData->pScriptFile, extractListItemPointer(pIterator, CODE_EDIT_LINE), iLineNumber, rcLineRect);
-      
-      // Advance to the next line
-      OffsetRect(&rcLineRect, NULL, pWindowData->siCharacterSize.cy);
-      iLineNumber++;
+      // Prepare
+      GetClientRect(pWindowData->hWnd, &rcClientRect);
+      iLineNumber = pWindowData->ptFirstCharacter.iLine;
+
+      /// Draw a 3D border around the control
+      hDC = BeginPaint(pWindowData->hWnd, &oPaintData);
+      DrawEdge(hDC, &rcClientRect, EDGE_ETCHED, BF_TOPLEFT);
+
+      // Define clipping region within the border
+      rgnClippingArea = CreateRectRgn(rcClientRect.left + 1, rcClientRect.top + 1, rcClientRect.right, rcClientRect.bottom);
+      SelectClipRgn(hDC, rgnClippingArea);
+
+      // Determine the bounding rectangle of the first visible line
+      calculateCodeEditLineRectangle(pWindowData, iLineNumber, &rcLineRect);
+
+      /// Iterate through visible lines of script code
+      for (findCodeEditLineListItemByIndex(pWindowData, iLineNumber, pIterator); pIterator AND rcLineRect.top <= rcClientRect.bottom; pIterator = pIterator->pNext)
+      {
+         // Determine whether line intersects the update region
+         if (IntersectRect(&rcDummyRect, &rcLineRect, &oPaintData.rcPaint))
+            // Draw current line
+            drawCodeEditLine(hDC, pWindowData->pColourScheme, pWindowData->pScriptFile, extractListItemPointer(pIterator, CODE_EDIT_LINE), iLineNumber, rcLineRect);
+         
+         // Advance to the next line
+         OffsetRect(&rcLineRect, NULL, pWindowData->siCharacterSize.cy);
+         iLineNumber++;
+      }
+
+      /// Iterate through any remaining 'lines' at the end of the document
+      while (rcLineRect.top <= rcClientRect.bottom)
+      {
+         // Determine whether line intersects the update region
+         if (IntersectRect(&rcDummyRect, &rcLineRect, &oPaintData.rcPaint))
+            // Draw an empty line
+            drawCodeEditLine(hDC, pWindowData->pColourScheme, NULL, NULL, iLineNumber, rcLineRect);
+
+         // Advance to the next line
+         OffsetRect(&rcLineRect, NULL, pWindowData->siCharacterSize.cy);
+         iLineNumber++;
+      }
+
+      // Cleanup
+      SelectClipRgn(hDC, NULL);
+      DeleteObject(rgnClippingArea);
    }
-
-   /// Iterate through any remaining 'lines' at the end of the document
-   while (rcLineRect.top <= rcClientRect.bottom)
-   {
-      // Determine whether line intersects the update region
-      if (IntersectRect(&rcDummyRect, &rcLineRect, &oPaintData.rcPaint))
-         // Draw an empty line
-         drawCodeEditLine(hDC, pWindowData->pColourScheme, NULL, NULL, iLineNumber, rcLineRect);
-
-      // Advance to the next line
-      OffsetRect(&rcLineRect, NULL, pWindowData->siCharacterSize.cy);
-      iLineNumber++;
-   }
-
-   // Cleanup
-   SelectClipRgn(hDC, NULL);
-   DeleteObject(rgnClippingArea);
+   CATCH0("");
+   // Ensure validated
    EndPaint(pWindowData->hWnd, &oPaintData);
-   END_TRACKING();
 }
 
 
@@ -991,9 +981,7 @@ VOID  onCodeEditPaintNonClient(CODE_EDIT_DATA*  pWindowData, HRGN  hUpdateRgn)
    RECT    rcWindow;
    HDC     hDC;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-  
+   
    // Prepare
    hDC = GetWindowDC(pWindowData->hWnd);
   
@@ -1006,7 +994,6 @@ VOID  onCodeEditPaintNonClient(CODE_EDIT_DATA*  pWindowData, HRGN  hUpdateRgn)
 
    // Cleanup
    ReleaseDC(pWindowData->hWnd, hDC);
-   END_TRACKING();
 }
 
 
@@ -1022,29 +1009,29 @@ VOID  onCodeEditPreferencesChanged(CODE_EDIT_DATA*  pWindowData)
                  hOldFont;          // Existing font
    HDC           hDC;               // Destination device context
 
-   // [TRACK]
-   TRACK_FUNCTION();
+   TRY
+   {
+      // Prepare
+      hDC = GetDC(pWindowData->hWnd);
 
-   // Prepare
-   hDC = GetDC(pWindowData->hWnd);
+      /// Create new code font
+      hCodeFont = utilCreateFont(hDC, pWindowData->pColourScheme->szFontName, pWindowData->pColourScheme->iFontSize, pWindowData->pColourScheme->bFontBold, FALSE, FALSE); 
 
-   /// Create new code font
-   hCodeFont = utilCreateFont(hDC, pWindowData->pColourScheme->szFontName, pWindowData->pColourScheme->iFontSize, pWindowData->pColourScheme->bFontBold, FALSE, FALSE); 
+      // Replace existing font
+      hOldFont = (HFONT)SelectObject(hDC, hCodeFont);
+      DeleteObject(hOldFont);
+      
+      /// Determine and store text height and width
+      GetTextMetrics(hDC, &oTextMetrics);
+      utilSetSize(&pWindowData->siCharacterSize, oTextMetrics.tmAveCharWidth, oTextMetrics.tmHeight);
 
-   // Replace existing font
-   hOldFont = (HFONT)SelectObject(hDC, hCodeFont);
-   DeleteObject(hOldFont);
-   
-   /// Determine and store text height and width
-   GetTextMetrics(hDC, &oTextMetrics);
-   utilSetSize(&pWindowData->siCharacterSize, oTextMetrics.tmAveCharWidth, oTextMetrics.tmHeight);
+      // Redraw entire window
+      InvalidateRect(pWindowData->hWnd, NULL, FALSE);
 
-   // Redraw entire window
-   InvalidateRect(pWindowData->hWnd, NULL, FALSE);
-
-   // Cleanup
-   ReleaseDC(pWindowData->hWnd, hDC);
-   END_TRACKING();
+      // Cleanup
+      ReleaseDC(pWindowData->hWnd, hDC);
+   }
+   CATCH0("");
 }
 
 
@@ -1057,21 +1044,20 @@ VOID  onCodeEditPreferencesChanged(CODE_EDIT_DATA*  pWindowData)
 // 
 VOID  onCodeEditResize(CODE_EDIT_DATA*  pWindowData, CONST UINT  iWidth, CONST UINT  iHeight)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
+   TRY
+   {
+      // Recalculate the size of a page
+      calculateCodeEditPageSize(pWindowData);
 
-   // Recalculate the size of a page
-   calculateCodeEditPageSize(pWindowData);
+      // Adjust scrollbars to reflect new page size
+      updateCodeEditScrollBarLimits(pWindowData);
 
-   // Adjust scrollbars to reflect new page size
-   updateCodeEditScrollBarLimits(pWindowData);
+      //// [CHECK] Have we enlarged window enough to display entire width?
+      //if (pWindowData->siPageSize.cy >= pWindowData->ptLastCharacter.iLine)
+      //   onCodeEditScroll(pWindowData, SB_THUMBTRACK, 0, SB_HORZ);
+   }
+   CATCH0("");
 
-   //// [CHECK] Have we enlarged window enough to display entire width?
-   //if (pWindowData->siPageSize.cy >= pWindowData->ptLastCharacter.iLine)
-   //   onCodeEditScroll(pWindowData, SB_THUMBTRACK, 0, SB_HORZ);
-
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1088,89 +1074,87 @@ VOID  onCodeEditScroll(CODE_EDIT_DATA*  pWindowData, CONST UINT  iScrollType, CO
    INT   iNewPosition,        // New horizontal/vertical scroll position
          iMaximumPosition;    // Maximum horizontal/vertical scroll position
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // [TOOLTIP/SUGGESTION] Hide both
-   displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
-   destroyCodeEditSuggestionList(pWindowData);
-   
-   // Determine current horizontal/vertical position
-   switch (iDirection)
+   TRY
    {
-   case SB_HORZ:   iNewPosition = pWindowData->ptFirstCharacter.iIndex;    break;
-   case SB_VERT:   iNewPosition = pWindowData->ptFirstCharacter.iLine;     break;
-   }
-
-   // Calcuate maximum position  (last character - page)
-   iMaximumPosition = (iDirection == SB_HORZ ? (pWindowData->ptLastCharacter.iIndex - pWindowData->siPageSize.cx) : (pWindowData->ptLastCharacter.iLine - pWindowData->siPageSize.cy));
-
-   // [CHECK] Ensure position is not negative
-   iMaximumPosition = max(0, iMaximumPosition);
-
-   // Calculate new position based on scroll type
-   switch (iScrollType)
-   {
-   /// [LINE UP] - Scroll up (left) a single line (character)
-   case SB_LINEUP:      iNewPosition--;        break;
-   /// [LINE DOWN] - Scroll down (right) a single line (character)
-   case SB_LINEDOWN:    iNewPosition++;        break;
-
-   /// [TOP] - Scroll to the top (far left)
-   case SB_TOP:         iNewPosition = 0;      break;
-   /// [BOTTOM] - Scroll to the bottom (far right)
-   case SB_BOTTOM:      iNewPosition = (iDirection == SB_VERT ? pWindowData->ptLastCharacter.iLine : pWindowData->ptLastCharacter.iIndex);     break;
-
-   /// [PAGE UP] - Scroll up (left) a single page
-   case SB_PAGEUP:      iNewPosition -= (iDirection == SB_VERT ? pWindowData->siPageSize.cy : pWindowData->siPageSize.cx);            break;
-   /// [PAGE DOWN] - Scroll down (right) a single page
-   case SB_PAGEDOWN:    iNewPosition += (iDirection == SB_VERT ? pWindowData->siPageSize.cy : pWindowData->siPageSize.cx);            break;
-
-   /// [DRAG] - Scroll to wherever the user chooses
-   case SB_THUMBTRACK:
-      iNewPosition = iDragPosition;
-
-      // Re-Calcuate maximum position based on the annoying fact that SB_THUMBTRACK 'helpfully' scrolls between min and (max-page) instead of just min->max
-      iMaximumPosition = (iDirection == SB_HORZ ? pWindowData->ptLastCharacter.iIndex : pWindowData->ptLastCharacter.iLine);
-      break;
-   }
-
-   // Re-examine scroll type
-   switch (iScrollType)
-   {
-   /// [END-DRAG] - Ignore these to avoid 'skipping'
-   case SB_THUMBPOSITION:
-   case SB_ENDSCROLL:
-      break;
-
-   /// [REMAINING] Scroll window
-   default:
-      // Ensure new position is not negative
-      iNewPosition = max(0, iNewPosition);
-
-      // Ensure it's not out of range
-      iNewPosition = (iNewPosition <= iMaximumPosition ? iNewPosition : iMaximumPosition);
-
-      // Update internal position
+      // [TOOLTIP/SUGGESTION] Hide both
+      displayCodeEditTooltip(pWindowData, FALSE, NULL, NULL);
+      destroyCodeEditSuggestionList(pWindowData);
+      
+      // Determine current horizontal/vertical position
       switch (iDirection)
       {
-      case SB_HORZ:  pWindowData->ptFirstCharacter.iIndex = iNewPosition;     break;
-      case SB_VERT:  pWindowData->ptFirstCharacter.iLine  = iNewPosition;     break;
+      case SB_HORZ:   iNewPosition = pWindowData->ptFirstCharacter.iIndex;    break;
+      case SB_VERT:   iNewPosition = pWindowData->ptFirstCharacter.iLine;     break;
       }
 
-      /// Set ScrollBar to new position
-      SetScrollPos(pWindowData->hWnd, iDirection, iNewPosition, TRUE);
+      // Calcuate maximum position  (last character - page)
+      iMaximumPosition = (iDirection == SB_HORZ ? (pWindowData->ptLastCharacter.iIndex - pWindowData->siPageSize.cx) : (pWindowData->ptLastCharacter.iLine - pWindowData->siPageSize.cy));
 
-      /// Re-diplay the caret at existing location (but new client co-ordinates)
-      updateCodeEditCaretPosition(pWindowData);
+      // [CHECK] Ensure position is not negative
+      iMaximumPosition = max(0, iMaximumPosition);
 
-      // Redraw window contents
-      InvalidateRect(pWindowData->hWnd, NULL, FALSE);
-      break;
+      // Calculate new position based on scroll type
+      switch (iScrollType)
+      {
+      /// [LINE UP] - Scroll up (left) a single line (character)
+      case SB_LINEUP:      iNewPosition--;        break;
+      /// [LINE DOWN] - Scroll down (right) a single line (character)
+      case SB_LINEDOWN:    iNewPosition++;        break;
+
+      /// [TOP] - Scroll to the top (far left)
+      case SB_TOP:         iNewPosition = 0;      break;
+      /// [BOTTOM] - Scroll to the bottom (far right)
+      case SB_BOTTOM:      iNewPosition = (iDirection == SB_VERT ? pWindowData->ptLastCharacter.iLine : pWindowData->ptLastCharacter.iIndex);     break;
+
+      /// [PAGE UP] - Scroll up (left) a single page
+      case SB_PAGEUP:      iNewPosition -= (iDirection == SB_VERT ? pWindowData->siPageSize.cy : pWindowData->siPageSize.cx);            break;
+      /// [PAGE DOWN] - Scroll down (right) a single page
+      case SB_PAGEDOWN:    iNewPosition += (iDirection == SB_VERT ? pWindowData->siPageSize.cy : pWindowData->siPageSize.cx);            break;
+
+      /// [DRAG] - Scroll to wherever the user chooses
+      case SB_THUMBTRACK:
+         iNewPosition = iDragPosition;
+
+         // Re-Calcuate maximum position based on the annoying fact that SB_THUMBTRACK 'helpfully' scrolls between min and (max-page) instead of just min->max
+         iMaximumPosition = (iDirection == SB_HORZ ? pWindowData->ptLastCharacter.iIndex : pWindowData->ptLastCharacter.iLine);
+         break;
+      }
+
+      // Re-examine scroll type
+      switch (iScrollType)
+      {
+      /// [END-DRAG] - Ignore these to avoid 'skipping'
+      case SB_THUMBPOSITION:
+      case SB_ENDSCROLL:
+         break;
+
+      /// [REMAINING] Scroll window
+      default:
+         // Ensure new position is not negative
+         iNewPosition = max(0, iNewPosition);
+
+         // Ensure it's not out of range
+         iNewPosition = (iNewPosition <= iMaximumPosition ? iNewPosition : iMaximumPosition);
+
+         // Update internal position
+         switch (iDirection)
+         {
+         case SB_HORZ:  pWindowData->ptFirstCharacter.iIndex = iNewPosition;     break;
+         case SB_VERT:  pWindowData->ptFirstCharacter.iLine  = iNewPosition;     break;
+         }
+
+         /// Set ScrollBar to new position
+         SetScrollPos(pWindowData->hWnd, iDirection, iNewPosition, TRUE);
+
+         /// Re-diplay the caret at existing location (but new client co-ordinates)
+         updateCodeEditCaretPosition(pWindowData);
+
+         // Redraw window contents
+         InvalidateRect(pWindowData->hWnd, NULL, FALSE);
+         break;
+      }
    }
-
-   // [TRACK]
-   END_TRACKING();
+   CATCH0("");
 }
 
 
@@ -1187,15 +1171,10 @@ LRESULT   wndprocCodeEdit(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lP
    CODE_EDIT_LOCATION  oLocation;        // Location of a request to scroll to specific location
    CODE_EDIT_SEARCH*   pSearchData;      // Find & Replace search data
    CODE_EDIT_DATA*     pWindowData;      // Window data
-   ERROR_STACK*        pError;           // Exception error, if any
    POINT               ptClick;          // Position of a mouse click, in client co-ordinates
    LRESULT             iResult;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
       // Prepare
       pWindowData = getCodeEditData(hWnd);
@@ -1356,6 +1335,11 @@ LRESULT   wndprocCodeEdit(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lP
          onCodeEditSelectAll(pWindowData);
          break;
 
+      // [SELECT LINE]
+      case UM_SELECT_LINE:
+         onCodeEditSelectLine(pWindowData, wParam);
+         break;
+
       // [SET LINE ERROR]
       case UM_SET_LINE_ERROR:
          onCodeEditSetLineError(pWindowData, LOWORD(wParam), (ERROR_TYPE)HIWORD(wParam), (CONST ERROR_QUEUE*)lParam);
@@ -1368,9 +1352,9 @@ LRESULT   wndprocCodeEdit(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lP
 
       // [SCROLL TO LOCATION]
       case UM_SCROLL_TO_LOCATION:
-         oLocation.iIndex = wParam;
-         oLocation.iLine  = lParam;
-         onCodeEditScrollToLocation(pWindowData, &oLocation);
+         oLocation.iIndex = LOWORD(lParam);
+         oLocation.iLine  = HIWORD(lParam);
+         onCodeEditScrollToLocation(pWindowData, &oLocation, wParam);
          break;
 
       // [SHOW SUGGESTIONS]
@@ -1517,18 +1501,13 @@ LRESULT   wndprocCodeEdit(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM  lP
          iResult = DefWindowProc(hWnd, iMessage, wParam, lParam);
          break;
       }
+
+      // Return result
+      return iResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pError))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the code window of script '%s'"
-      enhanceError(pError, ERROR_ID(IDS_EXCEPTION_CODE_EDIT), (pWindowData AND pWindowData->pScriptFile) ? pWindowData->pScriptFile->szScriptname : TEXT("Unknown"));
-      SendMessage(getAppWindow(), UN_CODE_EDIT_EXCEPTION, (WPARAM)hWnd, (LPARAM)pError);
-   }
-
-   // Return result
-   END_TRACKING();
-   return iResult;
+   CATCH4("iMessage=%s  wParam=%d  lParam=%d  Document='%s'", identifyMessage(iMessage), wParam, lParam, (pWindowData AND pWindowData->pScriptFile) ? pWindowData->pScriptFile->szScriptname : NULL);
+   return 0;
 }
 
 

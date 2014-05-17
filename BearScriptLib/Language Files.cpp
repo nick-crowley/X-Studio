@@ -7,6 +7,8 @@
 
 #include "stdafx.h"
 
+// OnException: Print to console
+#define    ON_EXCEPTION()    printException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       CREATION / DESTRUCTION
@@ -329,12 +331,11 @@ BOOL  isLanguageFileMaster(CONST LANGUAGE_FILE*  pLanguageFile)
 // 
 BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
-   AVL_TREE_OPERATION*  pOperation = createAVLTreeOperationEx(treeprocGenerateLanguageXML, ATT_INORDER, pErrorQueue, pProgress);
+   AVL_TREE_OPERATION*  pOperation = createAVLTreeOperationEx(treeprocGenerateLanguageXML, ATT_INORDER, pErrorQueue, pProgress);    // NB: ErrorQueue attached
    TEXT_STREAM*         pOutputStream;     // XML output stream
    AVL_TREE*            pOrderedTree;
 
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Generating XML for %s file '%s'", identifyLanguageFile(pLanguageFile), pLanguageFile->szFullPath);
 
    // [STAGE]
@@ -345,7 +346,7 @@ BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*
    pOperation->pInputTree  = pLanguageFile->pGamePagesByID;
 
    // Add schema tags
-   appendStringToTextStream(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\" encoding=\"UTF-8\"?>\r\n"));
+   appendStringToTextStream(pOutputStream, TEXT("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"));
    appendStringToTextStreamf(pOutputStream, TEXT("<!-- Generated using %s -->\r\n"), getAppName());
    appendStringToTextStreamf(pOutputStream, TEXT("<language id=\"%d\">\r\n"), pLanguageFile->eLanguage);
 
@@ -356,8 +357,9 @@ BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*
    /// Generate <page> and <t> tags
    performOperationOnAVLTree(pOrderedTree, pOperation);
 
-   // Close final <page> tag
-   appendStringToTextStream(pOutputStream, TEXT("\t</page>\r\n"));
+   // Close final tags
+   if (getTreeNodeCount(pLanguageFile->pGameStringsByID) > 0)
+      appendStringToTextStream(pOutputStream, TEXT("\t</page>\r\n"));
    appendStringToTextStream(pOutputStream, TEXT("</language>\r\n"));
 
    // Copy output to LanguageFile
@@ -369,8 +371,7 @@ BOOL  generateLanguageFileXML(LANGUAGE_FILE*  pLanguageFile, OPERATION_PROGRESS*
    deleteAVLTreeOperation(pOperation);
    deleteAVLTree(pOrderedTree);
    deleteTextStream(pOutputStream);
-   END_TRACKING();
-   return TRUE;
+   return identifyErrorQueueType(pErrorQueue) != ET_ERROR;
 }
 
 /// Function name  : insertGamePageIntoLanguageFile
@@ -510,69 +511,59 @@ BOOL   insertGameStringIntoLanguageFile(LANGUAGE_FILE*  pLanguageFile, CONST TCH
 // 
 OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FILE*  pTargetFile, CONST BOOL  bSubStrings, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE* pErrorQueue)
 {
-   OPERATION_RESULT   eResult;      // Operation result
+   OPERATION_RESULT   eResult = OR_FAILURE;      // Operation result
 
-   // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE_HEADING("Loading %s file '%s'", identifyLanguageFile(pTargetFile), pTargetFile->szFullPath);
-
-   // [CHECK] Ensure resource files have data, and disc files don't.
-   ASSERT(!pTargetFile->bResourceBased == !hasInputData(pTargetFile));
-
-   // Prepare
-   eResult = OR_FAILURE;
-
-   /// [DISC FILE] Load XML into buffer
-   if (!pTargetFile->bResourceBased AND !loadGameFileFromFileSystemByPath(pFileSystem, pTargetFile, TEXT(".xml"), pErrorQueue))
+   __try
    {
-      // [ERROR] "There was an I/O error while loading the %s file '%s'"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_LANGUAGE_FILE_IO_ERROR), identifyLanguageFile(pTargetFile), PathFindFileName(pTargetFile->szFullPath));
-      generateOutputTextFromLastError(pErrorQueue);
-   }
-   /// Parse XML into trees
-   else if ((eResult = translateLanguageFile(pTargetFile, hParentWnd, pProgress, pErrorQueue)) == OR_SUCCESS)
-   {
-      // [SUCCESS] Perform post-processing
-      switch (pTargetFile->eType)
+      // [CHECK] Ensure resource files have data, and disc files don't.
+      ASSERT(!pTargetFile->bResourceBased == !hasInputData(pTargetFile));
+
+      /// [DISC FILE] Load XML into buffer
+      if (!pTargetFile->bResourceBased AND !loadGameFileFromFileSystemByPath(pFileSystem, pTargetFile, TEXT(".xml"), pErrorQueue))
+         // No enhancement necessary
+         generateOutputTextFromLastError(pErrorQueue);
+      
+      /// Parse XML into trees
+      else if ((eResult = translateLanguageFile(pTargetFile, hParentWnd, pProgress, pErrorQueue)) == OR_SUCCESS)
       {
-      /// [STRINGS] Convert string type. Resolve substrings. Index pages.
-      case LFT_STRINGS:
-         // [CHECK] Not used during loading of supplementary game LanguageFiles
-         if (pProgress)
+         // [SUCCESS] Perform post-processing
+         switch (pTargetFile->eType)
          {
-            // [PROGRESS] Define progress as number of strings converted
-            advanceOperationProgressStage(pProgress);    //ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_CONVERTING_MASTER_STRINGS);
-            updateOperationProgressMaximum(pProgress, getTreeNodeCount(pTargetFile->pGameStringsByID));  
+         /// [STRINGS] Convert string type. Resolve substrings. Index pages.
+         case LFT_STRINGS:
+            // [CHECK] Not used during loading of supplementary game LanguageFiles
+            if (pProgress)
+            {
+               // [PROGRESS] Define progress as number of strings converted
+               advanceOperationProgressStage(pProgress);    //ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_CONVERTING_MASTER_STRINGS);
+               updateOperationProgressMaximum(pProgress, getTreeNodeCount(pTargetFile->pGameStringsByID));  
+            }
+
+            // Convert from 'external' to 'internal'
+            performLanguageFileStringConversion(pTargetFile, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL, pProgress);
+            break;
+
+         /// [VARIABLES/DESCRIPTIONS] Convert string from 'external' to 'internal'
+         case LFT_VARIABLES:
+         case LFT_DESCRIPTIONS:
+            performLanguageFileStringConversion(pTargetFile, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL ^ SCF_CONDENSE_APOSTROPHE, pProgress);
+            break;
+
+         /// [SPEECH] None required
+         case LFT_SPEECH:
+            break;
          }
-
-         // Convert strings from 'external' to 'internal'
-         performLanguageFileStringConversion(pTargetFile, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL, pProgress);
-         break;
-
-      /// [SPEECH] None required
-      case LFT_SPEECH:
-         break;
-
-      /// [VARIABLES] Convert string type.
-      case LFT_VARIABLES:
-         // Convert strings from 'external' to 'internal'
-         performVariablesFileStringConversion(pTargetFile);
-         break;
-
-      /// [DESCRIPTIONS] Convert string type.
-      case LFT_DESCRIPTIONS:
-         // Convert strings from 'external' to 'internal'
-         performLanguageFileStringConversion(pTargetFile, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL, NULL);
-         break;
       }
+
+      // Cleanup XML buffer
+      deleteGameFileIOBuffers(pTargetFile);
+      return eResult;
    }
-
-   // Cleanup XML buffer
-   deleteGameFileIOBuffers(pTargetFile);
-
-   // Return result
-   END_TRACKING();
-   return eResult;
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION2("Unable to load %s file '%s'", identifyLanguageFile(pTargetFile), pTargetFile->szFullPath);
+      return OR_FAILURE;
+   }
 }
 
 
@@ -585,51 +576,31 @@ OPERATION_RESULT  loadLanguageFile(CONST FILE_SYSTEM*  pFileSystem, LANGUAGE_FIL
 VOID    performLanguageFileStringConversion(LANGUAGE_FILE*  pTargetFile, const UINT  iConversionFlags, OPERATION_PROGRESS*  pProgress)
 {
    AVL_TREE_OPERATION*   pOperationData;
+   AVL_TREE_FUNCTOR      pfnFunction;
 
-   // [VERBOSE]
-   VERBOSE("Converting %s file '%s' strings from external to internal", identifyLanguageFile(pTargetFile), PathFindFileName(pTargetFile->szFullPath));
-
-   // Setup conversion operation
-   pOperationData = createAVLTreeOperationEx(treeprocConvertGameStringToInternal, ATT_INORDER, NULL, pProgress);
-   pOperationData->xFirstInput = iConversionFlags;
-   
-   /// Convert all GameStrings in the appropriate tree to 'INTERNAL'
-   switch (pTargetFile->eType)
+   TRY
    {
-   case LFT_STRINGS:       performOperationOnAVLTree(pTargetFile->pGameStringsByID, pOperationData);       break;
-   case LFT_DESCRIPTIONS:  performOperationOnAVLTree(pTargetFile->pGameStringsByVersion, pOperationData);  break;
+      // Setup conversion operation
+      pfnFunction    = (pTargetFile->eType != LFT_VARIABLES ? treeprocConvertGameStringType : treeprocConvertDescriptionVariableType);
+      pOperationData = createAVLTreeOperationEx(pfnFunction, ATT_INORDER, NULL, pProgress);
+
+      // Setup flags
+      pOperationData->xFirstInput  = iConversionFlags;
+      pOperationData->xSecondInput = ST_INTERNAL;
+      
+      /// Convert all GameStrings/DescriptionVariables in the appropriate tree to 'INTERNAL'
+      switch (pTargetFile->eType)
+      {
+      case LFT_STRINGS:       performOperationOnAVLTree(pTargetFile->pGameStringsByID,      pOperationData);  break;
+      case LFT_DESCRIPTIONS:  performOperationOnAVLTree(pTargetFile->pGameStringsByVersion, pOperationData);  break;
+      case LFT_VARIABLES:     performOperationOnAVLTree(pTargetFile->pVariablesByText,      pOperationData);  break;
+      }
+      
+      // Cleanup
+      deleteAVLTreeOperation(pOperationData);
    }
-   
-   // Cleanup
-   deleteAVLTreeOperation(pOperationData);
+   CATCH2("Unable to convert %s file '%s' strings from external to internal", identifyLanguageFile(pTargetFile), PathFindFileName(pTargetFile->szFullPath));
 }
-
-
-/// Function name  : performLanguageFileStringConversion
-// Description     : Convert all the descriptions in a VariablesFile's tree from EXTERNAL to INTERNAL
-// 
-// VARIABLES_FILE*  pVariablesFile : [in] VariablesFile containing the tree to convert
-// 
-VOID    performVariablesFileStringConversion(VARIABLES_FILE*  pVariablesFile)
-{
-   AVL_TREE_OPERATION*   pOperationData;
-
-   // [VERBOSE]
-   VERBOSE("Converting %s file '%s' strings from external to internal", identifyLanguageFile(pVariablesFile), PathFindFileName(pVariablesFile->szFullPath));
-
-   // [CHECK] Ensure language file is not a SpeechFile
-   ASSERT(pVariablesFile->eType == LFT_VARIABLES AND pVariablesFile->pVariablesByText)
-
-   // Setup conversion operation
-   pOperationData = createAVLTreeOperation(treeprocConvertDescriptionVariableToInternal, ATT_INORDER);
-   
-   /// Convert all descriptions in the tree to 'INTERNAL'
-   performOperationOnAVLTree(pVariablesFile->pVariablesByText, pOperationData);
-   
-   // Cleanup
-   deleteAVLTreeOperation(pOperationData);
-}
-
 
 
 /// Function name  : translateLanguageFile
@@ -667,7 +638,6 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
    LANGUAGE_FILE_ITEM  oItemData;         // Convenience object for storing item data as it's parsed
 
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Translating %s file '%s'", identifyLanguageFile(pTargetFile), pTargetFile->szFullPath);
    
    // [CHECK] Language file input buffer exists
@@ -679,7 +649,7 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
    pError  = NULL;
 
    /// Parse XML into an XML Tree      [Requires current operation stage + Next operation stage]
-   if (generateXMLTree(pTargetFile->szInputBuffer, pTargetFile->iInputSize, identifyGameFileFilename(pTargetFile), hParentWnd, pXMLTree, pProgress, pErrorQueue) == OR_SUCCESS)
+   if ((eResult = generateXMLTree(pTargetFile->szInputBuffer, pTargetFile->iInputSize, identifyGameFileFilename(pTargetFile), hParentWnd, pXMLTree, pProgress, pErrorQueue)) == OR_SUCCESS)
    {
       // Find language node
       if (!findXMLTreeNodeByName(pXMLTree->pRoot, TEXT("language"), TRUE, pLanguageNode) OR !getXMLPropertyInteger(pLanguageNode, TEXT("id"), (INT&)pTargetFile->eLanguage))
@@ -852,7 +822,6 @@ OPERATION_RESULT  translateLanguageFile(LANGUAGE_FILE*  pTargetFile, HWND  hPare
 
    // Cleanup and return result
    deleteXMLTree(pXMLTree);
-   END_TRACKING();
    return eResult;
 }
 
@@ -870,7 +839,8 @@ VOID  treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pD
    GAME_STRING*   pString         = extractPointerFromTreeNode(pNode, GAME_STRING);
    GAME_VERSION&  eCurrentVersion = (GAME_VERSION&)pData->xInternalData1;     // xInternalData1 : Current PageID
    UINT&          iCurrentPageID  = (UINT&)pData->xInternalData2;             // xInternalData2 : Current String Version
-   TCHAR*         szConverted     = NULL;
+   TCHAR         *szConverted     = NULL,
+                 *szPreview;
 
    /// [NEW PAGE/VERSION] Generate close/open page tags
    if (pString->iPageID != iCurrentPageID OR pString->eVersion != eCurrentVersion)
@@ -882,7 +852,7 @@ VOID  treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pD
          appendStringToTextStream(pStream, TEXT("\t</page>\r\n"));
 
       // Lookup GamePage. 
-      findObjectInAVLTreeByValue(pData->pInputTree, pString->iPageID, NULL, (LPARAM&)pPage);
+      findGamePageInTreeByID(pData->pInputTree, pString->iPageID, pPage);
 
       // Update PageID + Version
       iCurrentPageID  = pString->iPageID;
@@ -895,12 +865,21 @@ VOID  treeprocGenerateLanguageXML(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pD
                                                                                                                    pPage->bVoice                 ? TEXT("yes")          : TEXT("no"));
    }
 
-   /// [STRING] Generate <t> tag
-   generateConvertedString(pString->szText, SPC_LANGUAGE_INTERNAL_TO_EXTERNAL, szConverted);
-   appendStringToTextStreamf(pStream, TEXT("\t\t<t id=\"%d\">%s</t>\r\n"), pString->iID, utilEither(szConverted, pString->szText));
-
-   // Cleanup
-   utilSafeDeleteString(szConverted);
+   // [CHECK] Ensure string won't be truncated due to exceeding the buffer used by a TextStream
+   if (pString->iCount >= (MAX_STRING - 32))
+   {
+      // [ERROR] "The string %d '%s' in page %d exceeds 32,768 characters - this is not supported by X-Studio"
+      pushErrorQueue(pData->pErrorQueue, generateDualError(HERE(IDS_GAME_STRING_EXCEEDS_BUFFER), pString->iID, szPreview = generateGameStringPreview(pString, 64), pString->iPageID) );
+      utilDeleteString(szPreview);
+   }
+   else
+   {
+      /// [STRING] Generate <t> tag
+      generateConvertedString(pString->szText, SPC_LANGUAGE_INTERNAL_TO_EXTERNAL, szConverted);
+      appendStringToTextStreamf(pStream, TEXT("\t\t<t id=\"%d\">%s</t>\r\n"), pString->iID, utilEither(szConverted, pString->szText));
+      // Cleanup
+      utilSafeDeleteString(szConverted);
+   }
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -925,37 +904,35 @@ DWORD   threadprocLoadLanguageFile(VOID*  pParameter)
    LANGUAGE_FILE*        pLanguageFile;     // Operation result
    OPERATION_RESULT      eResult;           // Operation result
 
-   // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
-   SET_THREAD_NAME("LanguageFile Parsing");
-   setThreadLanguage(getAppPreferences()->eAppLanguage);
-
-   // Prepare
-   pOperationData = (DOCUMENT_OPERATION*)pParameter;
-   pLanguageFile  = (LANGUAGE_FILE*)pOperationData->pGameFile;
-
    __try
    {
+      // [TRACKING]
+      CONSOLE_COMMAND_BOLD();
+      SET_THREAD_NAME("LanguageFile Translation");
+      setThreadLanguage(getAppPreferences()->eAppLanguage);
+      
+      // Prepare
+      pOperationData = (DOCUMENT_OPERATION*)pParameter;
+      pLanguageFile  = (LANGUAGE_FILE*)pOperationData->pGameFile;
+      debugGameFile(pOperationData->pGameFile);
+
+      // Enable 'live' error reporting
+      pOperationData->pErrorQueue->bLiveReport = TRUE;
+
       // [INFO] Parsing XML in language file '%s'
       pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_LANGUAGE_XML), identifyGameFileFilename(pLanguageFile)));
 
       /// Translate the language file
       eResult = loadLanguageFile(getFileSystem(), pLanguageFile, TRUE, pOperationData->hParentWnd, pOperationData->pProgress, pOperationData->pErrorQueue);
    }
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   __except (pushException(pOperationData->pErrorQueue))
    {
-      // [FAILURE] "An unidentified and unexpected critical error has occurred while parsing the language file '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_LANGUAGE_FILE), pOperationData->szFullPath);
       eResult = OR_FAILURE;
    }
 
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("LANGUAGE-FILE PARSING WORKER THREAD COMPLETED");
-
    // Cleanup and return
+   CONSOLE_COMPLETE("USER LANGUAGE-FILE PARSING", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return THREAD_RETURN;
 }
 
@@ -979,7 +956,7 @@ DWORD   threadprocSaveLanguageFile(VOID*  pParameter)
    OPERATION_RESULT      eResult;           // Operation result
 
    // [TRACKING]
-   TRACK_FUNCTION();
+   CONSOLE_COMMAND_BOLD();
    SET_THREAD_NAME("Language Generation");
    setThreadLanguage(getAppPreferences()->eAppLanguage);
 
@@ -988,7 +965,6 @@ DWORD   threadprocSaveLanguageFile(VOID*  pParameter)
    pLanguageFile  = (LANGUAGE_FILE*)pOperationData->pGameFile;
    eResult        = OR_SUCCESS;
 
-   /// [GUARD BLOCK]
    __try
    {
       // [STAGE] Parsing XML in language file '%s'
@@ -1001,31 +977,19 @@ DWORD   threadprocSaveLanguageFile(VOID*  pParameter)
          eResult = OR_FAILURE;
       
       /// Save LanguageFile to disk
-      else if (!saveDocumentToFileSystem(pOperationData->szFullPath, pLanguageFile, pOperationData->pErrorQueue))    //pOperationData->szFullPath
-      {
-         // [ERROR] "There was an I/O error while loading the %s file '%s'"
-         enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_LANGUAGE_FILE_IO_ERROR), identifyGameFileFilename(pLanguageFile)); 
+      else if (!saveDocumentToFileSystemEx(pOperationData->szFullPath, pLanguageFile, pOperationData->pProgress, pOperationData->pErrorQueue))    //pOperationData->szFullPath
+         // No enhancement necessary
          eResult = OR_FAILURE;
-      }
    }
    /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   __except (pushException(pOperationData->pErrorQueue))
    {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while generating the language file '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_SAVE_SCRIPT_FILE), identifyGameFileFilename(pLanguageFile));
       eResult = OR_FAILURE;
    }
 
-   //// [ERROR] Enhance the current error message
-   //if (hasErrors(pOperationData->pErrorQueue))
-   //   enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_LANGUAGE_SAVE_ERROR)); 
-
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("LANGUAGE GENERATION WORKER THREAD COMPLETED");
-   
    // Cleanup and return result
+   CONSOLE_COMPLETE("LANGUAGE GENERATION", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return THREAD_RETURN;
 }
 

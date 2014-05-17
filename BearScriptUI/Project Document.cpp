@@ -67,6 +67,7 @@ PROJECT_DOCUMENT*  getActiveProject()
    return getMainWindowData()->pProject;
 }
 
+
 /// Function name  : getActiveProjectFile
 // Description     : Retrieves the current project document's ProjectFile
 // 
@@ -75,6 +76,16 @@ PROJECT_DOCUMENT*  getActiveProject()
 PROJECT_FILE*  getActiveProjectFile()
 {
    return getActiveProject() ? getActiveProject()->pProjectFile : NULL;
+}
+
+/// Function name  : getActiveProjectFileName
+// Description     : Retrieves the current project's FileName
+// 
+// Return Value   : Filename / NULL
+// 
+const TCHAR*  getActiveProjectFileName()
+{
+   return getDocumentFileName(getActiveProject());
 }
 
 /// Function name  : isDocumentInProject
@@ -89,7 +100,7 @@ BOOL   isDocumentInProject(CONST DOCUMENT*  pDocument)
    STORED_DOCUMENT*  pDummy;
 
    /// Ensure project already exists, then Lookup item and return result
-   return getActiveProject() AND findDocumentInProjectFileByPath(getActiveProject()->pProjectFile, getDocumentPath(pDocument), calculateProjectFolderFromDocumentType(pDocument->eType), pDummy);
+   return getActiveProject() AND findDocumentInProjectFileByPath(getActiveProjectFile(), getDocumentPath(pDocument), calculateProjectFolderFromDocumentType(pDocument->eType), pDummy);
 }
 
 
@@ -139,7 +150,7 @@ BOOL   addDocumentToProject(CONST DOCUMENT*  pDocument)
 
    /// Create new StoredDocument and append to appropriate file list
    pStoredDocument = createStoredDocument(eFileType, getDocumentPath(pDocument));
-   addDocumentToProjectFile(getActiveProject()->pProjectFile, pStoredDocument);
+   addDocumentToProjectFile(getActiveProjectFile(), pStoredDocument);
 
    // [MODIFIED]
    setProjectModifiedFlag(getActiveProject(), TRUE);
@@ -209,7 +220,7 @@ BOOL  removeDocumentFromProject(CONST DOCUMENT*  pDocument)
    PROJECT_FILE*     pProjectFile;     // Convenience pointer
 
    // Prepare
-   pProjectFile = (getActiveProject() ? getActiveProject()->pProjectFile : NULL);
+   pProjectFile = getActiveProjectFile();
    eFolder      = calculateProjectFolderFromDocumentType(pDocument->eType);
 
    /// [CHECK] Lookup document in project
@@ -273,11 +284,15 @@ VOID  onProject_LoadComplete(DOCUMENT_OPERATION*  pOperationData)
    PROJECT_DOCUMENT*  pProject;    // New document
 
    // [VERBOSE]
-   VERBOSE_LIB_EVENT();
+   CONSOLE_EVENT1(PathFindFileName(pOperationData->szFullPath));
+   debugDocumentOperationData(pOperationData);
 
    /// [SUCCESS] Create new project and set active
    if (isOperationSuccessful(pOperationData))
    {
+      // [DEBUG]
+      debugProjectFile((PROJECT_FILE*)pOperationData->pGameFile);
+
       // Create project
       pProject = (PROJECT_DOCUMENT*)createDocumentByType(DT_PROJECT, (PROJECT_FILE*)pOperationData->pGameFile);
       setActiveProject(pProject);
@@ -304,7 +319,8 @@ VOID  onProject_SaveComplete(DOCUMENT_OPERATION*  pOperationData)
    PROJECT_DOCUMENT*    pDocument;      // Project
 
    // [VERBOSE]
-   VERBOSE_LIB_EVENT();
+   CONSOLE_EVENT1(PathFindFileName(pOperationData->szFullPath));
+   debugDocumentOperationData(pOperationData);
 
    // Prepare
    pDocument = (PROJECT_DOCUMENT*)pOperationData->pDocument;

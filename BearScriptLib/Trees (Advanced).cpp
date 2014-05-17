@@ -39,6 +39,9 @@ BOOL   performThreadedOperationOnAVLTreeFromNode(AVL_TREE_THREAD*  pThreadData, 
 //
 #define    performOperationFunctor(pTargetNode,pOperationData)   (*pOperationData->pfnFunctor)(pTargetNode, pOperationData)
 
+// OnException: Print to console
+#define    ON_EXCEPTION()    printException(pException);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -104,13 +107,13 @@ AVL_TREE_OPERATION*  createAVLTreeOperation(CONST AVL_TREE_FUNCTOR  pfnFunctor, 
 // 
 // CONST AVL_TREE_FUNCTOR    pfnFunctor  : [in]            Operation functor
 // CONST AVL_TREE_TRAVERSAL  eOrder      : [in]            Traversal used when performing the operation
-// QUEUE*                    pErrorQueue : [in] [optional] Existing ErrorQueue to use
+// ERROR_QUEUE*              pErrorQueue : [in] [optional] Existing ErrorQueue to use
 // OPERATION_PROGRESS*       pProgress   : [in] [optional] Progress object with the correct stage already set
 // 
 // Return Value   : New AVLTreeOperation, you are responsible for destroying it
 // 
 BearScriptAPI
-AVL_TREE_OPERATION*  createAVLTreeOperationEx(CONST AVL_TREE_FUNCTOR  pfnFunctor, CONST AVL_TREE_TRAVERSAL  eOrder, QUEUE*  pErrorQueue, OPERATION_PROGRESS*  pProgress)
+AVL_TREE_OPERATION*  createAVLTreeOperationEx(CONST AVL_TREE_FUNCTOR  pfnFunctor, CONST AVL_TREE_TRAVERSAL  eOrder, ERROR_QUEUE*  pErrorQueue, OPERATION_PROGRESS*  pProgress)
 {
    AVL_TREE_OPERATION*  pOperation;
 
@@ -184,7 +187,7 @@ VOID  deleteAVLTreeOperation(AVL_TREE_OPERATION*  &pOperation)
 {
    // Delete error queue, if any
    if (pOperation->pErrorQueue)
-      deleteQueue(pOperation->pErrorQueue);
+      deleteErrorQueue(pOperation->pErrorQueue);
 
    // Delete Mutexes, if any
    if (pOperation->hOutputMutex)
@@ -475,13 +478,18 @@ BOOL  performThreadedOperationOnAVLTree(CONST AVL_TREE*  pTree, AVL_TREE_OPERATI
                      iWorkerCount;        // Number of worker threads
    AVL_TREE_THREAD*  oThreadData;         // Data for each worker thread plus the current thread
    HANDLE*           hThreadHandles;      // Handles for each worker thread
+   SYSTEM_INFO       oSystem;
 
    // [CHECK] Ensure tree/data exist and tree is not tiny
    ASSERT(pTree AND pOperationData AND getTreeNodeCount(pTree) >= pOperationData->iNodesPerThread);
 
-   /// Calculate number of threads to use  (minimum of 2, Maximum of 16)
-   iThreadCount = min(16, max(2, getTreeNodeCount(pTree) / pOperationData->iNodesPerThread));
+   /// Calculate number of threads to use  (minimum of 3, Maximum of 3/CPU)
+   GetSystemInfo(&oSystem);
+   iThreadCount = min(2*oSystem.dwNumberOfProcessors, max(3, getTreeNodeCount(pTree) / pOperationData->iNodesPerThread));
    iWorkerCount = iThreadCount - 1;
+
+   // [DEBUG]
+   CONSOLE("Preparing %d threads for operation", iThreadCount);
 
    // Create thread data for 'n' threads and handles for 'n-1' threads
    oThreadData    = utilCreateEmptyObjectArray(AVL_TREE_THREAD, iThreadCount);
@@ -499,11 +507,18 @@ BOOL  performThreadedOperationOnAVLTree(CONST AVL_TREE*  pTree, AVL_TREE_OPERATI
    }
 
    // Set processing flag
-   pOperationData->bProcessing = TRUE;
+   pOperationData->bProcessing  = TRUE;
 
    /// Launch worker threads and store their handles
    for (UINT iIndex = 0; iIndex < iWorkerCount; iIndex++)
-      hThreadHandles[iIndex] = utilLaunchThread(threadprocAVLSubTreeOperation, &oThreadData[iIndex]);
+   {
+      if (hThreadHandles[iIndex] = utilLaunchThread(threadprocAVLSubTreeOperation, &oThreadData[iIndex], TRUE, NULL))
+      {
+         // [SUCCESS] Upgrade prority and execute
+         SetThreadPriority(hThreadHandles[iIndex], THREAD_PRIORITY_ABOVE_NORMAL);
+         ResumeThread(hThreadHandles[iIndex]);
+      }
+   }
 
    /// Perform operation on current thread
    performThreadedOperationOnAVLTreeFromNode(&oThreadData[iWorkerCount], pTree->pRoot, pOperationData);
@@ -695,20 +710,17 @@ VOID   treeprocGenerateAVLTreeNodeGroupCounts(AVL_TREE_NODE*  pNode, AVL_TREE_OP
 // 
 DWORD   threadprocAVLSubTreeOperation(VOID*  pParameter)
 {
-   AVL_TREE_THREAD*  pThreadData;
-   ERROR_STACK*      pException;
+   AVL_TREE_THREAD*  pThreadData = (AVL_TREE_THREAD*)pParameter;
    CHAR              szThreadNameA[32];
 
-   // Prepare
-   pThreadData = (AVL_TREE_THREAD*)pParameter;
-
-   // [DEBUG] Set thread name
-   StringCchPrintfA(szThreadNameA, 32, "AVLTree Worker (%u of %u)", pThreadData->iThreadIndex + 1, pThreadData->iThreadCount - 1);
-   SET_THREAD_NAME(szThreadNameA);
-   setThreadLanguage(getAppPreferences()->eAppLanguage);
-
-   __try
+   TRY
    {
+      // [DEBUG] Set thread name
+      //CONSOLE_COMMAND_BOLD();
+      StringCchPrintfA(szThreadNameA, 32, "AVLTree Worker (%u of %u)", pThreadData->iThreadIndex + 1, pThreadData->iThreadCount - 1);
+      SET_THREAD_NAME(szThreadNameA);
+      setThreadLanguage(getAppPreferences()->eAppLanguage);
+      
       // [COM]
       CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
@@ -718,14 +730,7 @@ DWORD   threadprocAVLSubTreeOperation(VOID*  pParameter)
       // [COM]
       CoUninitialize();
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the AVLTree Worker (%u of %u)"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_TREE_WORKER_THREAD), pThreadData->iThreadIndex + 1, pThreadData->iThreadCount - 1);
-      consolePrintError(pException);
-      deleteErrorStack(pException);
-   }
+   CATCH2("AVLTree Worker (%u of %u)", pThreadData->iThreadIndex + 1, pThreadData->iThreadCount - 1);
 
    // Return
    return THREAD_RETURN;

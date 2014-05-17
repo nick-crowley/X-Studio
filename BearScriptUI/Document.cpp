@@ -16,18 +16,12 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
-CONST TCHAR*  szDocumentTypes[5] = 
-{
-   TEXT("script"),
-   TEXT("language"),
-   TEXT("media"),
-   TEXT("mission"),
-   TEXT("project")
-};
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -98,7 +92,8 @@ DOCUMENT*  createDocumentByType(CONST DOCUMENT_TYPE  eDocumentType, GAME_FILE*  
    DOCUMENT     *pDocument;     // Document being created
    
    // [VERBOSE]
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND1(pGameFile ? identifyGameFileFilename(pGameFile) : TEXT("Game Data"));
+   CONSOLE("Creating %s document for '%s'", identifyDocumentTypeString(eDocumentType), pGameFile ? pGameFile->szFullPath : NULL);
 
    /// Create object
    switch (eDocumentType)
@@ -142,13 +137,9 @@ DOCUMENT*  createDocumentByType(CONST DOCUMENT_TYPE  eDocumentType, GAME_FILE*  
 // 
 VOID  deleteDocument(DOCUMENT*  &pDocument)
 {
-   ERROR_STACK*  pException;
-
-   __try
+   TRY
    {
-      // [TRACK]
-      TRACK_FUNCTION();
-
+      
       /// [OPTIONAL] Delete document dialog
       if (pDocument->eType != DT_PROJECT)
          utilSafeDeleteWindow(pDocument->hWnd);    // NOTE: Does not exist if a) failed during creation  b) Project file
@@ -182,17 +173,10 @@ VOID  deleteDocument(DOCUMENT*  &pDocument)
       // Delete calling object
       utilDeleteObject(pDocument);
 
-      // [TRACK]
-      END_TRACKING();
+      return;
    }
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while destroying the %s document '%s'"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_DELETE_DOCUMENT), szDocumentTypes[pDocument->eType], identifyGameFileFilename(pDocument->pGameFile));
-      displayException(pException);
-      // Cleanup
-      pDocument = NULL;
-   }
+   CATCH0("Unable to destroy document");
+   pDocument = NULL;
 }
 
 
@@ -246,7 +230,7 @@ FILE_ITEM_FLAG  calculateFileTypeFromDocumentType(CONST DOCUMENT_TYPE  eDocument
 // 
 CONST TCHAR*  getDocumentFileName(CONST DOCUMENT*  pDocument)
 {
-   return PathFindFileName(pDocument->szFullPath);
+   return pDocument ? PathFindFileName(pDocument->szFullPath) : NULL;
 }
 
 
@@ -260,7 +244,7 @@ CONST TCHAR*  getDocumentFileName(CONST DOCUMENT*  pDocument)
 // 
 CONST TCHAR*  getDocumentPath(CONST DOCUMENT*  pDocument)
 {
-   return pDocument->szFullPath;
+   return pDocument ? pDocument->szFullPath : NULL;
 }
 
 
@@ -289,6 +273,32 @@ CONST TCHAR*  identifyDocumentTypeIcon(CONST DOCUMENT_TYPE  eType)
 }
 
 
+/// Function name  : identifyDocumentTypeString
+// Description     : Resolves document type
+// 
+// CONST DOCUMENT_TYPE  eType : [in] Document type
+// 
+// Return Value   : string
+// 
+CONST TCHAR*  identifyDocumentTypeString(CONST DOCUMENT_TYPE  eType)
+{
+   CONST TCHAR*  szOutput;
+
+   // Examine type
+   switch (eType)
+   {
+   case DT_SCRIPT:    szOutput = TEXT("Script");     break;
+   case DT_LANGUAGE:  szOutput = TEXT("Language");   break;
+   case DT_MEDIA:     szOutput = TEXT("Media");      break;
+   case DT_MISSION:   szOutput = TEXT("Mission");    break;
+   case DT_PROJECT:   szOutput = TEXT("Project");    break;
+   default:           szOutput = TEXT("Corrupt");    break;
+   }
+
+   // Return string
+   return szOutput;
+}
+
 /// Function name  : isModified
 // Description     : Checks whether a document is modified
 // 
@@ -314,6 +324,9 @@ VOID   setDocumentModifiedFlag(DOCUMENT*  pDocument, CONST BOOL  bModified)
    // [CHECK] Do nothing if modified flag already matches
    if (isModified(pDocument) != bModified)
    {
+      CONSOLE_COMMAND();
+      CONSOLE("Set document '%s' modified = %d", pDocument->szFullPath, bModified);
+
       /// Update modified flag and title
       pDocument->bModified = bModified;
       updateDocumentTitle(pDocument);
@@ -331,6 +344,10 @@ VOID   setDocumentPath(DOCUMENT*  pDocument, CONST TCHAR*  szPath)
    // [CHECK] Has the path changed
    if (!utilCompareStringVariables(pDocument->szFullPath, szPath))
    {
+      CONSOLE_COMMAND();
+      CONSOLE("Changing Path from '%s' to '%s'", pDocument->szFullPath, szPath);
+      CONSOLE("Set modified = TRUE");
+
       /// Change path and add 'Modified'
       setGameFilePath(pDocument->pGameFile, szPath);
       pDocument->bModified = TRUE;
@@ -359,12 +376,12 @@ CLOSURE_TYPE   closeDocument(DOCUMENT*  pDocument)
    STORED_DOCUMENT*   pOutputFile;        // SaveAs dialog output filepath
    CLOSURE_TYPE       eResult;            // Operation result
    TCHAR*             szInitialFolder;    // Initial folder to display in the 'save as' dialog
-   CONST TCHAR*       szMessageTitle;     // StringID of MessageBox message
-   UINT               iMessageID;         // MessageBox title
+   //CONST TCHAR*       szMessageTitle;     // StringID of MessageBox message
+   UINT               iMessageID;         // Message ID
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND_BOLD1(getDocumentFileName(pDocument));
+   CONSOLE("Closing document '%s'", pDocument->szFullPath);
+   debugDocument(pDocument);
 
    // Prepare
    eResult = DCT_DISCARD;
@@ -372,20 +389,24 @@ CLOSURE_TYPE   closeDocument(DOCUMENT*  pDocument)
    // [CHECK] Is document modified?  (And not virtual)
    if (!pDocument->bVirtual AND isModified(pDocument))
    {
+      CONSOLE("Querying user for modified document closure action");
+
       // Prepare
-      iMessageID     = (pDocument->eType != DT_PROJECT ? IDS_GENERAL_DOCUMENT_CLOSE_CONFIRMATION : IDS_GENERAL_PROJECT_CLOSE_CONFIRMATION);
-      szMessageTitle = (pDocument->eType != DT_PROJECT ? TEXT("Save Document Changes?") : TEXT("Save Project Changes?"));
+      iMessageID     = (pDocument->eType != DT_PROJECT ? IDS_GENERAL_CONFIRM_DOCUMENT_CLOSE : IDS_GENERAL_CONFIRM_PROJECT_CLOSE);
 
       // [QUESTION] "The document/project '%s' has been modified, do you want to save your changes?"
-      switch (displayMessageDialogf(NULL, iMessageID, szMessageTitle, MDF_YESNOCANCEL WITH MDF_QUESTION, getDocumentFileName(pDocument)))
+      switch (displayMessageDialogf(NULL, iMessageID, MDF_YESNOCANCEL WITH MDF_QUESTION, getDocumentFileName(pDocument)))
       {
       /// [CANCEL] Return ABORT
       case IDCANCEL: 
+         CONSOLE("Discarding modified document changes");
          eResult = DCT_ABORT;
          break;
 
       /// [SAVE CHANGES] Return SAVE-CLOSE
       case IDYES: 
+         CONSOLE("User chose to save document changes");
+
          // Prepare
          szInitialFolder = NULL;
          eResult         = DCT_SAVE_CLOSE;
@@ -393,6 +414,8 @@ CLOSURE_TYPE   closeDocument(DOCUMENT*  pDocument)
          // [CHECK] Has the document ever been saved?
          if (pDocument->bUntitled)
          {
+            CONSOLE("Querying user for Untitled document file path");
+
             /// [UNTITLED] Create OpenFile dialog data.  Display document folder if available, otherwise game folder
             pFileDialogData = createFileDialogData(FDT_SAVE, (identifyGameFileFolder(pDocument->pGameFile, szInitialFolder) ? szInitialFolder : getAppPreferences()->szLastFolder), identifyGameFileFilename(pDocument->pGameFile));
             
@@ -409,10 +432,16 @@ CLOSURE_TYPE   closeDocument(DOCUMENT*  pDocument)
                // [SCRIPT] Update Script name
                if (pDocument->eType == DT_SCRIPT)
                   setScriptNameFromPath((SCRIPT_FILE*)pDocument->pGameFile);
+
+               // [MRU] Add to recent document list
+               addDocumentToRecentDocumentList(getMainWindowData(), pDocument);
             }
             /// [SAVE-AS CANCELLED] Return ABORT
             else
+            {
+               CONSOLE("User cancelled Untitled document first-save");
                eResult = DCT_ABORT;
+            }
 
             // Cleanup
             utilSafeDeleteString(szInitialFolder);
@@ -421,25 +450,26 @@ CLOSURE_TYPE   closeDocument(DOCUMENT*  pDocument)
          break;
       }
    }
+   else
+      CONSOLE("Closing unmodified/virtual document");
    
    // [ABORTED] Cancel app closing sequence, if any
    if (eResult == DCT_ABORT)
       setAppClosing(FALSE);
 
    // Return result
-   END_TRACKING();
    return eResult;
 }
 
 
-/// Function name  :  saveDocument
-// Description     : 
+/// Function name  : saveDocument
+// Description     : Initiates a document saving operation, querying the user for the path if necessary
 // 
-// DOCUMENT*   pDocument  : [in] 
-// CONST BOOL  bSaveAs    : [in] 
-// CONST BOOL  bSaveClose : [in] 
+// DOCUMENT*   pDocument  : [in] Document
+// CONST BOOL  bSaveAs    : [in] Whether document is being in response to 'Save As' command
+// CONST BOOL  bSaveClose : [in] Whether to close document after saving
 // 
-// Return Value   : 
+// Return Value   : TRUE if save operation initiated, otherwise FALSE 
 // 
 BOOL   saveDocument(DOCUMENT*  pDocument, CONST BOOL  bSaveAs, CONST BOOL  bSaveClose)
 {
@@ -448,9 +478,11 @@ BOOL   saveDocument(DOCUMENT*  pDocument, CONST BOOL  bSaveAs, CONST BOOL  bSave
    TCHAR*             szInitialFolder;    // Initial SaveAs dialog folder
    BOOL               bResult;            // Operation result
 
+   // [TRACK]
+   CONSOLE_COMMAND_BOLD1(getDocumentFileName(pDocument));
+   debugDocument(pDocument);
+
    // Prepare
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
    szInitialFolder = NULL;
    bResult         = FALSE;
 
@@ -460,6 +492,8 @@ BOOL   saveDocument(DOCUMENT*  pDocument, CONST BOOL  bSaveAs, CONST BOOL  bSave
       // [CHECK] Has the document ever been saved?
       if (pDocument->bUntitled OR bSaveAs)
       {
+         CONSOLE("Querying user for first time document path");
+
          /// [UNTITLED] Create OpenFile dialog data.  Display document folder if available, otherwise game folder
          pFileDialogData = createFileDialogData(FDT_SAVE, (identifyGameFileFolder(pDocument->pGameFile, szInitialFolder) ? szInitialFolder : getAppPreferences()->szLastFolder), identifyGameFileFilename(pDocument->pGameFile));
          
@@ -468,6 +502,7 @@ BOOL   saveDocument(DOCUMENT*  pDocument, CONST BOOL  bSaveAs, CONST BOOL  bSave
          {
             // Prepare
             findListObjectByIndex(pFileDialogData->pOutputFileList, 0, (LPARAM&)pOutputFile);
+            CONSOLE("User chose '%s'", pOutputFile->szFullPath);
 
             // Update document path
             setDocumentPath(pDocument, pOutputFile->szFullPath);
@@ -477,12 +512,17 @@ BOOL   saveDocument(DOCUMENT*  pDocument, CONST BOOL  bSaveAs, CONST BOOL  bSave
             if (pDocument->eType == DT_SCRIPT)
                setScriptNameFromPath((SCRIPT_FILE*)pDocument->pGameFile);
 
+            // [MRU] Add to recent document list
+            addDocumentToRecentDocumentList(getMainWindowData(), pDocument);
+
             /// [EVENT] Update properties dialog
             sendDocumentUpdated(AW_PROPERTIES);
 
             /// [SAVE] Save or Save-close document
             bResult = commandSaveDocument(getMainWindowData(), pDocument, bSaveClose, NULL);
          }
+         else
+            CONSOLE("User cancelled path query");
 
          // Cleanup
          utilSafeDeleteString(szInitialFolder);
@@ -494,7 +534,6 @@ BOOL   saveDocument(DOCUMENT*  pDocument, CONST BOOL  bSaveAs, CONST BOOL  bSave
    }
 
    // Return FALSE if document was not saved
-   END_TRACKING();
    return bResult;
 }
 

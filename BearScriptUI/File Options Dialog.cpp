@@ -90,7 +90,7 @@ OPTIONS_DIALOG_DATA*   displayFileOptionsDialog(HWND  hParentWnd, CONST LOADING_
    pDialogData = createFileOptionsDialogData(pExistingOptions);
 
    // [CHECK] Display dialog
-   if (DialogBoxParam(getResourceInstance(), TEXT("FILE_OPTIONS_DIALOG"), hParentWnd, dlgprocFileOptionsDialog, (LPARAM)pDialogData) == IDOK)
+   if (showDialog(TEXT("FILE_OPTIONS_DIALOG"), hParentWnd, dlgprocFileOptionsDialog, (LPARAM)pDialogData) == IDOK)
       // [CONFIRMATION]
       return pDialogData;
    

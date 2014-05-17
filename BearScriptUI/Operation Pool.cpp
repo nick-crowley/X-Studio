@@ -11,12 +11,16 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
+#ifdef CONTENT_TIMING   
+DWORD  g_dwStart;
+#endif
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -53,9 +57,7 @@ OPERATION_POOL*  createOperationPool()
 // 
 HWND  createOperationPoolCtrl(OPERATION_POOL*  pOperationPool, HWND  hParentWnd)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// Create OperationPool control
    pOperationPool->hWnd = CreateWindow(szOperationPoolClass, NULL, WS_CHILD WITH WS_VISIBLE, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, hParentWnd, (HMENU)IDC_OPERATION_POOL, getAppInstance(), NULL);
    ERROR_CHECK("creating operation pool control", pOperationPool->hWnd);
@@ -71,7 +73,6 @@ HWND  createOperationPoolCtrl(OPERATION_POOL*  pOperationPool, HWND  hParentWnd)
    }
   
    // Return window handle (or NULL)
-   END_TRACKING();
    return pOperationPool->hWnd;
 }
 
@@ -83,9 +84,7 @@ HWND  createOperationPoolCtrl(OPERATION_POOL*  pOperationPool, HWND  hParentWnd)
 // 
 VOID  deleteOperationPool(OPERATION_POOL*  &pOperationPool)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// TODO: Terminate any existing operations gracefully
 
    /// Destroy window
@@ -97,9 +96,7 @@ VOID  deleteOperationPool(OPERATION_POOL*  &pOperationPool)
    /// Delete calling object
    utilDeleteObject(pOperationPool);
 
-   // [TRACK]
-   END_TRACKING();
-}
+   }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
@@ -191,9 +188,6 @@ OPERATION_DATA*  getCurrentOperationData(CONST OPERATION_POOL*  pOperationPool)
 {
    OPERATION_DATA*  pOutput;           // Operation result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
    // Prepare
    pOutput = NULL;
 
@@ -203,7 +197,6 @@ OPERATION_DATA*  getCurrentOperationData(CONST OPERATION_POOL*  pOperationPool)
       findOperationDataByIndex(pOperationPool, (getOperationCount(pOperationPool) - 1), pOutput);
 
    // Return result
-   END_TRACKING();
    return pOutput;
 }
 
@@ -222,7 +215,6 @@ UINT  getCurrentOperationProgress(CONST OPERATION_POOL*  pOperationPool)
                     iResult;              // Current progress
 
    // Prepare
-   TRACK_FUNCTION();
    iResult = 0;
 
    // [CHECK] Are we performing a batch operation?
@@ -256,7 +248,6 @@ UINT  getCurrentOperationProgress(CONST OPERATION_POOL*  pOperationPool)
    }
    
    // Return result
-   END_TRACKING();
    return min(iResult, 10000);
 }
 
@@ -274,7 +265,6 @@ UINT  getCurrentOperationStageID(CONST OPERATION_POOL*  pOperationPool)
    UINT             iResult;              // Resource ID of the description for the current stage of the current operation
 
    // Prepare
-   TRACK_FUNCTION();
    iResult = NULL;
 
    // [CHECK] Ensure there is a current operation
@@ -297,7 +287,6 @@ UINT  getCurrentOperationStageID(CONST OPERATION_POOL*  pOperationPool)
    }
 
    // Return result
-   END_TRACKING();
    return iResult;
 }
 
@@ -316,17 +305,18 @@ UINT  identifyOperationStatusMessageID(CONST OPERATION_DATA*  pOperation)
    // Extract operation name or result message
    switch (pOperation->eType)
    {
-   case OT_LOAD_GAME_DATA:       iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_GAME_DATA_SUCCESS     : IDS_OUTPUT_GAME_DATA_LOADING);  break;
-   case OT_LOAD_PROJECT_FILE:    iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_PROJECT_LOAD_SUCCESS  : IDS_OUTPUT_PROJECT_LOADING);    break;
-   case OT_SAVE_PROJECT_FILE:    iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_PROJECT_SAVE_SUCCESS  : IDS_OUTPUT_PROJECT_SAVING);     break;
-   case OT_LOAD_SCRIPT_FILE:     iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SCRIPT_LOAD_SUCCESS   : IDS_OUTPUT_SCRIPT_LOADING);     break;
-   case OT_LOAD_LANGUAGE_FILE:   iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_LANGUAGE_LOAD_SUCCESS : IDS_OUTPUT_LANGUAGE_LOADING);   break;
-   case OT_SAVE_SCRIPT_FILE:     iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SCRIPT_SAVE_SUCCESS   : IDS_OUTPUT_SCRIPT_SAVING);      break;
-   case OT_SAVE_LANGUAGE_FILE:   iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_LANGUAGE_SAVE_SUCCESS : IDS_OUTPUT_LANGUAGE_SAVING);    break;
-   case OT_SUBMIT_BUG_REPORT:    iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SUBMIT_REPORT_SUCCESS : IDS_OUTPUT_SUBMIT_REPORT);      break;
-   case OT_SUBMIT_CORRECTION:    iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_CORRECTION_SUCCESS    : IDS_OUTPUT_CORRECTION);         break;
-   case OT_SEARCH_SCRIPT_CALLS:  iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SCRIPT_SEARCH_SUCCESS : IDS_OUTPUT_SEARCHING_FOLDER);   break;
-   case OT_VALIDATE_SCRIPT_FILE: iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_VALIDATION_SUCCESS    : IDS_OUTPUT_VALIDATING_SCRIPT);  break;
+   case OT_LOAD_GAME_DATA:        iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_GAME_DATA_SUCCESS     : IDS_OUTPUT_GAME_DATA_LOADING);  break;
+   case OT_LOAD_PROJECT_FILE:     iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_PROJECT_LOAD_SUCCESS  : IDS_OUTPUT_PROJECT_LOADING);    break;
+   case OT_SAVE_PROJECT_FILE:     iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_PROJECT_SAVE_SUCCESS  : IDS_OUTPUT_PROJECT_SAVING);     break;
+   case OT_LOAD_SCRIPT_FILE:      iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SCRIPT_LOAD_SUCCESS   : IDS_OUTPUT_SCRIPT_LOADING);     break;
+   case OT_LOAD_LANGUAGE_FILE:    iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_LANGUAGE_LOAD_SUCCESS : IDS_OUTPUT_LANGUAGE_LOADING);   break;
+   case OT_SAVE_SCRIPT_FILE:      iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SCRIPT_SAVE_SUCCESS   : IDS_OUTPUT_SCRIPT_SAVING);      break;
+   case OT_VALIDATE_SCRIPT_FILE:  iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_VALIDATION_SUCCESS    : IDS_OUTPUT_VALIDATING_SCRIPT);  break;
+   case OT_SAVE_LANGUAGE_FILE:    iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_LANGUAGE_SAVE_SUCCESS : IDS_OUTPUT_LANGUAGE_SAVING);    break;
+   case OT_SUBMIT_BUG_REPORT:     iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SUBMIT_REPORT_SUCCESS : IDS_OUTPUT_SUBMIT_REPORT);      break;
+   case OT_SUBMIT_CORRECTION:     iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_CORRECTION_SUCCESS    : IDS_OUTPUT_CORRECTION);         break;
+   case OT_SEARCH_SCRIPT_CONTENT: iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_SCRIPT_SEARCH_SUCCESS : IDS_OUTPUT_SEARCHING_SCRIPTS);  break;
+   case OT_AUTOMATIC_UPDATE:      iMessageID = (isOperationComplete(pOperation) ? IDS_OUTPUT_UPDATE_CHECK_SUCCESS   : IDS_OUTPUT_UPDATE_CHECK);      break;
 
    case OT_SEARCH_FILE_SYSTEM:   
       ASSERT(FALSE);
@@ -349,14 +339,10 @@ UINT  identifyOperationStatusMessageID(CONST OPERATION_DATA*  pOperation)
 // 
 VOID  insertOperationIntoOperationPool(OPERATION_POOL*  pOperationPool, OPERATION_DATA*  pOperationData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Append operation to the list
    insertObjectIntoListByIndex(pOperationPool->pOperationList, getListItemCount(pOperationPool->pOperationList), (LPARAM)pOperationData);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -375,30 +361,36 @@ BOOL   launchOperation(MAIN_WINDOW_DATA*  pMainWindowData, OPERATION_DATA*  pOpe
    BOOL                    bResult;                  // Operation result
 
    // Prepare
-   TRACK_FUNCTION();
    pfnOperationFunction = NULL;
    bResult              = FALSE;
 
    /// Determine thread function
    switch (pOperationData->eType)
    {
-   case OT_LOAD_GAME_DATA:       pfnOperationFunction = threadprocLoadGameData;           break;
-   case OT_LOAD_PROJECT_FILE:    pfnOperationFunction = threadprocLoadProjectFile;        break;
-   case OT_SAVE_PROJECT_FILE:    pfnOperationFunction = threadprocSaveProjectFile;        break;
-   case OT_LOAD_SCRIPT_FILE:     pfnOperationFunction = threadprocLoadScriptFile;         break;
-   case OT_SAVE_SCRIPT_FILE:     pfnOperationFunction = threadprocSaveScriptFile;         break;
-   case OT_LOAD_LANGUAGE_FILE:   pfnOperationFunction = threadprocLoadLanguageFile;       break;
-   case OT_SAVE_LANGUAGE_FILE:   pfnOperationFunction = threadprocSaveLanguageFile;       break;
+   case OT_LOAD_GAME_DATA:          pfnOperationFunction = threadprocLoadGameData;           break;
+   case OT_LOAD_PROJECT_FILE:       pfnOperationFunction = threadprocLoadProjectFile;        break;
+   case OT_SAVE_PROJECT_FILE:       pfnOperationFunction = threadprocSaveProjectFile;        break;
+   case OT_LOAD_SCRIPT_FILE:        pfnOperationFunction = threadprocLoadScriptFile;         break;
+   case OT_SAVE_SCRIPT_FILE:        pfnOperationFunction = threadprocSaveScriptFile;         break;
+   case OT_VALIDATE_SCRIPT_FILE:    pfnOperationFunction = threadprocValidateScriptFile;     break;
+   case OT_LOAD_LANGUAGE_FILE:      pfnOperationFunction = threadprocLoadLanguageFile;       break;
+   case OT_SAVE_LANGUAGE_FILE:      pfnOperationFunction = threadprocSaveLanguageFile;       break;
    case OT_SUBMIT_BUG_REPORT:    
-   case OT_SUBMIT_CORRECTION:    pfnOperationFunction = threadprocSubmitReport;           break;
-   case OT_SEARCH_SCRIPT_CALLS:  pfnOperationFunction = threadprocFindCallingScripts;     break;
-   case OT_VALIDATE_SCRIPT_FILE: pfnOperationFunction = threadprocValidateScriptFile;     break;
+   case OT_SUBMIT_CORRECTION:       pfnOperationFunction = threadprocSubmitReport;           break;
+   case OT_SEARCH_SCRIPT_CONTENT:   pfnOperationFunction = threadprocFindScriptContent;      break;
+   case OT_AUTOMATIC_UPDATE:        pfnOperationFunction = threadprocAutomaticUpdate;        break;
 
-   case OT_SEARCH_FILE_SYSTEM:   ASSERT(pOperationData->eType != OT_SEARCH_FILE_SYSTEM);  break;      // FileSearch is not controlled by the OperationPool
+   case OT_SEARCH_FILE_SYSTEM:      ASSERT(pOperationData->eType != OT_SEARCH_FILE_SYSTEM);  break;      // FileSearch is not controlled by the OperationPool
    }
+
+#ifdef CONTENT_TIMING   // [DEBUG] Time length of ScriptContent operation
+   if (pOperationData->eType == OT_SEARCH_SCRIPT_CONTENT)
+      CONSOLE("***** TIME = %d", g_dwStart = GetTickCount());
+#endif
 
    /// Ensure all notifications are sent to the operation pool control
    pOperationData->hParentWnd = pMainWindowData->hOperationPoolCtrl;
+   pOperationData->pErrorQueue->bLiveReport = TRUE;
 
    // Display notification in output dialog
    displayOperationStatus(pOperationData);
@@ -406,6 +398,9 @@ BOOL   launchOperation(MAIN_WINDOW_DATA*  pMainWindowData, OPERATION_DATA*  pOpe
    /// Attempt to launch new thread
    if (bResult = launchThreadedOperation(pfnOperationFunction, pOperationData))
    {
+      // [DEBUG]
+      debugOperationData(pOperationData);
+
       /// [SUCCESS] Add to list of current operations and display progress dialog if necessary
       insertOperationIntoOperationPool(pMainWindowData->pOperationPool, pOperationData);
 
@@ -425,7 +420,6 @@ BOOL   launchOperation(MAIN_WINDOW_DATA*  pMainWindowData, OPERATION_DATA*  pOpe
    }
 
    // Return operation result
-   END_TRACKING();
    return bResult;
 }
 
@@ -438,12 +432,7 @@ BOOL   launchOperation(MAIN_WINDOW_DATA*  pMainWindowData, OPERATION_DATA*  pOpe
 // 
 VOID  removeOperationFromOperationPool(OPERATION_POOL*  pOperationPool, OPERATION_DATA*  &pOperationData)
 {
-   ERROR_STACK*  pException;
-
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   __try
+   TRY
    {
       /// Remove from operations list and destroy
       if (removeObjectFromListByValue(pOperationPool->pOperationList, (LPARAM)pOperationData))
@@ -451,17 +440,11 @@ VOID  removeOperationFromOperationPool(OPERATION_POOL*  pOperationPool, OPERATIO
 
       // [CHECK] Ensure operation was destroyed
       ASSERT(!pOperationData);
+      return;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred during completion of the %s operation"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_OPERATION_COMPLETE), pOperationData ? identifyOperationTypeString(pOperationData->eType) : TEXT(""));
-      displayException(pException);
-   }
-
-   // [TRACK]
-   END_TRACKING();
+   CATCH0("");
+   debugOperationData(pOperationData);
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -475,17 +458,13 @@ VOID  removeOperationFromOperationPool(OPERATION_POOL*  pOperationPool, OPERATIO
 // 
 VOID  onOperationPoolDestroy(OPERATION_POOL*  pOperationPool)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Sever window data
    SetWindowLong(pOperationPool->hWnd, 4, NULL);
 
    // Un-subclass control
    SubclassWindow(pOperationPool->hWnd, pOperationPool->wndprocProgressBar);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -499,26 +478,31 @@ VOID  onOperationPoolDestroy(OPERATION_POOL*  pOperationPool)
 VOID    onOperationPoolOperationComplete(OPERATION_POOL*  pOperationPool, OPERATION_DATA*  pOperationData)
 {
    DOCUMENT_OPERATION*    pDocumentOperation;     // Convenience pointer
-   SCRIPTCALL_OPERATION*  pScriptCallOperation;   // Convenience pointer
+   //SCRIPT_OPERATION*  pScriptCallOperation;   // Convenience pointer
    MAIN_WINDOW_DATA*      pMainWindowData;        // Main window data
-   ERROR_STACK*           pException;
 
-   // Prepare
-   TRACK_FUNCTION();
-   pMainWindowData = getMainWindowData();
-      
-   __try
+   TRY
    {
+      // Prepare
+      pMainWindowData = getMainWindowData();
+
       /// [OUTPUT] Print result and errors to the OutputDialog
       displayOperationStatus(pOperationData);
+
+#ifdef CONTENT_TIMING     // [DEBUG] Time ScriptContent operation
+      if (pOperationData->eType == OT_SEARCH_SCRIPT_CONTENT)
+         CONSOLE("***** TIME-TAKEN = %dms", GetTickCount() - g_dwStart);
+#endif
 
       // Notify the appropriate window
       switch (pOperationData->eType)
       {
-      /// [GAME DATA/SUBMISSION] Inform main window
+      /// [GAME DATA/SUBMISSION/SCRIPT] Inform main window
       case OT_LOAD_GAME_DATA:
       case OT_SUBMIT_BUG_REPORT:
       case OT_SUBMIT_CORRECTION:
+      case OT_SEARCH_SCRIPT_CONTENT:
+      case OT_AUTOMATIC_UPDATE:
          sendOperationComplete(AW_MAIN, pOperationData); 
          break;
 
@@ -539,24 +523,9 @@ VOID    onOperationPoolOperationComplete(OPERATION_POOL*  pOperationPool, OPERAT
          // Notify document control
          sendOperationComplete(AW_DOCUMENTS_CTRL, pOperationData);
          break;
-
-      /// [SCRIPT-CALL SEARCH]
-      case OT_SEARCH_SCRIPT_CALLS:
-         // Prepare
-         pScriptCallOperation = (SCRIPTCALL_OPERATION*)pOperationData;
-
-         // Notify properties dialog
-         postScriptCallSearchComplete(AW_PROPERTIES, pScriptCallOperation->pCallersTree);
-         break;
       }
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred during completion of the %s operation"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_OPERATION_COMPLETE), identifyOperationTypeString(pOperationData->eType));
-      displayException(pException);
-   }
+   CATCH1("Operation='%s'", pOperationData ? identifyOperationTypeString(pOperationData->eType) : NULL)
 
    // [FAILURE] Beep!
    if (!isOperationSuccessful(pOperationData))
@@ -587,8 +556,6 @@ VOID    onOperationPoolOperationComplete(OPERATION_POOL*  pOperationPool, OPERAT
    // [CHECK] Ensure memory is OK
    ASSERT(utilValidateMemory());
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -606,9 +573,7 @@ ERROR_HANDLING  onOperationPoolProcessingError(OPERATION_POOL*  pOperationPool, 
 {
    UINT  iResult;    // Dialog result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Ensure buttons are YESNO and error isn't 'Information'
    ASSERT(eButtons == MDF_YESNO AND pError->eType != ET_INFORMATION);
 
@@ -624,7 +589,6 @@ ERROR_HANDLING  onOperationPoolProcessingError(OPERATION_POOL*  pOperationPool, 
       utilSetWindowProgressState(getAppWindow(), TBPF_NORMAL);
 
    // Convert result to IGNORE or ABORT
-   END_TRACKING();
    return (iResult == IDYES ? EH_IGNORE : EH_ABORT);
 }
 
@@ -639,17 +603,11 @@ ERROR_HANDLING  onOperationPoolProcessingError(OPERATION_POOL*  pOperationPool, 
 LRESULT  wndprocOperationPool(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    OPERATION_POOL*  pOperationPool;    // Operation Pool
-   ERROR_STACK*     pException;        // Exception error
-   LRESULT          iResult;           // Operation result
+   LRESULT          iResult = 0;       // Operation result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
       // Prepare
-      iResult = 0;
       pOperationPool = (OPERATION_POOL*)GetWindowLong(hCtrl, 4);  
 
       // Examine message
@@ -676,20 +634,15 @@ LRESULT  wndprocOperationPool(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARA
          iResult = CallWindowProc(pOperationPool->wndprocProgressBar, hCtrl, iMessage, wParam, lParam);
          break;
       }
+
+      // Result result
+      return 0;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the operation pool control"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_OPERATION_POOL));
-      displayException(pException);
-      
-      // Ensure main window is re-enabled
-      EnableWindow(getAppWindow(), TRUE);
-   }
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
 
-   // Result result
-   END_TRACKING();
-   return 0;
+   // Ensure main window is re-enabled
+   EnableWindow(getAppWindow(), TRUE); 
+   return FALSE;
 }
 

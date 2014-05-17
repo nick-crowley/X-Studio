@@ -11,30 +11,24 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
+// OnException: Print ScriptFile
+#define  ON_EXCEPTION()     debugScriptFile(pScriptFile);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
 
 /// Function name  : generateScriptFromOutputTree
 // Description     : Generates and fills a ScriptFile's output buffer from the contents of it's output tree
@@ -48,28 +42,31 @@ BOOL  generateScriptFromOutputTree(SCRIPT_FILE*  pScriptFile)
 {
    TEXT_STREAM*  pOutputStream;     // XML output stream
 
-   // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE("Performing recursive tree flattening for script '%s'", identifyScriptName(pScriptFile));
+   TRY
+   {
+      // [VERBOSE]
+      VERBOSE("Performing recursive tree flattening for script '%s'", identifyScriptName(pScriptFile));
 
-   // Create stream object
-   pOutputStream = createTextStream(32 * 1024);
+      // Create stream object
+      pOutputStream = createTextStream(32 * 1024);
 
-   /// Add schema tags
-   appendStringToTextStreamf(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\"?>\r\n"));
-   appendStringToTextStreamf(pOutputStream, TEXT("<?xml-stylesheet href=\"x2script.xsl\" type=\"text/xsl\"?>\r\n"));
+      /// Add schema tags
+      appendStringToTextStreamf(pOutputStream, TEXT("<?xml version=\"1.0\" standalone=\"yes\"?>\r\n"));
+      appendStringToTextStreamf(pOutputStream, TEXT("<?xml-stylesheet href=\"x2script.xsl\" type=\"text/xsl\"?>\r\n"));
 
-   /// Flatten XMLTree
-   generateTextStreamFromXMLTree(pScriptFile->pGenerator->pXMLTree, pOutputStream);
+      /// Flatten XMLTree
+      generateTextStreamFromXMLTree(pScriptFile->pGenerator->pXMLTree, pOutputStream, pScriptFile->eGameVersion != GV_REUNION);
 
-   /// Copy output to ScriptFile
-   pScriptFile->szOutputBuffer = utilDuplicateString(pOutputStream->szBuffer, pOutputStream->iBufferUsed);
-   pScriptFile->iOutputSize    = pOutputStream->iBufferUsed;
+      /// Copy output to ScriptFile
+      pScriptFile->szOutputBuffer = utilDuplicateString(pOutputStream->szBuffer, pOutputStream->iBufferUsed);
+      pScriptFile->iOutputSize    = pOutputStream->iBufferUsed;
 
-   // Cleanup and return TRUE
-   deleteTextStream(pOutputStream);
-   END_TRACKING();
-   return TRUE;
+      // Cleanup and return TRUE
+      deleteTextStream(pOutputStream);
+      return TRUE;
+   }
+   CATCH0("");
+   return FALSE;
 }
 
 
@@ -91,7 +88,6 @@ BOOL  generateOutputTreeDataSection(HWND  hCodeEdit, CONST SCRIPT_FILE*  pScript
    ARGUMENT*       pArgument;       // Argument currently being processed
 
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Generating XML-Tree data section for script '%s'", identifyScriptName(pScriptFile));
 
    /// Create new node for each script property
@@ -121,10 +117,10 @@ BOOL  generateOutputTreeDataSection(HWND  hCodeEdit, CONST SCRIPT_FILE*  pScript
    }
 
    /// Generate <sourcetext> node
-   generateOutputTreeSourceText(hCodeEdit, pScriptFile, pTree, pLayout);
+   if (pScriptFile->eGameVersion != GV_REUNION)
+      generateOutputTreeSourceText(hCodeEdit, pScriptFile, pTree, pLayout);
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -151,7 +147,6 @@ BOOL  generateOutputTreeSourceText(HWND  hCodeEdit, CONST SCRIPT_FILE*  pScriptF
    CONST TCHAR    *szScriptCall;
 
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Generating XML-Tree <sourcetext> node for script '%s'", identifyScriptName(pScriptFile));
 
    // Prepare
@@ -245,7 +240,6 @@ BOOL  generateOutputTreeSourceText(HWND  hCodeEdit, CONST SCRIPT_FILE*  pScriptF
 
    // Return TRUE
    utilDeleteString(szIndicator);
-   END_TRACKING();
    return TRUE;
 }
 
@@ -268,7 +262,6 @@ BOOL  generateOutputTreeStandardCommands(SCRIPT_FILE*  pScriptFile, OPERATION_PR
    UINT            iInfixIndex;     // 
    
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Generating XML-Tree standard commands branch for script '%s'", identifyScriptName(pScriptFile));
 
    // Create STANDARD COMMANDS branch
@@ -350,7 +343,6 @@ BOOL  generateOutputTreeStandardCommands(SCRIPT_FILE*  pScriptFile, OPERATION_PR
    }
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -372,7 +364,6 @@ BOOL  generateOutputTreeAuxiliaryCommands(SCRIPT_FILE*  pScriptFile, OPERATION_P
    COMMAND*        pCommand;      // Command being created
    
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Generating XML-Tree auxiliary commands branch for script '%s'", identifyScriptName(pScriptFile));
 
    // Create AUXILIARY COMMANDS branch
@@ -408,7 +399,6 @@ BOOL  generateOutputTreeAuxiliaryCommands(SCRIPT_FILE*  pScriptFile, OPERATION_P
    }
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -429,87 +419,90 @@ BOOL  generateOutputTree(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_P
    VARIABLE_NAME      *pVariableName;      // ScriptFile's VARIABLE_NAME list iterator
    ARGUMENT           *pArgument;          // ScriptFile's ARGUMENT list iterator
 
-   // Prepare
-   TRACK_FUNCTION();
-   pTree   = pScriptFile->pGenerator->pXMLTree = createXMLTree();
-   pLayout = &pScriptFile->pGenerator->oLayout;
-   utilZeroObject(pLayout, XML_SCRIPT_LAYOUT);
-
-   // [INFO] "Generating XML for MSCI script '%s'"
-   VERBOSE("Generating XML-Tree for script '%s'", identifyScriptName(pScriptFile));
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_GENERATING_XML_TREE), identifyScriptName(pScriptFile)));
-
-   // [PROGRESS] Set new stage and define the maximum as the total number of commands
-   if (pProgress)
+   __try
    {
-      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_GENERATING_SCRIPT);
-      updateOperationProgressMaximum(pProgress, getListItemCount(pScriptFile->pGenerator->pOutputStream->pStandardList) + getListItemCount(pScriptFile->pGenerator->pOutputStream->pAuxiliaryList));
-   }
+      // Prepare
+      pTree   = pScriptFile->pGenerator->pXMLTree = createXMLTree();
+      pLayout = &pScriptFile->pGenerator->oLayout;
+      utilZeroObject(pLayout, XML_SCRIPT_LAYOUT);
 
-   // Create <script> node
-   pLayout->pScriptNode = appendStringNodeToXMLTree(pTree, pTree->pRoot, TEXT("script"), NULL);
+      // [INFO] "Generating XML for MSCI script '%s'"
+      VERBOSE("Generating XML-Tree for script '%s'", identifyScriptName(pScriptFile));
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_GENERATING_XML_TREE), identifyScriptName(pScriptFile)));
 
-   /// [NON-EXECUTABLE] Add script properties and arguments in XML tags
-   generateOutputTreeDataSection(hCodeEdit, pScriptFile, pTree, pLayout);
-   
-   /// [CODE-ARRAY] Add script properties as CodeArray elements
-   pLayout->pCodeArrayNode = appendStringNodeToXMLTree(pTree, pLayout->pScriptNode, TEXT("codearray"), NULL);    // Create <codearray>
-   pLayout->pCodeArrayNode = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pCodeArrayNode, 10);            // Create 10 element <sval> within
+      // [PROGRESS] Set new stage and define the maximum as the total number of commands
+      if (pProgress)
+      {
+         ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_GENERATING_SCRIPT);
+         updateOperationProgressMaximum(pProgress, getListItemCount(pScriptFile->pGenerator->pOutputStream->pStandardList) + getListItemCount(pScriptFile->pGenerator->pOutputStream->pAuxiliaryList));
+      }
 
-   // Add CodeArray script properties (Name, Version, Description, EngineVersion, LiveData)
-   appendSourceValueStringNodeToXMLTree(pTree,  pLayout->pCodeArrayNode, pScriptFile->szScriptname);
-   appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, calculateEngineVersionFromGameVersion(pScriptFile->eGameVersion));
-   appendSourceValueStringNodeToXMLTree(pTree,  pLayout->pCodeArrayNode, pScriptFile->szDescription);
-   appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, pScriptFile->iVersion);
-   appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, pScriptFile->bLiveData ? UGC_LIVE_SCRIPT : NULL);
+      // Create <script> node
+      pLayout->pScriptNode = appendStringNodeToXMLTree(pTree, pTree->pRoot, TEXT("script"), NULL);
 
-   /// [VARIABLES] Output each variable (without the $) in ascending ID order
-   if (getScriptGeneratorVariablesCount(pScriptFile->pGenerator) > 0)
-      pLayout->pVariableNamesBranch = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pCodeArrayNode, getScriptGeneratorVariablesCount(pScriptFile->pGenerator));
-   else
-      // [NONE] Output NULL
-      pLayout->pVariableNamesBranch = appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, NULL);
-   
-   // Iterate through the Generator's Arguments + Variables list
-   for (UINT iIndex = 0; findVariableNameInGeneratorByIndex(pScriptFile->pGenerator, iIndex, pVariableName); iIndex++)
-      // Add to the Variables Branch
-      appendSourceValueStringNodeToXMLTree(pTree, pLayout->pVariableNamesBranch, pVariableName->szName);
-   
-   /// [STANDARD COMMANDS] Convert each command in the STANDARD GENERATED list into nodes
-   generateOutputTreeStandardCommands(pScriptFile, pProgress, pTree, pLayout);
-
-   /// [ARGUMENTS] Add each argument (with the $) in ascending ID order
-   if (getScriptFileArgumentCount(pScriptFile) > 0)
-      pLayout->pArgumentsBranch = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pCodeArrayNode, getScriptFileArgumentCount(pScriptFile));
-   else
-      // [NONE] Output NULL
-      pLayout->pArgumentsBranch = appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, NULL);
-
-   // Add each of the ScriptFile's Arguments to the Arguments Branch
-   for (UINT iIndex = 0; findArgumentInScriptFileByIndex(pScriptFile, iIndex, pArgument); iIndex++)
-   {
-      // Create 'argument node'
-      pArgumentNode = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pArgumentsBranch, 2);
+      /// [NON-EXECUTABLE] Add script properties and arguments in XML tags
+      generateOutputTreeDataSection(hCodeEdit, pScriptFile, pTree, pLayout);
       
-      // Output raw ParameterType and Argument Description
-      appendSourceValueIntegerNodeToXMLTree(pTree, pArgumentNode, pArgument->eType);
-      appendSourceValueStringNodeToXMLTree(pTree, pArgumentNode, pArgument->szDescription);
+      /// [CODE-ARRAY] Add script properties as CodeArray elements
+      pLayout->pCodeArrayNode = appendStringNodeToXMLTree(pTree, pLayout->pScriptNode, TEXT("codearray"), NULL);    // Create <codearray>
+      pLayout->pCodeArrayNode = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pCodeArrayNode, 10);            // Create 10 element <sval> within
+
+      // Add CodeArray script properties (Name, Version, Description, EngineVersion, LiveData)
+      appendSourceValueStringNodeToXMLTree(pTree,  pLayout->pCodeArrayNode, pScriptFile->szScriptname);
+      appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, calculateEngineVersionFromGameVersion(pScriptFile->eGameVersion));
+      appendSourceValueStringNodeToXMLTree(pTree,  pLayout->pCodeArrayNode, pScriptFile->szDescription);
+      appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, pScriptFile->iVersion);
+      appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, pScriptFile->bLiveData ? UGC_LIVE_SCRIPT : NULL);
+
+      /// [VARIABLES] Output each variable (without the $) in ascending ID order
+      if (getScriptGeneratorVariablesCount(pScriptFile->pGenerator) > 0)
+         pLayout->pVariableNamesBranch = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pCodeArrayNode, getScriptGeneratorVariablesCount(pScriptFile->pGenerator));
+      else
+         // [NONE] Output NULL
+         pLayout->pVariableNamesBranch = appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, NULL);
+      
+      // Iterate through the Generator's Arguments + Variables list
+      for (UINT iIndex = 0; findVariableNameInGeneratorByIndex(pScriptFile->pGenerator, iIndex, pVariableName); iIndex++)
+         // Add to the Variables Branch
+         appendSourceValueStringNodeToXMLTree(pTree, pLayout->pVariableNamesBranch, pVariableName->szName);
+      
+      /// [STANDARD COMMANDS] Convert each command in the STANDARD GENERATED list into nodes
+      generateOutputTreeStandardCommands(pScriptFile, pProgress, pTree, pLayout);
+
+      /// [ARGUMENTS] Add each argument (with the $) in ascending ID order
+      if (getScriptFileArgumentCount(pScriptFile) > 0)
+         pLayout->pArgumentsBranch = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pCodeArrayNode, getScriptFileArgumentCount(pScriptFile));
+      else
+         // [NONE] Output NULL
+         pLayout->pArgumentsBranch = appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, NULL);
+
+      // Add each of the ScriptFile's Arguments to the Arguments Branch
+      for (UINT iIndex = 0; findArgumentInScriptFileByIndex(pScriptFile, iIndex, pArgument); iIndex++)
+      {
+         // Create 'argument node'
+         pArgumentNode = appendSourceValueArrayNodeToXMLTree(pTree, pLayout->pArgumentsBranch, 2);
+         
+         // Output raw ParameterType and Argument Description
+         appendSourceValueIntegerNodeToXMLTree(pTree, pArgumentNode, pArgument->eType);
+         appendSourceValueStringNodeToXMLTree(pTree, pArgumentNode, pArgument->szDescription);
+      }
+
+      /// [AUXILIARY COMMANDS] Convert each command in the AUXILIARY GENERATED list into nodes
+      generateOutputTreeAuxiliaryCommands(pScriptFile, pProgress, pTree, pLayout);
+
+      /// [COMMAND ID] Output as a string if present, otherwise NULL
+      if (lstrlen(pScriptFile->szCommandID) AND !isStringNumeric(pScriptFile->szCommandID))
+         // [STRING] Output command name
+         appendSourceValueStringNodeToXMLTree(pTree, pLayout->pCodeArrayNode, pScriptFile->szCommandID);
+      else
+         // [NUMBER/NONE] Output command ID
+         appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, lstrlen(pScriptFile->szCommandID) ? utilConvertStringToInteger(pScriptFile->szCommandID) : NULL);
+      
+      // Return TRUE
+      return TRUE;
    }
-
-   /// [AUXILIARY COMMANDS] Convert each command in the AUXILIARY GENERATED list into nodes
-   generateOutputTreeAuxiliaryCommands(pScriptFile, pProgress, pTree, pLayout);
-
-   /// [COMMAND ID] Output as a string if present, otherwise NULL
-   if (lstrlen(pScriptFile->szCommandID) AND isStringNumeric(pScriptFile->szCommandID))
-      // [STRING] Output command name
-      appendSourceValueStringNodeToXMLTree(pTree, pLayout->pCodeArrayNode, pScriptFile->szCommandID);
-   else
-      // [NUMBER/NONE] Output command ID
-      appendSourceValueIntegerNodeToXMLTree(pTree, pLayout->pCodeArrayNode, lstrlen(pScriptFile->szCommandID) ? utilConvertStringToInteger(pScriptFile->szCommandID) : NULL);
-   
-   // Return TRUE
-   END_TRACKING();
-   return TRUE;
+   PUSH_CATCH0(pErrorQueue, "");
+   return FALSE;
 }
 
 

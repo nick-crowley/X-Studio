@@ -146,6 +146,7 @@ CONST TCHAR*  identifyErrorTypeString(CONST ERROR_TYPE  eType)
    case ET_ERROR:       szOutput = TEXT("Error");        break;
    case ET_WARNING:     szOutput = TEXT("Warning");      break;
    case ET_INFORMATION: szOutput = TEXT("Information");  break;
+   default:             szOutput = TEXT("Corrupt");      break;
    }
 
    // Return string
@@ -293,7 +294,7 @@ ERROR_HANDLING   displayOperationError(HWND  hParentWnd, ERROR_STACK*  pError, C
    case EH_PROMPT:
       // Prepare
       szQuestion = utilCreateEmptyString(512);
-      szFormat   = utilLoadString(getResourceInstance(), iMessageID, 512);
+      szFormat   = loadString(iMessageID, 512);
       pArguments = utilGetFirstVariableArgument(&iMessageID);
 
       // Temporarily add the question message to the Error
@@ -474,25 +475,29 @@ ERROR_STACK*   generateDualWarning(CONST UINT  iErrorCode, CONST TCHAR*  szError
 BearScriptAPI
 UINT    generateExceptionError(CONST EXCEPTION_POINTERS*  pExceptionData, ERROR_STACK*  &pError)
 {
-   EXCEPTION_RECORD  *pException;        // Convenience pointer
-   EXCEPTION_STRING  *pExceptionString;  // Debug assertion that caused the error, if any
-   FUNCTION_CALL     *pSource,           // Last function in the callstack
-                      oSourceCopy;       // Local copy of last function in the callstack
-   TCHAR             *szCallStack;       // CallStack as text
-
+   FUNCTION_CALL      oCaller = { TEXT("Unknown"), TEXT("Unknown"), NULL },
+                     *pCaller;                                         // Last call
+   TCHAR             *szCallStack = utilCreateEmptyString(2048);       // CallStack as text
+   LIST              *pCallStack;                                      // Callstack as list
+   EXCEPTION_RECORD  *pException;                                      // Convenience pointer
+   EXCEPTION_STRING  *pAssertion;                                      // Debug assertion that caused the error, if any
+   
    // Prepare
    pException = pExceptionData->ExceptionRecord;
+   pCallStack = generateStackTrace(*pExceptionData->ContextRecord);
+   
+   // Attempt to lookup last function
+   /*if (findListObjectByIndex(pCallStack, 1, (LPARAM&)pCaller))
+      oCaller = *pCaller;*/
 
-   /// Attempt to retrieve function causing the exception
-   if (pSource = GET_LAST_FUNCTION())
-      // [SUCCESS] Copy function data
-      oSourceCopy = (*pSource);
-   else
+   /// Attempt to lookup last function
+   for (UINT  iIndex = 0; findListObjectByIndex(pCallStack, iIndex, (LPARAM&)pCaller); iIndex++)
    {
-      // [FAILED] Stack is corrupted, use 'Unknown'
-      oSourceCopy.iLine = NULL;
-      oSourceCopy.szFileName = TEXT("Unknown");
-      oSourceCopy.szFunction = TEXT("Unknown");
+      if (utilCompareString(pCaller->szFunction, "generateExceptionError") OR utilCompareString(pCaller->szFunction, "generateQueuedExceptionError"))
+         continue;
+
+      oCaller = *pCaller;
+      break;
    }
 
    // Examine exception
@@ -500,45 +505,46 @@ UINT    generateExceptionError(CONST EXCEPTION_POINTERS*  pExceptionData, ERROR_
    {
    /// [ACCESS-VIOLATION] "An access violation has occurred in %s on line %u of %s"
    case EXCEPTION_ACCESS_VIOLATION:
-      pError = generateDualError(HERE(IDS_UNHANDLED_ACCESS_VIOLATION), oSourceCopy.szFunction, oSourceCopy.iLine, oSourceCopy.szFileName);
+      pError = generateDualError(IDS_UNHANDLED_ACCESS_VIOLATION, L"IDS_UNHANDLED_ACCESS_VIOLATION", oCaller.szFunction, oCaller.szFileName, oCaller.iLine, oCaller.szFunction, oCaller.iLine, oCaller.szFileName);
       setAppError(AE_ACCESS_VIOLATION);
       break;
    
    /// [ASSERTION] "The debugging check '%s' has failed in %s(..) on line %u of %s"
    case EXCEPTION_BREAKPOINT:
       // Extract string containing assertion
-      pExceptionString = (EXCEPTION_STRING*)pException->ExceptionInformation;
+      pAssertion = (EXCEPTION_STRING*)pException->ExceptionInformation;
 
       // Generate error and display assertion
-      pError = generateDualError(HERE(IDS_UNHANDLED_DEBUG_ASSERTION), pExceptionString->szAssertion, pExceptionString->szFunction, pExceptionString->iLine, pExceptionString->szFileName);
+      pError = generateDualError(IDS_UNHANDLED_DEBUG_ASSERTION, L"IDS_UNHANDLED_DEBUG_ASSERTION", pAssertion->szFunction, pAssertion->szFileName, pAssertion->iLine, pAssertion->szAssertion, pAssertion->szFunction, pAssertion->iLine, pAssertion->szFileName);
       setAppError(AE_DEBUG_ASSERTION);
 
       // Cleanup
-      utilDeleteExceptionString(pExceptionString);
+      utilDeleteExceptionString(pAssertion);
       break;
 
    /// [OTHER] "An unhandled exception with code %#x has occurred in %s(..) on line %u of %s"
    default:
-      pError = generateDualError(HERE(IDS_UNHANDLED_EXCEPTION), pException->ExceptionCode, oSourceCopy.szFunction, oSourceCopy.iLine, oSourceCopy.szFileName);
+      pError = generateDualError(IDS_UNHANDLED_EXCEPTION, L"IDS_UNHANDLED_EXCEPTION", oCaller.szFunction, oCaller.szFileName, oCaller.iLine, pException->ExceptionCode, oCaller.szFunction, oCaller.iLine, oCaller.szFileName);
       setAppError(AE_EXCEPTION);
       break;
    }
 
-   // [HACK] Unlock Call-Stack, but delete stack trace
-   //szCallStack = FLATTEN_CALL_STACK();
-   //utilDeleteString(szCallStack);
+   // Prepare
+   StringCchCopy(szCallStack, 2048, TEXT("\r\nCall Stack:"));
 
-   /// NEW: Use DbgHelp.dll to create stack trace
-   //szCallStack = generateStackTrace(GetCurrentProcess());
+   // Flatten call stack to text
+   for (UINT  iIndex = 0; findListObjectByIndex(pCallStack, iIndex, (LPARAM&)pCaller); iIndex++)
+   {
+      if (!utilCompareString(pCaller->szFunction, "generateExceptionError") AND !utilCompareString(pCaller->szFunction, "generateQueuedExceptionError"))
+         utilStringCchCatf(szCallStack, 2048, TEXT("\r\n%s(..) on line %u of %s"), pCaller->szFunction, pCaller->iLine, pCaller->szFileName);
+   }
 
-   /// NEW: DbgHelp.dll not so useful, use original stack trace method
-   szCallStack = FLATTEN_CALL_STACK();
-
-   /// Set display message and attach CallStack
+   // Set display message
    generateOutputTextFromError(pError);
    attachTextToError(pError, szCallStack);
    
-   // Cleanup and return type of handling
+   // Cleanup and return 'Execute Handler'
+   deleteList(pCallStack);
    utilDeleteString(szCallStack);
    return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -562,12 +568,12 @@ TCHAR*   generateFlattenedErrorStackText(CONST ERROR_STACK*  pErrorStack)
    pTextStream = createTextStream(4 * ERROR_LENGTH);
 
    // Append heading
-   appendStringToTextStreamf(pTextStream, TEXT(SMALL_PARTITION) TEXT("\r\n") TEXT("An %s error has occurred:\r\n"), identifyErrorTypeString(pErrorStack->eType));
+   //appendStringToTextStreamf(pTextStream, /*TEXT(SMALL_PARTITION) TEXT("\r\n")*/ TEXT("%s:\r\n"), identifyErrorTypeString(pErrorStack->eType));
 
    /// Iterate through error messages
    for (UINT  iIndex = 0; findErrorMessageByLogicalIndex(pErrorStack, iIndex, MT_MESSAGE, pMessage); iIndex++)
       // [ERROR] Output Error ID and message
-      appendStringToTextStreamf(pTextStream, TEXT("Error %s (%d): %s\r\n"), pMessage->szID, pMessage->iID, pMessage->szMessage);
+      appendStringToTextStreamf(pTextStream, TEXT("%s: %s\r\n"), pMessage->szID, pMessage->szMessage);
 
    /// Iterate through attachments
    for (UINT  iIndex = 0; findErrorMessageByLogicalIndex(pErrorStack, iIndex, MT_ATTACHMENT, pMessage); iIndex++)
@@ -575,7 +581,7 @@ TCHAR*   generateFlattenedErrorStackText(CONST ERROR_STACK*  pErrorStack)
       appendStringToTextStreamf(pTextStream, TEXT("Attachment #%u: %s\r\n"), iIndex + 1, pMessage->szMessage);
 
    // Append heading
-   appendStringToTextStreamf(pTextStream, TEXT(SMALL_PARTITION) TEXT("\r\n"));
+   //appendStringToTextStreamf(pTextStream, TEXT(SMALL_PARTITION)); // TEXT("\r\n"));
    
    /// Generate output
    szOutput = utilDuplicateString(pTextStream->szBuffer, pTextStream->iBufferUsed);

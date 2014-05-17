@@ -218,7 +218,7 @@ OBJECT_NAME_GROUP  identifyObjectNameGroupFromGameString(CONST GAME_STRING*  pGa
    case GPI_OBJECT_CLASSES:         eOutput = ONG_OBJECT_CLASS;         break;
    case GPI_WING_COMMANDS:          eOutput = ONG_WING_COMMAND;         break;
    case GPI_FLIGHT_RETURNS:         eOutput = ONG_FLIGHT_RETURN;        break;
-   case GPI_FORMATIONS:             eOutput = ONG_FORMATION;            break;
+   ///case GPI_FORMATIONS:             eOutput = ONG_FORMATION;            break;      REM: Don't exist
    case GPI_DATA_TYPES:             eOutput = ONG_DATA_TYPE;            break;
    case GPI_OPERATORS:              eOutput = ONG_OPERATOR;             break;
 
@@ -249,7 +249,7 @@ OBJECT_NAME_GROUP  identifyObjectNameGroupFromGameString(CONST GAME_STRING*  pGa
 TCHAR*  generateScriptObjectGroupString(CONST OBJECT_NAME_GROUP  eGroup)
 {
    // Load, create and return appropriate string
-   return utilLoadString(getResourceInstance(), (IDS_SCRIPT_OBJECT_GROUP_CONSTANT + (eGroup - ONG_CONSTANT)), 64);
+   return loadString((IDS_SCRIPT_OBJECT_GROUP_CONSTANT + (eGroup - ONG_CONSTANT)), 64);
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ TCHAR*  generateScriptObjectGroupString(CONST OBJECT_NAME_GROUP  eGroup)
 // ERROR_QUEUE*         pErrorQueue : [in/out] ErrorQueue from the game data loading worker thread
 ///                                           May already contain errors
 // 
-VOID  loadScriptObjectsTrees(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+BOOL  loadScriptObjectsTrees(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
    AVL_TREE_OPERATION  *pGenerationOperation,      // Operation data for extract SCriptObjects from the game data
                        *pMergeOperation;           // Operation data for holding the ScriptObjects that require name mangling
@@ -272,9 +272,8 @@ VOID  loadScriptObjectsTrees(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErro
    __try
    {
       // [TRACKING]
-      TRACK_FUNCTION();
-      VERBOSE_THREAD_COMMAND();
-      VERBOSE_HEADING("Generating Script Objects from language strings");
+      CONSOLE_STAGE();
+      CONSOLE("Generating Script Objects from language strings");
 
       // [INFO] "Generating Script Objects from loaded language strings"
       pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_GENERATING_SCRIPT_OBJECTS)));
@@ -282,47 +281,41 @@ VOID  loadScriptObjectsTrees(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErro
       // [CHECK] Ensure ScriptObject trees doesn't exist
       ASSERT(!getGameData()->pScriptObjectsByGroup AND !getGameData()->pScriptObjectsByText);
 
-      /// Create GameData trees
+      /// Create ScriptObject trees
       getGameData()->pScriptObjectsByGroup = createScriptObjectTreeByGroup();
       getGameData()->pScriptObjectsByText  = createScriptObjectTreeByText();
+      pCollisionsTree                      = createScriptObjectTreeForCollisions();
 
-      /// Create temporary collitions tree
-      pCollisionsTree = createScriptObjectTreeForCollisions();
+      // Generate
+      CONSOLE("Generating unique ScriptObjects");
 
-      // Create 'Generation' operation, pass 'collisions' tree
+      /// Generate ScriptObjects from GameStrings tree. Store duplicates in the Collisions tree
       pGenerationOperation              = createAVLTreeOperationEx(treeprocBuildScriptObjectTrees, ATT_INORDER, NULL, pProgress);
-      pGenerationOperation->xFirstInput = (LPARAM)pCollisionsTree;   
-
-      /// Perform 'Generation' operation on GAME-STRINGS tree
-      VERBOSE("Generating unique ScriptObjects");
+      pGenerationOperation->pOutputTree = pCollisionsTree;   
       performOperationOnAVLTree(getGameData()->pGameStringsByID, pGenerationOperation);
 
-      // Create 'Merge' operation and attach the output error queue
-      pMergeOperation = createAVLTreeOperationEx(treeprocMergeScriptObjectCollisions, ATT_INORDER, pErrorQueue, NULL);
+      // Merge
+      CONSOLE("Merging ScriptObject collisions into game data");
 
-      /// Perform 'Merge' operation on the COLLISIONS tree
-      VERBOSE("Merging ScriptObject collisions into game data");
+      /// Manipulate the Collision tree entries to make them unique, then re-insert them.
+      pMergeOperation = createAVLTreeOperationEx(treeprocMergeScriptObjectCollisions, ATT_INORDER, pErrorQueue, NULL);
       performOperationOnAVLTree(pCollisionsTree, pMergeOperation);
 
-      // Sever output ErrorQueue
-      pMergeOperation->pErrorQueue = NULL;
+      // [SUCCESS]
+      CONSOLE_HEADING("Generated %u unique ScriptObjects with %d failures", getTreeNodeCount(getGameData()->pScriptObjectsByGroup), getTreeNodeCount(getGameData()->pScriptObjectsByGroup) - getTreeNodeCount(getGameData()->pScriptObjectsByText));
 
       // Cleanup
       deleteAVLTree(pCollisionsTree);
+      pMergeOperation->pErrorQueue = NULL;
       deleteAVLTreeOperation(pMergeOperation);
       deleteAVLTreeOperation(pGenerationOperation);
+      return TRUE;
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pErrorQueue))
+   __except (pushException(pErrorQueue))
    {
-      // [FAILURE] "An unidentified and unexpected critical error has occurred while generating the script objects"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_SCRIPT_OBJECTS));
-      consolePrintError(lastErrorQueue(pErrorQueue));
+      EXCEPTION("Unable to generate script objects");
+      return FALSE;
    }
-
-   // [DEBUG] Display debugging info
-   VERBOSE_HEADING("Generated %u unique ScriptObjects with %d failures", getTreeNodeCount(getGameData()->pScriptObjectsByGroup), getTreeNodeCount(getGameData()->pScriptObjectsByGroup) - getTreeNodeCount(getGameData()->pScriptObjectsByText));
-   END_TRACKING();
 }
 
 
@@ -336,8 +329,9 @@ VOID  loadScriptObjectsTrees(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErro
 // 
 VOID  performScriptObjectNameMangling(SCRIPT_OBJECT*  pScriptObject)
 {
-   POINT    ptCoordinates;    // Sector co-ords
-   TCHAR*   szNewText;
+   POINTS   ptCoordinates;    // Sector co-ords
+   TCHAR   *szNewText,
+           *szGroup;
 
    // Prepare
    szNewText = NULL;
@@ -355,14 +349,21 @@ VOID  performScriptObjectNameMangling(SCRIPT_OBJECT*  pScriptObject)
    case ONG_OBJECT_COMMAND:
    case ONG_WING_COMMAND:
    case ONG_SIGNAL:
-      szNewText = utilCreateStringf(pScriptObject->iCount + 16, TEXT("%s (%u)"), pScriptObject->szText, pScriptObject->iID);
+      szNewText = utilCreateStringf(pScriptObject->iCount + 16, TEXT("%s (%d)"), pScriptObject->szText, pScriptObject->iID);
+      break;
+
+   /// [RACE] Append type in brackets
+   case ONG_RACE:
+   case GPI_RELATIONS:
+      szNewText = utilCreateStringf(pScriptObject->iCount + 32, TEXT("%s (%s)"), pScriptObject->szText, szGroup = generateScriptObjectGroupString(pScriptObject->eGroup));
+      utilDeleteString(szGroup);
       break;
 
    /// [SECTOR] Append the co-ordinates in brackets
    case ONG_SECTOR:
       // Calculate sector co-ordinates and update ScriptObject
       convertStringIDToSectorCoordinates(pScriptObject->iID, &ptCoordinates);
-      szNewText = utilCreateStringf(pScriptObject->iCount + 16, TEXT("%s (%u, %u)"), pScriptObject->szText, ptCoordinates.x, ptCoordinates.y);
+      szNewText = utilCreateStringf(pScriptObject->iCount + 16, TEXT("%s (%d, %d)"), pScriptObject->szText, ptCoordinates.x, ptCoordinates.y);
       break;
    }
 
@@ -380,22 +381,17 @@ VOID  performScriptObjectNameMangling(SCRIPT_OBJECT*  pScriptObject)
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
 /// Function name  : treeprocBuildScriptObjectTrees
-// Description     : Builds the ScriptObjects trees by scanning the game string data for relevant strings
+// Description     : Inserts the GameStrings used in compilation into the ScriptObjects tree.  If not unique they're placed in a collisions tree
 // 
-// AVL_TREE_NODE*       pCurrentNode   : [in/out] Node containing GameString currently being examined - this may be modified to make it unique
-// AVL_TREE_OPERATION*  pOperationData : [in/out] Operation Data
-///                                                   xFirstInput : [in/out] Collisions tree, holding the ScriptObjecvts that could not be inserted
+// AVL_TREE_NODE*       pCurrentNode   : [in/out] Game data GameString node
+// AVL_TREE_OPERATION*  pOperationData : [in/out] Operation data:
+///                                                pOutputTree : [in/out] Collisions tree, holding the ScriptObjecvts that could not be inserted
 // 
 VOID   treeprocBuildScriptObjectTrees(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
 {
-   GAME_STRING*   pGameString;      // Convenience pointer for the GameString being processed for addition
-   SCRIPT_OBJECT* pScriptObject;    // ScriptObject being created, if any
-   AVL_TREE*      pCollisionsTree;
-                 
-   // Prepare
-   pGameString     = extractPointerFromTreeNode(pCurrentNode, GAME_STRING);
-   pCollisionsTree = (AVL_TREE*)pOperationData->xFirstInput;
-   pScriptObject   = NULL;
+   GAME_STRING*   pGameString     = extractPointerFromTreeNode(pCurrentNode, GAME_STRING);      // GameString being processed
+   AVL_TREE*      pCollisionsTree = pOperationData->pOutputTree;                                // Collisions tree
+   SCRIPT_OBJECT* pScriptObject   = NULL;                                                       // ScriptObject being created, if any
 
    // Only copy strings from the GamePages that potentially contain script objects
    switch (pGameString->iPageID)
@@ -457,7 +453,7 @@ VOID   treeprocBuildScriptObjectTrees(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPE
    /// [DATA TYPE / FLIGHT RETURN / FORMATION / PARAMETER-TYPE / OBJECT CLASS / OBJECT COMMAND / WING COMMAND] Include all
    case GPI_DATA_TYPES:
    case GPI_FLIGHT_RETURNS:
-   case GPI_FORMATIONS:
+   //case GPI_FORMATIONS:     REM: Don't exist
    case GPI_OBJECT_CLASSES:
    case GPI_OBJECT_COMMANDS:
    case GPI_PARAMETER_TYPES:
@@ -488,54 +484,57 @@ VOID   treeprocBuildScriptObjectTrees(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPE
 // 
 VOID   treeprocMergeScriptObjectCollisions(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
 {
-   SCRIPT_OBJECT  *pNewObject,        // Convenience pointer
-                  *pConflictObject;   // ScriptObject causing the name conflict
-   TCHAR          *szGroupName;       // The name of the group containing the conflict  [ERROR REPORTING]
+   SCRIPT_OBJECT  *pNewObject = NULL,        // Convenience pointer
+                  *pConflictObject = NULL;   // ScriptObject causing the name conflict
+   TCHAR          *szGroupName;              // The name of the group containing the conflict  [ERROR REPORTING]
 
-   // Prepare
-   pNewObject    = extractPointerFromTreeNode(pCurrentNode, SCRIPT_OBJECT);
-
-   /// [CHECK] Remove and mangle the conflicting object, if we haven't already done so for a previous node
-   if (removeObjectFromAVLTreeByValue(getGameData()->pScriptObjectsByText, (LPARAM)pNewObject->szText, NULL, (LPARAM&)pConflictObject))  // NB: Since GROUP tree does not organise by text, there is no need to remove it both from trees
+   __try
    {
-      // [FOUND] Mangle the conflicting object's name
-      performScriptObjectNameMangling(pConflictObject);
+      // Prepare
+      pNewObject = extractPointerFromTreeNode(pCurrentNode, SCRIPT_OBJECT);
 
-      /// Attempt to re-insert conflicting object into the reverse-lookup tree  (Should not fail)
-      if (!insertObjectIntoAVLTree(getGameData()->pScriptObjectsByText, (LPARAM)pConflictObject))
+      /// [CHECK] Remove and mangle the conflicting object, if we haven't already done so for a previous node
+      if (removeObjectFromAVLTreeByValue(getGameData()->pScriptObjectsByText, (LPARAM)pNewObject->szText, NULL, (LPARAM&)pConflictObject))  // NB: Since GROUP tree does not organise by text, there is no need to remove it both from trees
       {
-         // Prepare
-         szGroupName = generateScriptObjectGroupString(pConflictObject->eGroup);
+         // [FOUND] Mangle the conflicting object's name
+         performScriptObjectNameMangling(pConflictObject);
 
+         /// Attempt to re-insert conflicting object into the reverse-lookup tree  (Should not fail)
+         if (!insertObjectIntoAVLTree(getGameData()->pScriptObjectsByText, (LPARAM)pConflictObject))
+         {
+            // [WARNING] "Could not insert the duplicate script object '%s' (ID %u) from group '%s' into the game data"
+            szGroupName = generateScriptObjectGroupString(pConflictObject->eGroup);
+            pushErrorQueue(pOperationData->pErrorQueue, generateDualWarning(HERE(IDS_SCRIPT_OBJECT_DUPLICATE), pConflictObject->szText, pConflictObject->iID, szGroupName));
+
+            // [FAILED] Destroy remaining object in GROUP tree
+            destroyObjectInAVLTreeByValue(getGameData()->pScriptObjectsByGroup, pConflictObject->eGroup, pConflictObject->iID);
+            utilDeleteString(szGroupName);
+         }
+      }
+
+      /// Mangle the input object's name
+      performScriptObjectNameMangling(pNewObject);
+
+      /// Attempt to insert input object into the TEXT tree  (Should not fail)
+      if (!insertObjectIntoAVLTree(getGameData()->pScriptObjectsByText, (LPARAM)pNewObject))
+      {
          // [WARNING] "Could not insert the duplicate script object '%s' (ID %u) from group '%s' into the game data"
-         pushErrorQueue(pOperationData->pErrorQueue, generateDualWarning(HERE(IDS_SCRIPT_OBJECT_DUPLICATE), pConflictObject->szText, pConflictObject->iID, szGroupName));
-
-         // [FAILED] Destroy remaining object in GROUP tree
-         destroyObjectInAVLTreeByValue(getGameData()->pScriptObjectsByGroup, pConflictObject->eGroup, pConflictObject->iID);
+         szGroupName = generateScriptObjectGroupString(pNewObject->eGroup);
+         pushErrorQueue(pOperationData->pErrorQueue, generateDualWarning(HERE(IDS_SCRIPT_OBJECT_DUPLICATE), pNewObject->szText, pNewObject->iID, szGroupName));
 
          // Cleanup
          utilDeleteString(szGroupName);
+         deleteScriptObject(pNewObject);
       }
+      else
+         // [SUCCESS] Insert input object into the lookup tree  (Cannot fail, IDs guaranteed to be unique)
+         insertObjectIntoAVLTree(getGameData()->pScriptObjectsByGroup, (LPARAM)pNewObject);
    }
-
-   /// Mangle the input object's name
-   performScriptObjectNameMangling(pNewObject);
-
-   /// Attempt to insert input object into the TEXT tree  (Should not fail)
-   if (!insertObjectIntoAVLTree(getGameData()->pScriptObjectsByText, (LPARAM)pNewObject))
+   PUSH_CATCH(pOperationData->pErrorQueue)
    {
-      // Prepare
-      szGroupName = generateScriptObjectGroupString(pConflictObject->eGroup);
-
-      // [WARNING] "Could not insert the duplicate script object '%s' (ID %u) from group '%s' into the game data"
-      pushErrorQueue(pOperationData->pErrorQueue, generateDualWarning(HERE(IDS_SCRIPT_OBJECT_DUPLICATE), pNewObject->szText, pNewObject->iID, szGroupName));
-
-      // Cleanup
-      utilDeleteString(szGroupName);
-      deleteScriptObject(pNewObject);
+      EXCEPTION("Unable to merge one of the two following script objects:");
+      debugObjectName(pNewObject);
+      debugObjectName(pConflictObject);
    }
-   else
-      // [SUCCESS] Insert input object into the lookup tree  (Cannot fail, IDs guaranteed to be unique)
-      insertObjectIntoAVLTree(getGameData()->pScriptObjectsByGroup, (LPARAM)pNewObject);
 }
 

@@ -8,6 +8,13 @@
 #include "stdafx.h"
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                     MACROS
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// OnException: Print to console
+#define ON_EXCEPTION()     printException(pException)
+
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CONSTANTS / GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +53,7 @@ CUSTOM_MENU*   createCustomMenu(CONST TCHAR*  szMenuResource, CONST BOOL  bPopup
    pCustomMenu = utilCreateEmptyObject(CUSTOM_MENU);
 
    /// Load MenuBar
-   pCustomMenu->hMenuBar = LoadMenu(getResourceInstance(), szMenuResource);
+   pCustomMenu->hMenuBar = loadMenu(szMenuResource);
    ERROR_CHECK("creating custom menu", pCustomMenu->hMenuBar);
 
    // Lookup Popup menu
@@ -204,7 +211,6 @@ BOOL   calculateCustomMenuItemSize(HWND  hParentWnd, MEASUREITEMSTRUCT*  pMeasur
    BOOL               bResult;
 
    // Prepare
-   TRACK_FUNCTION();
    bResult = FALSE;
 
    // [CHECK] Requested item to measure is a menu
@@ -241,8 +247,6 @@ BOOL   calculateCustomMenuItemSize(HWND  hParentWnd, MEASUREITEMSTRUCT*  pMeasur
       }
    }
 
-   // [TRACK]
-   END_TRACKING();
    return bResult;
 }
 
@@ -340,53 +344,54 @@ VOID    convertSystemMenuToCustomMenu(HMENU  hSystemMenu, CONST BOOL  bPopupMenu
 //
 VOID   drawCustomMenu(DRAWITEMSTRUCT*  pDrawData, CONST CUSTOM_MENU_ITEM*  pItemData)
 {
-   RECT       rcDrawRect;            // Draw rectangle
+   HBRUSH hBrush;
+   RECT   rcDrawRect = pDrawData->rcItem;            // Draw rectangle
 
-   // Prepare
-   TRACK_FUNCTION();
-   rcDrawRect = pDrawData->rcItem;
-
-   // [CHECK] Owner Draw Menus only
-   ASSERT(pDrawData->CtlType == ODT_MENU);
-
-   /// [BACKGROUND] Draw a light grey square followed by a dark grey line followed by a white box
-   // Draw a light grey square on the left
-   rcDrawRect.right = rcDrawRect.left + iCustomMenuGutterWidth;
-   FillRect(pDrawData->hDC, &rcDrawRect, getThemeSysColourBrush(TEXT("Window"), COLOR_BTNFACE));
-
-   // Draw a vertical dark grey line one pixel wide
-   rcDrawRect.left = rcDrawRect.right - 1;
-   //utilFillStockRect(pDrawData->hDC, &rcDrawRect, LTGRAY_BRUSH);
-   FillRect(pDrawData->hDC, &rcDrawRect, getThemeSysColourBrush(TEXT("Window"), COLOR_3DSHADOW));
-
-   // Draw remaining item background in white
-   rcDrawRect       = pDrawData->rcItem;
-   rcDrawRect.left += iCustomMenuGutterWidth;
-   FillRect(pDrawData->hDC, &rcDrawRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
-
-   /// [NORMAL MENU ITEM] - Draw a full custom menu item
-   if (!pItemData->bIsHeading AND !pItemData->bIsSeparator)
-      drawCustomMenuItem(pDrawData, pItemData);
-
-   /// [HEADINGS] -- Draw a coloured box with the heading title inside
-   else if (pItemData->bIsHeading AND !pItemData->bIsSeparator)
-      drawCustomMenuHeading(pDrawData, pItemData);
-   
-   /// [SEPARATORS] -- Draw a light grey line a single pixel high
-   else
+   TRY
    {
-      // Calculate draw rect
-      rcDrawRect        = pDrawData->rcItem;
-      rcDrawRect.left  += iCustomMenuTextOffset;
-      rcDrawRect.right -= iCustomMenuEdgeWidth;
-      rcDrawRect.bottom = rcDrawRect.top + 1; 
+      // [CHECK] Owner Draw Menus only
+      ASSERT(pDrawData->CtlType == ODT_MENU);
 
-      // Draw as a light grey line
-      FillRect(pDrawData->hDC, &rcDrawRect, (HBRUSH)GetStockObject(LTGRAY_BRUSH));
+      /// [BACKGROUND] Draw a light grey square followed by a dark grey line followed by a white box
+      // Draw a light grey square on the left
+      rcDrawRect.right = rcDrawRect.left + iCustomMenuGutterWidth;
+      FillRect(pDrawData->hDC, &rcDrawRect, hBrush = getThemeSysColourBrush(TEXT("Window"), COLOR_BTNFACE));
+      DeleteBrush(hBrush);
+
+      // Draw a vertical dark grey line one pixel wide
+      rcDrawRect.left = rcDrawRect.right - 1;
+      //utilFillStockRect(pDrawData->hDC, &rcDrawRect, LTGRAY_BRUSH);
+      FillRect(pDrawData->hDC, &rcDrawRect, hBrush = getThemeSysColourBrush(TEXT("Window"), COLOR_3DSHADOW));
+      DeleteBrush(hBrush);
+
+      // Draw remaining item background in white
+      rcDrawRect       = pDrawData->rcItem;
+      rcDrawRect.left += iCustomMenuGutterWidth;
+      FillRect(pDrawData->hDC, &rcDrawRect, hBrush = getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
+      DeleteBrush(hBrush);
+
+      /// [NORMAL MENU ITEM] - Draw a full custom menu item
+      if (!pItemData->bIsHeading AND !pItemData->bIsSeparator)
+         drawCustomMenuItem(pDrawData, pItemData);
+
+      /// [HEADINGS] -- Draw a coloured box with the heading title inside
+      else if (pItemData->bIsHeading AND !pItemData->bIsSeparator)
+         drawCustomMenuHeading(pDrawData, pItemData);
+      
+      /// [SEPARATORS] -- Draw a light grey line a single pixel high
+      else
+      {
+         // Calculate draw rect
+         rcDrawRect        = pDrawData->rcItem;
+         rcDrawRect.left  += iCustomMenuTextOffset;
+         rcDrawRect.right -= iCustomMenuEdgeWidth;
+         rcDrawRect.bottom = rcDrawRect.top + 1; 
+
+         // Draw as a light grey line
+         FillRect(pDrawData->hDC, &rcDrawRect, (HBRUSH)GetStockObject(LTGRAY_BRUSH));
+      }
    }
-
-   // Cleanup
-   END_TRACKING();
+   CATCH0("");
 }
 
 
@@ -407,84 +412,88 @@ VOID   drawCustomMenuItem(DRAWITEMSTRUCT*  pDrawData, CONST CUSTOM_MENU_ITEM*  p
              *szItemToken,           // Tokenised string of menu item text
              *pIterator;             // Tokeniser data
 
-   // [CHECK] Owner Draw Menus only
-   ASSERT(pDrawData->CtlType == ODT_MENU);
-
-   // Prepare
-   SetRect(&rcDrawRect, pDrawData->rcItem.left + iCustomMenuGutterWidth + 1, pDrawData->rcItem.top, pDrawData->rcItem.right, pDrawData->rcItem.bottom);
-
-   // Prepare a light blue brush and a dark blue pen
-   hBluePen    = CreatePen(PS_SOLID, 1, clLightBlue);
-   hBlueBrush  = CreateSolidBrush(clDarkBlue);
-   hBoldFont   = utilDuplicateFont(pDrawData->hDC, TRUE, FALSE, FALSE);
-   pPrevState  = utilCreateDeviceContextState(pDrawData->hDC);
-
-   // [CHECK]
-   if (!hBoldFont)
-      hBoldFont = utilDuplicateFontEx(pDrawData->hDC, TEXT("MS Shell Dlg 2"), TRUE, FALSE, FALSE);
-
-   /// [HOT ITEMS that aren't DISABLED] Draw a shaded light blue box
-   if ((pDrawData->itemState INCLUDES ODS_SELECTED) AND !(pDrawData->itemState INCLUDES ODS_DISABLED))
-      drawCustomSelectionRectangle(pDrawData->hDC, &rcDrawRect);
-
-   // Calculate centred icon rectangle
-   utilSetRectangle(&rcDrawRect, pDrawData->rcItem.left, pDrawData->rcItem.top, iCustomMenuIconSize, iCustomMenuIconSize);
-   OffsetRect(&rcDrawRect, iCustomMenuEdgeWidth, iCustomMenuEdgeWidth);
-
-   /// [CHECK MARK] Draw a light blue box
-   if (pDrawData->itemState INCLUDES ODS_CHECKED)
+   TRY
    {
-      // Contract drawing rectangle and activate the dark blue pen
-      InflateRect(&rcDrawRect, 2, 2);
-      utilSetDeviceContextPen(pPrevState, hBluePen);
-      utilSetDeviceContextBrush(pPrevState, hBlueBrush);
+      // [CHECK] Owner Draw Menus only
+      ASSERT(pDrawData->CtlType == ODT_MENU);
 
-      // [SELECTED] Draw with a white interior instead
-      if (pDrawData->itemState INCLUDES ODS_SELECTED)
-         SetDCBrushColor(pDrawData->hDC, clWhite);
+      // Prepare
+      SetRect(&rcDrawRect, pDrawData->rcItem.left + iCustomMenuGutterWidth + 1, pDrawData->rcItem.top, pDrawData->rcItem.right, pDrawData->rcItem.bottom);
+
+      // Prepare a light blue brush and a dark blue pen
+      hBluePen    = CreatePen(PS_SOLID, 1, clLightBlue);
+      hBlueBrush  = CreateSolidBrush(clDarkBlue);
+      hBoldFont   = utilDuplicateFont(pDrawData->hDC, TRUE, FALSE, FALSE);
+      pPrevState  = utilCreateDeviceContextState(pDrawData->hDC);
+
+      // [CHECK]
+      if (!hBoldFont)
+         hBoldFont = utilDuplicateFontEx(pDrawData->hDC, TEXT("MS Shell Dlg 2"), TRUE, FALSE, FALSE);
+
+      /// [HOT ITEMS that aren't DISABLED] Draw a shaded light blue box
+      if ((pDrawData->itemState INCLUDES ODS_SELECTED) AND !(pDrawData->itemState INCLUDES ODS_DISABLED))
+         drawCustomSelectionRectangle(pDrawData->hDC, &rcDrawRect);
+
+      // Calculate centred icon rectangle
+      utilSetRectangle(&rcDrawRect, pDrawData->rcItem.left, pDrawData->rcItem.top, iCustomMenuIconSize, iCustomMenuIconSize);
+      OffsetRect(&rcDrawRect, iCustomMenuEdgeWidth, iCustomMenuEdgeWidth);
+
+      /// [CHECK MARK] Draw a light blue box
+      if (pDrawData->itemState INCLUDES ODS_CHECKED)
+      {
+         // Contract drawing rectangle and activate the dark blue pen
+         InflateRect(&rcDrawRect, 2, 2);
+         utilSetDeviceContextPen(pPrevState, hBluePen);
+         utilSetDeviceContextBrush(pPrevState, hBlueBrush);
+
+         // [SELECTED] Draw with a white interior instead
+         if (pDrawData->itemState INCLUDES ODS_SELECTED)
+            SetDCBrushColor(pDrawData->hDC, clWhite);
+         
+         // Draw rounded rectangle
+         RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
+         InflateRect(&rcDrawRect, -2, -2);
+      }
+
+      /// [ICON] Draw an icon with appropriate shading if item is selected / disabled
+      if (pDrawData->itemState INCLUDES ODS_DISABLED)
+         // [DISABLED] Draw disabled
+         drawIcon(getAppImageList(ITS_MEDIUM), pItemData->iIconIndex, pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, IS_DISABLED);
+
+      else if (!pItemData->bIsPopup)
+         // [ITEM] Draw normal or selected
+         drawIcon(getAppImageList(ITS_MEDIUM), pItemData->iIconIndex, pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, pDrawData->itemState INCLUDES ODS_SELECTED ? IS_SELECTED : IS_NORMAL);
       
-      // Draw rounded rectangle
-      RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
-      InflateRect(&rcDrawRect, -2, -2);
+      // Prepare
+      utilSetDeviceContextBackgroundMode(pPrevState, TRANSPARENT);
+      utilSetDeviceContextFont(pPrevState, (pItemData->bDefault ? hBoldFont : NULL), GetSysColor(pDrawData->itemState INCLUDES ODS_DISABLED ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT));
+
+      // Calculate drawing rectangle
+      rcDrawRect               = pDrawData->rcItem;
+      pDrawData->rcItem.left  += iCustomMenuTextOffset;
+      pDrawData->rcItem.right -= iCustomMenuEdgeWidth;
+
+      // Retrieve item text
+      szItemText  = utilDuplicateString(pItemData->szText, lstrlen(pItemData->szText));
+      szItemToken = utilTokeniseString(szItemText, "\t", &pIterator);
+
+      /// [TEXT] Draw the menu item text on the LHS 
+      DrawText(pDrawData->hDC, szItemToken, lstrlen(szItemToken), &pDrawData->rcItem, DT_LEFT WITH DT_SINGLELINE WITH DT_VCENTER);
+
+      // [CHECK] Is there an accelerator?
+      if (szItemToken = utilGetNextToken("\t", &pIterator))
+         /// [ACCELERATOR] Draw the accelerator on the RHS
+         DrawText(pDrawData->hDC, szItemToken, lstrlen(szItemToken), &pDrawData->rcItem, DT_RIGHT WITH DT_SINGLELINE WITH DT_VCENTER);      
+
+      // Cleanup
+      utilDeleteString(szItemText);
+      utilDeleteDeviceContextState(pPrevState);
+      DeletePen(hBluePen);
+      DeleteFont(hBoldFont);
+      //DeleteFont(hNormalFont);
+      DeleteBrush(hBlueBrush);
    }
-
-   /// [ICON] Draw an icon with appropriate shading if item is selected / disabled
-   if (pDrawData->itemState INCLUDES ODS_DISABLED)
-      // [DISABLED] Draw disabled
-      drawIcon(getAppImageList(ITS_MEDIUM), pItemData->iIconIndex, pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, IS_DISABLED);
-
-   else if (!pItemData->bIsPopup)
-      // [ITEM] Draw normal or selected
-      drawIcon(getAppImageList(ITS_MEDIUM), pItemData->iIconIndex, pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, pDrawData->itemState INCLUDES ODS_SELECTED ? IS_SELECTED : IS_NORMAL);
-   
-   // Prepare
-   utilSetDeviceContextBackgroundMode(pPrevState, TRANSPARENT);
-   utilSetDeviceContextFont(pPrevState, (pItemData->bDefault ? hBoldFont : NULL), GetSysColor(pDrawData->itemState INCLUDES ODS_DISABLED ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT));
-
-   // Calculate drawing rectangle
-   rcDrawRect               = pDrawData->rcItem;
-   pDrawData->rcItem.left  += iCustomMenuTextOffset;
-   pDrawData->rcItem.right -= iCustomMenuEdgeWidth;
-
-   // Retrieve item text
-   szItemText  = utilDuplicateString(pItemData->szText, lstrlen(pItemData->szText));
-   szItemToken = utilTokeniseString(szItemText, "\t", &pIterator);
-
-   /// [TEXT] Draw the menu item text on the LHS 
-   DrawText(pDrawData->hDC, szItemToken, lstrlen(szItemToken), &pDrawData->rcItem, DT_LEFT WITH DT_SINGLELINE WITH DT_VCENTER);
-
-   // [CHECK] Is there an accelerator?
-   if (szItemToken = utilGetNextToken("\t", &pIterator))
-      /// [ACCELERATOR] Draw the accelerator on the RHS
-      DrawText(pDrawData->hDC, szItemToken, lstrlen(szItemToken), &pDrawData->rcItem, DT_RIGHT WITH DT_SINGLELINE WITH DT_VCENTER);      
-
-   // Cleanup
-   utilDeleteString(szItemText);
-   utilDeleteDeviceContextState(pPrevState);
-   DeletePen(hBluePen);
-   DeleteFont(hBoldFont);
-   //DeleteFont(hNormalFont);
-   DeleteBrush(hBlueBrush);
+   CATCH0("");
 }
 
 
@@ -501,53 +510,57 @@ VOID   drawCustomMenuHeading(DRAWITEMSTRUCT*  pDrawData, CONST CUSTOM_MENU_ITEM*
    HBRUSH     hBlueBrush;            // Fill colour for menu headings
    RECT       rcDrawRect;            // Draw rectangle
 
-   // [CHECK] Owner Draw Menus only
-   ASSERT(pDrawData->CtlType == ODT_MENU);
-
-   // Prepare a light blue brush and a dark blue pen
-   hBluePen   = CreatePen(PS_SOLID, 1, clLightBlue);
-   hBlueBrush = CreateSolidBrush(clDarkBlue);
-   pPrevState = utilCreateDeviceContextState(pDrawData->hDC);
-
-   // Prepare
-   rcDrawRect = pDrawData->rcItem;
-
-   /// [BACKGROUND] -- Draw a two coloured rounded rectangles, or just a grey background
-   if ((pDrawData->itemState INCLUDES ODS_SELECTED) OR (pDrawData->itemState INCLUDES ODS_HOTLIGHT))
+   TRY
    {
-      // Setup DC
-      utilSetDeviceContextPen(pPrevState, GetStockPen(NULL_PEN));
-      utilSetDeviceContextBrush(pPrevState, GetStockBrush(WHITE_BRUSH));
+      // [CHECK] Owner Draw Menus only
+      ASSERT(pDrawData->CtlType == ODT_MENU);
 
-      // Draw white rounded rectangle with no border
-      RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
+      // Prepare a light blue brush and a dark blue pen
+      hBluePen   = CreatePen(PS_SOLID, 1, clLightBlue);
+      hBlueBrush = CreateSolidBrush(clDarkBlue);
+      pPrevState = utilCreateDeviceContextState(pDrawData->hDC);
 
-      // Contract drawing rectangle and activate the dark blue pen
-      InflateRect(&rcDrawRect, -1, -1);
-      utilSetDeviceContextPen(pPrevState, hBluePen);
+      // Prepare
+      rcDrawRect = pDrawData->rcItem;
 
-      // [HOT] Draw rounded rectangle with dark blue border and light blue fill colour.
-      if (pDrawData->itemState INCLUDES ODS_SELECTED)
-         RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
-      
-      // [SELECTED] Draw rounded rectangle with dark blue border and white fill colour.
-      else
+      /// [BACKGROUND] -- Draw a two coloured rounded rectangles, or just a grey background
+      if ((pDrawData->itemState INCLUDES ODS_SELECTED) OR (pDrawData->itemState INCLUDES ODS_HOTLIGHT))
       {
-         utilSetDeviceContextBrush(pPrevState, hBlueBrush);
-         RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
-      }
-   }
-   else
-      FillRect(pDrawData->hDC, &rcDrawRect, GetSysColorBrush(COLOR_BTNFACE));
+         // Setup DC
+         utilSetDeviceContextPen(pPrevState, GetStockPen(NULL_PEN));
+         utilSetDeviceContextBrush(pPrevState, GetStockBrush(WHITE_BRUSH));
 
-   /// [TEXT] Draw text
-   utilSetDeviceContextBackgroundMode(pPrevState, TRANSPARENT);
-   DrawText(pDrawData->hDC, pItemData->szText, lstrlen(pItemData->szText), &rcDrawRect, DT_CENTER WITH DT_SINGLELINE WITH DT_VCENTER);
-   
-   // Cleanup
-   utilDeleteDeviceContextState(pPrevState);
-   DeleteBrush(hBlueBrush);
-   DeletePen(hBluePen);
+         // Draw white rounded rectangle with no border
+         RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
+
+         // Contract drawing rectangle and activate the dark blue pen
+         InflateRect(&rcDrawRect, -1, -1);
+         utilSetDeviceContextPen(pPrevState, hBluePen);
+
+         // [HOT] Draw rounded rectangle with dark blue border and light blue fill colour.
+         if (pDrawData->itemState INCLUDES ODS_SELECTED)
+            RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
+         
+         // [SELECTED] Draw rounded rectangle with dark blue border and white fill colour.
+         else
+         {
+            utilSetDeviceContextBrush(pPrevState, hBlueBrush);
+            RoundRect(pDrawData->hDC, rcDrawRect.left, rcDrawRect.top, rcDrawRect.right, rcDrawRect.bottom, 2, 2);
+         }
+      }
+      else
+         FillRect(pDrawData->hDC, &rcDrawRect, GetSysColorBrush(COLOR_BTNFACE));
+
+      /// [TEXT] Draw text
+      utilSetDeviceContextBackgroundMode(pPrevState, TRANSPARENT);
+      DrawText(pDrawData->hDC, pItemData->szText, lstrlen(pItemData->szText), &rcDrawRect, DT_CENTER WITH DT_SINGLELINE WITH DT_VCENTER);
+      
+      // Cleanup
+      utilDeleteDeviceContextState(pPrevState);
+      DeleteBrush(hBlueBrush);
+      DeletePen(hBluePen);
+   }
+   CATCH0("");
 }
 
 
@@ -599,9 +612,6 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    /// Determine icon ID
    switch (iCommandID)
    {
-   // [DEBUG]
-   default:                                  szIconID = TEXT("MISSING_ICON");             break;
-
    /// [MAIN WINDOW]
    case IDM_FILE_NEW:                        szIconID = TEXT("NEW_FILE_ICON");            break;  
    case IDM_FILE_NEW_SCRIPT:                 szIconID = TEXT("NEW_SCRIPT_FILE_ICON");     break;
@@ -609,7 +619,7 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_FILE_NEW_MISSION:                szIconID = TEXT("NEW_MISSION_FILE_ICON");    break;
    case IDM_FILE_NEW_PROJECT:                szIconID = TEXT("NEW_PROJECT_FILE_ICON");    break;
    case IDM_FILE_OPEN:                       szIconID = TEXT("OPEN_FILE_ICON");           break;
-   case IDM_FILE_BROWSE:                     szIconID = TEXT("OPEN_FILE_ICON");           break;
+   case IDM_FILE_BROWSE:                     szIconID = TEXT("OPEN_VFS_ICON");            break;
    case IDM_FILE_CLOSE:                      szIconID = TEXT("CLOSE_DOCUMENT_ICON");      break;
    case IDM_FILE_CLOSE_PROJECT:              szIconID = TEXT("CLOSE_PROJECT_ICON");       break;
    case IDM_FILE_SAVE:                       szIconID = TEXT("SAVE_FILE_ICON");           break;
@@ -675,6 +685,7 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_RESULTS_INSERT_RESULT:           szIconID = TEXT("INSERT_RESULT_ICON");       break;
    case IDM_RESULTS_MSCI_LOOKUP:             szIconID = TEXT("HELP_ICON");                break;
    case IDM_RESULTS_SUBMIT_CORRECTION:       szIconID = TEXT("SUBMIT_REPORT_ICON");       break;
+   case IDM_RESULTS_SEARCH_CONTENT:          szIconID = TEXT("FIND_ICON");                break;
 
    /// [DOCUMENTS CONTROL]
    case IDM_DOCUMENT_ADD_PROJECT:            szIconID = TEXT("INSERT_PROJECT_FILE_ICON"); break;
@@ -684,7 +695,7 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_CODE_EDIT_VIEW_SUGGESTIONS:      szIconID = TEXT("GAME_OBJECT_ICON");         break;
    case IDM_CODE_EDIT_LOOKUP_COMMAND:        szIconID = TEXT("HELP_ICON");                break;
    case IDM_CODE_EDIT_OPEN_TARGET_SCRIPT:    szIconID = TEXT("SCRIPT_DEPENDENCY_ICON");   break;
-   case IDM_CODE_EDIT_GOTO_LABEL:            szIconID = TEXT("FUNCTION_ICON");            break;
+   case IDM_CODE_EDIT_VIEW_LABEL:            szIconID = TEXT("FUNCTION_ICON");            break;
    case IDM_CODE_EDIT_VIEW_LANGUAGE_STRING:  szIconID = TEXT("EDIT_FORMATTING_ICON");     break;
    case IDM_CODE_EDIT_VIEW_ERROR:            szIconID = TEXT("ERROR_ICON");               break;
    case IDM_CODE_EDIT_VIEW_WARNING:          szIconID = TEXT("WARNING_ICON");             break;
@@ -694,10 +705,10 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_COLOUR_BLACK:                    szIconID = TEXT("BLACK_ICON");               break;
    case IDM_COLOUR_BLUE:                     szIconID = TEXT("BLUE_ICON");                break;
    case IDM_COLOUR_CYAN:                     szIconID = TEXT("CYAN_ICON");                break;
-   case IDM_COLOUR_DEFAULT:                  szIconID = TEXT("GREY_ICON");               break;
+   case IDM_COLOUR_DEFAULT:                  szIconID = TEXT("GREY_ICON");                break;
    case IDM_COLOUR_GREEN:                    szIconID = TEXT("GREEN_ICON");               break;
    case IDM_COLOUR_ORANGE:                   szIconID = TEXT("ORANGE_ICON");              break;
-   case IDM_COLOUR_PURPLE:                   szIconID = TEXT("PURPLE_ICON");              break;
+   case IDM_COLOUR_PURPLE:                   szIconID = TEXT("PINK_ICON");                break;
    case IDM_COLOUR_RED:                      szIconID = TEXT("RED_ICON");                 break;
    case IDM_COLOUR_WHITE:                    szIconID = TEXT("WHITE_ICON");               break;
    case IDM_COLOUR_YELLOW:                   szIconID = TEXT("YELLOW_ICON");              break;
@@ -719,6 +730,8 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_ARGUMENT_INSERT:                 szIconID = TEXT("INSERT_PAGE_ICON");         break;
    case IDM_ARGUMENT_EDIT:                   szIconID = TEXT("EDIT_PAGE_ICON");           break;
    case IDM_ARGUMENT_DELETE:                 szIconID = TEXT("DELETE_PAGE_ICON");         break;
+   case IDM_ARGUMENT_MOVE_UP:                szIconID = TEXT("MOVE_UP_ICON");             break;
+   case IDM_ARGUMENT_MOVE_DOWN:              szIconID = TEXT("MOVE_DOWN_ICON");           break;
 
    /// [PROPERTIES: DEPENDENCIES]
    case IDM_DEPENDENCIES_LOAD:               szIconID = TEXT("OPEN_FILE_ICON");           break;
@@ -731,12 +744,13 @@ UINT  identifyCustomMenuIconByID(CONST UINT  iCommandID)
    case IDM_BUTTON_DELETE:                   szIconID = TEXT("DELETE_PAGE_ICON");         break;
 
    /// [MESSAGE DIALOG]
-   case IDM_FIRST_ATTACHMENT:                szIconID = TEXT("ATTACHMENT_ICON");          break;
-   case IDM_FIRST_ATTACHMENT+1:              szIconID = TEXT("ATTACHMENT_ICON");          break;
-   case IDM_FIRST_ATTACHMENT+2:              szIconID = TEXT("ATTACHMENT_ICON");          break;
-   case IDM_FIRST_ATTACHMENT+3:              szIconID = TEXT("ATTACHMENT_ICON");          break;
-   case IDM_FIRST_ATTACHMENT+4:              szIconID = TEXT("ATTACHMENT_ICON");          break;
-   case IDM_FIRST_ATTACHMENT+5:              szIconID = TEXT("ATTACHMENT_ICON");          break;
+   default:
+      if (iCommandID >= IDM_FIRST_ATTACHMENT AND iCommandID < IDM_FIRST_ATTACHMENT + 10)
+         szIconID = TEXT("ATTACHMENT_ICON");
+      else
+         // [ERROR]
+         szIconID = TEXT("MISSING_ICON");
+      break;
    }
 
    /// Resolve resource ID to ImageList index
@@ -792,13 +806,17 @@ ControlsAPI
 BOOL  setCustomMenuItemText(HMENU  hMenu, CONST UINT  iItem, CONST BOOL  bByPosition, CONST TCHAR*  szFormat, ...)
 {
    CUSTOM_MENU_ITEM*  pItem;        // Item data associated with the target item
+   TCHAR*             szNewText;
 
    // [CHECK] Lookup data for the specified item
    if (pItem = getCustomMenuItemData(hMenu, iItem, bByPosition))
    {
+      /// Generate new string
+      szNewText = utilCreateStringVf(128, szFormat, utilGetFirstVariableArgument(&szFormat));
+
       /// [FOUND] Replace text with formatted string
       utilDeleteString(pItem->szText);
-      pItem->szText = utilCreateStringVf(128, szFormat, utilGetFirstVariableArgument(&szFormat));
+      pItem->szText = szNewText;
    }
 
    // Return TRUE if successful
@@ -822,7 +840,6 @@ BOOL   onOwnerDrawCustomMenu(DRAWITEMSTRUCT*  pDrawData)
    BOOL   bResult;
 
    // Prepare
-   TRACK_FUNCTION();
    bResult = FALSE;
 
    // [CHECK] Ensure OwnerDraw data is for a menu
@@ -833,7 +850,6 @@ BOOL   onOwnerDrawCustomMenu(DRAWITEMSTRUCT*  pDrawData)
       bResult = TRUE;
    }
    
-   END_TRACKING();
    return bResult;
 }
 

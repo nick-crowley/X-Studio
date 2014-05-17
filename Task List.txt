@@ -5,27 +5,33 @@
 
 BETA IV
 ----------
-• Delete Strings in LanguageDocument
-• Change colour of text in LanguageDocument button
-• Paragraph alignment bug in 'X2 Create Gate' command
-• Saving + closing untitled documents doesn't add them to MRU list
+• [DONE] Delete Strings in LanguageDocument
+• [DONE] Check projects work correctly with LanguageFiles
+• [DONE] Add 2 interface colours - dark purple and dark orange. Change purple to pink
+• [DONE] Change colour of text in LanguageDocument button
+• [DONE] Add user tracking to project dialog
+• [DONE] Enable language selection
+• [DONE] Pressing HOME/END while suggestion list is active should move the cursor, not scroll the list.
+• [DONE] Saving + closing untitled documents doesn't add them to MRU list
+• [DONE] Paragraph alignment bug in 'X2 Create Gate' command
+• [DONE] Add WM_HELP handlers for LangaugeDoc + Language Property pages
+• [DONE] Add user tracking to property pages
+
 
 
 Future
 -----------
 
-• Save the last folder used in the project dialog
-• Update Insert Arguments dialog to use Custom ComboBox
-• Add the Panda bitmap to the about dialog
-• Add exception handling to major windows that still don't have it
-
-
-• Implement the AutomaticUpdate dialog and command
-
 • [HALT] Add special type checking for commands that require objects be specified by sub-type - automatically convert a type into it's subtype, and vice-versa
          -> I think this could cause real problems with variables. Check into it.
+         
+• [DONE] Update Insert Arguments dialog to use Custom ComboBox
+• [DONE] Add exception handling to major windows that still don't have it
+• [DONE] Play '08217.mp3' / 'MixTension' in the about box
 
-• Play '08217.mp3' / 'MixTension' in the about box
+• Save the last folder used in the project dialog
+• Add the Panda bitmap to the about dialog
+• Implement the AutomaticUpdate dialog and command
 
 • You should lock the datafiles and catalogues from write access for the duration of the program... Someone could edit them using X-Editor 2.
 • Alternatively you could setup some sort of datafile changed notification....

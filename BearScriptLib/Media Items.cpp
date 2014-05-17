@@ -630,74 +630,71 @@ OPERATION_RESULT  loadMediaItemTrees(CONST FILE_SYSTEM*  pFileSystem, HWND  hPar
    SPEECH_FILE*      pSpeechFile;         // Used for parsing the speech definition file. Also conveniently creates the media trees.
    TCHAR*            szSubPath;
 
-   // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
-   VERBOSE_HEADING("Generating SpeechClip MediaItems from file '%s'", szSubPath = generateGameLanguageFileSubPath(GFI_SPEECH_CLIPS, getAppPreferences()->eGameVersion, getAppPreferences()->eGameLanguage));
-
-   // [INFO/PROGRESS] "Loading speech clips from '%s'" 
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SPEECH_CLIPS), szSubPath));
-   ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_SPEECH_CLIPS);
-
-   // [CHECK] MediaItem trees don't exist yet
-   ASSERT(getGameData()->pMediaItemsByID == NULL AND getGameData()->pMediaPagesByGroup == NULL);
-
-   /// Create SpeechFile
-   pSpeechFile = createLanguageFile(LFT_SPEECH, NULL, FALSE);
-
-   /// Load Speech Clips
-   if ((eResult = loadLanguageFile(pFileSystem, pSpeechFile, FALSE, hParentWnd, pProgress, pErrorQueue)) == OR_SUCCESS)
+   __try
    {
-      /// Extract the SpeechFile's trees as the basis for the media game data
-      transferAVLTree(pSpeechFile->pSpeechClipsByID, getGameData()->pMediaItemsByID);
-      transferAVLTree(pSpeechFile->pSpeechPagesByGroup, getGameData()->pMediaPagesByGroup);
+      CONSOLE_STAGE();
+      CONSOLE("Generating SpeechClip MediaItems from file '%s'", szSubPath = generateGameLanguageFileSubPath(GFI_SPEECH_CLIPS, getAppPreferences()->eGameVersion, getAppPreferences()->eGameLanguage));
 
-      // [VERBOSE]
-      VERBOSE_HEADING("Loaded %d speech clips over %d media pages", getTreeNodeCount(getGameData()->pMediaItemsByID), getTreeNodeCount(getGameData()->pMediaPagesByGroup));
+      // [INFO/PROGRESS] "Loading speech clips from '%s'" 
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SPEECH_CLIPS), szSubPath));
+      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_SPEECH_CLIPS);
 
-      // [PROGRESS] Move to 'Loading Media' stage. 
-      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_MEDIA_ITEMS);
-      updateOperationProgressMaximum(pProgress, 10);    // Define progress as percentage.
+      // [CHECK] MediaItem trees don't exist yet
+      ASSERT(getGameData()->pMediaItemsByID == NULL AND getGameData()->pMediaPagesByGroup == NULL);
 
-      /// Load Sound Effects
-      if ((eResult = loadMediaSoundEffectItems(pFileSystem, hParentWnd, pErrorQueue)) == OR_SUCCESS)
+      /// Create SpeechFile
+      pSpeechFile = createLanguageFile(LFT_SPEECH, NULL, FALSE);
+
+      /// Load Speech Clips
+      if ((eResult = loadLanguageFile(pFileSystem, pSpeechFile, FALSE, hParentWnd, pProgress, pErrorQueue)) == OR_SUCCESS)
       {
-         // [PROGRESS] Manually update progress
-         updateOperationProgressValue(pProgress, 3);
-      
-         /// Load Video Clips
-         if ((eResult = loadMediaVideoClipItems(pFileSystem, hParentWnd, pErrorQueue)) == OR_SUCCESS)
+         /// Extract the SpeechFile's trees as the basis for the media game data
+         transferAVLTree(pSpeechFile->pSpeechClipsByID, getGameData()->pMediaItemsByID);
+         transferAVLTree(pSpeechFile->pSpeechPagesByGroup, getGameData()->pMediaPagesByGroup);
+
+         // [VERBOSE]
+         CONSOLE_HEADING("Loaded %d speech clips over %d media pages", getTreeNodeCount(getGameData()->pMediaItemsByID), getTreeNodeCount(getGameData()->pMediaPagesByGroup));
+
+         // [PROGRESS] Move to 'Loading Media' stage. 
+         ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_MEDIA_ITEMS);
+         updateOperationProgressMaximum(pProgress, 10);    // Define progress as percentage.
+
+         /// Load Sound Effects
+         if ((eResult = loadMediaSoundEffectItems(pFileSystem, hParentWnd, pErrorQueue)) == OR_SUCCESS)
          {
             // [PROGRESS] Manually update progress
-            updateOperationProgressValue(pProgress, 6);
+            updateOperationProgressValue(pProgress, 3);
+         
+            /// Load Video Clips
+            if ((eResult = loadMediaVideoClipItems(pFileSystem, hParentWnd, pErrorQueue)) == OR_SUCCESS)
+            {
+               // [PROGRESS] Manually update progress
+               updateOperationProgressValue(pProgress, 6);
 
-            /// Index media data trees
-            performAVLTreeIndexing(getGameData()->pMediaItemsByID);
-            updateOperationProgressValue(pProgress, 8);
-            
-            /// Index groups
-            performAVLTreeIndexing(getGameData()->pMediaPagesByGroup);
-            updateOperationProgressValue(pProgress, 10);
+               /// Index media data trees
+               performAVLTreeIndexing(getGameData()->pMediaItemsByID);
+               updateOperationProgressValue(pProgress, 8);
+               
+               /// Index groups
+               performAVLTreeIndexing(getGameData()->pMediaPagesByGroup);
+               updateOperationProgressValue(pProgress, 10);
+            }
          }
       }
-   }
 
-   /// Print result to console
-   switch (eResult)
+      /// Print result to console
+      CONSOLE_HEADING("Loaded %d media items over %d media pages", getTreeNodeCount(getGameData()->pMediaItemsByID), getTreeNodeCount(getGameData()->pMediaPagesByGroup)); 
+
+      // Cleanup and return result
+      utilDeleteString(szSubPath);
+      deleteLanguageFile(pSpeechFile);
+      return eResult;
+   }
+   __except (pushException(pErrorQueue))
    {
-   // [SUCCESS] Print some debugging statistics to the console
-   case OR_SUCCESS:  VERBOSE_HEADING("Loaded %d media items over %d media pages", getTreeNodeCount(getGameData()->pMediaItemsByID), getTreeNodeCount(getGameData()->pMediaPagesByGroup));   break;
-   // [ABORT] User aborted due to non-critical errors
-   case OR_ABORTED:  VERBOSE_HEADING("ABORT: User aborted the loading of media data due to a non-critical error");   break;   
-   // [FAILURE] Corrupt or missing data file
-   case OR_FAILURE:  VERBOSE_HEADING("ERROR: Media data was not loaded due to a corrupt/missing data file");   break;   
+      EXCEPTION("Unable to load media items");
+      return OR_FAILURE;
    }
-
-   // Cleanup and return result
-   utilDeleteString(szSubPath);
-   deleteLanguageFile(pSpeechFile);
-   END_TRACKING();
-   return eResult;
 }
 
 
@@ -717,151 +714,135 @@ OPERATION_RESULT  loadMediaItemTrees(CONST FILE_SYSTEM*  pFileSystem, HWND  hPar
 OPERATION_RESULT  loadMediaSoundEffectItems(CONST FILE_SYSTEM*  pFileSystem, HWND  hParentWnd, ERROR_QUEUE*  pErrorQueue)
 {
    CONST TCHAR         *szProperties[iSoundEffectPropertiesCount];     // Current line split into individual properties
-   OPERATION_RESULT     eResult;             // Operation result
-   ERROR_STACK         *pError;              // Operation error
-   GAME_FILE           *pSoundEffectFile;    // GameFile containing the sound effects list file
-   CONST TCHAR         *szFileSubPath;       // SubPath of file, used for error reporting
-   UINT                 iLineNumber,         // Line number of the current line (used for error reporting)
-                        iPropertyCount,      // Number of properties found on the current line
-                        iEffectID,           // ID of the effect on the current line
-                        iPageID,             // PageID current effect will be saved under
-                        iEffectsLoaded;      // Number of sound effects loaded
-   TCHAR               *szLine,              // Current Line token
-                       *szProperty,          // Current Property token
-                       *pLineEnd,            // Line tokeniser data
-                       *pPropertyEnd,        // Property tokeniser data
-                       *szPageTitle;         // Title for the page current effect will be saved under
+   OPERATION_RESULT     eResult = OR_SUCCESS; // Operation result
+   ERROR_STACK         *pError;               // Operation error
+   GAME_FILE           *pSoundEffectFile;     // GameFile containing the sound effects list file
+   CONST TCHAR         *szFileSubPath;        // SubPath of file, used for error reporting
+   UINT                 iLineNumber,          // Line number of the current line (used for error reporting)
+                        iPropertyCount,       // Number of properties found on the current line
+                        iEffectID,            // ID of the effect on the current line
+                        iPageID,              // PageID current effect will be saved under
+                        iEffectsLoaded;       // Number of sound effects loaded
+   TCHAR               *szLine,               // Current Line token
+                       *szProperty,           // Current Property token
+                       *pLineEnd,             // Line tokeniser data
+                       *pPropertyEnd,         // Property tokeniser data
+                       *szPageTitle;          // Title for the page current effect will be saved under
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
-   VERBOSE_HEADING("Generating SoundEffect MediaItems from file '%s'", szFileSubPath = findGameDataFileSubPathByID(GFI_SOUND_EFFECTS, getAppPreferences()->eGameVersion));
-
-   // [INFO] "Loading sound effects from '%s'"
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SOUND_EFFECTS), szFileSubPath));
-
-   // Prepare
-   szPageTitle = utilCreateEmptyString(32);
-   eResult     = OR_SUCCESS;
-
-   /// Create temporary GameFile
-   pSoundEffectFile = createGameFileFromSubPath(szFileSubPath);
-
-   /// Attempt to load SFX file
-   if (!loadGameFileFromFileSystemByPath(pFileSystem, pSoundEffectFile, TEXT(".txt"), pErrorQueue))
+   __try
    {
-      // [ERROR] "The game sound effects definition file '%s' is missing or could not be accessed"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_MEDIA_SFX_FILE_IO_ERROR), szFileSubPath);
-      generateOutputTextFromError(lastErrorQueue(pErrorQueue));
-      // Return FAILURE
-      eResult = OR_FAILURE;
-   }
-   else
-   {
+      // [INFO] "Loading sound effects from '%s'"
+      CONSOLE_STAGE();
+      CONSOLE("Generating SoundEffect MediaItems from file '%s'", szFileSubPath = findGameDataFileSubPathByID(GFI_SOUND_EFFECTS, getAppPreferences()->eGameVersion));
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SOUND_EFFECTS), szFileSubPath));
+
       // Prepare
-      iPageID = iEffectID = iEffectsLoaded = iLineNumber = 0;
-      pError  = NULL;
+      pSoundEffectFile = createGameFileFromSubPath(szFileSubPath);
+      szPageTitle      = utilCreateEmptyString(32);
 
-      /// Tokenise file into lines
-      for (szLine = utilTokeniseString(pSoundEffectFile->szInputBuffer, "\r\n", &pLineEnd); szLine; szLine = utilGetNextToken("\r\n", &pLineEnd))
+      /// Attempt to load SFX file
+      if (!loadGameFileFromFileSystemByPath(pFileSystem, pSoundEffectFile, TEXT(".txt"), pErrorQueue))
       {
-         // Increment the line number used for error reporting
-         iLineNumber++;
+         // No enhancement necessary
+         generateOutputTextFromLastError(pErrorQueue);         // [ERROR] "The game sound effects definition file '%s' is missing or could not be accessed"
+         eResult = OR_FAILURE;                                 // enhanceLastError(pErrorQueue, ERROR_ID(IDS_MEDIA_SFX_FILE_IO_ERROR), szFileSubPath);
+      }
+      else
+      {
+         // Prepare
+         iPageID = iEffectID = iEffectsLoaded = iLineNumber = 0;
+         pError  = NULL;
 
-         // [COMMENTS] Skip commented lines
-         if (utilCompareStringN(szLine, "//", 2))
-            continue;
-
-         // Prepare properties array
-         utilZeroObjectArray(szProperties, TCHAR*, iSoundEffectPropertiesCount);
-         iPropertyCount = 0;
-
-         /// Split line into up to 8 properties
-         for (szProperty = utilTokeniseString(szLine, ";", &pPropertyEnd); szProperty; szProperty = utilGetNextToken(";", &pPropertyEnd))
+         /// Tokenise file into lines
+         for (szLine = utilTokeniseString(pSoundEffectFile->szInputBuffer, "\r\n", &pLineEnd); szLine; szLine = utilGetNextToken("\r\n", &pLineEnd))
          {
-            szProperties[iPropertyCount++] = szProperty;
-            if (iPropertyCount == iSoundEffectPropertiesCount)
-               break;
-         }
+            // Increment the line number used for error reporting
+            iLineNumber++;
 
-         // Identify line from the number of properties it contains
-         switch (iPropertyCount)
-         {
-         /// [FILE VERSION] -- Ignore
-         case 1:
-            break;
+            // [COMMENTS] Skip commented lines
+            if (utilCompareStringN(szLine, "//", 2))
+               continue;
 
-         /// [GROUP DECLARATION] -- Store as a media page
-         case 2:  // Group declaration without trailing whitespace
-         case 3:  // Group declaration with trailing whitespace
-            // Generate group title and reset effect ID
-            iEffectID = 0;
-            iPageID   = utilConvertStringToInteger(szProperties[0]);
-            StringCchPrintf(szPageTitle, 32, TEXT("%u Series"), iPageID);
+            // Prepare properties array
+            utilZeroObjectArray(szProperties, TCHAR*, iSoundEffectPropertiesCount);
+            iPropertyCount = 0;
 
-            // Create media page and attempt to insert into game data
-            insertMediaPageIntoGameData(MIT_SOUND_EFFECT, iPageID, szPageTitle, pError);
-            break;
-
-         /// [SOUND EFFECT] -- Store as a media item
-         case 7:  // Sound effect definition without comment
-         case 8:  // Sound effect definition with comment
-            // Cleanup description. Replace empty descriptions with 'None'
-            StrTrim((TCHAR*)szProperties[SEI_DESCRIPTION], TEXT("/ "));
-            if (lstrlen(szProperties[SEI_DESCRIPTION]) == 0)
-               szProperties[SEI_DESCRIPTION] = TEXT("[No Description]");
-
-            // Attempt to insert SoundEffect
-            insertSoundEffectItemIntoGameData(iPageID, iEffectID + iPageID, szProperties[SEI_DESCRIPTION], pError);
-            iEffectsLoaded++;
-
-            // Increment effect id iterator
-            iEffectID++;
-            break;
-         
-         /// [UNKNOWN] -- Malformed entry
-         default:
-            // [ERROR] "There are an unrecognised number of properties (%u) in the sound effect definition on line %u of '%s'"
-            pError = generateDualError(HERE(IDS_MEDIA_SFX_ENTRY_INVALID), iPropertyCount, iLineNumber, szFileSubPath);
-            break;
-
-         } // END : switch (number of properties)
-
-         // [ERROR] Store error and determine whether to abort
-         if (pError)
-         {
-            // Store current error and select as the output dialog text
-            generateOutputTextFromError(pError);
-            pushErrorQueue(pErrorQueue, pError);
-            pError = NULL;
-
-            // [QUESTION] "There was a minor error while loading the game sound effects, would you like to continue processing?"
-            if (displayOperationError(hParentWnd, lastErrorQueue(pErrorQueue), ERROR_ID(IDS_MEDIA_SFX_MINOR_ERROR)) == EH_ABORT)
+            /// Split line into up to 8 properties
+            for (szProperty = utilTokeniseString(szLine, ";", &pPropertyEnd); szProperty; szProperty = utilGetNextToken(";", &pPropertyEnd))
             {
-               // [ABORT] Stop further processing 
-               eResult = OR_ABORTED;
-               break;
+               szProperties[iPropertyCount++] = szProperty;
+               if (iPropertyCount == iSoundEffectPropertiesCount)
+                  break;
             }
-         }
 
-      } // END : for (each line in TFile)
+            // Identify line from the number of properties it contains
+            switch (iPropertyCount)
+            {
+            /// [FILE VERSION] -- Ignore
+            case 1:
+               break;
+
+            /// [GROUP DECLARATION] -- Store as a media page
+            case 2:  // Group declaration without trailing whitespace
+            case 3:  // Group declaration with trailing whitespace
+               // Generate group title and reset effect ID
+               iEffectID = 0;
+               iPageID   = utilConvertStringToInteger(szProperties[0]);
+               StringCchPrintf(szPageTitle, 32, TEXT("%u Series"), iPageID);
+
+               // Create media page and attempt to insert into game data
+               insertMediaPageIntoGameData(MIT_SOUND_EFFECT, iPageID, szPageTitle, pError);
+               break;
+
+            /// [SOUND EFFECT] -- Store as a media item
+            case 7:  // Sound effect definition without comment
+            case 8:  // Sound effect definition with comment
+               // Cleanup description. Replace empty descriptions with 'None'
+               StrTrim((TCHAR*)szProperties[SEI_DESCRIPTION], TEXT("/ "));
+               if (lstrlen(szProperties[SEI_DESCRIPTION]) == 0)
+                  szProperties[SEI_DESCRIPTION] = TEXT("[No Description]");
+
+               // Attempt to insert SoundEffect
+               insertSoundEffectItemIntoGameData(iPageID, iEffectID + iPageID, szProperties[SEI_DESCRIPTION], pError);
+               iEffectsLoaded++;
+
+               // Increment effect id iterator
+               iEffectID++;
+               break;
+            
+            /// [UNKNOWN] -- Malformed entry
+            default:
+               // [ERROR] "There are an unrecognised number of properties (%u) in the sound effect definition on line %u of '%s'"
+               pError = generateDualError(HERE(IDS_MEDIA_SFX_ENTRY_INVALID), iPropertyCount, iLineNumber, szFileSubPath);
+               break;
+
+            } // END : switch (number of properties)
+
+            // [ERROR] Store error and determine whether to abort
+            if (pError)
+            {
+               // Store current error and select as the output dialog text
+               generateOutputTextFromError(pError);
+               pushErrorQueue(pErrorQueue, pError);
+               pError = NULL;
+            }
+
+         } // END : for (each line in TFile)
+      }
+
+      /// Print results
+      CONSOLE_HEADING("Loaded %d sound effects", iEffectsLoaded);
+
+      // Cleanup and return result
+      utilDeleteString(szPageTitle);
+      deleteGameFile(pSoundEffectFile);
+      return eResult;
    }
-
-   /// Examine overall result
-   switch (eResult)
+   __except (pushException(pErrorQueue))
    {
-   // [SUCCESS] GameString trees loaded successfully
-   case OR_SUCCESS:  VERBOSE_HEADING("Loaded %d sound effects", iEffectsLoaded);                       break;
-   // [ABORTED/FAILURE] User aborted or file missing
-   case OR_ABORTED:  VERBOSE_HEADING("ABORT: User aborted the loading of sound effects");              break;
-   case OR_FAILURE:  VERBOSE_HEADING("ERROR: Critical error while opening the sound effects file");    break;
+      EXCEPTION1("Unable to load sound effects: Error processing '%s'", szLine);
+      return OR_FAILURE;
    }
-
-   // Cleanup and return result
-   utilDeleteString(szPageTitle);
-   deleteGameFile(pSoundEffectFile);
-   END_TRACKING();
-   return eResult;
 }
 
 
@@ -880,14 +861,14 @@ OPERATION_RESULT  loadMediaSoundEffectItems(CONST FILE_SYSTEM*  pFileSystem, HWN
 OPERATION_RESULT  loadMediaVideoClipItems(CONST FILE_SYSTEM*  pFileSystem, HWND  hParentWnd, ERROR_QUEUE*  pErrorQueue)
 {
    CONST TCHAR         *szProperties[iVideoPropertiesCount];    // Current line split into individual properties
-   OPERATION_RESULT     eResult;             // Operation result
+   OPERATION_RESULT     eResult = OR_SUCCESS;// Operation result
    ERROR_STACK         *pError;              // Operation error
    GAME_FILE           *pVideoClipFile;      // GameFile containing the video clip list
    CONST TCHAR         *szFileSubPath;       // File subpath, used for error reporting
-   UINT                 iLineNumber,         // Current line number (for error reporting)
+   UINT                 iLineNumber = 0,     // Current line number (for error reporting)
                         iPropertyCount,      // Number of properties found on the current line
                         iVideoCount,         // Number of video clips in the clip list
-                        iVideosLoaded,       // Number of video clips successfully loaded
+                        iVideosLoaded = 0,   // Number of video clips successfully loaded
                         iVideoID,            // ID of the current video clip, used for determining media page
                         iPageID;             // Destination page for the current video clip, based on it's video ID above
    MEDIA_POSITION       oVideoStartPos,      // Video Clip start position
@@ -897,133 +878,110 @@ OPERATION_RESULT  loadMediaVideoClipItems(CONST FILE_SYSTEM*  pFileSystem, HWND 
                        *pLineEnd,            // Line tokeniser data
                        *pPropertyEnd;        // Property tokeniser data
    
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
-   VERBOSE_HEADING("Generating VideoClip MediaItems from file '%s'", szFileSubPath = findGameDataFileSubPathByID(GFI_VIDEO_CLIPS, getAppPreferences()->eGameVersion));
-
-   // [INFO] "Loading video clips from '%s'"
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_VIDEO_CLIPS), szFileSubPath));
-
-   // Prepare
-   pVideoClipFile = createGameFileFromSubPath(szFileSubPath);
-   iVideosLoaded  = 0;
-   eResult        = OR_SUCCESS;
-
-   /// Attempt to load video listing file
-   if (!loadGameFileFromFileSystemByPath(pFileSystem, pVideoClipFile, TEXT(".txt"), pErrorQueue))
+   __try
    {
-      // [ERROR] "The game video clips definition file '%s%s' is missing or could not be accessed"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_MEDIA_VIDEO_FILE_IO_ERROR), pFileSystem->szGameFolder, szFileSubPath);
-      generateOutputTextFromError(lastErrorQueue(pErrorQueue));
-      // Return FAILURE
-      eResult = OR_FAILURE;
-   }
-   else
-   {
-      // Prepare
-      iLineNumber = 0;
+      // [INFO] "Loading video clips from '%s'"
+      CONSOLE_STAGE();
+      CONSOLE("Generating VideoClip MediaItems from file '%s'", szFileSubPath = findGameDataFileSubPathByID(GFI_VIDEO_CLIPS, getAppPreferences()->eGameVersion));
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_VIDEO_CLIPS), szFileSubPath));
 
-      // Manually add the 'Characters' page
-      insertMediaPageIntoGameData(MIT_VIDEO_CLIP, MPI_VIDEO_AVATARS, TEXT("Transmission Avatars"), pError);
-      // Manually add the 'Wares' page
-      insertMediaPageIntoGameData(MIT_VIDEO_CLIP, MPI_VIDEO_WARES, TEXT("Wares and weapons"), pError);
-      
-      /// Tokenise file into lines
-      for (szLine = utilTokeniseString(pVideoClipFile->szInputBuffer, "\r\n", &pLineEnd); szLine; szLine = utilGetNextToken("\r\n", &pLineEnd))
+      /// Attempt to load video listing file
+      if (!loadGameFileFromFileSystemByPath(pFileSystem, pVideoClipFile = createGameFileFromSubPath(szFileSubPath), TEXT(".txt"), pErrorQueue))
       {
-         // Count lines (for error reporting)
-         iLineNumber++;
-
-         // [CHECK] Skip commented lines
-         if (utilCompareStringN(szLine, "//", 2))
-            continue;
-
-         // Prepare properties array
-         utilZeroObjectArray(szProperties, TCHAR*, iVideoPropertiesCount);
-         iPropertyCount = 0;
-
-         /// Split line into up to 12 properties
-         for (szProperty = utilTokeniseString(szLine, ";", &pPropertyEnd); szProperty AND (iPropertyCount < iVideoPropertiesCount); szProperty = utilGetNextToken(";", &pPropertyEnd))
-            szProperties[iPropertyCount++] = szProperty;
+         // No enhancement necessary
+         generateOutputTextFromLastError(pErrorQueue);         // [ERROR] "The game video clips definition file '%s%s' is missing or could not be accessed"
+         eResult = OR_FAILURE;                                 // enhanceLastError(pErrorQueue, ERROR_ID(IDS_MEDIA_VIDEO_FILE_IO_ERROR), pFileSystem->szGameFolder, szFileSubPath);
+      }
+      else
+      {
+         // Manually add the 'Characters' and 'Wares' pages
+         insertMediaPageIntoGameData(MIT_VIDEO_CLIP, MPI_VIDEO_AVATARS, TEXT("Transmission Avatars"), pError);
+         insertMediaPageIntoGameData(MIT_VIDEO_CLIP, MPI_VIDEO_WARES, TEXT("Wares and weapons"), pError);
          
-         // Identify line from the number of properties it contains
-         switch (iPropertyCount)
+         /// Tokenise file into lines
+         for (szLine = utilTokeniseString(pVideoClipFile->szInputBuffer, "\r\n", &pLineEnd); szLine; szLine = utilGetNextToken("\r\n", &pLineEnd))
          {
-         /// [VIDEO CLIP COUNT] -- Store
-         case 1:
-            iVideoCount = utilConvertStringToInteger(szProperties[0]);
-            continue;
+            // Count lines (for error reporting)
+            iLineNumber++;
 
-         /// [VIDEO CLIP] -- Store as a video media item
-         case 12:
-            // [CHECK] Ignore VideoClips from 'Stream 2' for the moment - they're the split screen movies. I don't understand their declarations
-            if (utilConvertStringToInteger(szProperties[VCI_STREAM_ID]) == 2)
+            // [CHECK] Skip commented lines
+            if (utilCompareStringN(szLine, "//", 2))
                continue;
 
-            // Extract start position
-            oVideoStartPos.iMinutes       = utilConvertStringToInteger(szProperties[VCI_START_MINUTES]);
-            oVideoStartPos.iSeconds       = utilConvertStringToInteger(szProperties[VCI_START_SECONDS]);
-            oVideoStartPos.iMilliseconds  = utilConvertStringToInteger(szProperties[VCI_START_MILLISECONDS]);
-            // Extract finish position
-            oVideoFinishPos.iMinutes      = utilConvertStringToInteger(szProperties[VCI_FINISH_MINUTES]);
-            oVideoFinishPos.iSeconds      = utilConvertStringToInteger(szProperties[VCI_FINISH_SECONDS]);
-            oVideoFinishPos.iMilliseconds = utilConvertStringToInteger(szProperties[VCI_FINISH_MILLISECONDS]);
+            // Prepare properties array
+            utilZeroObjectArray(szProperties, TCHAR*, iVideoPropertiesCount);
+            iPropertyCount = 0;
 
-            // Determine video and page ID
-            iVideoID = utilConvertStringToInteger(szProperties[VCI_ID]);
-            iPageID  = (iVideoID < 1000 ? MPI_VIDEO_AVATARS : MPI_VIDEO_WARES);
-
-            // Cleanup description. Replace empty descriptions with 'None'
-            StrTrim((TCHAR*)szProperties[VCI_DESCRIPTION], TEXT("/ )>"));
-            if (lstrlen(szProperties[VCI_DESCRIPTION]) == 0)
-               szProperties[VCI_DESCRIPTION] = TEXT("[No Description]");
-
-            // Attempt to insert new VideoClip item
-            insertVideoClipItemIntoGameData(iPageID, iVideoID, szProperties[VCI_DESCRIPTION], &oVideoStartPos, &oVideoFinishPos, pError);
-            iVideosLoaded++;
-            break;
-
-         /// [UNKNOWN ENTRY] -- Determine whether to continue or abort
-         default:
-            // [ERROR] "There are an unrecognised number of properties (%u) in the video clip definition on line %u of '%s%s'"
-            pError = generateDualError(HERE(IDS_MEDIA_VIDEO_ENTRY_INVALID), iPropertyCount, iLineNumber, getFileSystem()->szGameFolder, szFileSubPath);
-            break;
-         } // END: switch (number of properties)
-
-         // [ERROR] Determine whether to continue or abort..
-         if (pError)
-         {
-            // Use error message as the output text, then add it to the error queue
-            generateOutputTextFromError(pError);
-            pushErrorQueue(pErrorQueue, pError);
-            pError = NULL;
-
-            // [QUESTION] "There was a minor error while loading the game speech clips, would you like to continue processing?"
-            if (displayOperationError(hParentWnd, lastErrorQueue(pErrorQueue), ERROR_ID(IDS_MEDIA_VIDEO_MINOR_ERROR)) == EH_ABORT)
+            /// Split line into up to 12 properties
+            for (szProperty = utilTokeniseString(szLine, ";", &pPropertyEnd); szProperty AND (iPropertyCount < iVideoPropertiesCount); szProperty = utilGetNextToken(";", &pPropertyEnd))
+               szProperties[iPropertyCount++] = szProperty;
+            
+            // Identify line from the number of properties it contains
+            switch (iPropertyCount)
             {
-               // [ABORT] Aborting further processing
-               eResult = OR_ABORTED;
+            /// [VIDEO CLIP COUNT] -- Store
+            case 1:
+               iVideoCount = utilConvertStringToInteger(szProperties[0]);
+               continue;
+
+            /// [VIDEO CLIP] -- Store as a video media item
+            case 12:
+               // [CHECK] Ignore VideoClips from 'Stream 2' for the moment - they're the split screen movies. I don't understand their declarations
+               if (utilConvertStringToInteger(szProperties[VCI_STREAM_ID]) == 2)
+                  continue;
+
+               // Extract start position
+               oVideoStartPos.iMinutes       = utilConvertStringToInteger(szProperties[VCI_START_MINUTES]);
+               oVideoStartPos.iSeconds       = utilConvertStringToInteger(szProperties[VCI_START_SECONDS]);
+               oVideoStartPos.iMilliseconds  = utilConvertStringToInteger(szProperties[VCI_START_MILLISECONDS]);
+               // Extract finish position
+               oVideoFinishPos.iMinutes      = utilConvertStringToInteger(szProperties[VCI_FINISH_MINUTES]);
+               oVideoFinishPos.iSeconds      = utilConvertStringToInteger(szProperties[VCI_FINISH_SECONDS]);
+               oVideoFinishPos.iMilliseconds = utilConvertStringToInteger(szProperties[VCI_FINISH_MILLISECONDS]);
+
+               // Determine video and page ID
+               iVideoID = utilConvertStringToInteger(szProperties[VCI_ID]);
+               iPageID  = (iVideoID < 1000 ? MPI_VIDEO_AVATARS : MPI_VIDEO_WARES);
+
+               // Cleanup description. Replace empty descriptions with 'None'
+               StrTrim((TCHAR*)szProperties[VCI_DESCRIPTION], TEXT("/ )>"));
+               if (lstrlen(szProperties[VCI_DESCRIPTION]) == 0)
+                  szProperties[VCI_DESCRIPTION] = TEXT("[No Description]");
+
+               // Attempt to insert new VideoClip item
+               insertVideoClipItemIntoGameData(iPageID, iVideoID, szProperties[VCI_DESCRIPTION], &oVideoStartPos, &oVideoFinishPos, pError);
+               iVideosLoaded++;
                break;
+
+            /// [UNKNOWN ENTRY] -- Determine whether to continue or abort
+            default:
+               // [ERROR] "There are an unrecognised number of properties (%u) in the video clip definition on line %u of '%s%s'"
+               pError = generateDualError(HERE(IDS_MEDIA_VIDEO_ENTRY_INVALID), iPropertyCount, iLineNumber, getFileSystem()->szGameFolder, szFileSubPath);
+               break;
+            } // END: switch (number of properties)
+
+            // [ERROR] Use error message as the output text, then add it to the error queue
+            if (pError)
+            {
+               generateOutputTextFromError(pError);
+               pushErrorQueue(pErrorQueue, pError);
+               pError = NULL;
             }
-         }
 
-      } // END: for (each line)
-   } // END: if (opened succesfully)
+         } // END: for (each line)
+      } // END: if (opened succesfully)
 
-   /// Examine overall result
-   switch (eResult)
-   {
-   // [SUCCESS] GameString trees loaded successfully
-   case OR_SUCCESS:  VERBOSE_HEADING("Loaded %d video clips from stream 1, %d clips from stream 2 were dropped.", iVideosLoaded, iVideosLoaded - iVideoCount);      break;
-   // [ABORTED/FAILURE] User aborted or file missing
-   case OR_ABORTED:  VERBOSE_HEADING("ABORT: User aborted the loading of video clips");              break;
-   case OR_FAILURE:  VERBOSE_HEADING("ERROR: Critical error while opening the video clips file");    break;
+      /// Print result
+      CONSOLE("Loaded %d video clips from stream 1, %d clips from stream 2 were dropped.", iVideosLoaded, iVideosLoaded - iVideoCount);
+
+      // Cleanup and return result
+      deleteGameFile(pVideoClipFile);
+      return eResult;
    }
-
-   // Cleanup and return result
-   deleteGameFile(pVideoClipFile);
-   END_TRACKING();
-   return eResult;
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION1("Unable to load video clips: Error processing '%s'", szLine);
+      return OR_FAILURE;
+   }
 }
 

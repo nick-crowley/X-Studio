@@ -31,7 +31,7 @@ CALL_STACK*  createCallStack(CONST DWORD  dwThreadID)
 
    // Set properties
    pStack->dwThreadID    = dwThreadID;
-   pStack->pfnDeleteItem = destructorFunctionCall;
+   pStack->pfnDeleteItem = destructorSimpleObject;
 
    // Return object
    return pStack;
@@ -88,6 +88,32 @@ FUNCTION_CALL*  createFunctionCall(CONST TCHAR*  szFileName, CONST TCHAR*  szFun
 }
 
 
+/// Function name  : createFunctionCall2
+// Description     : Creates a new FunctionCall
+// 
+// CONST TCHAR*  szFileName   : [in] FileName of the function call
+// CONST TCHAR*  szFunction   : [in] Name of the function
+// CONST UINT    iLineNumber  : [in] Line number of the function
+// 
+// Return Value   : New FunctionCall, you are responsible for destroying it
+// 
+FUNCTION_CALL*  createFunctionCall2(CONST TCHAR*  szFileName, CONST TCHAR*  szFunction, CONST UINT  iLineNumber)
+{
+   FUNCTION_CALL*  pPosition;
+
+   // Create object
+   pPosition = utilCreateEmptyObject(FUNCTION_CALL);
+
+   // Set properties
+   pPosition->iLine      = iLineNumber;
+   pPosition->szFileName = utilDuplicateSimpleString(szFileName);
+   pPosition->szFunction = utilDuplicateSimpleString(szFunction);
+
+   // Return object
+   return pPosition;
+}
+
+
 /// Function name  : deleteCallStackList
 // Description     : Destroys a CallStack list
 // 
@@ -124,7 +150,10 @@ VOID   destructorCallStack(LPARAM  pCallStack)
 BearScriptAPI
 VOID   destructorFunctionCall(LPARAM  pFunctionCall)
 {
-   deleteFunctionCall(pFunctionCall);
+   FUNCTION_CALL*&  pCall = (FUNCTION_CALL*&)pFunctionCall;
+
+   utilDeleteStrings((TCHAR*&)pCall->szFileName, (TCHAR*&)pCall->szFunction);
+   utilDeleteObject(pCall);
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////

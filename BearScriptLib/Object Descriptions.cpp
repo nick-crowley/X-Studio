@@ -16,6 +16,18 @@
 ///                                  CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+struct OBJECT_COMMAND
+{
+   const TCHAR*  szName;
+   UINT          iBase;
+};
+
+// ObjectCommand group names + ID ranges
+static OBJECT_COMMAND  oObjectCommands[10] = 
+{
+   {TEXT("NAV"), 200},    {TEXT("FIGHT"), 300},   {TEXT("TRADE"), 400},  {TEXT("SPECIAL"), 500},  {TEXT("PIRACY"), 600}, 
+   {TEXT("CUSTOM"), 700}, {TEXT("GENERAL"), 800}, {TEXT("TURRET"), 900}, {TEXT("STATION"), 1100}, {TEXT("SHIP"), 1200}  
+};
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CREATION / DESTRUCTION
@@ -372,7 +384,6 @@ VOID  populateDescriptionSyntax(CONST TCHAR*  szText, TCHAR*  szOutput, CONST UI
    }
 }
 
-
 /// Function name  : loadObjectDescriptions
 // Description     : Load the object descriptions LanguageFile, generates RichText descriptions and assigns them to objects
 // 
@@ -386,102 +397,107 @@ VOID  populateDescriptionSyntax(CONST TCHAR*  szText, TCHAR*  szOutput, CONST UI
 // 
 OPERATION_RESULT  loadObjectDescriptions(OPERATION_PROGRESS*  pProgress, HWND  hParentWnd,  ERROR_QUEUE*  pErrorQueue)
 {
-   AVL_TREE_OPERATION*  pOperationData;   // Generation operation data
-   LANGUAGE_FILE*       pLanguageFile;    // Temporary LanguageFile to parse the CommandDescriptions.xml into
-   VARIABLES_FILE*      pVariablesFile;   //
-   ERROR_STACK*         pError;           // Current error, if any
-   OPERATION_RESULT     eResult;          // Operation result
+   AVL_TREE_OPERATION*  pOperationData;         // Generation operation data
+   LANGUAGE_FILE*       pLanguageFile;          // Temporary LanguageFile to parse the CommandDescriptions.xml into
+   VARIABLES_FILE*      pVariablesFile;         //
+   ERROR_STACK*         pError  = NULL;         // Current error, if any
+   OPERATION_RESULT     eResult = OR_SUCCESS;   // Operation result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
-   VERBOSE_HEADING("Loading object descriptions");
-
-   // [INFO/STAGE] "Loading object descriptions"  (Define progress as percentage)
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_PROGRESS_LOADING_COMMAND_DESCRIPTIONS)));
-   ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_COMMAND_DESCRIPTIONS);
-   updateOperationProgressMaximum(pProgress, 100);
-   
-   // [CHECK] Ensure Command syntax tree exists
-   ASSERT(getGameData()->pCommandTreeByID AND getGameData()->pCommandTreeByID->iCount > 0);
-
-   // Prepare
-   pLanguageFile  = createLanguageFile(LFT_DESCRIPTIONS, TEXT("OBJECT_DESCRIPTIONS"), FALSE);
-   pVariablesFile = createLanguageFile(LFT_VARIABLES, TEXT("DESCRIPTION_VARIABLES"), FALSE);
-   eResult        = OR_SUCCESS;
-   pError         = NULL;   
-
-   /// Load the command descriptions from the resource library
-   if (!loadGameFileFromResource(getResourceInstance(), TEXT("OBJECT_DESCRIPTIONS"), pLanguageFile))
+   __try
    {
-      // [ERROR] "There was an unspecified error while loading the command descriptions file from the resource library. This could indicate the resource library is corrupt."
-      pError = generateDualError(HERE(IDS_DESCRIPTION_FILE_IO_ERROR));
-      generateOutputTextFromError(pError);
+      CONSOLE_STAGE();
+      CONSOLE("Loading object descriptions");
 
-      // Add to output queue and return FAILURE
-      pushErrorQueue(pErrorQueue, pError);
-      eResult = OR_FAILURE;
-   }
-   /// Load the description variables from the resource library
-   else if (!loadGameFileFromResource(getResourceInstance(), TEXT("DESCRIPTION_VARIABLES"), pVariablesFile))
-   {
-      // [ERROR] "There was an unspecified error while loading the description variables file from the resource library. This could indicate the resource library is corrupt."
-      pError = generateDualError(HERE(IDS_VARIABLES_FILE_IO_ERROR));
-      generateOutputTextFromError(pError);
+      // [INFO/STAGE] "Loading object descriptions"  (Define progress as percentage)
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_PROGRESS_LOADING_COMMAND_DESCRIPTIONS)));
+      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_COMMAND_DESCRIPTIONS);
+      updateOperationProgressMaximum(pProgress, 100);
+      
+      // [CHECK] Ensure Command syntax tree exists
+      ASSERT(getGameData()->pCommandTreeByID AND getGameData()->pCommandTreeByID->iCount > 0);
 
-      // Add to output queue and return FAILURE
-      pushErrorQueue(pErrorQueue, pError);
-      eResult = OR_FAILURE;
-   }
-   else
-   {
-      // [PROGRESS] Set progress to 10%
-      updateOperationProgressValue(pProgress, 10);
+      // Prepare
+      pLanguageFile  = createLanguageFile(LFT_DESCRIPTIONS, TEXT("OBJECT_DESCRIPTIONS"), FALSE);
+      pVariablesFile = createLanguageFile(LFT_VARIABLES, TEXT("DESCRIPTION_VARIABLES"), FALSE);
 
-      /// Read descriptions XML file
-      if (eResult = loadLanguageFile(NULL, pLanguageFile, FALSE, hParentWnd, NULL, pErrorQueue))
-         // [ERROR] "The command descriptions file could not be translated due to syntax errors in the XML. This could indicate a corrupted resource library."
-         enhanceLastError(pErrorQueue, ERROR_ID(IDS_DESCRIPTION_FILE_TRANSLATION_FAILED));
-
-      /// Read description variables XML file
-      else if (eResult = loadLanguageFile(NULL, pVariablesFile, FALSE, hParentWnd, NULL, pErrorQueue))
-         // [ERROR] "The description variables file could not be translated due to syntax errors in the XML. This could indicate a corrupted resource library."
-         enhanceLastError(pErrorQueue, ERROR_ID(IDS_VARIABLES_FILE_TRANSLATION_FAILED));
+      /// Load the command descriptions from the resource library
+      if (!loadGameFileFromResource(getResourceInstance(), TEXT("OBJECT_DESCRIPTIONS"), pLanguageFile))
+      {
+         // [ERROR] "There was an unspecified error while loading the command descriptions file from the resource library. This could indicate the resource library is corrupt."
+         pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_DESCRIPTION_FILE_IO_ERROR)));
+         generateOutputTextFromError(pError);
+         eResult = OR_FAILURE;
+      }
+      /// Load the description variables from the resource library
+      else if (!loadGameFileFromResource(getResourceInstance(), TEXT("DESCRIPTION_VARIABLES"), pVariablesFile))
+      {
+         // [ERROR] "There was an unspecified error while loading the description variables file from the resource library. This could indicate the resource library is corrupt."
+         pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_VARIABLES_FILE_IO_ERROR)));
+         generateOutputTextFromError(pError);
+         eResult = OR_FAILURE;
+      }
       else
       {
-         // [PROGRESS] Redefine progress as the number of nodes processed, plus 20%
-         updateOperationProgressMaximum(pProgress, utilCalculatePercentage(getTreeNodeCount(pLanguageFile->pGameStringsByVersion), 120));
+         // [PROGRESS] Set progress to 10%
+         updateOperationProgressValue(pProgress, 10);
 
-         // [HACK] Manually set progress to 24%.  (Progress will be displayed as 24%, and tree operation will update progress smoothly to 100%)
-         updateOperationProgressValue(pProgress, pProgress->pCurrentStage->iMaximum - getTreeNodeCount(pLanguageFile->pGameStringsByVersion)); 
+         /// Read descriptions XML file
+         if (eResult = loadLanguageFile(NULL, pLanguageFile, FALSE, hParentWnd, NULL, pErrorQueue))
+            // [ERROR] "The command descriptions file could not be translated due to syntax errors in the XML. This could indicate a corrupted resource library."
+            enhanceLastError(pErrorQueue, ERROR_ID(IDS_DESCRIPTION_FILE_TRANSLATION_FAILED));
 
-         // [VERBOSE]
-         VERBOSE_HEADING("Loaded source text for %u object descriptions and %u description variables", getTreeNodeCount(pLanguageFile->pGameStringsByVersion), getTreeNodeCount(pVariablesFile->pVariablesByText));
+         /// Read description variables XML file
+         else if (eResult = loadLanguageFile(NULL, pVariablesFile, FALSE, hParentWnd, NULL, pErrorQueue))
+            // [ERROR] "The description variables file could not be translated due to syntax errors in the XML. This could indicate a corrupted resource library."
+            enhanceLastError(pErrorQueue, ERROR_ID(IDS_VARIABLES_FILE_TRANSLATION_FAILED));
+         else
+         {
+            // [VERBOSE]
+            CONSOLE_HEADING("Loaded source text for %u object descriptions and %u description variables", getTreeNodeCount(pLanguageFile->pGameStringsByVersion), getTreeNodeCount(pVariablesFile->pVariablesByText));
 
-         // Create operation data and attach Project tracker
-         pOperationData = createAVLTreeOperationEx(treeprocGenerateObjectDescription, ATT_INORDER, pErrorQueue, pProgress);
+            // [PROGRESS] Redefine progress as the number of nodes processed, plus 20%
+            updateOperationProgressMaximum(pProgress, utilCalculatePercentage(getTreeNodeCount(pLanguageFile->pGameStringsByVersion), 120));
+            // [HACK] Manually set progress to 24%.  (Progress will be displayed as 24%, and tree operation will update progress smoothly to 100%)
+            updateOperationProgressValue(pProgress, pProgress->pCurrentStage->iMaximum - getTreeNodeCount(pLanguageFile->pGameStringsByVersion)); 
 
-         /// Attach DescriptionVariables tree
-         pOperationData->xFirstInput = (LPARAM)pVariablesFile->pVariablesByText;
+            /// Generate and assign descriptions
+            CONSOLE("Generating RichText object descriptions");
 
-         /// Generate and assign descriptions
-         VERBOSE("Generating RichText object descriptions");
-         performOperationOnAVLTree(pLanguageFile->pGameStringsByVersion, pOperationData);
-         
-         // [DEBUG] 
-         VERBOSE_HEADING("Successfully generated %u object descriptions", pOperationData->xOutput);
+            // Create operation data. Attach Progress + DescriptionVariables tree
+            pOperationData = createAVLTreeOperationEx(treeprocGenerateObjectDescription, ATT_INORDER, pErrorQueue, pProgress);
+            pOperationData->xFirstInput = (LPARAM)pVariablesFile->pVariablesByText;
+            performOperationOnAVLTree(pLanguageFile->pGameStringsByVersion, pOperationData);
+            
+            // [DEBUG] 
+            CONSOLE_HEADING("Successfully generated %u object descriptions, with %d discarded", pOperationData->xOutput, pOperationData->xOutput2);
 
-         // Cleanup and sever ErrorQueue
-         pOperationData->pErrorQueue = NULL;
-         deleteAVLTreeOperation(pOperationData);
+            // [DISCARDS] Generate warning if descriptions were discarded
+            if (pOperationData->xOutput2 > 0)
+               // [WARNING] "Discarded %d description tooltips for commands/objects incompatible with your '%s' game data"
+               generateQueuedWarning(pOperationData->pErrorQueue, HERE(IDS_DESCRIPTION_DISCARD_COUNT), pOperationData->xOutput2, identifyGameVersionString(getAppPreferences()->eGameVersion));
+
+            // Cleanup and sever ErrorQueue
+            pOperationData->pErrorQueue = NULL;
+            deleteAVLTreeOperation(pOperationData);
+
+            /// Generate descriptions for Object/Wing commands
+            performOperationOnAVLTree(getGameData()->pScriptObjectsByGroup, pOperationData = createAVLTreeOperation(treeprocGenerateObjectCommandDescriptions, ATT_INORDER));
+
+            // Cleanup
+            deleteAVLTreeOperation(pOperationData);
+         }
       }
-   }
 
-   // Cleanup and return
-   deleteLanguageFile(pLanguageFile);
-   deleteLanguageFile(pVariablesFile);
-   END_TRACKING();
-   return eResult;
+      // Cleanup and return
+      deleteLanguageFile(pLanguageFile);
+      deleteLanguageFile(pVariablesFile);
+      return eResult;
+   }
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION("Unable to the load object descriptions");
+      return OR_FAILURE;
+   }
 }
 
 
@@ -489,13 +505,13 @@ OPERATION_RESULT  loadObjectDescriptions(OPERATION_PROGRESS*  pProgress, HWND  h
 ///                                    TREE OPERATIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : treeprocConvertDescriptionVariableToInternal
+/// Function name  : treeprocConvertDescriptionVariableType
 // Description     : Convert a DescriptionVariable tree node from external to internal
 // 
 // AVL_TREE_NODE*       pNode            : [in] Current tree node
-// AVL_TREE_OPERATION*  pOperationData   : [in] Ignored
+// AVL_TREE_OPERATION*  pOperationData   : [in] xFirstInput - Conversion flags
 // 
-VOID    treeprocConvertDescriptionVariableToInternal(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
+VOID    treeprocConvertDescriptionVariableType(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
 {
    DESCRIPTION_VARIABLE  *pVariable;     // Convenience pointer
    TCHAR                 *szConverted;   // Convert string, if any
@@ -504,7 +520,7 @@ VOID    treeprocConvertDescriptionVariableToInternal(AVL_TREE_NODE*  pNode, AVL_
    pVariable = extractPointerFromTreeNode(pNode, DESCRIPTION_VARIABLE);
 
    // [CHECK] Did string require conversion?
-   if (generateConvertedString(pVariable->szValue, SPC_LANGUAGE_EXTERNAL_TO_INTERNAL, szConverted))
+   if (generateConvertedString(pVariable->szValue, pOperationData->xFirstInput, szConverted))
    {
       /// [SUCCESS] Replace text buffer
       utilDeleteString(pVariable->szValue);
@@ -513,12 +529,61 @@ VOID    treeprocConvertDescriptionVariableToInternal(AVL_TREE_NODE*  pNode, AVL_
 }
 
 
+/// Function name  : treeprocGenerateObjectCommandDescriptions
+// Description     : Generates descriptions for overridden object/wing commands
+// 
+// AVL_TREE_NODE*       pNode          : [in] ScriptObject
+// AVL_TREE_OPERATION*  pOperationData : [in] Ignored
+// 
+VOID  treeprocGenerateObjectCommandDescriptions(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
+{
+   OBJECT_NAME*  pScriptObject = extractPointerFromTreeNode(pNode, OBJECT_NAME);
+   TCHAR        *szCommand,
+                *szSource;
+
+   switch (pScriptObject->eGroup)
+   {
+   case ONG_OBJECT_COMMAND:
+   case ONG_WING_COMMAND:
+      // [CHECK] Ignore standard commands with low IDs
+      if (pScriptObject->iID < oObjectCommands[0].iBase)
+         return;
+
+      // Examine all groups
+      for (UINT  i = 0; (pScriptObject->eGroup == ONG_OBJECT_COMMAND ? i < 10 : i < 7); i++)
+      {
+         // [CHECK] Find correct group
+         if (pScriptObject->iID >= oObjectCommands[i].iBase AND pScriptObject->iID < oObjectCommands[i].iBase + 64)
+         {
+            // Generate original command name
+            szCommand = utilCreateStringf(128, pScriptObject->eGroup == ONG_OBJECT_COMMAND ? TEXT("COMMAND_TYPE_%s_%d") : TEXT("COMMAND_WING_TYPE_%s_%d"), oObjectCommands[i].szName, pScriptObject->iID - oObjectCommands[i].iBase);
+
+            // Compare new/original command names
+            if (!utilCompareStringVariables(szCommand, pScriptObject->szText))
+            {
+               // [CHANGED]
+               szSource = utilCreateStringf(256, TEXT("This command is assigned to slot:\n[center][red][b]%s[/b][/red][/center]"), szCommand);
+               generateRichTextFromSourceText(szSource, 256, pScriptObject->pDescription, RTT_RICH_TEXT, ST_DISPLAY, NULL);
+               utilDeleteString(szSource);
+            }
+
+            utilDeleteString(szCommand);
+            break;
+         }
+      }
+      break;
+   }
+}
+
+
 /// Function name  : treeprocGenerateObjectDescription
 // Description     : Generates RichText from the current node and assigns it to an object
 // 
-// AVL_TREE_NODE*       pCurrentNode   : [in] Current node containing a GameString
-// AVL_TREE_OPERATION*  pOperationData : [in] Operation data containing:
-///                                                    <No operation parameters> 
+// AVL_TREE_NODE*       pCurrentNode   : [in] GameString
+// AVL_TREE_OPERATION*  pOperationData : [in] Operation data:
+///                                               xFirstInput : AVL_TREE* : [in]  VariablesTree
+///                                               xOutput     : UINT      : [out] Number of descriptions successfully generated
+///                                               xOutput2    : UINT      : [out] Number of incompatible descriptions that were discarded
 // 
 VOID  treeprocGenerateObjectDescription(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
 {
@@ -527,8 +592,8 @@ VOID  treeprocGenerateObjectDescription(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_O
    GAME_STRING*       pSourceString;    // Convenience pointer
    RICH_TEXT*         pDescription;     // Object description, generated from node source-text
    AVL_TREE*          pVariablesTree;   // DescriptionVariables tree
-   TCHAR*             szGroupName,      // ScriptObject group name
-                     *szPopulatedSource;// Command description source with parameter names filled in
+   TCHAR*             szGroupName;      // Error reporting
+   TCHAR*             szPopulatedSource;// Command description source with parameter names filled in
    BOOL               bResult;          // Indicates whether they were any formatting errors in the node source text
 
    // Prepare
@@ -546,60 +611,72 @@ VOID  treeprocGenerateObjectDescription(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_O
    /// [COMMAND] Populate parameters, generate description and store in syntax
    case GPI_COMMAND_SYNTAX:
       // Lookup command syntax
-      if (bResult = findCommandSyntaxByID(pSourceString->iID, pSourceString->eVersion, xObject.asCommandSyntax, pError))   
+      if (!findCommandSyntaxByID(pSourceString->iID, pSourceString->eVersion, xObject.asCommandSyntax, pError))   
+         // [WARNING] "Discarding description tooltip for incompatible %s command with ID:%u"
+         pOperationData->xOutput2++;      //enhanceWarning(pError, ERROR_ID(IDS_DESCRIPTION_SYNTAX_NOT_FOUND), identifyGameVersionString(pSourceString->eVersion), pSourceString->iID);
+
+      // [CHECK] Ensure syntax has not been repeated
+      else if (xObject.asCommandSyntax->pTooltipDescription)
+         // [WARNING] "Discarding duplicate description tooltip for %s command '%s'"
+         pError = generateDualWarning(HERE(IDS_DESCRIPTION_SYNTAX_DUPLICATE), identifyGameVersionString(pSourceString->eVersion), xObject.asCommandSyntax->szContent);
+      
+      else
       {
          // Generate populated source text
          szPopulatedSource = generatePopulatedDescriptionSource(pSourceString->szText, pSourceString->iCount, pVariablesTree, xObject.asCommandSyntax, pSourceString->iPageID, pSourceString->iID, pOperationData->pErrorQueue);
 
-         /// Populate description source
+         /// Generate RichText from source
          if (bResult = generateRichTextFromSourceText(szPopulatedSource, lstrlen(szPopulatedSource), pDescription, RTT_RICH_TEXT, ST_DISPLAY, pOperationData->pErrorQueue))
-            // [SUCCESS] Store description
-            ((COMMAND_SYNTAX*)xObject.asCommandSyntax)->pTooltipDescription = pDescription;    /// [HACK] Remove 'const' - this is the only time Syntax is edited post-creation
+            const_cast<COMMAND_SYNTAX*>(xObject.asCommandSyntax)->pTooltipDescription = pDescription;    /// [HACK] Remove 'const' - this is the only time Syntax is edited post-creation
+         else
+            // [WARNING] "Formatting error detected in description tooltip for %s command '%s'"
+            pError = generateDualWarning(HERE(IDS_DESCRIPTION_SYNTAX_FORMAT_ERROR), identifyGameVersionString(pSourceString->eVersion), xObject.asCommandSyntax->szContent);
 
          // Cleanup
          utilDeleteString(szPopulatedSource);
       }
-      else
-         // [WARNING] "Description for unrecognised %s command ID:%u has been discarded"
-         enhanceWarning(pError, ERROR_ID(IDS_DESCRIPTION_SYNTAX_NOT_FOUND), identifyGameVersionString(pSourceString->eVersion), pSourceString->iID);
       break;
 
    /// [SCRIPT OBJECT] Store as description
    case GPI_CONSTANTS:
    case GPI_DATA_TYPES:
    case GPI_FLIGHT_RETURNS:
-   case GPI_FORMATIONS:
    case GPI_OBJECT_CLASSES:
    case GPI_RACES:
    case GPI_RELATIONS:
    case GPI_SECTORS:
    case GPI_TRANSPORT_CLASSES:
-      /// Population description
-      szPopulatedSource = generatePopulatedDescriptionSource(pSourceString->szText, pSourceString->iCount, pVariablesTree, NULL, pSourceString->iPageID, pSourceString->iID, pOperationData->pErrorQueue);
+      // Prepare
+      szGroupName = NULL;
 
-      /// Generate description from source text
-      if (bResult = generateRichTextFromSourceText(szPopulatedSource, lstrlen(szPopulatedSource), pDescription, RTT_RICH_TEXT, ST_DISPLAY, pOperationData->pErrorQueue))
+      /// Lookup ScriptObject
+      if (!findScriptObjectByGroup(identifyObjectNameGroupFromGameString(pSourceString), pSourceString->iID, xObject.asObjectName))
+         // [WARNING] "Discarding description tooltip for incompatible '%s' script object with ID:%u"
+         pOperationData->xOutput2++;      //pError = generateDualWarning(HERE(IDS_DESCRIPTION_OBJECT_NOT_FOUND), szGroupName = generateScriptObjectGroupString(identifyObjectNameGroupFromGameString(pSourceString)), pSourceString->iID);
+      
+      // [CHECK] Ensure description not already present
+      else if (xObject.asObjectName->pDescription)
+         // [WARNING] "Discarding duplicate description tooltip for '%s' script object '%s' with ID:%u"
+         pError = generateDualWarning(HERE(IDS_DESCRIPTION_OBJECT_DUPLICATE), szGroupName = generateScriptObjectGroupString(identifyObjectNameGroupFromGameString(pSourceString)), xObject.asObjectName->szText, pSourceString->iID);
+         
+      else
       {
-         // Lookup ScriptObject
-         if (findScriptObjectByGroup(identifyObjectNameGroupFromGameString(pSourceString), pSourceString->iID, xObject.asObjectName))
+         /// Population description
+         szPopulatedSource = generatePopulatedDescriptionSource(pSourceString->szText, pSourceString->iCount, pVariablesTree, NULL, pSourceString->iPageID, pSourceString->iID, pOperationData->pErrorQueue);
+
+         /// Generate description from source text
+         if (bResult = generateRichTextFromSourceText(szPopulatedSource, lstrlen(szPopulatedSource), pDescription, RTT_RICH_TEXT, ST_DISPLAY, pOperationData->pErrorQueue))
             // [SUCCESS] Store description
             xObject.asObjectName->pDescription = pDescription;
          else
-         {
-            /// [DEBUG] This can be removed once the descriptions XML has been generated.
-            // Prepare
-            szGroupName = generateScriptObjectGroupString(identifyObjectNameGroupFromGameString(pSourceString));
-
-            // [WARNING] "A description for an unrecognised %s ScriptObject with ID:%u has been found and discarded"
-            pError = generateDualWarning(HERE(IDS_DESCRIPTION_OBJECT_NOT_FOUND), szGroupName, pSourceString->iID);
-
-            // Cleanup
-            utilDeleteString(szGroupName);
-         }
+            // [WARNING] "Formatting error detected in description tooltip for '%s' script object '%s' with ID:%u"
+            pError = generateDualWarning(HERE(IDS_DESCRIPTION_OBJECT_FORMAT_ERROR), szGroupName = generateScriptObjectGroupString(identifyObjectNameGroupFromGameString(pSourceString)), xObject.asObjectName->szText, pSourceString->iID);
+            
+         // Cleanup
+         utilDeleteString(szPopulatedSource);
       }
-
       // Cleanup
-      utilDeleteString(szPopulatedSource);
+      utilSafeDeleteString(szGroupName);
       break;
 
    /// [UNSUPPORTED] Error

@@ -7,6 +7,8 @@
 
 #include "stdafx.h"
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          MESSAGE HANDLERS
@@ -181,7 +183,6 @@ VOID  onScriptPage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERT
    TCHAR*            szFolderPath;      // Folder portion of the script path
 
    // [DEBUG]
-   TRACK_FUNCTION();
 
    // Examine page
    switch (ePage)
@@ -189,6 +190,7 @@ VOID  onScriptPage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERT
    /// [SCRIPT: GENERAL]
    case PP_SCRIPT_GENERAL:
       // Prepare
+      //CONSOLE("Displaying 'General' properties page");      //CONSOLE_UI(PP_SCRIPT_GENERAL, PSN_SETACTIVE);
       pScriptFile = pSheetData->pScriptDocument->pScriptFile;
 
       // Display Script Name + Description + Command
@@ -216,6 +218,7 @@ VOID  onScriptPage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERT
    /// [SCRIPT ARGUMENTS]
    case PP_SCRIPT_ARGUMENTS:
       // Prepare
+      //CONSOLE("Displaying 'Arguments' properties page");      //CONSOLE_UI(PP_SCRIPT_ARGUMENTS, PSN_SETACTIVE);
       pScriptFile = pSheetData->pScriptDocument->pScriptFile;
 
       // Inform ListView of number of arguments
@@ -228,24 +231,27 @@ VOID  onScriptPage_Show(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST PROPERT
 
    /// [SCRIPT DEPENDENCIES] Populate list
    case PP_SCRIPT_DEPENDENCIES:
+      //CONSOLE("Displaying 'Dependencies' properties page");      //CONSOLE_UI(PP_SCRIPT_DEPENDENCIES, PSN_SETACTIVE);
       updateScriptDependenciesPage_List(pSheetData, hPage);
       break;
 
    /// [VARIABLE DEPENDENCIES] Populate list
    case PP_SCRIPT_VARIABLES:
+      //CONSOLE("Displaying 'Strings' properties page");      //CONSOLE_UI(PP_SCRIPT_VARIABLES, PSN_SETACTIVE);
       updateScriptVariablesPage_List(pSheetData, hPage);
+
       // Enable ProjectVariable button if a project is loaded
       utilEnableDlgItem(hPage, IDC_PROJECT_VARIABLES, getActiveProject() != NULL);
       break;
 
    /// [STRING DEPENDENCIES] Populate list
    case PP_SCRIPT_STRINGS:
+      //CONSOLE("Displaying 'Variables' properties page");      //CONSOLE_UI(PP_SCRIPT_STRINGS, PSN_SETACTIVE);
       updateScriptStringsPage_List(pSheetData, hPage);
       break;
    }
 
    // Cleanup
-   END_TRACKING();
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,27 +266,32 @@ INT_PTR   dlgprocGeneralPageS(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARA
 {
    PROPERTIES_DATA*  pSheetData;    // Property sheet dialog data
 
-   // Get properties dialog data
-   pSheetData = getPropertiesDialogData(hPage);
-
-   // Examine message
-   switch (iMessage)
+   TRY
    {
-   /// [COMMAND]
-   case WM_COMMAND:
-      onGeneralPage_CommandS(pSheetData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
-      break;
+      // Get properties dialog data
+      pSheetData = getPropertiesDialogData(hPage);
 
-   /// [CUSTOM COMBOBOX] Override default size
-   case WM_MEASUREITEM:
-      return onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_MEDIUM);
+      // Examine message
+      switch (iMessage)
+      {
+      /// [COMMAND]
+      case WM_COMMAND:
+         onGeneralPage_CommandS(pSheetData, hPage, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+         break;
 
-   /// [SIGNATURE] Draw icon
-   case WM_DRAWITEM:
-      if (onGeneralPage_DrawItem((DRAWITEMSTRUCT*)lParam))
-         return TRUE;
-      break;
+      /// [CUSTOM COMBOBOX] Override default size
+      case WM_MEASUREITEM:
+         return onWindow_MeasureComboBox((MEASUREITEMSTRUCT*)lParam, ITS_SMALL, ITS_MEDIUM);
+
+      /// [SIGNATURE] Draw icon
+      case WM_DRAWITEM:
+         if (onGeneralPage_DrawItem((DRAWITEMSTRUCT*)lParam))
+            return TRUE;
+         break;
+      }
    }
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
 
    /// Pass to base
    return dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_SCRIPT_GENERAL);

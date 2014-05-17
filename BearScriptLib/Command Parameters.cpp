@@ -368,6 +368,17 @@ BOOL  findScriptCallParameterInCommand(const COMMAND*  pCommand, PARAMETER*&  pO
       break;
    }
 
+   // [CUSTOM] Identify by parameter syntax
+   if (pCommand->pSyntax && pCommand->pSyntax->eGroup == CG_CUSTOM)
+   {
+      PARAMETER_SYNTAX  eSyntax;
+
+      // Iterate through parameter syntax, return 'PS_SCRIPT_NAME'
+      for (UINT iIndex = 0; findParameterSyntaxByPhysicalIndex(pCommand->pSyntax, iIndex, eSyntax); iIndex++)
+         if (eSyntax == PS_SCRIPT_NAME)
+            return findParameterInCommandByIndex(pCommand, PT_DEFAULT, iIndex, pOutput);
+   }
+
    // Return TRUE if found
    return pOutput != NULL;
 }

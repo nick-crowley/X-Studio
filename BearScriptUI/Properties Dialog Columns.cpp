@@ -77,7 +77,6 @@ BOOL    onColumnsPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST U
    LANGUAGE_MESSAGE*  pCurrentMessage = pSheetData->pLanguageDocument->pCurrentMessage;    // Convenience pointer for current language message;
    BOOL               bResult = TRUE;
 
-   TRACK_FUNCTION();
    switch (iControl)
    {
    /// [COLUMN COUNT] -- Update the message
@@ -119,7 +118,6 @@ BOOL    onColumnsPage_Command(PROPERTIES_DATA*  pSheetData, HWND  hPage, CONST U
       break;
    }
 
-   END_TRACKING();
    return bResult;
 }
 
@@ -364,7 +362,6 @@ INT_PTR   dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
    PROPERTIES_DATA*  pDialogData;
    NMHDR*            pHeader;
    BOOL              bResult = FALSE;
-   TRACK_FUNCTION();
 
    // Get dialog data
    pDialogData = getPropertiesDialogData(hPage);
@@ -412,6 +409,5 @@ INT_PTR   dlgprocColumnsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
       break;
    }
 
-   END_TRACKING();
    return (bResult ? bResult : dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_LANGUAGE_COLUMNS));
 }

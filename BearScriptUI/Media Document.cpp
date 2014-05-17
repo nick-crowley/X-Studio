@@ -37,7 +37,7 @@ MEDIA_DOCUMENT*   createMediaDocument(HWND  hParentWnd)
 
    /// Create document object and window
    pNewDocument = utilCreateEmptyObject(MEDIA_DOCUMENT);
-   pNewDocument->hWnd = CreateDialogParam(getResourceInstance(), TEXT("MEDIA_DOCUMENT"), hParentWnd, dlgprocMediaDocument, (LPARAM)pNewDocument);
+   pNewDocument->hWnd = loadDialog(TEXT("MEDIA_DOCUMENT"), hParentWnd, dlgprocMediaDocument, (LPARAM)pNewDocument);
 
    // [CHECK] Abort if window creation failed
    if (pNewDocument->hWnd == NULL)
@@ -201,7 +201,7 @@ VOID  displayMediaDocumentPages(MEDIA_DOCUMENT*  pDocument)
       // Define group
       oGroup.iID    = i;
       oGroup.iCount = iGroupCounts[i];
-      oGroup.szName = utilLoadString(getResourceInstance(), IDS_MEDIA_TYPE_SOUND_EFFECT + i, 64);
+      oGroup.szName = loadString(IDS_MEDIA_TYPE_SOUND_EFFECT + i, 64);
       // Add to Grouped ListView
       /// REMOVED: addGroupedListViewGroup(pDocument->hGroupList, &oGroup);
       utilDeleteString(oGroup.szName);
@@ -341,7 +341,7 @@ BOOL   initMediaDocumentControls(MEDIA_DOCUMENT*  pDocument)
    for (UINT iColumn = GROUP_COLUMN_ID; iColumn <= GROUP_COLUMN_TITLE; iColumn++)
    {
       // Define and Insert column
-      utilSetListViewColumn(&oColumn, iColumn, utilLoadString(getResourceInstance(), IDS_MEDIA_GROUP_COLUMN_ID + iColumn, 64), iColumnWidths[0][iColumn]);
+      utilSetListViewColumn(&oColumn, iColumn, loadString(IDS_MEDIA_GROUP_COLUMN_ID + iColumn, 64), iColumnWidths[0][iColumn]);
       ListView_InsertColumn(pDocument->hGroupList, oColumn.iSubItem, &oColumn);
       // Cleanup
       utilDeleteString(oColumn.pszText);
@@ -351,7 +351,7 @@ BOOL   initMediaDocumentControls(MEDIA_DOCUMENT*  pDocument)
    for (UINT iColumn = ITEM_COLUMN_ID; iColumn <= ITEM_COLUMN_DURATION; iColumn++)
    {
       // Define and Insert column
-      utilSetListViewColumn(&oColumn, iColumn, utilLoadString(getResourceInstance(), IDS_MEDIA_ITEM_COLUMN_ID + iColumn, 64), iColumnWidths[1][iColumn]);
+      utilSetListViewColumn(&oColumn, iColumn, loadString(IDS_MEDIA_ITEM_COLUMN_ID + iColumn, 64), iColumnWidths[1][iColumn]);
       ListView_InsertColumn(pDocument->hItemList, oColumn.iSubItem, &oColumn);
       // Cleanup
       utilDeleteString(oColumn.pszText);

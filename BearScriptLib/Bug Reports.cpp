@@ -25,6 +25,8 @@ CONST TCHAR   *szServerHostName = TEXT("x-studio.fbnz.de"),
               *szServerUserName = TEXT("x-studio-bugs@fbnz.de"),
               *szServerPassword = TEXT("thereisnobear");
 
+//#error X-Studio username/password has been intentionally removed.  Please see X-Universe member 'ScRaT_GER' regarding hosting details
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -60,30 +62,32 @@ TCHAR*   generateBugReportFileName(CONST SUBMISSION_OPERATION*  pOperationData)
 /// Function name  : getBugReportServerResponse
 // Description     : Retrieves the FTP server response
 // 
-// TCHAR*  szOutput  : [in/out] Buffer to hold the response string
-// DWORD   dwLength  : [in]     Length of buffer, in characters
+// Return Value   : New Error string
 // 
-VOID  getBugReportServerResponse(TCHAR*  szOutput, DWORD  dwLength)
+TCHAR*   getBugReportServerResponse()
 {
-   DWORD   iErrorCode;
+   TCHAR*  szError = utilCreateEmptyString(256);
+   DWORD   iErrorCode, iErrorLength = 256;
    
    // Get server response
-   InternetGetLastResponseInfo(&iErrorCode, szOutput, &dwLength);
+   InternetGetLastResponseInfo(&iErrorCode, szError, &iErrorLength);
+   return szError;
 }
 
 
 /// Function name  : getLastSystemError
 // Description     : Formats the result of GetLastError()
 // 
-// TCHAR*      szOutput : [in/out] Buffer to hold the message
-// CONST UINT  iLength  : [in]     Length of buffer, in characters
+// Return Value   : New Error string
 // 
-// Return Value   : Length of resultant error string, in characters
-// 
-BOOL  getLastSystemError(TCHAR*  szOutput, CONST UINT  iLength)
+TCHAR*   getLastSystemError()
 {
+   DWORD   dwError = GetLastError();
+   TCHAR*  szError = utilCreateEmptyString(256);
+
    // Get system error
-   return FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), NULL, szOutput, iLength, NULL);
+   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwError, NULL, szError, 256, NULL);
+   return szError;
 }
 
 
@@ -149,9 +153,7 @@ UINT  performBugReportCompression(SUBMISSION_OPERATION*  pOperationData, RAW_FIL
    RAW_FILE     *szInput;                 // 'Console.log' file, uncompressed
    UINT          iFileSize;               // Size of 'Console.log' file, uncompressed
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    szApplicationPath  = utilCreateEmptyPath();
    szConsolePath      = utilCreateEmptyPath();
@@ -178,7 +180,6 @@ UINT  performBugReportCompression(SUBMISSION_OPERATION*  pOperationData, RAW_FIL
    // Cleanup + return compressed size
    deleteRawFileBuffer(szInput);
    utilDeleteStrings(szApplicationPath, szConsolePath, szFileName);
-   END_TRACKING();
    return iFileSize;
 }
 
@@ -198,9 +199,7 @@ UINT  performCorrectionReportCompression(SUBMISSION_OPERATION*  pOperationData, 
    CHAR*   szCorrectionA;       // ANSI submission
    UINT    iCorrectionLength;   // Length of ANSI submission
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    szOutput  = NULL;
    iFileSize = NULL;
@@ -224,7 +223,6 @@ UINT  performCorrectionReportCompression(SUBMISSION_OPERATION*  pOperationData, 
       pushErrorQueue(pOperationData->pErrorQueue, generateDualError(HERE(IDS_SUBMISSION_COMPRESSION_FAILED), identifySubmissionOperationString(pOperationData), TEXT("Correction.txt")));
    
    // Return size of compressed file
-   END_TRACKING();
    utilDeleteString(szFileName);
    return iFileSize;
 }
@@ -242,14 +240,10 @@ UINT  performCorrectionReportCompression(SUBMISSION_OPERATION*  pOperationData, 
 // 
 BOOL  performBugReportNavigation(HINTERNET  hConnection, CONST TCHAR*  szUserName, OPERATION_PROGRESS*  pProgress, ERROR_STACK*  &pError)
 {
-   TCHAR*  szServerResponse;    // Server response, for error reporting
-
-   // [TRACK]
-   TRACK_FUNCTION();
+   TCHAR*  szServerResponse = NULL;    // Server response, for error reporting
 
    // Prepare
-   szServerResponse = utilCreateEmptyString(256);
-   pError           = NULL;
+   pError = NULL;
 
    // [PROGRESS] Update progress (60%)
    updateOperationProgressValue(pProgress, 60);
@@ -262,23 +256,17 @@ BOOL  performBugReportNavigation(HINTERNET  hConnection, CONST TCHAR*  szUserNam
 
       /// [CREATE] Attempt to create user's folder
       if (!FtpCreateDirectory(hConnection, szUserName))
-      {
          // [ERROR] "Unable to create submission server folder '%s' : '%s'"
-         getBugReportServerResponse(szServerResponse, 256);
-         pError = generateDualError(HERE(IDS_SUBMISSION_CREATE_FOLDER_FAILED), szUserName, szServerResponse);
-      }
+         pError = generateDualError(HERE(IDS_SUBMISSION_CREATE_FOLDER_FAILED), szUserName, szServerResponse = getBugReportServerResponse());
+      
       /// [RE-NAVIGATE] Attempt to navigate to user's folder
       else if (!FtpSetCurrentDirectory(hConnection, szUserName))
-      {
          // [ERROR] "Unable to navigate to submission server folder '%s' : '%s'"
-         getBugReportServerResponse(szServerResponse, 256);
-         pError = generateDualError(HERE(IDS_SUBMISSION_NAVIGATE_FOLDER_FAILED), szUserName, szServerResponse);
-      }
+         pError = generateDualError(HERE(IDS_SUBMISSION_NAVIGATE_FOLDER_FAILED), szUserName, szServerResponse = getBugReportServerResponse());
    }
 
    // Cleanup and return TRUE if there were no errors
-   utilDeleteString(szServerResponse);
-   END_TRACKING();
+   utilSafeDeleteString(szServerResponse);
    return (pError == NULL);
 }
 
@@ -299,18 +287,11 @@ BOOL  performBugReportNavigation(HINTERNET  hConnection, CONST TCHAR*  szUserNam
 OPERATION_RESULT  performBugReportSubmission(CONST RAW_FILE*  szSubmissionFile, CONST UINT  iFileSize, CONST TCHAR*  szUserName, SUBMISSION_OPERATION*  pOperationData)
 {
    TCHAR         *szRemoteFileName,          // Remote Filename for the submission, timestamped to ensure it is unique
-                 *szLastError;               // Last system or WinINet error
-   ERROR_STACK   *pError;                    // Operation error
+                 *szLastError = NULL;        // Last system or WinINet error
+   ERROR_STACK   *pError = NULL;             // Operation error
    HINTERNET      hConnection,               // Server connection handle
                   hInternet;                 // Internet handle
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Prepare
-   szLastError = utilCreateEmptyString(256);
-   pError      = NULL;
-
    // [PROGRESS] Define progress manually
    updateOperationProgressMaximum(pOperationData->pProgress, 100);
 
@@ -320,11 +301,9 @@ OPERATION_RESULT  performBugReportSubmission(CONST RAW_FILE*  szSubmissionFile, 
 
    /// [INITIALISE] Initialise internet API for asynchronous operation
    if (!(hInternet = InternetOpen(getAppName(), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, NULL)))
-   {
       // [ERROR] "Unable to initialise internet connection : '%s'"
-      getLastSystemError(szLastError, 256);
-      pError = generateDualError(HERE(IDS_SUBMISSION_INIT_FAILED), szLastError);
-   }
+      pError = generateDualError(HERE(IDS_SUBMISSION_INIT_FAILED), szLastError = getLastSystemError());
+   
    else
    {
       // [PROGRESS] Update progress (25%)
@@ -332,11 +311,9 @@ OPERATION_RESULT  performBugReportSubmission(CONST RAW_FILE*  szSubmissionFile, 
 
       /// [CONNECT] Attempt to connect to submission server
       if (!(hConnection = InternetConnect(hInternet, szServerHostName, INTERNET_DEFAULT_FTP_PORT, szServerUserName, szServerPassword, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, NULL)))
-      {
          // [ERROR] "Unable to connect to submission server : '%s'"
-         getBugReportServerResponse(szLastError, 256);
-         pError = generateDualError(HERE(IDS_SUBMISSION_CONNECTION_FAILED), szLastError);
-      }
+         pError = generateDualError(HERE(IDS_SUBMISSION_CONNECTION_FAILED), szLastError = getBugReportServerResponse());
+      
       /// [NAVIGATE] Attempt to navigate to user's folder
       else if (performBugReportNavigation(hConnection, szUserName, pOperationData->pProgress, pError))
       {
@@ -367,8 +344,7 @@ OPERATION_RESULT  performBugReportSubmission(CONST RAW_FILE*  szSubmissionFile, 
       pushErrorQueue(pOperationData->pErrorQueue, pError);
 
    // Cleanup and return FAILURE if there was an error, otherwise SUCCESS
-   utilDeleteString(szLastError);
-   END_TRACKING();
+   utilSafeDeleteString(szLastError);
    return (pError ? OR_FAILURE : OR_SUCCESS);
 }
 
@@ -387,56 +363,42 @@ OPERATION_RESULT  performBugReportSubmission(CONST RAW_FILE*  szSubmissionFile, 
 // 
 BOOL   performBugReportTransfer(HINTERNET  hConnection, CONST RAW_FILE*  szSubmissionFile, CONST UINT  iFileSize, CONST TCHAR*  szRemoteFileName, OPERATION_PROGRESS*  pProgress, ERROR_STACK*  &pError)
 {
-   UINT       iTotalBytesWritten,    // Total bytes uploaded
-              iBytesWritten;         // Bytes uploaded in current chunk
-   TCHAR*     szServerResponse;      // Server response, if upload failed
-   HINTERNET  hFile;                 // File transfer handle
-
-   // [TRACK]
-   TRACK_FUNCTION();
+   UINT       iTotalBytesWritten = NULL,    // Total bytes uploaded
+              iBytesWritten = NULL;         // Bytes uploaded in current chunk
+   TCHAR*     szServerResponse = NULL;      // Server response, if upload failed
+   HINTERNET  hFile = NULL;                 // File transfer handle
 
    // Prepare
-   szServerResponse   = utilCreateEmptyString(256);
-   iTotalBytesWritten = NULL;
-   iBytesWritten      = NULL;
-   pError             = NULL;
-   hFile              = NULL;
-
+   pError = NULL;
+   
    // [PROGRESS] Define progress as number of bytes transferred
    updateOperationProgressMaximum(pProgress, iFileSize);
 
    /// Initiate File transfer
-   if (hFile = FtpOpenFile(hConnection, szRemoteFileName, GENERIC_WRITE, FTP_TRANSFER_TYPE_BINARY, NULL))
+   if (!(hFile = FtpOpenFile(hConnection, szRemoteFileName, GENERIC_WRITE, FTP_TRANSFER_TYPE_BINARY, NULL)))
+      // [ERROR] "Unable to upload report to submission server : '%s'"
+      pError = generateDualError(HERE(IDS_SUBMISSION_UPLOAD_FAILED), szServerResponse = getBugReportServerResponse());
+   else
    {
       // Iterate through file chunks, abort on error
       while (!pError AND iTotalBytesWritten < iFileSize)
       {
          /// Attempt to upload current chunk
-         if (InternetWriteFile(hFile, &szSubmissionFile[iTotalBytesWritten], min(UPLOAD_CHUNK_SIZE, iFileSize - iTotalBytesWritten), (DWORD*)&iBytesWritten))
+         if (!InternetWriteFile(hFile, &szSubmissionFile[iTotalBytesWritten], min(UPLOAD_CHUNK_SIZE, iFileSize - iTotalBytesWritten), (DWORD*)&iBytesWritten))
+            // [ERROR] "Unable to upload report to submission server : '%s'"
+            pError = generateDualError(HERE(IDS_SUBMISSION_UPLOAD_FAILED), szServerResponse = getBugReportServerResponse());
+         else
          {
             // [SUCCESS] Update
             iTotalBytesWritten += iBytesWritten;
             updateOperationProgressValue(pProgress, iTotalBytesWritten);
          }
-         else
-         {
-            // [ERROR] "Unable to upload report to submission server : '%s'"
-            getBugReportServerResponse(szServerResponse, 256);
-            pError = generateDualError(HERE(IDS_SUBMISSION_UPLOAD_FAILED), szServerResponse);
-         }
       }
    }
-   else
-   {
-      // [ERROR] "Unable to upload report to submission server : '%s'"
-      getBugReportServerResponse(szServerResponse, 256);
-      pError = generateDualError(HERE(IDS_SUBMISSION_UPLOAD_FAILED), szServerResponse);
-   }
-
+   
    // Cleanup and return TRUE if successful
-   utilDeleteString(szServerResponse);
+   utilSafeDeleteString(szServerResponse);
    InternetCloseHandle(hFile);
-   END_TRACKING();
    return (pError == NULL);
 }
 
@@ -468,31 +430,28 @@ DWORD   threadprocSubmitReport(VOID*  pParameter)
    RAW_FILE*               szSubmissionFile;    // Buffer containing compressed submission
    UINT                    iSubmissionSize;     // Size of compressed submission, in bytes
 
-   // [DEBUGGING]
-   TRACK_FUNCTION();
-   SET_THREAD_NAME("Submission Upload");
-   setThreadLanguage(getAppPreferences()->eAppLanguage);
-
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
-   
-   // Prepare
-   pOperationData = (SUBMISSION_OPERATION*)pParameter;
-   pErrorQueue    = pOperationData->pErrorQueue;
-   eResult        = OR_FAILURE;
-
-   // [INFO] "Preparing bug report..."
-   VERBOSE("Preparing to upload %s report", identifySubmissionOperationString(pOperationData)); 
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_PROGRESS_PREPARING_REPORT)));
-
-   // [PROGRESS] Ensure first stage is set
-   ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PREPARING_REPORT);
-
-   /// [GUARD BLOCK]
    __try
    {
+      // [DEBUGGING]
+      CONSOLE_COMMAND_BOLD();
+      SET_THREAD_NAME("Submission Upload");
+      setThreadLanguage(getAppPreferences()->eAppLanguage);
+
+      // [CHECK] Ensure parameter exists
+      ASSERT(pParameter);
+      
       // Prepare
+      pOperationData   = (SUBMISSION_OPERATION*)pParameter;
+      pErrorQueue      = pOperationData->pErrorQueue;
       szSubmissionFile = NULL;
+      eResult          = OR_FAILURE;
+
+      // [INFO] "Preparing bug report..."
+      VERBOSE("Preparing to upload %s report", identifySubmissionOperationString(pOperationData)); 
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_PROGRESS_PREPARING_REPORT)));
+
+      // [PROGRESS] Ensure first stage is set
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PREPARING_REPORT);
 
       // [CHECK] Are we submitting a bug?
       if (pOperationData->eType == OT_SUBMIT_BUG_REPORT)
@@ -515,20 +474,15 @@ DWORD   threadprocSubmitReport(VOID*  pParameter)
          deleteRawFileBuffer(szSubmissionFile);
       }
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pErrorQueue))
+   PUSH_CATCH(pErrorQueue)
    {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while submitting the '%s'"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_EXCEPTION_SUBMIT_REPORT), identifySubmissionOperationString(pOperationData));
-      
       // [FAILURE]
       eResult = OR_FAILURE;
    }
 
    // Cleanup and return result
-   VERBOSE_THREAD_COMPLETE("SUBMISSION WORKER THREAD COMPLETED");
+   CONSOLE_COMPLETE("BUG SUBMISSION", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return THREAD_RETURN;
 }
 

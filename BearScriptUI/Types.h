@@ -48,6 +48,24 @@ struct CORRECTION_DIALOG_DATA
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
+///                                 DEPENDENCY DIALOG
+///
+///   Lists Script dependencies
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+// Dependecy dialog data
+//
+struct DEPENDENCY_DIALOG_DATA
+{
+   HWND             hDialog;
+
+   AVL_TREE        *pResultsTree;       // ScriptDependencies representing each calling script
+   const TCHAR     *szFolder,           // Folder to search
+                   *szContent;          // Content display string
+   CONTENT_TYPE     eType;              // Content type
+};
+
+/// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    DOCUMENT
 ///
 ///   Represent a document window and contains the necessary data to display it.
@@ -160,6 +178,21 @@ struct  DOCUMENTS_DATA
 };
 
 
+/// ////////////////////////////////////////////////////////////////////////////////////////
+///                                   EXPORT PROJECT DIALOG
+///
+///  Export project files dialog 
+/// ////////////////////////////////////////////////////////////////////////////////////////
+
+struct EXPORT_PROJECT_DATA
+{
+   PROJECT_FILE*  pProject;               // ProjectFile of project being exported
+   HWND           hDialog,                // Dialog handle
+                  hTooltip;               // Dialog tooltip
+   TCHAR          szFolder[MAX_PATH],     // Backup folder
+                  szFileName[MAX_PATH];   // Backup filename
+   BOOL           bInitialised;           // Initialised flag
+};
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                      FILE DIALOG
@@ -408,9 +441,9 @@ struct MESSAGE_DIALOG_DATA
                         hToolbar;         //           Toolbar window handle
    UINT                 iAttributes,      //           Button and icon flags
                         iStackIndex;      // [ERROR]   Zero-based LOGICAL index of the current ErrorMessage being displayed
-   CONST TCHAR         *szIcon,           //           Resource ID of dialog icon
-                       *szTitle;          //           String ID of dialog title
-   TCHAR*               szSimpleMessage;  // [MESSAGE] Assembled message text
+   CONST TCHAR         *szIcon;           //           Resource ID of dialog icon
+   TCHAR               *szTitle,          //           String ID of dialog title
+                       *szSimpleMessage;  // [MESSAGE] Assembled message text
 
    /// NEW:
    CONST ERROR_STACK*   pErrorStack;      // [ERROR]   Current error stack
@@ -650,7 +683,7 @@ struct  SCRIPT_DOCUMENT : DOCUMENT
                         hLabelsCombo,        // Label ComboBox control window handle
                         hVariablesCombo;     // Variables ComboBox control window handle
 
-   LISTVIEW_LABEL_DATA  oLabelData;          // In-Place Label editing data for arguments property page
+   LVHITTESTINFO        oItemClick;          // Item being edited by arguments property page
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////

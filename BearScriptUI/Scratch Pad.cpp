@@ -29,8 +29,6 @@
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -49,22 +47,22 @@ VOID   treeprocTestRichEditConversion(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*
 
    /// Generate RichText
    if (!generateMessageFromGameString(pString, pMessage, NULL))
-      VERBOSE("*** Failed to generated RichText for PageID:%d StringID:%d : %s**END**\r\n\r\n", pString->iPageID, pString->iID, pString->szText);
+      VERBOSE("*** Failed to generated RichText for PageID:%d StringID:%d : '%s'", pString->iPageID, pString->iID, pString->szText);  // **END**
    else
    {
       // Pass through RichEdit
-      setRichEditText((HWND)pOperation->xFirstInput, pMessage, false, GTC_BLACK);
+      setRichEditText((HWND)pOperation->xFirstInput, pMessage, 10, false, GTC_BLACK);
       getRichEditText((HWND)pOperation->xFirstInput, pMessage);
 
       // TODO: Compare RichText
 
       /// Generate PlainText
       if (!generateSourceTextFromRichText(pMessage, pNewString))
-         VERBOSE("*** Failed to generated PlainText for PageID:%d StringID:%d : %s**END**\r\n\r\n", pString->iPageID, pString->iID, pString->szText);
+         VERBOSE("*** Failed to generated PlainText for PageID:%d StringID:%d : '%s'", pString->iPageID, pString->iID, pString->szText);
 
       /// Compare input and output
       else if (!utilCompareStringVariables(pString->szText, pNewString->szText))
-         VERBOSE("*** DIFFERENCE in PageID:%d StringID:%d:\r\n" "BEFORE: \r\n" "%s**END**\r\n\r\n" "AFTER: \r\n" "%s**END**\r\n\r\n__", pString->iPageID, pString->iID, pString->szText, pNewString->szText);
+         VERBOSE("*** DIFFERENCE in PageID:%d StringID:%d\r\n" "BEFORE: '%s'\r\n" "AFTER: '%s'", pString->iPageID, pString->iID, pString->szText, pNewString->szText);
    }
 
    // Cleanup

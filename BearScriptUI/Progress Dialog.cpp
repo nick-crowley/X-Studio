@@ -14,6 +14,9 @@
 CONST UINT  iProgressBarMaximum   = 10000,
             iProgressTimerID      = 3;
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
+
 /// //////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       CREATION / DESTRUCTION
 /// //////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,14 +88,13 @@ HWND    displayProgressDialog(MAIN_WINDOW_DATA*  pMainWindowData)
    HWND            hDialog;         // for convenience
 
    // [CHECK] A previous progress dialog should not exist
-   TRACK_FUNCTION();
    ASSERT(pMainWindowData->hProgressDlg == NULL);  
 
    /// Create dialog data
    pDialogData = createProgressDialogData(pMainWindowData->pOperationPool);
 
    /// Pass data to new dialog
-   hDialog = CreateDialogParam(getResourceInstance(), TEXT("PROGRESS_DIALOG"), getAppWindow(), dlgprocProgressDlg, (LPARAM)pDialogData);
+   hDialog = loadDialog(TEXT("PROGRESS_DIALOG"), getAppWindow(), dlgprocProgressDlg, (LPARAM)pDialogData);
    ERROR_CHECK("creating progress dialog", hDialog);
 
    // Store handle
@@ -113,7 +115,6 @@ HWND    displayProgressDialog(MAIN_WINDOW_DATA*  pMainWindowData)
       deleteProgressDialogData(pDialogData);
 
    // Return window handle
-   END_TRACKING();
    return hDialog;
 }
 
@@ -127,7 +128,6 @@ HWND    displayProgressDialog(MAIN_WINDOW_DATA*  pMainWindowData)
 // 
 BOOL  initProgressDialog(PROGRESS_DATA*  pDialogData)
 {
-   TRACK_FUNCTION();
 
    // Store window data
    SetWindowLong(pDialogData->hDialog, DWL_USER, (LONG)pDialogData);
@@ -158,7 +158,6 @@ BOOL  initProgressDialog(PROGRESS_DATA*  pDialogData)
    UpdateWindow(pDialogData->hDialog);
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -171,7 +170,6 @@ BOOL  initProgressDialog(PROGRESS_DATA*  pDialogData)
 // 
 VOID  setProgressDialogProgressValue(PROGRESS_DATA*  pDialogData, CONST UINT  iCurrentProgress)
 {
-   TRACK_FUNCTION();
 
    /// [VALUE] Set progress bar value
    SendDlgItemMessage(pDialogData->hDialog, IDC_PROGRESS_BAR, PBM_SETPOS, iCurrentProgress, NULL);
@@ -184,7 +182,6 @@ VOID  setProgressDialogProgressValue(PROGRESS_DATA*  pDialogData, CONST UINT  iC
       /// [SUCCESS] Display progress in the taskbar
       utilSetWindowProgressValue(getAppWindow(), iCurrentProgress, iProgressBarMaximum);
 
-   END_TRACKING();
 }
 
 
@@ -195,8 +192,8 @@ VOID  setProgressDialogProgressValue(PROGRESS_DATA*  pDialogData, CONST UINT  iC
 // 
 VOID   updateProgressDialogStageDescription(PROGRESS_DATA*  pDialogData)
 {
-   TRACK_FUNCTION();
-
+   TCHAR*  szText;
+   
    // [CHECK] Do nothing if stage is already being displayed
    if (getCurrentOperationStageID(pDialogData->pOperationPool) != pDialogData->iCurrentStageID)
    {
@@ -204,10 +201,9 @@ VOID   updateProgressDialogStageDescription(PROGRESS_DATA*  pDialogData)
       pDialogData->iCurrentStageID = getCurrentOperationStageID(pDialogData->pOperationPool);
 
       /// Load description for the current stage and display
-      utilSetWindowText(GetDlgItem(pDialogData->hDialog, IDC_PROGRESS_STAGE_STATIC), getResourceInstance(), pDialogData->iCurrentStageID);
+      SetDlgItemText(pDialogData->hDialog, IDC_PROGRESS_STAGE_STATIC, szText=loadString(pDialogData->iCurrentStageID));
+      utilDeleteString(szText);
    }
-
-   END_TRACKING();
 }
 
 /// Function name  : updateProgressDialogTitle
@@ -219,7 +215,6 @@ VOID  updateProgressDialogTitle(PROGRESS_DATA*  pDialogData)
 {
    OPERATION_DATA*  pOperationData;
 
-   TRACK_FUNCTION();
 
    /// Lookup operation data
    if (pOperationData = getCurrentOperationData(pDialogData->pOperationPool))
@@ -238,7 +233,6 @@ VOID  updateProgressDialogTitle(PROGRESS_DATA*  pDialogData)
       }
    }
 
-   END_TRACKING();
 }
 
 /// //////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,7 +246,6 @@ VOID  updateProgressDialogTitle(PROGRESS_DATA*  pDialogData)
 // 
 VOID     onProgressDialogDestroy(PROGRESS_DATA*  pDialogData)
 {
-   TRACK_FUNCTION();
 
    /// [CHECK] Are we running in windows 7 or newer?
    if (getAppWindowsVersion() >= WINDOWS_7)
@@ -264,7 +257,6 @@ VOID     onProgressDialogDestroy(PROGRESS_DATA*  pDialogData)
 
    /// Delete dialog data
    deleteProgressDialogData(pDialogData);
-   END_TRACKING();
 }
 
 
@@ -277,7 +269,6 @@ VOID     onProgressDialogTimer(PROGRESS_DATA*  pDialogData)
 {
    INT  iCurrentPosition;        // New progress bar position
 
-   TRACK_FUNCTION();
 
    // Get current progress
    iCurrentPosition = getCurrentOperationProgress(pDialogData->pOperationPool);
@@ -290,7 +281,6 @@ VOID     onProgressDialogTimer(PROGRESS_DATA*  pDialogData)
 
    // Refresh progress bar
    UpdateWindow(GetDlgItem(pDialogData->hDialog, IDC_PROGRESS_BAR));
-   END_TRACKING();
 }
 
 
@@ -300,17 +290,14 @@ VOID     onProgressDialogTimer(PROGRESS_DATA*  pDialogData)
 INT_PTR   dlgprocProgressDlg(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROGRESS_DATA*  pDialogData;    // Dialog data
-   ERROR_STACK*    pException;     // Exception error
    BOOL            bResult;        // Operation result
 
-   // Prepare
-   TRACK_FUNCTION();
-   pDialogData = getProgressDialogData(hDialog);
-   bResult     = FALSE;
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
+      // Prepare
+      pDialogData = getProgressDialogData(hDialog);
+      bResult     = FALSE;
+
       // Examine message
       switch (iMessage)
       {
@@ -339,7 +326,7 @@ INT_PTR   dlgprocProgressDlg(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
       case WM_DRAWITEM:
          switch (wParam)
          {
-         case IDC_PROGRESS_DIALOG_ICON:     bResult = onOwnerDrawStaticIcon(lParam, TEXT("FUNCTION_ICON"), 96);  break;
+         case IDC_PROGRESS_DIALOG_ICON:     bResult = onOwnerDrawStaticIcon(lParam, TEXT("FUNCTION_ICON"), 72);  break;
          case IDC_PROGRESS_DIALOG_TITLE:    bResult = onOwnerDrawStaticTitle(lParam);       break;
          case IDC_PROGRESS_DIALOG_HEADING:  bResult = onOwnerDrawStaticHeading(lParam);     break;
          }
@@ -351,21 +338,15 @@ INT_PTR   dlgprocProgressDlg(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
          bResult = (BOOL)onDialog_ControlColour((HDC)wParam, COLOR_WINDOW);
          break;
       }
+
+      // Return result
+      return bResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the progress dialog at stage %u"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_PROGRESS_DIALOG), (pDialogData ? pDialogData->iCurrentStageID : NULL));
-      displayException(pException);
-      
-      // Ensure main window is re-enabled
-      EnableWindow(getAppWindow(), TRUE);
-   }
-
-   // Return result
-   END_TRACKING();
-   return bResult;
+   CATCH4("iMessage=%s  wParam=%d  lParam=%d  iCurrentStageID=%d", identifyMessage(iMessage), wParam, lParam, (pDialogData ? pDialogData->iCurrentStageID : -1));
+   // Ensure main window is re-enabled
+   EnableWindow(getAppWindow(), TRUE);
+   return FALSE;   
 }
 
 

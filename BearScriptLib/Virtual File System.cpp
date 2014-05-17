@@ -372,7 +372,6 @@ UINT   enumerateVirtualFileSystem(FILE_SYSTEM*  pFileSystem, OPERATION_PROGRESS*
                     iFileSize;        // Packed size of the file currently being processed, in bytes
    
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Enumerating game catalogues in folder '%s", pFileSystem->szGameFolder);
 
    /// Enumerate the appropriate catalogues files to load in ascending order
@@ -463,7 +462,6 @@ UINT   enumerateVirtualFileSystem(FILE_SYSTEM*  pFileSystem, OPERATION_PROGRESS*
       pError = generateDualWarning(HERE(IDS_VFS_CATALOGUES_NOT_FOUND), pFileSystem->szGameFolder);
    
    // Cleanup and return
-   END_TRACKING();
    return getTreeNodeCount(pFileSystem->pFilesTree);
 }
 
@@ -531,7 +529,6 @@ UINT    enumerateVirtualFileSystemCatalogues(CONST FILE_SYSTEM*  pFileSystem, CO
    }
 
    // Return list count
-   VERBOSE_SMALL_PARTITION();
    return getListItemCount(pFileSystem->pCatalogueList);
 }
 
@@ -595,56 +592,54 @@ FILE_ITEM_FLAG  identifyFileType(CONST FILE_SYSTEM*  pFileSystem, CONST TCHAR*  
 // 
 OPERATION_RESULT  loadFileSystem(CONST TCHAR*  szGameFolder, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
-   ERROR_STACK*      pError;         // Error, if any
-   FILE_SYSTEM*      pFileSystem;    // New FileSystem
-   OPERATION_RESULT  eResult;        // Operation result
+   ERROR_STACK*      pError      = NULL;         // Error, if any
+   FILE_SYSTEM*      pFileSystem = NULL;         // New FileSystem
+   OPERATION_RESULT  eResult     = OR_SUCCESS;   // Operation result
 
-   // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
-
-   // [CHECK] Input folder has a trailing backslash
-   ASSERT(lstrlen(szGameFolder) AND szGameFolder[lstrlen(szGameFolder) - 1] == '\\');
-
-   // Prepare
-   pError  = NULL;
-   eResult = OR_SUCCESS;
-
-   // [INFO/PROGRESS] "Searching for catalogues and data files"
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_FILE_SYSTEM)));
-   ASSERT(getOperationProgressStageID(pProgress) == IDS_PROGRESS_LOADING_CATALOGUES);
-
-   /// Create Virtual File System
-   pFileSystem = createFileSystem(szGameFolder, pError);
-
-   // [CHECK] Ensure VFS was created successfully
-   if (!pFileSystem)
+   __try
    {
-      /// [CRITICAL ERROR] "There was an error while creating the virtual file system from the catalogues in the game folder '%s'"
-      enhanceError(pError, ERROR_ID(IDS_VFS_ERROR), szGameFolder);
-      eResult = OR_FAILURE;  
-   }
-   else
-   {
-      // [SUCCESS] Store global pointer
-      setFileSystem(pFileSystem);
-      
-      /// Populate the FileSystem
-      if (!enumerateVirtualFileSystem(pFileSystem, pProgress, pError))
-         // [WARNING] "There was an error while creating the virtual file system from the catalogues in the game folder '%s'"
-         enhanceWarning(pError, ERROR_ID(IDS_VFS_ERROR), szGameFolder);
+      CONSOLE_STAGE();
+
+      // [CHECK] Input folder has a trailing backslash
+      ASSERT(lstrlen(szGameFolder) AND szGameFolder[lstrlen(szGameFolder) - 1] == '\\');
+
+      // [INFO/PROGRESS] "Searching for catalogues and data files"
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_FILE_SYSTEM)));
+      ASSERT(getOperationProgressStageID(pProgress) == IDS_PROGRESS_LOADING_CATALOGUES);
+
+      /// Create Virtual File System
+      if ((pFileSystem = createFileSystem(szGameFolder, pError)) == NULL)
+      {
+         /// [CRITICAL ERROR] "There was an error while creating the virtual file system from the catalogues in the game folder '%s'"
+         enhanceError(pError, ERROR_ID(IDS_VFS_ERROR), szGameFolder);
+         eResult = OR_FAILURE;  
+      }
+      else
+      {
+         // [SUCCESS] Store global pointer
+         setFileSystem(pFileSystem);
          
-      // [VERBOSE]
-      VERBOSE_HEADING("Loaded %u virtual files from %u game catalogues", getTreeNodeCount(pFileSystem->pFilesTree), getListItemCount(pFileSystem->pCatalogueList));
+         /// Populate the FileSystem
+         if (!enumerateVirtualFileSystem(pFileSystem, pProgress, pError))
+            // [WARNING] "There was an error while creating the virtual file system from the catalogues in the game folder '%s'"
+            enhanceWarning(pError, ERROR_ID(IDS_VFS_ERROR), szGameFolder);
+            
+         // [VERBOSE]
+         CONSOLE_HEADING("Loaded %u virtual files from %u game catalogues", getTreeNodeCount(pFileSystem->pFilesTree), getListItemCount(pFileSystem->pCatalogueList));
+      }
+
+      // [ERROR]
+      if (pError)
+         pushErrorQueue(pErrorQueue, pError);
+
+      // Cleanup and return result
+      return eResult;
    }
-
-   // [ERROR]
-   if (pError)
-      pushErrorQueue(pErrorQueue, pError);
-
-   // Cleanup and return result
-   END_TRACKING();
-   return eResult;
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION1("Unable to load the virtual file system from '%s'", szGameFolder);
+      return OR_FAILURE;
+   }
 }
 
 
@@ -652,9 +647,9 @@ OPERATION_RESULT  loadFileSystem(CONST TCHAR*  szGameFolder, OPERATION_PROGRESS*
 // Description     : Fills a GameFile object using the contents of a text file specified by a full file path
 // 
 // CONST FILE_SYSTEM* pFileSystem  : [in]  VirtualFileSystem object
-// CONST TCHAR*       szFullPath   : [in]  Full file path of the file to load
 // GAME_FILE*         pOutput      : [in]  'szFullPath' contains the path of the file load
 ///                                  [out] 'szInputBuffer' contains UNICODE version of the file
+// CONST TCHAR*       szAltEx      : [in]  Alternate file extension
 // ERROR_QUEUE*       pErrorQueue  : [out] Error message, if any
 // 
 // Return Value   : Length of the document in characters, or NULL if unsuccesful
@@ -664,21 +659,27 @@ UINT   loadGameFileFromFileSystemByPath(CONST FILE_SYSTEM*  pFileSystem, GAME_FI
 {
    RAW_FILE*  szFileBuffer;  // ANSI file input buffer
 
-   // [CHECK] Ensure GameFile is empty
-   ASSERT(!hasInputData(pOutput));
-
-   /// Attempt to load file in ANSI
-   if (pOutput->iInputSize = loadRawFileFromFileSystemByPath(pFileSystem, pOutput->szFullPath, szAlternateExtension, szFileBuffer, pErrorQueue))
+   __try
    {
-      /// Convert to UNICODE. Update file-size in case any characters were dropped
-      pOutput->szInputBuffer = utilTranslateStringToUNICODEEx((CHAR*)szFileBuffer, pOutput->iInputSize);
+      // [CHECK] Ensure GameFile is empty
+      ASSERT(!hasInputData(pOutput));
 
-      // Cleanup
-      deleteRawFileBuffer(szFileBuffer);
+      /// Attempt to load file in ANSI
+      if (pOutput->iInputSize = loadRawFileFromFileSystemByPath(pFileSystem, pOutput->szFullPath, szAlternateExtension, szFileBuffer, pErrorQueue))
+      {
+         /// Convert to UNICODE. Update file-size in case any characters were dropped
+         pOutput->szInputBuffer = utilTranslateStringToUNICODEEx((CHAR*)szFileBuffer, pOutput->iInputSize);
+         deleteRawFileBuffer(szFileBuffer);
+      }
+
+      // Return number of characters read
+      return pOutput->iInputSize;
    }
-
-   // Return number of characters read
-   return pOutput->iInputSize;
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION2("Unable to load game file '%s' (.%s)", pOutput ? pOutput->szFullPath : NULL, szAlternateExtension);
+      return 0;
+   }
 }
 
 
@@ -705,100 +706,104 @@ UINT   loadRawFileFromFileSystemByPath(CONST FILE_SYSTEM*  pFileSystem, TCHAR*  
    RAW_FILE      *szStrippedOutput;    //             Used for stripping the byte ordering mark from decrypted files that have them
    UINT           iBytesRead;          //             Number of bytes read or decompressed
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Prepare
-   szAlternatePath = NULL;
-   pVirtualFile    = NULL;
-   szOutput        = NULL;
-   iBytesRead      = NULL;
-
-   // [ALTERNATE] Generate alternate path
-   if (szAlternateExtension)
+   __try
    {
-      szAlternatePath = utilDuplicatePath(szFullPath);
-      PathRenameExtension(szAlternatePath, szAlternateExtension);
-   }
+      // Prepare
+      szAlternatePath = NULL;
+      pVirtualFile    = NULL;
+      szOutput        = NULL;
+      iBytesRead      = NULL;
 
-   // [CHECK] Is file present?
-   if (PathFileExists(szFullPath))
-      /// [PHYSICAL] Load the file from the physical filesystem
-      iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szFullPath, NULL, szOutput, pErrorQueue);
-
-   // [CHECK] Is the alternate file present?
-   else if (szAlternateExtension AND PathFileExists(szAlternatePath))
-   {
-      // Rename input path to reflect alternate extension
-      PathRenameExtension(szFullPath, szAlternateExtension);      // [FIX] BUG:1032 'The filename in the output dialog and VERBOSE doesn't always reflect the alternate extension of the file, if that was loaded instead'
-
-      /// [ALTERNATE PHYSICAL] Load the alternate file from the physical filesystem
-      iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szAlternatePath, NULL, szOutput, pErrorQueue);
-   }
-   // [CHECK] Is the file in the Virtual File System?
-   else if (isPathSubFolderOf(pFileSystem->szGameFolder, szFullPath) AND findVirtualFileByPath(pFileSystem, szFullPath, pVirtualFile))
-   {
-      // Generate data file path 
-      szDataFilePath = generateGameCatalogueFilePath(GFI_CATALOGUE_DATA, pFileSystem->szGameFolder, LOWORD(pVirtualFile->iCatalogueID), (pVirtualFile->iCatalogueID INCLUDES CLF_ADDON ? GV_ALBION_PRELUDE : GV_THREAT));
-
-      /// [VIRTUAL] Load the file from the appropriate .DAT file
-      iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szDataFilePath, pVirtualFile, szOutput, pErrorQueue);
-      utilDeleteString(szDataFilePath);
-   }
-   // [CHECK] Is the alternate file in the Virtual File System?
-   else if (isPathSubFolderOf(pFileSystem->szGameFolder, szFullPath) AND szAlternateExtension AND findVirtualFileByPath(pFileSystem, szAlternatePath, pVirtualFile))
-   {
-      // Generate data file path and modified input path to reflect alternate extension
-      szDataFilePath = generateGameCatalogueFilePath(GFI_CATALOGUE_DATA, pFileSystem->szGameFolder, LOWORD(pVirtualFile->iCatalogueID), (pVirtualFile->iCatalogueID INCLUDES CLF_ADDON ? GV_ALBION_PRELUDE : GV_THREAT));
-      PathRenameExtension(szFullPath, szAlternateExtension);      // [FIX] BUG:1032 'The filename in the output dialog and VERBOSE doesn't always reflect the alternate extension of the file, if that was loaded instead'
-
-      /// [ALTERNATE VIRTUAL] Load the file from the appropriate .DAT file
-      iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szDataFilePath, pVirtualFile, szOutput, pErrorQueue);
-      utilDeleteString(szDataFilePath);
-   }
-   else if (szAlternateExtension)
-      /// [ALTERNATE NOT FOUND] "The file '%s' (or %s) could not be found in physical file system or the game catalogues"
-      pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_LOAD_ALTERNATE_FILE_NOT_FOUND), szFullPath, szAlternateExtension));
-   else
-      /// [NOT FOUND] "The file '%s' could not be found in physical file system or the game catalogues"
-      pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_LOAD_FILE_NOT_FOUND), szFullPath));
-   
-   // [SUCCESS] Decrypt/decompress file as appropriate
-   if (iBytesRead > 0)
-   {
-      /// [DECODE] Decrypt/decompress and return number new file size
-      iBytesRead = performRawFileDecryption(PathFindFileName(szFullPath), szOutput, iBytesRead, (pVirtualFile ? FIF_VIRTUAL : FIF_PHYSICAL), pErrorQueue);
-
-      /// [CHECK] Does decrypted file start with a UTF-16 byte ordering mark?
-      if (utilCompareMemory(szOutput, iByteOrderingUTF16_BE, 2) OR utilCompareMemory(szOutput, iByteOrderingUTF16_LE, 2))
+      // [ALTERNATE] Generate alternate path
+      if (szAlternateExtension)
       {
-         // [ERROR] Cannot read the file '%s' because it is using the currently unsupported UTF-16 byte ordering 0x%02X, 0x%02X
-         pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_FILE_UTF16_UNSUPPORTED), szFullPath, (UINT)szOutput[0], (UINT)szOutput[1]));
-
-         // Cleanup and return ZERO
-         deleteRawFileBuffer(szOutput);
-         iBytesRead = 0;
+         szAlternatePath = utilDuplicatePath(szFullPath);
+         PathRenameExtension(szAlternatePath, szAlternateExtension);
       }
-      /// [CHECK] Does the decrypted file start a UTF-8 byte ordering mark?
-      else if (utilCompareMemory(szOutput, iByteOrderingUTF8, 3))
+
+      // [CHECK] Is file present?
+      if (PathFileExists(szFullPath))
+         /// [PHYSICAL] Load the file from the physical filesystem
+         iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szFullPath, NULL, szOutput, pErrorQueue);
+
+      // [CHECK] Is the alternate file present?
+      else if (szAlternateExtension AND PathFileExists(szAlternatePath))
       {
-         // Reduce filesize
-         iBytesRead -= 3;
+         // Rename input path to reflect alternate extension
+         PathRenameExtension(szFullPath, szAlternateExtension);      // [FIX] BUG:1032 'The filename in the output dialog and VERBOSE doesn't always reflect the alternate extension of the file, if that was loaded instead'
 
-         // Strip BOM by re-allocating the output buffer
-         szStrippedOutput = createRawFileBuffer(iBytesRead);
-         utilCopyMemory(szStrippedOutput, &szOutput[3], iBytesRead);
-
-         // Replace output buffer
-         deleteRawFileBuffer(szOutput);
-         szOutput = szStrippedOutput;
+         /// [ALTERNATE PHYSICAL] Load the alternate file from the physical filesystem
+         iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szAlternatePath, NULL, szOutput, pErrorQueue);
       }
-   }
+      // [CHECK] Is the file in the Virtual File System?
+      else if (isPathSubFolderOf(pFileSystem->szGameFolder, szFullPath) AND findVirtualFileByPath(pFileSystem, szFullPath, pVirtualFile))
+      {
+         // Generate data file path 
+         szDataFilePath = generateGameCatalogueFilePath(GFI_CATALOGUE_DATA, pFileSystem->szGameFolder, LOWORD(pVirtualFile->iCatalogueID), (pVirtualFile->iCatalogueID INCLUDES CLF_ADDON ? GV_ALBION_PRELUDE : GV_THREAT));
 
-   // Cleanup and return number of bytes read/decompressed
-   utilSafeDeleteString(szAlternatePath);
-   END_TRACKING();
-   return iBytesRead;
+         /// [VIRTUAL] Load the file from the appropriate .DAT file
+         iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szDataFilePath, pVirtualFile, szOutput, pErrorQueue);
+         utilDeleteString(szDataFilePath);
+      }
+      // [CHECK] Is the alternate file in the Virtual File System?
+      else if (isPathSubFolderOf(pFileSystem->szGameFolder, szFullPath) AND szAlternateExtension AND findVirtualFileByPath(pFileSystem, szAlternatePath, pVirtualFile))
+      {
+         // Generate data file path and modified input path to reflect alternate extension
+         szDataFilePath = generateGameCatalogueFilePath(GFI_CATALOGUE_DATA, pFileSystem->szGameFolder, LOWORD(pVirtualFile->iCatalogueID), (pVirtualFile->iCatalogueID INCLUDES CLF_ADDON ? GV_ALBION_PRELUDE : GV_THREAT));
+         PathRenameExtension(szFullPath, szAlternateExtension);      // [FIX] BUG:1032 'The filename in the output dialog and VERBOSE doesn't always reflect the alternate extension of the file, if that was loaded instead'
+
+         /// [ALTERNATE VIRTUAL] Load the file from the appropriate .DAT file
+         iBytesRead = loadRawFileFromUnderlyingFileSystemByPath(szDataFilePath, pVirtualFile, szOutput, pErrorQueue);
+         utilDeleteString(szDataFilePath);
+      }
+      else if (szAlternateExtension)
+         /// [ALTERNATE NOT FOUND] "The file '%s' (or %s) could not be found in physical file system or the game catalogues"
+         pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_LOAD_ALTERNATE_FILE_NOT_FOUND), szFullPath, szAlternateExtension));
+      else
+         /// [NOT FOUND] "The file '%s' could not be found in physical file system or the game catalogues"
+         pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_LOAD_FILE_NOT_FOUND), szFullPath));
+      
+      // [SUCCESS] Decrypt/decompress file as appropriate
+      if (iBytesRead > 0)
+      {
+         /// [DECODE] Decrypt/decompress and return number new file size
+         iBytesRead = performRawFileDecryption(PathFindFileName(szFullPath), szOutput, iBytesRead, (pVirtualFile ? FIF_VIRTUAL : FIF_PHYSICAL), pErrorQueue);
+
+         /// [CHECK] Does decrypted file start with a UTF-16 byte ordering mark?
+         if (utilCompareMemory(szOutput, iByteOrderingUTF16_BE, 2) OR utilCompareMemory(szOutput, iByteOrderingUTF16_LE, 2))
+         {
+            // [ERROR] Cannot read the file '%s' because it is using the currently unsupported UTF-16 byte ordering 0x%02X, 0x%02X
+            pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_FILE_UTF16_UNSUPPORTED), szFullPath, (UINT)szOutput[0], (UINT)szOutput[1]));
+
+            // Cleanup and return ZERO
+            deleteRawFileBuffer(szOutput);
+            iBytesRead = 0;
+         }
+         /// [CHECK] Does the decrypted file start a UTF-8 byte ordering mark?
+         else if (utilCompareMemory(szOutput, iByteOrderingUTF8, 3))
+         {
+            // Reduce filesize
+            iBytesRead -= 3;
+
+            // Strip BOM by re-allocating the output buffer
+            szStrippedOutput = createRawFileBuffer(iBytesRead);
+            utilCopyMemory(szStrippedOutput, &szOutput[3], iBytesRead);
+
+            // Replace output buffer
+            deleteRawFileBuffer(szOutput);
+            szOutput = szStrippedOutput;
+         }
+      }
+
+      // Cleanup and return number of bytes read/decompressed
+      utilSafeDeleteString(szAlternatePath);
+      return iBytesRead;
+   }
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION2("Unable to load the file '%s' (.%s)", szFullPath, szAlternateExtension);
+      return 0;
+   }
 }
 
 
@@ -892,7 +897,6 @@ FILE_SEARCH*   performFileSystemSearch(CONST FILE_SYSTEM*  pFileSystem, CONST TC
    FILE_SEARCH*   pSearchResults;     // FileSearch object
   
    // Prepare
-   TRACK_FUNCTION();
 
    /// Create new FileSearch to hold results
    pSearchResults = createFileSearch(eSortBy, eDirection);
@@ -915,7 +919,6 @@ FILE_SEARCH*   performFileSystemSearch(CONST FILE_SYSTEM*  pFileSystem, CONST TC
    performAVLTreeIndexing(pSearchResults->pResultsTree);
 
    // Cleanup and return result
-   END_TRACKING();
    return pSearchResults;
 }
 
@@ -934,20 +937,31 @@ UINT  saveDocumentToFileSystem(CONST TCHAR*  szFullPath, GAME_FILE*  pOutput, ER
    RAW_FILE*  pFileBuffer;     // ANSI buffer to hold the input document
    UINT       iBytesWritten;   // Number of bytes written to disk
 
-   // Prepare
-   iBytesWritten = NULL;
+   __try
+   {
+      // Prepare
+      iBytesWritten = NULL;
 
-   // [CHECK] Output buffer is not empty
-   ASSERT(hasOutputData(pOutput));
+      // [CHECK] Output buffer is not empty
+      ASSERT(hasOutputData(pOutput));
 
-   /// Attempt to convert output buffer to ANSI
-   if (pFileBuffer = (RAW_FILE*)utilTranslateStringToANSI(pOutput->szOutputBuffer, pOutput->iOutputSize))
-      /// [SUCCESS] Output file as ANSI
-      iBytesWritten = saveRawFileToFileSystem(szFullPath, pFileBuffer, pOutput->iOutputSize, pErrorQueue);
+      /// Attempt to convert output buffer to ANSI
+      if (pFileBuffer = (RAW_FILE*)utilTranslateStringToANSI(pOutput->szOutputBuffer, pOutput->iOutputSize))
+         /// [SUCCESS] Output file as ANSI
+         iBytesWritten = saveRawFileToFileSystem(szFullPath, pFileBuffer, pOutput->iOutputSize, pErrorQueue);
+      else
+         // [ERROR] "Unable to convert document contents from UNICODE to ANSI"
+         generateQueuedError(pErrorQueue, HERE(IDS_UNICODE_CONVERSION_ANSI_FAILED));
 
-   // Cleanup and return
-   deleteRawFileBuffer(pFileBuffer);
-   return iBytesWritten;
+      // Cleanup and return
+      deleteRawFileBuffer(pFileBuffer);
+      return iBytesWritten;
+   }
+   PUSH_CATCH(pErrorQueue)
+   {
+      EXCEPTION1("szFullPath=%s", szFullPath);
+      return 0;
+   }
 }
 
 
@@ -969,46 +983,58 @@ UINT  saveDocumentToFileSystemEx(CONST TCHAR*  szFullPath, GAME_FILE*  pOutput, 
    UINT       iOutputLength,         // Length of (Uncompressed/Compressed) ANSI output buffer
               iBytesWritten;         // Number of bytes written to disc
               
-   // [CHECK] Output buffer is not empty
-   ASSERT(hasOutputData(pOutput));
-
-   // Prepare
-   pUncompressedFile = NULL;
-   pCompressedFile   = NULL;
-   iBytesWritten     = NULL;
-
-   // Set initial length
-   iOutputLength = pOutput->iOutputSize;
-
-   /// Generate ANSI copy of document output buffer
-   if (pUncompressedFile = (RAW_FILE*)utilTranslateStringToANSI(pOutput->szOutputBuffer, iOutputLength))
+   __try
    {
-      // [CHECK] Are we saving as PCK?
-      if (utilCompareString(PathFindExtension(szFullPath), ".pck"))
+      // [CHECK] Output buffer is not empty
+      ASSERT(hasOutputData(pOutput));
+
+      // Prepare
+      pUncompressedFile = NULL;
+      pCompressedFile   = NULL;
+      iBytesWritten     = NULL;
+
+      // Set initial length
+      iOutputLength = pOutput->iOutputSize;
+
+      /// Generate ANSI copy of document output buffer
+      if (pUncompressedFile = (RAW_FILE*)utilTranslateStringToANSI(pOutput->szOutputBuffer, iOutputLength))
       {
-         // Generate filename (without extension)
-         szFileName = utilDuplicateSimpleString(PathFindFileName(szFullPath));
-         utilFindCharacterReverse(szFileName, '.')[0] = NULL;
+         // [CHECK] Are we saving as PCK?
+         if (utilCompareString(PathFindExtension(szFullPath), ".pck"))
+         {
+            // Generate filename (without extension)
+            szFileName = utilDuplicateSimpleString(PathFindFileName(szFullPath));
+            utilFindCharacterReverse(szFileName, '.')[0] = NULL;
 
-         /// [PCK] Generate compressed copy of ANSI buffer
-         iOutputLength = performGZipFileCompression(szFileName, pUncompressedFile, iOutputLength, pCompressedFile, pProgress, pErrorQueue);
+            /// [PCK] Generate compressed copy of ANSI buffer
+            iOutputLength = performGZipFileCompression(szFileName, pUncompressedFile, iOutputLength, pCompressedFile, pProgress, pErrorQueue);
 
-         // Cleanup
-         utilDeleteString(szFileName);
+            // Cleanup
+            utilDeleteString(szFileName);
+         }
+
+         // [CHECK] Was compression successful?
+         if (iOutputLength)
+            /// [SUCCESS] Output compressed/uncompressed file as ANSI
+            iBytesWritten = saveRawFileToFileSystem(szFullPath, utilEither(pCompressedFile, pUncompressedFile), iOutputLength, pErrorQueue);
       }
+      else
+         // [ERROR] "Unable to convert document contents from UNICODE to ANSI"
+         generateQueuedError(pErrorQueue, HERE(IDS_UNICODE_CONVERSION_ANSI_FAILED));
 
-      // [CHECK] Was compression successful?
-      if (iOutputLength)
-         /// [SUCCESS] Output compressed/uncompressed file as ANSI
-         iBytesWritten = saveRawFileToFileSystem(szFullPath, utilEither(pCompressedFile, pUncompressedFile), iOutputLength, pErrorQueue);
+      // Cleanup
+      if (pCompressedFile)
+         deleteRawFileBuffer(pCompressedFile);
+      deleteRawFileBuffer(pUncompressedFile);
+      // Return number of bytes written
+      return iBytesWritten;
    }
-
-   // Cleanup
-   if (pCompressedFile)
-      deleteRawFileBuffer(pCompressedFile);
-   deleteRawFileBuffer(pUncompressedFile);
-   // Return number of bytes written
-   return iBytesWritten;
+   PUSH_CATCH(pErrorQueue)
+   {
+      EXCEPTION1("szFullPath=%s", szFullPath);
+      debugGameFile(pOutput);
+      return NULL;
+   }
 }
 
 /// Function name  : saveRawFileToFileSystem
@@ -1029,7 +1055,6 @@ UINT  saveRawFileToFileSystem(CONST TCHAR*  szFullPath, CONST RAW_FILE*  szInput
    TCHAR*   szSystemError;    // GetLastError() result, if any
    
    // Prepare
-   TRACK_FUNCTION();
    iBytesWritten = NULL;
 
    /// Attempt to create/overwrite the target file
@@ -1058,7 +1083,6 @@ UINT  saveRawFileToFileSystem(CONST TCHAR*  szFullPath, CONST RAW_FILE*  szInput
    }
 
    // Return number of bytes written
-   END_TRACKING();
    return iBytesWritten;
 }
 

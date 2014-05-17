@@ -218,7 +218,7 @@ VOID  setGameFilePath(GAME_FILE*  pGameFile, CONST TCHAR*  szNewPath, ...)
 UINT   loadGameFileFromResource(HINSTANCE  hInstance, CONST TCHAR*  szResourceName, GAME_FILE*  pOutput)
 {
    // [VERBOSE]
-   VERBOSE("Loading resource %s", szResourceName);
+   //VERBOSE("Loading resource %s", szResourceName);
 
    // [CHECK] Ensure GameFile is empty
    ASSERT(!hasInputData(pOutput));
@@ -227,7 +227,7 @@ UINT   loadGameFileFromResource(HINSTANCE  hInstance, CONST TCHAR*  szResourceNa
    pOutput->iInputSize = utilLoadResourceFile(hInstance, szResourceName, pOutput->szInputBuffer);
 
    // [CHECK] Ensure resource was loaded successfully
-   ERROR_CHECK("loading resource", pOutput->iInputSize);
+   ERROR_CHECK("loading binary resource", pOutput->iInputSize);
 
    // Set properties
    pOutput->bResourceBased = TRUE;

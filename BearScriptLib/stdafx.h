@@ -7,22 +7,8 @@
 #pragma warning ( disable : 4995 )
 #pragma warning ( disable : 4996 )
 
-/// Specify a Windows XP compatible build environment
-#ifndef WINVER 
-#define WINVER         NTDDI_WINXP
-#endif
-
-#ifndef _WIN32_WINNT               
-#define _WIN32_WINNT   NTDDI_WINXP 
-#endif
-
-#ifndef _WIN32_WINDOWS             
-#define _WIN32_WINDOWS NTDDI_WINXP 
-#endif
-
-#ifndef _WIN32_IE                  
-#define _WIN32_IE      NTDDI_WINXP
-#endif
+/// Target Windows XP
+#include "../TargetVer.h"
 
 // Exclude rarely-used stuff from Windows headers
 #define      WIN32_LEAN_AND_MEAN             
@@ -38,6 +24,9 @@
 #include <Commdlg.h>
 #include <htmlhelp.h>
 #include <Wininet.h>
+#include <uxtheme.h>
+#include <Vssym32.h>
+#include <vsstyle.h>
 
 // Memory Leak Detection
 #define _CRTDBG_MAP_ALLOC

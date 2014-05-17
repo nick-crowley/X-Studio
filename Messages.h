@@ -145,22 +145,6 @@
 #define     Window_GetMenuItemState(hWnd, iCommandID, piState)       SendMessage(hWnd, UM_GET_MENU_ITEM_STATE, iCommandID, (LPARAM)(UINT*)(piState))
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
-///                                  SCRIPT DOCUMENT
-/// ////////////////////////////////////////////////////////////////////////////////////////
-
-/// Name: UM_GET_SCRIPT_VERSION
-// Description: Retrieves the GameVersion of the target script document
-//
-// WPARAM : NULL
-// LPARAM : GAME_VERSION* : [in/out] Pointer to GameVersion object that retrieves the game version of the current script
-//
-// Return Value : TRUE if document is a ScriptDocument, otherwise FALSE
-//
-#define     UM_GET_SCRIPT_VERSION                                    (UM_XSTUDIO + 19)
-//
-#define     Document_GetScriptVersion(hWnd, pVersion)                SendMessage(hWnd, UM_GET_SCRIPT_VERSION, NULL, (LPARAM)(pVersion))
-
-/// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                  LANGUAGE DOCUMENT
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -233,7 +217,7 @@
 //
 // Return : GAME_STRING* if found, otherwise NULL
 //
-#define     UM_GET_CARET_GAME_STRING                                (UM_XSTUDIO + 51)
+#define     UM_GET_CARET_GAME_STRING                                (UM_XSTUDIO + 28)
 //
 #define     CodeEdit_GetCaretGameString(hCtrl,pProject)             (GAME_STRING*)SendMessage(hCtrl, UM_GET_CARET_GAME_STRING, NULL, (LPARAM)(pProject))
 
@@ -246,7 +230,7 @@
 //
 // Return : TRUE
 //
-#define     UM_GET_CARET_LOCATION                                    (UM_XSTUDIO + 28)
+#define     UM_GET_CARET_LOCATION                                    (UM_XSTUDIO + 29)
 //
 #define     CodeEdit_GetCaretLocation(hCtrl,pLocation)               SendMessage(hCtrl, UM_GET_CARET_LOCATION, NULL, (LPARAM)(pLocation))
 
@@ -256,7 +240,7 @@
 //
 // Return : Quality score between 0 and 100
 //
-#define     UM_GET_COMMENT_QUALITY                                   (UM_XSTUDIO + 29)
+#define     UM_GET_COMMENT_QUALITY                                   (UM_XSTUDIO + 30)
 //
 #define     CodeEdit_GetCommentQuality(hCtrl)                        SendMessage(hCtrl, UM_GET_COMMENT_QUALITY, NULL, NULL)
 
@@ -266,7 +250,7 @@
 //
 // Return : New Queue containing CodeEditLabels, you are responsible for destroying it
 //
-#define     UM_GET_LABEL_QUEUE                                       (UM_XSTUDIO + 30)
+#define     UM_GET_LABEL_QUEUE                                       (UM_XSTUDIO + 32)
 //
 #define     CodeEdit_GetLabelQueue(hCtrl)                            (QUEUE*)SendMessage(hCtrl, UM_GET_LABEL_QUEUE, NULL, NULL)
 
@@ -276,7 +260,7 @@
 //
 // Return : New AVLTree containing ScriptDependencies, you are responsible for destroying it
 //
-#define     UM_GET_SCRIPT_DEPENDENCY_TREE                            (UM_XSTUDIO + 31)
+#define     UM_GET_SCRIPT_DEPENDENCY_TREE                            (UM_XSTUDIO + 33)
 //
 #define     CodeEdit_GetScriptDependencyTree(hCtrl)                  (AVL_TREE*)SendMessage(hCtrl, UM_GET_SCRIPT_DEPENDENCY_TREE, NULL, NULL)
 
@@ -288,7 +272,7 @@
 //
 // Return : New AVLTree containing StringDependencies, you are responsible for destroying it
 //
-#define     UM_GET_STRING_DEPENDENCY_TREE                            (UM_XSTUDIO + 32)
+#define     UM_GET_STRING_DEPENDENCY_TREE                            (UM_XSTUDIO + 34)
 //
 #define     CodeEdit_GetStringDependencyTree(hCtrl, pProjectFile)    (AVL_TREE*)SendMessage(hCtrl, UM_GET_STRING_DEPENDENCY_TREE, NULL, (LPARAM)(pProjectFile))
 
@@ -298,7 +282,7 @@
 //
 // Return : New AVLTree containing VariableDependencies, you are responsible for destroying it
 //
-#define     UM_GET_VARIABLE_DEPENDENCY_TREE                          (UM_XSTUDIO + 33)
+#define     UM_GET_VARIABLE_DEPENDENCY_TREE                          (UM_XSTUDIO + 35)
 //
 #define     CodeEdit_GetVariableDependencyTree(hCtrl)                (AVL_TREE*)SendMessage(hCtrl, UM_GET_VARIABLE_DEPENDENCY_TREE, NULL, NULL)
 
@@ -308,7 +292,7 @@
 //
 // Return : New AVLTree containing VariableNames, you are responsible for destroying it
 //
-#define     UM_GET_VARIABLE_NAME_TREE                                (UM_XSTUDIO + 34)
+#define     UM_GET_VARIABLE_NAME_TREE                                (UM_XSTUDIO + 36)
 //
 #define     CodeEdit_GetVariableNameTree(hCtrl)                      (AVL_TREE*)SendMessage(hCtrl, UM_GET_VARIABLE_NAME_TREE, NULL, NULL)
 
@@ -320,7 +304,7 @@
 //
 // Return : Zero-based Indentation factor
 //
-#define     UM_GET_LINE_INDENTATION                                  (UM_XSTUDIO + 35)
+#define     UM_GET_LINE_INDENTATION                                  (UM_XSTUDIO + 37)
 //
 #define     CodeEdit_GetLineIndentation(hCtrl, iLine)                (UINT)SendMessage(hCtrl, UM_GET_LINE_INDENTATION, (WPARAM)(iLine), NULL)
 
@@ -332,7 +316,7 @@
 //
 // Return : New string containing line text, you are responsible for destroying it
 //
-#define     UM_GET_LINE_TEXT                                         (UM_XSTUDIO + 36)
+#define     UM_GET_LINE_TEXT                                         (UM_XSTUDIO + 38)
 //
 #define     CodeEdit_GetLineText(hCtrl, iLine)                       (TCHAR*)SendMessage(hCtrl, UM_GET_LINE_TEXT, (WPARAM)(iLine), NULL)
 
@@ -341,7 +325,7 @@
 //
 // Return : New string containing line text, if any, otherwise NULL
 //
-#define     UM_GET_SELECTION_TEXT                                    (UM_XSTUDIO + 37)
+#define     UM_GET_SELECTION_TEXT                                    (UM_XSTUDIO + 39)
 //
 #define     CodeEdit_GetSelectionText(hCtrl)                         (TCHAR*)SendMessage(hCtrl, UM_GET_SELECTION_TEXT, NULL, NULL)
 
@@ -351,7 +335,7 @@
 //
 // Return : TRUE or FALSE
 //
-#define     UM_HAS_SELECTION                                         (UM_XSTUDIO + 38)
+#define     UM_HAS_SELECTION                                         (UM_XSTUDIO + 41)
 //
 #define     CodeEdit_HasSelection(hCtrl)                             (BOOL)SendMessage(hCtrl, UM_HAS_SELECTION, NULL, NULL)
 
@@ -361,7 +345,7 @@
 //
 // Return : TRUE or FALSE
 //
-#define     UM_HAS_SUGGESTIONS                                       (UM_XSTUDIO + 39)
+#define     UM_HAS_SUGGESTIONS                                       (UM_XSTUDIO + 42)
 //
 #define     CodeEdit_HasSuggestions(hCtrl)                           (BOOL)SendMessage(hCtrl, UM_HAS_SUGGESTIONS, NULL, NULL)
 
@@ -373,7 +357,7 @@
 // WPARAM : NULL
 // LPARAM : CONST TCHAR* : [in] Text to insert. This is owned by the caller and must not be deleted
 //
-#define     UM_INSERT_TEXT_AT_CARET                                  (UM_XSTUDIO + 40)
+#define     UM_INSERT_TEXT_AT_CARET                                  (UM_XSTUDIO + 43)
 //
 #define     CodeEdit_InsertTextAtCaret(hCtrl, szText)                SendMessage(hCtrl, UM_INSERT_TEXT_AT_CARET, NULL, (LPARAM)(szText))
 
@@ -383,7 +367,7 @@
 //
 // Return : TRUE or FALSE
 //
-#define     UM_IS_SELECTION_COMMENTED                                (UM_XSTUDIO + 41)
+#define     UM_IS_SELECTION_COMMENTED                                (UM_XSTUDIO + 44)
 //
 #define     CodeEdit_IsSelectionCommented(hCtrl)                     (BOOL)SendMessage(hCtrl, UM_IS_SELECTION_COMMENTED, NULL, NULL)
 
@@ -391,22 +375,31 @@
 /// Name: UM_SCROLL_TO_LOCATION
 // Description: Scroll the CodeEdit to a given position
 //
-// WPARAM : UINT : [in] Zero-based Character Index
+// WPARAM : BOOL : [in] Whether to scroll line to top of the page
+// LPARAM : UINT : [in] Zero-based Character Index
 // LPARAM : UINT : [in] Zero-based Line Number
 //
-#define     UM_SCROLL_TO_LOCATION                                    (UM_XSTUDIO + 42)
+#define     UM_SCROLL_TO_LOCATION                                    (UM_XSTUDIO + 45)
 //
-#define     CodeEdit_ScrollToLocation(hCtrl, iChar, iLine)           SendMessage(hCtrl, UM_SCROLL_TO_LOCATION, (WPARAM)(iChar), (LPARAM)(iLine))
+#define     CodeEdit_ScrollToLocation(hCtrl,iChar,iLine,bTop)        SendMessage(hCtrl, UM_SCROLL_TO_LOCATION, bTop, MAKE_LONG(iChar, iLine))
 
 
 /// Name: UM_SELECT_ALL
-// Description: Determines whether the object under the caret can have suggestions or not
+// Description: Selects all text within edit
 //
-// Return : TRUE or FALSE
+#define     UM_SELECT_ALL                                            (UM_XSTUDIO + 46)
 //
-#define     UM_SELECT_ALL                                            (UM_XSTUDIO + 43)
+#define     CodeEdit_SelectAll(hCtrl)                                SendMessage(hCtrl, UM_SELECT_ALL, NULL, NULL)
+
+
+/// Name: UM_SELECT_LINE
+// Description: Selects specified line
 //
-#define     CodeEdit_SelectAll(hCtrl)                                (BOOL)SendMessage(hCtrl, UM_SELECT_ALL, NULL, NULL)
+// WPARAM : UINT : [in] Zero-based Line Number
+//
+#define     UM_SELECT_LINE                                           (UM_XSTUDIO + 47)
+//
+#define     CodeEdit_SelectLine(hCtrl, iLine)                        SendMessage(hCtrl, UM_SELECT_LINE, iLine, NULL)
 
 
 /// Name: UM_SET_LINE_ERROR
@@ -416,7 +409,7 @@
 // WPARAM (HO) : ERROR_TYPE         : [in] Whether error(s) represent an error or a warning
 // LPARAM      : CONST ERROR_QUEUE* : [in] ErrorQueue containing the error(s)
 //
-#define     UM_SET_LINE_ERROR                                        (UM_XSTUDIO + 44)
+#define     UM_SET_LINE_ERROR                                        (UM_XSTUDIO + 48)
 //
 #define     CodeEdit_SetLineError(hCtrl, iLine, eType, pErrorQueue)  SendMessage(hCtrl, UM_SET_LINE_ERROR, (WPARAM)MAKE_LONG(iLine,eType), (LPARAM)(ERROR_QUEUE*)(pErrorQueue))
 
@@ -427,7 +420,7 @@
 // WPARAM : NULL
 // LPARAM : CONST PREFERENCES* : [in] Preferences object
 //
-#define     UM_SET_PREFERENCES                                       (UM_XSTUDIO + 45)
+#define     UM_SET_PREFERENCES                                       (UM_XSTUDIO + 49)
 //
 #define     CodeEdit_SetPreferences(hCtrl, pPreferences)             SendMessage(hCtrl, UM_SET_PREFERENCES, NULL, (LPARAM)(PREFERENCES*)(pPreferences))
 
@@ -438,7 +431,7 @@
 // WPARAM : NULL
 // LPARAM : CONST SCRIPT_FILE* : [in] ScriptFile to display (THIS MUST NOT BE DELETED)
 //
-#define     UM_SET_SCRIPT_FILE                                       (UM_XSTUDIO + 46)
+#define     UM_SET_SCRIPT_FILE                                       (UM_XSTUDIO + 51)
 //
 #define     CodeEdit_SetScriptFile(hCtrl, pScriptFile)               SendMessage(hCtrl, UM_SET_SCRIPT_FILE, NULL, (LPARAM)(SCRIPT_FILE*)(pScriptFile))
 
@@ -446,7 +439,7 @@
 /// Name: UM_SHOW_SUGGESTIONS
 // Description: Displays the SuggestionList on the line beneath the caret
 //
-#define     UM_SHOW_SUGGESTIONS                                      (UM_XSTUDIO + 47)
+#define     UM_SHOW_SUGGESTIONS                                      (UM_XSTUDIO + 52)
 //
 #define     CodeEdit_ShowSuggestions(hCtrl, iFlags)                  SendMessage(hCtrl, UM_SHOW_SUGGESTIONS, NULL, NULL)
 
@@ -461,7 +454,7 @@
 // LPARAM : NULL             : [in] CCF_SELECTION_CHANGED and CCF_TEXT_CHANGED
 //        : CODE_EDIT_LABEL* : [in] CCF_SCOPE_CHANGED : New scope
 //
-#define     UN_CODE_EDIT_CHANGED                                     (UM_XSTUDIO + 48)
+#define     UN_CODE_EDIT_CHANGED                                     (UM_XSTUDIO + 53)
 
 /// Name: UN_CODE_EDIT_EXCEPTION
 // Description: Informs the MainWindow an exception has occurred in the CodeEdit
@@ -469,7 +462,7 @@
 // WPARAM : HWND         : [in] CodeEdit window
 // LPARAM : ERROR_STACK* : [in] Error message
 //
-#define     UN_CODE_EDIT_EXCEPTION                                   (UM_XSTUDIO + 49)
+#define     UN_CODE_EDIT_EXCEPTION                                   (UM_XSTUDIO + 54)
 
 
 /// Name: UN_CODE_EDIT_REQUEST_ARGUMENTS
@@ -477,7 +470,7 @@
 //
 // LPARAM : COMMAND* : [in] COMMAND containing the script-call
 //
-#define     UN_CODE_EDIT_REQUEST_ARGUMENTS                           (UM_XSTUDIO + 50)
+#define     UN_CODE_EDIT_REQUEST_ARGUMENTS                           (UM_XSTUDIO + 55)
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                     GROUPED LIST VIEW
@@ -489,7 +482,7 @@
 // WPARAM : NULL
 // LPARAM : LISTVIEW_GROUP* : [in] Defines the group ID and name.  (The count is ignored)
 //
-#define     UM_ADD_LISTVIEW_GROUP                                    (UM_XSTUDIO + 55)
+#define     UM_ADD_LISTVIEW_GROUP                                    (UM_XSTUDIO + 60)
 //
 #define     GroupedListView_AddGroup(hCtrl, pGroupData)              SendMessage(hCtrl, UM_ADD_LISTVIEW_GROUP, NULL, (LPARAM)(pGroupData))
 
@@ -497,7 +490,7 @@
 /// Name: UM_EMPTY_LISTVIEW_GROUPS
 // Description: Empties but does not delete all groups in a GroupedListView
 //
-#define     UM_EMPTY_LISTVIEW_GROUPS                                 (UM_XSTUDIO + 56)
+#define     UM_EMPTY_LISTVIEW_GROUPS                                 (UM_XSTUDIO + 61)
 //
 #define     GroupedListView_EmptyGroups(hCtrl)                       SendMessage(hCtrl, UM_EMPTY_LISTVIEW_GROUPS, NULL, NULL)
 
@@ -505,7 +498,7 @@
 /// Name: UM_PHYSICAL_TO_LOGICAL
 // Description: Converts a physical index into a logical onde
 //
-#define     UM_PHYSICAL_TO_LOGICAL                                   (UM_XSTUDIO + 57)
+#define     UM_PHYSICAL_TO_LOGICAL                                   (UM_XSTUDIO + 62)
 //
 #define     GroupedListView_PhysicalToLogical(hCtrl, iPhysicalIndex) SendMessage(hCtrl, UM_PHYSICAL_TO_LOGICAL, iPhysicalIndex, NULL)
 
@@ -513,7 +506,7 @@
 /// Name: UM_REMOVE_LISTVIEW_GROUPS
 // Description: Deletes all groups in a GroupedListView
 //
-#define     UM_REMOVE_LISTVIEW_GROUPS                                (UM_XSTUDIO + 58)
+#define     UM_REMOVE_LISTVIEW_GROUPS                                (UM_XSTUDIO + 63)
 //
 #define     GroupedListView_RemoveGroups(hCtrl)                      SendMessage(hCtrl, UM_REMOVE_LISTVIEW_GROUPS, NULL, NULL)
 
@@ -524,7 +517,7 @@
 // WPARAM : UINT : [in] ID of the group
 // LPARAM : UINT : [in] Number of items in the group
 //          
-#define     UM_SET_LISTVIEW_GROUP_COUNT                              (UM_XSTUDIO + 59)
+#define     UM_SET_LISTVIEW_GROUP_COUNT                              (UM_XSTUDIO + 64)
 //
 #define     GroupedListView_SetGroupCount(hCtrl, iGroupID, iCount)   SendMessage(hCtrl, UM_SET_LISTVIEW_GROUP_COUNT, (WPARAM)(iGroupID), (LPARAM)(iCount))
 
@@ -538,7 +531,7 @@
 // WPARAM : NULL
 // LPARAM : Pointer to the MediaItem to load.  This is owned by the caller and should not be destroyed.
 //
-#define     UM_LOAD_MEDIA_ITEM            (UM_XSTUDIO + 60)
+#define     UM_LOAD_MEDIA_ITEM            (UM_XSTUDIO + 70)
 
 /// Name: UM_PLAY_MEDIA_ITEM
 // Description: Tells the Media Player dialog to play the specified media item
@@ -546,7 +539,7 @@
 // WPARAM : NULL
 // LPARAM : Pointer to the MediaItem to play.  This is owned by the caller and should not be destroyed.
 //
-#define     UM_PLAY_MEDIA_ITEM            (UM_XSTUDIO + 61)
+#define     UM_PLAY_MEDIA_ITEM            (UM_XSTUDIO + 71)
 
 /// Name: UM_INIT_MEDIA_PLAYER
 // Description: Passes dialog data to the media player
@@ -554,7 +547,7 @@
 // WPARAM : NULL
 // LPARAM : Dialog data
 //
-#define     UM_INIT_MEDIA_PLAYER            (UM_XSTUDIO + 62)
+#define     UM_INIT_MEDIA_PLAYER            (UM_XSTUDIO + 72)
 
 /// Name: UM_MEDIA_EVENT
 // Description: Tells the Media Player dialog a DirectShow graph filter event has occurred

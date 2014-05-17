@@ -2,9 +2,140 @@
 =                                                                   CHANGE LOG                                                                               =
 ==============================================================================================================================================================
 
-Beta IV : xx xxxxxxxxx 2013
+Beta V : v1.08 : 14th February 2014
 ---------------------------------
+• Fixed BUG:075 'Program saves .pck language files as uncompressed XML but with a .pck extension'
+
+
+Beta V : v1.07 : 24th January 2014
+---------------------------------
+• Fixed BUG:074 'Type of all script arguments is reset to type of first argument when script is loaded'
+
+
+Beta V : v1.06 : 3rd January 2014
+---------------------------------
+• Added ability to export all project files into a custom named zip archive
+• Added ability to re-order script arguments
+• Export project files command now organises files into subfolders
+• Fixed BUG:069 'Cannot navigate the strings in a language file with direction keys or page up/down'
+• Fixed BUG:072 'Auto-complete lists commands that are incompatible with the script being edited'
+• Fixed BUG:073 'Project backup incorrectly says it has backed up zero files'
+
+Beta V : v1.05 : 31st December 2013
+---------------------------------
+• When editing language string IDs or script argument names/descriptions, the text is now initially selected
+• The 'Export project' command now queries the user whether to overwrite an existing file instead of failing silently
+• The folder browser dialog for the 'Export project' command can now be resized and contains a 'Make New Folder' button
+• The 'New Document' dialog now initially selects 'MSCI script'
+• Script arguments are now listed in the auto-complete script variables window 
+• Fixed BUG:060 'Program doesn't load language files using the X³ Reunion naming convention'
+• Fixed BUG:061 'Program cannot load scripts saved in a foreign language (unknown datatype error)'
+• Fixed BUG:062 'Backup files are sometimes truncated'
+• Fixed BUG:064 'Export project files command only exports scripts (not language/project files)'
+• Fixed BUG:065 'When saving new documents you have already named on creation, program asks for filename'
+• Fixed BUG:066 'The compiler message displayed when saving scripts doesn't reflect the script game version'
+• Fixed BUG:067 'Tooltips in the script editor sometimes incorrectly state there is no description for a command'
+• Fixed BUG:068 'Script arguments are not listed in the auto-complete list of script variables'
+
+
+Beta V : v1.04 : 11th September 2013 
+---------------------------------
+• Fixed BUG:059 All scripts written by the program crash X³ Reunion on startup 
+
+
+Beta V : v1.03 : 1st April 2013
+---------------------------------
+• Added feature request 'Enable 'open target script' context menu for user-defined custom commands'
+• Added feature request 'Ability to search for text in all currently open scripts '
+
+
+Beta V : v1.02 : 1st April 2013
+---------------------------------
+• Fixed an error in the first line of language files that prevents them from loading
+• Added feature request 'Press F3 to find next text-search result'
+• Added 'Automatically increment script version when saving' preference
+• Added mnemonic keyboard shortcuts to english menu items
+• Added submissions and corrections by Jack08 and Nekomata
+• Changed compatibility of 'format seconds to Zura time string' to incompatible with X3AP
+• Removed 'Test' menu from main window
+
+
+Beta V : v1.01 : 24th February 2013
+---------------------------------
+• Added a few more credits to the 'About' dialog
+• Fixed issue causing access violation when loading XTC script objects
+• Fixed a resource leak causing program graphics to dissapear after extended usage
+• Fixed BUG:054 Unexpected code following the 'else' command causes X-Studio to hang while compiling
+• Fixed BUG:053 Corrupted text displayed when using 'Open Target Script' menu command 
+
+
+Beta V : v1.00 : 21st February 2013
+---------------------------------
+
+• Added feature request 'Display overridden command in the tooltip of object commands'
+• Added ability to check online for latest program update
+• Added details of missing game data as 'attachments' to the following errors:
+  • Missing game object properties
+  • Unresolved/overwritten language strings
+• Added credits to 'About' dialog
+• Fixed issue causing incorrect co-ordinates to be displayed for 'Unknown Sectors'
+• Fixed BUG:051 Writing any operator (including 'or', 'and') between square brackets causes a 'debug assertion' message 
+
+
+Beta IV (Update 5) : 17th February 2013
+---------------------------------
+
+• Added new tooltips for about 30 commands
+• Added ability to search script folder for any command/object/constant (results are automatically highlighted)
+• Added feature request 'Create New String' dialog in language file editor
+• Slightly optimized load/save times and general performance
+• Fixed issue causing file browser to display the wrong icons for files
+• Fixed issue causing bottom half of logfile to be saved to script folder
+• Removed 'Formations' group of ScriptObjects - duplicates of formation constants listed under 'Constants'
+
+
+Beta IV (Update 4) : 12th February 2013
+---------------------------------
+
+• Added Log Viewer
+• Added Easter Egg
+• Fixed search window displaying tooltips containing only a full stop
+• Changed default MSCI extension from pck to xml
+• Fixed BUG:050 Race names that conflict with other script objects aren't made unique
+• Fixed BUG:049 Using conditionals with 'random value between x and y' command causes an error within MSCI 
+
+
+Beta IV (Update 3) : 11th February 2013
+---------------------------------
+
+• Completed German Translation 
+
+
+Beta IV (Update 2) : 8th February 2013
+---------------------------------
+
+• Added corrections submitted by Jack08 and DrBullwinkle
+• Updated HelpFile 
+• Fixed BUG:045 - Saving a script without a return command causes an access violation
+• Fixed BUG:046 - Windows Explorer 'open file' dialog doesn't remember the last folder used
+• (Patch 2a) Fixed BUG:047 - Windows XP users receive 'Entry Point Not Found' error trying to start the program (Thanks DrBullwinkle)
+• (Patch 2b) Fixed BUG:048 - An access violation occurs when you search for text in a script
+
+
+Beta IV (Update 1) : 7th February 2013
+---------------------------------
+
+• Fixed bug allowing missing 'return' or 'endsub' at end of script
+• Fixed bug allowing 'if' commands within 'skip-if' commands
+• Fixed bug allowing changes to read-only properties in the game-strings browser
+• Fixed bug erasing the command a script implements when document is saved
+
+
+Beta IV : 6th February 2013
+---------------------------------
+
 • Added Language file editor
+• Added partial german translation
 • Application appears correctly on computers using different windows themes
 
 • Added feature request "Display the path of each document at all times"

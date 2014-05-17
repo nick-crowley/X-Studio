@@ -154,6 +154,17 @@
 //
 #define    RichEdit_CanRedo(hCtrl)                                   SendMessage(hCtrl, EM_CANREDO, NULL, NULL)
 
+/// Macro: RichEdit_FindTextEx
+//  Description: Finds RichEdit text
+//
+//  HWND         hCtrl   : [in] RichEdit window handle
+//  UINT         iFlags  : [in] Flags
+//  FINDTEXTEX*  pData   : [in] Search data
+//
+//  Return Value : Character index or -1
+//
+#define RichEdit_FindTextEx(hCtrl, iFlags, pData)                    SendMessage(hCtrl, EM_FINDTEXTEX, iFlags, (LPARAM)(FINDTEXTEX*)(pData))
+
 /// Macro: RichEdit_GetCharFormat
 //  Description: Gets current character format
 //

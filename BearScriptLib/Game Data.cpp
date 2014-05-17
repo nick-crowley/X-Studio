@@ -727,25 +727,20 @@ CONST TCHAR*  identifyGameVersionIconID(CONST GAME_VERSION  eGameVersion)
 BearScriptAPI
 DWORD   threadprocLoadGameData(VOID*  pParameter)
 {
-   OPERATION_DATA*   pOperationData;   // Input data
-   OPERATION_RESULT  eResult;          // Operation result
+   OPERATION_DATA*   pOperationData = (OPERATION_DATA*)pParameter;      // Input data
+   OPERATION_RESULT  eResult        = OR_SUCCESS;                       // Operation result
    
-   // [DEBUGGING]
-   TRACK_FUNCTION();
-   SET_THREAD_NAME("Load Game Data");
-   VERBOSE_LIB_COMMAND();
-   setThreadLanguage(getAppPreferences()->eAppLanguage);
-
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
-
-   // Prepare
-   pOperationData = (OPERATION_DATA*)pParameter;
-   eResult        = OR_SUCCESS;
-
-   /// [GUARD BLOCK]
    __try
    {
+      CONSOLE_COMMAND_BOLD();
+      SET_THREAD_NAME("Load Game Data");
+      setThreadLanguage(getAppPreferences()->eAppLanguage);
+      CONSOLE("Loading data from '%s'", getAppPreferences()->szGameFolder);
+
+      // Enable 'live' error reporting
+      pOperationData->pErrorQueue->bLiveReport = TRUE;
+
+      // Perform stages
       for (UINT  iIndex = 0; (iIndex < 6) AND (eResult == OR_SUCCESS); iIndex++)
       {
          switch (iIndex)
@@ -759,36 +754,30 @@ DWORD   threadprocLoadGameData(VOID*  pParameter)
          /// Load MEDIA ITEMS
          case 3:  eResult = loadMediaItemTrees(getFileSystem(), pOperationData->hParentWnd, pOperationData->pProgress, pOperationData->pErrorQueue);      break;
          /// Load COMMAND SYNTAX
-         case 4:  eResult = loadCommandSyntaxTree(pOperationData->hParentWnd, pOperationData->pProgress, pOperationData->pErrorQueue);                    break;
+         case 4:  eResult = loadCommandSyntaxTree(pOperationData->pProgress, pOperationData->pErrorQueue);                    break;
          /// Load OBJECT DESCRIPTIONS
          case 5:  eResult = loadObjectDescriptions(pOperationData->pProgress, pOperationData->hParentWnd, pOperationData->pErrorQueue);                   break;
          }
       }
+
+      // [FAILED] Set critical error flag + Destroy any loaded game data
+      if (eResult != OR_SUCCESS)
+      {
+         setAppError(AE_LOAD_GAME_DATA);
+         destroyGameData();
+      }
+
+      // [DEBUG]
+      //printMissingSyntax();
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   __except (pushException(pOperationData->pErrorQueue))
    {
-      // [FAILURE] "An unidentified and unexpected critical error has occurred while loading the game data from '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_GAME_DATA), getAppPreferences()->szGameFolder);
+      EXCEPTION1("Unable to the load game data from '%s'", getAppPreferences()->szGameFolder);
       eResult = OR_FAILURE;
    }
-   
-   /// [ABORT/ERROR/EXCEPTION] Destroy any loaded game data
-   if (eResult != OR_SUCCESS)
-   {
-      // [FAILED] Set critical error flag
-      if (eResult == OR_FAILURE)
-         setAppError(AE_LOAD_GAME_DATA);
-      
-      // Cleanup
-      destroyGameData();
-   }
-
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("GAME DATA WORKER THREAD COMPLETED");
 
    // Cleanup and return
-   END_TRACKING();
+   CONSOLE_COMPLETE("GAME DATA", eResult);
    closeThreadOperation(pOperationData, eResult);
    return THREAD_RETURN;
 }

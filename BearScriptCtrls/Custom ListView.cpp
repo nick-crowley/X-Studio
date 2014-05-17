@@ -8,9 +8,11 @@
 #include "stdafx.h"
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                   CREATION  /  DESTRUCTION
+///                                          MACROS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// OnException: Print to console
+#define ON_EXCEPTION()     printException(pException)
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                     CONSTANTS/ GLOBALS
@@ -43,7 +45,7 @@ VOID  initReportModeListView(HWND  hListView, CONST LISTVIEW_COLUMNS*  pListView
    for (UINT iColumn = 0; iColumn < pListViewData->iColumnCount; iColumn++)
    {
       /// Define and insert column
-      utilSetListViewColumn(&oColumn, iColumn, utilLoadString(getResourceInstance(), (iColumn + pListViewData->iColumnResourceID), 48), pListViewData->iColumnWidths[iColumn]);
+      utilSetListViewColumn(&oColumn, iColumn, loadString((iColumn + pListViewData->iColumnResourceID), 48), pListViewData->iColumnWidths[iColumn]);
       ListView_InsertColumn(hListView, iColumn, &oColumn);
 
       // Cleanup
@@ -64,6 +66,24 @@ VOID  initReportModeListView(HWND  hListView, CONST LISTVIEW_COLUMNS*  pListView
 
    /// Set themed background colour
    ListView_SetBkColor(hListView, getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
+}
+
+
+
+/// Function name  : setMissingListViewItem
+// Description     : Returns a stock phrase indicate the item ID is invalid
+// 
+// LVITEM*     pItem  : [in/out] Item
+// const UINT  iCount : [in] Item count
+// 
+ControlsAPI
+VOID  setMissingListViewItem(LVITEM*  pItem, const UINT  iCount)
+{
+   if (pItem->mask INCLUDES LVIF_TEXT)
+      // [FAILED] "Error item %d of %d not found"
+      StringCchPrintf(pItem->pszText, pItem->cchTextMax, TEXT("(Error: Item %d of %d not found)"), pItem->iItem, iCount);
+   else
+      pItem->pszText = TEXT("ERROR: Item not found");
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,184 +125,188 @@ VOID  drawCustomListViewItem(HWND  hParent, HWND  hListView, NMLVCUSTOMDRAW*  pH
    COLORREF          clBackground;  // Background colour
    GAME_TEXT_COLOUR  eBackground;   // Background colour broadly converted to white or black
 
-   // Prepare
-   pDrawData   = &pHeader->nmcd;
-   clOldColour = clNullColour;
-   bCtrlEnabled = IsWindowEnabled(hListView);
-
-   // [WIN XP] Manually lookup item rectangle
-   if (getAppWindowsVersion() < WINDOWS_VISTA)
-      ListView_GetItemRect(hListView, pDrawData->dwItemSpec, &pDrawData->rc, LVIR_BOUNDS);
-
-   // [VISTA] Skip drawing if rectangle is empty
-   else if (!pDrawData->rc.right OR !pDrawData->rc.bottom)
-      return;
-
-   // Setup WM_NOTIFY message
-   utilZeroObject(&oDataRequest, NMLVDISPINFO);
-   oDataRequest.hdr.code     = LVN_GETDISPINFO;
-   oDataRequest.hdr.idFrom   = GetWindowID(hListView);
-   oDataRequest.hdr.hwndFrom = hListView;
-
-   // Setup item data request
-   pItem             = &oDataRequest.item;
-   pItem->pszText    = utilCreateEmptyString(512);
-   pItem->cchTextMax = 512;
-
-   // [CHECK] Get column count and ImageList
-   iColumnCount  = Header_GetItemCount(ListView_GetHeader(hListView));
-   hImageList    = ListView_GetImageList(hListView, LVSIL_SMALL);
-
-   // Determine item state 
-   eItemState = (ListView_GetItemState(hListView, pDrawData->dwItemSpec, LVIS_SELECTED) ? CDIS_SELECTED : NULL);
-
-   // [HOT TRACKING]  (Use 'focus' state as 'hot')
-   if (ListView_GetExtendedListViewStyle(hListView) INCLUDES LVS_EX_TRACKSELECT)
-      eItemState |= (pDrawData->uItemState INCLUDES CDIS_FOCUS ? CDIS_HOT : NULL);
-   else
-      eItemState |= (ListView_GetItemState(hListView, pDrawData->dwItemSpec, LVIS_CUT) ? CDIS_HOT : NULL);
-
-   // [LISTVIEW DISABLED] Draw all items as 'Disabled'
-   if (!IsWindowEnabled(hListView))
-      eItemState = CDIS_DISABLED;
-
-   // Determine background colour
-   clBackground = bCtrlEnabled ? ListView_GetBkColor(hListView) : GetSysColor(COLOR_BTNFACE);
-   eBackground  = (GetRValue(clBackground) > 128 AND GetGValue(clBackground) > 128 AND GetBValue(clBackground) > 128 ? GTC_WHITE : GTC_BLACK);
-
-   // [COLUMNS] Create background brushes
-   //hSortBrush   = CreateSolidBrush(clLightGrey);
-   hSortBrush = CreateSolidBrush(IsThemeActive() ? getThemeColour(TEXT("Listview"), LVP_LISTSORTEDDETAIL, 0, TMT_EDGEHIGHLIGHTCOLOR, 0) : clLightGrey); //   getThemeSysColourBrush(TEXT("Window"), COLOR_INFOBK);
-   hColumnBrush = CreateSolidBrush(clBackground);
-   iSortColumn  = ListView_GetSelectedColumn(hListView);
-   iBackgroundMode = SetBkMode(pDrawData->hdc, TRANSPARENT);
-
-   /// Iterate through all sub-items
-   for (UINT  iColumn = 0; iColumn < iColumnCount; iColumn++)
+   TRY
    {
       // Prepare
-      pItem->mask       = LVIF_TEXT WITH LVIF_PARAM WITH (iColumn == 0 ? LVIF_INDENT WITH LVIF_IMAGE : NULL);
-      pItem->iItem      = pHeader->nmcd.dwItemSpec;
-      pItem->iSubItem   = iColumn;
-      pItem->cColumns   = DT_LEFT;
-      pItem->pszText[0] = NULL;
-      pItem->lParam     = LVIP_CUSTOM_DRAW;     // Indicate to handler we're accepting enhanced mask flags: LVIF_PLAINTEXT, LVIF_RICHTEXT, LVIF_DESTROYTEXT, LVIF_COLOUR_TEXT
-      pItem->iIndent    = 0;
+      pDrawData   = &pHeader->nmcd;
+      clOldColour = clNullColour;
+      bCtrlEnabled = IsWindowEnabled(hListView);
 
-      // Manually retrieve item data  (BUGFIX: ListView_GetItem wasn't retrieving the LPARAM value)
-      SendMessage(hParent, WM_NOTIFY, oDataRequest.hdr.idFrom, (LPARAM)&oDataRequest);
+      // [WIN XP] Manually lookup item rectangle
+      if (getAppWindowsVersion() < WINDOWS_VISTA)
+         ListView_GetItemRect(hListView, pDrawData->dwItemSpec, &pDrawData->rc, LVIR_BOUNDS);
 
-      // Examine subitem
-      switch (pItem->iSubItem)
+      // [VISTA] Skip drawing if rectangle is empty
+      else if (!pDrawData->rc.right OR !pDrawData->rc.bottom)
+         return;
+
+      // Setup WM_NOTIFY message
+      utilZeroObject(&oDataRequest, NMLVDISPINFO);
+      oDataRequest.hdr.code     = LVN_GETDISPINFO;
+      oDataRequest.hdr.idFrom   = GetWindowID(hListView);
+      oDataRequest.hdr.hwndFrom = hListView;
+
+      // Setup item data request
+      pItem             = &oDataRequest.item;
+      pItem->pszText    = utilCreateEmptyString(512);
+      pItem->cchTextMax = 512;
+
+      // [CHECK] Get column count and ImageList
+      iColumnCount  = Header_GetItemCount(ListView_GetHeader(hListView));
+      hImageList    = ListView_GetImageList(hListView, LVSIL_SMALL);
+
+      // Determine item state 
+      eItemState = (ListView_GetItemState(hListView, pDrawData->dwItemSpec, LVIS_SELECTED) ? CDIS_SELECTED : NULL);
+
+      // [HOT TRACKING]  (Use 'focus' state as 'hot')
+      if (ListView_GetExtendedListViewStyle(hListView) INCLUDES LVS_EX_TRACKSELECT)
+         eItemState |= (pDrawData->uItemState INCLUDES CDIS_FOCUS ? CDIS_HOT : NULL);
+      else
+         eItemState |= (ListView_GetItemState(hListView, pDrawData->dwItemSpec, LVIS_CUT) ? CDIS_HOT : NULL);
+
+      // [LISTVIEW DISABLED] Draw all items as 'Disabled'
+      if (!IsWindowEnabled(hListView))
+         eItemState = CDIS_DISABLED;
+
+      // Determine background colour
+      clBackground = bCtrlEnabled ? ListView_GetBkColor(hListView) : GetSysColor(COLOR_BTNFACE);
+      eBackground  = (GetRValue(clBackground) > 128 AND GetGValue(clBackground) > 128 AND GetBValue(clBackground) > 128 ? GTC_WHITE : GTC_BLACK);
+
+      // [COLUMNS] Create background brushes
+      //hSortBrush   = CreateSolidBrush(clLightGrey);
+      hSortBrush = CreateSolidBrush(IsThemeActive() ? getThemeColour(TEXT("Listview"), LVP_LISTSORTEDDETAIL, 0, TMT_EDGEHIGHLIGHTCOLOR, 0) : clLightGrey); //   getThemeSysColourBrush(TEXT("Window"), COLOR_INFOBK);
+      hColumnBrush = CreateSolidBrush(clBackground);
+      iSortColumn  = ListView_GetSelectedColumn(hListView);
+      iBackgroundMode = SetBkMode(pDrawData->hdc, TRANSPARENT);
+
+      /// Iterate through all sub-items
+      for (UINT  iColumn = 0; iColumn < iColumnCount; iColumn++)
       {
-      /// [ITEM] Draw icon and text
-      case 0:
-         // [DISABLED ITEM] Determine whether item is disabled
-         if (pItem->mask INCLUDES LVIF_STATE)
-            eItemState |= (pItem->state == LVIS_DISABLED ? CDIS_DISABLED : NULL);
+         // Prepare
+         pItem->mask       = LVIF_TEXT WITH LVIF_PARAM WITH (iColumn == 0 ? LVIF_INDENT WITH LVIF_IMAGE : NULL);
+         pItem->iItem      = pHeader->nmcd.dwItemSpec;
+         pItem->iSubItem   = iColumn;
+         pItem->cColumns   = DT_LEFT;
+         pItem->pszText[0] = NULL;
+         pItem->lParam     = LVIP_CUSTOM_DRAW;     // Indicate to handler we're accepting enhanced mask flags: LVIF_PLAINTEXT, LVIF_RICHTEXT, LVIF_DESTROYTEXT, LVIF_COLOUR_TEXT
+         pItem->iIndent    = 0;
 
-         /// [INDENT] Offset our drawing rectangle
-         pDrawData->rc.left += pItem->iIndent * GetSystemMetrics(SM_CXSMICON);
+         // Manually retrieve item data  (BUGFIX: ListView_GetItem wasn't retrieving the LPARAM value)
+         SendMessage(hParent, WM_NOTIFY, oDataRequest.hdr.idFrom, (LPARAM)&oDataRequest);
 
-         // [FULLROW] Highlight/erase entire item
-         if (utilIncludes(ListView_GetExtendedListViewStyle(hListView), LVS_EX_FULLROWSELECT) OR utilExcludes(eItemState, CDIS_SELECTED WITH CDIS_HOT))
-            rcSubItem = pDrawData->rc;
+         // Examine subitem
+         switch (pItem->iSubItem)
+         {
+         /// [ITEM] Draw icon and text
+         case 0:
+            // [DISABLED ITEM] Determine whether item is disabled
+            if (pItem->mask INCLUDES LVIF_STATE)
+               eItemState |= (pItem->state == LVIS_DISABLED ? CDIS_DISABLED : NULL);
+
+            /// [INDENT] Offset our drawing rectangle
+            pDrawData->rc.left += pItem->iIndent * GetSystemMetrics(SM_CXSMICON);
+
+            // [FULLROW] Highlight/erase entire item
+            if (utilIncludes(ListView_GetExtendedListViewStyle(hListView), LVS_EX_FULLROWSELECT) OR utilExcludes(eItemState, CDIS_SELECTED WITH CDIS_HOT))
+               rcSubItem = pDrawData->rc;
+            else
+            {  // [政ULLROW] Highlight/erase only label
+               ListView_GetItemRect(hListView, pItem->iItem, &rcSubItem, LVIR_SELECTBOUNDS);
+               rcSubItem.left -= GetSystemMetrics(SM_CXFIXEDFRAME);
+            }
+
+            /// [BACKGROUND] Draw highlight/erase label or entire row
+            switch (eItemState)
+            {
+            case CDIS_SELECTED:
+            case CDIS_SELECTED WITH CDIS_HOT:   drawCustomSelectionRectangle(pDrawData->hdc, &rcSubItem);         break;
+            case CDIS_HOT:                      drawCustomHoverRectangle(pDrawData->hdc, &rcSubItem);             break;
+            default:                            FillRect(pDrawData->hdc, &rcSubItem, iColumn == iSortColumn ? hSortBrush : hColumnBrush);  break;
+            }
+
+            // [政ULLROW] Erase remainder of column
+            if (utilExcludes(ListView_GetExtendedListViewStyle(hListView), LVS_EX_FULLROWSELECT))
+            {
+               rcSubItem.left  = rcSubItem.right;
+               rcSubItem.right = ListView_GetColumnWidth(hListView, 0);
+               FillRect(pDrawData->hdc, &rcSubItem, iColumn == iSortColumn ? hSortBrush : hColumnBrush);
+            }
+
+            // [CHECK] Are we drawing an icon?
+            if (hImageList)
+            {
+               // Retrieve icon rectangle
+               ListView_GetItemRect(hListView, pItem->iItem, &rcSubItem, LVIR_ICON);
+
+               /// [ICON] Draw icon 
+               drawIcon(hImageList, LOWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, calculateIconState(eItemState, bCtrlEnabled));
+
+               /// [OVERLAY]
+               if (HIWORD(pItem->iImage))
+                 drawIcon(hImageList, HIWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, calculateIconState(eItemState, bCtrlEnabled));
+            }
+
+            // Retrieve text rectangle
+            ListView_GetItemRect(hListView, pItem->iItem, &rcSubItem, LVIR_LABEL);
+            InflateRect(&rcSubItem, -GetSystemMetrics(SM_CXFIXEDFRAME), 0);
+            break;
+
+         /// [SUBITEM] Calculate sub-item rectangle
+         default:
+            // Retrieve sub-item rectangle
+            ListView_GetSubItemRect(hListView, pItem->iItem, pItem->iSubItem, LVIR_BOUNDS, &rcSubItem);
+
+            // [政ULLROW] Erase sub-item item background
+            if (utilExcludes(ListView_GetExtendedListViewStyle(hListView), LVS_EX_FULLROWSELECT))
+               FillRect(pDrawData->hdc, &rcSubItem, iColumn == iSortColumn ? hSortBrush : hColumnBrush);
+
+            // Add borders
+            InflateRect(&rcSubItem, -2 * GetSystemMetrics(SM_CXFIXEDFRAME), 0);
+            break;
+         }
+
+         /// [DISABLED/COLOURED] Set text colour
+         if ((pItem->mask & LVIF_COLOUR_TEXT) OR !bCtrlEnabled)
+            clOldColour = SetTextColor(pDrawData->hdc, (!bCtrlEnabled ? GetSysColor(COLOR_GRAYTEXT) : (COLORREF)pItem->lParam));
          else
-         {  // [政ULLROW] Highlight/erase only label
-            ListView_GetItemRect(hListView, pItem->iItem, &rcSubItem, LVIR_SELECTBOUNDS);
-            rcSubItem.left -= GetSystemMetrics(SM_CXFIXEDFRAME);
-         }
+            clOldColour = SetTextColor(pDrawData->hdc, getThemeSysColour(TEXT("TAB"), COLOR_WINDOWTEXT));
 
-         /// [BACKGROUND] Draw highlight/erase label or entire row
-         switch (eItemState)
+         // [CHECK] Is RichText specified?
+         if (pItem->lParam AND utilIncludes(pItem->mask, LVIF_RICHTEXT))
          {
-         case CDIS_SELECTED:
-         case CDIS_SELECTED WITH CDIS_HOT:   drawCustomSelectionRectangle(pDrawData->hdc, &rcSubItem);         break;
-         case CDIS_HOT:                      drawCustomHoverRectangle(pDrawData->hdc, &rcSubItem);             break;
-         default:                            FillRect(pDrawData->hdc, &rcSubItem, iColumn == iSortColumn ? hSortBrush : hColumnBrush);  break;
+            RICH_TEXT*  pRichText = (RICH_TEXT*)pItem->lParam;
+
+            /// [RICH-TEXT] Draw RichText, and optionally destroy
+            if (pRichText->eType == RTT_LANGUAGE_MESSAGE)
+               drawLanguageMessageInSingleLine(pDrawData->hdc, rcSubItem, (LANGUAGE_MESSAGE*)pRichText, !IsWindowEnabled(hListView), eBackground);
+            else
+               drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, pRichText, !IsWindowEnabled(hListView), eBackground);
+
+            // [CHECK] Should the RichText be destroyed?
+            if (utilIncludes(pItem->mask, LVIF_DESTROYTEXT))
+            {
+               deleteRichText(pRichText);
+               pItem->lParam = NULL;
+            }
          }
+         else
+            /// [PLAINTEXT] Draw PlaintText
+            DrawText(pDrawData->hdc, pItem->pszText, lstrlen(pItem->pszText), &rcSubItem, pItem->cColumns WITH DT_VCENTER WITH DT_SINGLELINE WITH DT_WORD_ELLIPSIS WITH DT_NOPREFIX);
 
-         // [政ULLROW] Erase remainder of column
-         if (utilExcludes(ListView_GetExtendedListViewStyle(hListView), LVS_EX_FULLROWSELECT))
-         {
-            rcSubItem.left  = rcSubItem.right;
-            rcSubItem.right = ListView_GetColumnWidth(hListView, 0);
-            FillRect(pDrawData->hdc, &rcSubItem, iColumn == iSortColumn ? hSortBrush : hColumnBrush);
-         }
-
-         // [CHECK] Are we drawing an icon?
-         if (hImageList)
-         {
-            // Retrieve icon rectangle
-            ListView_GetItemRect(hListView, pItem->iItem, &rcSubItem, LVIR_ICON);
-
-            /// [ICON] Draw icon 
-            drawIcon(hImageList, LOWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, calculateIconState(eItemState, bCtrlEnabled));
-
-            /// [OVERLAY]
-            if (HIWORD(pItem->iImage))
-              drawIcon(hImageList, HIWORD(pItem->iImage), pDrawData->hdc, rcSubItem.left, rcSubItem.top, calculateIconState(eItemState, bCtrlEnabled));
-         }
-
-         // Retrieve text rectangle
-         ListView_GetItemRect(hListView, pItem->iItem, &rcSubItem, LVIR_LABEL);
-         InflateRect(&rcSubItem, -GetSystemMetrics(SM_CXFIXEDFRAME), 0);
-         break;
-
-      /// [SUBITEM] Calculate sub-item rectangle
-      default:
-         // Retrieve sub-item rectangle
-         ListView_GetSubItemRect(hListView, pItem->iItem, pItem->iSubItem, LVIR_BOUNDS, &rcSubItem);
-
-         // [政ULLROW] Erase sub-item item background
-         if (utilExcludes(ListView_GetExtendedListViewStyle(hListView), LVS_EX_FULLROWSELECT))
-            FillRect(pDrawData->hdc, &rcSubItem, iColumn == iSortColumn ? hSortBrush : hColumnBrush);
-
-         // Add borders
-         InflateRect(&rcSubItem, -2 * GetSystemMetrics(SM_CXFIXEDFRAME), 0);
-         break;
+         // Restore DC colour
+         if (clOldColour != clNullColour)
+            SetTextColor(pDrawData->hdc, clOldColour);
       }
 
-      /// [DISABLED/COLOURED] Set text colour
-      if ((pItem->mask & LVIF_COLOUR_TEXT) OR !bCtrlEnabled)
-         clOldColour = SetTextColor(pDrawData->hdc, (!bCtrlEnabled ? GetSysColor(COLOR_GRAYTEXT) : (COLORREF)pItem->lParam));
-      else
-         clOldColour = SetTextColor(pDrawData->hdc, getThemeSysColour(TEXT("TAB"), COLOR_WINDOWTEXT));
+      // Restore DC
+      iBackgroundMode = SetBkMode(pDrawData->hdc, iBackgroundMode);
 
-      // [CHECK] Is RichText specified?
-      if (pItem->lParam AND utilIncludes(pItem->mask, LVIF_RICHTEXT))
-      {
-         RICH_TEXT*  pRichText = (RICH_TEXT*)pItem->lParam;
-
-         /// [RICH-TEXT] Draw RichText, and optionally destroy
-         if (pRichText->eType == RTT_LANGUAGE_MESSAGE)
-            drawLanguageMessageInSingleLine(pDrawData->hdc, rcSubItem, (LANGUAGE_MESSAGE*)pRichText, !IsWindowEnabled(hListView), eBackground);
-         else
-            drawRichTextInSingleLine(pDrawData->hdc, rcSubItem, pRichText, !IsWindowEnabled(hListView), eBackground);
-
-         // [CHECK] Should the RichText be destroyed?
-         if (utilIncludes(pItem->mask, LVIF_DESTROYTEXT))
-         {
-            deleteRichText(pRichText);
-            pItem->lParam = NULL;
-         }
-      }
-      else
-         /// [PLAINTEXT] Draw PlaintText
-         DrawText(pDrawData->hdc, pItem->pszText, lstrlen(pItem->pszText), &rcSubItem, pItem->cColumns WITH DT_VCENTER WITH DT_SINGLELINE WITH DT_WORD_ELLIPSIS WITH DT_NOPREFIX);
-
-      // Restore DC colour
-      if (clOldColour != clNullColour)
-         SetTextColor(pDrawData->hdc, clOldColour);
+      // Cleanup
+      DeleteBrush(hSortBrush);
+      DeleteBrush(hColumnBrush);
+      utilDeleteString(pItem->pszText);
    }
-
-   // Restore DC
-   iBackgroundMode = SetBkMode(pDrawData->hdc, iBackgroundMode);
-
-   // Cleanup
-   DeleteBrush(hSortBrush);
-   DeleteBrush(hColumnBrush);
-   utilDeleteString(pItem->pszText);
+   CATCH0("");
 }
 
 

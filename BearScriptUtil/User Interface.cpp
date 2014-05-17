@@ -44,13 +44,11 @@ UtilityAPI
 HFONT   utilCreateFontEx(HWND  hWnd, CONST TCHAR*  szName, CONST UINT  iPointSize, CONST BOOL  bBold, CONST BOOL  bItalic, CONST BOOL  bUnderline)
 {
    HFONT  hFont;
+   UINT   iWeight = (!bBold ? NULL : (bBold > TRUE ? bBold : FW_BOLD));
    HDC    hDC;
 
-   // Prepare
-   hDC = GetDC(hWnd);
-
    /// Create font
-   hFont = CreateFont(utilCalculateFontHeight(hDC, iPointSize), NULL, NULL, NULL, bBold ? FW_BOLD : NULL, bItalic, bUnderline, NULL, NULL, OUT_TT_PRECIS, NULL, PROOF_QUALITY, NULL, szName);
+   hFont = CreateFont(utilCalculateFontHeight(hDC = GetDC(hWnd), iPointSize), NULL, NULL, NULL, iWeight, bItalic, bUnderline, NULL, NULL, OUT_TT_PRECIS, NULL, PROOF_QUALITY, NULL, szName);
 
    // Cleanup and return font
    ReleaseDC(hWnd, hDC);
@@ -73,13 +71,14 @@ HFONT   utilDuplicateFont(HDC  hDC, CONST BOOL  bBold, CONST BOOL  bItalic, CONS
 {
    TEXTMETRIC  oTextMetrics;
    TCHAR       szFontName[LF_FACESIZE];
+   UINT        iWeight = (!bBold ? NULL : (bBold > TRUE ? bBold : FW_BOLD));
 
    // Extract font name and height
    GetTextMetrics(hDC, &oTextMetrics);
    GetTextFace(hDC, LF_FACESIZE, szFontName);
 
    // Create font
-   return CreateFont(oTextMetrics.tmHeight, NULL, NULL, NULL, bBold ? FW_BOLD : NULL, bItalic, bUnderline, NULL, NULL, OUT_TT_PRECIS, NULL, PROOF_QUALITY, NULL, szFontName);
+   return CreateFont(oTextMetrics.tmHeight, NULL, NULL, NULL, iWeight, bItalic, bUnderline, NULL, NULL, OUT_TT_PRECIS, NULL, PROOF_QUALITY, NULL, szFontName);
 }
 
 
@@ -98,12 +97,13 @@ UtilityAPI
 HFONT   utilDuplicateFontEx(HDC  hDC, CONST TCHAR*  szFontName, CONST BOOL  bBold, CONST BOOL  bItalic, CONST BOOL  bUnderline)
 {
    TEXTMETRIC  oTextMetrics;
+   UINT        iWeight = (!bBold ? NULL : (bBold > TRUE ? bBold : FW_BOLD));
 
    // Lookup text metrics
    GetTextMetrics(hDC, &oTextMetrics);
 
    // Return duplicate
-   return CreateFont(oTextMetrics.tmHeight, NULL, NULL, NULL, bBold ? FW_BOLD : NULL, bItalic, bUnderline, NULL, NULL, OUT_TT_PRECIS, NULL, PROOF_QUALITY, NULL, szFontName);
+   return CreateFont(oTextMetrics.tmHeight, NULL, NULL, NULL, iWeight, bItalic, bUnderline, NULL, NULL, OUT_TT_PRECIS, NULL, PROOF_QUALITY, NULL, szFontName);
 }
 
 
@@ -275,7 +275,7 @@ VOID  utilCentreWindow(HWND  hParentWnd, HWND  hChildWnd)
    utilCentreRectangle(&rcParent, &rcChild, UCR_HORIZONTAL WITH UCR_VERTICAL);
 
    // Reposition child
-   utilSetClientRect(hChildWnd, &rcChild, TRUE);
+   utilSetWindowRect(hChildWnd, &rcChild, TRUE);
 
 }
 
@@ -747,25 +747,6 @@ VOID  utilScreenToClientRect(HWND  hWnd, RECT*  pWindowRect)
    ScreenToClient(hWnd, (POINT*)&pWindowRect->right);
 }
 
-
-/// Function name  : utilSetClientRect
-// Description     : Move and/or resize a window from co-ordinates in a rectangle
-// 
-// HWND         hWnd         : [in] Window to move and/or resize
-// CONST RECT*  pWindowRect  : [in] Specifies the new position and size for the window. If window is a child then these are in client co-ords.
-// CONST BOOL   bRepaint     : [in] Whether to repaint the window afterwards
-// 
-UtilityAPI
-VOID  utilSetClientRect(HWND  hWnd, CONST RECT*  pWindowRect, CONST BOOL  bRepaint)
-{
-   // [CHECK] Ensure window is a child window
-   //ASSERT(!hWnd OR GetParent(hWnd));
-
-   // Move window
-   MoveWindow(hWnd, pWindowRect->left, pWindowRect->top, pWindowRect->right - pWindowRect->left, pWindowRect->bottom - pWindowRect->top, bRepaint);
-}
-
-
 /// Function name  : utilSetDlgItemFocus
 // Description     : Sets the focus to a control on a dialog
 // 
@@ -810,21 +791,6 @@ VOID  utilSetDlgItemRect(HWND  hDialog, CONST UINT  iControlID, CONST RECT*  pRe
    MoveWindow(GetDlgItem(hDialog, iControlID), pRect->left, pRect->top, pRect->right - pRect->left, pRect->bottom - pRect->top, bRepaint);
 }
 
-
-/// Function name  : utilSetDlgItemText
-// Description     : Set the text of a control in a dialog to a specified string stored as a resource
-// 
-// HWND        hDialog     : [in] Dialog containing the control
-// CONST UINT  iControlID  : [in] ID of the control who's text is to be changed
-// HINSTANCE   hInstance   : [in] Handle of the module containing the string
-// CONST UINT  iStringID   : [in] Resource ID of the string
-// 
-UtilityAPI
-VOID  utilSetDlgItemText(HWND  hDialog, CONST UINT  iControlID, HINSTANCE  hInstance, CONST UINT  iStringID)
-{
-   // Set dialog item text
-   utilSetWindowText(GetDlgItem(hDialog, iControlID), hInstance, iStringID);
-}
 
 
 /// Function name  : utilSetWindowInt
@@ -911,24 +877,21 @@ BOOL  utilSetWindowProgressValue(HWND  hWnd, CONST INT  iProgress, CONST INT  iM
 }
 
 
-/// Function name  : utilSetWindowText
-// Description     : Set the text of a window using a string stored as a resource
+/// Function name  : utilSetWindowRect
+// Description     : Move and/or resize a window from co-ordinates in a rectangle
 // 
-// HWND        hWnd       : [in] Window to set the text of
-// HINSTANCE   hInstance  : [in] Handle of the module containing the string
-// CONST UINT  iStringID  : [in] Resource ID of the string to use
+// HWND         hWnd         : [in] Window to move and/or resize
+// CONST RECT*  pWindowRect  : [in] Specifies the new position and size for the window. If window is a child then these are in client co-ords.
+// CONST BOOL   bRepaint     : [in] Whether to repaint the window afterwards
 // 
 UtilityAPI
-VOID  utilSetWindowText(HWND  hWnd, HINSTANCE  hInstance, CONST UINT  iStringID)
+VOID  utilSetWindowRect(HWND  hWnd, CONST RECT*  pWindowRect, CONST BOOL  bRepaint)
 {
-   TCHAR*  szText;   // Window text
+   // [CHECK] Ensure window is a child window
+   //ASSERT(!hWnd OR GetParent(hWnd));
 
-   // Load string resource and set window text
-   szText = utilLoadString(hInstance, iStringID, 1024);
-   SetWindowText(hWnd, szText);
-
-   // Cleanup
-   utilDeleteString(szText);
+   // Move window
+   MoveWindow(hWnd, pWindowRect->left, pWindowRect->top, pWindowRect->right - pWindowRect->left, pWindowRect->bottom - pWindowRect->top, bRepaint);
 }
 
 

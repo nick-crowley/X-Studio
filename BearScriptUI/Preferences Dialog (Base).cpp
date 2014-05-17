@@ -31,6 +31,9 @@ CONST TCHAR*  szDebugPageNames[PREFERENCES_PAGES] =
    TEXT("Internet")
 };
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                 CREATION  /  DESTRUCTION
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,10 +62,10 @@ PREFERENCES_DATA*  createPreferencesData(CONST PREFERENCES*  pAppPreferences)
 
       /// Define property page
       pPage->dwSize      = sizeof(PROPSHEETPAGE);
-      pPage->dwFlags     = PSP_USEICONID WITH PSP_USETITLE WITH PSP_PREMATURE WITH PSP_USECALLBACK;
+      pPage->dwFlags     = PSP_USEICONID WITH PSP_USETITLE WITH PSP_PREMATURE WITH PSP_USECALLBACK WITH PSP_DLGINDIRECT;
       pPage->hInstance   = getResourceInstance();
       pPage->pszIcon     = oPreferencesPages[iPage].szIconResource;
-      pPage->pszTemplate = oPreferencesPages[iPage].szTemplateResource;
+      pPage->pResource   = loadDialogTemplate(oPreferencesPages[iPage].szTemplateResource);     //pPage->pszTemplate = oPreferencesPages[iPage].szTemplateResource;
       pPage->pfnDlgProc  = oPreferencesPages[iPage].dlgProc;
       pPage->pszTitle    = MAKEINTRESOURCE(oPreferencesPages[iPage].iTitleResource);
       pPage->lParam      = (LPARAM)pDialogData;      // Pass sheet data to each page as parameter
@@ -74,7 +77,7 @@ PREFERENCES_DATA*  createPreferencesData(CONST PREFERENCES*  pAppPreferences)
 
    /// Define sheet
    pHeader->dwSize      = sizeof(PROPSHEETHEADER);
-   pHeader->dwFlags     = PSH_PROPSHEETPAGE WITH PSH_USECALLBACK;
+   pHeader->dwFlags     = PSH_PROPSHEETPAGE WITH PSH_USECALLBACK; 
    pHeader->hInstance   = getResourceInstance();
    pHeader->pszIcon     = NULL;
    pHeader->pszCaption  = MAKEINTRESOURCE(IDS_PREFERENCES_SHEET_TITLE);
@@ -215,9 +218,7 @@ VOID   performPreferencesFolderBrowse(PREFERENCES_DATA*  pDialogData, HWND  hDia
    oBrowseData.hwndOwner = hDialog;
    oBrowseData.pidlRoot  = NULL;
    oBrowseData.ulFlags   = BIF_RETURNONLYFSDIRS;
-
-   // Set title
-   oBrowseData.lpszTitle = utilLoadString(getResourceInstance(), IDS_GAME_FOLDER_BROWSE_TEXT, 128);
+   oBrowseData.lpszTitle = loadTempString(IDS_GAME_FOLDER_BROWSE_TEXT);
 
    /// Query user for a folder
    if (pFolderObject = SHBrowseForFolder(&oBrowseData))
@@ -233,9 +234,6 @@ VOID   performPreferencesFolderBrowse(PREFERENCES_DATA*  pDialogData, HWND  hDia
       utilDeleteString(szFolderPath);
       CoTaskMemFree(pFolderObject);
    }
-
-   // Cleanup
-   utilDeleteString((TCHAR*&)oBrowseData.lpszTitle);
 }
 
 
@@ -422,13 +420,11 @@ INT_PTR   dlgprocPreferencesPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
 {
    PREFERENCES_DATA*   pDialogData;     // Dialog data for the entire sheet
    PROPSHEETPAGE*      pCreationData;   // Creation data for this page
-   ERROR_STACK*        pException;
    BOOL                bResult;
    
-   __try
+   TRY
    {
       // Get sheet data
-      TRACK_FUNCTION();
       pDialogData = getPreferencesData(hDialog);
       bResult     = TRUE;
 
@@ -497,20 +493,13 @@ INT_PTR   dlgprocPreferencesPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, 
          bResult = FALSE;
          break;
       }
+
+      // Return result
+      return (INT_PTR)bResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the preferences base window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_PREFERENCES_BASE));
-      displayException(pException);
-      // Return TRUE
-      bResult = TRUE;
-   }
-
-   // Return result
-   END_TRACKING();
-   return (INT_PTR)bResult;
+   CATCH4("ePage=%s  iMessage=%s  wParam=%d  lParam=%d", szDebugPageNames[ePage], identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -612,7 +601,7 @@ UINT  callbackPreferencesPage(HWND  hPage, UINT  iMessage, PROPSHEETPAGE*  pPage
     //if (iMessage == PSPCB_CREATE)
     //{
     //   // [VERBOSE]
-    //   VERBOSE("Creating preferences dialog property page '%s'", szPageTitle = utilLoadString(getResourceInstance(), (UINT)pPageData->pszTitle, 64));
+    //   VERBOSE("Creating preferences dialog property page '%s'", szPageTitle = loadString((UINT)pPageData->pszTitle, 64));
 
     //   // Cleanup
     //  utilDeleteString(szPageTitle);

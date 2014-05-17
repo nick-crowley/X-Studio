@@ -17,7 +17,13 @@
 #define    ListView_DeSelectAll(hCtrl)         ListView_SetItemState(hCtrl, -1, NULL, LVIS_SELECTED)
 #define    ListView_SelectItem(hCtrl, iItem)   ListView_SetItemState(hCtrl, iItem, LVIS_SELECTED, LVIS_SELECTED)
 
-enum  ResolveOperation  { ResolvePageIndex, ResolveStringIndex };
+// Operation IDs for resolving StringID/PageID from indicies
+enum  ResolveOperation  { ResolvePageIndex,        // Find ListView index of page 
+                          ResolveStringIndex };    // Find ListView index of string
+
+// Print document after an exception
+//#define  ON_EXCEPTION()    debugLanguageDocument(pDocument);  displayException(pException);
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -28,6 +34,60 @@ enum  ResolveOperation  { ResolvePageIndex, ResolveStringIndex };
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+
+/// Function name  : findGamePageIndex
+// Description     : Reverse lookup the item index of a page in the document's list of pages
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// const GAME_STRING*  pString   : [in] String whose page ID is used in the search
+// 
+// Return Value   : Page index if found, otherwise -1
+// 
+INT  findGamePageIndex(LANGUAGE_DOCUMENT*  pDocument, const GAME_STRING*  pString)
+{
+   AVL_TREE_OPERATION*  pOperation;
+   INT                  index = -1;
+
+   // Prepare
+   pOperation              = createAVLTreeOperation(treeprocResolveGameStringIndex, ATT_PREORDER);
+   pOperation->xFirstInput = (LPARAM)pString;
+   pOperation->iFlags      = ResolvePageIndex;
+
+   /// Lookup page's ListView index 
+   if (performOperationOnAVLTree(getLanguageDocumentGamePageTree(pDocument), pOperation))
+      index = pOperation->xOutput;
+
+   // Cleanup + return index
+   deleteAVLTreeOperation(pOperation);
+   return index;
+}
+
+/// Function name  : findGameStringIndex
+// Description     : Reverse lookup the item index of a string in the list of strings in the document's currently selected page
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// const GAME_STRING*  pString   : [in] String to find
+// 
+// Return Value   : String index if found, otherwise -1
+// 
+INT  findGameStringIndex(LANGUAGE_DOCUMENT*  pDocument, const GAME_STRING*  pString)
+{
+   AVL_TREE_OPERATION*  pOperation;
+   INT                  index = -1;
+
+   // Prepare
+   pOperation              = createAVLTreeOperation(treeprocResolveGameStringIndex, ATT_PREORDER);
+   pOperation->xFirstInput = (LPARAM)pString;
+   pOperation->iFlags      = ResolveStringIndex;
+
+   /// Lookup string's ListView index 
+   if (performOperationOnAVLTree(pDocument->pPageStringsByID, pOperation))
+      index = pOperation->xOutput;
+
+   // Cleanup + return index
+   deleteAVLTreeOperation(pOperation);
+   return index;
+}
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
@@ -41,44 +101,35 @@ enum  ResolveOperation  { ResolvePageIndex, ResolveStringIndex };
 // 
 VOID  displayLanguageDocumentGameString(LANGUAGE_DOCUMENT*  pDocument, const GAME_STRING*  pString)
 {
-   AVL_TREE_OPERATION*  pOperation;
-   GAME_STRING*         pConfirm;
+   GAME_STRING*  pConfirm;
+   INT           iIndex;
 
    // [CHECK] Abort if GameString isn't present
-   if (!findObjectInAVLTreeByValue(getLanguageDocumentGameStringTree(pDocument), pString->iPageID, pString->iID, (LPARAM&)pConfirm))
+   if (!findGameStringInTreeByID(getLanguageDocumentGameStringTree(pDocument), pString->iID, pString->iPageID, pConfirm))
       return;
 
-   // Prepare
-   pOperation              = createAVLTreeOperation(treeprocResolveGameStringIndex, ATT_PREORDER);
-   pOperation->xFirstInput = (LPARAM)pString;
-   pOperation->iFlags      = ResolvePageIndex;
-
    /// Resolve ListView index of page
-   if (performOperationOnAVLTree(getLanguageDocumentGamePageTree(pDocument), pOperation))
+   if ((iIndex = findGamePageIndex(pDocument, pString)) != -1)
    {
       // [OPTIONAL] Select input page
-      if (ListView_GetSelected(pDocument->hPageList) != pOperation->xOutput)
+      if (ListView_GetSelected(pDocument->hPageList) != iIndex)
       {
          ListView_DeSelectAll(pDocument->hPageList);
-         ListView_SelectItem(pDocument->hPageList, pOperation->xOutput);
-         ListView_EnsureVisible(pDocument->hPageList, pOperation->xOutput, FALSE);
+         ListView_SelectItem(pDocument->hPageList, iIndex);
+         ListView_EnsureVisible(pDocument->hPageList, iIndex, FALSE);
       }
 
       /// Resolve ListView index of string
-      pOperation->iFlags = ResolveStringIndex;
-      performOperationOnAVLTree(pDocument->pPageStringsByID, pOperation);
+      iIndex = findGameStringIndex(pDocument, pString);
 
       // [OPTIONAL] Deselect current string and select desired string
-      if (ListView_GetSelected(pDocument->hStringList) != pOperation->xOutput)
+      if (ListView_GetSelected(pDocument->hStringList) != iIndex)
       {
          ListView_DeSelectAll(pDocument->hStringList);
-         ListView_SelectItem(pDocument->hStringList, pOperation->xOutput);
-         ListView_EnsureVisible(pDocument->hStringList, pOperation->xOutput, FALSE);
+         ListView_SelectItem(pDocument->hStringList, iIndex);
+         ListView_EnsureVisible(pDocument->hStringList, iIndex, FALSE);
       }
    }
-
-   // Cleanup
-   deleteAVLTreeOperation(pOperation);
 }
 
 
@@ -124,18 +175,22 @@ VOID  treeprocResolveGameStringIndex(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION* 
 // 
 VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pPage)
 {
-   // [CHECK] Document must not be virtual
-   ASSERT(!pDocument->bVirtual);
+   TRY
+   {
+      // [CHECK] Document must not be virtual
+      ASSERT(!pDocument->bVirtual);
 
-   // Hide/Destroy Document PageStrings
-   INT  iSelection = ListView_GetSelected(pDocument->hPageList);
-   ListView_DeSelectAll(pDocument->hPageList);
+      // Hide/Destroy Document PageStrings
+      INT  iSelection = ListView_GetSelected(pDocument->hPageList);
+      ListView_DeSelectAll(pDocument->hPageList);
 
-   /// Delete all strings with input PageID
-   deleteLanguageDocumentGamePage(pDocument, pPage);
+      /// Delete all strings with input PageID
+      deleteLanguageDocumentGamePage(pDocument, pPage);
 
-   // Re-create Document PageStrings
-   ListView_SelectItem(pDocument->hPageList, min(iSelection, ListView_GetItemCount(pDocument->hPageList)));
+      // Re-create Document PageStrings
+      ListView_SelectItem(pDocument->hPageList, min(iSelection, ListView_GetItemCount(pDocument->hPageList)));
+   }
+   CATCH0("");
 }
 
 
@@ -147,18 +202,22 @@ VOID  onLanguageDocument_DeletePage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  p
 // 
 VOID  onLanguageDocument_DeleteString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pString)
 {
-   // [CHECK] Document must not be virtual
-   ASSERT(!pDocument->bVirtual);
+   TRY
+   {
+      // [CHECK] Document must not be virtual
+      ASSERT(!pDocument->bVirtual);
 
-   // Hide/Destroy Document PageStrings
-   INT  iSelection = ListView_GetSelected(pDocument->hStringList);
-   ListView_DeSelectAll(pDocument->hStringList);
+      // Hide/Destroy Document PageStrings
+      INT  iSelection = ListView_GetSelected(pDocument->hStringList);
+      ListView_DeSelectAll(pDocument->hStringList);
 
-   /// Delete target string
-   deleteLanguageDocumentGameString(pDocument, pString);
+      /// Delete target string
+      deleteLanguageDocumentGameString(pDocument, pString);
 
-   // Re-create Document PageStrings
-   ListView_SelectItem(pDocument->hStringList, min(iSelection, ListView_GetItemCount(pDocument->hStringList)));
+      // Re-create Document PageStrings
+      ListView_SelectItem(pDocument->hStringList, min(iSelection, ListView_GetItemCount(pDocument->hStringList)));
+   }
+   CATCH0("");
 }
 
 
@@ -171,38 +230,42 @@ VOID  onLanguageDocument_DeleteString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING
 // 
 VOID  onLanguageDocument_EditPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pOldPage, GAME_PAGE*  pNewPage)
 {
-   // [CHECK] Document must not be virtual
-   ASSERT(!pDocument->bVirtual);
-
-   // Prepare
-   INT  iSelected = ListView_GetSelected(pDocument->hPageList);
-
-   /// [SAME ID] Update properties
-   if (pOldPage->iPageID == pNewPage->iPageID)
+   TRY
    {
-      // Update Values
-      utilReplaceString(pOldPage->szTitle,       pNewPage->szTitle);
-      utilReplaceString(pOldPage->szDescription, pNewPage->szDescription);
-      pOldPage->bVoice = pNewPage->bVoice;
+      // [CHECK] Document must not be virtual
+      ASSERT(!pDocument->bVirtual);
 
-      // Cleanup
-      deleteGamePage(pNewPage);
+      // Prepare
+      INT  iSelected = ListView_GetSelected(pDocument->hPageList);
+
+      /// [SAME ID] Update properties
+      if (pOldPage->iPageID == pNewPage->iPageID)
+      {
+         // Update Values
+         utilReplaceString(pOldPage->szTitle,       pNewPage->szTitle);
+         utilReplaceString(pOldPage->szDescription, pNewPage->szDescription);
+         pOldPage->bVoice = pNewPage->bVoice;
+
+         // Cleanup
+         deleteGamePage(pNewPage);
+      }
+      /// [NEW ID] Change ID + Properties
+      else
+      {
+         // Hide/Destroy Document PageStrings
+         ListView_DeSelectAll(pDocument->hPageList);
+
+         /// Change PageID of all strings within page
+         modifyLanguageDocumentGamePageID(pDocument, pOldPage, pNewPage);
+         
+         // Create/Show document PageStrings
+         ListView_SelectItem(pDocument->hPageList, iSelected);
+      }
+
+      // Redraw current page
+      ListView_RedrawItems(pDocument->hPageList, iSelected, iSelected);
    }
-   /// [NEW ID] Change ID + Properties
-   else
-   {
-      // Hide/Destroy Document PageStrings
-      ListView_DeSelectAll(pDocument->hPageList);
-
-      /// Change PageID of all strings within page
-      modifyLanguageDocumentGamePageID(pDocument, pOldPage, pNewPage);
-      
-      // Create/Show document PageStrings
-      ListView_SelectItem(pDocument->hPageList, iSelected);
-   }
-
-   // Redraw current page
-   ListView_RedrawItems(pDocument->hPageList, iSelected, iSelected);
+   CATCH0("");
 }
 
 
@@ -216,35 +279,39 @@ VOID  onLanguageDocument_EditString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING* 
 {
    BOOL  bChanged;
 
-   // [CHECK] Ensure string selected
-   ASSERT(ListView_GetSelected(pDocument->hStringList) != -1);
-
-   // Examine subitem
-   switch (pDocument->oStringClick.iSubItem)
+   TRY
    {
-   /// [MODIFY ID]
-   case STRING_COLUMN_ID:
-      // [CHECK] Ensure non-virtual
-      ASSERT(!pDocument->bVirtual);
+      // [CHECK] Ensure string selected
+      ASSERT(ListView_GetSelected(pDocument->hStringList) != -1);
 
-      // Initiate label editing
-      editCustomListViewItem(pDocument->hStringList, pDocument->oStringClick.iItem, STRING_COLUMN_ID, LVLT_EDIT);
-      break;
+      // Examine subitem
+      switch (pDocument->oStringClick.iSubItem)
+      {
+      /// [MODIFY ID]
+      case STRING_COLUMN_ID:
+         // [CHECK] Ensure non-virtual
+         ASSERT(!pDocument->bVirtual);
 
-   /// [EDIT FORMATTING]
-   case STRING_COLUMN_TEXT:
-      // Save current string
-      ListView_DeSelectAll(pDocument->hStringList);
+         // Initiate label editing
+         editCustomListViewItem(pDocument->hStringList, pDocument->oStringClick.iItem, STRING_COLUMN_ID, LVLT_EDIT);
+         break;
 
-      // Display sourceText editor and redisplay string
-      bChanged = (displaySourceTextDialog(pDocument, pString, getAppWindow()) == IDOK);
-      ListView_SelectItem(pDocument->hStringList, pDocument->oStringClick.iItem);
+      /// [EDIT FORMATTING]
+      case STRING_COLUMN_TEXT:
+         // Save current string
+         ListView_DeSelectAll(pDocument->hStringList);
 
-      // [DOCUMENT CHANGED]
-      if (bChanged)
-         sendDocumentUpdated(AW_DOCUMENTS_CTRL);
-      break;
+         // Display sourceText editor and redisplay string
+         bChanged = (displaySourceTextDialog(pDocument, pString, getAppWindow()) == IDOK);
+         ListView_SelectItem(pDocument->hStringList, pDocument->oStringClick.iItem);
+
+         // [DOCUMENT CHANGED]
+         if (bChanged)
+            sendDocumentUpdated(AW_DOCUMENTS_CTRL);
+         break;
+      }
    }
+   CATCH0("");
 }
 
 
@@ -256,8 +323,13 @@ VOID  onLanguageDocument_EditString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING* 
 // 
 VOID  onLanguageDocument_EditStringBegin(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader)
 {
-   // Display current StringID
-   utilSetWindowInt(pHeader->hdr.hwndFrom, pDocument->pCurrentString->iID);
+   TRY
+   {
+      // Display+select current StringID
+      utilSetWindowInt(pHeader->hdr.hwndFrom, pDocument->pCurrentString->iID);
+      SendMessage(pHeader->hdr.hwndFrom, EM_SETSEL, 0, -1);
+   }
+   CATCH0("");
 }
 
 
@@ -269,28 +341,33 @@ VOID  onLanguageDocument_EditStringBegin(LANGUAGE_DOCUMENT*  pDocument, NMLVDISP
 // 
 BOOL  onLanguageDocument_EditStringEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPINFO*  pHeader)
 {
-   UINT          iNewStringID   = utilGetWindowInt(pHeader->hdr.hwndFrom);
-   GAME_STRING*  pCurrentString = pDocument->pCurrentString;
+   TRY
+   {
+      UINT          iNewStringID   = utilGetWindowInt(pHeader->hdr.hwndFrom);
+      GAME_STRING*  pCurrentString = pDocument->pCurrentString;
 
-   // Do nothing if the ID is unchanged
-   if (iNewStringID == pCurrentString->iID)
+      // Do nothing if the ID is unchanged
+      if (iNewStringID == pCurrentString->iID)
+         return TRUE;
+
+      // [CHECK] Ensure desired ID is available
+      if (!validateLanguagePageStringID(pDocument, iNewStringID))
+         return FALSE;
+
+      // Save current string
+      INT  iSelected = ListView_GetSelected(pDocument->hStringList);
+      ListView_DeSelectAll(pDocument->hStringList);
+
+      /// Edit StringID + Refresh ListView
+      modifyLanguageDocumentGameStringID(pDocument, pCurrentString, iNewStringID);
+
+      // [DOCUMENT CHANGED] Select original string
+      ListView_SelectItem(pDocument->hStringList, iSelected);
+      sendDocumentUpdated(AW_DOCUMENTS_CTRL); 
       return TRUE;
-
-   // [CHECK] Ensure desired ID is available
-   if (!validateLanguagePageStringID(pDocument, iNewStringID))
-      return FALSE;
-
-   // Save current string
-   INT  iSelected = ListView_GetSelected(pDocument->hStringList);
-   ListView_DeSelectAll(pDocument->hStringList);
-
-   /// Edit StringID + Refresh ListView
-   modifyLanguageDocumentGameStringID(pDocument, pCurrentString, iNewStringID);
-
-   // [DOCUMENT CHANGED] Select original string
-   ListView_SelectItem(pDocument->hStringList, iSelected);
-   sendDocumentUpdated(AW_DOCUMENTS_CTRL); 
-   return TRUE;
+   }
+   CATCH0("");
+   return FALSE;
 }
 
 
@@ -303,8 +380,24 @@ BOOL  onLanguageDocument_EditStringEnd(LANGUAGE_DOCUMENT*  pDocument, NMLVDISPIN
 // 
 BOOL   onLanguageDocument_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST UINT  iCommandID, UINT*  piState)
 {
-   *piState = MF_DISABLED;
-   return TRUE;
+   TRY
+   {
+      *piState = MF_DISABLED;
+      return TRUE;
+   }
+   CATCH0("");
+   return FALSE;
+}
+
+/// Function name  : onLanguageDocument_Help
+// Description     : Launch the appropriate help page 
+// 
+// LANGUAGE_DOCUMENT*  pDocument : [in] Document
+// CONST HELPINFO*     pRequest  : [in] System WM_HELP data
+// 
+VOID  onLanguageDocument_Help(LANGUAGE_DOCUMENT*  pDocument, CONST HELPINFO*  pRequest)
+{
+   displayHelp(TEXT("Language_Overview"));
 }
 
 /// Function name  : onLanguageDocument_InsertPage
@@ -315,43 +408,51 @@ BOOL   onLanguageDocument_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST 
 // 
 VOID  onLanguageDocument_InsertPage(LANGUAGE_DOCUMENT*  pDocument, GAME_PAGE*  pNewPage)
 {
-   // [CHECK] Document must not be virtual
-   ASSERT(!pDocument->bVirtual);
+   TRY
+   {
+      // [CHECK] Document must not be virtual
+      ASSERT(!pDocument->bVirtual);
 
-   // Hide/Destroy document PageStrings
-   INT  iSelection = ListView_GetSelected(pDocument->hPageList);
-   ListView_DeSelectAll(pDocument->hPageList);
+      // Hide/Destroy document PageStrings
+      INT  iSelection = ListView_GetSelected(pDocument->hPageList);
+      ListView_DeSelectAll(pDocument->hPageList);
 
-   /// Insert new GamePage + Refresh ListView
-   insertLanguageDocumentGamePage(pDocument, pNewPage);
+      /// Insert new GamePage + Refresh ListView
+      insertLanguageDocumentGamePage(pDocument, pNewPage);
 
-   // Create/Show document PageStrings
-   ListView_SelectItem(pDocument->hPageList, iSelection);
+      // Create/Show document PageStrings
+      ListView_SelectItem(pDocument->hPageList, iSelection);
+   }
+   CATCH0("");
 }
 
 
 /// Function name  : onLanguageDocument_InsertString
 // Description     : 'Insert String' context menu handler
 // 
-// LANGUAGE_DOCUMENT*  pDocument : [in] Document
-// const UINT          iPageID   : [in] Page for new string
+// LANGUAGE_DOCUMENT*  pDocument  : [in] Document
+// GAME_STRING*        pNewString : [in] New String
 // 
-VOID  onLanguageDocument_InsertString(LANGUAGE_DOCUMENT*  pDocument, const UINT  iPageID)
+VOID  onLanguageDocument_InsertString(LANGUAGE_DOCUMENT*  pDocument, GAME_STRING*  pNewString)
 {
-   GAME_STRING*  pNewString;
+   INT  iIndex;
 
-   // [CHECK] Non-Virtual document + Any page selected
-   ASSERT(!pDocument->bVirtual AND pDocument->pCurrentPage);
+   TRY
+   {
+      // [CHECK] Non-Virtual document + Any page selected
+      ASSERT(!pDocument->bVirtual AND pDocument->pCurrentPage);
 
-   // De-select current string
-   ListView_DeSelectAll(pDocument->hStringList);
+      // De-select current string
+      ListView_DeSelectAll(pDocument->hStringList);
 
-   /// Insert new GameString (into current page) into Tree + ListView
-   pNewString = createGameString(TEXT("NEW STRING"), identifyLanguagePageStringNextID(pDocument), iPageID, ST_INTERNAL);
-   insertLanguageDocumentGameString(pDocument, pNewString);
+      /// Insert new string into underlying tree
+      insertLanguageDocumentGameString(pDocument, pNewString);
 
-   // Select new string
-   ListView_SelectItem(pDocument->hStringList, ListView_GetItemCount(pDocument->hStringList) - 1);
+      // Select new string
+      ListView_SelectItem(pDocument->hStringList, iIndex = findGameStringIndex(pDocument, pNewString));
+      ListView_EnsureVisible(pDocument->hStringList, iIndex, FALSE);
+   }
+   CATCH2("Unable to insert string ID:%d into page %d", pNewString->iID, pNewString->iPageID);
 }
 
 
@@ -366,43 +467,41 @@ VOID   onLanguageDocument_PageSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, CO
 {
    INT  iLogicalItem;
 
-   if (bSelected)
+   TRY
    {
-      // [ITEM] Calculate item index 
-      if ((iLogicalItem = GroupedListView_PhysicalToLogical(pDocument->hPageList, iItem)) != -1)
+      if (bSelected)
       {
-         // [CHECK] Ensure Page + PageStrings do not exist
-         ASSERT(!pDocument->pCurrentPage AND !pDocument->pPageStringsByID);
+         // [ITEM] Calculate item index 
+         if ((iLogicalItem = GroupedListView_PhysicalToLogical(pDocument->hPageList, iItem)) != -1)
+         {
+            // [CHECK] Ensure Page + PageStrings do not exist
+            ASSERT(!pDocument->pCurrentPage AND !pDocument->pPageStringsByID);
 
-         // Generate strings for new page
-         findLanguageDocumentGamePageByIndex(pDocument, iLogicalItem, pDocument->pCurrentPage);
-         pDocument->pPageStringsByID = generateLanguagePageStringsTree(pDocument, pDocument->pCurrentPage);
+            // Generate strings for new page
+            findLanguageDocumentGamePageByIndex(pDocument, iLogicalItem, pDocument->pCurrentPage);
+            pDocument->pPageStringsByID = generateLanguagePageStringsTree(pDocument, pDocument->pCurrentPage);
 
-         /// Display contents + select first
-         ListView_SetItemCount(pDocument->hStringList, getTreeNodeCount(pDocument->pPageStringsByID));
-         ListView_SetItemState(pDocument->hStringList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+            /// Display contents + select first
+            ListView_SetItemCount(pDocument->hStringList, getTreeNodeCount(pDocument->pPageStringsByID));
+            ListView_SetItemState(pDocument->hStringList, 0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+         }
       }
-      //// [HEADING] Select next item
-      //else
-      //{
-      //   ListView_DeSelectAll(pDocument->hPageList);
-      //   ListView_SelectItem(pDocument->hPageList, iItem + 2);
-      //}
-   }
-   else
-   {
-      // [CHECK] Ensure user didn't de-select a heading
-      if (pDocument->pCurrentPage AND pDocument->pPageStringsByID)
+      else
       {
-         // Deselect current string, if any
-         ListView_SetItemState(pDocument->hStringList, -1, NULL, LVIS_SELECTED);
-         ListView_SetItemCount(pDocument->hStringList, 0);
+         // [CHECK] Ensure user didn't de-select a heading
+         if (pDocument->pCurrentPage AND pDocument->pPageStringsByID)
+         {
+            // Deselect current string, if any
+            ListView_SetItemState(pDocument->hStringList, -1, NULL, LVIS_SELECTED);
+            ListView_SetItemCount(pDocument->hStringList, 0);
 
-         // Delete existing page contents
-         deleteAVLTree(pDocument->pPageStringsByID);
-         pDocument->pCurrentPage = NULL;
+            // Delete existing page contents
+            deleteAVLTree(pDocument->pPageStringsByID);
+            pDocument->pCurrentPage = NULL;
+         }
       }
    }
+   CATCH0("");
 }
 
 
@@ -416,89 +515,42 @@ VOID  onLanguageDocument_PropertyChanged(LANGUAGE_DOCUMENT*  pDocument, CONST UI
 {
    INT   iSelected;
 
-   switch (iControlID)
+   TRY
    {
-   /// [MESSAGE CONTENTS]
-   case IDC_LANGUAGE_EDIT:
-   /// [MESSAGE PROPERTY]
-   case IDC_AUTHOR_EDIT:
-   case IDC_TITLE_EDIT:
-   case IDC_COLUMN_ONE_RADIO:  
-   case IDC_COLUMN_TWO_RADIO:  
-   case IDC_COLUMN_THREE_RADIO:
-   case IDC_COLUMN_WIDTH_CHECK:
-   case IDC_COLUMN_SPACING_CHECK:
-   case IDC_COLUMN_WIDTH_SLIDER:
-   case IDC_COLUMN_SPACING_SLIDER:
-      // [NON-VIRTUAL] Save text/properties to current message
-      if (!pDocument->bVirtual)
+      switch (iControlID)
       {
-         getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
-         generateSourceTextFromRichText(pDocument->pCurrentMessage, pDocument->pCurrentString);
-      }
-      // Fall through...
+      /// [MESSAGE CONTENTS]
+      case IDC_LANGUAGE_EDIT:
+      /// [MESSAGE PROPERTY]
+      case IDC_AUTHOR_EDIT:
+      case IDC_TITLE_EDIT:
+      case IDC_COMPATIBILITY_COMBO:
+      case IDC_COLUMN_ONE_RADIO:  
+      case IDC_COLUMN_TWO_RADIO:  
+      case IDC_COLUMN_THREE_RADIO:
+      case IDC_COLUMN_WIDTH_CHECK:
+      case IDC_COLUMN_SPACING_CHECK:
+      case IDC_COLUMN_WIDTH_SLIDER:
+      case IDC_COLUMN_SPACING_SLIDER:
+         // [NON-VIRTUAL] Save text/properties to current message
+         if (!pDocument->bVirtual)
+         {
+            getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
+            generateSourceTextFromRichText(pDocument->pCurrentMessage, pDocument->pCurrentString);
+         }
+         // Fall through...
 
-   /// [STRING PROPERTY]
-   case IDC_STRING_VERSION_COMBO:
-      // Redraw current string
-      iSelected = ListView_GetSelected(pDocument->hStringList);
-      ListView_RedrawItems(pDocument->hStringList, iSelected, iSelected);
-      break;
-
-   }
-}
-
-#define RichEdit_FindTextEx(hCtrl, iFlags, pData)  SendMessage(hCtrl, EM_FINDTEXTEX, iFlags, (LPARAM)(FINDTEXTEX*)(pData))
-
-VOID  highlightSpecial(HWND  hRichEdit)
-{
-   CHARFORMAT2  oFormat;
-   FINDTEXTEX  oStart,
-               oEnd;
-   CHARRANGE   oOriginal;
-
-   // Prepare
-   utilZeroObject(&oStart, FINDTEXTEX);
-   utilZeroObject(&oEnd, FINDTEXTEX);
-   utilZeroObject(&oFormat, CHARFORMAT);
-
-   // Setup search
-   oStart.chrg.cpMax = -1;
-   oStart.lpstrText  = TEXT("\\{");
-   oEnd.lpstrText    = TEXT("\\}");
-   oEnd.chrg.cpMax   = -1;
-
-   // Setup format
-   oFormat.cbSize = sizeof(CHARFORMAT2);
-   oFormat.dwMask = CFM_COLOR | CFM_LINK; // CFM_UNDERLINE | CFM_COLOR | CFM_UNDERLINETYPE; // CFM_ITALIC    //CFM_BACKCOLOR | CFM_COLOR | 
-   oFormat.dwEffects = CFE_LINK; // CFE_UNDERLINE;  // CFE_ITALIC
-   //oFormat.bUnderlineType = CFU_UNDERLINEDOTTED;
-   //oFormat.crBackColor = RGB(255,242,0);
-   oFormat.crTextColor = RGB(255,255,255); // RGB(0,0,0);
-
-   // Search for opening tag
-   if (RichEdit_FindTextEx(hRichEdit, FR_DOWN, &oStart) != -1)
-   {
-      // [FOUND] Search from opening tag
-      oEnd.chrg.cpMin = oStart.chrgText.cpMin;
-
-      // Search for closing tag
-      if (RichEdit_FindTextEx(hRichEdit, FR_DOWN, &oEnd) != -1)
-      {
-         // Preserve selection
-         RichEdit_HideSelection(hRichEdit, TRUE);
-         Edit_GetSelEx(hRichEdit, &oOriginal.cpMin, &oOriginal.cpMax);
-
-         // Highlight tag
-         Edit_SetSel(hRichEdit, oStart.chrgText.cpMin, oEnd.chrgText.cpMax);
-         RichEdit_SetCharFormat(hRichEdit, SCF_SELECTION, &oFormat);
-
-         // Restore selection
-         Edit_SetSel(hRichEdit, oOriginal.cpMin, oOriginal.cpMax);
-         RichEdit_HideSelection(hRichEdit, FALSE);
+      /// [STRING PROPERTY]
+      case IDC_STRING_VERSION_COMBO:
+         // Redraw current string
+         iSelected = ListView_GetSelected(pDocument->hStringList);
+         ListView_RedrawItems(pDocument->hStringList, iSelected, iSelected);
+         break;
       }
    }
+   CATCH0("");
 }
+
 
 /// Function name  : onLanguageDocument_StringSelectionChanged
 // Description     : Displays new string
@@ -514,54 +566,58 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
    // Disable EN_CHANGE notifications
    INT  iOldMask = RichEdit_SetEventMask(pDocument->hRichEdit, RichEdit_GetEventMask(pDocument->hRichEdit) ^ ENM_CHANGE);
 
-   /// [SELECTED] Display string in RichEdit
-   if (bSelected)
+   TRY
    {
-      // Lookup desired string
-      findLanguageDocumentGameStringByIndex(pDocument, iItem, pDocument->pCurrentString);
+      /// [SELECTED] Display string in RichEdit
+      if (bSelected)
+      {
+         // Lookup desired string
+         findLanguageDocumentGameStringByIndex(pDocument, iItem, pDocument->pCurrentString);
 
-      // Generate RichText + display
-      if (pDocument->bFormattingError = !generateMessageFromGameString(pDocument->pCurrentString, pDocument->pCurrentMessage, pDocument->pFormatErrors))
-         SetWindowText(pDocument->hRichEdit, TEXT(""));
+         // Generate RichText + display
+         if (pDocument->bFormattingError = !generateMessageFromGameString(pDocument->pCurrentString, pDocument->pCurrentMessage, pDocument->pFormatErrors))
+            SetWindowText(pDocument->hRichEdit, TEXT(""));
+         else
+         {
+            // Insert text + buttons
+            setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, 10, false, GTC_BLACK);
+            Edit_SetModify(pDocument->hRichEdit, FALSE);
+
+            /// [DEBUG]
+            //highlightSpecial(pDocument->hRichEdit);
+
+            // Store data for inserted buttons
+            for (INT iIndex = 0; findButtonInRichEditByIndex(pDocument->hRichEdit, iIndex, pButtonData); iIndex--)
+               insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pButtonData);
+         }
+
+         // Enable/Disable window by result
+         EnableWindow(pDocument->hRichEdit, !pDocument->bFormattingError);
+      }
+      /// [UNSELECTED] Update string from RichEdit
       else
       {
-         // Insert text + buttons
-         setRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage, false, GTC_BLACK);
-         Edit_SetModify(pDocument->hRichEdit, FALSE);
+         // [MODIFIED + NON-VIRTUAL] Generate new source-text from RichEdit
+         if (!pDocument->bVirtual AND Edit_GetModify(pDocument->hRichEdit))
+         {
+            getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
+            generateSourceTextFromRichText(pDocument->pCurrentMessage, pDocument->pCurrentString);
+         }
 
-         /// [DEBUG]
-         //highlightSpecial(pDocument->hRichEdit);
+         // Disable/Clear RichEdit
+         SetWindowText(pDocument->hRichEdit, TEXT(""));
+         EnableWindow(pDocument->hRichEdit, FALSE);
 
-         // Store data for inserted buttons
-         for (INT iIndex = 0; findButtonInRichEditByIndex(pDocument->hRichEdit, iIndex, pButtonData); iIndex--)
-            insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pButtonData);
+         // Destroy current Message/Errors
+         deleteLanguageMessage(pDocument->pCurrentMessage);
+         clearErrorQueue(pDocument->pFormatErrors);
+         pDocument->pCurrentString = NULL;
       }
 
-      // Enable/Disable window by result
-      EnableWindow(pDocument->hRichEdit, !pDocument->bFormattingError);
+      // Refresh string properties
+      sendDocumentUpdated(AW_PROPERTIES);
    }
-   /// [UNSELECTED] Update string from RichEdit
-   else
-   {
-      // [MODIFIED + NON-VIRTUAL] Generate new source-text from RichEdit
-      if (!pDocument->bVirtual AND Edit_GetModify(pDocument->hRichEdit))
-      {
-         getRichEditText(pDocument->hRichEdit, pDocument->pCurrentMessage);
-         generateSourceTextFromRichText(pDocument->pCurrentMessage, pDocument->pCurrentString);
-      }
-
-      // Disable/Clear RichEdit
-      SetWindowText(pDocument->hRichEdit, TEXT(""));
-      EnableWindow(pDocument->hRichEdit, FALSE);
-
-      // Destroy current Message/Errors
-      deleteLanguageMessage(pDocument->pCurrentMessage);
-      clearErrorQueue(pDocument->pFormatErrors);
-      pDocument->pCurrentString = NULL;
-   }
-
-   // Refresh string properties
-   sendDocumentUpdated(AW_PROPERTIES);
+   CATCH0("");
 
    // Re-Enable EN_CHANGE
    RichEdit_SetEventMask(pDocument->hRichEdit, iOldMask);
@@ -575,11 +631,19 @@ VOID   onLanguageDocument_StringSelectionChanged(LANGUAGE_DOCUMENT*  pDocument, 
 // 
 VOID   onLanguageDocument_ViewFormattingError(LANGUAGE_DOCUMENT*  pDocument)
 {
-   if (pDocument->bFormattingError)
+   TRY
    {
+      // [CHECK] Ensure error exists
+      if (!pDocument->bFormattingError)
+         return;
+      
+      // Display errors
       if (getQueueItemCount(pDocument->pFormatErrors) > 1)
-         displayErrorQueueDialog(getAppWindow(), pDocument->pFormatErrors, TEXT("String Formatting Error"));
+         // [MULTIPLE] Display queue
+         displayErrorQueueDialog(getAppWindow(), pDocument->pFormatErrors, loadTempString(IDS_LANGUAGE_FORMATTING_ERROR));
       else
-         displayErrorMessageDialog(getAppWindow(), firstErrorQueue(pDocument->pFormatErrors), TEXT("String Formatting Error"), MDF_OK | MDF_ERROR);
+         // [SINGLE] Display error
+         displayErrorMessageDialog(getAppWindow(), firstErrorQueue(pDocument->pFormatErrors), loadTempString(IDS_LANGUAGE_FORMATTING_ERROR), MDF_OK | MDF_ERROR);
    }
+   CATCH0("");
 }

@@ -9,8 +9,15 @@
 
 #include "stdafx.h"
 
+/// /////////////////////////////////////////////////////////////////////////////////////////
+///                                     MACROS
+/// /////////////////////////////////////////////////////////////////////////////////////////
+
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                       CONSTANTS / GLOBALS
+///                                   CONSTANTS / GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Number of Toolbar buttons
@@ -38,21 +45,15 @@ CONST UINT  iButtonCommands[iToolBarButtonCount] =
 // 
 // Return Value   : New error message dialog data, you are responsible for destroying it
 // 
-MESSAGE_DIALOG_DATA*  createMessageDialogData(CONST UINT  iMessageID, CONST TCHAR*  szTitle, CONST UINT  iAttributes, CONST ERROR_STACK*  pErrorStack, CONST ERROR_QUEUE*  pErrorQueue, va_list  pArguments)
+MESSAGE_DIALOG_DATA*  createMessageDialogData(CONST TCHAR*  szMessage, CONST TCHAR*  szTitle, CONST UINT  iAttributes, CONST ERROR_STACK*  pErrorStack, CONST ERROR_QUEUE*  pErrorQueue, va_list  pArguments)
 {
    MESSAGE_DIALOG_DATA*  pDialogData;     // MessageDialog data
-   TCHAR*                szFormat;        // Used for assembling messages
-
-   // [CHECK] Ensure only queue, stack or message are provided
-   ASSERT( pErrorQueue AND !pErrorStack AND !iMessageID OR
-          !pErrorQueue AND  pErrorStack AND !iMessageID OR
-          !pErrorQueue AND !pErrorStack AND  iMessageID);
 
    // Create object
    pDialogData = utilCreateEmptyObject(MESSAGE_DIALOG_DATA);
 
    /// Set properties
-   pDialogData->szTitle     = szTitle;
+   pDialogData->szTitle     = utilDuplicateSimpleString(szTitle);
    pDialogData->iAttributes = iAttributes;
    pDialogData->pErrorStack = pErrorStack;
 
@@ -70,15 +71,16 @@ MESSAGE_DIALOG_DATA*  createMessageDialogData(CONST UINT  iMessageID, CONST TCHA
       // Lookup first message
       findErrorMessageByLogicalIndex(pDialogData->pErrorStack, 0, MT_MESSAGE, pDialogData->pErrorMessage);
       ASSERT(pDialogData->pErrorMessage);
+      CONSOLE("Error %s text: '%s'", pDialogData->pErrorMessage->szID, pDialogData->pErrorMessage->szMessage);
    }
    /// [MESSAGE] Assemble message
-   else if (iMessageID)
+   else if (szMessage)
    {
       // Load formatting string and assemble
-      pDialogData->szSimpleMessage = utilCreateStringVf(ERROR_LENGTH, szFormat = utilLoadString(getResourceInstance(), iMessageID, ERROR_LENGTH), pArguments);
-      utilDeleteString(szFormat);
+      pDialogData->szSimpleMessage = utilCreateStringVf(ERROR_LENGTH, szMessage, pArguments);
+      CONSOLE("Message: '%s'", pDialogData->szSimpleMessage);
    }
-
+   
    /// [ICON] Set icon from Error, if available, otherwise from message attributes
    switch (pDialogData->pErrorStack ? pDialogData->pErrorStack->eType : extractIconFlags(iAttributes))
    {
@@ -108,6 +110,9 @@ MESSAGE_DIALOG_DATA*  createMessageDialogData(CONST UINT  iMessageID, CONST TCHA
 // 
 VOID  deleteMessageDialogData(MESSAGE_DIALOG_DATA*  &pDialogData)
 {
+   // Delete strings
+   utilSafeDeleteStrings(pDialogData->szSimpleMessage, pDialogData->szTitle);
+
    // Delete calling object
    utilDeleteObject(pDialogData);
 }
@@ -216,6 +221,8 @@ UINT  displayErrorMessageDialog(HWND  hParentWnd, CONST ERROR_STACK*  pError, CO
    TCHAR*                 szBasicMessage;
    UINT                   iResult;
 
+   CONSOLE_COMMAND();
+
    // [CHECK] If no parent is provided, default to the window at the top of the Z-order
    if (!hParentWnd)
       hParentWnd = GetTopWindow(getAppWindow());
@@ -227,7 +234,7 @@ UINT  displayErrorMessageDialog(HWND  hParentWnd, CONST ERROR_STACK*  pError, CO
       pDialogData = createMessageDialogData(NULL, szTitle, extractButtonFlags(iButtons), pError, NULL, NULL);
 
       // Display dialog and return result
-      iResult = DialogBoxParam(getResourceInstance(), TEXT("MESSAGE_DIALOG"), hParentWnd, dlgprocMessageDialog, (LPARAM)pDialogData);
+      iResult = showDialog(TEXT("MESSAGE_DIALOG"), hParentWnd, dlgprocMessageDialog, (LPARAM)pDialogData);
    }
    /// [FAILURE] Display text without using any components from the resource library
    else
@@ -256,6 +263,8 @@ VOID  displayErrorQueueDialog(HWND  hParentWnd, CONST ERROR_QUEUE*  pErrorQueue,
 {
    MESSAGE_DIALOG_DATA*   pDialogData;
 
+   CONSOLE_COMMAND();
+
    // [CHECK] Cannot be used when resources are not loaded
    ASSERT(getResourceInstance());
 
@@ -267,7 +276,7 @@ VOID  displayErrorQueueDialog(HWND  hParentWnd, CONST ERROR_QUEUE*  pErrorQueue,
    pDialogData = createMessageDialogData(NULL, szTitle, MDF_OK, NULL, pErrorQueue, NULL);
 
    // Display dialog and ignore result
-   DialogBoxParam(getResourceInstance(), TEXT("MESSAGE_DIALOG"), hParentWnd, dlgprocMessageDialog, (LPARAM)pDialogData);
+   showDialog(TEXT("MESSAGE_DIALOG"), hParentWnd, dlgprocMessageDialog, (LPARAM)pDialogData);
 }
 
 
@@ -276,33 +285,28 @@ VOID  displayErrorQueueDialog(HWND  hParentWnd, CONST ERROR_QUEUE*  pErrorQueue,
 ///                                              NB: Cannot be used when resources are not loaded  
 // 
 // HWND          hParentWnd  : [in] Parent window
-// CONST UINT    iMessageID  : [in] Resource ID of the message
-// CONST TCHAR*  szTitle     : [in] Dialog title, or Resource ID of dialog title
+// CONST UINT    iMessageID  : [in] ID of string containing title followed by message
 // CONST UINT    iAttributes : [in] Combination of MESSAGE_DIALOG_FLAG values specifying the icon and button arrangement
 // ...             ...       : [in]   ... 
 // 
 // Return Value   : ID of the button clicked: IDOK, IDCANCEL, IDYES or IDNO
 //  
-UINT  displayMessageDialogf(HWND  hParentWnd, CONST UINT  iMessageID, CONST TCHAR*  szTitle, CONST UINT  iAttributes, ...)
+UINT  displayMessageDialogf(HWND  hParentWnd, CONST UINT  iMessageID, CONST UINT  iAttributes, ...)
 {
-   MESSAGE_DIALOG_DATA  *pDialogData;     // Messagedialog data
-   va_list               pArgumentList;   // First formatted string argument
+   MESSAGE_DIALOG_DATA*  pDialogData;     // Messagedialog data
+   const TCHAR*          szTitle = loadTempString(iMessageID);
+
+   // [TRACK]
+   CONSOLE_COMMAND();
 
    // [CHECK] Cannot be used when resources are not loaded
    ASSERT(getResourceInstance());
 
-   // [CHECK] If no parent is provided, default to the window at the top of the Z-order
-   if (!hParentWnd)
-      hParentWnd = GetTopWindow(getAppWindow());
+   /// Create message dialog data
+   pDialogData = createMessageDialogData(findNextPackedString(szTitle), szTitle, iAttributes, NULL, NULL, utilGetFirstVariableArgument(&iAttributes));
 
-   // Get first hidden argument
-   pArgumentList = utilGetFirstVariableArgument(&iAttributes);
-
-   // Create message dialog data
-   pDialogData = createMessageDialogData(iMessageID, szTitle, iAttributes, NULL, NULL, pArgumentList);
-
-   // Display dialog and return result
-   return (UINT)DialogBoxParam(getResourceInstance(), TEXT("MESSAGE_DIALOG"), hParentWnd, dlgprocMessageDialog, (LPARAM)pDialogData);
+   /// Display dialog and return result
+   return (UINT)showDialog(TEXT("MESSAGE_DIALOG"), utilEither(hParentWnd, GetTopWindow(getAppWindow())), dlgprocMessageDialog, (LPARAM)pDialogData);
 }
 
 
@@ -361,7 +365,7 @@ BOOL  initMessageDialog(MESSAGE_DIALOG_DATA*  pDialogData, HWND  hDialog)
    /// [CHECK] Set dialog title from resource or string
    if (pDialogData->szTitle AND IS_INTRESOURCE(pDialogData->szTitle))
       // [RESOURCE] Load dialog title
-      utilSetDlgItemText(hDialog, IDC_DIALOG_TITLE, getResourceInstance(), (UINT)pDialogData->szTitle);
+      SetDlgItemText(hDialog, IDC_DIALOG_TITLE, loadTempString((UINT)pDialogData->szTitle));
    else
       // [STRING or MISSING] Display string or placeholder
       SetDlgItemText(hDialog, IDC_DIALOG_TITLE, utilEither(pDialogData->szTitle, TEXT("Unspecified Title")));
@@ -552,6 +556,8 @@ VOID  onMessageDialogAdjustDetailLevel(MESSAGE_DIALOG_DATA*  pDialogData, CONST 
 // 
 BOOL  onMessageDialogCommand(MESSAGE_DIALOG_DATA*  pDialogData, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl)
 {
+   static const TCHAR*  szButtonNames[] = { NULL, TEXT("OK"), TEXT("Cancel"), NULL, NULL, NULL, TEXT("Yes"), TEXT("No") };
+
    switch (iControlID)
    {
    /// [YES/NO, OK/CANCEL] - Close dialog and return button ID
@@ -559,6 +565,8 @@ BOOL  onMessageDialogCommand(MESSAGE_DIALOG_DATA*  pDialogData, CONST UINT  iCon
    case IDCANCEL:
    case IDYES:
    case IDNO:
+      CONSOLE("Message dialog dismissed with button '%s'", szButtonNames[iControlID]);
+
       // [CHECK] Has user closed a YES/NO dialog via SC_CLOSE?
       if ((pDialogData->iAttributes INCLUDES MDF_YESNO) AND iControlID == IDCANCEL)
          // [SPECIAL CASE] Return IDNO
@@ -593,15 +601,20 @@ BOOL  onMessageDialogCommand(MESSAGE_DIALOG_DATA*  pDialogData, CONST UINT  iCon
       onMessageDialogAdjustDetailLevel(pDialogData, TRUE);
       return TRUE;
 
-   /// [ATTACHMENT MENU ITEMS]
-   case IDM_FIRST_ATTACHMENT:
+   /*case IDM_FIRST_ATTACHMENT:
    case IDM_FIRST_ATTACHMENT+1:
    case IDM_FIRST_ATTACHMENT+2:
    case IDM_FIRST_ATTACHMENT+3:
    case IDM_FIRST_ATTACHMENT+4:
-   case IDM_FIRST_ATTACHMENT+5:
-      onMessageDialogDisplayAttachment(pDialogData, iControlID);
-      return TRUE;
+   case IDM_FIRST_ATTACHMENT+5:*/
+   /// [ATTACHMENT MENU ITEMS]
+   default:
+      if (iControlID >= IDM_FIRST_ATTACHMENT AND iControlID <= IDM_FIRST_ATTACHMENT + 10)
+      {
+         onMessageDialogDisplayAttachment(pDialogData, iControlID);
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;
@@ -709,9 +722,6 @@ VOID  onMessageDialogDestroy(MESSAGE_DIALOG_DATA*  pDialogData)
    /*/// [MODAL WINDOW]
    popModalWindowStack();*/
 
-   // Delete message
-   utilSafeDeleteString(pDialogData->szSimpleMessage);
-
    // Sever and delete dialog data
    SetWindowLong(pDialogData->hDialog, DWL_USER, NULL);
    deleteMessageDialogData(pDialogData);
@@ -741,7 +751,7 @@ VOID  onMessageDialogDisplayAttachment(MESSAGE_DIALOG_DATA*  pDialogData, CONST 
    ASSERT(pAttachmentMessage);
 
    /// Display attachment
-   DialogBoxParam(getResourceInstance(), TEXT("ATTACHMENT_DIALOG"), pDialogData->hDialog, dlgprocAttachmentDialog, (LPARAM)pAttachmentMessage);
+   showDialog(TEXT("ATTACHMENT_DIALOG"), pDialogData->hDialog, dlgprocAttachmentDialog, (LPARAM)pAttachmentMessage);
 }
 
 
@@ -847,41 +857,52 @@ INT_PTR  dlgprocMessageDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
    MESSAGE_DIALOG_DATA*  pDialogData;
    BOOL                  bResult;
 
-   // Prepare
-   pDialogData = getMessageDialogData(hDialog);
-   bResult     = FALSE;
-
-   // Examine message
-   switch (iMessage)
+   TRY
    {
-   /// [CREATION]
-   case WM_INITDIALOG:
-      bResult = initMessageDialog((MESSAGE_DIALOG_DATA*)lParam, hDialog);
-      break;
+      // Prepare
+      pDialogData = getMessageDialogData(hDialog);
+      bResult     = FALSE;
 
-   /// [DESTRUCTION]
-   case WM_DESTROY:
-      onMessageDialogDestroy(pDialogData);
-      bResult = TRUE;
-      break;
+      // Examine message
+      switch (iMessage)
+      {
+      /// [CREATION]
+      case WM_INITDIALOG:
+         bResult = initMessageDialog((MESSAGE_DIALOG_DATA*)lParam, hDialog);
+         break;
 
-   /// [COMMAND PROCESSING]
-   case WM_COMMAND:
-      bResult = onMessageDialogCommand(pDialogData, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
-      break;
+      /// [DESTRUCTION]
+      case WM_DESTROY:
+         onMessageDialogDestroy(pDialogData);
+         bResult = TRUE;
+         break;
 
-   /// [NOTIFICATION]
-   case WM_NOTIFY:
-      bResult = onMessageDialogNotify(pDialogData, wParam, (NMHDR*)lParam);
-      break;
+      /// [COMMAND PROCESSING]
+      case WM_COMMAND:
+         bResult = onMessageDialogCommand(pDialogData, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+         break;
 
-   /// [OWNER DRAW]
-   case WM_DRAWITEM:     bResult = onMessageDialogDrawItem(pDialogData, wParam, (DRAWITEMSTRUCT*)lParam);   break;
-   case WM_MEASUREITEM:  bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);               break;
+      /// [NOTIFICATION]
+      case WM_NOTIFY:
+         bResult = onMessageDialogNotify(pDialogData, wParam, (NMHDR*)lParam);
+         break;
+
+      /// [OWNER DRAW]
+      case WM_DRAWITEM:     bResult = onMessageDialogDrawItem(pDialogData, wParam, (DRAWITEMSTRUCT*)lParam);   break;
+      case WM_MEASUREITEM:  bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);               break;
+
+      /// [HELP]
+      case WM_HELP:
+         bResult = displayHelp(TEXT("Window_Output"));
+         break;
+      }
+
+      // Return TRUE, or pass to Vista handler
+      return (bResult ? TRUE : dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam));
    }
-
-   // Return TRUE, or pass to Vista handler
-   return (bResult ? TRUE : dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam));
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam);
 }
 
 

@@ -21,11 +21,18 @@ CONST UINT     iFontSizes[FONT_SIZES] = { 8, 10, 11, 12, 14, 16, 18 };
 #define       DISPLAY_CODEOBJECTS    (CODEOBJECT_CLASSES - 2)
 
 // Icon resources  (Indicies matching INTERFACE_COLOUR)
-CONST TCHAR*   szColourIcons[13] = { TEXT("BLACK_ICON"), TEXT("BLUE_ICON"), TEXT("DARK_GREEN_ICON"), TEXT("DARK_GREY_ICON"), TEXT("DARK_RED_ICON"), TEXT("CYAN_ICON"), TEXT("GREEN_ICON"),
-                                     TEXT("GREY_ICON"),  TEXT("RED_ICON"),  TEXT("ORANGE_ICON"),     TEXT("PURPLE_ICON"),    TEXT("YELLOW_ICON"),   TEXT("WHITE_ICON") }; 
+CONST TCHAR*   szColourIcons[INTERFACE_COLOURS] = 
+{ 
+   TEXT("BLACK_ICON"),     TEXT("BLUE_ICON"),         TEXT("DARK_GREEN_ICON"),   TEXT("DARK_GREY_ICON"),    TEXT("DARK_ORANGE_ICON"),  TEXT("PURPLE_ICON"),  
+   TEXT("DARK_RED_ICON"),  TEXT("DARK_YELLOW_ICON"),  TEXT("CYAN_ICON"),         TEXT("GREEN_ICON"),        TEXT("GREY_ICON"),         TEXT("ORANGE_ICON"),    
+   TEXT("RED_ICON"),       TEXT("PINK_ICON"),         TEXT("YELLOW_ICON"),       TEXT("WHITE_ICON") 
+}; 
 
 // Maps PageID -> String
 extern CONST TCHAR*  szDebugPageNames[PREFERENCES_PAGES];
+
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -139,15 +146,13 @@ VOID   populateAppearancePageFontSizesCombo(PREFERENCES_DATA*  pDialogData, HWND
 //
 BOOL  displayPreferencesDialog(HWND  hParentWnd, CONST PREFERENCES_PAGE  ePage)
 {
-   PREFERENCES_DATA*  pDialogData;              // Dialog data for the preferences PropertySheet
-   ERROR_STACK*       pException;
-   BOOL               iDialogResult;            // Operation result indicating which (if any) important preferences have changed
+   PREFERENCES_DATA*  pDialogData;                    // Dialog data for the preferences PropertySheet
+   BOOL               iDialogResult = PSR_NO_CHANGE;  // Operation result indicating which (if any) important preferences have changed
 
-   // Prepare
-   iDialogResult = PSR_NO_CHANGE;
-
-   __try
+   TRY
    {
+      CONSOLE_ACTION();
+
       // Create dialog data
       pDialogData = createPreferencesData(getAppPreferences());
 
@@ -166,30 +171,37 @@ BOOL  displayPreferencesDialog(HWND  hParentWnd, CONST PREFERENCES_PAGE  ePage)
 
          // [CHECK] Has the user changed the interface language?
          if (iDialogResult INCLUDES PSR_APP_LANGUAGE_CHANGED)
+         {
             /// [LANGUAGE CHANGED] "Your new choice of interface language will not take effect until X-Studio is restarted"
-            displayMessageDialogf(NULL, IDS_GENERAL_LANGUAGE_RESTART, TEXT("Interface Language Changed"), MDF_OK WITH MDF_WARNING);
-
+            CONSOLE("Interface language changed");
+            displayMessageDialogf(NULL, IDS_GENERAL_REQUIREMENTS_LANGUAGE, MDF_OK WITH MDF_WARNING);
+         }
          // [CHECK] Has game data folder/language been changed?
          if (iDialogResult INCLUDES (PSR_GAME_FOLDER_CHANGED WITH PSR_GAME_LANGUAGE_CHANGED))
+         {
             /// [FOLDER/LANGUAGE CHANGE] Close all documents and reload the game data
+            CONSOLE("Game folder changed");
             performMainWindowReInitialisation(getMainWindowData(), NULL);
+         }
          else
+         {
             /// [EVENT] Fire UN_PREFERENCES_CHANGED
+            CONSOLE("General preferences changed");
             Preferences_Changed(hParentWnd);    // Refreshes all documents
+         }
       }
+      else
+      {
+         CONSOLE("Preferences changes cancelled");
+         consolePrintLastError(TEXT("invoking preferences dialog"), __WFUNCTION__, __SWFILE__, __LINE__);
+      }
+
+      // Cleanup
+      deletePreferencesData(pDialogData);
+      return iDialogResult;
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the preferences window - settings have not been saved."
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_DISPLAY_PREFERENCES));
-      displayException(pException);
-      return FALSE;
-   }
-      
-   // Cleanup
-   deletePreferencesData(pDialogData);
-   return iDialogResult;
+   CATCH0("");
+   return FALSE;
 }
 
 
@@ -206,7 +218,6 @@ BOOL  initPreferencesPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONST P
 {
    BOOL   bResult;
 
-   TRACK_FUNCTION();
 
    // Examine page
    switch (ePage)
@@ -224,7 +235,6 @@ BOOL  initPreferencesPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONST P
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -245,7 +255,6 @@ BOOL   initPreferencesAppearancePage(PREFERENCES_DATA*  pDialogData, HWND  hDial
    HDC           hDC;               // Dialog device context
 
    // Prepare
-   TRACK_FUNCTION();
    utilZeroObject(&oFontData, LOGFONT);
 
    /// Enumerate Colour schemes in the dialog data
@@ -260,7 +269,6 @@ BOOL   initPreferencesAppearancePage(PREFERENCES_DATA*  pDialogData, HWND  hDial
    ReleaseDC(hDialog, hDC);
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -275,24 +283,17 @@ BOOL   initPreferencesAppearancePage(PREFERENCES_DATA*  pDialogData, HWND  hDial
 // 
 BOOL   initPreferencesFolderPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
 {
-   CONST TCHAR  *szRegistryFolders[4] = { TEXT("Software\\Egosoft\\X2"), TEXT("Software\\Egosoft\\X2"), TEXT("Software\\Egosoft\\X3R"), TEXT("Software\\Egosoft\\X3AP") };
+   CONST TCHAR  *szRegistryFolders[4] = { TEXT("Software\\Egosoft\\X2"), TEXT("Software\\Egosoft\\X3R"), TEXT("Software\\Egosoft\\X3TC"), TEXT("Software\\Egosoft\\X3AP") };
    BOOL          bModifiedDocuments;   // Whether there are any modified documents open
-   TCHAR        *szGameFolder,         // Game folder paths extracted from the registry
-                *szLanguage;           // Language string of the language being processed
+   TCHAR        *szGameFolder;         // Game folder paths extracted from the registry
 
    // Prepare
    bModifiedDocuments = (getAppWindow() ? isAnyDocumentModified(getMainWindowData()->hDocumentsTab) : FALSE);     // App window will not exist on first run
    szGameFolder       = utilCreateEmptyPath();
 
-   /// [GAME LANGUAGE] Iterate through application languages
+   /// [GAME LANGUAGE] Populate languages Combo
    for (APP_LANGUAGE eLanguage = AL_ENGLISH; eLanguage <= AL_SPANISH; eLanguage = (APP_LANGUAGE)(eLanguage + 1))
-   {
-      // Add language name and icon to comboBox
-      szLanguage = utilLoadString(getResourceInstance(), IDS_LANGUAGE_ENGLISH + eLanguage, 64);
-      appendCustomComboBoxItemEx(GetControl(hDialog, IDC_GAME_LANGUAGE_COMBO), szLanguage, NULL, szLanguageIcons[eLanguage], NULL);
-      // Cleanup
-      utilDeleteString(szLanguage);
-   }
+      appendCustomComboBoxItemEx(GetControl(hDialog, IDC_GAME_LANGUAGE_COMBO), loadTempString(IDS_LANGUAGE_ENGLISH + eLanguage), NULL, szLanguageIcons[eLanguage], NULL);
    
    /// [GAME FOLDER] Populate the GameFolders combo
    for (GAME_VERSION  eVersion = GV_THREAT; eVersion <= GV_ALBION_PRELUDE; eVersion = (GAME_VERSION)(eVersion + 1))
@@ -305,7 +306,7 @@ BOOL   initPreferencesFolderPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
 
    // [CHECK] Add fixed string if none were found
    if (!ComboBox_GetCount(GetControl(hDialog, IDC_GAME_FOLDER_COMBO)))
-      appendCustomComboBoxItem(GetControl(hDialog, IDC_GAME_FOLDER_COMBO), TEXT("(No game installations found)"));
+      appendCustomComboBoxItem(GetControl(hDialog, IDC_GAME_FOLDER_COMBO), loadTempString(IDS_GENERAL_INSTALLATIONS_NOT_FOUND));
    
    /// [FOLDER VALIDATION] Display the current validation status
    updatePreferencesFoldersPageState(pDialogData->pPreferencesCopy, hDialog, IDC_GAME_FOLDER_STATUS); 
@@ -331,25 +332,9 @@ BOOL   initPreferencesFolderPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
 // 
 BOOL  initPreferencesGeneralPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
 {
-   TCHAR*    szLanguage;           // Language string of the language being processed
-
-   /// [APP LANGAUGE] Iterate through application languages
-   for (APP_LANGUAGE eLanguage = AL_ENGLISH; eLanguage <= AL_SPANISH; eLanguage = (APP_LANGUAGE)(eLanguage + 1))
-   {
-      switch (eLanguage)
-      {
-      // [ENGLISH/GERMAN] 
-      case AL_ENGLISH:
-      case AL_GERMAN:
-      //case AL_RUSSIAN:  
-         // Add language name and icon to comboBox
-         szLanguage = utilLoadString(getResourceInstance(), IDS_LANGUAGE_ENGLISH + eLanguage, 64);
-         appendCustomComboBoxItemEx(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO), szLanguage, NULL, szLanguageIcons[eLanguage], NULL);
-         // Cleanup
-         utilDeleteString(szLanguage);
-         break;
-      }
-   }
+   // Populate Interface Languages
+   appendCustomComboBoxItemEx(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO), loadTempString(IDS_LANGUAGE_ENGLISH + AL_ENGLISH), NULL, szLanguageIcons[AL_ENGLISH], NULL);
+   appendCustomComboBoxItemEx(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO), loadTempString(IDS_LANGUAGE_ENGLISH + AL_GERMAN), NULL, szLanguageIcons[AL_GERMAN], NULL);
 
    /// [DELAY] Setup sliders
    SendDlgItemMessage(hDialog, IDC_CODE_TOOLTIPS_SLIDER, TBM_SETRANGE, FALSE, MAKE_LONG(1, 12));
@@ -381,7 +366,7 @@ BOOL  initPreferencesMiscPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
    for (UINT iHandling = 0; iHandling < 3; iHandling++)
    {
       // Load handling string and add to combo
-      LoadString(getResourceInstance(), IDS_ERROR_HANDLING_ABORT + iHandling, szErrorHandling, 64);
+      loadString(IDS_ERROR_HANDLING_ABORT + iHandling, szErrorHandling, 64);
       SendDlgItemMessage(hDialog, IDC_ERROR_HANDLING_COMBO, CB_ADDSTRING, NULL, (LPARAM)szErrorHandling);
    }
 
@@ -411,7 +396,7 @@ BOOL  initPreferencesSyntaxPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
    
    // Prepare
    pColourScheme = &pDialogData->pPreferencesCopy->oColourScheme;
-   szPreviewText = utilLoadString(getResourceInstance(), IDS_CODE_EDIT_PREVIEW_TEXT, 512);
+   szPreviewText = loadString(IDS_CODE_EDIT_PREVIEW_TEXT, 512);
    szItemText    = utilCreateString(64);
 
    /// [CODE-EDIT] Create ScriptFile
@@ -426,7 +411,7 @@ BOOL  initPreferencesSyntaxPage(PREFERENCES_DATA*  pDialogData, HWND  hDialog)
    for (INTERFACE_COLOUR  eColour = IC_BLACK; eColour <= IC_WHITE; eColour = (INTERFACE_COLOUR)(eColour + 1))
    {
       // Load colour string
-      LoadString(getResourceInstance(), IDS_COLOUR_BLACK + eColour, szItemText, 64);
+      loadString(IDS_COLOUR_BLACK + eColour, szItemText, 64);
 
       // Add to text and background combo
       appendCustomComboBoxItemEx(GetControl(hDialog, IDC_TEXT_COLOUR_COMBO),       szItemText, NULL, szColourIcons[eColour], NULL);
@@ -568,7 +553,6 @@ BOOL  onPreferencesAppearancePage_Command(PREFERENCES_DATA*  pDialogData, HWND  
    BOOL            bResult;
 
    // Prepare
-   TRACK_FUNCTION();
    pOldScheme = &pDialogData->pPreferencesCopy->oColourScheme;
    bResult    = FALSE;
 
@@ -606,12 +590,11 @@ BOOL  onPreferencesAppearancePage_Command(PREFERENCES_DATA*  pDialogData, HWND  
 
    /// [SAVE COLOUR SCHEME]
    case IDC_COLOUR_SCHEME_SAVE:
-      displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_ERROR, TEXT("Saving Colour Schemes"));
+      displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_OK WITH MDF_ERROR, TEXT("Saving Colour Schemes"));
       break;
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -792,15 +775,14 @@ BOOL  onPreferencesPage_Hide(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONS
       pPreferencesCopy->eAppLanguage = convertInterfaceLanguageToAppLanguage((INTERFACE_LANGUAGE)ComboBox_GetCurSel(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO)));
 
       // Options
-      pPreferencesCopy->bPreserveSession       = IsDlgButtonChecked(hDialog, IDC_PRESERVE_SESSION_CHECK);   
       pPreferencesCopy->bUseSystemDialog       = IsDlgButtonChecked(hDialog, IDC_USE_SYSTEM_DIALOG_CHECK);
       pPreferencesCopy->bCodeIndentation       = IsDlgButtonChecked(hDialog, IDC_CODE_INDENTATION_CHECK);
       pPreferencesCopy->bScriptCodeMacros      = IsDlgButtonChecked(hDialog, IDC_CODE_MACROS_CHECK);
-      pPreferencesCopy->bTransparentProperties = !IsDlgButtonChecked(hDialog, IDC_PROPERTIES_TRANSPARENCY_CHECK);    // Check is for 'disable'
       pPreferencesCopy->bTutorialMode          = !IsDlgButtonChecked(hDialog, IDC_TUTORIAL_MODE_CHECK);              // Check is for 'disable'
       pPreferencesCopy->bEditorTooltips        = IsDlgButtonChecked(hDialog, IDC_CODE_TOOLTIPS_CHECK);
       pPreferencesCopy->bSearchResultTooltips  = IsDlgButtonChecked(hDialog, IDC_SEARCH_TOOLTIPS_CHECK);
       pPreferencesCopy->bUseDoIfSyntax         = IsDlgButtonChecked(hDialog, IDC_CODE_DO_IF_CHECK);
+      pPreferencesCopy->bVersionIncrement      = IsDlgButtonChecked(hDialog, IDC_CODE_INCREMENT_CHECK);
       pPreferencesCopy->bSuggestions[CST_COMMAND]       = IsDlgButtonChecked(hDialog, IDC_SUGGEST_COMMANDS_CHECK);
       pPreferencesCopy->bSuggestions[CST_GAME_OBJECT]   = IsDlgButtonChecked(hDialog, IDC_SUGGEST_GAME_OBJECTS_CHECK);
       pPreferencesCopy->bSuggestions[CST_SCRIPT_OBJECT] = IsDlgButtonChecked(hDialog, IDC_SUGGEST_SCRIPT_OBJECTS_CHECK);
@@ -879,16 +861,16 @@ BOOL  onPreferencesPage_Show(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONS
    {
    /// [GENERAL] - Choose language and option values
    case PP_GENERAL:
+      CONSOLE("Displaying 'General' Preferences page");
       // App Language
       ComboBox_SetCurSel(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO), convertAppLanguageToInterfaceLanguage(pPreferencesCopy->eAppLanguage));
 
       // Select options
-      CheckDlgButton(hDialog, IDC_PRESERVE_SESSION_CHECK,         pPreferencesCopy->bPreserveSession);
       CheckDlgButton(hDialog, IDC_USE_SYSTEM_DIALOG_CHECK,        pPreferencesCopy->bUseSystemDialog);
       CheckDlgButton(hDialog, IDC_CODE_INDENTATION_CHECK,         pPreferencesCopy->bCodeIndentation);
       CheckDlgButton(hDialog, IDC_CODE_MACROS_CHECK,              pPreferencesCopy->bScriptCodeMacros);
       CheckDlgButton(hDialog, IDC_CODE_DO_IF_CHECK,               pPreferencesCopy->bUseDoIfSyntax);
-      CheckDlgButton(hDialog, IDC_PROPERTIES_TRANSPARENCY_CHECK, !pPreferencesCopy->bTransparentProperties);      // Check is for 'disable'
+      CheckDlgButton(hDialog, IDC_CODE_INCREMENT_CHECK,           pPreferencesCopy->bVersionIncrement);
       CheckDlgButton(hDialog, IDC_TUTORIAL_MODE_CHECK,           !pPreferencesCopy->bTutorialMode);               // Check is for 'disable'
       CheckDlgButton(hDialog, IDC_CODE_TOOLTIPS_CHECK,            pPreferencesCopy->bEditorTooltips);
       CheckDlgButton(hDialog, IDC_SEARCH_TOOLTIPS_CHECK,          pPreferencesCopy->bSearchResultTooltips);
@@ -910,6 +892,7 @@ BOOL  onPreferencesPage_Show(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONS
 
    /// [FOLDERS] - Display folder paths
    case PP_FOLDERS:
+      CONSOLE("Displaying 'Folders' Preferences page");
       // Select Game Language
       ComboBox_SetCurSel(GetControl(hDialog, IDC_GAME_LANGUAGE_COMBO), convertGameLanguageToAppLanguage(pPreferencesCopy->eGameLanguage));
 
@@ -925,11 +908,16 @@ BOOL  onPreferencesPage_Show(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONS
 
    /// [APPEARANCE] -- Select current font and colour scheme
    case PP_APPEARANCE:
+      CONSOLE("Displaying 'Appearance' Preferences page");
       // Select Font name. Set bold flag
       SendDlgItemMessage(hDialog, IDC_FONT_NAME_COMBO, CB_SELECTSTRING, -1, (LPARAM)pColourScheme->szFontName);
       CheckDlgButton(hDialog,     IDC_BOLD_FONT_CHECK, pColourScheme->bFontBold ? TRUE : FALSE);
+
       // Select Colour scheme
-      SendDlgItemMessage(hDialog, IDC_COLOUR_SCHEME_COMBO, CB_SELECTSTRING, -1, (LPARAM)pColourScheme->szName);
+      for (UINT  iIndex = 0; iIndex < 4; iIndex++)
+         if (utilCompareStringVariables(pColourScheme->szName, getCustomComboBoxItemText(GetDlgItem(hDialog, IDC_COLOUR_SCHEME_COMBO), iIndex)))
+            ComboBox_SetCurSel(GetDlgItem(hDialog, IDC_COLOUR_SCHEME_COMBO), iIndex);
+      //SendDlgItemMessage(hDialog, IDC_COLOUR_SCHEME_COMBO, CB_SELECTSTRING, -1, (LPARAM)pColourScheme->szName);   
 
       // Populate FontSize ComboBox
       populateAppearancePageFontSizesCombo(pDialogData, hDialog);
@@ -937,6 +925,7 @@ BOOL  onPreferencesPage_Show(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONS
 
    /// [SYNTAX] -- Select first CodeObject
    case PP_SYNTAX:
+      CONSOLE("Displaying 'Syntax' Preferences page");
       // Select first display CodeObject (Arguments)
       SendDlgItemMessage(hDialog, IDC_CODE_OBJECT_LIST,        LB_SETCURSEL, (UINT)0, NULL);
       // Display Background colour and Arguments text colour
@@ -948,6 +937,7 @@ BOOL  onPreferencesPage_Show(PREFERENCES_DATA*  pDialogData, HWND  hDialog, CONS
 
    /// [MISC] - Display error handling and option values
    case PP_MISC:
+      CONSOLE("Displaying 'Misc' Preferences page");
       // Error handling
       SendDlgItemMessage(hDialog, IDC_ERROR_HANDLING_COMBO, CB_SETCURSEL, (UINT)pPreferencesCopy->eErrorHandling, NULL);
       // Options
@@ -1059,7 +1049,7 @@ BOOL  onPreferencesSyntaxPage_Notify(PREFERENCES_DATA*  pDialogData, HWND  hPage
 
       // [TEXT] Supply CodeObject description
       if (pRequestItem->mask INCLUDES LVIF_TEXT)
-         LoadString(getResourceInstance(), IDS_CODE_OBJECT_ARGUMENT + pRequestItem->iItem, pRequestItem->pszText, pRequestItem->cchTextMax);
+         loadString(IDS_CODE_OBJECT_ARGUMENT + pRequestItem->iItem, pRequestItem->pszText, pRequestItem->cchTextMax);
       
       // [ICON] Supply appropriate coloured icon
       if (pRequestItem->mask INCLUDES LVIF_IMAGE)
@@ -1109,13 +1099,11 @@ BOOL  onPreferencesSyntaxPage_Notify(PREFERENCES_DATA*  pDialogData, HWND  hPage
 INT_PTR   dlgprocPreferencesAppearancePage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PREFERENCES_DATA*  pDialogData;
-   ERROR_STACK*       pException;
    BOOL               bResult;
 
-   __try
+   TRY
    {
       // Prepare
-      TRACK_FUNCTION();
       pDialogData = getPreferencesData(hDialog);
       bResult     = FALSE;
 
@@ -1134,17 +1122,11 @@ INT_PTR   dlgprocPreferencesAppearancePage(HWND  hDialog, UINT  iMessage, WPARAM
       }
 
       // Pass to base
-      END_TRACKING();
       return utilEither(bResult, dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_APPEARANCE));
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the preferences %s window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_PREFERENCES_DIALOG), szDebugPageNames[PP_APPEARANCE]);
-      displayException(pException);
-      return 0;
-   }
+   CATCH4("ePage=%s  iMessage=%s  wParam=%d  lParam=%d", szDebugPageNames[PP_APPEARANCE], identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 
 
@@ -1155,10 +1137,9 @@ INT_PTR   dlgprocPreferencesAppearancePage(HWND  hDialog, UINT  iMessage, WPARAM
 INT_PTR   dlgprocPreferencesFoldersPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PREFERENCES_DATA*  pDialogData;
-   ERROR_STACK*       pException;
    BOOL               bResult;
 
-   __try
+   TRY
    {
       // Prepare
       pDialogData = getPreferencesData(hDialog);
@@ -1184,13 +1165,8 @@ INT_PTR   dlgprocPreferencesFoldersPage(HWND  hDialog, UINT  iMessage, WPARAM  w
       return utilEither(bResult, dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_FOLDERS));
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the preferences %s window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_PREFERENCES_DIALOG), szDebugPageNames[PP_FOLDERS]);
-      displayException(pException);
-      return 0;
-   }
+   CATCH4("ePage=%s  iMessage=%s  wParam=%d  lParam=%d", szDebugPageNames[PP_FOLDERS], identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 
 
@@ -1201,10 +1177,9 @@ INT_PTR   dlgprocPreferencesFoldersPage(HWND  hDialog, UINT  iMessage, WPARAM  w
 INT_PTR   dlgprocPreferencesGeneralPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PREFERENCES_DATA*  pDialogData;
-   ERROR_STACK*       pException;
    BOOL               bResult;
 
-   __try
+   TRY
    {
       // Get dialog data
       pDialogData = getPreferencesData(hDialog);
@@ -1228,13 +1203,8 @@ INT_PTR   dlgprocPreferencesGeneralPage(HWND  hDialog, UINT  iMessage, WPARAM  w
       return utilEither(bResult, dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_GENERAL));
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the preferences %s window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_PREFERENCES_DIALOG), szDebugPageNames[PP_GENERAL]);
-      displayException(pException);
-      return 0;
-   }
+   CATCH4("ePage=%s  iMessage=%s  wParam=%d  lParam=%d", szDebugPageNames[PP_GENERAL], identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 
 
@@ -1257,10 +1227,9 @@ INT_PTR   dlgprocPreferencesMiscPage(HWND  hDialog, UINT  iMessage, WPARAM  wPar
 INT_PTR   dlgprocPreferencesSyntaxPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PREFERENCES_DATA*  pDialogData;
-   ERROR_STACK*       pException;
    BOOL               bResult;
 
-   __try
+   TRY
    {
       // Prepare
       pDialogData = getPreferencesData(hDialog);
@@ -1289,13 +1258,8 @@ INT_PTR   dlgprocPreferencesSyntaxPage(HWND  hDialog, UINT  iMessage, WPARAM  wP
       return bResult ? TRUE : dlgprocPreferencesPage(hDialog, iMessage, wParam, lParam, PP_SYNTAX);
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the preferences %s window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_PREFERENCES_DIALOG), szDebugPageNames[PP_SYNTAX]);
-      displayException(pException);
-      return 0;
-   }
+   CATCH4("ePage=%s  iMessage=%s  wParam=%d  lParam=%d", szDebugPageNames[PP_SYNTAX], identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 
 

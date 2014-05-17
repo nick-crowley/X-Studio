@@ -7,6 +7,7 @@
 // Includes
 #include "Types.h"
 #include "Windows API.h"
+#include "../Build Rules.h"
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                          EXPORT
@@ -301,9 +302,11 @@ UtilityAPI VOID      utilDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecond
 UtilityAPI VOID      utilDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecondString, TCHAR*  &szThirdString);
 UtilityAPI VOID      utilSafeDeleteString(TCHAR*  &szStringBuffer);
 UtilityAPI VOID      utilSafeDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecondString);
+UtilityAPI VOID      utilSafeDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecondString, TCHAR*  &szThirdString);
 
 // Functions
 UtilityAPI TCHAR*    utilExtendString(TCHAR*  szSource, CONST UINT  iSourceLength, CONST UINT  iNewLength);
+UtilityAPI TCHAR*    utilReAllocString(TCHAR*  szSource);
 UtilityAPI TCHAR*    utilReplaceString(TCHAR*  &szExistingString, CONST TCHAR*  szNewString);
 UtilityAPI TCHAR*    utilReplaceStringf(TCHAR*  &szExistingString, CONST UINT  iNewLength, CONST TCHAR*  szFormat, ...);
 UtilityAPI HRESULT   utilStringCchCatf(TCHAR*  szDestination, CONST UINT  iLength, CONST TCHAR*  szFormat, ...);
@@ -380,15 +383,14 @@ UtilityAPI LONG      utilRemoveWindowStyleEx(HWND  hWnd, DWORD  dwStyleEx);
 UtilityAPI TCHAR*    utilReplaceWindowTextString(TCHAR*  &szString, HWND  hWnd);
 UtilityAPI VOID      utilSafeDeleteWindow(HWND  &hWnd);
 UtilityAPI VOID      utilScreenToClientRect(HWND  hWnd, RECT*  pWindowRect);
-UtilityAPI VOID      utilSetClientRect(HWND  hWnd, CONST RECT*  pWindowRect, CONST BOOL  bRepaint);
 UtilityAPI VOID      utilSetDlgItemFocus(HWND  hDialog, CONST UINT  iControlID);
 UtilityAPI VOID      utilSetDlgItemID(HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNewID);
 UtilityAPI VOID      utilSetDlgItemRect(HWND  hDialog, CONST UINT  iControlID, CONST RECT*  pRect, CONST BOOL  bRepaint);
-UtilityAPI VOID      utilSetDlgItemText(HWND  hDialog, CONST UINT  iControlID, HINSTANCE  hInstance, CONST UINT  iStringID);
+//UtilityAPI VOID      utilSetDlgItemText(HWND  hDialog, CONST UINT  iControlID, HINSTANCE  hInstance, CONST UINT  iStringID);
 UtilityAPI VOID      utilSetWindowInt(HWND  hWnd, CONST INT  iInteger);
 UtilityAPI BOOL      utilSetWindowProgressState(HWND  hWnd, CONST UINT  eState);
 UtilityAPI BOOL      utilSetWindowProgressValue(HWND  hWnd, CONST INT  iProgress, CONST INT  iMaximum);
-UtilityAPI VOID      utilSetWindowText(HWND  hWnd, HINSTANCE  hInstance, CONST UINT  iStringID);
+UtilityAPI VOID      utilSetWindowRect(HWND  hWnd, CONST RECT*  pWindowRect, CONST BOOL  bRepaint);
 UtilityAPI VOID      utilSetWindowTextf(HWND  hWnd, CONST TCHAR*  szFormat, ...);
 UtilityAPI LRESULT   utilSendNotifyMessage(HWND  hWnd, CONST UINT  iMessage, HWND  hCtrl, CONST UINT  iControlID);
 UtilityAPI VOID      utilShowDlgItem(HWND  hDialog, CONST UINT  iControlID, CONST BOOL  bShow);
@@ -993,10 +995,11 @@ UtilityAPI BOOL      utilTrackMouseEvent(HWND  hCtrl, DWORD  dwFlags, DWORD  dwT
 /// Name: utilLaunchThread
 //  Description: Launches a new worker thread manually
 //
-//  LPTHREAD_START_ROUTINE  pfnThreadFunction : [in] Thread function
-//  VOID*                   pThreadData       : [in] Thread data
+//  LPTHREAD_START_ROUTINE  pfnThreadFunction : [in]     Thread function
+//  VOID*                   pThreadData       : [in]     Thread data
+//  DWORD*                  pThreadID         : [in/out] Thread ID, optional
 //
-#define      utilLaunchThread(pfnThreadFunction, pThreadData)                 CreateThread(NULL, NULL, pfnThreadFunction, (VOID*)pThreadData, NULL, NULL)
+#define      utilLaunchThread(pfnThreadFunction, pThreadData, bSuspended, pThreadID)   CreateThread(NULL, NULL, pfnThreadFunction, (VOID*)pThreadData, bSuspended ? CREATE_SUSPENDED : NULL, pThreadID)
 
 /// Name: utilLaunchThreadpoolThread
 //  Description: Launches a new worker thread using a threadpool

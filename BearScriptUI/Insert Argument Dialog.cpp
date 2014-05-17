@@ -47,16 +47,23 @@ BOOL  displayInsertArgumentDialog(SCRIPT_FILE*  pScriptFile, HWND  hParentWnd)
 {
    ARGUMENT*  pNewArgument;      // Newly created argument, if any
 
+   CONSOLE_ACTION1(identifyScriptName(pScriptFile));
+
    // Display 'Insert Argument' dialog
-   pNewArgument = (ARGUMENT*)DialogBoxParam(getResourceInstance(), TEXT("INSERT_ARGUMENT_DIALOG"), hParentWnd, dlgprocInsertArgumentDialog, (LPARAM)pScriptFile);
+   pNewArgument = (ARGUMENT*)showDialog(TEXT("INSERT_ARGUMENT_DIALOG"), hParentWnd, dlgprocInsertArgumentDialog, (LPARAM)pScriptFile);
 
    /// [NEW ARGUMENT] -- Insert into ScriptFile
    if (pNewArgument)
    {
+      // [DEBUG]
+      debugArgument(pNewArgument);
+
       // Inset Argument using next available ID
       pNewArgument->iID = (1 + getTreeNodeCount(pScriptFile->pArgumentTreeByID));
       appendArgumentToScriptFile(pScriptFile, pNewArgument);
    }
+   else
+      CONSOLE("InsertArgument dialog cancelled");
 
    // Return TRUE if ARGUMENT was created
    return (pNewArgument != NULL);

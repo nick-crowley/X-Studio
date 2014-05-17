@@ -18,8 +18,8 @@ PREFERENCES*         pAppPreferences = NULL;
 ///                                         CONSTANTS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Build Version
-APPLICATION_VERSION  eBuildVersion   = AV_BETA_3_UPDATE_4;
+// Version of preferences - only needs to be changed when structure/name of prefs actually change
+APPLICATION_VERSION  ePreferencesVersion = AV_BETA_4;
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CREATION / DESTRUCTION
@@ -104,7 +104,6 @@ BOOL   getAppPreferencesLanguage(APP_LANGUAGE*  pLanguage)
    BOOL     bResult;   // Operation result
    
    // Prepare
-   TRACK_FUNCTION();
    bResult = FALSE;
 
    // [VERBOSE]
@@ -119,7 +118,6 @@ BOOL   getAppPreferencesLanguage(APP_LANGUAGE*  pLanguage)
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -196,6 +194,41 @@ BOOL   getAppPreferencesVersion(APPLICATION_VERSION*  pversion)
 
    // Return result
    return bResult;
+}
+
+
+/// Function name  : setAppPreferencesBackupFileName
+// Description     : Store the last filename used for backup
+// 
+// CONST TCHAR*  szLastFileName : [in] Last filename
+// 
+BearScriptAPI 
+VOID   setAppPreferencesBackupFileName(CONST TCHAR*  szLastFileName)
+{
+   // Ensure exists
+   if (!lstrlen(szLastFileName))
+      return;
+
+   // Store filename
+   StringCchCopy(pAppPreferences->szBackupFileName, MAX_PATH, szLastFileName);
+}
+
+
+/// Function name  : setAppPreferencesBackupFolder
+// Description     : Store the last folder used for backup
+// 
+// CONST TCHAR*  szLastFolder : [in] Last folder path
+// 
+BearScriptAPI 
+VOID   setAppPreferencesBackupFolder(CONST TCHAR*  szLastFolder)
+{
+   // Ensure exists
+   if (!lstrlen(szLastFolder))
+      return;
+
+   // Store folder, ensure trailing backslash
+   StringCchCopy(pAppPreferences->szBackupFolder, MAX_PATH, szLastFolder);
+   PathAddBackslash(pAppPreferences->szBackupFolder);
 }
 
 
@@ -499,6 +532,8 @@ PREFERENCES*   generateAppPreferencesFromRegistry(CONST APP_LANGUAGE  eInterface
    // [FEATURES]
    if (!utilRegistryReadNumber(hAppKey, TEXT("bCodeIndentation"), &pNewPreferences->bCodeIndentation))
       pNewPreferences->bCodeIndentation = TRUE;
+   if (!utilRegistryReadNumber(hAppKey, TEXT("bVersionIncrement"), &pNewPreferences->bVersionIncrement))
+      pNewPreferences->bVersionIncrement = FALSE;
    if (!utilRegistryReadNumber(hAppKey, TEXT("bScriptCodeMacros"), &pNewPreferences->bScriptCodeMacros))
       pNewPreferences->bScriptCodeMacros = TRUE;
    if (!utilRegistryReadNumber(hAppKey, TEXT("bEditorTooltips"), &pNewPreferences->bEditorTooltips))
@@ -524,7 +559,7 @@ PREFERENCES*   generateAppPreferencesFromRegistry(CONST APP_LANGUAGE  eInterface
    if (!utilRegistryReadNumber(hAppKey, TEXT("bUseDoIfSyntax"), &pNewPreferences->bUseDoIfSyntax))
       pNewPreferences->bUseDoIfSyntax = TRUE;
    if (!utilRegistryReadNumber(hAppKey, TEXT("bUseSystemDialog"), &pNewPreferences->bUseSystemDialog))
-      pNewPreferences->bUseSystemDialog = FALSE;
+      pNewPreferences->bUseSystemDialog = TRUE;
    
    if (!utilRegistryReadNumber(hAppKey, TEXT("iEditorTooltipDelay"), &pNewPreferences->iEditorTooltipDelay))
       pNewPreferences->iEditorTooltipDelay = 2;
@@ -561,6 +596,8 @@ PREFERENCES*   generateAppPreferencesFromRegistry(CONST APP_LANGUAGE  eInterface
 
    // [FOLDERS]
    utilRegistryReadString(hAppKey, TEXT("szLastFolder"), pNewPreferences->szLastFolder, MAX_PATH);
+   utilRegistryReadString(hAppKey, TEXT("szBackupFolder"), pNewPreferences->szBackupFolder, MAX_PATH);
+   utilRegistryReadString(hAppKey, TEXT("szBackupFileName"), pNewPreferences->szBackupFileName, MAX_PATH);
    utilRegistryReadString(hAppKey, TEXT("szGameFolder"), pNewPreferences->szGameFolder, MAX_PATH);
    utilRegistryReadString(hAppKey, TEXT("szForumUserName"), pNewPreferences->szForumUserName, 32);
 
@@ -588,9 +625,9 @@ PREFERENCES*   generateAppPreferencesFromRegistry(CONST APP_LANGUAGE  eInterface
       utilSetSize(&pNewPreferences->siFileDialog,      740, 570);
 
       // Set dialog splits
-      pNewPreferences->iOutputDialogSplit  = 200;
-      pNewPreferences->iProjectDialogSplit = 200;
-      pNewPreferences->iSearchDialogSplit  = 350;
+      pNewPreferences->iOutputDialogSplit  = 100;
+      pNewPreferences->iProjectDialogSplit = 180;
+      pNewPreferences->iSearchDialogSplit  = 250;
    }
 
    // Cleanup and return
@@ -614,7 +651,6 @@ PREFERENCES_STATE   loadAppPreferences(APP_LANGUAGE  eLanguage, ERROR_STACK*  &p
    PREFERENCES_STATE    eResult;   // Operation Result
 
    // [VERBOSE]
-   TRACK_FUNCTION();
    VERBOSE("Loading application preferences");
 
    // Prepare
@@ -624,14 +660,14 @@ PREFERENCES_STATE   loadAppPreferences(APP_LANGUAGE  eLanguage, ERROR_STACK*  &p
    if (utilRegistryCheckAppKeyExists(getAppRegistryKey()))
    {
       /// [MISSING/NEWER VERSION] Abort...
-      if (!getAppPreferencesVersion(&eVersion) OR eVersion > eBuildVersion)
+      if (!getAppPreferencesVersion(&eVersion) OR eVersion > ePreferencesVersion)
       {
          // [ERROR] "The application preferences stored in the registry are corrupted or from an unrecognised version"
          pError  = generateDualError(HERE(IDS_INIT_PREFERENCES_CORRUPT));
          eResult = PS_ERROR;
       }
       /// [PREVIOUS VERSION] Destroy previous values and create defaults
-      else if (eVersion < eBuildVersion)
+      else if (eVersion < ePreferencesVersion)
       {
          // [VERBOSE]
          VERBOSE("Application preferences from previous version found and destroyed");
@@ -663,7 +699,6 @@ PREFERENCES_STATE   loadAppPreferences(APP_LANGUAGE  eLanguage, ERROR_STACK*  &p
    }
 
    // Return result
-   END_TRACKING();
    return eResult;
 }
 
@@ -701,7 +736,7 @@ BOOL  saveAppPreferences()
    hAppKey = utilRegistryCreateAppKey(getAppRegistryKey());
 
    /// [VERSION]
-   utilRegistryWriteInteger(hAppKey, TEXT("Version"), eBuildVersion);
+   utilRegistryWriteInteger(hAppKey, TEXT("Version"), ePreferencesVersion);
    
    /// [LANGUAGE]
    utilRegistryWriteNumber(hAppKey, TEXT("eAppLanguage"),  pAppPreferences->eAppLanguage);
@@ -734,6 +769,7 @@ BOOL  saveAppPreferences()
    /// [FEATURES]
    utilRegistryWriteNumber(hAppKey, TEXT("bCodeIndentation"),             pAppPreferences->bCodeIndentation);
    utilRegistryWriteNumber(hAppKey, TEXT("bScriptCodeMacros"),            pAppPreferences->bScriptCodeMacros);
+   utilRegistryWriteNumber(hAppKey, TEXT("bVersionIncrement"),            pAppPreferences->bVersionIncrement);
    utilRegistryWriteNumber(hAppKey, TEXT("bEditorTooltips"),              pAppPreferences->bEditorTooltips);
    utilRegistryWriteNumber(hAppKey, TEXT("bSearchResultTooltips"),        pAppPreferences->bSearchResultTooltips);
    utilRegistryWriteNumber(hAppKey, TEXT("bSuggestCommands"),             pAppPreferences->bSuggestions[CST_COMMAND]);
@@ -765,9 +801,11 @@ BOOL  saveAppPreferences()
    utilRegistryWriteString(hAppKey,      TEXT("szFindText"),          pAppPreferences->szFindText);
    
    /// [FOLDERS]
-   utilRegistryWriteString(hAppKey, TEXT("szLastFolder"),    pAppPreferences->szLastFolder);
-   utilRegistryWriteString(hAppKey, TEXT("szGameFolder"),    pAppPreferences->szGameFolder);
-   utilRegistryWriteString(hAppKey, TEXT("szForumUserName"), pAppPreferences->szForumUserName);
+   utilRegistryWriteString(hAppKey, TEXT("szLastFolder"),     pAppPreferences->szLastFolder);
+   utilRegistryWriteString(hAppKey, TEXT("szBackupFolder"),   pAppPreferences->szBackupFolder);
+   utilRegistryWriteString(hAppKey, TEXT("szBackupFileName"), pAppPreferences->szBackupFileName);
+   utilRegistryWriteString(hAppKey, TEXT("szGameFolder"),     pAppPreferences->szGameFolder);
+   utilRegistryWriteString(hAppKey, TEXT("szForumUserName"),  pAppPreferences->szForumUserName);
    
    /// [DEFAULT SCHEMES] Ensure default schemes are saved to the registry (for the preferences dialog)
    for (UINT  iIndex = 0; iIndex < 4; iIndex++)

@@ -129,11 +129,13 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
              hMaskBitmap,        // Monochrome mask containing the bars to create a progress bar effect
              hOldBitmap;
    HTHEME    hTheme;             // System progress bar theme handle
+   HBRUSH    hWindowBrush;
    HRGN      hClipRegion;        // Client rectangle clipping region
    INT       iBarWidth;          // Width of bar, in pixels
    
-   // [CHECK]
+   // Prepare
    ASSERT(iPercentage <= 100);
+   hWindowBrush = getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW);
 
    // Get client and content rectangles
    GetClientRect(hCtrl, &rcClientRect);
@@ -159,7 +161,7 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
    hOldBitmap    = SelectBitmap(hMemoryDC, hMemoryBitmap);
    
    // Clip the content rectangle to avoid flickering
-   FillRect(pPaintData->hdc, &rcContentRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
+   FillRect(pPaintData->hdc, &rcContentRect, hWindowBrush);
    ExcludeClipRect(pPaintData->hdc, rcContentRect.left, rcContentRect.top, rcContentRect.right, rcContentRect.bottom);
 
    // [CHECK] Are themes active?
@@ -180,13 +182,14 @@ BOOL  onCommentRatioCtrlPaint(HWND  hCtrl, PAINTSTRUCT*  pPaintData, UINT  iPerc
    MaskBlt(pPaintData->hdc, rcContentRect.left, rcContentRect.top, iBarWidth, siContentSize.cy, hMemoryDC, 0, 0, hMaskBitmap, 0, 0, MAKEROP4(SRCCOPY, SRCPAINT));
 
    /// Draw any remaining background
-   FillRect(pPaintData->hdc, &rcNonBarContentRect, getThemeSysColourBrush(TEXT("Window"), COLOR_WINDOW));
+   FillRect(pPaintData->hdc, &rcNonBarContentRect, hWindowBrush);
 
    // Cleanup
    SelectBitmap(hMemoryDC, hOldBitmap);
    DeleteBitmap(hMemoryBitmap);
    DeleteBitmap(hMaskBitmap);
    DeleteObject(hClipRegion);
+   DeleteBrush(hWindowBrush);
    DeleteDC(hMemoryDC);
    CloseThemeData(hTheme);
    return TRUE;

@@ -690,7 +690,7 @@ BOOL  insertWorkspaceWindow(HWND  hWorkspace, PANE*  pTargetPane, HWND  hWnd, CO
    UpdateWindow(hWnd);
 
    // [DEBUG]
-   debugQueryWindow(hWnd, pWindowPane->szName, TRUE);
+   DEBUG_WINDOW_VAR(pWindowPane->szName, hWnd);
 
    // [SUCCESS] Return TRUE
    return TRUE;
@@ -883,7 +883,7 @@ VOID  onWorkspaceCreate(WORKSPACE_DATA*  pWindowData, HWND  hWnd)
    
    /// Stretch base pane over entire workspace
    GetClientRect(pWindowData->hWnd, &pBasePane->rcPane);
-   utilSetClientRect(pBasePane->hWnd, &pBasePane->rcPane, TRUE);
+   utilSetWindowRect(pBasePane->hWnd, &pBasePane->rcPane, TRUE);
 
    // Store base pane
    pWindowData->pBasePane = pBasePane;

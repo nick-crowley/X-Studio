@@ -11,25 +11,17 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
@@ -47,12 +39,20 @@ BOOL  displayInsertVariableDialog(PROJECT_FILE*  pProjectFile, HWND  hParentWnd)
 {
    PROJECT_VARIABLE*  pNewVariable;      // Newly created argument, if any
 
+   // [TRACK]
+   CONSOLE_ACTION1(getActiveProjectFileName());
+
    // Display 'Insert Variable' dialog
-   pNewVariable = (PROJECT_VARIABLE*)DialogBoxParam(getResourceInstance(), TEXT("INSERT_VARIABLE_DIALOG"), hParentWnd, dlgprocInsertVariableDialog, (LPARAM)pProjectFile);
+   pNewVariable = (PROJECT_VARIABLE*)showDialog(TEXT("INSERT_VARIABLE_DIALOG"), hParentWnd, dlgprocInsertVariableDialog, (LPARAM)pProjectFile);
 
    /// [NEW VARIABLE] -- Insert into ProjectFile
    if (pNewVariable)
+   {
+      debugProjectVariable(pNewVariable);
       insertVariableIntoProjectFile(pProjectFile, pNewVariable);
+   }
+   else
+      CONSOLE("User cancelled create ProjectVariable dialog");
 
    // Return TRUE if New Variable was created
    return (pNewVariable != NULL);
@@ -184,10 +184,7 @@ INT_PTR  dlgprocInsertVariableDialog(HWND  hDialog, UINT  iMessage, WPARAM  wPar
 {
    static PROJECT_FILE*  pProjectFile = NULL;     // Current project
    static HWND           hTooltip     = NULL;     // Dialog's Tooltip control
-   BOOL                  bResult;
-
-   // Prepare
-   bResult = FALSE;
+   BOOL                  bResult      = FALSE;
 
    // Examine message
    switch (iMessage)

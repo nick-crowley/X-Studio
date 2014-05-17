@@ -153,10 +153,8 @@ UtilityAPI
 VOID   utilDeleteString(TCHAR*  &szStringBuffer)
 {
    // [CHECK] Ensure string exists
-   ASSERT(szStringBuffer);
-
-   // Destroy string
-   utilDeleteObject(szStringBuffer);
+   if (szStringBuffer)
+      utilDeleteObject(szStringBuffer);
 }
 
 
@@ -169,10 +167,8 @@ UtilityAPI
 VOID   utilDeleteStringA(CHAR*  &szStringBuffer)
 {
    // [CHECK] Ensure string exists
-   ASSERT(szStringBuffer);
-
-   // Destroy string
-   utilDeleteObject(szStringBuffer);
+   if (szStringBuffer)
+      utilDeleteObject(szStringBuffer);
 }
 
 
@@ -186,11 +182,11 @@ UtilityAPI
 VOID   utilDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecondString)
 {
    // [CHECK] Ensure strings exist
-   ASSERT(szFirstString AND szFirstString);
+   if (szFirstString)
+      utilDeleteObject(szFirstString);
 
-   // Destroy strings
-   utilDeleteObject(szFirstString);
-   utilDeleteObject(szSecondString);   
+   if (szSecondString)
+      utilDeleteObject(szSecondString);
 }
 
 /// Function name  : utilDeleteStrings
@@ -204,12 +200,12 @@ UtilityAPI
 VOID   utilDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecondString, TCHAR*  &szThirdString)
 {
    // [CHECK] Ensure strings exist
-   ASSERT(szFirstString AND szFirstString AND szThirdString);
-
-   // Destroy strings
-   utilDeleteObject(szFirstString);
-   utilDeleteObject(szSecondString);
-   utilDeleteObject(szThirdString);      
+   if (szFirstString)
+      utilDeleteObject(szFirstString);
+   if (szSecondString)
+      utilDeleteObject(szSecondString);    
+   if (szThirdString)
+      utilDeleteObject(szThirdString);
 }
 
 
@@ -239,13 +235,35 @@ VOID   utilSafeDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecondString)
 {
    // [CHECK] Ensure strings exists
    if (szFirstString)
-      // Destroy string
       utilDeleteObject(szFirstString);
 
    // [CHECK] Ensure strings exists
    if (szSecondString)
-      // Destroy string
       utilDeleteObject(szSecondString);   
+}
+
+
+/// Function name  : utilSafeDeleteStrings
+// Description     : Attempt to free multiple string buffers, if they exist
+// 
+// TCHAR*  &szFirstString  : [in] String to delete
+// TCHAR*  &szSecondString : [in] String to delete
+// TCHAR*  &szThirdString  : [in] String to delete
+// 
+UtilityAPI 
+VOID   utilSafeDeleteStrings(TCHAR*  &szFirstString, TCHAR*  &szSecondString, TCHAR*  &szThirdString)
+{
+   // [CHECK] Ensure strings exists
+   if (szFirstString)
+      utilDeleteObject(szFirstString);
+
+   // [CHECK] Ensure strings exists
+   if (szSecondString)
+      utilDeleteObject(szSecondString);   
+
+   // [CHECK] Ensure strings exists
+   if (szThirdString)
+      utilDeleteObject(szThirdString);   
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -346,7 +364,7 @@ TCHAR*   utilExtendString(TCHAR*  szSource, CONST UINT  iSourceLength, CONST UIN
 }
 
 
-/// Function name  :   utilLoadString
+/// Function name  : utilLoadString
 // Description     : Loads a string resource into a newly minted string buffer
 //
 // HINSTANCE   hInstance     : [in] Handle to the instance containing the string resource
@@ -377,6 +395,20 @@ TCHAR*   utilLoadString(HINSTANCE  hInstance, CONST UINT  iResourceID, UINT  iBu
    return szNewString;
 }
 
+/// Function name  : utilReAllocString
+// Description     : Re-allocates a string using a shorter buffer
+//
+// TCHAR*  szSource      : [in] Existing string
+// 
+// Return type : Newly allocated string, you are responsible for destroying it
+//
+UtilityAPI 
+TCHAR*   utilReAllocString(TCHAR*  szSource)
+{
+   TCHAR*  szCopy = utilDuplicateSimpleString(szSource);
+   utilDeleteString(szSource);
+   return szCopy;
+}
 
 /// Function name  : utilReplaceString
 // Description     : Delete an existing string buffer and replace it with the contents of another

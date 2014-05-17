@@ -7,6 +7,12 @@
 
 #include "stdafx.h"
 
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                     MACROS
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// OnException: Print to console
+#define ON_EXCEPTION()     printException(pException)
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                 CONSTANTS / GLOBALS
@@ -80,19 +86,6 @@ VOID  drawGradientRect(HDC  hDC, CONST RECT*  pRect, CONST COLORREF  clTopColour
 ControlsAPI
 HBRUSH  getDialogBackgroundBrush()
 {
-   /*HTHEME  hTheme;
-   HBRUSH  hBrush;
-
-   if (IsThemeActive() AND (hTheme = OpenThemeData(getAppWindow(), TEXT("Window::Dialog"))))
-   {
-      hBrush = GetThemeSysColorBrush(hTheme, COLOR_3DFACE);
-      CloseThemeData(hTheme);
-   }
-   else
-      hBrush = GetSysColorBrush(COLOR_BTNFACE);
-
-   return hBrush;*/
-
    return GetSysColorBrush(IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
 }
 
@@ -105,23 +98,21 @@ HBRUSH  getDialogBackgroundBrush()
 ControlsAPI
 COLORREF  getDialogBackgroundColour()
 {
-   /*HTHEME    hTheme;
-   COLORREF  clColour;
-
-   if (IsThemeActive() AND (hTheme = OpenThemeData(getAppWindow(), TEXT("Window::Dialog"))))
-   {
-      clColour = GetThemeSysColor(hTheme, COLOR_3DFACE);
-      CloseThemeData(hTheme);
-   }
-   else
-      clColour = GetSysColor(COLOR_BTNFACE);
-
-   return clColour;*/
-
    return GetSysColor(IsThemeActive() ? COLOR_WINDOW : COLOR_BTNFACE);
 }
 
 
+/// Function name  : getThemeColour
+// Description     : Retrieves theme system colour
+// 
+// const TCHAR*  szClass   : [in] Visual styles Class
+// const int     iPart     : [in] Visual styles part
+// const int     iState    : [in] Visual styles state
+// const int     iProperty : [in] Visual styles property
+// const int     iDefault  : [in] System colour index, if lookup fails
+// 
+// Return Value   : Theme colour
+// 
 ControlsAPI
 COLORREF  getThemeColour(const TCHAR*  szClass, const int  iPart, const int  iState, const int  iProperty, const int  iDefault)
 {
@@ -142,6 +133,15 @@ COLORREF  getThemeColour(const TCHAR*  szClass, const int  iPart, const int  iSt
    return clColour;
 }
 
+
+/// Function name  : getThemeSysColour
+// Description     : Retrieves system colour
+// 
+// const TCHAR*  szClass    : [in] Class name
+// const int     iSysColour : [in] System colour
+// 
+// Return Value   : System colour
+// 
 ControlsAPI
 COLORREF  getThemeSysColour(const TCHAR*  szClass, const int  iSysColour)
 {
@@ -162,17 +162,6 @@ COLORREF  getThemeSysColour(const TCHAR*  szClass, const int  iSysColour)
    return clColour;
 }
 
-ControlsAPI
-HBRUSH  getThemeSysColourBrush(const TCHAR*  szClass, const int  iSysColour)
-{
-   // Lookup brush
-   HTHEME hTheme = (IsThemeActive() ? OpenThemeData(getAppWindow(), szClass) : NULL);
-   HBRUSH hBrush = GetThemeSysColorBrush(hTheme, iSysColour);
-
-   // Return brush
-   CloseThemeData(hTheme);
-   return hBrush;
-}
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
@@ -502,7 +491,7 @@ HBRUSH  onDialog_ControlColour(HDC  hDC, INT  iBackground)
 
    // Set and return background colour
    SetBkColor(hDC, getThemeSysColour(TEXT("Window"), iBackground));
-   return getThemeSysColourBrush(TEXT("Window"), iBackground);
+   return getAppThemeBrush(iBackground);     //[FIX] return getThemeSysColourBrush(TEXT("Window"), iBackground);
 }
 
 
@@ -524,7 +513,6 @@ BOOL  onDialog_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID)
    UINT  iGutterStart;
 
    // Prepare
-   TRACK_FUNCTION();
    GetClientRect(hDialog, &rcDialog);
    utilGetDlgItemRect(hDialog, iControlID, &rcButton);
 
@@ -543,7 +531,6 @@ BOOL  onDialog_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID)
    utilFillSysColourRect(hDC, &rcGutter, COLOR_BTNFACE);
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -557,12 +544,14 @@ BOOL  onDialog_EraseBackground(HWND  hDialog, HDC  hDC, CONST UINT  iControlID)
 ControlsAPI
 VOID  onDialog_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
 {
-   RECT  rcWindow,
-         rcCaption;
-   HDC   hDC;
+const SIZE  siCaption = { NULL, GetSystemMetrics(SM_CYSMCAPTION) + GetSystemMetrics(SM_CYEDGE) },
+            siButton  = { NULL, GetSystemMetrics(SM_CYSMSIZE) - 2*GetSystemMetrics(SM_CYEDGE) };
+   RECT     rcButton,
+            rcWindow,
+            rcCaption;
+   HDC      hDC;
 
    // Prepare
-   TRACK_FUNCTION();
    GetWindowRect(hWnd, &rcWindow);
    OffsetRect(&rcWindow, -rcWindow.left, -rcWindow.top);
 
@@ -570,7 +559,7 @@ VOID  onDialog_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
    if (hDC = GetDCEx(hWnd, NULL, DCX_CACHE WITH DCX_CLIPCHILDREN WITH DCX_WINDOW)) //|DCX_CACHE|DCX_INTERSECTRGN|DCX_LOCKWINDOWUPDATE);
    {
       DC_STATE* pState = utilCreateDeviceContextState(hDC);
-      HFONT     hFont  = utilCreateFont(hDC, TEXT("MS Shell Dlg"), 9, FALSE, FALSE, FALSE);
+      HFONT     hFont  = utilCreateFont(hDC, TEXT("MS Shell Dlg 2"), 8, FALSE, FALSE, FALSE);
       TCHAR*    szText = utilGetWindowText(hWnd);
       HTHEME    hTheme = OpenThemeData(hWnd, TEXT("Window"));
 
@@ -585,10 +574,17 @@ VOID  onDialog_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
       DrawEdge(hDC, &rcWindow, EDGE_ETCHED, BF_RECT WITH BF_ADJUST);
 
       // [CAPTION]
-      SetRect(&rcCaption, rcWindow.left, rcWindow.top, rcWindow.right - 1, rcWindow.top + GetSystemMetrics(SM_CYSMCAPTION) + GetSystemMetrics(SM_CYEDGE));
-      //drawGradientRect(hDC, &rcCaption, RGB(191,205,219), RGB(214,227,241), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
-      //drawGradientRect(hDC, &rcCaption, GetThemeSysColor(hTheme, COLOR_INACTIVECAPTION), GetThemeSysColor(hTheme, COLOR_GRADIENTINACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
-      drawGradientRect(hDC, &rcCaption, getThemeSysColour(TEXT("Window"), COLOR_ACTIVECAPTION), getThemeSysColour(TEXT("Window"), COLOR_GRADIENTACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+      SetRect(&rcCaption, rcWindow.left, rcWindow.top, rcWindow.right - 1, rcWindow.top + siCaption.cy);
+      drawGradientRect(hDC, &rcCaption, getThemeSysColour(TEXT("Window"), COLOR_INACTIVECAPTION), getThemeSysColour(TEXT("Window"), COLOR_GRADIENTINACTIVECAPTION), HORIZONTAL);  // [FIX] DrawCaption() doesn't work on all systems
+
+      // [BUTTON]
+      SetRect(&rcButton, rcCaption.right - siButton.cy, rcCaption.top, rcCaption.right, rcCaption.top + siButton.cy);
+      OffsetRect(&rcButton, -(siCaption.cy - siButton.cy) / 2, (siCaption.cy - siButton.cy) / 2);
+
+      /*if (IsThemeActive())
+         DrawThemeBackground(hTheme, hDC, WP_SMALLCLOSEBUTTON, NULL, &rcButton, NULL);
+      else*/
+         DrawFrameControl(hDC, &rcButton, DFC_CAPTION, DFCS_CAPTIONCLOSE);
       
       // [TEXT]
       rcCaption.left += GetSystemMetrics(SM_CXFIXEDFRAME);
@@ -605,7 +601,6 @@ VOID  onDialog_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
       ERROR_CHECK("Retrieving non-client window DC", hDC);
 
    // Cleanup
-   END_TRACKING();
 }
 
 /// Function name  : onWindow_DeleteItem
@@ -616,22 +611,14 @@ VOID  onDialog_PaintNonClient(HWND  hWnd, HRGN  hUpdateRegion)
 ControlsAPI 
 BOOL  onWindow_DeleteItem(DELETEITEMSTRUCT*  pDeleteData)
 {
-   BOOL  bResult;
-
-   // Prepare
-   TRACK_FUNCTION();
-   bResult = FALSE;
+   BOOL  bResult = FALSE;
 
    // [CHECK] Ensure item is from a ComboBox
-   if (pDeleteData->CtlType == ODT_COMBOBOX AND pDeleteData->itemData)
-   {
+   if (bResult = (pDeleteData->itemData AND pDeleteData->CtlType == ODT_COMBOBOX))
       /// [SUCCESS] Delete combo item data
       deleteCustomComboBoxItem((CUSTOM_COMBO_ITEM*&)pDeleteData->itemData);
-      bResult = TRUE;
-   }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -645,11 +632,7 @@ BOOL  onWindow_DeleteItem(DELETEITEMSTRUCT*  pDeleteData)
 ControlsAPI 
 BOOL  onWindow_DrawItem(DRAWITEMSTRUCT*  pDrawData)
 {
-   BOOL   bResult;      // Operation result
-
-   // Prepare
-   TRACK_FUNCTION();
-   bResult = TRUE;
+   BOOL   bResult = TRUE;      // Operation result
 
    // Examine control type
    switch (pDrawData->CtlType)
@@ -660,7 +643,6 @@ BOOL  onWindow_DrawItem(DRAWITEMSTRUCT*  pDrawData)
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -679,7 +661,6 @@ BOOL  onWindow_MeasureItem(HWND  hMenuParent, MEASUREITEMSTRUCT*  pMeasureData)
    BOOL   bResult;      // Operation result
 
    // Prepare
-   TRACK_FUNCTION();
 
    // Examine control type
    switch (pMeasureData->CtlType)
@@ -690,7 +671,6 @@ BOOL  onWindow_MeasureItem(HWND  hMenuParent, MEASUREITEMSTRUCT*  pMeasureData)
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -705,45 +685,46 @@ BOOL  onWindow_MeasureItem(HWND  hMenuParent, MEASUREITEMSTRUCT*  pMeasureData)
 ControlsAPI 
 INT_PTR  dlgprocVistaStyleDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
-   BOOL    bResult;     // Operation result
-   UINT    iButton;     // ID of default button
+   BOOL    bResult = FALSE;   // Operation result
+   UINT    iButton;           // ID of default button
 
-   // Prepare
-   TRACK_FUNCTION();
-   bResult = FALSE;
-
-   // Examine message
-   switch (iMessage)
+   TRY
    {
-   /// [CUSTOM BACKGROUND]
-   case WM_CTLCOLORDLG:
-   case WM_CTLCOLORSTATIC:   bResult = (BOOL)onDialog_ControlColour((HDC)wParam, COLOR_WINDOW);   break;
-   case WM_CTLCOLORBTN:      bResult = (BOOL)GetSysColorBrush(COLOR_BTNFACE);                     break;
-   case WM_ERASEBKGND: 
-      // [CHECK] Search for default button
-      if (GetControl(hDialog, iButton = IDOK) OR GetControl(hDialog, iButton = IDCANCEL) OR GetControl(hDialog, iButton = IDYES))
-         bResult = onDialog_EraseBackground(hDialog, (HDC)wParam, iButton);
-      break;
-
-   /// [CUSTOM MENU/COMBOBOX]
-   case WM_MEASUREITEM:      bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);  break;
-   case WM_DELETEITEM:       bResult = onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);             break;
-   
-   /// [MENU/COMBO/DIALOG]
-   case WM_DRAWITEM:
-      switch (wParam)
+      // Examine message
+      switch (iMessage)
       {
-      /// [TITLE/HEADINGS]
-      case IDC_DIALOG_TITLE:      bResult = onOwnerDrawStaticTitle(lParam);    break;
-      case IDC_DIALOG_HEADING_1:  bResult = onOwnerDrawStaticHeading(lParam);  break;
-      case IDC_DIALOG_HEADING_2:  bResult = onOwnerDrawStaticHeading(lParam);  break;
-      /// [CUSTOM MENU/COMBOBOX]
-      default:                    bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);      break;
-      }
-   }
+      /// [CUSTOM BACKGROUND]
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:   bResult = (BOOL)onDialog_ControlColour((HDC)wParam, COLOR_WINDOW);   break;
+      case WM_CTLCOLORBTN:      bResult = (BOOL)GetSysColorBrush(COLOR_BTNFACE);                     break;
+      case WM_ERASEBKGND: 
+         // [CHECK] Search for default button
+         if (GetControl(hDialog, iButton = IDOK) OR GetControl(hDialog, iButton = IDCANCEL) OR GetControl(hDialog, iButton = IDYES))
+            bResult = onDialog_EraseBackground(hDialog, (HDC)wParam, iButton);
+         break;
 
-   // Return result
-   END_TRACKING();
-   return (INT_PTR)bResult;
+      /// [CUSTOM MENU/COMBOBOX]
+      case WM_MEASUREITEM:      bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);  break;
+      case WM_DELETEITEM:       bResult = onWindow_DeleteItem((DELETEITEMSTRUCT*)lParam);             break;
+      
+      /// [MENU/COMBO/DIALOG]
+      case WM_DRAWITEM:
+         switch (wParam)
+         {
+         /// [TITLE/HEADINGS]
+         case IDC_DIALOG_TITLE:      bResult = onOwnerDrawStaticTitle(lParam);    break;
+         case IDC_DIALOG_HEADING_1:  bResult = onOwnerDrawStaticHeading(lParam);  break;
+         case IDC_DIALOG_HEADING_2:  bResult = onOwnerDrawStaticHeading(lParam);  break;
+         /// [CUSTOM MENU/COMBOBOX]
+         default:                    bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);      break;
+         }
+      }
+
+      // Return result
+      return (INT_PTR)bResult;
+   }
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 

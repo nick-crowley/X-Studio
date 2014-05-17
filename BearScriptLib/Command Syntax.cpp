@@ -202,15 +202,16 @@ COMMAND_SYNTAX*  duplicateCommandSyntax(CONST COMMAND_SYNTAX*  pCommandSyntax)
    utilCopyObject(pNewSyntax, pCommandSyntax, COMMAND_SYNTAX);
 
    // Duplicate strings
-   pNewSyntax->szSuggestionText = utilDuplicateSimpleString(pCommandSyntax->szSuggestionText);
+   pNewSyntax->szSuggestion     = utilDuplicateSimpleString(pCommandSyntax->szSuggestion);
    pNewSyntax->szReferenceURL   = utilDuplicateSimpleString(pCommandSyntax->szReferenceURL);
    pNewSyntax->szSyntax         = utilDuplicateSimpleString(pCommandSyntax->szSyntax);
+   pNewSyntax->szContent        = utilDuplicateSimpleString(pCommandSyntax->szContent);
    pNewSyntax->szHash           = utilDuplicateSimpleString(pCommandSyntax->szHash);
 
    // Duplicate RichText
    pNewSyntax->pDisplaySyntax      = duplicateRichText(pCommandSyntax->pDisplaySyntax);
    pNewSyntax->pTooltipSyntax      = duplicateRichText(pCommandSyntax->pTooltipSyntax);
-   pNewSyntax->pTooltipDescription = (pNewSyntax->pTooltipDescription ? duplicateRichText(pCommandSyntax->pTooltipSyntax) : NULL);
+   pNewSyntax->pTooltipDescription = (pNewSyntax->pTooltipDescription ? duplicateRichText(pCommandSyntax->pTooltipDescription) : NULL);
 
    // Return new object
    return pNewSyntax;
@@ -228,7 +229,8 @@ VOID    deleteCommandSyntax(COMMAND_SYNTAX*  &pCommandSyntax)
    
    // [OPTIONAL] Delete HASH, SUGGESTION and URL
    utilSafeDeleteString(pCommandSyntax->szHash);
-   utilSafeDeleteString(pCommandSyntax->szSuggestionText);
+   utilSafeDeleteString(pCommandSyntax->szContent);
+   utilSafeDeleteString(pCommandSyntax->szSuggestion);
    utilSafeDeleteString(pCommandSyntax->szReferenceURL);
 
    // [OPTIONAL] Delete DisplaySyntax
@@ -367,7 +369,7 @@ BOOL    findCommandSyntaxByID(CONST UINT  iID, CONST GAME_VERSION  eGameVersion,
    /// [ONE INCOMPATIBLE] Command does not exist in the specified version
    else if (pFirstVariation OR pSecondVariation)
       // [ERROR] "The command '%s' (ID:%u) is not compatible with %s"
-      pError = generateDualError(HERE(IDS_COMMAND_SYNTAX_INCOMPATIBLE), utilEither(pFirstVariation,pSecondVariation)->szSyntax, iID, identifyGameVersionString(eGameVersion));
+      pError = generateDualError(HERE(IDS_COMMAND_SYNTAX_INCOMPATIBLE), utilEither(pFirstVariation,pSecondVariation)->szContent, iID, identifyGameVersionString(eGameVersion));
    
    // Return TRUE if a compatible command was found, FALSE if there was an error
    return (pOutput != NULL);
@@ -416,7 +418,7 @@ BOOL    findCommandSyntaxByHash(CONST TCHAR*  szSearchHash, CONST GAME_VERSION  
    /// [ONE INCOMPATIBLE] Command does not exist in the specified version
    else if (pFirstVariation OR pSecondVariation)
       // [ERROR] "The command '%s' (ID:%u) is not compatible with %s"
-      pError = generateDualError(HERE(IDS_COMMAND_SYNTAX_INCOMPATIBLE), utilEither(pFirstVariation,pSecondVariation)->szSyntax, utilEither(pFirstVariation,pSecondVariation)->iID, identifyGameVersionString(eGameVersion));
+      pError = generateDualError(HERE(IDS_COMMAND_SYNTAX_INCOMPATIBLE), utilEither(pFirstVariation,pSecondVariation)->szContent, utilEither(pFirstVariation,pSecondVariation)->iID, identifyGameVersionString(eGameVersion));
    
    // Return TRUE if a compatible command was found, FALSE if there was an error
    return (pOutput != NULL);
@@ -731,6 +733,48 @@ BOOL  isParameterSyntaxValid(CONST PARAMETER_SYNTAX  eSyntax)
 ///                                    SYNTAX  FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : generateCommandSyntaxContentText
+// Description     : Generates approximate display text for a command
+// 
+// CONST COMMAND_SYNTAX*  pCommandSyntax : [in] 
+// 
+// Return Value   : New string, you are responsible for destroying it
+// 
+TCHAR*  generateCommandSyntaxContentText(CONST COMMAND_SYNTAX*  pCommandSyntax)
+{
+   CODEOBJECT*  pCodeObject;          // For parsing syntax string
+   TCHAR*       szOutput;             // Operation result
+
+   // Prepare
+   pCodeObject = createCodeObject(pCommandSyntax->szSyntax);
+   szOutput    = utilCreateEmptyString(LINE_LENGTH);
+
+   /// Split CommandSyntax string into CodeObjects
+   while (findNextCodeObject(pCodeObject))
+   {
+      // Examine CodeObject
+      switch (pCodeObject->eClass)
+      {
+      /// [PARAMETER] Strip
+      case CO_VARIABLE:
+         break;
+
+      /// [ANYTHING ELSE] Append to the output string
+      default:
+         StringCchCat(szOutput, LINE_LENGTH, pCodeObject->szText);
+         break;
+      }
+   }
+
+   // Trim leading whitespace and trailing commas
+   StrTrim(szOutput, TEXT(" ,"));
+
+   // Return output
+   deleteCodeObject(pCodeObject);
+   return szOutput;
+}
+
+
 /// Function name  : generateCommandSyntaxHash
 // Description     : Creates a hash of the command syntax
 // 
@@ -803,9 +847,8 @@ TCHAR*  generateCommandSyntaxSuggestionText(CONST COMMAND_SYNTAX*  pCommandSynta
    UINT              iOutputLength;        // Length of output string buffer
 
    // Prepare
-   iOutputLength = LINE_LENGTH; 
-   pCodeObject   = createCodeObject(pCommandSyntax->szSyntax);
-   szOutput      = utilCreateEmptyString(iOutputLength);
+   pCodeObject = createCodeObject(pCommandSyntax->szSyntax);
+   szOutput    = utilCreateEmptyString(iOutputLength = LINE_LENGTH);
 
    /// Split CommandSyntax string into CodeObjects
    while (findNextCodeObject(pCodeObject))
@@ -1159,145 +1202,140 @@ BOOL  isCommandReferenceURLPresent(CONST COMMAND_SYNTAX*  pSyntax)
 // Description     : Loads the specified syntax file
 // 
 // GAME_FILE*           pSyntaxFile : [in] Syntax file
-// HWND                 hParentWnd  : [in] 
 // OPERATION_PROGRESS*  pProgress   : [in] 
 // ERROR_QUEUE*         pErrorQueue : [in] 
 // 
-// Return Value   : OR_SUCCESS if successful, otherwise OR_ABORTED
+// Return Value   : OR_SUCCESS or OR_FAILURE
 // 
-OPERATION_RESULT   loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+OPERATION_RESULT   loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
-   OPERATION_RESULT     eResult;             // Operation result
-   COMMAND_SYNTAX      *pNewSyntax;          // CommandSyntax object being created
-   PARAMETER_SYNTAX     eParameterType;      // Convenience pointer for the type of parameter being processed
-   ERROR_STACK         *pError;              // Current error, if any
-   TCHAR               *szProperty,          // Current token representing a command property
-                       *pIterator,           // Tokeniser data
+   OPERATION_RESULT     eResult = OR_SUCCESS;   // Operation result
+   COMMAND_SYNTAX      *pNewSyntax;             // CommandSyntax object being created
+   PARAMETER_SYNTAX     eParameterType;         // Convenience pointer for the type of parameter being processed
+   ERROR_STACK         *pError;                 // Current error, if any
+   TCHAR               *szProperty,             // Current token representing a command property
+                       *pIterator,              // Tokeniser data
                        *szProperties[iMaxProperties];    // Properties of the command currently being processed
    UINT                 iPropertyCount,                  // Number of valid properties for the command currently being processed
                         iIndex = 0;
 
-   // Prepare
-   TRACK_FUNCTION();
-   eResult = OR_SUCCESS;
-
-   // [VERBOSE]
-   VERBOSE("Generating CommandSyntax tree from '%s'", identifyGameFileFilename(pSyntaxFile));
-
-   // Prepare
-   utilZeroObjectArray(szProperties, CONST TCHAR*, iMaxProperties);
-   iPropertyCount = 0;
-   pError         = NULL;
-
-   // Tokenise file into lines (each containing a single property)
-   for (szProperty = utilTokeniseString(pSyntaxFile->szInputBuffer, "\r\n", &pIterator); szProperty AND eResult != OR_ABORTED; szProperty = utilGetNextToken("\r\n", &pIterator))
+   __try
    {
-      /// [COMMAND PROPERTY] Add each property to the properties array
-      if (!utilCompareStringN(szProperty, "-----", 5))
+      // [VERBOSE]
+      VERBOSE("Generating CommandSyntax tree from '%s'", identifyGameFileFilename(pSyntaxFile));
+
+      // Prepare
+      utilZeroObjectArray(szProperties, CONST TCHAR*, iMaxProperties);
+      iPropertyCount = 0;
+      pError         = NULL;
+
+      // Tokenise file into lines (each containing a single property)
+      for (szProperty = utilTokeniseString(pSyntaxFile->szInputBuffer, "\r\n", &pIterator); szProperty AND eResult == OR_SUCCESS; szProperty = utilGetNextToken("\r\n", &pIterator))
       {
-         ASSERT(iPropertyCount < iMaxProperties);
-         szProperties[iPropertyCount++] = szProperty;
-      }
-      /// [END COMMAND MARKER] Process entire 'properties array' into a new command
-      else
-      {
-         // Create new syntax object
-         pNewSyntax = createCommandSyntax();
-
-         /// Extract syntax and ID
-         pNewSyntax->iID            = utilSafeConvertStringToInteger(szProperties[CSI_COMMAND_ID]);
-         pNewSyntax->szSyntax       = utilDuplicateSimpleString(szProperties[CSI_SYNTAX]);
-         pNewSyntax->eGroup         = identifyCommandGroupFromName(szProperties[CSI_GROUP_NAME]); 
-         pNewSyntax->szReferenceURL = (utilCompareString(szProperties[CSI_MSCI_LINK], "NONE") ? NULL : utilDuplicateSimpleString(szProperties[CSI_MSCI_LINK]));
-         
-         // [CUSTOM] Print syntax
-         if (!pSyntaxFile->bResourceBased)
-            VERBOSE("Loading custom command : '%s'", pNewSyntax->szSyntax);
-
-         // Calculate compatibility 
-         pNewSyntax->iCompatibility = identifyCommandCompatibilityFlags(szProperties[CSI_COMPATIBILITY]);
-         pNewSyntax->eGameVersion   = calculateCommandSyntaxGameVersion(pNewSyntax);
-         
-         /// Store parameters (if any)
-         for (UINT iProperty = CSI_FIRST_PARAMETER; iProperty < iPropertyCount; iProperty++)
+         /// [COMMAND PROPERTY] Add each property to the properties array
+         if (!utilCompareStringN(szProperty, "-----", 5))
          {
-            /// Manually reverse-lookup parameter syntax
-            if ((eParameterType = identifyParameterSyntaxFromName(szProperties[iProperty])) == PS_UNDETERMINED)
-            {  
-               // [ERROR] The syntax for parameter %u (of %u) of the script command '%s' is '%s', but this could not be resolved using the currently available game strings
-               pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_SYNTAX_PARAMETER_NOT_FOUND), iProperty, iPropertyCount, pNewSyntax->szSyntax, szProperties[iProperty]));
-               pError = lastErrorQueue(pErrorQueue);
-               break;
-            }
-
-            // [CUSTOM] Print syntax
-            if (!pSyntaxFile->bResourceBased)
-               VERBOSE("Command Parameter : '%s'", szProperties[iProperty]);
-
-            // [CHECK] Set appropriate flag if command has a ReturnObject
-            if (isReturnObject(eParameterType))
-               pNewSyntax->bMayHaveReturnObject = TRUE;
-
-            /// Store in syntax object
-            pNewSyntax->eParameters[iProperty - CSI_FIRST_PARAMETER] = eParameterType;
-            pNewSyntax->iParameterCount++;
+            ASSERT(iPropertyCount < iMaxProperties);
+            szProperties[iPropertyCount++] = szProperty;
          }
-
-         // [ERROR] Determine whether to continue or abort
-         if (pError)
-         {
-            // [QUESTION] "A minor error has been detected while loading command syntax entries from the resource library, would you like to continue processing?"
-            if (displayOperationError(hParentWnd, lastErrorQueue(pErrorQueue), ERROR_ID(IDS_SYNTAX_MINOR_ERROR)) == EH_ABORT)
-               // [ABORT] Abort further processing
-               eResult = OR_ABORTED;
-
-            // Cleanup
-            deleteCommandSyntax(pNewSyntax);
-            pError = NULL;
-         }
-         /// [SUCCESS] Insert CommandSyntax into ID and HASH trees
+         /// [END COMMAND MARKER] Process entire 'properties array' into a new command
          else
          {
-            // Generate HASH and SUGGESTION TEXT
-            pNewSyntax->szHash           = generateCommandSyntaxHash(pNewSyntax);
-            pNewSyntax->szSuggestionText = generateCommandSyntaxSuggestionText(pNewSyntax);
+            // Create new syntax object
+            pNewSyntax = createCommandSyntax();
 
-            // Generate rich syntax
-            generateCommandSyntaxTitle(pNewSyntax, RST_BOLD_TEXT,       pNewSyntax->pDisplaySyntax, pErrorQueue);
-            generateCommandSyntaxTitle(pNewSyntax, RST_BOLD_PARAMETERS, pNewSyntax->pTooltipSyntax, pErrorQueue);
+            /// Extract syntax and ID
+            pNewSyntax->iID            = utilSafeConvertStringToInteger(szProperties[CSI_COMMAND_ID]);
+            pNewSyntax->szSyntax       = utilDuplicateSimpleString(szProperties[CSI_SYNTAX]);
+            pNewSyntax->eGroup         = identifyCommandGroupFromName(szProperties[CSI_GROUP_NAME]); 
+            pNewSyntax->szReferenceURL = (utilCompareString(szProperties[CSI_MSCI_LINK], "NONE") ? NULL : utilDuplicateSimpleString(szProperties[CSI_MSCI_LINK]));
+            
+            // [CUSTOM] Print syntax
+            if (!pSyntaxFile->bResourceBased)
+               VERBOSE("Loading custom command : '%s'", pNewSyntax->szSyntax);
 
-            // Insert into game data trees
-            if (!insertCommandSyntaxIntoGameData(pNewSyntax))
+            // Calculate compatibility 
+            pNewSyntax->iCompatibility = identifyCommandCompatibilityFlags(szProperties[CSI_COMPATIBILITY]);
+            pNewSyntax->eGameVersion   = calculateCommandSyntaxGameVersion(pNewSyntax);
+            
+            /// Store parameters (if any)
+            for (UINT iProperty = CSI_FIRST_PARAMETER; iProperty < iPropertyCount; iProperty++)
             {
-               // [FAILED] Duplicate
-               VERBOSE("Error: Unable to add command '%s' due to duplication", pNewSyntax->szSyntax);
+               /// Manually reverse-lookup parameter syntax
+               if ((eParameterType = identifyParameterSyntaxFromName(szProperties[iProperty])) == PS_UNDETERMINED)
+               {  
+                  // [ERROR] The syntax for parameter %u (of %u) of the script command '%s' is '%s', but this could not be resolved using the currently available game strings
+                  pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_SYNTAX_PARAMETER_NOT_FOUND), iProperty, iPropertyCount, pNewSyntax->szContent, szProperties[iProperty]));
+                  break;
+               }
 
-               // [CUSTOM] "Loaded custom script command '%s' %s"
-               if (!pSyntaxFile->bResourceBased)
-                  pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_SYNTAX_CUSTOM_COMMAND), pNewSyntax->szSuggestionText, TEXT("failed due to non-unique syntax")));
+               // [CHECK] Set appropriate flag if command has a ReturnObject
+               if (isReturnObject(eParameterType))
+                  pNewSyntax->bMayHaveReturnObject = TRUE;
 
-               // Cleanup
-               deleteCommandSyntax(pNewSyntax);
+               /// Store in syntax object
+               pNewSyntax->eParameters[iProperty - CSI_FIRST_PARAMETER] = eParameterType;
+               pNewSyntax->iParameterCount++;
             }
-            // [CUSTOM] "Loaded custom script command '%s' %s"
-            else if (!pSyntaxFile->bResourceBased)
-               pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_SYNTAX_CUSTOM_COMMAND), pNewSyntax->szSuggestionText, TEXT("successfully")));
-         }
 
-         // [PROGRESS] Update operation progress
-         if (++iIndex % 10 == 0)
-            advanceOperationProgressValue(pProgress);
+            // [CUSTOM] Print parameter syntax
+            for (UINT  iParam = 0; !pSyntaxFile->bResourceBased AND iParam < pNewSyntax->iParameterCount; iParam++)
+               VERBOSE("Command Parameter : '%s'", szProperties[CSI_FIRST_PARAMETER + iParam]);
 
-         // Reset property counter and properties array
-         iPropertyCount = 0;
-         utilZeroObjectArray(szProperties, CONST TCHAR*, iMaxProperties);
+            /// [SUCCESS] Insert CommandSyntax into ID and HASH trees
+            if (!pError)
+            {
+               // Generate HASH and SUGGESTION TEXT
+               pNewSyntax->szHash           = generateCommandSyntaxHash(pNewSyntax);
+               pNewSyntax->szContent        = generateCommandSyntaxContentText(pNewSyntax);
+               pNewSyntax->szSuggestion = generateCommandSyntaxSuggestionText(pNewSyntax);
 
-      } // END: if (is end-of-command marker)
+               // Generate rich syntax
+               generateCommandSyntaxTitle(pNewSyntax, RST_BOLD_TEXT,       pNewSyntax->pDisplaySyntax, pErrorQueue);
+               generateCommandSyntaxTitle(pNewSyntax, RST_BOLD_PARAMETERS, pNewSyntax->pTooltipSyntax, pErrorQueue);
 
-   } // END: for (each line/property)
+               // Insert into game data trees
+               if (!insertCommandSyntaxIntoGameData(pNewSyntax))
+               {
+                  // [FAILED] Duplicate
+                  VERBOSE("Error: Unable to add command '%s' due to duplication", pNewSyntax->szSyntax);
+
+                  // [CUSTOM] "Loaded custom script command '%s' %s"
+                  if (!pSyntaxFile->bResourceBased)
+                     pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_SYNTAX_CUSTOM_COMMAND), pNewSyntax->szSuggestion, TEXT("failed due to non-unique syntax")));
+
+                  // Cleanup
+                  deleteCommandSyntax(pNewSyntax);
+               }
+               // [CUSTOM] "Loaded custom script command '%s' %s"
+               else if (!pSyntaxFile->bResourceBased)
+                  pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_SYNTAX_CUSTOM_COMMAND), pNewSyntax->szSuggestion, TEXT("successfully")));
+            }
+            // [ERROR] Abort
+            else
+            {
+               deleteCommandSyntax(pNewSyntax);
+               eResult = OR_FAILURE;
+            }
+
+            // [PROGRESS] Update operation progress
+            if (++iIndex % 10 == 0)
+               advanceOperationProgressValue(pProgress);
+
+            // Reset property counter and properties array
+            iPropertyCount = 0;
+            utilZeroObjectArray(szProperties, CONST TCHAR*, iMaxProperties);
+
+         } // END: if (is end-of-command marker)
+
+      } // END: for (each line/property)
+   }
+   __except (pushException(pErrorQueue))
+   {
+      eResult = OR_FAILURE;
+   }
 
    // Cleanup and return result
-   END_TRACKING();
    return eResult;
 }
 
@@ -1305,7 +1343,6 @@ OPERATION_RESULT   loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, HWND  hParentW
 /// Function name  : loadCommandSyntaxTree
 // Description     : Builds the CommandSyntax tree from the resource/custom syntax files
 //
-// HWND                 hParentWnd  : [in]     Parent window of any error dialogs displayed
 // OPERATION_PROGRESS*  pProgress   : [in/out] Operation progress
 // ERROR_QUEUE*         pErrorQueue : [out]    Error message, if any
 // 
@@ -1315,79 +1352,94 @@ OPERATION_RESULT   loadCommandSyntaxFile(GAME_FILE*  pSyntaxFile, HWND  hParentW
 //               OR_FAILURE - CommandSyntax trees were NOT created due to a critical error (corrupt resource library)
 //               OR_ABORTED - CommandSyntax trees were NOT created because the user aborted after a non-critical error
 //
-OPERATION_RESULT   loadCommandSyntaxTree(HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+OPERATION_RESULT   loadCommandSyntaxTree(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
-   OPERATION_RESULT     eResult;          // Operation result
+   OPERATION_RESULT     eResult = OR_FAILURE; // Operation result
    GAME_FILE           *pSyntaxFile,      // CommandSyntax resource file
                        *pCustomFile;      // Custom CommandSyntax file, if any
    TCHAR               *szCustomPath;     // Path of custom syntax file
    
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
-   VERBOSE_HEADING("Loading command syntax definitions");
-
-   // [INFO/STAGE] "Loading command syntax for script commands"
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SYNTAX)));
-   ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_COMMAND_SYNTAX);
-   updateOperationProgressMaximum(pProgress, 885 / 10);    // Manually define syntax entry count
-
-   // Prepare
-   szCustomPath = utilGenerateAppFilePath(TEXT("Custom.Syntax.txt"));
-   pSyntaxFile  = createGameFile();
-   eResult      = OR_FAILURE;
-
-   /// Create commands trees
-   getGameData()->pCommandTreeByID   = createCommandSyntaxTreeByID();
-   getGameData()->pCommandTreeByHash = createCommandSyntaxTreeByHash();
-
-   // Attempt to syntax definitions file
-   if (!loadGameFileFromResource(getResourceInstance(), TEXT("COMMAND_SYNTAX"), pSyntaxFile))
-      // [ERROR] "There was an I/O error while loading the command syntax file from the resource library"
-      pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_SYNTAX_FILE_IO_ERROR)));
-   
-   else
+   __try
    {
-      /// [RESOURCE] Read main command syntax file from resource library
-      eResult = loadCommandSyntaxFile(pSyntaxFile, hParentWnd, pProgress, pErrorQueue);
+      CONSOLE_STAGE();
+      CONSOLE("Loading command syntax definitions");
 
-      // [SUCCESS] Check for a custom syntax file
-      if (eResult == OR_SUCCESS AND PathFileExists(szCustomPath))
+      // [INFO/STAGE] "Loading command syntax for script commands"
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SYNTAX)));
+      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_COMMAND_SYNTAX);
+      updateOperationProgressMaximum(pProgress, 885 / 10);    // Manually define syntax entry count
+
+      // Prepare
+      szCustomPath = utilGenerateAppFilePath(TEXT("Custom.Syntax.txt"));
+      pSyntaxFile  = createGameFile();
+
+      /// Create commands trees
+      getGameData()->pCommandTreeByID   = createCommandSyntaxTreeByID();
+      getGameData()->pCommandTreeByHash = createCommandSyntaxTreeByHash();
+
+      // Attempt to syntax definitions file
+      if (!loadGameFileFromResource(getResourceInstance(), TEXT("COMMAND_SYNTAX"), pSyntaxFile))
+         // No enhancement necessary      // [ERROR] "There was an I/O error while loading the command syntax file from the resource library"
+         eResult = OR_FAILURE;            // pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_SYNTAX_FILE_IO_ERROR)));
+      
+      else
       {
-         // [INFO/STAGE] "Loading user generated syntax for custom script commands"
-         pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_CUSTOM_SYNTAX)));
+         /// [RESOURCE] Read main command syntax file from resource library
+         eResult = loadCommandSyntaxFile(pSyntaxFile, pProgress, pErrorQueue);
 
-         // Attempt to load custom syntax file
-         if (loadGameFileFromFileSystemByPath(getFileSystem(), pCustomFile = createGameFileFromAppPath(TEXT("Custom.Syntax.txt")), NULL, pErrorQueue))
-            /// [CUSTOM] Read command syntax from custom file
-            eResult = loadCommandSyntaxFile(pCustomFile, hParentWnd, NULL, pErrorQueue);
-         
-         // Cleanup
-         deleteGameFile(pCustomFile);
+         // [SUCCESS] Check for a custom syntax file
+         if (eResult == OR_SUCCESS AND PathFileExists(szCustomPath))
+         {
+            // [INFO/STAGE] "Loading user generated syntax for custom script commands"
+            pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_CUSTOM_SYNTAX)));
+
+            // Attempt to load custom syntax file
+            if (loadGameFileFromFileSystemByPath(getFileSystem(), pCustomFile = createGameFileFromAppPath(TEXT("Custom.Syntax.txt")), NULL, pErrorQueue))
+               /// [CUSTOM] Read command syntax from custom file
+               eResult = loadCommandSyntaxFile(pCustomFile, NULL, pErrorQueue);
+            
+            // Cleanup
+            deleteGameFile(pCustomFile);
+         }
+      } 
+
+      // [SUCCESS]
+      CONSOLE_HEADING("Loaded the syntax for %u script commands and the hashes for %u. (5 Commands have no hash)", getTreeNodeCount(getGameData()->pCommandTreeByID), getTreeNodeCount(getGameData()->pCommandTreeByHash));
+
+      // Cleanup and return result
+      utilDeleteString(szCustomPath);
+      deleteGameFile(pSyntaxFile);
+      return eResult;
+   }
+   __except (pushException(pErrorQueue))
+   {
+      EXCEPTION("Unable to the load command syntax");
+      return OR_FAILURE;
+   }
+}
+
+
+
+/// Function name  : printMissingSyntax
+// Description     : 
+// 
+BearScriptAPI
+VOID  printMissingSyntax()
+{
+   COMMAND_SYNTAX*  pSyntax;
+
+   performAVLTreeIndexing(getGameData()->pCommandTreeByID);
+
+   for (COMMAND_GROUP  grp = CG_ARRAY; grp < CG_HIDDEN; grp = (COMMAND_GROUP)(grp + 1))
+   {
+      CONSOLE("Missing %s commands:", loadTempString(IDS_COMMAND_GROUP_ARRAY + grp));
+
+      for (UINT i = 0; findObjectInAVLTreeByIndex(getGameData()->pCommandTreeByID, i, (LPARAM&)pSyntax) ; i++)
+      {
+         if (pSyntax->eGroup == grp && !pSyntax->pTooltipDescription && !lstrlen(pSyntax->szReferenceURL))
+            CONSOLE("  %d - %s", pSyntax->iID, pSyntax->szSyntax);
       }
-   } 
-
-   // Print result to log-file
-   switch (eResult)
-   {
-   // [SUCCESS] Print debugging info
-   case OR_SUCCESS: VERBOSE_HEADING("Loaded the syntax for %u script commands and the hashes for %u. (5 Commands have no hash)", getTreeNodeCount(getGameData()->pCommandTreeByID), getTreeNodeCount(getGameData()->pCommandTreeByHash));    break;
-   // [ABORT] Destroy any loaded script commands
-   case OR_ABORTED: VERBOSE_HEADING("ABORT: Loading syntax entries aborted by user");  break;
    }
-
-   /// [ABORTED] Destroy partially loaded script commands
-   if (eResult == OR_ABORTED)
-   {
-      deleteAVLTree(getGameData()->pCommandTreeByID);
-      deleteAVLTree(getGameData()->pCommandTreeByHash);
-   }
-
-   // Cleanup and return result
-   utilDeleteString(szCustomPath);
-   deleteGameFile(pSyntaxFile);
-   END_TRACKING();
-   return eResult;
 }
 
 

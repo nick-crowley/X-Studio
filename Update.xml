@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<releases>
+  <!--BETA V (Update 8)-->
+  <release version="20">
+      <name>X-Studio v1.08</name>
+      <date>14th February 2014</date>
+      <description>• Fixed BUG:075 'Program saves .pck language files as uncompressed XML but with a .pck extension'</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.08.14.Feb.2014.rar</download>
+   </release>
+
+<!--BETA V (Update 7)-->
+  <release version="19">
+      <name>X-Studio v1.07</name>
+      <date>24th January 2014</date>
+      <description>• Fixed BUG:074 'Type of all script arguments is reset to type of first argument when script is loaded'</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.07.24.Jan.2014.rar</download>
+   </release>
+
+
+<!--BETA V (Update 6)-->
+  <release version="18">
+      <name>X-Studio v1.06</name>
+      <date>3rd January 2014</date>
+      <description>• Added ability to export all project files into a custom named zip archive
+• Added ability to re-order script arguments
+• Export project files command now organises files into subfolders
+• Fixed BUG:069 'Cannot navigate the strings in a language file with direction keys or page up/down'
+• Fixed BUG:072 'Auto-complete lists commands that are incompatible with the script being edited'
+• Fixed BUG:073 'Project backup incorrectly says it has backed up zero files'</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.06.03.Jan.2014.rar</download>
+   </release>
+
+   <!--BETA V (Update 5)-->
+   <release version="17">
+      <name>X-Studio v1.05</name>
+      <date>31st December 2013</date>
+      <description>• When editing language string IDs or script argument names/descriptions, the text is now initially selected
+• The 'Export project' command now queries the user whether to overwrite an existing file instead of failing silently
+• The folder browser dialog for the 'Export project' command can now be resized and contains a 'Make New Folder' button
+• The 'New Document' dialog now initially selects 'MSCI script'
+• Script arguments are now listed in the auto-complete script variables window 
+• Fixed BUG:060 'Program doesn't load language files using the X³ Reunion naming convention'
+• Fixed BUG:061 'Program cannot load scripts saved in a foreign language (unknown datatype error)'
+• Fixed BUG:062 'Backup files are sometimes truncated'
+• Fixed BUG:064 'Export project files command only exports scripts (not language/project files)'
+• Fixed BUG:065 'When saving new documents you have already named on creation, program asks for filename'
+• Fixed BUG:066 'The compiler message displayed when saving scripts doesn't reflect the script game version'
+• Fixed BUG:067 'Tooltips in the script editor sometimes incorrectly state there is no description for a command'
+• Fixed BUG:068 'Script arguments are not listed in the auto-complete list of script variables'</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.05.31.Dec.2013.rar</download>
+   </release>
+
+   <!--BETA V (Update 4)-->
+   <release version="16">
+      <name>X-Studio v1.04</name>
+      <date>11 September 2013</date>
+      <description>• Fixed BUG:059 All scripts written by the program crash X³ Reunion on startup</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.04.11.Sep.2013.rar</download>
+   </release>
+
+   <!--BETA V (Update 3)-->
+   <release version="15">
+      <name>X-Studio v1.03</name>
+      <date>6th September 2013</date>
+      <description>• New strings are automatically selected when inserted into language file documents 
+• Strings can now be inserted/deleted by pressing Insert/Delete
+• Changed the compatibility of several script commands (Jack08, Nicoman35)
+• Removed script command 'get subtype integer of data' since never implemented  (Jack08)
+• Fixed BUG:057 German translation displays as English under Windows XP/2000
+• Fixed BUG:056 Program crashes when version 1.02 fails to load game data
+• Fixed BUG:043 Pressing HOME to scroll the code window doesn't scroll all the way to the left edge 
+• Fixed BUG:032 Indentation of code within subroutines is a little unpredictable</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.03.06.Sep.2013.rar</download>
+   </release>
+
+
+   <!--BETA V (Update 2)-->
+   <release version="14">
+      <name>X-Studio v1.02</name>
+      <date>1st April 2013</date>
+      <description>• Fixed an error in the first line of language files that prevents them from loading
+• Added feature request 'Press F3 to find next text-search result'
+• Added 'Automatically increment script version when saving' preference
+• Added mnemonic keyboard shortcuts to english menu items
+• Added submissions and corrections by Jack08 and Nekomata
+• Changed compatibility of 'format seconds to Zura time string' to incompatible with X3AP
+• Removed 'Test' menu from main window</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.02.01.Apr.2013.rar</download>
+   </release>
+
+
+   <!--BETA V (Update 1)-->
+   <release version="13">
+      <name>X-Studio v1.01</name>
+      <date>24th February 2013</date>
+      <description>• Added a few more credits to the 'About' dialog
+• Fixed issue causing access violation when loading XTC script objects
+• Fixed a resource leak causing program graphics to dissapear after extended usage
+• Fixed BUG:054 Unexpected code following the 'else' command causes X-Studio to hang while compiling
+• Fixed BUG:053 Corrupted text displayed when using 'Open Target Script' menu command</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.01.24.Feb.2013.rar</download>
+   </release>
+
+
+   <!--BETA V-->
+   <release version="12">
+      <name>X-Studio v1.00</name>
+      <date>21st February 2013</date>
+      <description>• Added feature request 'Display overridden command in the tooltip of object commands'
+• Added ability to check online for latest program update
+• Added details of missing game data as 'attachments' to the following errors:
+  • Missing game object properties
+  • Unresolved/overwritten language strings
+• Added credits to 'About' dialog
+• Fixed issue causing incorrect co-ordinates to be displayed for 'Unknown Sectors'</description>
+      <download>http://x-studio.fbnz.de/X-Studio.v1.00.21.Feb.2013.rar</download>
+   </release>
+
+
+   <!--BETA IV (UPDATE 5)-->
+   <release version="11">
+      <name>X-Studio Beta IV Update 5</name>
+      <date>17th February 2013</date>
+      <description>• Added new tooltips for about 30 commands
+• Added ability to search script folder for any command/object/constant (results are automatically highlighted)
+• Added feature request 'Create New String' dialog in language file editor
+• Slightly optimized load/save times and general performance
+• Fixed issue causing file browser to display the wrong icons for files
+• Fixed issue causing bottom half of logfile to be saved to script folder
+• Removed 'Formations' group of ScriptObjects - duplicates of formation constants listed under 'Constants'</description>
+      <download>http://x-studio.fbnz.de/X-Studio.Beta.4.Update.5a.17.Feb.2013.rar</download>
+   </release>
+
+</releases>

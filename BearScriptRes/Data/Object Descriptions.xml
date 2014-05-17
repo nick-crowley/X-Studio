@@ -63,12 +63,14 @@ The number of elements in the ARRAY is one based.</t>
 <!--$0 clone array $1 : index $2x ... $3y-->
 <t id="132">Creates and returns a new ARRAY containing a subset of the elements in the ARRAY $1.  The new ARRAY contains the elements stored at indicies $2x, $3y and all elements in between, if any.  This command can be used to copy a subset of elements or all of the elements from ARRAY $1.
 
+You can clone an entire ARRAY by using NULL for indicies $2x and $3y.
+
 {ABOUT_COPYING_ARRAYS}
 The {COMMAND:clone array} command generates a distinct, independent copy of an ARRAY.
 
 {HEADING:Information}
 
-All ARRAY indicies are zero based.</t>
+All ARRAY indicies are zero based.{CORRECTION:Jack08}</t>
 
 
 <!--copy array $2x index $3x ... $4y into array $0y at index $1z-->
@@ -124,7 +126,7 @@ The number of elements in the ARRAY is one based.</t>
 
 
 <!--for each $0 in array $1-->
-<t id="251">Loops through each element $0 in the ARRAY $1, starting with element zero.
+<t id="251">Loops through each element $0 in the ARRAY $1, starting at the last element and working backwards toward zero.
 
 {ABOUT_MACROS}
 
@@ -132,11 +134,11 @@ The number of elements in the ARRAY is one based.</t>
 {KEYWORD:while} {VARIABLE:$iterator}
 \t{COMMAND:dec} {VARIABLE:$iterator}
 \t$0 = $1\[ {VARIABLE:$iterator} \]
-\t...</t>
+\t...{CORRECTION:Jack08}</t>
 
 
 <!--for each $0x in array $1 using counter $2y-->
-<t id="252">Loops through each element $0x in the ARRAY $1, starting with element zero.
+<t id="252">Loops through each element $0x in the ARRAY $1, starting at the last element and working backwards toward zero.
 
 This macro allows you to access the {PROPERTY:index} of the current element through $2y.
 
@@ -146,7 +148,7 @@ $2y = {COMMAND:size of array} $1
 {KEYWORD:while} $2y
 \t{COMMAND:dec} $2y
 \t$0x = $1\[ $2y \]
-\t...</t>
+\t...{CORRECTION:Jack08}</t>
 
 
 <!--for $0 = $1x to $2y step $3-->
@@ -209,6 +211,20 @@ If the INTEGER $3 is positive the count increases with each iteration, and if $3
 
 
 <!--<t id="538">%0 set command: %1  target=%2 target2=%3 par1=%4 par2=%5</t>-->
+
+
+<!--set position of sector object %0 : x=%1 y=%2 z=%3-->
+<t id="769">Sets the co-ordinates of the SECTOROBJECT $0.</t>
+
+
+<!--set safe position of sector object %0 : x=%1 y=%2 z=%3-->
+<t id="770">Sets the co-ordinates of the SECTOROBJECT $0.  If another OBJ is already occupying this space, the SECTOROBJECT $0 is placed nearby.</t>
+
+
+<!--set rotation of sector object %0 : x=%1 y=%2 z=%3-->
+<t id="771">Sets the {PROPERTY:yaw}, {PROPERTY:pitch} and {PROPERTY:roll} of the SECTOROBJECT $0.
+
+{ABOUT_OBJECT_ROTATION}</t>
 
 
 <!-- ********************************************************************************** -->
@@ -422,18 +438,6 @@ Returns TRUE if the OBJ $0 is of the OBJTYPE $2, otherwise it returns FALSE.</t>
 <t id="724">Returns whether the {PROPERTY:owner race} of the OBJ $0 is generally a {PROPERTY:friend}, {PROPERTY:enemy} or {PROPERTY:neutral} towards the RACE $2.</t>
 
 
-<!--%1%0 get notoriety to race %2-->
-<t id="725">Returns the {PROPERTY:notoriety} between the {PROPERTY:owner race} OBJ $0 and the RACE $2.
-
-{ABOUT_NOTORIETY}</t>
-
-
-<!--%0get notoriety from race %1 to race %2-->
-<t id="726">Returns the {PROPERTY:notoriety} between the RACE $1 and the RACE $2.
-
-{ABOUT_NOTORIETY}</t>
-
-
 <!--$1 $0 is $2 a enemy-->
 <t id="727">Determines the {PROPERTY:relationship} between two {TYPE:objects}.  Return TRUE if the OBJ $0 is an {PROPERTY:enemy} of the object $2, otherwise FALSE.
 
@@ -510,7 +514,7 @@ This may have to be done in both directions.</t>
 
 
 <!--%1%0 is docking possible of %2-->
-<t id="746">Returns TRUE if the SHIP $0 is physically able to dock at the {CLASS:Carrier} or STATION $2, otherwise it returns FALSE.</t>
+<t id="746">Returns TRUE if the {CLASS:Carrier} or STATION $0 is physically able to dock at the SHIP $2, otherwise it returns FALSE.{CORRECTION:DrBullwinkle}</t>
 
 
 <!--$1 $0 is disabled-->
@@ -520,7 +524,9 @@ This may have to be done in both directions.</t>
 <!--VARIATION     %1%0 get SectorObject ID-->
 <t id="761">Returns the unique ID of the SECTOROBJECT $0.
 
-{ABOUT_SECTOR_OBJECTS}</t>
+{ABOUT_SECTOR_OBJECTS}
+
+{COMPATIBILITY_2:X2,X3R}</t>
 
 
 <!--%1 get ware type of SectorObject %0-->
@@ -548,20 +554,6 @@ Return TRUE if the SECTOROBJECT $0 exists, otherwise it returns FALSE.
 
 <!--%0 set rotation: alpha=%1 beta=%2 gamma=%3-->
 <t id="768">Sets the {PROPERTY:yaw}, {PROPERTY:pitch} and {PROPERTY:roll} of the OBJ $0.
-
-{ABOUT_OBJECT_ROTATION}</t>
-
-
-<!--set position of sector object %0 : x=%1 y=%2 z=%3-->
-<t id="769">Sets the co-ordinates of the SECTOROBJECT $0.</t>
-
-
-<!--set safe position of sector object %0 : x=%1 y=%2 z=%3-->
-<t id="770">Sets the co-ordinates of the SECTOROBJECT $0.  If another OBJ is already occupying this space, the SECTOROBJECT $0 is placed nearby.</t>
-
-
-<!--set rotation of sector object %0 : x=%1 y=%2 z=%3-->
-<t id="771">Sets the {PROPERTY:yaw}, {PROPERTY:pitch} and {PROPERTY:roll} of the SECTOROBJECT $0.
 
 {ABOUT_OBJECT_ROTATION}</t>
 
@@ -632,7 +624,7 @@ For STATIONS this is fixed at one million.</t>
 
 
 <!--%1%0 is landing-->
-<t id="904">Returns TRUE if the OBJ $0 is on `final approach` to a STATION, {CLASS:Carrier}, or JUMPGATE, otherwise this command returns FALSE.</t>
+<t id="904">Returns TRUE if the OBJ $0 is on "final approach" to a STATION, {CLASS:Carrier}, or JUMPGATE, otherwise this command returns FALSE.</t>
 
 
 <!--%1%0 is starting-->
@@ -1494,9 +1486,7 @@ If $1 is a negative INTEGER, the {UNITS:credits} are deducted.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1515,9 +1505,7 @@ If $1 is a negative INTEGER, the {UNITS:credits} are deducted.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1537,9 +1525,7 @@ If $1 is a negative INTEGER, the {UNITS:credits} are deducted.</t>
 
 {SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1559,9 +1545,7 @@ If $1 is a negative INTEGER, the {UNITS:credits} are deducted.</t>
 
 {SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1580,9 +1564,7 @@ If $1 is a negative INTEGER, the {UNITS:credits} are deducted.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
 {SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:DOCKS,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1602,9 +1584,7 @@ If $1 is a negative INTEGER, the {UNITS:credits} are deducted.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
 {SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:DOCKS,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1640,11 +1620,10 @@ If $1 is a negative INTEGER, the {UNITS:credits} are deducted.</t>
 
 {FLAG_NO_MULTIPLE:STATION}
 {FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
-{TODO:\[Find.RaceLogicEnabled\]}
 
 {HEADING:Information}
 
-{FLAGS_COMBINING:Enemy,Multiple}
+{FLAGS_COMBINING:Enemy,Nearest}
 
 {FLAGS_RELATION_REQUIREMENT:5x}
 
@@ -1712,11 +1691,13 @@ This is designed for use with the {COMMAND:create station} command, which create
 {HEADING:Unsupported Search Flags}
 
 {FLAG_NO_EXACTJUMPS:1}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
 {FLAGS_COMBINING:Enemy,Multiple}
+
+{FLAGS_MULTIPLE_NEAREST}
 
 {FLAGS_RELATION_REQUIREMENT:5x}</t>	
 
@@ -1732,9 +1713,7 @@ This is designed for use with the {COMMAND:create station} command, which create
 
 {SEARCH_BY_MAXIMUM_PRICE:FACTORIES,3x}
 {SEARCH_BY_QUANITY_SELL:FACTORIES,4y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1754,9 +1733,7 @@ This is designed for use with the {COMMAND:create station} command, which create
 
 {SEARCH_BY_MAXIMUM_PRICE:FACTORIES,3x}
 {SEARCH_BY_QUANITY_SELL:FACTORIES,4y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1775,9 +1752,7 @@ This is designed for use with the {COMMAND:create station} command, which create
 
 {SEARCH_BY_MINIMUM_PRICE:FACTORIES,3x}
 {SEARCH_BY_QUANITY_BUY:FACTORIES,4y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1796,9 +1771,7 @@ This is designed for use with the {COMMAND:create station} command, which create
 
 {SEARCH_BY_MINIMUM_PRICE:FACTORIES,3x}
 {SEARCH_BY_QUANITY_BUY:FACTORIES,4y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1817,9 +1790,7 @@ This is designed for use with the {COMMAND:create station} command, which create
 
 {SEARCH_BY_MAXIMUM_PRICE:DOCKS,3x}
 {SEARCH_BY_QUANITY_SELL:DOCKS,4y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1838,9 +1809,7 @@ This is designed for use with the {COMMAND:create station} command, which create
 
 {SEARCH_BY_MAXIMUM_PRICE:DOCKS,3x}
 {SEARCH_BY_QUANITY_SELL:DOCKS,4y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -1878,6 +1847,8 @@ This is designed for use with the {COMMAND:create station} command, which create
 {HEADING:Information}
 
 {FLAGS_COMBINING:Enemy,Multiple}
+
+{FLAGS_MULTIPLE_NEAREST}
 
 {FLAGS_RELATION_REQUIREMENT:5x}
 
@@ -1923,7 +1894,6 @@ Unlike the C programming command of the same name, there are no other parameter 
 {HEADING:Information}
 
 Unlike the C programming command of the same name, there are no other parameter field types.
-
 
 {LOADTEXT_REQUIREMENT}
 
@@ -2017,10 +1987,11 @@ The destination SECTOR with \(x, y\) co-ordinates \($7x, $8y\) must contain a JU
 
   
 <!--$0 create asteroid: type=$1x addto=$2 resource=$3y yield=$4z x=$5xª y=$6yª z=$7zª-->
-<t id="749">Creates and returns a new ASTEROID of SUBTYPE $1x in the SECTOR $2 with an {PROPERTY:mineral yield} of $4z and a {PROPERTY:mineral type} of $3y.  If this command fails then it returns NULL.  The {PROPERTY:mineral type} must be one of the following constants:
-[center]{OBJECT:Ore} = 0\t{OBJECT:Silicon} = 1\t{OBJECT:Nvidium} = 2[/center]
+<t id="749">Creates and returns a new ASTEROID of SUBTYPE $1x in the SECTOR $2 with an {PROPERTY:mineral yield} of $4z and a {PROPERTY:mineral type} of $3y.  If this command fails then it returns NULL.
+
+{ABOUT_MINERAL_TYPES}
 {COORDINATES:ASTEROID,5xª,6yª,7zª}
-{SEE_HANDBOOK_AND_XEDITOR:ASTEROIDS}</t>	
+{SEE_HANDBOOK_AND_XEDITOR:ASTEROIDS}{CORRECTION:Jack08}</t>	
 
   
 <!--$0 create nebula: type=$1ª addto=$2 x=$3¹ y=$4² z=$5³-->
@@ -2078,6 +2049,9 @@ The position of the SUN does not affect the amount of illumination in the SECTOR
 {FLAG_RANDOM:SHIP}
 {FLAG_VISIBLE:SHIPS,5x}
 {FLAG_KNOWN:SHIPS}
+{FLAG_RACE_LOGIC}
+{FLAG_INCLUDE_DOCKED}
+{FLAG_WING_ONLY}
 {FLAG_MULTIPLE:7z,SHIPS}
 {FLAG_FRIEND:SHIPS,5x}
 {FLAG_ENEMY:SHIPS,5x}
@@ -2086,12 +2060,13 @@ The position of the SUN does not affect the amount of illumination in the SECTOR
 {HEADING:Unsupported Search Flags}
 
 {FLAG_NO_EXACTJUMPS:1}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
-{TODO:\[Find.RaceLogicEnabled\] and \[Find.WingOnly\] and \[Find.IncludeDocked\]}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
 {FLAGS_COMBINING:Enemy,Multiple}
+
+{FLAGS_MULTIPLE_NEAREST}
 
 {FLAGS_RELATION_REQUIREMENT:5x}
 
@@ -2120,15 +2095,16 @@ Only return ASTEROIDS with a {PROPERTY:mineral yield} of $3yª or more
 
 {FLAG_NO_EXACTJUMPS:1}
 {FLAG_NO_RELATIONS:ASTEROIDS}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
-The following {PROPERTY:mineral types} are supported:\t{OBJECT:Ore} = 0\t{OBJECT:Silicon} = 1\t{OBJECT:Nvidium} = 2\t{OBJECT:Ice} = 3
-
+{ABOUT_MINERAL_TYPES}
 {FLAGS_COMBINING:Known,Multiple}
 
-{FLAGS_REFERENCE_REQUIREMENT:5,8}</t>
+{FLAGS_MULTIPLE_NEAREST}
+
+{FLAGS_REFERENCE_REQUIREMENT:5,8}{CORRECTION:Jack08}</t>
 
 
 <!--$0 find flying ware: sector=$1 maintype=$2xª subtype=$3yª flags=$4x refobj=$5 maxdist=$6y maxnum=$7z refpos=$8-->
@@ -2157,7 +2133,9 @@ The following {PROPERTY:mineral types} are supported:\t{OBJECT:Ore} = 0\t{OBJECT
 
 {HEADING:Information}
 
-{FLAGS_COMBINING:Nearest,Visible}</t>		
+{FLAGS_COMBINING:Nearest,Visible}
+
+{FLAGS_MULTIPLE_NEAREST}</t>		
 
 
 <!--$0 create sector object: maintype=$1x subtype=$2y-->
@@ -2349,6 +2327,9 @@ This command will find any object with an OBJCLASS of {CLASS:Factory}, which inc
 {FLAG_RANDOM:SHIP}
 {FLAG_VISIBLE:SHIPS,5x}
 {FLAG_KNOWN:SHIPS}
+{FLAG_RACE_LOGIC}
+{FLAG_INCLUDE_DOCKED}
+{FLAG_WING_ONLY}
 {FLAG_MULTIPLE:7z,SHIPS}
 {FLAG_FRIEND:SHIPS,5x}
 {FLAG_ENEMY:SHIPS,5x}
@@ -2357,12 +2338,13 @@ This command will find any object with an OBJCLASS of {CLASS:Factory}, which inc
 {HEADING:Unsupported Search Flags}
 
 {FLAG_NO_EXACTJUMPS:1}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
-{TODO:\[Find.RaceLogicEnabled\] and \[Find.WingOnly\] and \[Find.IncludeDocked\]}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
 {FLAGS_COMBINING:Enemy,Multiple}
+
+{FLAGS_MULTIPLE_NEAREST}
 
 {FLAGS_RELATION_REQUIREMENT:5x}</t>		
 
@@ -2469,38 +2451,64 @@ The {PROPERTY:average price} if the average of the {PROPERTY:minimum price} and 
 
 {CONSTANT:25} - {X2} v1.2 and above</t>
 
-<t id="157">set global variable: name=%0 value=%1</t>
-<t id="158">%1get global variable: name=%0</t>
+  
+<!--set global variable: name=%0 value=%1-->
+<t id="157">Sets the {PROPERTY:global variable} with the name $0 to the value $1.  If the variable does not exist, it is created.
+
+{ABOUT_LOCAL_AND_GLOBAL_VARIABLES}</t>
+  
+<!--%1get global variable: name=%0-->
+<t id="158">Returns the value of the {PROPERTY:global variable} with the name $0.  If the variable does not exist, this command returns NULL.
+
+{ABOUT_LOCAL_AND_GLOBAL_VARIABLES}</t>
 
 
 <!--al engine: register script=%0-->
-<t id="1000">write me!</t>
+<t id="1000">Registers the script $0 as an AL_PLUGIN.
+
+{ABOUT_AL_PLUGINS}</t>
 
 
 <!--al engine: unregister script %0-->
-<t id="1001">write me!</t>
+<t id="1001">Unregisters the previously registered script $0 as no longer being an AL_PLUGIN.
+
+{ABOUT_AL_PLUGINS}</t>
 
 
 <!--al engine: set plugin %0 description to %1-->
-<t id="1024">Sets the user interface description of the AL_PLUGIN $0 to the STRING $1.</t>
+<t id="1024">Sets the name of the AL_PLUGIN $0 to the STRING $1.  This name is displayed to the user in the 'Manage AL Plugins' menu.
+
+{ABOUT_AL_PLUGINS}</t>
 
 
 <!--al engine: set plugin %0 timer interval to %1 s-->
-<t id="1025">write me!</t>
+<t id="1025">Sets the frequency of 'timer' events sent to the AL_PLUGIN $0 to $1 seconds.
 
-
+{ABOUT_AL_PLUGINS}</t>
 
 
 <!-- ********************************************************************************** -->
 <!-- ********************************* x2   PILOTS *************************************** -->
 <!-- ********************************************************************************** -->
 
+<!-- $0 set pilot fightskill to $1 -->
+<t id="533">Sets the {PROPERTY:fighting skill} of the OBJ $0 to the INTEGER $1.
+
+The {PROPERTY:fighting skill} ranges from 0 \(terrible\) to 28 \(best\) and determines the quality of the maneuvers performed during combat.</t>
+
+
+<!-- $1 $0 get pilot fightskill -->
+<t id="534">Returns an INTEGER containing the {PROPERTY:fighting skill} of the OBJ $0.
+
+The {PROPERTY:fighting skill} ranges from 0 \(terrible\) to 28 \(best\) and determines the quality of the maneuvers performed during combat.</t>
+
+
 <!--%1%0 get pilot name-->
 <t id="1037">Returns a STRING containing the {PROPERTY:name} of the PILOT of the SHIP $0.</t>
 
 
 <!--%0 set pilot name to %1-->
-<t id="1038">Changes the {PROPERTY:name} of the PILOT in the SHIP $0.
+<t id="1038">Sets the {PROPERTY:name} of the PILOT in the SHIP $0 to the STRING $1.
 
 {HEADING:Information}
 
@@ -2516,14 +2524,13 @@ This command does not work on the player SHIP.</t>
 
 The {PROPERTY:voice} is an INTEGER between 0 and 7 correlating to the RACE variation strings in the main language file.
 
-The {PROPERTY:appearance} $2x is the INTEGER ID of the video displayed, correlating to the videos in the main video file.
+The {PROPERTY:face} $2x is the INTEGER ID of the video displayed, correlating to the videos in the main video file.
 
-If the {PROPERTY:pirate subrace} $3y is TRUE then pirate variations are used.
+If the {PROPERTY:pirate subrace} $3y is TRUE then the appropriate pirate variations are used instead.
 
-The {PROPERTY:argon female} $4z is unknown.
+The {PROPERTY:argon female} $4z is unknown, but may related to the ATMO/Betty docking computer.
 
 {RELATED_MEDIA:speech clips}</t>
-
 
 
 
@@ -2532,9 +2539,7 @@ The {PROPERTY:argon female} $4z is unknown.
 <!-- ********************************************************************************** -->
 
 <!--%0 destruct: show no explosion=%1-->
-<t id="765">Destroys the OBJ $0.  If $1 is TRUE then an explosion is shown, otherwise it is not.
-
-{HEADING:Information}
+<t id="765">Destroys the OBJ $0.  If $1 is TRUE and the OBJ is in the same SECTOR as the player then an explosion is shown, otherwise it is not.{CORRECTION:Jack08}{HEADING:Information}
 
 Destroying an OBJ without an explosion is used for destroying {TERMINOLOGY:OOS} \(Out-of-Sector\) OBJS.</t>
 
@@ -2754,10 +2759,10 @@ This command is very limited in functionality, see {COMMAND:speak text:} for a m
 
 {HEADING:Supported Speech Clips}
 
-{CONSTANT:IncomingTransmission.Greeting} - `We are being hailed`
-{CONSTANT:IncomingTransmission.Message} - `Incoming message`
-{CONSTANT:IncomingTransmission.Scanned} - `We are scanned`
-{CONSTANT:IncomingTransmission.SOS} - `Emergency message from`</t>
+{CONSTANT:\[IncomingTransmission.Greeting\]} - `We are being hailed`
+{CONSTANT:\[IncomingTransmission.Message\]} - `Incoming message`
+{CONSTANT:\[IncomingTransmission.Scanned\]} - `We are scanned`
+{CONSTANT:\[IncomingTransmission.SOS\]} - `Emergency message from xyz`</t>
 
 
 <!--%0 send audio message %1 to player-->
@@ -2767,34 +2772,64 @@ This command can be used to display any voiced message from the `Race Variation`
 
 {HEADING:Constants}
 
-{CONSTANT:Comm.DLG_C_START_FIGHTING} - Message send as the ship is about to attack
-{CONSTANT:Comm.DLG_POL_ILLEGAL_GOODS} - `We have detected illegal goods aboard your ship`
-{CONSTANT:Comm.DLG_POL_LAST_WARNING} - `This is your last warning! Drop the illegal goods immediately!`
-{CONSTANT:Comm.DLG_POL_LEGAL_GOODS} - `We scanned your ship and did not find any illegal goods onboard.`</t>
+{CONSTANT:\[Comm.DLG_C_START_FIGHTING\]} - Ship about to attack
+{CONSTANT:\[Comm.DLG_POL_ILLEGAL_GOODS\]} - Illegal goods detected
+{CONSTANT:\[Comm.DLG_POL_LAST_WARNING\]} - Final warning
+{CONSTANT:\[Comm.DLG_POL_LEGAL_GOODS\]} - No illegal goods detected</t>
 
 
 <!--send incoming message %0 to player: display it=%1-->
-<t id="203">write me!</t>
+<t id="203">Adds the STRING $0 to the player`s message log.
+
+If $1 is TRUE the message is displayed in a popup window, if FALSE the player is simply notified.</t>
 
 
 <!--write to player logbook %0-->
-<t id="400">write me!</t>
+<t id="400">Writes any value $0 to the player logbook.  If $0 is an OBJ, the name displayed to the user is written to the logbook.
+
+{HEADING:Information}
+
+See the help file for a list of formatting available to logbook messages.</t>
 
 
 <!--%0 write to logbook %1-->
-<t id="401">write me!</t>
+<t id="401">{NOT_IMPLEMENTED}
+
+Use {COMMAND:write to player logbook} instead.</t>
 
 
-<!--write to player logbook: printf: fmt=%0, %1, %2, %3, %4, %5-->
-<t id="402">write me!</t>
+<!--write to player logbook: printf: fmt=$0, $1o, $2x, $3y, $4z, $5a-->
+<t id="402">Writes a STRING to the player logbook, generated from a template STRING $0 and the parameters $1o, $2x, $3y, $4z, $5a.  If the template STRING $0 contains less than five parameter fields \(which are denoted by `%s`\) then unused parameters are ignored.
+
+{HEADING:Information}
+
+Unlike the C programming command of the same name, there are no other parameter field types.
+See the help file for a list of formatting available to logbook messages.</t>
 
 
-<!--write to player logbook: printf: pageid=%0 textid=%1, %2, %3, %4, %5, %6-->
-<t id="403">write me!</t>
+<!--write to player logbook: printf: pageid=$0x textid=$1y, $2o, $3x, $4y, $5z, $6a-->
+<t id="403">Writes a STRING to the player logbook, generated from a template STRING stored in a {TERMINOLOGY:Language Strings File} and the parameters $2o, $3x, $4y, $5z, $6a.  The template STRING with ID $1y is loaded from page $0x.  If the template STRING contains less than five parameter fields \(which are denoted by `%s`\) then unused parameters are ignored.
+
+{HEADING:Information}
+
+Unlike the C programming command of the same name, there are no other parameter field types.
+You can use the language file editor to customise the formatting of logbook messages.
+
+{LOADTEXT_REQUIREMENT}
+
+{RELATED_COMMAND:To use a hard-coded template STRING,write to player logbook: printf:,User Interface}</t>
 
 
-<!--%0speak text: page=%1 id=%2 priority=%3-->
-<t id="1042">write me!</t>
+<!--$0 speak text: page=$1x id=$2y priority=$3z-->
+<t id="1042">Plays the speech clip associated with the STRING with ID $2y within page $1x, and displays the STRING as a subtitle.
+
+If {KEYWORD:START} is used, the command returns immediately and the speech clip is played asynchronously.
+
+{HEADING:Information}
+
+Only one speech clip can be played at a time, those with a higher priority $3z take precedence over those with a lower priority.
+
+{RELATED_COMMAND:To play several speech clips in succession,speak array:,User Interface}</t>
 
 
 
@@ -2803,7 +2838,26 @@ This command can be used to display any voiced message from the `Race Variation`
 <!-- ********************************* x2  UNIVERSE PROPERTY ***************************** -->
 <!-- ********************************************************************************** -->
 
-<!--<t id="792">%0 add notoriety: race=%1 value=%2</t>-->
+<!--%1%0 get notoriety to race %2-->
+<t id="725">Returns the raw NOTORIETY value between the {PROPERTY:owner race} of the OBJ $0 and the RACE $2.
+
+{ABOUT_NOTORIETY}</t>
+
+
+<!--%0get notoriety from race %1 to race %2-->
+<t id="726">Returns the raw NOTORIETY value between the RACE $1 and the RACE $2.
+
+{ABOUT_NOTORIETY}</t>
+
+
+<!-- $0 add notoriety: race=$1 value=$2 -->
+<t id="792">Increments the raw value of the NOTORIETY between the RACE $0 and the RACE $1 by $2 points.
+
+{ABOUT_NOTORIETY}
+
+{HEADING:Information}
+
+This command does not function correctly in X2.</t>
 
 
 <!--%0is plot %1 state flag %2-->
@@ -2840,7 +2894,7 @@ The default value is 15%.</t>
 <!-- ********************************************************************************** -->
 
 
-
+<!--
 <t id="108">%0 = get script priority</t>
 <t id="109">set script priority to %0</t>
 
@@ -2867,11 +2921,28 @@ The default value is 15%.</t>
 <t id="145">%0get script command upgrade: command=%1</t>
 <t id="146">%0is script with prio %1 on stack</t>
 <t id="147">%0get task ID</t>
-<t id="148">%0get PID</t>
+-->
 
+<!--%0get PID-->
+<t id="148">Returns the {PROPERTY:process ID} of any concurrently executing script, ie. one initiated using the {KEYWORD:START} keyword.
+
+{HEADING:Information}
+
+This command can be very useful when trying to create a global task that should only have one instance. For example, you could concurrently execute the script below from a setup script, and be confident that only one instance will be processing at any one time:
+
+{VARIABLE:$PID} = {COMMAND:get PID}
+{VARIABLE:$active.PID} = {COMMAND:get PID}
+{COMMAND:set global variable: name='Process.ID' value=}{VARIABLE:$PID}
+{KEYWORD:while} {VARIABLE:$active.PID} == {VARIABLE:$PID}
+\t* Perform your processing here
+\t= {COMMAND:wait randomly from 5000 to 10000 ms}
+\t{VARIABLE:$active.PID} = {COMMAND:get global variable: name='Process.ID'}
+{KEYWORD:end}{SUBMISSION:Jack08}</t>
+
+<!--
 <t id="153">infinite loop detection enabled=%0</t>
 <t id="154">set script command upgrade: command=%0  upgrade=%1  script=%2</t>
-
+-->
 
 
 <!--%0get script version-->
@@ -2960,17 +3031,51 @@ All ARRAY indicies are zero based.</t>
 
 
 <!-- ********************************************************************************** -->
-<!-- **********************************  X3:R OBJECT PROPERTIES *********************** -->
+<!-- **********************************  X3:R OBJECT ACTIONS ************************** -->
 <!-- ********************************************************************************** -->
   
-<!--%0add lasers per value:%1(0-100) flags:%2-->
-<t id="1196">todo</t>
+
+<!--<t id="1196">%0add lasers per value:%1(0-100) flags:%2</t>-->
 
 
-<!--%0add shields per value:%1(0-100)-->
-<t id="1197">todo</t>
+<!--<t id="1197">%0add shields per value:%1(0-100)</t>-->
 
 
+<!--%0force position: x=%1 y=%2 z=%3-->
+<t id="1224">Forces the OBJ $0 to the {PROPERTY:position} at co-ordinates \(x, y, z\).</t>
+
+<!-- ********************************************************************************** -->
+<!-- **********************************  X3:R OBJECT PROPERTIES *********************** -->
+<!-- ********************************************************************************** -->
+ 
+<!-- %0 set hull to %1 -->
+<t id="1047">Sets the {PROPERTY:hull energy} of the OBJ $0 to $1</t>
+  
+  
+<!-- %0 set current shield strength to %1 -->
+<t id="1048">Sets the {PROPERTY:shield energy} of the OBJ $0 to $1</t>
+  
+
+<!-- %1%0 is known -->
+<t id="1061">Returns TRUE if the player has ever detected the OBJ $0, otherwise it returns FALSE.</t>
+  
+   
+<!-- %0 set known status to %1 -->
+<t id="1062">Sets whether the OBJ $0 has ever been detected by the player to TRUE or FALSE.</t>
+  
+   
+<!-- %1%0 is detectable -->
+<t id="1063">Returns TRUE if the OBJ $0 can be displayed in the sector map user interface, otherwise it returns FALSE.</t>
+  
+   
+<!-- %1%0 is hired -->
+<t id="1064">Returns TRUE if the TL_OBJECT is currently {PROPERTY:hired} for work, otherwise it returns FALSE.</t>
+  
+   
+<!--$1 $0 get array of missiles aiming to me-->
+<t id="1095">Returns a new ARRAY containing all the {TYPE:missiles} that are flying towards the object $0.</t>		<!--%1%0 get array of missiles aiming to me-->
+
+  
 <!--%1%0 is asteroid scanned-->
 <t id="1198">Returns TRUE if the ASTEROID $0 has been {PROPERTY:scanned} thereby revealing it`s {PROPERTY:mineral yield}, otherwise it returns FALSE.</t>
 
@@ -2979,22 +3084,86 @@ All ARRAY indicies are zero based.</t>
 <t id="1199">Marks the ASTEROID $0 as {PROPERTY:scanned} if $1 is TRUE, otherwise as {PROPERTY:unscanned}.</t>
 
 
-
-<!--Vanilla:  set notoriety of %0 -&gt; %1 to %2 points-->
-<!--X-Studio: set notoriety between $0 and $1 to $2 points-->
-<t id="1207">todo</t>
-
-
+<!--%1%0 get flying ware count-->
+<t id="1203">Returns the {PROPERTY:quantity} of the WARE within the {TYPE:flying ware} $0.</t>		
 
 <!--%1%0 get resource waretype of asteroid-->
-<t id="1213">todo</t>
+<t id="1213">Returns the WARE that would be received from mining the ASTEROID $0.</t>
 
 
+<!--%1%0 has collectible rocks-->
+<t id="1214">Return TRUE if the DEBRIS $0 has {TYPE:collectible rocks}, otherwise it returns FALSE.</t>		
+  
 
-<!--%0force position: x=%1 y=%2 z=%3-->
-<t id="1224">Forces the OBJ $0 to the {PROPERTY:position} at co-ordinates \(x, y, z\).</t>
+<!-- ********************************************************************************** -->
+<!-- ********************************** x3:R PILOTS *********************************** -->
+<!-- ********************************************************************************** -->
+
+<!-- %1%0 get pilot morale -->
+<t id="1204">Returns the {PROPERTY:morale} of the PILOT in the SHIP $0.
+
+The {PROPERTY:morale} is an INTEGER between 0 and 25 that represents their resistance to bailing.</t>
 
 
+<!-- %1%0 get pilot aggression -->
+<t id="1205">Returns the {PROPERTY:aggression} of the PILOT in the SHIP $0.
+
+{UNDOCUMENTED}</t>
+
+
+<!-- %0set pilot morale: %1 -->
+<t id="1222">Sets the {PROPERTY:morale} of the PILOT in the SHIP $0 to the INTEGER $1.
+
+The {PROPERTY:morale} is an INTEGER between 0 and 25 that represents their resistance to bailing.</t>
+
+
+<!-- %0set pilot aggression: %1 -->
+<t id="1223">Sets the {PROPERTY:aggression} of the PILOT in the SHIP $0 to the INTEGER $1.
+
+{UNDOCUMENTED}</t>
+
+
+<!-- %1%0 get pilot tradeskill -->
+<t id="1325">Returns the {PROPERTY:trade skill} of the PILOT in the SHIP $0.
+
+{UNDOCUMENTED}</t>
+
+
+<!-- %0set pilot tradeskill to %1 -->
+<t id="1326">Sets the {PROPERTY:trade skill} of the PILOT in the SHIP $0 to the INTEGER $1.
+
+{UNDOCUMENTED}</t>
+
+<!-- ********************************************************************************** -->
+<!-- ********************************* X3:R PLAYER  *********************************** -->
+<!-- ********************************************************************************** -->
+
+<!-- %0 get player tracking aim -->
+<t id="535">Returns the OBJ currently targeted by the player, if any, otherwise it returns NULL.</t>
+  
+<!-- set player tracking aim to %0 -->
+<t id="1046">Sets the current target of the player to the OBJ $0.</t>
+  
+<!-- %0 get fight rank -->
+<t id="1059">Returns the raw NOTORIETY value of the player`s {PROPERTY:fight rank}.
+
+{ABOUT_NOTORIETY}</t>
+  
+<!-- %0 get trade rank -->
+<t id="1060">Returns the raw NOTORIETY value of the player`s {PROPERTY:trade rank}.
+
+{ABOUT_NOTORIETY}</t>
+  
+<!-- %0 get player name -->
+<t id="1070">Returns a STRING containing the {PROPERTY:name} of the player.</t>
+
+<!-- ********************************************************************************** -->
+<!-- ********************************** x3:R SHIP PROPERTIES ************************** -->
+<!-- ********************************************************************************** -->
+  
+<!-- %1%0 get current max speed -->
+<t id="1049">Returns the current maximum {PROPERTY:speed} of the OBJ $0.</t>
+  
 <!-- ********************************************************************************** -->
 <!-- ********************************** x3:R STATION TRADING ************************** -->
 <!-- ********************************************************************************** -->
@@ -3009,9 +3178,7 @@ All ARRAY indicies are zero based.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -3030,9 +3197,7 @@ All ARRAY indicies are zero based.</t>
 
 {SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -3051,15 +3216,13 @@ All ARRAY indicies are zero based.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
 {SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:DOCKS,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
 {COMPATIBILITY_1:X3R}
 
-{COMMAND_NAME_CHANGED:find station sells: resource ... with best price depend on jumps}</t>
+{COMMAND_NAME_CHANGED:find station sells: resource ... with best price depend on jumps}</t>	
 
 
 <!--VANILLA:  VARIATION   $0 find station: product $1 with best price random:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6-->
@@ -3074,9 +3237,7 @@ All ARRAY indicies are zero based.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -3097,9 +3258,7 @@ All ARRAY indicies are zero based.</t>
 
 {SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
 {SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
@@ -3120,21 +3279,16 @@ All ARRAY indicies are zero based.</t>
 
 {SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
 {SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
+{SEARCH_BY_TRADER:DOCKS,6}{CORRECTION:Jack08}{HEADING:Information}
 
 {ABOUT_JUMP_DISTANCES}
 
 {COMPATIBILITY_1:X3R}
 
-{COMMAND_NAME_CHANGED:find station sells: resource ... with best price random}</t>		
+{COMMAND_NAME_CHANGED:find station sells: resource ... with best price random}</t>	
 
 
 
-
-
-  
 <!-- ********************************************************************************** -->
 <!-- **********************************  X3:R   STRINGS    ********************************* -->
 <!-- ********************************************************************************** -->
@@ -3183,22 +3337,7 @@ The conversion stops at the first non-numeric character.
   
 
 <!-- ********************************************************************************** -->
-<!-- ********************************* X3:R OBJECT PROPERTIES ****************************** -->
-<!-- ********************************************************************************** -->
-
-<!--%1%0 has collectible rocks-->
-<t id="1214">Return TRUE if the DEBRIS $0 has {TYPE:collectible rocks}, otherwise it returns FALSE.</t>		
-
-
-<!--%1%0 get flying ware count-->
-<t id="1203">Returns the {PROPERTY:quantity} of the WARE within the {TYPE:flying ware} $0.</t>		
-
-
-<!--$1 $0 get array of missiles aiming to me-->
-<t id="1095">Returns a new ARRAY containing all the {TYPE:missiles} that are flying towards the object $0.</t>		<!--%1%0 get array of missiles aiming to me-->
-
-<!-- ********************************************************************************** -->
-<!-- ********************************** X3:R UNIVERSE DATA ********************************* -->
+<!-- ********************************** X3:R UNIVERSE DATA **************************** -->
 <!-- ********************************************************************************** -->
   
 
@@ -3270,11 +3409,13 @@ Only return NEBULA with a {PROPERTY:nebula effect} of $3y
 
 {FLAG_NO_EXACTJUMPS:1}
 {FLAG_NO_RELATIONS:NEBULAE}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
 {FLAGS_COMBINING:Random,Visible}
+
+{FLAGS_MULTIPLE_NEAREST}
 
 {FLAGS_REFERENCE_REQUIREMENT:5,8}</t>
 
@@ -3315,24 +3456,53 @@ Only return DEBRIS with a {PROPERTY:mineral yield} of $3x or more
 
 {FLAG_NO_EXACTJUMPS:1}
 {FLAG_NO_RELATIONS:DEBRIS}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
 {FLAGS_COMBINING:Random,Visible}
 
+{FLAGS_MULTIPLE_NEAREST}
+
 {FLAGS_REFERENCE_REQUIREMENT:5,8}</t>		
 
+<!-- ********************************************************************************** -->
+<!-- ********************************** x3:R UNIVERSE PROPERTY ************************ -->
+<!-- ********************************************************************************** -->
+
+
+<!--Vanilla:  set notoriety of %0 -> %1 to %2 points-->
+<!--X-Studio: set notoriety between $0 and $1 to $2 points-->
+<t id="1207">Sets the raw value of the NOTORIETY between the RACE $0 and the RACE $1 to $2 points.
+
+Note: This command does not function correctly in X2.
+
+{ABOUT_NOTORIETY}
+
+{COMMAND_NAME_CHANGED:set notoriety of .. -&gt; .. to .. points}</t>
+
+<!-- %0set relations from notoriety: include player as target and race -> teladi as owner=%1 -->
+<t id="1200">Updates the {PROPERTY:relation} between the OBJ $0 and the player according to the current NOTORIETY between them.
+
+{ABOUT_NOTORIETY}</t>
+
+<!-- ********************************************************************************** -->
+<!-- ********************************** x3:R USER INTERFACE **************************** -->
+<!-- ********************************************************************************** -->
 
 
 
+<!-- send incoming question %0 to player: callback=%1 -->
+<t id="212">Displays the question STRING $0 to the player in a popup window, and calls the script $1 with the user`s choosen answer.
 
+The script $1 should contain a STRING argument which will contain the ID of the button pressed.</t>
+  
+<!-- send incoming question %0 to player: callback=%1 flags=%2 -->
+<t id="213">Adds the question STRING $0 to the player`s message log, and calls the script $1 when the user chooses an answer.
 
+If $2 is TRUE the message is displayed in a popup window, if FALSE the player is simply notified.
 
-
-
-
-
+The script $1 should contain a STRING argument which will contain the ID of the button pressed.</t>
 
 <!-- ********************************************************************************** -->
 <!-- ********************************** x3:R REMAINING COMMANDS **************************** -->
@@ -3344,45 +3514,63 @@ Only return DEBRIS with a {PROPERTY:mineral yield} of $3x or more
 <t id="1110">ADD NEW STOCK REGARDING CHANGED SYNTAX.   http://forum.egosoft.com/viewtopic.php?t=287999  Adds merchant to a station. </t>
 
 
+<!--<t id="571">%1%0 can missile %2 be installed</t>
 
-<!--        
-<t id="212">send incoming question %0 to player: callback=%1</t>
-<t id="213">send incoming question %0 to player: callback=%1 flags=%2</t>
-<t id="533">$0 set pilot fightskill to $1</t>
-<t id="534">$1 $0 get pilot fightskill</t>
+<t id="1021">%0 set race logic control enabled to %1</t>
 
-<t id="535">%0 get player tracking aim</t>
-<t id="570">%1%0 move to position continue: x=%2 y=%3 z=%4 with precision %5 m</t>
-<t id="571">%1%0 can missile %2 be installed</t>
+<t id="1030">%0 set owner race to %1</t>
+<t id="1031">%0get script version</t>
+<t id="1032">%0get script name</t>
 
-<t id="1019">VARATION    %1%0 has a free ship dock port: ship subtype = %2</t>
+<t id="1034">%0is plot %1 state flag %2</t>
 
-<t id="1046">set player tracking aim to %0</t>
-<t id="1047">%0 set hull to %1</t>
-<t id="1048">%0 set current shield strength to %1</t>
-<t id="1049">%1%0 get current max speed</t>
-<t id="1050">%0 = fixed sin %1</t>
-<t id="1051">%0 = fixed cos %1</t>
+<t id="1036">%1%0 get ID code</t>
+
+
+<t id="1041">%1%0 get tradeable ware array from station</t>
+
+<t id="1043">%0 set serial name of station to %1</t>
+
 <t id="1052">%1%0 get production cycle time: account for secondary resources=%2</t>
 <t id="1053">%1%0 get remaining production cycle time</t>
 <t id="1054">%1%0 get number of products per cycle</t>
 <t id="1055">%1%0 get number of resources per cycle for ware %2</t>
 <t id="1056">%1%0 get production status: as percentage=%2</t>
 <t id="1057">%1%0 get gate destination: return sector=%2</t>
-<t id="1058">%1%0 get gate id</t>
-<t id="1059">%0 get fight rank</t>
-<t id="1060">%0 get trade rank</t>
-<t id="1061">%1%0 is known</t>
-<t id="1062">%0 set known status to %1</t>
-<t id="1063">%1%0 is detectable</t>
-<t id="1064">%1%0 is hired</t>
+
 <t id="1065">%1%0 get formation</t>
 <t id="1066">%1%0 serialise object</t>
-<t id="1070">%0 get player name</t>
+<t id="1067">%1%0 get owned ships: class/type=%2</t>
+<t id="1068">%1 get ship array: of race %0 class/type=%2</t>
+
 <t id="1071">%1%0 get tradeable ware array from ship</t>
 <t id="1072">%1%0 is script %2 on stack of task=%3</t>
 <t id="1073">%1%0 is task %2 in use</t>
-<t id="1074">%0 get next gate on route from %1 to %2</t>
+
+<t id="1100">%0 register hotkey %1 to call script %2</t>
+<t id="1101">unregister hotkey %0</t>
+
+<t id="1201">%0is a new script version available</t>
+<t id="1202">%1%0 get job id</t>
+
+<t id="1217">add blueprints to player HQ: type=%0</t>
+<t id="1218">%0player HQ has blueprints for: type=%1</t>
+<t id="1219">remove blueprints from player HQ: type=%0</t>
+<t id="1220">%0last load time</t>
+<t id="1221">%0ignore collisions: %1</t>
+
+<t id="1300">%0get missile flags of %1</t>
+<t id="1320">%0player has police license for race %1</t>-->
+
+<!--        
+
+<t id="570">%1%0 move to position continue: x=%2 y=%3 z=%4 with precision %5 m</t>
+
+<t id="1019">VARATION    %1%0 has a free ship dock port: ship subtype = %2</t>
+
+<t id="1050">%0 = fixed sin %1</t>
+<t id="1051">%0 = fixed cos %1</t>
+
 <t id="1084">register quest script %0 instance multiple=%1</t>
 <t id="1085">set quest state with message: quest=%0 state=%1 msg=%2</t>
 <t id="1086">set quest/event %0 timer to %1ms</t>
@@ -3396,8 +3584,6 @@ Only return DEBRIS with a {PROPERTY:mineral yield} of $3x or more
 <t id="1097">%1%0 turret %2 can use laser %3 </t>
 <t id="1098">%0 set pirate cover state to %1</t>
 <t id="1099">%1%0 scan potential pirate %2 for illegal wares</t>
-<t id="1100">%0 register hotkey %1 to call script %2</t>
-<t id="1101">unregister hotkey %0</t>
 
 <t id="1111">%1%0get merchants</t>
 <t id="1112">remove merchant %0</t>
@@ -3406,54 +3592,17 @@ Only return DEBRIS with a {PROPERTY:mineral yield} of $3x or more
 <t id="1115">reset merchant %0 expiry</t>
 <t id="1116">%0 get data for merchant %1: item number=%2 </t>
 <t id="1120">%0 get random NPC</t>
-<t id="1021">%0 set race logic control enabled to %1</t>
+
 <t id="1022">%1%0 can execute StartAction</t>
 <t id="1023">%0 set StartAction enabled to %1</t>
-<t id="1024">al engine: set plugin %0 description to %1</t>
-<t id="1025">al engine: set plugin %0 timer interval to %1 s</t>
+
 <t id="1026">%0 set as player wingman: %1</t>
 <t id="1027">%1%0 is player wingman</t>
-<t id="1028">%1%0 get name</t>
-<t id="1029">%0 set name to %1</t>
-<t id="1030">%0 set owner race to %1</t>
-<t id="1031">%0get script version</t>
-<t id="1032">%0get script name</t>
 
-<t id="1034">%0is plot %1 state flag %2</t>
-
-<t id="1036">%1%0 get ID code</t>
-<t id="1037">%1%0 get pilot name</t>
-<t id="1038">%0 set pilot name to %1</t>
-<t id="1039">%0get random name: race=%1</t>
-<t id="1040">%0 set pilot speaker: voice=%1, face=%2, Pirate subrace=%3, Argon female=%4</t>
-<t id="1041">%1%0 get tradeable ware array from station</t>
-<t id="1042">%0speak text: page=%1 id=%2 priority=%3</t>
-<t id="1043">%0 set serial name of station to %1</t>
-<t id="1044">%0get Kha`ak aggression level</t>
-<t id="1045">set Kha`ak aggression level to %0</t>
-<t id="1046">set player tracking aim to %0</t>
-<t id="1047">%0 set hull to %1</t>
-<t id="1048">%0 set current shield strength to %1</t>
-<t id="1049">%1%0 get current max speed</t>
 <t id="1050">%0 = fixed sin %1</t>
 <t id="1051">%0 = fixed cos %1</t>
-<t id="1052">%1%0 get production cycle time: account for secondary resources=%2</t>
-<t id="1053">%1%0 get remaining production cycle time</t>
-<t id="1054">%1%0 get number of products per cycle</t>
-<t id="1055">%1%0 get number of resources per cycle for ware %2</t>
-<t id="1056">%1%0 get production status: as percentage=%2</t>
-<t id="1059">%0 get fight rank</t>
-<t id="1060">%0 get trade rank</t>
-<t id="1061">%1%0 is known</t>
-<t id="1062">%0 set known status to %1</t>
-<t id="1063">%1%0 is detectable</t>
-<t id="1064">%1%0 is hired</t>
-<t id="1065">%1%0 get formation</t>
-<t id="1066">%1%0 serialise object</t>
-<t id="1067">%1%0 get owned ships: class/type=%2</t>
-<t id="1068">%1 get ship array: of race %0 class/type=%2</t>
-<t id="1072">%1%0 is script %2 on stack of task=%3</t>
-<t id="1073">%1%0 is task %2 in use</t>
+
+
 <t id="1179">%1%0 get asteroid yield</t>
 <t id="1180">$1 $0 get job leader</t>
 <t id="1181">%1%0 get job idle rate</t>
@@ -3472,12 +3621,6 @@ Only return DEBRIS with a {PROPERTY:mineral yield} of $3x or more
 <t id="1194">%0remove from patrol group for sector: %1</t>
 <t id="1195">%0remove all patrol group references</t>
 
-<t id="1200">%0set relations from notoriety: include player as target and race &gt; teladi as owner=%1</t>
-<t id="1201">%0is a new script version available</t>
-<t id="1202">%1%0 get job id</t>
-<t id="1204">%1%0 get pilot morale</t>
-<t id="1205">%1%0 get pilot aggression</t>
-
 <t id="1208">%1%0 get intermediates buyable</t>
 <t id="1209">%0set intermediates buyable to %1</t>
 <t id="1210">%1%0 get intermediates sellable</t>
@@ -3486,13 +3629,6 @@ Only return DEBRIS with a {PROPERTY:mineral yield} of $3x or more
 
 <t id="1215">%0send incoming message: text=%1 temporary=%2</t>
 <t id="1216">%1%0 move to debris/asteroid %2 and turn turret %3 to target: timeout=%4</t>
-<t id="1217">add blueprints to player HQ: type=%0</t>
-<t id="1218">%0player HQ has blueprints for: type=%1</t>
-<t id="1219">remove blueprints from player HQ: type=%0</t>
-<t id="1220">%0last load time</t>
-<t id="1221">%0ignore collisions: %1</t>
-<t id="1222">%0set pilot morale: %1</t>
-<t id="1223">%0set pilot aggression: %1</t>
 
 <t id="1230">%0open custom menu: title=%1 description=%2 option array=%3</t>
 <t id="1231">%1%0 create passenger in ship: name=%2 race=%3 voice=%4 face=%5</t>
@@ -3505,12 +3641,11 @@ Only return DEBRIS with a {PROPERTY:mineral yield} of $3x or more
 <t id="1237">VARIATION   %0release passenger</t>
 <t id="1238">VARIATION   %1%0 create passenger from pilot: remove pilot from ship=%2</t>
 
-<t id="1245">%1%0 pilot eject from ship</t>
+
 <t id="1250">%1%0 get repair cost of ship %2</t>
-<t id="1300">%0get missile flags of %1</t>
-<t id="1320">%0player has police license for race %1</t>
-<t id="1325">%1%0 get pilot tradeskill</t>
-<t id="1326">%0set pilot tradeskill to %1</t> -->
+
+
+ -->
 </page>
 
 
@@ -3548,9 +3683,7 @@ If the ARRAY contains INTEGERS and STRINGS then the ARRAY is sorted into alphabe
 
   
 <!--$0 create new array, arguments=$1o, $2x, $3y, $4z, $5a-->
-<t id="1415">Creates and returns a new ARRAY containing five values of any type, including NULL.
-
-{ABOUT_COPYING_ARRAYS}
+<t id="1415">Creates and returns a new ARRAY containing up to five values of any type.  Any trailing values of NULL or FALSE will generate a truncated ARRAY of less than five values.{CORRECTION:Jack08}{ABOUT_COPYING_ARRAYS}
 The {COMMAND:create new array} command generates a distinct, independent copy of an ARRAY.
 
 {RELATED_SCRIPT_OBJECT_LIST:Data Types,Data Types}</t>
@@ -3716,6 +3849,11 @@ This command returns NULL if the object $0 is a DOCK, JUMPGATE or ASTEROID.
 {ABOUT_MARINE_STORAGE}
 {RELATED_COMMAND:To determine the maximum number of MARINES that could fit without any cargo,get maximum number of marines,Marines}</t>
 
+<!-- %1%0 get number of decks on ship -->
+<t id="1437">Returns the {PROPERTY:number of decks} of the SHIP $0, which determines it`s capability to resist MARINES while fighting the crew.
+
+{ABOUT_BOARDING_PROCEDURE}</t>
+
 
 <!--$1 $0 get ship boarding defence level-->
 <t id="1438">Returns the {PROPERTY:defence level} of the SHIP $0, which determines it`s capability to prevent MARINES from boarding or cutting through the hull.
@@ -3827,21 +3965,160 @@ Unlike normal boarding methods, this command also allows MARINES to board the {M
 
 
 <!--$1 $0 move marine to board: $2, timeout=$3-->
-<t id="1528">{UNDOCUMENTED}</t>   <!-- 
+<t id="1528">{UNDOCUMENTED}</t>  
+
+
+
+<!-- ********************************************************************************** -->
+<!-- ********************************** X3:TC OBJECT ACTIONS *********************** -->
+<!-- ********************************************************************************** -->
+
+<!-- %0destroy object: killer=%1, show no explosion=%2 -->
+<t id="1341">Destroys the OBJ $0.  If $2 is FALSE and the OBJ is in the same SECTOR as the player then an explosion is shown, otherwise it is not.
+
+The OBJ $1 is registered as responsible for the destruction.
+
+{HEADING:Information}
+
+Destroying an OBJ without an explosion is used for destroying {TERMINOLOGY:OOS} \(Out-of-Sector\) OBJS.</t>
+
+
+<!-- %0jump out of existence -->
+<t id="1370">Destroys the SHIP $0 with the illusion that it jumped away.</t>
 
 
 <!-- ********************************************************************************** -->
 <!-- ********************************** X3:TC OBJECT PROPERTIES *********************** -->
 <!-- ********************************************************************************** -->
 
+<!-- VARIATION   %1%0 is in active sector -->
+<t id="761">Returns TRUE if the OBJ $0 is within the same SECTOR as the player, and FALSE otherwise.
+
+{COMPATIBILITY_2:X3TC,X3AP}</t>
+
+
+<!-- %1%0 is in freight scanning range: ship=%2 -->
+<t id="1345">Returns TRUE if the OBJ $0 is close enough to use a {OBJECT:Freight Scanner} on the SHIP $2, and FALSE otherwise.</t>
+
+
+<!-- %1%0 is in transporter range: ship=%2 -->
+<t id="1346">Returns TRUE if the OBJ $0 is close enough to use a {OBJECT:Transporter} on the SHIP $2, and FALSE otherwise.</t>
+
+
+<!-- %1%0 is in mineral scanner range: asteroid=%2 -->
+<t id="1347">Returns TRUE if the OBJ $0 is close enough to use a {OBJECT:Mineral Scanner} on the ASTEROID $2, and FALSE otherwise.</t>
+
+
+<!-- %1%0 get maker race -->
+<t id="1350">Returns the RACE which {PROPERTY:manufactured} the OBJ $0.</t>
+
+
+<!-- %1%0 get notoriety title to race %2: text=%3 -->
+<t id="1472">Returns the title or index of the {PROPERTY:notoriety rank} between the OBJ $0 and the RACE or CORPORATION $2, as a STRING if $3 is TRUE or an INTEGER if $3 is FALSE.
+
+{ABOUT_NOTORIETY}</t>
+
+
+<!-- %1%0 get notority percentage to race %2 -->
+<t id="1473">Returns the progress of the OBJ $0 towards their next {PROPERTY:notoriety rank} with the RACE or CORPORATION $2, as a percentage.
+
+{ABOUT_NOTORIETY}</t>
+
 
 <!--%1%0 get debris count-->
 <t id="1486">Returns the quantity of {TYPE:collectable rocks} within the {TYPE:debris} $0.</t>		
 
 <!-- ********************************************************************************** -->
+<!-- ********************************** X3:TC PLAYER ********************************** -->
+<!-- ********************************************************************************** -->
+
+<!-- %0get trade rank title: text=%1 -->
+<t id="1468">Returns the title or index of the player`s {PROPERTY:trade rank}, as a STRING if $1 is TRUE or an INTEGER if $1 is FALSE.
+
+{ABOUT_NOTORIETY}</t>
+
+<!-- %0get fight rank title: text=%1 -->
+<t id="1469">Returns the title or index of the player`s {PROPERTY:fight rank}, as a STRING if $1 is TRUE or an INTEGER if $1 is FALSE.
+
+{ABOUT_NOTORIETY}</t>
+
+<!-- %0get trade rank percentage -->
+<t id="1470">Returns the player`s progress towards their next {PROPERTY:trade rank} as a percentage.
+
+{ABOUT_NOTORIETY}</t>
+
+<!-- %0get fight rank precentage -->
+<t id="1471">Returns the player`s progress towards their next {PROPERTY:fight rank} as a percentage.
+
+{ABOUT_NOTORIETY}</t>
+
+
+<!-- %0get mission rank: name=%1 -->
+<t id="1492">Returns the index of the player`s {PROPERTY:notoriety rank} with the CORPORATION $1.
+
+The CORPORATION must be specified with a STRING `L2Corpn00` where 0 &lt; n &lt; 9.
+
+{ABOUT_NOTORIETY}</t>
+
+<!-- set mission rank: name=%0 rank=%1 -->
+<t id="1493">Sets the index of the player`s {PROPERTY:notoriety rank} with the CORPORATION $0 to the INTEGER $1.
+
+The CORPORATION must be specified with a STRING `L2Corpn00` where 0 &lt; n &lt; 9.
+
+{ABOUT_NOTORIETY}
+
+{HEADING:Warning}
+
+The player must have already completed at least one mission with the CORPORATION $0 before this command will function correctly.</t>
+
+
+<!-- %0is player warping -->
+<t id="1519">Returns TRUE if the player is in hyperspace and FALSE otherwise.</t>
+
+
+<!-- ********************************************************************************** -->
+<!-- ********************************** x3:TC PILOTS **************************** -->
+<!-- ********************************************************************************** -->
+
+<!-- %1%0 pilot eject from ship -->
+<t id="1245">Commands the PILOT to eject from the SHIP $0, causing the SHIP $0 to become {PROPERTY:neutral}.</t>
+
+
+<!-- %1%0 move pilot to ship %2: disable=%3 -->
+<t id="1246">{UNDOCUMENTED}</t>
+
+
+<!-- ********************************************************************************** -->
 <!-- ********************************** X3:TC SHIP PROPERTIES ************************* -->
 <!-- ********************************************************************************** -->
   
+<!-- %0set ship speed to %1 -->
+<t id="1332">Sets the {PROPERTY:speed} of the SHIP $0 to $1 {UNITS:m/s}.</t>
+
+
+<!-- %0set laser energy to %1 -->
+<t id="1333">Sets the {PROPERTY:laser energy} of TURRET 0 of the OBJ $0 to $1 {UNITS:joules}.</t>
+  
+
+<!-- %0get freight scanner range -->
+<t id="1342">Returns the range of the {OBJECT:Freight Scanner} in {UNITS:meters}.</t>
+
+
+<!-- %0get transporter range -->
+<t id="1343">Returns the range of the {OBJECT:Transporter} in {UNITS:meters}.</t>
+
+
+<!-- %0get mineral scanner range -->
+<t id="1344">Returns the range of the {OBJECT:Mineral Scanner} in {UNITS:meters}.</t>
+
+
+<!-- %0get maker race: shiptype=%1 -->
+<t id="1349">Returns the RACE which {PROPERTY:manufactures} the SHIP $1.</t>
+
+
+<!-- %1%0 is civilian ship -->
+<t id="1353">Returns TRUE if the SHIP $0 is a {PROPERTY:civilian} ship and FALSE otherwise.</t>
+
 
 <!--$1 $0 can launch marines-->
 <t id="1431">Returns TRUE if the SHIP $0 can launch MARINES without a {OBJECT:Boarding Pod}, otherwise it returns FALSE.
@@ -3856,6 +4133,409 @@ Only the following classes of SHIP are capable of launching MARINES without a {O
 <t id="1432">Returns TRUE if the SHIP $0 can be boarded by MARINES, otherwise it returns FALSE.
 
 {ABOUT_BOARDING_TARGETS}</t>
+
+<!-- %1%0 get ship variation -->
+<t id="1475">Returns the {PROPERTY:variation} of a SHIP $0.  eg. Raider, Sentinel, Vanguard.
+
+Matching titles can be found in page 17, starting with string ID 10,000.</t>
+
+
+<!-- %0get ship variation: subtype=%1 -->
+<t id="1476">Returns the {PROPERTY:variation} of a SHIP of OBJTYPE $1.  eg. Raider, Sentinel, Vanguard.
+
+Matching titles can be found in page 17, starting with string ID 10,000.</t>
+
+
+<!-- %1%0 is missile boat -->
+<t id="1482">{UNDOCUMENTED}</t>
+
+
+<!-- %1%0 is invincible -->
+<t id="1498">Returns TRUE if the OBJ $0 is {PROPERTY:invincible} and FALSE otherwise.
+
+This property can only be set using a {MD} script.</t>
+
+
+<!-- %1%0 get desired speed -->
+<t id="1525">{UNDOCUMENTED}</t>
+
+
+<!-- %0set desired speed: %1 -->
+<t id="1526">{UNDOCUMENTED}</t>
+
+<!-- ********************************************************************************** -->
+<!-- ******************************** X3:TC STATION TRADING**************************** -->
+<!-- ********************************************************************************** -->
+
+
+<!--VANILLA:  VARIATION:  $0 find station: product $1 with best price:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION:  $0 find factory: sells $1 with best price:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="606">Finds and returns the FACTORY selling the WARE $1 at the lowest price.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: product ... with best price}</t>	
+
+
+<!--VANILLA:  VARIATION:  $1 $0 find station: product $2 with best price:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: sells $2 with best price:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<t id="1002">Finds and returns the FACTORY selling the WARE $2 at the lowest price, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,3x}
+{SEARCH_BY_QUANITY_SELL:FACTORIES,4y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: product ... with best price}</t>	
+
+
+
+<!--VANILLA:  VARIATION:  $0 find station: product $1 with min. jumps:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION:  $0 find factory: sells $1 with min. jumps:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="607">Finds and returns the nearest FACTORY selling the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: product ... with min. jumps}</t>	
+
+
+
+<!--VANILLA:  VARIATION:  $1 $0 find station: product $2 with min. jumps:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: sells $2 with min. jumps:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<t id="1003">Finds and returns the nearest FACTORY selling the WARE $2, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,3x}
+{SEARCH_BY_QUANITY_SELL:FACTORIES,4y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: product ... with min. jumps}</t>	
+
+
+
+<!--VANILLA:  VARIATION:  $0 find station: resource $1 with best price: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION:  $0 find factory: buys $1 with best price: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="608">Finds and returns the FACTORY willing to buy the WARE $1 for the highest price.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: resource ... with best price}</t>	
+
+
+<!--VANILLA:  VARIATION:  $1 $0 find station: resource $2 with best price: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: buys $2 with best price: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<t id="1004">Finds and returns the FACTORY willing to buy the WARE $2 for the highest price, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MINIMUM_PRICE:FACTORIES,3x}
+{SEARCH_BY_QUANITY_BUY:FACTORIES,4y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: resource ... with best price}</t>	
+
+
+<!--VANILLA:  VARIATION:  $0 find station: resource $1 with min. jumps: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION:  $0 find factory: buys $1 with min. jumps: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="609">Finds and returns the nearest FACTORY willing to buy the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: resource ... with min. jumps}</t>	
+
+
+<!--VANILLA:  VARIATION:  $1 $0 find station: resource $2 with min. jumps: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: buys $2 with min. jumps: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<t id="1005">Finds and returns the nearest FACTORY willing to buy the WARE $2, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MINIMUM_PRICE:FACTORIES,3x}
+{SEARCH_BY_QUANITY_BUY:FACTORIES,4y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
+{SEARCH_BY_TRADER:FACTORIES,7}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: resource ... with min. jumps}</t>	
+
+
+<!--VANILLA:  VARIATION:  $0 find station sells: resource $1 with best price: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION:  $0 find dock: sells: $1 with best price: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="663">Finds and returns the DOCK selling the WARE $1 at the lowest price.  {SEARCH_RANGE:DOCK,4z,5}
+
+{SEARCH_SYNTAX:DOCK}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
+{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
+{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
+{SEARCH_BY_TRADER:DOCKS,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station sells: resource ... with best price}</t>	
+
+
+<!--VANILLA:  VARIATION:  $1 $0 find other station sells: resource $2 with best price: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<!--XSTUDIO:  VARIATION:  $1 $0 find different dock: sells $2 with best price: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<t id="1006">Finds and returns the DOCK selling the WARE $2 at the lowest price, that isn`t the DOCK $0.  {SEARCH_RANGE:DOCK,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
+
+{SEARCH_SYNTAX:DOCK}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:DOCKS,3x}
+{SEARCH_BY_QUANITY_SELL:DOCKS,4y}
+{SEARCH_EXCLUDE_ARRAY:DOCKS,8}
+{SEARCH_BY_TRADER:DOCKS,7}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station sells: resource ... with best price}</t>	
+
+
+<!--VANILLA:  VARIATION:  $0 find station sells: resource $1 with min. jumps: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION:  $0 find dock: sells $1 with min. jumps: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="664">Finds and returns the nearest DOCK selling the WARE $1.  {SEARCH_RANGE:DOCK,4z,5}
+
+{SEARCH_SYNTAX:DOCK}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
+{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
+{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
+{SEARCH_BY_TRADER:DOCKS,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station sells: resource ... with min. jumps}</t>	
+
+
+<!--VANILLA:  VARIATION:  $1 $0 find station sells: resource $2 with min. jumps: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<!--XSTUDIO:  VARIATION:  $1 $0 find different dock: sells $2 with min. jumps: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
+<t id="1007">Finds and returns the nearest DOCK selling the WARE $2, that isn`t the DOCK $0.  {SEARCH_RANGE:DOCK,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
+
+{SEARCH_SYNTAX:DOCK}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:DOCKS,3x}
+{SEARCH_BY_QUANITY_SELL:DOCKS,4y}
+{SEARCH_EXCLUDE_ARRAY:DOCKS,8}
+{SEARCH_BY_TRADER:DOCKS,7}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station sells: resource ... with min. jumps}</t>	
+
+
+<!--VANILLA:  VARIATION   $0 find station: product $1 with best price depend on jumps:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION   $0 find factory: sells $1 with best chance:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="1169">Finds and returns the FACTORY with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: product ... with best price depend on jumps}</t>	
+
+
+<!--VANILLA:  VARIATION   $0 find station: resource $1 with best price depend on jumps: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION   $0 find factory: buys $1 with best chance: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="1170">Finds and returns the FACTORY with the best combination of high {PROPERTY:ware price} and low {PROPERTY:jump distance} that is willing to buy the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: resource ... with best price depend on jumps}</t>	
+
+
+<!--VANILLA:  VARIATION   $0 find station sells: resource $1 with best price depend on jumps: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION   $0 find dock: sells $1 with best chance: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="1171">Finds and returns the DOCK with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:DOCK,4z,5}
+
+{SEARCH_SYNTAX:DOCK}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
+{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
+{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station sells: resource ... with best price depend on jumps}</t>	
+
+
+<!--VANILLA:  VARIATION   $0 find station: product $1 with best price random:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION   $0 find random factory: sells $1 with best price:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$, exclude array=$76-->
+<t id="1176">Finds and returns a random FACTORY with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{UNDOCUMENTED}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: product ... with best price random}</t>	
+
+
+<!--VANILLA:  VARIATION   $0 find station: resource $1 with best price random: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION   $0 find random factory: buys $1 with best price: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="1177">Finds and returns a random FACTORY with the best combination of high {PROPERTY:ware price} and low {PROPERTY:jump distance} that is willing to buy the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
+
+{SEARCH_SYNTAX:FACTORY}
+
+{UNDOCUMENTED}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
+{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
+{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
+{SEARCH_BY_TRADER:FACTORIES,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station: resource ... with best price random}</t>	
+
+
+<!--VANILLA:  VARIATION   $0 find station sells: resource $1 with best price random: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<!--XSTUDIO:  VARIATION   $0 find random dock: sells $1 with best price: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
+<t id="1178">Finds and returns a random DOCK with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:DOCK,4z,5}
+
+{SEARCH_SYNTAX:DOCK}
+
+{UNDOCUMENTED}
+
+{HEADING:Optional Parameters}
+
+{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
+{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
+{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
+{SEARCH_BY_TRADER:DOCKS,6}{CORRECTION:Jack08}{HEADING:Information}
+
+{ABOUT_JUMP_DISTANCES}
+
+{COMPATIBILITY_2:X3TC,X3AP}
+
+{COMMAND_NAME_CHANGED:find station sells: resource ... with best price random}</t>	
+
 
 
 <!-- ********************************************************************************** -->
@@ -3969,13 +4649,15 @@ This command is useful for creating custom menus
 
 {CONSTANT:\[Find.ExactJumps\]} - This command only searches the SECTOR containing the OBJ $2 or the {PROPERTY:position} $4
 {FLAG_NO_RELATIONS:JUMPGATES}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
 {FLAGS_DEPENDENCY:Expand,Nearest}
 
 {FLAGS_COMBINING:Random,Visible}
+
+{FLAGS_MULTIPLE_NEAREST}
 
 {FLAGS_REFERENCE_REQUIREMENT:2,4}</t>	
 
@@ -4065,454 +4747,81 @@ If $3y is TRUE then only SECTORS {PROPERTY:known} to the player are returned.
 
 All {PROPERTY:jump distances} are zero-based.</t>
 
+<!-- ********************************************************************************** -->
+<!-- ******************************** X3:TC STATION PROPERTY ************************* -->
+<!-- ********************************************************************************** -->
+
+<!-- %1%0 is military outpost -->
+<t id="1484">Returns TRUE if the OBJ $0 is a {OBJECT:Military Output} and FALSE otherwise.</t>
 
 
 <!-- ********************************************************************************** -->
-<!-- ******************************** X3:TC STATION TRADING**************************** -->
+<!-- ******************************** X3:TC UNIVERSE PROPERTY ************************* -->
 <!-- ********************************************************************************** -->
 
+<!-- $0 get notoriety required to buy ware: $1 -->
+<t id="1456">Returns the raw NOTORIETY value required to buy the WARE $1.
 
-<!--VANILLA:  VARIATION:  $0 find station: product $1 with best price:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION:  $0 find factory: sells $1 with best price:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="606">Finds and returns the FACTORY selling the WARE $1 at the lowest price.  {SEARCH_RANGE:FACTORY,4z,5}
+{ABOUT_NOTORIETY}</t>
 
-{SEARCH_SYNTAX:FACTORY}
+<!-- ********************************************************************************** -->
+<!-- ******************************** X3:TC USER INTERFACE ****************************** -->
+<!-- ********************************************************************************** -->
 
-{HEADING:Optional Parameters}
+<!-- %0speak array: %1 prio=%2 -->
+<t id="1510">Plays a sequence of speech clips defined by an array, and displays the STRINGS as subtitles. Each speech clip is defined by a page and string ID contained in consecutive elements of the ARRAY.
 
-{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: product ... with best price}</t>
-
-
-<!--VANILLA:  VARIATION:  $1 $0 find station: product $2 with best price:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: sells $2 with best price:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<t id="1002">Finds and returns the FACTORY selling the WARE $2 at the lowest price, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,3x}
-{SEARCH_BY_QUANITY_SELL:FACTORIES,4y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
-{TODO:Determine what trader is for}
+If {KEYWORD:START} is used, the command returns immediately and the speech clips are played asynchronously.
 
 {HEADING:Information}
 
-{ABOUT_JUMP_DISTANCES}
+Only one set of speech clips can be played at a time, those with a higher priority $2 take precedence over those with a lower priority.
 
-{COMPATIBILITY_2:X3TC,X3AP}
+{RELATED_COMMAND:To generate the array to describe an object,get object name array,Array}</t>
+  
 
-{COMMAND_NAME_CHANGED:find station: product ... with best price}</t>		
+<!-- ********************************************************************************** -->
+<!-- ******************************** X3:TC WARE PROPERTY ****************************** -->
+<!-- ********************************************************************************** -->
 
+<!-- %0is equipment: ware=%1 -->
+<t id="1479">Returns TRUE if the WARE $1 is a {PROPERTY:component} such as {OBJECT:Duplex Scanner} or {OBJECT:5MW Shield} and FALSE otherwise.</t>
 
 
-<!--VANILLA:  VARIATION:  $0 find station: product $1 with min. jumps:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION:  $0 find factory: sells $1 with min. jumps:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="607">Finds and returns the nearest FACTORY selling the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: product ... with min. jumps}</t>		
-
-
-
-<!--VANILLA:  VARIATION:  $1 $0 find station: product $2 with min. jumps:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: sells $2 with min. jumps:  max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<t id="1003">Finds and returns the nearest FACTORY selling the WARE $2, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,3x}
-{SEARCH_BY_QUANITY_SELL:FACTORIES,4y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: product ... with min. jumps}</t>		
-
-
-
-<!--VANILLA:  VARIATION:  $0 find station: resource $1 with best price: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION:  $0 find factory: buys $1 with best price: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="608">Finds and returns the FACTORY willing to buy the WARE $1 for the highest price.  {SEARCH_RANGE:FACTORY,4z,5}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: resource ... with best price}</t>
-
-
-<!--VANILLA:  VARIATION:  $1 $0 find station: resource $2 with best price: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: buys $2 with best price: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<t id="1004">Finds and returns the FACTORY willing to buy the WARE $2 for the highest price, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MINIMUM_PRICE:FACTORIES,3x}
-{SEARCH_BY_QUANITY_BUY:FACTORIES,4y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: resource ... with best price}</t>		
-
-
-<!--VANILLA:  VARIATION:  $0 find station: resource $1 with min. jumps: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION:  $0 find factory: buys $1 with min. jumps: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="609">Finds and returns the nearest FACTORY willing to buy the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: resource ... with min. jumps}</t>		
-
-
-<!--VANILLA:  VARIATION:  $1 $0 find station: resource $2 with min. jumps: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<!--XSTUDIO:  VARIATION:  $1 $0 find different factory: buys $2 with min. jumps: min.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<t id="1005">Finds and returns the nearest FACTORY willing to buy the WARE $2, that isn`t the FACTORY $0.  {SEARCH_RANGE:FACTORY,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MINIMUM_PRICE:FACTORIES,3x}
-{SEARCH_BY_QUANITY_BUY:FACTORIES,4y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,8}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: resource ... with min. jumps}</t>		
-
-
-<!--VANILLA:  VARIATION:  $0 find station sells: resource $1 with best price: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION:  $0 find dock: sells: $1 with best price: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="663">Finds and returns the DOCK selling the WARE $1 at the lowest price.  {SEARCH_RANGE:DOCK,4z,5}
-
-{SEARCH_SYNTAX:DOCK}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
-{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station sells: resource ... with best price}</t>
-
-
-<!--VANILLA:  VARIATION:  $1 $0 find other station sells: resource $2 with best price: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<!--XSTUDIO:  VARIATION:  $1 $0 find different dock: sells $2 with best price: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<t id="1006">Finds and returns the DOCK selling the WARE $2 at the lowest price, that isn`t the DOCK $0.  {SEARCH_RANGE:DOCK,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
-
-{SEARCH_SYNTAX:DOCK}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:DOCKS,3x}
-{SEARCH_BY_QUANITY_SELL:DOCKS,4y}
-{SEARCH_EXCLUDE_ARRAY:DOCKS,8}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station sells: resource ... with best price}</t>		
-
-
-<!--VANILLA:  VARIATION:  $0 find station sells: resource $1 with min. jumps: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION:  $0 find dock: sells $1 with min. jumps: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="664">Finds and returns the nearest DOCK selling the WARE $1.  {SEARCH_RANGE:DOCK,4z,5}
-
-{SEARCH_SYNTAX:DOCK}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
-{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station sells: resource ... with min. jumps}</t>	
-
-
-<!--VANILLA:  VARIATION:  $1 $0 find station sells: resource $2 with min. jumps: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<!--XSTUDIO:  VARIATION:  $1 $0 find different dock: sells $2 with min. jumps: max.price=$3x, amount=$4y, max.jumps=$5z, startsector=$6, trader=$7, exclude array=$8-->
-<t id="1007">Finds and returns the nearest DOCK selling the WARE $2, that isn`t the DOCK $0.  {SEARCH_RANGE:DOCK,5z,6}  {SEARCH_RANGE_DIFFERENT:6,0}
-
-{SEARCH_SYNTAX:DOCK}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:DOCKS,3x}
-{SEARCH_BY_QUANITY_SELL:DOCKS,4y}
-{SEARCH_EXCLUDE_ARRAY:DOCKS,8}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station sells: resource ... with min. jumps}</t>
-
-
-<!--VANILLA:  VARIATION   $0 find station: product $1 with best price depend on jumps:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION   $0 find factory: sells $1 with best chance:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="1169">Finds and returns the FACTORY with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: product ... with best price depend on jumps}</t>		
-
-
-<!--VANILLA:  VARIATION   $0 find station: resource $1 with best price depend on jumps: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION   $0 find factory: buys $1 with best chance: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="1170">Finds and returns the FACTORY with the best combination of high {PROPERTY:ware price} and low {PROPERTY:jump distance} that is willing to buy the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: resource ... with best price depend on jumps}</t>		
-
-
-<!--VANILLA:  VARIATION   $0 find station sells: resource $1 with best price depend on jumps: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION   $0 find dock: sells $1 with best chance: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="1171">Finds and returns the DOCK with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:DOCK,4z,5}
-
-{SEARCH_SYNTAX:DOCK}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
-{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station sells: resource ... with best price depend on jumps}</t>
-
-
-<!--VANILLA:  VARIATION   $0 find station: product $1 with best price random:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION   $0 find random factory: sells $1 with best price:  max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$, exclude array=$76-->
-<t id="1176">Finds and returns a random FACTORY with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{UNDOCUMENTED}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_SELL:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: product ... with best price random}</t>		
-
-
-<!--VANILLA:  VARIATION   $0 find station: resource $1 with best price random: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION   $0 find random factory: buys $1 with best price: min.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="1177">Finds and returns a random FACTORY with the best combination of high {PROPERTY:ware price} and low {PROPERTY:jump distance} that is willing to buy the WARE $1.  {SEARCH_RANGE:FACTORY,4z,5}
-
-{SEARCH_SYNTAX:FACTORY}
-
-{UNDOCUMENTED}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MINIMUM_PRICE:FACTORIES,2x}
-{SEARCH_BY_QUANITY_BUY:FACTORIES,3y}
-{SEARCH_EXCLUDE_ARRAY:FACTORIES,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station: resource ... with best price random}</t>		
-
-
-<!--VANILLA:  VARIATION   $0 find station sells: resource $1 with best price random: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<!--XSTUDIO:  VARIATION   $0 find random dock: sells $1 with best price: max.price=$2x, amount=$3y, max.jumps=$4z, startsector=$5, trader=$6, exclude array=$7-->
-<t id="1178">Finds and returns a random DOCK with the best combination of low {PROPERTY:ware price} and low {PROPERTY:jump distance} that is selling the WARE $1.  {SEARCH_RANGE:DOCK,4z,5}
-
-{SEARCH_SYNTAX:DOCK}
-
-{UNDOCUMENTED}
-
-{HEADING:Optional Parameters}
-
-{SEARCH_BY_MAXIMUM_PRICE:DOCKS,2x}
-{SEARCH_BY_QUANITY_SELL:DOCKS,3y}
-{SEARCH_EXCLUDE_ARRAY:DOCKS,7}
-{TODO:Determine what trader is for}
-
-{HEADING:Information}
-
-{ABOUT_JUMP_DISTANCES}
-
-{COMPATIBILITY_2:X3TC,X3AP}
-
-{COMMAND_NAME_CHANGED:find station sells: resource ... with best price random}</t>		
-
+<!-- %0is upgrade: ware=%1 -->
+<t id="1480">Returns TRUE if the WARE $1 is an {PROPERTY:upgrade} such as {OBJECT:Engine Tunings} or {OBJECT:Police License} and FALSE otherwise.</t>
 
 
 <!-- ********************************************************************************** -->
 <!-- ******************************** X3:TC REMAINING COMMANDS ****************************** -->
 <!-- ********************************************************************************** -->
-  
+
+
 
 <!--
-<t id="761">VARIATION   %1%0 is in active sector</t>
+
 <t id="1233">VARIATION   %1%0 move passenger to ship %2: set passenger as pilot=%3</t>
 <t id="1235">VARIATION   %1%0 enslave passenger</t>
 <t id="1236">VARIATION   %1%0 eject passenger</t>
 <t id="1237">VARIATION   %1%0 destroy passenger</t>
 <t id="1238">VARIATION   %1%0 add pilot of ship %2 as passenger: disable ship=%3</t>
-<t id="1246">%1%0 move pilot to ship %2: disable=%3</t>
+
 <t id="1327">%1%0 fire missile %4 from turret %2 on %3</t>
 <t id="1328">%1%0 find nearest enemy ship in range: class=%2</t>
 <t id="1329">%1%0 get user input: type=%2, title=%3</t>
 <t id="1330">%1%0 select best lasers for target %2 in turret %3: scan for friends %4</t>
-<t id="1332">%0set ship speed to %1</t>
-<t id="1333">%0set laser energy to %1</t>
+
 <t id="1335">%0move player to ship %1: Teleport=%2</t>
 <t id="1339">%0add secondary signal: signal=%1, script=%2, prio=%3, name=%4</t>
 <t id="1340">%0remove secondary signal: signal=%1, name=%2</t>
-<t id="1341">%0destroy object: killer=%1, show no explosion=%2</t>
-<t id="1342">%0get freight scanner range</t>
-<t id="1343">%0get transporter range</t>
-<t id="1344">%0get mineral scanner range</t>
-<t id="1345">%1%0 is in freight scanning range: ship=%2</t>
-<t id="1346">%1%0 is in transporter range: ship=%2</t>
-<t id="1347">%1%0 is in mineral scanner range: asteroid=%2</t>
+
+
+
 <t id="1348">%0create a new flight wing: name=%1 race=%2</t>
-<t id="1349">%0get maker race: shiptype=%1</t>
-<t id="1350">%1%0 get maker race</t>
+
 <t id="1351">%0add to flight wing: wing=%1</t>
 <t id="1352">%1%0 get ware storage percentage: ware=%2</t>
-<t id="1353">%1%0 is civilian ship</t>
+
 <t id="1354">disband flight wing: wing=%0</t>
 <t id="1355">%0find flight wing: name=%1 race=%2</t>
 <t id="1356">%0get flight wing ship array: wing=%1</t>
@@ -4529,7 +4838,7 @@ All {PROPERTY:jump distances} are zero-based.</t>
 <t id="1367">%0set emergency jump active: %1</t>
 <t id="1368">%1%0 get emergency jump minimum shield threshold</t>
 <t id="1369">%0autojump emergency jump shield threshold= %1\%</t>
-<t id="1370">%0jump out of existence</t>
+
 <t id="1371">%0add default wares to station/dock</t>
 <t id="1373">%1%0 get missile resupply: missile=%2</t>
 <t id="1374">%0set missile resupply: missile=%1 amount=%2</t>
@@ -4578,9 +4887,8 @@ All {PROPERTY:jump distances} are zero-based.</t>
 <t id="1429">%1%0 can transport passenger: %2</t>
 <t id="1435">%1%0 get temporarily removed ship array from wing</t>
 <t id="1436">%0get all global variable keys, starting with=%1</t>
-<t id="1437">%1%0 get number of decks on ship</t>
-<t id="1438">%1%0 get ship boarding defence level</t>
-<t id="1439">%1%0 get hacking security level</t>
+
+
 <t id="1444">%0create custom menu array, info lines=%1, %2, %3, %4, %5</t>
 <t id="1445">%0create custom menu array</t>
 <t id="1446">add custom menu info line to array %0: text=%1</t>
@@ -4591,35 +4899,24 @@ All {PROPERTY:jump distances} are zero-based.</t>
 <t id="1452">%1%0 get compatible laser array: turret=%2</t>
 <t id="1454">%1%0 can buy ware %2 at station %3</t>
 <t id="1455">%1%0 can buy ware %2 from race %3</t>
-<t id="1456">%0get notority require to buy ware: %1</t>
+
 <t id="1462">%1%0 get next available task: starting=%2</t>
 <t id="1463">add ship custom command: id=%0</t>
 <t id="1464">remove ship custom command: id=%0</t>
 <t id="1465">%0ship custom command exists: id=%1</t>
 <t id="1466">set ship command preload script: command=%0 script=%1</t>
 <t id="1467">set wing command preload script: wing command=%0 script=%1</t>
-<t id="1468">%0get trade rank title: text=%1</t>
-<t id="1469">%0get fight rank title: text=%1</t>
-<t id="1470">%0get trade rank percentage</t>
-<t id="1471">%0get fight rank precentage</t>
-<t id="1472">%1%0 get notoriety title to race %2: text=%3</t>
-<t id="1473">%1%0 get notority percentage to race %2</t>
-<t id="1475">%1%0 get ship variation</t>
-<t id="1476">%0get ship variation: subtype=%1</t>
-<t id="1479">%0is equipment: ware=%1</t>
-<t id="1480">%0is upgrade: ware=%1</t>
+
 <t id="1481">%1%0 launch boarding pod at target: victim=%2 marines=%3</t>
-<t id="1482">%1%0 is missile boat</t>
+
 <t id="1483">%1%0 can turret %2 fire missiles</t>
-<t id="1484">%1%0 is military outpost</t>
+
 <t id="1487">set discovered status: type=%0 status=%1</t>
 <t id="1488">%0has %1 been discovered</t>
 <t id="1489">%0open custom info menu: title=%1 description=%2 option array=%3 maxoptions=%4</t>
 <t id="1490">capture screen</t>
 <t id="1491">set monitor mode and viewpoint: monitor=%0 cockpit=%1 mode=%2 alpha=%3 beta=%4 gamma=%5 range=%6</t>
-<t id="1492">%0get mission rank: name=%1</t>
-<t id="1493">set mission rank: name=%0 rank=%1</t>
-<t id="1498">%1%0 is invincible</t>
+
 <t id="1499">%1%0 get compatible missile array</t>
 <t id="1500">%1%0 get resupply fuel required</t>
 <t id="1502">%1%0 get all formation followers</t>
@@ -4628,16 +4925,15 @@ All {PROPERTY:jump distances} are zero-based.</t>
 <t id="1507">%1%0 get boarding shield threshold</t>
 <t id="1508">%1%0 get maximum laser range: turret=%2</t>
 <t id="1509">%1%0 get minimum laser range: turret=%2</t>
-<t id="1510">%0speak array: %1 prio=%2</t>
+
 <t id="1511">%0register hotkey %1 to call script name %2</t>
 <t id="1517">%1%0 get number of wing formation leaders</t>
 <t id="1518">%1%0 get max number of ships per wing formation</t>
-<t id="1519">%0is player warping</t>
+
 <t id="1520">%1%0 get compatible missile array from cargobay</t>
 <t id="1522">add section to custom menu: %0</t>
 <t id="1523">%0create text for custom menu, left=%1, right=%2</t>
-<t id="1525">%1%0 get desired speed</t>
-<t id="1526">%0set desired speed: %1</t>
+
 <t id="1527">add value selection to menu: %0, text=%1, value array=%2, default=%3, return id=%4</t>
 <t id="1529">%0get subtype integer of data [ %1 ]</t>
 <t id="1530">%1%0 get user input without sector: type=%2, title=%3</t>
@@ -4726,13 +5022,15 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 
 {CONSTANT:\[Find.ExactJumps\]} - This command only searches the SECTOR containing the OBJ $2 or the {PROPERTY:position} $4
 {FLAG_NO_RELATIONS:JUMPGATES}
-{FLAGS_MUTUTALLY_EXCLUSIVE_3:Nearest,Random,Multiple}
+{FLAGS_MUTUTALLY_EXCLUSIVE_2:Nearest,Random}
 
 {HEADING:Information}
 
 {FLAGS_DEPENDENCY:Expand,Nearest}
 
 {FLAGS_COMBINING:Random,Visible}
+
+{FLAGS_MULTIPLE_NEAREST}
 
 {FLAGS_REFERENCE_REQUIREMENT:2,4}</t>		
 
@@ -4859,6 +5157,7 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="11">DOCKEDAT</t>
 -->
 
+<!-- *************** FORMATIONS *************** -->
 
 <!--Formation.Delta-->
 <t id="100">The SHIPS fly in a horizontal `wing` FORMATION, with the FORMATIONLEADER in the lead, and {PROPERTY:followers} trailing slightly on each side.</t>
@@ -4880,58 +5179,6 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="104">A randomly selected FORMATION.</t>
 
 
-
-
-<!--Find.Random-->
-<t id="105">Used as a flag in any search command to locate a random object matching the specified criteria.
-
-{RELATED_COMMAND_LIST:search,Universe Data}</t>     
-
-
-<!--Find.Nearest-->  
-<t id="106">Used as a flag in any search command to locate the nearest object to the {PARAMETER:Reference Object} matching the specified criteria.
-
-{RELATED_COMMAND_LIST:search,Universe Data}</t>      
-
-
-<!--Find.ExactJumps-->
-<t id="107">Used as a flag in the {COMMAND:find station in galaxy} commands to locate STATIONS that are a precise number of jumps away.
-
-{RELATED_COMMAND_LIST:search,Universe Data}</t>   
-
-
-<!--Find.Enemy-->
-<t id="108">Used as a flag in any search command to locate objects that are enemies of the {PARAMETER:Reference Object}.
-
-{RELATED_COMMAND_LIST:search,Universe Data}</t>   
-
-
-<!--Find.Neutral-->
-<t id="109">Used as a flag in any search command to locate objects that are neutral towards the {PARAMETER:Reference Object}.
-
-{RELATED_COMMAND_LIST:search,Universe Data}</t>   
-
-
-<!--Find.Friend-->
-<t id="110">Used as a flag in any search command to locate objects that are friends of the {PARAMETER:Reference Object}.
-
-{RELATED_COMMAND_LIST:search,Universe Data}</t>   
-
-
-<!--Find.Multiple-->
-<t id="111">Used as a flag in all search commands except {COMMAND:find station in galaxy} to locate multiple objects matching the specified criteria.  Using this flag results in the search command returning an ARRAY of objects instead of a single object.
-
-{RELATED_COMMAND_LIST:search,Universe Data}</t>    
-
-
-<!--Find.TypeAsWareCategory-->
-<t id="112">This FLAG is not used.</t>
-
-
-
-
-
-
 <!--Formation.XDelta-->
 <t id="113">The SHIPS fly in a vertical X FORMATION, with the FORMATIONLEADER in the lead, and {PROPERTY:followers} trailing slightly in the NE, NW, SE and SW directions.</t>
 
@@ -4940,60 +5187,194 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="114">The SHIPS fly in a FORMATION similar to a pyramid rotated by 90º, with the FORMATIONLEADER in the lead as the `tip` of the pyramid, and the {PROPERTY:followers} occupying the `body` of the pyramid.</t>
 
 
+<!--
+<t id="136">Formation.DragonClaw</t>
+<t id="137">Formation.TheShield</t>
+-->
 
+<!-- ********************************* SEARCH FLAGS ***************************** -->
+
+<!--Find.Random-->
+<t id="105">Used as a flag in any search command to return an OBJ matching the specified criteria at random.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>     
+
+
+<!--Find.Nearest-->  
+<t id="106">Used as a flag in any search command to return the OBJ nearest to the {PARAMETER:Reference Object}.
+
+{FLAGS_MULTIPLE_NEAREST}
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>      
+
+
+<!--Find.ExactJumps-->
+<t id="107">Used as a flag in the {COMMAND:find station in galaxy} commands to return STATIONS that are a precise {PROPERTY:jump distance} from the {PARAMETER:Reference Object}.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>   
+
+
+<!--Find.Enemy-->
+<t id="108">Used as a flag in any search command to return OBJS that are {PROPERTY:enemies} of the {PARAMETER:Reference Object}.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>   
+
+
+<!--Find.Neutral-->
+<t id="109">Used as a flag in any search command to return OBJS that are {PROPERTY:neutral} towards the {PARAMETER:Reference Object}.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>   
+
+
+<!--Find.Friend-->
+<t id="110">Used as a flag in any search command to return OBJS that are {PROPERTY:friends} of the {PARAMETER:Reference Object}.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>   
+
+
+<!--Find.Multiple-->
+<t id="111">Used as a flag in all search commands except {COMMAND:find station in galaxy} to return multiple OBJS matching the specified criteria.  Using this flag results in the search command returning an ARRAY of OBJS instead of a single OBJ.
+
+{FLAGS_MULTIPLE_NEAREST}
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>    
+
+
+<!--Find.TypeAsWareCategory-->
+<t id="112">This FLAG is not used.</t>
 
 
 <!--Find.IllegalWare-->
-<t id="115">Used as a search flag in the {COMMAND:find flying ware} command to locate containers containing illegal wares.
+<t id="115">Used as a search flag in the {COMMAND:find flying ware} command to return FLYINGWARES containing {PROPERTY:illegal} cargo.
 
 {RELATED_COMMAND_LIST:search,Universe Data}</t> 
+
+
+<!-- Find.ForceUsePos -->
+<t id="116">{UNDOCUMENTED}</t>
+
+
+<!-- Find.Known -->
+<t id="123">Used as a flag in many search commands to return only OBJS that have been detected by the player at least once.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+
+<!-- Find.IncludeDocked -->
+<t id="124">Used as a flag in the {COMMAND:find ship} commands to also return SHIPS that are {PROPERTY:docked}.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+
+<!-- Find.RaceLogicEnabled -->
+<t id="125">Used as a flag in the {COMMAND:find ship} commands to return only SHIPS that are currently controlled by {PROPERTY:race logic}.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+
+<!-- Find.Visible -->
+<t id="126">Used as a flag in many search commands to return only OBJS that are within scanner range of the {PARAMETER:Reference Object}.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+
+<!-- Find.SEN -->
+<t id="127">{UNDOCUMENTED}</t>
+
+<!-- Find.HEN -->
+<t id="128">{UNDOCUMENTED}</t>
+
+<!-- Find.SON -->
+<t id="129">{UNDOCUMENTED}</t>
+
+
+<!-- Find.DockingAllowed -->
+<t id="131">Used as a flag in the {COMMAND:find station} commands to return only STATIONS at which the {PARAMETER:Reference Object} may dock.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+
+<!-- Find.WingOnly -->
+<t id="132">Used as a flag in the {COMMAND:find ship} commands to return only SHIPS that are currently within a WING.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+
+<!-- Find.JumpableGate -->
+<t id="134">Used as a flag in the {COMMAND:find gate} commands to exclude {OBJECT:Transorbital Accelerators} from the results.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+
+<!-- Find.Expand -->
+<t id="135">Used as a flag in the {COMMAND:find gate} commands to request adjacent SECTORS be searched until a matching JUMPGATE is found.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+<!-- Find.JumpBeacons -->
+<t id="138">Used as a flag in the {COMMAND:find gate} commands to return {OBJECT:Jump Beacons} as well as JUMPGATES.
+
+{RELATED_COMMAND_LIST:search,Universe Data}</t>
+
+<!-- *************** COMMAND CONSOLE FLAGS *************** -->
+
+
+<!-- CmdConCheck.Available -->
+<t id="117">Returned by the `check script` used by the {COMMAND:set script command upgrade} commands to indicate the specified {TYPE:object command} is enabled.</t>
+
+<!-- CmdConCheck.Disabled -->
+<t id="118">Returned by the `check script` used by the {COMMAND:set script command upgrade} commands to indicate the specified {TYPE:object command} is disabled.</t>
+
+<!-- CmdConCheck.OneTime -->
+<t id="119">Returned by the `check script` used by the {COMMAND:set script command upgrade} commands to indicate the status of the specified {TYPE:object command} should only be checked when the `commands` menu is opened.</t>
+
+<!-- CmdConCheck.Infinite -->
+<t id="120">Returned by the `check script` used by the {COMMAND:set script command upgrade} commands to indicate the status of the specified {TYPE:object command} should be checked continuously while the `commands` menu is open.</t>
+
+<!-- CmdConCheck.NeedHomeStation -->
+<t id="121">Returned by the `check script` used by the {COMMAND:set script command upgrade} commands to indicate the specified {TYPE:object command} can only be executed on OBJS with a STATION for a {PROPERTY:homebase}.</t>
+
+<!-- CmdConCheck.NeedHomeBase -->
+<t id="122">Returned by the `check script` used by the {COMMAND:set script command upgrade} commands to indicate the specified {TYPE:object command} can only be executed on OBJS with a {PROPERTY:homebase}.</t>
+
+
+<!-- CmdConCheck.NoAudioConfirmation -->
+<t id="130">{UNDOCUMENTED}</t>
+
+
+<!-- CmdConCheck.NoTempRemove -->
+<t id="133">{UNDOCUMENTED}</t>
+
+
+<!-- CmdConCheck.WingAllShips -->
+<t id="3038">{UNDOCUMENTED}</t>
+
+<!-- CmdConCheck.NoVoice -->
+<t id="3050">{UNDOCUMENTED}</t>
+
+<!-- CmdConCheck.NeedFleet -->
+<t id="3051">{UNDOCUMENTED}</t>
+
+
+
+<!-- ***************  MAIN TYPES *************** -->
+
 <!--
-
-<t id="116">Find.ForceUsePos</t>
-
-<t id="117">CmdConCheck.Available</t>
-<t id="118">CmdConCheck.Disabled</t>
-<t id="119">CmdConCheck.OneTime</t>
-<t id="120">CmdConCheck.Infinite</t>
-<t id="121">CmdConCheck.NeedHomeStation</t>
-<t id="122">CmdConCheck.NeedHomeBase</t>
-
-<t id="123">Find.Known</t>
-<t id="124">Find.IncludeDocked</t>
-<t id="125">Find.RaceLogicEnabled</t>
-<t id="126">Find.Visible</t>
-<t id="127">Find.SEN</t>
-<t id="128">Find.HEN</t>
-<t id="129">Find.SON</t>
-
-<t id="130">CmdConCheck.NoAudioConfirmation</t>
-
-<t id="131">Find.DockingAllowed</t>
-<t id="132">Find.WingOnly</t>
-
-<t id="133">CmdConCheck.NoTempRemove</t>
-
-<t id="134">Find.JumpableGate</t>
-<t id="135">Find.Expand</t>
-
-<t id="136">Formation.DragonClaw</t>
-<t id="137">Formation.TheShield</t>
-
-<t id="138">Find.JumpBeacons</t>
-
 <t id="200">SSTYPE_BULLET</t>
 <t id="201">SSTYPE_SPACE</t>
 <t id="202">SSTYPE_BACKGROUND</t>
 <t id="203">SSTYPE_SUN</t>
 <t id="204">SSTYPE_PLANET</t>
-
-
 -->
+
+
 <!--SSTYPE_DOCK-->
 <t id="205">[b]Docks[/b] are STATIONS that trade items but do not produce them.  {OBJECT:Trading Stations}, {OBJECT:Equipment Docks}, {OBJECT:Pirate Bases} and {OBJECT:Military Outposts} are all examples of [b]Docks[/b].</t>
 
 <!--SS_TYPE_FACTORY-->
 <t id="206">[b]Factories[/b] are STATIONS that buy resources and sell products.  {OBJECT:Solar Power Plants}, {OBJECT:Crystal Fabs}, {OBJECT:Space Fuel Distilleries} and {OBJECT:Silicon Mines} are all examples of [b]Factories[/b].</t>
+
+
 <!--
 <t id="207">SSTYPE_SHIP</t>
 <t id="208">SSTYPE_LASER</t>
@@ -5015,10 +5396,56 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="224">SSTYPE_COMMAND</t>
 <t id="225">SSTYPE_COCKPIT</t>
 <t id="226">SSTYPE_DATATYPE</t>
-<t id="300">IncomingTransmission.SOS</t>
-<t id="301">IncomingTransmission.Message</t>
-<t id="302">IncomingTransmission.Greeting</t>
-<t id="303">IncomingTransmission.Scanned</t>
+-->
+
+<!-- *************** TRANSMISSIONS *************** -->
+
+<!-- IncomingTransmission.SOS -->
+<t id="300">Used in the {COMMAND:play sample: incoming transmission} command to play the `Emergency message from xyz` speech clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+<!-- IncomingTransmission.Message -->
+<t id="301">Used in the {COMMAND:play sample: incoming transmission} command to play the `Incoming message` speech clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+<!-- IncomingTransmission.Greeting -->
+<t id="302">Used in the {COMMAND:play sample: incoming transmission} command to play the `We are being hailed` speech clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+<!-- IncomingTransmission.Scanned -->
+<t id="303">Used in the {COMMAND:play sample: incoming transmission} command to play the `We are scanned` speech clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+
+<!-- Comm.DLG_C_START_FIGHTING -->
+<t id="2004">Used in the {COMMAND:send audio message to player} command to display the `we are about to attack` video clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+<!-- Comm.DLG_POL_ILLEGAL_GOODS -->
+<t id="2075">Used in the {COMMAND:send audio message to player} command to display the `illegal goods detected` video clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+<!-- Comm.DLG_POL_LAST_WARNING -->
+<t id="2076">Used in the {COMMAND:send audio message to player} command to display the `this is your last warning` video clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+<!-- Comm.DLG_POL_LEGAL_GOODS -->
+<t id="2077">Used in the {COMMAND:send audio message to player} command to display the `no illegal goods detected` video clip.
+
+{RELATED_COMMAND_LIST:audio and video,User Interface}</t>
+
+-->
+
+<!-- *************** START ACTIONS *************** -->
+
+<!--
 <t id="400">ACTION_NONE</t>
 <t id="401">ACTION_START_IN_STATION</t>
 <t id="402">ACTION_LAND_IN_STATION</t>
@@ -5038,6 +5465,11 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="420">ACTION_FLY_TO_POSITION_CONTINUE</t>
 <t id="421">ACTION_JUMP</t>
 <t id="422">ACTION_BOARD</t>
+-->
+
+<!-- *************** QUEST FLAGS *************** -->
+
+<!--
 <t id="500">Quest.Offered</t>
 <t id="501">Quest.Accepted</t>
 <t id="502">Quest.Continued</t>
@@ -5048,18 +5480,29 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="507">Quest.Event.Attacked</t>
 <t id="508">Quest.Event.Killed</t>
 <t id="509">Quest.Event.Captured</t>
+-->
+
+<!-- *************** SPECIAL *************** -->
+
+<!--
 <t id="1000">GalaxyFlightTimestep.Normal</t>
 <t id="1001">GalaxyFlightTimestep.Focus</t>
-<t id="2004">Comm.DLG_C_START_FIGHTING</t>
-<t id="2075">Comm.DLG_POL_ILLEGAL_GOODS</t>
-<t id="2076">Comm.DLG_POL_LAST_WARNING</t>
-<t id="2077">Comm.DLG_POL_LEGAL_GOODS</t>
+-->
+
+<!-- *************** MESSAGE FLAGS *************** -->
+
+<!--
 <t id="3000">Msg.Display</t>
 <t id="3001">Msg.NoVoice</t>
 <t id="3002">Msg.Silent</t>
 <t id="3003">Msg.LogEntry</t>
 <t id="3004">Msg.Temporary</t>
 <t id="3005">Msg.Plot</t>
+-->
+
+<!-- *************** MISSILE FLAGS *************** -->
+
+<!--
 <t id="3020">Missile.NoTarget</t>
 <t id="3021">Missile.Dumbfire</t>
 <t id="3022">Missile.Swarm</t>
@@ -5069,6 +5512,11 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="3026">Missile.Triggerboom</t>
 <t id="3027">Missile.Torpedo</t>
 <t id="3028">Missile.Remote</t>
+-->
+
+<!-- *************** WING IDS *************** -->
+
+<!--
 <t id="3030">Wing.Gold</t>
 <t id="3031">Wing.Red</t>
 <t id="3032">Wing.Blue</t>
@@ -5077,9 +5525,11 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 <t id="3035">Wing.White</t>
 <t id="3036">Wing.Silver</t>
 <t id="3037">Wing.Orange</t>
-<t id="3038">CmdConCheck.WingAllShips</t>
-<t id="3050">CmdConCheck.NoVoice</t>
-<t id="3051">CmdConCheck.NeedFleet</t>
+-->
+
+<!-- *************** BULLET TYPES *************** -->
+
+<!--
 <t id="3060">Bullet.Smoke</t>
 <t id="3061">Bullet.Beam</t>
 <t id="3062">Bullet.Lightning</t>
@@ -5116,7 +5566,7 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
   
 <page id="2006" title="Object Classes">
 
-<t id="1001">Unique objects used in the plot</t>       <!--Special-->
+<t id="1001">Components of the galaxy such as PLANETS, {TYPE:stars} and NEBULAE, as well as unique objects used in the plot.</t>       <!--Special-->
 <t id="1650">{UNDOCUMENTED}</t>       <!--Debris-->
 <t id="2088">{UNDOCUMENTED}</t>       <!--Debris-->
 <t id="1652">{UNDOCUMENTED}</t>       <!--Wreck-->
@@ -5162,7 +5612,7 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 {HEADING:Hierarchy}
 [center]{COMMAND:Missile}[/center]</t>             <!--Missile-->
 
-
+<!--Station-->
 <t id="2016">Any Dock, Factory or Shipyard.
 
 {HEADING:Hierarchy}
@@ -5170,9 +5620,9 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 
 |
 
-{CLASS:Dock}\t{CLASS:Factory}\t{CLASS:Shipyard}[/center]</t>      <!--Station-->
+{CLASS:Dock}\t{CLASS:Factory}\t{CLASS:Shipyard}[/center]</t>      
 
-
+<!--Factory-->
 <t id="2006">A FACTORY is defined as a STATION that buys RESOURCES and sells PRODUCTS, wheras a DOCK sells RESOURCES and has no PRODUCTS.
 
 {HEADING:Hierarchy}
@@ -5184,12 +5634,13 @@ The INTEGER $3 probably specifies to what extent nearby SECTORS are included.
 
 |
 
-{CLASS:Shipyard}[/center]
+{CLASS:Shipyard}\t{CLASS:Complex Hub}[/center]
 {HEADING:Related}
 
-See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more information.</t>      <!--Factory-->
+See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more information.</t>      
 
 
+<!--Dock-->
 <t id="2007">A DOCK is defined as a STATION that sells RESOURCES and has no PRODUCTS, whereas a FACTORY buys RESOURCES and sells PRODUCTS.
 
 {HEADING:Hierarchy}
@@ -5206,10 +5657,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 {CLASS:Pirate Dock}\t{CLASS:Museum Dock}\t{CLASS:Kh`ahk Dock}[/center]
 {HEADING:Related}
 
-See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more information.</t>    <!--Dock-->
+See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more information.</t>    
 
 
-
+<!--Shipyard-->
 <t id="2037">Any SHIPYARD of any size and RACE.
 
 {HEADING:Hierarchy}
@@ -5221,9 +5672,9 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{CLASS:Small Shipyard}\t{CLASS:Large Shipyard}[/center]</t>     <!--Shipyard-->
+{CLASS:Small Shipyard}\t{CLASS:Large Shipyard}[/center]</t>     
 
-
+<!--Small Shipyard-->
 <t id="2081">Any SHIPYARD that trades in the smallest of SHIPS, such as the {OBJECT:Federal Argon Wharf}.
 
 {HEADING:Hierarchy}
@@ -5231,9 +5682,9 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Small Shipyard}[/center]</t>       <!--Small Shipyard-->
+{COMMAND:Small Shipyard}[/center]</t>       
 
-
+<!--Big Shipyard-->
 <t id="2082">Any SHIPYARD that trades in the largest of SHIPS, such as the {OBJECT:Federal Argon Shipyard}.
 
 {HEADING:Hierarchy}
@@ -5241,12 +5692,25 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Big Shipyard}[/center]</t>       <!--Big Shipyard-->
+{COMMAND:Big Shipyard}[/center]</t>       
 
 
+<!--Scrapyard-->
+<t id="2086">{UNDOCUMENTED}</t>       
 
-<t id="2086">{UNDOCUMENTED}</t>       <!--Scrapyard-->
-<t id="2044">{UNDOCUMENTED}</t>       <!--Complex Hub-->
+
+<!--Complex Hub-->
+<t id="2044">A connected set of FACTORIES.
+
+{HEADING:Hierarchy}
+[center]{CLASS:Factory}
+
+|
+
+{COMMAND:Complex Hub}[/center]
+{SUBMISSION:Nekomata}</t>       
+
+
 <t id="2045">{UNDOCUMENTED}</t>       <!--Player Headquarters-->
 <t id="2046">{UNDOCUMENTED}</t>       <!--Headquarters-->
 
@@ -5319,7 +5783,7 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 
 
-
+<!--Ship-->
 <t id="2004">Any Ship, Astonaut, Satellite, Mine, Orbital Laser, Space Fly, Drone or UFO in the game.
 
 {HEADING:Hierarchy}
@@ -5329,10 +5793,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 {CLASS:Moveable Ship}\t{CLASS:Stationary Ship}
 
-{CLASS:Special Ship}\t{CLASS:Astronaut}\t{CLASS:UFO}[/center]</t>    <!--Ship-->
+{CLASS:Special Ship}\t{CLASS:Astronaut}\t{CLASS:UFO}[/center]</t>    
 
 
-
+<!--Moveable Ship-->
 <t id="2134">Any SHIP with the capability to move. ie. All SHIPS except satellites, mines and orbital LASERS.
 
 {HEADING:Hierarchy}
@@ -5344,10 +5808,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{CLASS:Little Ship}\t{CLASS:Big Ship}\t{CLASS:Huge Ship}\t{CLASS:Drone}[/center]</t>      <!--Moveable Ship-->
+{CLASS:Little Ship}\t{CLASS:Big Ship}\t{CLASS:Huge Ship}\t{CLASS:Drone}[/center]</t>      
  
 
-
+<!--Stationary Ship-->
 <t id="2135">Most of the small stationary objects that can be {PROPERTY:player owned}.
 
 {HEADING:Hierarchy}
@@ -5359,11 +5823,11 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{CLASS:Mine}\t{CLASS:Orbital Laser}\t{CLASS:Satellite}[/center]</t>       <!--Stationary Ship-->
+{CLASS:Mine}\t{CLASS:Orbital Laser}\t{CLASS:Satellite}[/center]</t>       
 
 
 
-
+<!--Huge Ship-->
 <t id="2019">Any SHIP that is significantly larger than most ships in the game, such as {M1_OBJECT}, {M2_OBJECT} and {TL_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5375,10 +5839,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{CLASS:Carrier}[/center]</t>       <!--Huge Ship-->
+{CLASS:Carrier}[/center]</t>       
 
 
-
+<!--Carrier-->
 <t id="2033">Any SHIP that can contain smaller ships.
 
 {HEADING:Hierarchy}
@@ -5392,10 +5856,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 {M1_CLASS}\t{M2_CLASS}
 
-{TL_CLASS}[/center]</t>     <!--Carrier-->
+{TL_CLASS}[/center]</t>     
   
 
-
+<!--Big Ship-->
 <t id="2073">Any SHIP that is large enough to contain smaller SHIPS, but is not gigantic.
 
 {HEADING:Hierarchy}
@@ -5409,10 +5873,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 {M6_CLASS}\t{M8_CLASS}
 
-{TM_CLASS}[/center]</t>       <!--Big Ship-->
+{TM_CLASS}[/center]</t>       
 
 
-
+<!--Little Ship-->
 <t id="2133">Any SHIP too small to contain other SHIPS, such as fighters and transports.
 
 {HEADING:Hierarchy}
@@ -5426,11 +5890,11 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 {CLASS:Fighter}\t{TS_CLASS}
 
-{TP_CLASS}[/center]</t>     <!--Little Ship-->
+{TP_CLASS}[/center]</t>     
   
 
 
-
+<!--Fighter-->
 <t id="2034">Any type of Fighter.
 
 {HEADING:Hierarchy}
@@ -5444,14 +5908,14 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 {M3_CLASS}\t{M4_CLASS}
 
-{M5_CLASS}[/center]</t>       <!--Fighter-->
+{M5_CLASS}[/center]</t>       
 
   
-  
-<t id="2038">{UNDOCUMENTED}</t>     <!--Freighter-->
+<!--Freighter-->
+<t id="2038">{UNDOCUMENTED}</t>     
   
 
-
+<!--M0-->
 <t id="2020">Any type of {M0_OBJECT} - A unique size of vessel only used in the {X2} plot.
 
 {HEADING:Hierarchy}
@@ -5459,10 +5923,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M0}[/center]</t>       <!--M0-->
+{COMMAND:M0}[/center]</t>       
 
 
-
+<!--M1-->
 <t id="2021">Any type of {M1_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5470,10 +5934,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M1}[/center]</t>          <!--M1-->
+{COMMAND:M1}[/center]</t>          
 
 
-
+<!--M2-->
 <t id="2022">Any type of {M2_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5481,10 +5945,9 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M2}[/center]</t>           <!--M2-->
+{COMMAND:M2}[/center]</t>           
 
-
-
+<!--M3-->
 <t id="2023">Any type of {M3_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5492,10 +5955,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M3}[/center]</t>       <!--M3-->
+{COMMAND:M3}[/center]</t>       
 
 
-
+<!--M4-->
 <t id="2024">Any type of {M4_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5503,10 +5966,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M4}[/center]</t>      <!--M4-->
+{COMMAND:M4}[/center]</t>      
 
 
-
+<!--M5-->
 <t id="2025">Any type of {M5_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5514,10 +5977,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M5}[/center]</t>       <!--M5-->
+{COMMAND:M5}[/center]</t>       
 
 
-
+<!--M6-->
 <t id="2026">Any type of {M6_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5525,10 +5988,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M6}[/center]</t>             <!--M6-->
+{COMMAND:M6}[/center]</t>             
 
 
-
+<!--M7-->
 <t id="2027">Any type of {M7_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5536,10 +5999,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M7}[/center]</t>                  <!--M7-->
+{COMMAND:M7}[/center]</t>                  
 
 
-
+<!--M8-->
 <t id="2142">Any type of {M8_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5547,10 +6010,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:M8}[/center]</t>                   <!--M8-->
+{COMMAND:M8}[/center]</t>                   
 
 
-
+<!--TM-->
 <t id="2141">Any type of {TM_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5558,10 +6021,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:TM}[/center]</t>    <!--TM-->
+{COMMAND:TM}[/center]</t>    
 
 
-
+<!--TS-->
 <t id="2031">Any type of {TS_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5573,10 +6036,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{PTS_CLASS}[/center]</t>        <!--TS-->
+{PTS_CLASS}[/center]</t>        
 
 
-
+<!--TP-->
 <t id="2030">Any type of {TP_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5584,10 +6047,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:TP}[/center]</t>   <!--TP-->
+{COMMAND:TP}[/center]</t>   
 
 
-
+<!--TL-->
 <t id="2032">Any type of {TL_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5599,10 +6062,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{PTL_CLASS}[/center]</t>            <!--TL-->
+{PTL_CLASS}[/center]</t>            
 
 
-
+<!--Pirate TS-->
 <t id="2035">Any type of {PTS_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5610,10 +6073,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Pirate TS}[/center]</t>       <!--Pirate TS-->
+{COMMAND:Pirate TS}[/center]</t>       
 
 
-
+<!--Pirate TL-->
 <t id="2036">Any type of {PTL_OBJECT}.
 
 {HEADING:Hierarchy}
@@ -5621,19 +6084,19 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Pirate TL}[/center]</t>       <!--Pirate TL-->
+{COMMAND:Pirate TL}[/center]</t>       
+
+
+<!--Goner Ship-->
+<t id="2039">{UNDOCUMENTED}</t>       
+
+
+<!--Kha`ak Cluster M3-->
+<t id="2131">{UNDOCUMENTED}</t>       
 
 
 
-<t id="2039">{UNDOCUMENTED}</t>       <!--Goner Ship-->
-
-
-
-<t id="2131">{UNDOCUMENTED}</t>       <!--Kha`ak Cluster M3-->
-
-
-
-
+<!--Beacon-->
 <t id="2060">Any type of {OBJECT:Beacon}.
 
 {HEADING:Hierarchy}
@@ -5645,10 +6108,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{CLASS:Jump Beacon}[/center]</t>       <!--Beacon-->
+{CLASS:Jump Beacon}[/center]</t>       
 
 
-
+<!--Jump Beacon-->
 <t id="2062">Any {OBJECT:Jump Beacon}.
 
 {HEADING:Hierarchy}
@@ -5656,11 +6119,11 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Jump Beacon}[/center]</t>       <!--Jump Beacon-->
+{COMMAND:Jump Beacon}[/center]</t>       
 
 
 
-
+<!--UFO-->   
 <t id="2068">Any of the flying saucers randomly roaming SECTORS.
 
 {HEADING:Hierarchy}
@@ -5668,11 +6131,11 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:UFO}[/center]</t>       <!--UFO-->    
+{COMMAND:UFO}[/center]</t>        
 
 
 
-
+<!--Space Fly-->
 <t id="2070">A unique OBJCLASS that represents only {OBJECT:Space Flies}.  All {OBJECT:Space Flies} are of this OBJCLASS.
 
 {HEADING:Hierarchy}
@@ -5680,10 +6143,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Space Fly}[/center]</t>      <!--Space Fly-->
+{COMMAND:Space Fly}[/center]</t>      
  
 
-
+<!--Special Ship-->
 <t id="2136">Unique objects, possibly just the {OBJECT:Space Fly}.
 
 {HEADING:Hierarchy}
@@ -5695,10 +6158,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{CLASS:Space Fly}[/center]</t>       <!--Special Ship-->
+{CLASS:Space Fly}[/center]</t>       
 
 
-
+<!--All Satellites-->
 <t id="2079">Represents any type of {TYPE:satellite}.
 
 {HEADING:Hierarchy}
@@ -5710,10 +6173,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{CLASS:Navigation Relay Satellite}\t{CLASS:Advanced Satellite}[/center]</t>       <!--All Satellites-->
+{CLASS:Navigation Relay Satellite}\t{CLASS:Advanced Satellite}[/center]</t>       
 
 
-
+<!--Navigation Relay Satellite-->
 <t id="2065">Covers only {OBJECT:Navigation Relay Satellite}.
 
 {HEADING:Hierarchy}
@@ -5721,10 +6184,10 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Navigation Relay Satellite}[/center]</t>       <!--Navigation Relay Satellite-->
+{COMMAND:Navigation Relay Satellite}[/center]</t>      
 
 
-
+<!--Advanced Satellite-->
 <t id="2080">Any {OBJECT:Advanced Satellite}.
 
 {HEADING:Hierarchy}
@@ -5732,14 +6195,14 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Advanced Satellite}[/center]</t>       <!--Advanced Satellite-->
+{COMMAND:Advanced Satellite}[/center]</t>     
 
 
-
+<!--Drone-->
 <t id="2061">Represents any type of {TYPE:drone}.
 
 {HEADING:Hierarchy}
-[center]{CLASS:Stationary Ship}
+[center]{CLASS:Moveable Ship}
 
 |
 
@@ -5749,9 +6212,11 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 {CLASS:Fight drone}\t{CLASS:Fighter Drone MKII}
 
-{CLASS:Freight drone}\t{CLASS:Recon drone}[/center]</t>       <!--Drone-->
+{CLASS:Freight drone}\t{CLASS:Recon drone}[/center]
+{CORRECTION:Nekomata}</t>      
 
 
+<!--Fight drone-->
 <t id="2067">Represents any {OBJECT:Fight drone}.
 
 {HEADING:Hierarchy}
@@ -5759,7 +6224,7 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 
 |
 
-{COMMAND:Fight drone}[/center]</t>       <!--Fight drone-->
+{COMMAND:Fight drone}[/center]</t>       
 
 
 <t id="2146">Represents any {OBJECT:Fighter Drone MKII}.
@@ -5861,7 +6326,18 @@ See the {CONSTANT:SSTYPE_DOCK} and {CONSTANT:SSTYPE_FACTORY} MAINTYPES for more 
 <t id="2148">{UNDOCUMENTED}</t>       <!--Stock Exchange-->
 
 
-<t id="1000">{UNDOCUMENTED}</t>       <!--GBODY-->
+<t id="1000">Any OBJ within the game, such as SHIPS, STATIONS, PLANETS and {TYPE:stars}.
+
+{HEADING:Hierarchy}
+[center]{CLASS:GBODY}
+
+|
+
+{CLASS:Asteroid}\t{CLASS:Jump Gate}\t{CLASS:Missile}\t{CLASS:Ship}\t
+{CLASS:Station}\t{CLASS:SpaceFly}\t{CLASS:Special}\t{CLASS:Ware Container}[/center]
+[left]{HEADING:Information}
+
+This is the base OBJCLASS for all objects in the galaxy except {TYPE:wings}, which have no physical representation.  There is no known use for this OBJCLASS within the scripting engine.[/left]{SUBMISSION:Jack08}</t>       <!--GBODY-->
     
     
 </page>

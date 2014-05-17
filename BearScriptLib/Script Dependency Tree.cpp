@@ -8,9 +8,11 @@
 #include "stdafx.h"
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
-///                                    CONSTANTS / GLOBALS
+///                                    DECLARATIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// Tree operations
+VOID  treeprocFindContentInScript(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -98,6 +100,28 @@ LPARAM  extractScriptDependencyTreeNode(LPARAM  pNodeData, CONST AVL_TREE_SORT_K
    return xOutput;
 }
 
+
+/// Function name  : generateScriptCallPath
+// Description     : Generates the full path to the target of a script call
+// 
+// const TCHAR*  szCallerPath   : [in] Full path of calling script
+// const TCHAR*  szTargetName   : [in] Target script
+// 
+// Return Value   : New string containing full path of target script
+// 
+BearScriptAPI
+TCHAR*  generateScriptCallPath(const TCHAR*  szCallerPath, const TCHAR*  szTargetName)
+{
+   TCHAR*  szFullPath;
+
+   // Generate full path (as .PCK)
+   szFullPath = utilRenameFilePath(szCallerPath, szTargetName);
+   StringCchCat(szFullPath, MAX_PATH, TEXT(".pck"));
+
+   // Return path
+   return szFullPath;
+}
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +134,7 @@ LPARAM  extractScriptDependencyTreeNode(LPARAM  pNodeData, CONST AVL_TREE_SORT_K
 // CONST TCHAR*  szScriptName : [in]     Name of the script name to insert/increment
 //
 BearScriptAPI
-VOID  insertScriptDependencyIntoAVLTree(AVL_TREE*  pTree, CONST TCHAR*  szScriptName)
+SCRIPT_DEPENDENCY*  insertScriptDependencyIntoAVLTree(AVL_TREE*  pTree, CONST TCHAR*  szScriptName)
 {
    SCRIPT_DEPENDENCY*  pScriptDependency;
 
@@ -121,171 +145,177 @@ VOID  insertScriptDependencyIntoAVLTree(AVL_TREE*  pTree, CONST TCHAR*  szScript
 
    else
       /// [NEW] Create a ScriptDependency and add it to the tree
-      insertObjectIntoAVLTree(pTree, (LPARAM)createScriptDependency(szScriptName));
+      insertObjectIntoAVLTree(pTree, (LPARAM)(pScriptDependency = createScriptDependency(szScriptName)) );
+
+   // Return Dependency
+   return pScriptDependency;
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   THREAD FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : threadprocFindCallingScripts
-// Description     : Searches the script folder for external dependencies of a given script
+/// Function name  : threadprocFindScriptContent
+// Description     : Searches the script folder for scripts using a specific command
 // 
 // VOID*  pParameters   : OPERATION_DATA structure containing:
-//                        ->   szScriptName : [in]     Name of the script whose external dependencies should be calculated
+//                        ->   iCommandID   : [in]     ID of the command to search for
 //                        ->   pCallersTree : [in/out] ScriptDependencies tree to store result in.  (Already created)
 //
 // Return type : Ignored
 // Operation Stages : ONE (Searching)
 //
 // Operation Result : OR_SUCCESS - Always
-//                    OR_FAILURE - Never
-//                    OR_ABORTED - Never
 // 
 BearScriptAPI
-DWORD   threadprocFindCallingScripts(VOID*  pParameter)
+DWORD   threadprocFindScriptContent(VOID*  pParameter)
 {
-   SCRIPTCALL_OPERATION*  pOperationData;      // Operation data
-   AVL_TREE_OPERATION*    pTreeOperation;
-   OPERATION_RESULT       eResult;             // Operation result
-   FILE_SEARCH*           pFileSearch;         // File search containing all scripts in the script folder
-   TCHAR*                 szScriptFolder;      // Script folder
+   SCRIPT_OPERATION*      pOperationData;       // Operation data
+   AVL_TREE_OPERATION*    pTreeOperation;       // Tree operation
+   OPERATION_RESULT       eResult;              // Operation result
+   FILE_SEARCH*           pFileSearch;          // File search containing all scripts in the script folder
    
    // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
-   SET_THREAD_NAME("ScriptCall Search");
+   CONSOLE_COMMAND_BOLD();
+   SET_THREAD_NAME("ScriptContent Search");
    setThreadLanguage(getAppPreferences()->eAppLanguage);
 
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
-   
-   // Prepare
-   pOperationData = (SCRIPTCALL_OPERATION*)pParameter;
-   eResult        = OR_SUCCESS;
-
-   /// [GUARD BLOCK]
    __try
    {
-      // Generate script path and output tree
-      szScriptFolder = generateGameDataFilePath(GFI_SCRIPT_FOLDER, getAppPreferences()->szGameFolder, getAppPreferences()->eGameVersion);
+      // Prepare
+      pOperationData = (SCRIPT_OPERATION*)pParameter;
+      eResult        = OR_SUCCESS;
 
-      // [INFO] "Searching for scripts that depend upon '%s'..."
-      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_SEARCHING_FOLDER), pOperationData->szScriptName));
-      VERBOSE_SMALL_PARTITION();
+      // [INFO] "Searching '%s' for MSCI scripts"
+      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_ENUMERATING_SCRIPTS), pOperationData->szFolder));
+      CONSOLE("Searching '%s' for MSCI scripts...", pOperationData->szFolder);
 
-      /// [SEARCH] Search for all XML/PCK MSCI scripts
-      pFileSearch = performFileSystemSearch(getFileSystem(), szScriptFolder, FF_SCRIPT_FILES, AK_PATH, AO_DESCENDING, NULL);
+      /// [SEARCH] Search for all xml/pck MSCI scripts
+      pFileSearch = performFileSystemSearch(getFileSystem(), pOperationData->szFolder, FF_SCRIPT_FILES, AK_PATH, AO_DESCENDING, NULL);
+      CONSOLE("Searching %d MSCI scripts for content '%s'...", getFileSearchResultCount(pFileSearch), pOperationData->szContent);
 
       // [PROGRESS] Define progress as number of scripts found
       ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_SEARCHING_SCRIPTS);
       updateOperationProgressMaximum(pOperationData->pProgress, getFileSearchResultCount(pFileSearch));
 
-      // Create operation
-      pTreeOperation = createAVLTreeThreadedOperation(treeprocSearchCallingScript, ATT_INORDER, pOperationData->pProgress, 40);
-      pTreeOperation->pErrorQueue = pOperationData->pErrorQueue;
+      // [INFO] "Searching %d scripts for '%s'"
+      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_FINDING_CONTENT), getFileSearchResultCount(pFileSearch), pOperationData->szContent));
 
+      // Create operation
+      pTreeOperation = createAVLTreeThreadedOperation(treeprocFindContentInScript, ATT_INORDER, pOperationData->pProgress, 40);
+     
       // Setup operation
-      pTreeOperation->xFirstInput  = (LPARAM)pOperationData->szScriptName;
-      pTreeOperation->xSecondInput = (LPARAM)pOperationData->hParentWnd;
+      pTreeOperation->pErrorQueue  = pOperationData->pErrorQueue;
+      pTreeOperation->xFirstInput  = pOperationData->eContent;
+      pTreeOperation->xSecondInput = pOperationData->xContent.asPointer;
       pTreeOperation->pOutputTree  = pOperationData->pCallersTree;
 
-      /// Perform operation
+      /// Generate + Index tree
       performOperationOnAVLTree(pFileSearch->pResultsTree, pTreeOperation);
+      performAVLTreeIndexing(pOperationData->pCallersTree);
 
       // Cleanup
       pTreeOperation->pErrorQueue = NULL;
       deleteAVLTreeOperation(pTreeOperation);
-
-      /// [COMPLETE] Index output tree
-      performAVLTreeIndexing(pOperationData->pCallersTree);
-
-      // Cleanup
-      utilDeleteString(szScriptFolder);
+      deleteFileSearch(pFileSearch);
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   PUSH_CATCH(pOperationData->pErrorQueue)
    {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while searching for scripts that depend upon '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_SEARCH_SCRIPT_CALLS), pOperationData->szScriptName);
-      
       // [FAILURE]
       eResult = OR_FAILURE;
    }
 
    // Return result
-   VERBOSE_THREAD_COMPLETE("SCRIPT CALL SEARCH WORKER THREAD COMPLETED");
+   CONSOLE_COMPLETE("SCRIPT CONTENT SEARCH", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return THREAD_RETURN;
 }
-
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   TREE OPERATIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : treeprocSearchCallingScript
-// Description     : Determines whether the script has any calls to a specific script
+/// Function name  : treeprocFindContentInScript
+// Description     : Searches a script for a specific ScriptCall or Command
 // 
 // AVL_TREE_NODE*       pCurrentNode   : [in]     Current node containing a VirtualFile
 // AVL_TREE_OPERATION*  pOperationData : [in/out] Operation Data : 
-///                                                 CONST TCHAR* xFirstInput  : [in]  Desired script name
-///                                                 HWND         hParentWnd   : [in]  Parent window
-///                                                 AVL_TREE*    pOutputTree  : [out] Output tree
+///                                                 xFirstInput  : [in]  SCRIPT_CONTENT : Syntax, ScriptName or ObjectName to search for
+///                                                 xSecondInput : [in]  CONTENT_TYPE   : Identifies type
+///                                                 pOutputTree  : [out] ScriptDependency Output tree
 // 
-VOID  treeprocSearchCallingScript(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
+VOID  treeprocFindContentInScript(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
 {
-   CONST TCHAR   *szScriptCallTarget,     // Target of current script-call
-                 *szDesiredTarget;        // Desired target script
-   FILE_ITEM*     pCurrentFile;           // File being processed
-   COMMAND*       pCommand;               // Command currently being processed in the current script
-   SCRIPT_FILE*   pScriptFile;            // ScriptFile containing the script currently being translated
-   ERROR_QUEUE*   pTranslationErrors;     // Dummy errorQueue used in script translation - ignored.
-   HWND           hParentWnd;
+   FILE_ITEM*  pCurrentFile = extractPointerFromTreeNode(pCurrentNode, FILE_ITEM);
    
-   // Extract parameters
-   pCurrentFile    = extractPointerFromTreeNode(pCurrentNode, FILE_ITEM);
-   szDesiredTarget = (CONST TCHAR*)pOperationData->xFirstInput;
-   hParentWnd      = (HWND)pOperationData->xSecondInput;
-
-   // [CHECK] Skip folders
-   if (utilExcludes(pCurrentFile->iAttributes, FIF_FOLDER))
+   __try
    {
-      // Create temporary ScriptFile and error queue
-      pTranslationErrors = createErrorQueue();
-      pScriptFile        = createScriptFileByOperation(SFO_TRANSLATION, pCurrentFile->szFullPath);
-      
-      /// [LOAD] Attempt to load script - pass operation error queue
-      if (!loadGameFileFromFileSystemByPath(getFileSystem(), pScriptFile, NULL, pOperationData->pErrorQueue))
-         // [ERROR] "The MSCI script '%s' is unavailable or could not be accessed"
-         enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_LOAD_IO_ERROR), pCurrentFile->szDisplayName);
-
-      /// [TRANSLATE] Attempt to translate script - pass dummy error queue
-      else if (translateScript(pScriptFile, FALSE, hParentWnd, NULL, pTranslationErrors) == OR_SUCCESS)
+      // [CHECK] Skip folders
+      if (utilExcludes(pCurrentFile->iAttributes, FIF_FOLDER))
       {
-         // [SUCCESS] Iterate through translated commands
-         for (UINT  iIndex = 0; findCommandInTranslatorOutput(pScriptFile->pTranslator, iIndex, pCommand); iIndex++)
+         // Prepare
+         SCRIPT_FILE*  pScriptFile = createScriptFileByOperation(SFO_TRANSLATION, pCurrentFile->szFullPath);
+         ERROR_QUEUE*  pErrors     = createErrorQueue();
+         
+         /// Load script
+         if (!loadGameFileFromFileSystemByPath(getFileSystem(), pScriptFile, NULL, pOperationData->pErrorQueue))
+            // [ERROR] "The MSCI script '%s' is unavailable or could not be accessed"
+            enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_LOAD_IO_ERROR), pCurrentFile->szDisplayName);
+
+         /// Translate script
+         else if (translateScript(pScriptFile, FALSE, FALSE, NULL, pErrors) == OR_SUCCESS)
          {
-            // [CHECK] Is this a script-call?  Does it target the input script?
-            if (findScriptCallTargetInCommand(pCommand, szScriptCallTarget) AND utilCompareStringVariables(szDesiredTarget, szScriptCallTarget))
+            SCRIPT_CONTENT  xContent;        // Search content
+            CONTENT_TYPE    eType;           // Content type
+            const TCHAR*    szScript;        // Name of script call
+            COMMAND*        pCommand;        // Command iterator
+            BOOL            bMatch;          // Whether command matches criteria
+
+            // Prepare
+            xContent.asPointer = pOperationData->xSecondInput;
+            eType = (CONTENT_TYPE)pOperationData->xFirstInput;
+
+            // Examine commands
+            for (UINT  iIndex = 0; findCommandInTranslatorOutput(pScriptFile->pTranslator, iIndex, pCommand); iIndex++)
             {
-               // [SYNC] Wait for output tree
-               if (pOperationData->bMultiThreaded)
-                  WaitForSingleObject(pOperationData->hOutputMutex, INFINITE);
+               /// Match ScriptName / CommandSyntax / ObjectName
+               switch (eType)
+               {
+               case CT_SCRIPT: bMatch = findScriptCallTargetInCommand(pCommand, szScript) AND utilCompareStringVariables(szScript, xContent.asScript);  break;
+               case CT_SYNTAX: bMatch = isCommandID(pCommand, xContent.asSyntax->iID);                                                                  break;
+               case CT_OBJECT: bMatch = isObjectNameInCommand(pCommand, xContent.asObject);                                                             break;
+               }
 
-               /// [SUCCESS] Insert calling script into output tree
-               insertScriptDependencyIntoAVLTree(pOperationData->pOutputTree, identifyScriptName(pScriptFile));   
+               if (bMatch)
+               {
+                  // [SYNC] Wait for output tree
+                  if (pOperationData->bMultiThreaded)
+                     WaitForSingleObject(pOperationData->hOutputMutex, INFINITE);
 
-               // [SYNC] Release output tree
-               if (pOperationData->bMultiThreaded)
-                  ReleaseMutex(pOperationData->hOutputMutex);
+                  /// Insert ScriptDependency
+                  SCRIPT_DEPENDENCY*  pDependency = insertScriptDependencyIntoAVLTree(pOperationData->pOutputTree, identifyScriptName(pScriptFile)); 
+                  pDependency->iLine = pCommand->iLineNumber - 1;
+
+                  // [SYNC] Release output tree
+                  if (pOperationData->bMultiThreaded)
+                     ReleaseMutex(pOperationData->hOutputMutex);
+
+                  /// [COMMAND/OBJECT] Abort after first match
+                  if (eType != CT_SCRIPT)
+                     break;
+               }
             }
-         }
-      }
 
-      // Cleanup
-      deleteErrorQueue(pTranslationErrors);
-      deleteScriptFile(pScriptFile);
+         }
+
+         // Cleanup
+         deleteErrorQueue(pErrors);
+         deleteScriptFile(pScriptFile);
+      }
+   }
+   // [EXCEPTION] Abort operation
+   PUSH_CATCH(pOperationData->pErrorQueue)
+   {
+      pOperationData->bProcessing = FALSE;
    }
 }

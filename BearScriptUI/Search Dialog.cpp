@@ -11,12 +11,15 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
+// OnException: Display in output
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// Debug
+static const TCHAR*  szPageNames[4] = { TEXT("Commands"), TEXT("Game Objects"), TEXT("Script Objects"), TEXT("None") };
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -32,21 +35,26 @@
 // 
 HWND  createSearchDialog(HWND  hParentWnd, CONST RESULT_TYPE  eInitialDialog)
 {
-   SEARCH_DIALOG_DATA*  pDialogData;    // New dialog data
+   SEARCH_DIALOG_DATA*  pDialogData;   // New dialog data
 
-   // Prepare
-   pDialogData = createSearchDialogData(eInitialDialog);
+   TRY
+   {
+      // Prepare
+      pDialogData = createSearchDialogData(eInitialDialog);
 
-   // Create dialog and pass it data
-   pDialogData->hDialog = CreateDialogParam(getResourceInstance(), TEXT("SEARCH_DIALOG"), hParentWnd, dlgprocSearchDialog, (LPARAM)pDialogData);
-   ERROR_CHECK("creating search container dialog", pDialogData->hDialog);
+      // Create dialog and pass it data
+      pDialogData->hDialog = loadDialog(TEXT("SEARCH_DIALOG"), hParentWnd, dlgprocSearchDialog, (LPARAM)pDialogData);
+      ERROR_CHECK("creating search container dialog", pDialogData->hDialog);
 
-   // [DEBUG]
-   SetWindowText(pDialogData->hDialog, TEXT("Search Tab Dialog"));
-   //DEBUG_WINDOW("Search Tab Dialog", pDialogData->hDialog);
+      // [DEBUG]
+      SetWindowText(pDialogData->hDialog, TEXT("Search Tab Dialog"));
+      //DEBUG_WINDOW("Search Tab Dialog", pDialogData->hDialog);
 
-   // Return window handle or NULL
-   return pDialogData->hDialog;
+      // Return window handle or NULL
+      return pDialogData->hDialog;
+   }
+   CATCH1("Unable to create Search dialog with initial tab '%s'", szPageNames[eInitialDialog]);
+   return NULL;
 }
 
 
@@ -59,15 +67,10 @@ HWND  createSearchDialog(HWND  hParentWnd, CONST RESULT_TYPE  eInitialDialog)
 // 
 SEARCH_DIALOG_DATA*   createSearchDialogData(CONST RESULT_TYPE  eInitialDialog)
 {
-   SEARCH_DIALOG_DATA*   pDialogData;       // Object being created
-
-   // Create object
-   pDialogData = utilCreateEmptyObject(SEARCH_DIALOG_DATA);
-
+   SEARCH_DIALOG_DATA*   pDialogData = utilCreateEmptyObject(SEARCH_DIALOG_DATA);       // Object being created
+   
    // Set properties
    pDialogData->eActiveDialog = eInitialDialog;
-
-   // Return object
    return pDialogData;
 }
 
@@ -111,13 +114,10 @@ SEARCH_DIALOG_DATA*    getSearchDialogData(HWND  hDialog)
 // 
 RESULT_TYPE  identifyActiveResultsDialog(HWND  hSearchDialog)
 {
-   SEARCH_DIALOG_DATA*  pDialogData;
-
-   // Prepare
-   pDialogData = getSearchDialogData(hSearchDialog);
+   SEARCH_DIALOG_DATA*  pDialogData = getSearchDialogData(hSearchDialog);
 
    // Return active dialog or RT_NONE
-   return IsWindow(hSearchDialog) ? pDialogData->eActiveDialog : RT_NONE;
+   return pDialogData ? pDialogData->eActiveDialog : RT_NONE;
 }
 
 
@@ -130,13 +130,10 @@ RESULT_TYPE  identifyActiveResultsDialog(HWND  hSearchDialog)
 // 
 HWND  identifyActiveResultsDialogHandle(HWND  hSearchDialog)
 {
-   SEARCH_DIALOG_DATA*  pDialogData;
-
-   // Prepare
-   pDialogData = getSearchDialogData(hSearchDialog);
+   SEARCH_DIALOG_DATA*  pDialogData = getSearchDialogData(hSearchDialog);
 
    // Return active dialog or RT_NONE
-   return (IsWindow(hSearchDialog) AND pDialogData->eActiveDialog != RT_NONE ? pDialogData->hChildren[pDialogData->eActiveDialog] : NULL);
+   return (pDialogData AND pDialogData->eActiveDialog != RT_NONE ? pDialogData->hChildren[pDialogData->eActiveDialog] : NULL);
 }
 
 
@@ -150,16 +147,10 @@ HWND  identifyActiveResultsDialogHandle(HWND  hSearchDialog)
 // 
 UINT  identifyResultsDialogFilterByType(HWND  hSearchDialog, CONST RESULT_TYPE  eDialog)
 {
-   SEARCH_DIALOG_DATA*   pDialogData;     // Dialog data
-
-   // [CHECK] Ensure search dialog exists
-   ASSERT(IsWindow(hSearchDialog));
-
-   // Prepare
-   pDialogData = getSearchDialogData(hSearchDialog);
+   SEARCH_DIALOG_DATA*   pDialogData = getSearchDialogData(hSearchDialog);     // Dialog data
 
    /// Return current filter
-   return identifyResultsDialogFilter(pDialogData->hChildren[eDialog]);
+   return pDialogData ? identifyResultsDialogFilter(pDialogData->hChildren[eDialog]) : 0;
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -176,33 +167,36 @@ UINT  identifyResultsDialogFilterByType(HWND  hSearchDialog, CONST RESULT_TYPE  
 // 
 BOOL  setActiveResultsDialogByType(HWND  hSearchDialog, CONST RESULT_TYPE  eDialog)
 {
-   SEARCH_DIALOG_DATA*   pDialogData;     // Dialog data
+   SEARCH_DIALOG_DATA*   pDialogData = getSearchDialogData(hSearchDialog);     // Dialog data
 
-   // [CHECK] Ensure search dialog exists
-   ASSERT(IsWindow(hSearchDialog));
-
-   // Prepare
-   pDialogData = getSearchDialogData(hSearchDialog);
-
-   /// [CHECK] Ensure dialog is not already active
-   if (eDialog != pDialogData->eActiveDialog)
+   TRY
    {
-      // Hide existing dialog
-      ShowWindow(pDialogData->hChildren[pDialogData->eActiveDialog], SW_HIDE);
+      CONSOLE_COMMAND();
 
-      /// Select new tab and display new dialog
-      TabCtrl_SetCurSel(pDialogData->hTabCtrl, eDialog);
-      ShowWindow(pDialogData->hChildren[eDialog], SW_SHOW);
+      /// [CHECK] Ensure dialog is not already active
+      if (IsWindow(hSearchDialog) AND eDialog != pDialogData->eActiveDialog)
+      {
+         CONSOLE("Displaying results dialog for '%s'", szPageNames[eDialog]);
 
-      // Update active tab
-      pDialogData->eActiveDialog = eDialog;
-      SetFocus(GetDlgItem(pDialogData->hChildren[eDialog], IDC_RESULTS_SEARCH));
+         // Hide existing dialog
+         ShowWindow(pDialogData->hChildren[pDialogData->eActiveDialog], SW_HIDE);
 
-      // [CHANGED] Return TRUE
-      return TRUE;
+         /// Select new tab and display new dialog
+         TabCtrl_SetCurSel(pDialogData->hTabCtrl, eDialog);
+         ShowWindow(pDialogData->hChildren[eDialog], SW_SHOW);
+
+         // Update active tab
+         pDialogData->eActiveDialog = eDialog;
+         SetFocus(GetDlgItem(pDialogData->hChildren[eDialog], IDC_RESULTS_SEARCH));
+
+         // [CHANGED] Return TRUE
+         return TRUE;
+      }
+
+      // [NO CHANGE] Return FALSE
+      return FALSE;
    }
-
-   // [NO CHANGE] Return FALSE
+   CATCH1("Unable to display results dialog for '%s'", szPageNames[eDialog]);
    return FALSE;
 }
 
@@ -214,53 +208,52 @@ BOOL  setActiveResultsDialogByType(HWND  hSearchDialog, CONST RESULT_TYPE  eDial
 // HWND                 hDialog     : [in] New search tab dialog handle
 // HWND                 hFirstCtrl  : [in] Control to receive the input focus
 // 
-// Return Value : TRUE if dialogs created successfully, FALSE if a child dialog 
+// Return Value : TRUE if dialogs created successfully, FALSE if not
 //
 BOOL  initSearchDialog(SEARCH_DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  hFocusCtrl)
 {
    TCITEM   oTabItem;    // Tab item data
    HDC      hDC;         // DC used for creating font
    
-   // Prepare
-   hDC = GetDC(hDialog);
-   
-   /// Store dialog data
-   pDialogData->hDialog  = hDialog;
-   pDialogData->hTabCtrl = GetDlgItem(hDialog, IDC_SEARCH_TAB);
-   SetWindowLong(hDialog, DWL_USER, (LONG)pDialogData);
-
-   /// Set custom tab title font  (in bold)
-   pDialogData->hTabFont = utilCreateFont(hDC, TEXT("MS Sans Serif"), 9, TRUE, FALSE, FALSE);
-   SetWindowFont(pDialogData->hTabCtrl, pDialogData->hTabFont, FALSE);
-   
-   /// Set custom tab ImageList  (20x20 pixels)
-   pDialogData->hImageList = utilCreateImageList(getResourceInstance(), 20, 3, "COMMAND_LIST_ICON", "GAME_OBJECT_ICON", "SCRIPT_OBJECT_ICON");
-   TabCtrl_SetImageList(pDialogData->hTabCtrl, pDialogData->hImageList);
-
-   // Iterate through result types
-   for (RESULT_TYPE  eDialog = RT_COMMANDS; eDialog <= RT_SCRIPT_OBJECTS; eDialog = (RESULT_TYPE)(eDialog + 1))
+   TRY
    {
-      // Prepare
-      oTabItem.iImage  = eDialog;
-      oTabItem.pszText = utilLoadString(getResourceInstance(), IDS_SEARCH_COMMANDS + eDialog, 32);
-      oTabItem.mask    = TCIF_TEXT WITH TCIF_IMAGE;
+      /// Store dialog data
+      pDialogData->hDialog  = hDialog;
+      pDialogData->hTabCtrl = GetDlgItem(hDialog, IDC_SEARCH_TAB);
+      SetWindowLong(hDialog, DWL_USER, (LONG)pDialogData);
 
-      /// Create a tab and dialog
-      TabCtrl_InsertItem(pDialogData->hTabCtrl, eDialog, &oTabItem);
-      pDialogData->hChildren[eDialog] = createResultsDialog(hDialog, eDialog);
-      BringWindowToTop(pDialogData->hChildren[eDialog]);
+      /// Set custom tab title font  (in bold)
+      pDialogData->hTabFont = utilCreateFont(hDC = GetDC(hDialog), TEXT("MS Sans Serif"), 9, TRUE, FALSE, FALSE);
+      SetWindowFont(pDialogData->hTabCtrl, pDialogData->hTabFont, FALSE);
+      
+      /// Set custom tab ImageList  (20x20 pixels)
+      pDialogData->hImageList = utilCreateImageList(getResourceInstance(), 20, 3, "COMMAND_LIST_ICON", "GAME_OBJECT_ICON", "SCRIPT_OBJECT_ICON");
+      TabCtrl_SetImageList(pDialogData->hTabCtrl, pDialogData->hImageList);
 
-      // Cleanup
-      utilDeleteString(oTabItem.pszText);
-   }      
+      // Iterate through result types
+      for (RESULT_TYPE  eDialog = RT_COMMANDS; eDialog <= RT_SCRIPT_OBJECTS; eDialog = (RESULT_TYPE)(eDialog + 1))
+      {
+         // Prepare
+         oTabItem.iImage  = eDialog;
+         oTabItem.pszText = (TCHAR*)loadTempString(IDS_SEARCH_COMMANDS + eDialog);
+         oTabItem.mask    = TCIF_TEXT WITH TCIF_IMAGE;
 
-   /// Select initial tab and display initial dialog
-   TabCtrl_SetCurSel(pDialogData->hTabCtrl, pDialogData->eActiveDialog);
-   ShowWindow(pDialogData->hChildren[pDialogData->eActiveDialog], SW_SHOW);
+         /// Create a tab and dialog
+         TabCtrl_InsertItem(pDialogData->hTabCtrl, eDialog, &oTabItem);
+         pDialogData->hChildren[eDialog] = createResultsDialog(hDialog, eDialog);
+         BringWindowToTop(pDialogData->hChildren[eDialog]);
+      }      
 
-   // Cleanup and return
-   ReleaseDC(hDialog, hDC);
-   return TRUE;
+      /// Select initial tab and display initial dialog
+      TabCtrl_SetCurSel(pDialogData->hTabCtrl, pDialogData->eActiveDialog);
+      ShowWindow(pDialogData->hChildren[pDialogData->eActiveDialog], SW_SHOW);
+
+      // Cleanup and return
+      ReleaseDC(hDialog, hDC);
+      return TRUE;
+   }
+   CATCH0("Unable to initialise search dialog");
+   return FALSE;
 }
 
 
@@ -271,8 +264,12 @@ BOOL  initSearchDialog(SEARCH_DIALOG_DATA*  pDialogData, HWND  hDialog, HWND  hF
 // 
 VOID  updateSearchDialog(SEARCH_DIALOG_DATA*  pDialogData)
 {
-   /// Refresh active ResultsDialog
-   updateResultsDialog(pDialogData->hChildren[pDialogData->eActiveDialog]);
+   TRY
+   {
+      /// Refresh active ResultsDialog
+      updateResultsDialog(pDialogData->hChildren[pDialogData->eActiveDialog]);
+   }
+   CATCH0("Unable to update Results Dialog");
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +284,8 @@ VOID  updateSearchDialog(SEARCH_DIALOG_DATA*  pDialogData)
 // 
 VOID  onSearchDialog_AppStateChanged(SEARCH_DIALOG_DATA*  pDialogData, CONST APPLICATION_STATE  eNewState)
 {
+   CONSOLE_EVENT();
+
    // Refresh current dialog
    updateSearchDialog(pDialogData);
 }
@@ -299,24 +298,28 @@ VOID  onSearchDialog_AppStateChanged(SEARCH_DIALOG_DATA*  pDialogData, CONST APP
 // 
 VOID  onSearchDialog_Destroy(SEARCH_DIALOG_DATA*  pDialogData)
 {
-   // Sever dialog data
-   SetWindowLong(pDialogData->hDialog, DWL_USER, NULL);
+   TRY
+   {
+      // Sever dialog data
+      SetWindowLong(pDialogData->hDialog, DWL_USER, NULL);
 
-   /// Delete child dialogs
-   for (RESULT_TYPE  eDialog = RT_COMMANDS; eDialog <= RT_SCRIPT_OBJECTS; eDialog = (RESULT_TYPE)(eDialog + 1))
-      // [CHECK] May not exist if failed to create
-      utilSafeDeleteWindow(pDialogData->hChildren[eDialog]);
+      /// Delete child dialogs
+      for (RESULT_TYPE  eDialog = RT_COMMANDS; eDialog <= RT_SCRIPT_OBJECTS; eDialog = (RESULT_TYPE)(eDialog + 1))
+         // [CHECK] May not exist if failed to create
+         utilSafeDeleteWindow(pDialogData->hChildren[eDialog]);
 
-   // Delete tab ImageList
-   TabCtrl_SetImageList(pDialogData->hTabCtrl, NULL);
-   ImageList_Destroy(pDialogData->hImageList);
+      // Delete tab ImageList
+      TabCtrl_SetImageList(pDialogData->hTabCtrl, NULL);
+      ImageList_Destroy(pDialogData->hImageList);
 
-   // Delete tab font
-   SetWindowFont(pDialogData->hTabCtrl, NULL, FALSE);
-   DeleteFont(pDialogData->hTabFont);
+      // Delete tab font
+      SetWindowFont(pDialogData->hTabCtrl, NULL, FALSE);
+      DeleteFont(pDialogData->hTabFont);
 
-   /// Delete dialog data
-   deleteSearchDialogData(pDialogData);
+      /// Delete dialog data
+      deleteSearchDialogData(pDialogData);
+   }
+   CATCH0("Unable to destroy SearchDialog");
 }
 
 
@@ -328,6 +331,10 @@ VOID  onSearchDialog_Destroy(SEARCH_DIALOG_DATA*  pDialogData)
 // 
 VOID  onSearchDialog_DocumentSwitched(SEARCH_DIALOG_DATA*  pDialogData, DOCUMENT*  pNewDocument)
 {
+   // [TRACK]
+   CONSOLE_EVENT1(getDocumentFileName(pNewDocument));
+   CONSOLE("Refreshing search dialog in response to new document '%s'", pNewDocument ? pNewDocument->szFullPath : NULL);
+
    // Update current ResultsDialog
    updateSearchDialog(pDialogData);
 }
@@ -343,8 +350,13 @@ VOID  onSearchDialog_DocumentPropertyUpdated(SEARCH_DIALOG_DATA*  pDialogData, C
 {
    // [CHECK] Has the 'GameVersion' property just been changed?
    if (iControlID == IDC_SCRIPT_ENGINE_VERSION)
+   {
+      CONSOLE_EVENT();
+      CONSOLE("Refreshing search dialog in response to engine version change");
+
       /// [SUCCESS] Refresh current ResultsDialog
       updateSearchDialog(pDialogData);
+   }
 }
 
 
@@ -357,14 +369,20 @@ VOID  onSearchDialog_SelectionChange(SEARCH_DIALOG_DATA*  pDialogData)
 {
    TUTORIAL_WINDOW  eTutorialWindows[3] = { TW_SCRIPT_COMMANDS, TW_GAME_OBJECTS, TW_SCRIPT_OBJECTS }; // Tutorial windows for each ResultsDialog
 
-   // Display new ResultsDialog
-   setActiveResultsDialogByType(pDialogData->hDialog, (RESULT_TYPE)TabCtrl_GetCurSel(pDialogData->hTabCtrl));
+   TRY
+   {
+      CONSOLE_EVENT();
 
-   // [TUTORIAL] Delay display the search dialog tutorial
-   setMainWindowTutorialTimer(getMainWindowData(), eTutorialWindows[TabCtrl_GetCurSel(pDialogData->hTabCtrl)], TRUE);
+      // Display new ResultsDialog
+      setActiveResultsDialogByType(pDialogData->hDialog, (RESULT_TYPE)TabCtrl_GetCurSel(pDialogData->hTabCtrl));
 
-   // [TOOLBAR] Update main window toolbar
-   updateMainWindowToolBar(getMainWindowData());
+      // [TUTORIAL] Delay display the search dialog tutorial
+      setMainWindowTutorialTimer(getMainWindowData(), eTutorialWindows[TabCtrl_GetCurSel(pDialogData->hTabCtrl)], TRUE);
+
+      // [TOOLBAR] Update main window toolbar
+      updateMainWindowToolBar(getMainWindowData());
+   }
+   CATCH0("Unable to activate new Results dialog");
 }
 
 
@@ -378,20 +396,24 @@ VOID  onSearchDialog_Resize(SEARCH_DIALOG_DATA*  pDialogData, CONST SIZE*  pNewS
 {
    RECT   rcClient;    // Client rectangle
 
-   /// Stretchtab control over entire dialog
-   GetClientRect(pDialogData->hDialog, &rcClient);
-   utilSetClientRect(pDialogData->hTabCtrl, &rcClient, TRUE);
+   TRY
+   {
+      /// Stretchtab control over entire dialog
+      GetClientRect(pDialogData->hDialog, &rcClient);
+      utilSetWindowRect(pDialogData->hTabCtrl, &rcClient, TRUE);
 
-   // Calculate the appropriate display rectangle for the results dialog
-   GetClientRect(pDialogData->hTabCtrl, &rcClient);
-   TabCtrl_AdjustRect(pDialogData->hTabCtrl, FALSE, &rcClient);
+      // Calculate the appropriate display rectangle for the results dialog
+      GetClientRect(pDialogData->hTabCtrl, &rcClient);
+      TabCtrl_AdjustRect(pDialogData->hTabCtrl, FALSE, &rcClient);
 
-   // Shrink to create border
-   InflateRect(&rcClient, -6, -6);
+      // Shrink to create border
+      InflateRect(&rcClient, -6, -6);
 
-   /// Re-size each child dialog
-   for (RESULT_TYPE  eDialog = RT_COMMANDS; eDialog <= RT_SCRIPT_OBJECTS; eDialog = (RESULT_TYPE)(eDialog + 1))
-      utilSetClientRect(pDialogData->hChildren[eDialog], &rcClient, TRUE);
+      /// Re-size each child dialog
+      for (RESULT_TYPE  eDialog = RT_COMMANDS; eDialog <= RT_SCRIPT_OBJECTS; eDialog = (RESULT_TYPE)(eDialog + 1))
+         utilSetWindowRect(pDialogData->hChildren[eDialog], &rcClient, TRUE);
+   }
+   CATCH2("Unable to resize search dialog to (%d,%d)", pNewSize->cx, pNewSize->cy);
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -405,19 +427,15 @@ VOID  onSearchDialog_Resize(SEARCH_DIALOG_DATA*  pDialogData, CONST SIZE*  pNewS
 INT_PTR   dlgprocSearchDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    SEARCH_DIALOG_DATA*  pDialogData;       // dialog data
-   ERROR_STACK*         pException;        // Exception error
    NMHDR*               pHeader;           // Notification header
    SIZE                 siDialog;          // Dialog size
-   BOOL                 bResult;           // Operation result
+   BOOL                 bResult = TRUE;    // Operation result
 
-   // Prepare
-   TRACK_FUNCTION();
-   pDialogData = getSearchDialogData(hDialog);
-   bResult     = TRUE;
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
+      // Prepare
+      pDialogData = getSearchDialogData(hDialog);
+
       // Examine message
       switch (iMessage)
       {
@@ -477,17 +495,12 @@ INT_PTR   dlgprocSearchDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPA
          bResult = FALSE;
          break;
       }
+
+      // Return result
+      return bResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the search tool window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_SEARCH_TAB_DIALOG));
-      displayException(pException);
-   }
-
-   // Return result
-   END_TRACKING();
-   return bResult;
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 

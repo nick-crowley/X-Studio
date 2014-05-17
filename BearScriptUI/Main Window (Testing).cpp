@@ -45,9 +45,7 @@ BOOL  commandScriptValidationBatchTest(MAIN_WINDOW_DATA*  pWindowData, CONST BAT
    LOADING_OPTIONS  oLoadOptions;
    FILE_ITEM*       pSearchResult;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    utilZeroObject(&oLoadOptions, LOADING_OPTIONS);
 
@@ -147,7 +145,6 @@ BOOL  commandScriptValidationBatchTest(MAIN_WINDOW_DATA*  pWindowData, CONST BAT
    }
 
    // Return FALSE
-   END_TRACKING();
    return FALSE;
 }
 
@@ -163,17 +160,15 @@ VOID  performScriptValidationBatchTest(MAIN_WINDOW_DATA*  pWindowData, CONST FIL
    TCHAR           *szScriptFolder,
                    *szValidationFolder;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    utilZeroObject(&oDeleteFolder, SHFILEOPSTRUCT);
 
    // [CHECK] Ensure no documents are open
-   if (getDocumentCount())
+   if (getDocumentCount() OR getAppPreferences()->bScriptCodeMacros)
    {
       // [ERROR] "You must close all documents before performing a script validation batch test"
-      displayMessageDialogf(NULL, IDS_GENERAL_VALIDATION_DOCUMENTS_OPEN, TEXT("Cannot Execute Validation Batch Test"), MDF_OK WITH MDF_ERROR);
+      displayMessageDialogf(NULL, IDS_GENERAL_REQUIREMENTS_VALIDATION, MDF_OK WITH MDF_ERROR);
       return;
    }
 
@@ -207,7 +202,6 @@ VOID  performScriptValidationBatchTest(MAIN_WINDOW_DATA*  pWindowData, CONST FIL
 
    // Cleanup
    utilDeleteStrings(szScriptFolder, szValidationFolder);
-   END_TRACKING();
 }
 
 

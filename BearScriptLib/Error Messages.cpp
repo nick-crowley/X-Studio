@@ -31,37 +31,27 @@
 // 
 ERROR_MESSAGE*   createErrorMessageV(CONST UINT iErrorCode, CONST TCHAR*  szID, va_list  pArguments)
 {
-   ERROR_MESSAGE*   pNewMessage;      // Output
-   TCHAR*           szFormat;         // Temporary formatting string
+   ERROR_MESSAGE*   pNewMessage = utilCreateEmptyObject(ERROR_MESSAGE);    // Output
+   TCHAR*           szFormat    = utilCreateEmptyString(ERROR_LENGTH);     // Temporary formatting string
    
-   /// Create object
-   pNewMessage = utilCreateEmptyObject(ERROR_MESSAGE);
-
-   // Set properties
-   pNewMessage->szMessage = utilCreateEmptyString(ERROR_LENGTH);
-   pNewMessage->iID       = iErrorCode;
-   pNewMessage->szID      = (szID ? utilDuplicateSimpleString(szID) : NULL);
-
-   // Create formatting string
-   szFormat = utilCreateEmptyString(ERROR_LENGTH);
-
-   /// Load string resource from the error code
-   switch (pNewMessage->iID)
+   /// Load formatting error string
+   switch (pNewMessage->iID = iErrorCode)
    {
    // [SPECIAL] - These may be needed before the resource DLL is loaded (or if loading fails)
    case IDS_ERROR_APPEND_LOCATION:
    case IDS_INIT_RESOURCE_DLL_FAILED:
-      LoadString(getLibraryInstance(), pNewMessage->iID, szFormat, ERROR_LENGTH);         
+      LoadString(getLibraryInstance(), iErrorCode, szFormat, ERROR_LENGTH);         
       break;
 
    // [STANDARD] - Error strings are stored in the resource library
    default:
-      LoadString(getResourceInstance(), pNewMessage->iID, szFormat, ERROR_LENGTH);      
+      loadString(iErrorCode, szFormat, ERROR_LENGTH);      
       break;
    }   
       
    /// Format message
-   StringCchVPrintf(pNewMessage->szMessage, ERROR_LENGTH, szFormat, pArguments);      // Format into output buffer
+   pNewMessage->szID = (szID ? utilDuplicateSimpleString(szID) : NULL);
+   pNewMessage->szMessage = utilReAllocString( utilCreateStringVf(ERROR_LENGTH, szFormat, pArguments) );
 
    // Cleanup and return
    utilDeleteString(szFormat);

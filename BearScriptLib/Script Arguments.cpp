@@ -14,73 +14,83 @@
 /// Function name  : createArgumentFromNode
 // Description     : Create a new Argument from a script node
 // 
-// CONST XML_TREE_NODE*  pNode   : [in]  <argument> node
-// ERROR_STACK*         &pError  : [out] New Error message, if any, otherwise NULL
+// CONST XML_TREE_NODE*      pArgumentNode  : [in]  <argument> node -OR- <codearray> argument node
+// CONST XML_SCRIPT_LAYOUT*  pLayout        : [in]  Script layout 
+// CONST UINT                iIndex         : [in]  Argument index
+// ERROR_STACK*             &pError         : [out] New Error message, if any, otherwise NULL
 // 
 // Return Value   : New Argument if successful, otherwise NULL
 // 
-ARGUMENT*  createArgumentFromNode(CONST XML_TREE_NODE*  pArgumentNode, CONST UINT  iIndex, ERROR_STACK*  &pError)
+ARGUMENT*  createArgumentFromNode(CONST XML_TREE_NODE*  pArgumentNode, CONST XML_SCRIPT_LAYOUT*  pLayout, CONST UINT  iIndex, ERROR_STACK*  &pError)
 {
-   XML_TREE_NODE    *pNameNode,
-                    *pTypeNode;
-   ARGUMENT         *pNewArgument;      // Argument being created
-   CONST TCHAR      *szName,            // Argument name
-                    *szType,            // Argument type
-                    *szDescription;     // Argument description
-   PARAMETER_SYNTAX  eType;
+   XML_TREE_NODE    *pArgumentBranchNode,   // CodeArray node that is equivilent to <argument> node
+                    *pDescriptionNode,      // CodeArray subnode containing the argument description
+                    *pNameNode,             // CodeArray variables branch subnode containing the argument name
+                    *pTypeNode;             // CodeArray subnode containing the argument type 
+   ARGUMENT         *pNewArgument;          // Argument being created
+   CONST TCHAR      *szName = 0,            // Argument name
+                    *szDescription = 0;     // Argument description
+   //PARAMETER_SYNTAX  eType = PS_VARIABLE;   // Argument type
 
    // Create new argument
    pNewArgument = utilCreateEmptyObject(ARGUMENT);
-
-   /// [ARGUMENT NODE] Extract name, type, index and description properties
+   
+   /// [ARGUMENT NODE] Extract name, index, description properties
    if (utilCompareString(pArgumentNode->szName, "argument"))
    {
-      // Extract argument properties
-      getXMLPropertyInteger(pArgumentNode, TEXT("index"), (INT&)pNewArgument->iID);
-      getXMLPropertyString(pArgumentNode, TEXT("name"), szName);
-      getXMLPropertyString(pArgumentNode, TEXT("type"), szType);
-      getXMLPropertyString(pArgumentNode, TEXT("desc"), szDescription);
+      // Extract name/description/index from <argument> node
+      if (!getXMLPropertyInteger(pArgumentNode, TEXT("index"), (INT&)pNewArgument->iID) OR
+          !getXMLPropertyString(pArgumentNode, TEXT("name"), szName) OR
+          !getXMLPropertyString(pArgumentNode, TEXT("desc"), szDescription))
+          // [ERROR] "The script argument '%s' (index %d) is missing one or more property"
+          pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_CORRUPT), szName, iIndex+1);
 
-      /// Set properties
-      pNewArgument->szName        = utilDuplicateSimpleString(szName);
-      pNewArgument->szDescription = utilDuplicateSimpleString(szDescription);
-
-      // [HACK] Some X3:R scripts specify the 'number' syntax in german: 'Nummer' instead of 'Number'
-      if (utilCompareString(szType, "Nummer"))
-         pNewArgument->eType = PS_NUMBER;
-
-      /// [CHECK] Lookup argument type
-      else if (!findParameterSyntaxByName(szType, pNewArgument->eType))
-      {  
-         // [ERROR] "The script argument '%s' uses an unknown data type '%s'"
-         pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_TYPE_NAME_INVALID), szName, szType);
-         deleteArgument(pNewArgument);
-      }
+      // Extract type from <codearray> branch node
+      else if (!findXMLTreeNodeByIndex(pLayout->pArgumentsBranch, iIndex, pArgumentBranchNode) OR 
+               !findXMLTreeNodeByIndex(pArgumentBranchNode, 0, pTypeNode) OR 
+               !getXMLPropertyInteger(pTypeNode, TEXT("val"), (INT&)pNewArgument->eType))
+         // [ERROR] "The script argument '%s' (index %d) has no type indicator in the codearray"
+         pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_CODEARRAY_CORRUPT), szName, iIndex+1);
    }
-   /// [CODEARRAY NODE] Extract name and type
-   else if (!findXMLTreeNodeByIndex(pArgumentNode, 1, pNameNode) OR !findXMLTreeNodeByIndex(pArgumentNode, 0, pTypeNode) OR !getXMLPropertyString(pNameNode, TEXT("val"), szName) OR !getXMLPropertyInteger(pTypeNode, TEXT("val"), (INT&)eType))
-   {
-      // [ERROR] "The script argument with index '%d' is missing one or more property %s"
-      pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_CORRUPT), iIndex, pNameNode AND pTypeNode ? TEXT("values") : TEXT("nodes"));
-      deleteArgument(pNewArgument);
-   }
-   // [CHECK] Ensure parameter syntax is valid
-   else if (!isParameterSyntaxValid(eType))
-   {  
-      // [ERROR] "The script argument with index %d uses an unknown data type with ID %d"
-      pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_TYPE_ID_INVALID), iIndex, eType);
-      deleteArgument(pNewArgument);
-   }
+   /// [CODEARRAY BRANCH NODE] Extract type/description from node
    else
    {
-      /// Set properties
-      pNewArgument->szName        = utilDuplicateSimpleString(szName);
-      pNewArgument->szDescription = utilDuplicateSimpleString(NULL);
-      pNewArgument->iID           = iIndex;
-      pNewArgument->eType         = eType;
-   }
+      // Extract type from first subnode
+      if (!findXMLTreeNodeByIndex(pArgumentNode, 0, pTypeNode) OR !getXMLPropertyInteger(pTypeNode, TEXT("val"), (INT&)pNewArgument->eType))
+         // [ERROR] "The script argument '%s' (index %d) has no type indicator in the codearray"
+         pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_CODEARRAY_CORRUPT), szName, iIndex+1);
 
-   // Return new argument (or NULL if lookup failed)
+      else 
+      {
+         // Extract description (if any) from second subnode
+         if (!findXMLTreeNodeByIndex(pArgumentNode, 1, pDescriptionNode) OR !getXMLPropertyString(pDescriptionNode, TEXT("val"), szDescription))
+            szDescription = TEXT("");
+
+         // Lookup name in separate variables branch
+         if (!findXMLTreeNodeByIndex(pLayout->pVariableNamesBranch, iIndex, pNameNode) OR !getXMLPropertyString(pNameNode, TEXT("val"), szName))
+            // [ERROR] "The script argument with index %d has no associated variable name in the codearray"
+            pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_NAME_MISSING), iIndex+1);
+
+         // Set ID from index
+         pNewArgument->iID = iIndex+1;
+      }
+   }
+      
+   /// [CHECK] Ensure parameter syntax is valid
+   if (!pError && !isParameterSyntaxValid(pNewArgument->eType))
+      // [ERROR] "The script argument '%s' (index %d) uses an unknown data type with ID '%d'"
+      pError = generateDualError(HERE(IDS_SCRIPT_ARGUMENT_TYPE_INVALID), szName, iIndex+1, pNewArgument->eType);
+
+   // [SUCCESS] Set properties
+   if (!pError)
+   {
+      pNewArgument->szName        = utilDuplicateSimpleString(szName);
+      pNewArgument->szDescription = utilDuplicateSimpleString(szDescription);
+   }
+   else
+      deleteArgument(pNewArgument);
+
+   // Return argument or NULL
    return pNewArgument;
 }
 

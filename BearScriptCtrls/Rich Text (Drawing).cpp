@@ -210,6 +210,7 @@ VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText
 // 
 // HDC           hDC           : [in]     Device Context with attributes already set
 // CONST TCHAR*  szText        : [in]     Text to draw
+// CONST RECT*   pLineRect     : [in]     Entire line rectangle
 // CONST RECT*   pItemRect     : [in]     Drawing rectangle
 // UINT*         piCharsOutput : [in/out] Number of characters drawn
 // UINT*         piTextWidth   : [in/out] Total length of the characters drawn
@@ -219,7 +220,7 @@ VOID  drawRichTextInSingleLine(HDC  hDC, RECT  rcDrawRect, RICH_TEXT*  pRichText
 //                  RTD_PARTIAL - Only a portion of the item
 ///                                 In both instances piCharsOutput and piTextWidth define the size of the output
 // 
-RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, CONST BOOL  bMeasurement)
+RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, const TCHAR*  szText, const RECT*  pLineRect, const RECT*  pItemRect, UINT*  piCharsOutput, LONG*  piTextWidth, const BOOL  bMeasurement)
 {
    RICHTEXT_DRAWING   eResult;             // Whether item was partially or entirely drawn
    TEXTMETRIC         oTextMetrics;        // Used for calculating average character widths
@@ -228,10 +229,13 @@ RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST R
    CONST TCHAR       *szPunctuation,       // Identifies strings that won't fit on a line, but begin with commas or fullstops
                      *szWordBreak;         // Position of last word-break, if any
    SIZE               siItem,              // Size of the item drawing rectangle
+                      siString,            // Size of entire string  [WordBreaking only]
                       siSubString;         // Size of the sub-string drawing rectangle
    INT                iTextLength,         // Length of input text, in characters
                       iSubStringLength;    // Length of the sub-string, in characters
-   
+   BOOL               bWordBreak = FALSE;  // TRUE to perform manual word-break
+   RECT               rcBreak;             // Used to draw word breaking hyphen
+
    // Prepare
    szWordBreak = szPunctuation = NULL;
    iSubStringLength = NULL;
@@ -267,7 +271,7 @@ RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST R
       szNewLine[0] = NULL;
 
       // Measure text without the new-line, but include new-line in returned character count
-      GetTextExtentPoint(hDC, szSubString, iSubStringLength = lstrlen(szSubString), &siSubString);
+      GetTextExtentPoint32(hDC, szSubString, iSubStringLength = lstrlen(szSubString), &siSubString);
       iSubStringLength++;
 
       /// [PARTIAL] Return updated sub-string length and size
@@ -283,7 +287,7 @@ RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST R
       // [CHECK] Is this a special case of forcing punctuation onto the end of a line?
       if (szPunctuation)
          // [ORPHAN PUNCTUATION] Measure punctuation
-         GetTextExtentPoint(hDC, szSubString, iSubStringLength, &siSubString);
+         GetTextExtentPoint32(hDC, szSubString, iSubStringLength, &siSubString);
 
       // [CHECK] Is there a word-break?
       else if (szWordBreak = utilFindCharacterReverse(szSubString, ' '))
@@ -293,8 +297,18 @@ RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST R
          GetTextExtentPoint(hDC, szSubString, iSubStringLength, &siSubString);
       }
       else
-         // [NO WORD-BREAK] Prevent words being broken in half
-         iSubStringLength = siSubString.cx = 0;
+      {
+         // Measure entire word
+         GetTextExtentPoint32(hDC, szSubString, iSubStringLength, &siString);
+      
+         // [CHECK] Ensure item can fit on a single line
+         if (siString.cx + 10 <= pLineRect->right - pLineRect->left)
+            // [SUCCESS] Prevent word break by printing on the next line
+            iSubStringLength = siSubString.cx = 0;
+         else
+            // [FAILED] Break item in half
+            bWordBreak = TRUE;
+      }
 
       /// [PARTIAL] Return updated sub-string length and size
       eResult = RTD_PARTIAL;
@@ -302,8 +316,18 @@ RICHTEXT_DRAWING  drawRichTextItemInRect(HDC  hDC, CONST TCHAR*  szText, CONST R
 
    // [CHECK] Ensure we're not performing a calculation
    if (!bMeasurement)
+   {
       /// [DRAW] Draw sub-string without trailing new-line/word-break
       DrawText(hDC, szSubString, iSubStringLength, (RECT*)pItemRect, MAKEWORD(DT_LEFT WITH DT_EXPANDTABS WITH DT_TABSTOP, 4));     // HACK: Remove 'const' - DrawText(..) does not modify rect without DT_CALCRECT
+
+      /// [WORD BREAK] Insert hyphen at the word-break
+      if (bWordBreak)
+      {
+         GetTextExtentPoint32(hDC, TEXT("-"), 1, &siString);
+         SetRect(&rcBreak, pItemRect->right, pItemRect->top, pItemRect->right + siString.cx, pItemRect->bottom);
+         DrawText(hDC, TEXT("-"), 1, &rcBreak, DT_RIGHT);  
+      }
+   }
    
    // Set sub-string length and size
    *piCharsOutput = iSubStringLength;
@@ -441,7 +465,7 @@ VOID  drawRichTextItemsInLine(HDC  hDC, CONST RICHTEXT_POSITION*  pStartPos, CON
          utilSetDeviceContextFont(pDrawState, hItemFont = utilDuplicateFont(hDC, pItem->bBold, pItem->bItalic, pItem->bUnderline), getTooltipColour(pItem->eColour != GTC_DEFAULT ? pItem->eColour : GTC_BLACK ));
 
          /// Attempt to draw item in remaining rectangle.  Receive item length and width.
-         eDrawResult = drawRichTextItemInRect(hDC, &pItem->szText[pEndPos->iCharIndex], &rcItem, &iItemLength, &siItem.cx, bMeasurement);
+         eDrawResult = drawRichTextItemInRect(hDC, &pItem->szText[pEndPos->iCharIndex], pLineRect, &rcItem, &iItemLength, &siItem.cx, bMeasurement);
 
          // Update item drawing rectangle and running total
          rcItem.left += siItem.cx;

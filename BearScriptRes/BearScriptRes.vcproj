@@ -170,81 +170,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug -- Testing|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;BEARSCRIPTRES_EXPORTS"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				OutputFile="$(OutDir)\X-Studio.Resources.dll"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				ResourceOnlyDLL="true"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release -- Testing|Win32"
+			Name="Release (Symbols)|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
@@ -291,10 +217,12 @@
 				IgnoreImportLibrary="true"
 				OutputFile="$(OutDir)\X-Studio.Resources.dll"
 				LinkIncremental="1"
+				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
 				ResourceOnlyDLL="true"
 				TargetMachine="1"
 			/>
@@ -379,7 +307,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Icons\Colour - Dark Orange.ico"
+					>
+				</File>
+				<File
 					RelativePath=".\Icons\Colour - Dark Red.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Icons\Colour - Dark Yellow.ico"
 					>
 				</File>
 				<File
@@ -392,6 +328,10 @@
 				</File>
 				<File
 					RelativePath=".\Icons\Colour - Orange.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Icons\Colour - Pink.ico"
 					>
 				</File>
 				<File
@@ -703,6 +643,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Icons\Menu - Open VFS.ico"
+					>
+				</File>
+				<File
 					RelativePath=".\Icons\Menu - Output Window.ico"
 					>
 				</File>
@@ -843,6 +787,50 @@
 				Name="Bitmaps"
 				>
 				<File
+					RelativePath=".\Bitmaps\About - Bullwinkle.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - Illuminatus.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - Inras.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - Jack08.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - Jack775544.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - Ketraar.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - LitCube.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - MarkCondren.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - RedEclipse.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - s9ilent.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\About - Unknown.bmp"
+					>
+				</File>
+				<File
 					RelativePath=".\Bitmaps\Button - Default.bmp"
 					>
 				</File>
@@ -859,6 +847,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Bitmaps\Dialog - Export Project.bmp"
+					>
+				</File>
+				<File
 					RelativePath=".\Bitmaps\Dialog - File Options.bmp"
 					>
 				</File>
@@ -872,6 +864,10 @@
 				</File>
 				<File
 					RelativePath=".\Bitmaps\Special - License.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\Bitmaps\Special - Panda.bmp"
 					>
 				</File>
 				<File

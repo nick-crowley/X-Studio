@@ -16,7 +16,7 @@
 
 // Define various totals
 #define            GAME_TEXT_COLOURS         11           // Number of game text colours
-#define            INTERFACE_COLOURS         13           // Number of interface colours
+#define            INTERFACE_COLOURS         16           // Number of interface colours
 #define            CODEOBJECT_CLASSES        13           // Number of CodeObject classes
 #define            LANGUAGES                 7            // Number of Languages
 #define            PREFERENCES_PAGES         5            // Number of preferences dialog pages
@@ -26,7 +26,7 @@
 ///                                    TYPE DEFINITIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////
 
-typedef             QUEUE                   ERROR_QUEUE;
+//typedef             QUEUE                   ERROR_QUEUE;
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
 ///                                    APPLICATION
@@ -39,6 +39,7 @@ struct CONSOLE_DATA;
 struct GAME_DATA;
 struct FILE_SYSTEM;
 struct IMAGE_TREE;
+enum APP_LANGUAGE;
 
 // Indicates whether game data is currently loaded or not
 //
@@ -52,7 +53,31 @@ enum APPLICATION_ERROR  { AE_ACCESS_VIOLATION, AE_DEBUG_ASSERTION, AE_TERMINATIO
 
 // Defines the application registry sub-keys
 //
-enum APPLICATION_REGISTRY_KEY  { ARK_SESSION, ARK_CURRENT_SCHEME, ARK_SCHEME_LIST, ARK_RECENT_FILES };
+enum APPLICATION_REGISTRY_KEY  { ARK_SESSION, ARK_CURRENT_SCHEME, ARK_SCHEME_LIST, ARK_RECENT_FILES, ARK_RECENT_FOLDERS };
+
+// Application versions
+//
+enum APPLICATION_VERSION { AV_BETA_1          = 1,       // Initial release
+                           AV_BETA_2          = 2,       // Change of windows and state
+                           AV_BETA_2_UPDATE_3 = 3,       // Change from window rectangles to pane ratios
+                           AV_BETA_2_UPDATE_4 = 4,       // Implemented APP_LANGUAGE and GAME_LANGUAGE
+                           AV_BETA_2_UPDATE_5 = 5,       // Added 'Report string merge warnings'
+                           AV_BETA_2_UPDATE_8 = 6,       // [UNRELEASED] Added 'X-Universe Forum Username'
+                           AV_BETA_3          = 7,       // Added Transparent PropertiesDlg. Added ProjectsDlg visibilty. Changed window ratios to pixel sizes.
+                           AV_BETA_3_UPDATE_1 = 8,       // Added some new tutorial windows
+                           AV_BETA_3_UPDATE_4 = 9,       // Added FindDialog rectangle
+                           AV_BETA_4          = 10,      // Changes ColourScheme interface colours
+                           AV_BETA_4_UPDATE_5 = 11,      // No Preference changes
+                           AV_BETA_5          = 12,      // No Preference changes
+                           AV_BETA_5_UPDATE_1 = 13,      // No Preference changes
+                           AV_BETA_5_UPDATE_2 = 14,      // No Preference changes
+                           AV_BETA_5_UPDATE_3 = 15,      // No Preference changes
+                           AV_BETA_5_UPDATE_4 = 16,      // No Preference changes
+                           AV_BETA_5_UPDATE_5 = 17,      // No Preference changes
+                           AV_BETA_5_UPDATE_6 = 18,      // Added backup options, but they're filled automatically if missing
+                           AV_BETA_5_UPDATE_7 = 19,      // No Preference changes
+                           AV_BETA_5_UPDATE_8 = 20 };    // No Preference changes
+
 
 // Defines available ImageTree icon sizes
 //
@@ -75,6 +100,7 @@ struct APPLICATION
                     *pMediumImageTree,       // Medium icons
                     *pLargeImageTree;        // Large icons
    WINDOWS_VERSION   eWindowsVersion;        // Windows version
+   APPLICATION_VERSION eVersion;             // App Version
 
    // Process data
    HINSTANCE         hAppInstance,           // Main thread instance handle
@@ -90,11 +116,14 @@ struct APPLICATION
                      bCriticalErrors[6];     // Types of critical errors encountered
 
    // Convenience strings
-   TCHAR             szName[128],                  // Application name (Useful to have)
-                     szResourceLibrary[MAX_PATH],  // Full path of resource library (useful to have)
-                     szGameVersions[5][32];        // Game versions (Used in error message alot, useful to have) 
+   TCHAR             szName[128],                  // Application name (Useful to have) 
+                     szFolder[MAX_PATH],           // Application folder
+                     szGameVersions[5][32],        // Game versions (Used in error message alot, useful to have) 
+                     szResourceLibrary[MAX_PATH];  // Full path of resource library (useful to have)
+                     
    // System ImageList icons
    INT               iSystemImageListIcons[8];     // Index of GameVersion and DocumentType icons within the System ImageList
+   HBRUSH            hBrushes[31];
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +258,7 @@ struct  CODEOBJECT
 enum  GAME_TEXT_COLOUR  { GTC_BLACK, GTC_BLUE, GTC_CYAN, GTC_DEFAULT, GTC_GREEN, GTC_ORANGE, GTC_PURPLE, GTC_RED, GTC_SILVER, GTC_WHITE, GTC_YELLOW };
 
 // Application Interface Colours
-enum  INTERFACE_COLOUR  { IC_BLACK, IC_DARK_BLUE, IC_DARK_GREEN, IC_DARK_GREY, IC_DARK_RED, IC_LIGHT_BLUE, IC_LIGHT_GREEN, IC_LIGHT_GREY, IC_LIGHT_RED, IC_ORANGE, IC_PURPLE, IC_YELLOW, IC_WHITE };
+enum  INTERFACE_COLOUR  { IC_BLACK, IC_DARK_BLUE, IC_DARK_GREEN, IC_DARK_GREY, IC_DARK_ORANGE, IC_PURPLE, IC_DARK_RED, IC_DARK_YELLOW, IC_LIGHT_BLUE, IC_LIGHT_GREEN, IC_LIGHT_GREY, IC_LIGHT_ORANGE, IC_LIGHT_RED, IC_PINK, IC_LIGHT_YELLOW, IC_WHITE };
 
 // Interface colour scheme
 //
@@ -268,6 +297,7 @@ struct CONSOLE_DATA
 // Forward declarations
 struct LIST;
 struct ERROR_STACK;
+struct ERROR_QUEUE;
 struct PARAMETER;
 struct PARAMETER_ARRAY;
 struct RICH_TEXT;
@@ -472,7 +502,8 @@ struct COMMAND_SYNTAX
    LONG                 iID;                     // ID of the command
    TCHAR               *szSyntax,                // Syntax string of the command
                        *szHash,                  // Hash of the syntax string
-                       *szSuggestionText,        // Text used to insert as suggestion
+                       *szContent,               // Approximate display text
+                       *szSuggestion,            // Text used to insert as suggestion
                        *szReferenceURL;          // MSCI forum URL
                        
    RICH_TEXT           *pDisplaySyntax,          // Syntax as displayed by suggestion box and search dialog
@@ -613,6 +644,13 @@ struct ERROR_STACK : STACK
    ERROR_TYPE      eType;      // Severity of error
 };
 
+// Queue of ErrorStacks
+//
+struct ERROR_QUEUE : QUEUE
+{
+   BOOL            bLiveReport;
+};
+
 /// Macro: HERE
 // Description: Convenience macro for assembling the current position of a line of source code. It assembles
 //                the current position in the file into the parameters taken by the 'createError' function
@@ -724,7 +762,7 @@ enum GAME_PAGE_ID  {  GPI_INVALID              = 0,
                       GPI_CONDITIONALS         = 2007,
                       GPI_OBJECT_COMMANDS      = 2008,
                       GPI_FLIGHT_RETURNS       = 2009,
-                      GPI_FORMATIONS           = 2012,
+                      ///GPI_FORMATIONS           = 2012,      REM: Don't exist
                       GPI_DATA_TYPES           = 2013,
                       GPI_WING_COMMANDS        = 2028   };
 
@@ -1012,7 +1050,7 @@ enum  ICON_STATE  { IS_NORMAL, IS_DISABLED, IS_SELECTED };
 // Defines the number of game/script object groups
 //
 #define          GAME_OBJECT_GROUP_COUNT       7
-#define          SCRIPT_OBJECT_GROUP_COUNT     14
+#define          SCRIPT_OBJECT_GROUP_COUNT     13
 
 // Defines whether an ObjectName is a GameObject ("Enumeration") or a ScriptObject ("Constant")
 //
@@ -1035,18 +1073,18 @@ enum OBJECT_NAME_GROUP
    ONG_CONSTANT         = 7,         // Script Constant
    ONG_DATA_TYPE        = 8,         // Variable Data Type
    ONG_FLIGHT_RETURN    = 9,         // Flight Return Code
-   ONG_FORMATION        = 10,        // Formation
-   ONG_OBJECT_CLASS     = 11,        // Object Class
-   ONG_RACE             = 12,        // Race
-   ONG_RELATION         = 13,        // Relation
-   ONG_PARAMETER_TYPE   = 14,        // Parameter Syntax
-   ONG_SECTOR           = 15,        // Sector
-   ONG_STATION_SERIAL   = 16,        // Station Serial
-   ONG_OBJECT_COMMAND   = 17,        // Object Command
-   ONG_WING_COMMAND     = 18,        // Wing Command
-   ONG_SIGNAL           = 19,        // Signal
-   ONG_TRANSPORT_CLASS  = 20,        // Transport Class
-   ONG_OPERATOR         = 21         // Operator
+   ///ONG_FORMATION        = 10,        // Formation      REM: Don't really exist!
+   ONG_OBJECT_CLASS     = 10,        // Object Class
+   ONG_RACE             = 11,        // Race
+   ONG_RELATION         = 12,        // Relation
+   ONG_PARAMETER_TYPE   = 13,        // Parameter Syntax
+   ONG_SECTOR           = 14,        // Sector
+   ONG_STATION_SERIAL   = 15,        // Station Serial
+   ONG_OBJECT_COMMAND   = 16,        // Object Command
+   ONG_WING_COMMAND     = 17,        // Wing Command
+   ONG_SIGNAL           = 18,        // Signal
+   ONG_TRANSPORT_CLASS  = 19,        // Transport Class
+   ONG_OPERATOR         = 20         // Operator
 };
 
 // Convenience descriptions for iterating through groups
@@ -1072,6 +1110,7 @@ struct OBJECT_PROPERTIES
    CONST TCHAR   *szMainType,          // Main type string
                  *szRawName,           // Un-mangled name
                  *szDescription,       // Description
+                 *szClass,             // Classification
                  *szTransportClass,    // Transport class string
                  *szStationSize,       // Station size string
                  *szManufacturer;      // Owner race string
@@ -1107,7 +1146,6 @@ struct OBJECT_NAME
 // Game Objects
    TCHAR*             szObjectID;      // [GAME OBJECT] Object's ID within the game
    MAIN_TYPE          eMainType;       // [GAME OBJECT] MainType of the ship/station/ware the object represents (Used for generating packed WareIDs)
-   //GAME_STRING*       szDescription;   // [GAME OBJECT] GameString containing the object description, or NULL if description was not found
    OBJECT_PROPERTIES  oProperties;     // [GAME OBJECT] Extended properties
 
 // Script Objects
@@ -1476,10 +1514,11 @@ enum  OPERATION_TYPE   {  OT_LOAD_GAME_DATA,             // Loading game data
                           OT_VALIDATE_SCRIPT_FILE,       // Generates/Validates script code
                           
                           OT_SEARCH_FILE_SYSTEM,         // FileDialog file search
-                          OT_SEARCH_SCRIPT_CALLS,        // External ScriptCall dependencies search
+                          OT_SEARCH_SCRIPT_CONTENT,      // External ScriptCall dependencies search
 
                           OT_SUBMIT_BUG_REPORT,          // Bug report submission
-                          OT_SUBMIT_CORRECTION     };    // Correction submission
+                          OT_SUBMIT_CORRECTION,          // Correction submission
+                          OT_AUTOMATIC_UPDATE       };   // Automatic update check
 
 
 // Identifies the possible results of a function or threaded operation
@@ -1500,11 +1539,18 @@ enum  OPERATION_RESULT {  OR_SUCCESS = 0,      // Operation succeeded (there may
 // 
 struct LOADING_OPTIONS
 {
-   UINT          iRecursionDepth;       // Recursion depth
+   // Open Recursive
+   UINT          iRecursionDepth;            // Recursion depth
 
-   BOOL          eCompilerTest;         // Type of compiler test to perform
-   BOOL          bBatchCompilerTest;    // Whether to perform test in batch
-   TCHAR         szOriginalPath[MAX_PATH];
+   // Compiler Test
+   BOOL          eCompilerTest;              // Type of compiler test to perform
+   BOOL          bBatchCompilerTest;         // Whether to perform test in batch
+   TCHAR         szOriginalPath[MAX_PATH];   // Full path of original file
+
+   // Highlight on Load
+   TCHAR         szSearchText[256];          // Text to highlight on load
+   UINT          iLineNumber;                // Line to highlight on load
+   BOOL          bHighlight;                 // Whether to highlight
 };
 
 
@@ -1519,6 +1565,7 @@ struct OPERATION_DATA
 
    // Thread
    HANDLE              hThread;             // Thread handle
+   DWORD               dwThreadID;          // Thread ID
    HWND                hParentWnd;          // ErrorReporting/Completion notification
 
    // Tracking
@@ -1550,7 +1597,7 @@ struct DOCUMENT_OPERATION : OPERATION_DATA
 //
 struct SUBMISSION_OPERATION : OPERATION_DATA     
 {
-   TCHAR*             szCorrection;            // Correction submission
+   TCHAR*             szCorrection;           // Correction submission
 };
 
 
@@ -1566,13 +1613,41 @@ struct SEARCH_OPERATION : OPERATION_DATA
 };
 
 
+// Possible objects to search scripts for
+union SCRIPT_CONTENT
+{
+   const TCHAR*           asScript;           // Script name
+   const COMMAND_SYNTAX*  asSyntax;           // Command
+   OBJECT_NAME*           asObject;           // Game/Script object
+   LPARAM                 asPointer;          //
+};
+
+// Content type
+enum CONTENT_TYPE  { CT_SCRIPT, CT_SYNTAX, CT_OBJECT };
+
 // Worker thread for external script-call searching operation
 //
-struct SCRIPTCALL_OPERATION : OPERATION_DATA
+struct SCRIPT_OPERATION : OPERATION_DATA
 {
-   AVL_TREE*           pCallersTree;               // ScriptDependencies representing each calling script
-   TCHAR               szScriptName[MAX_PATH];     // Name of the script to search against
+   AVL_TREE*        pCallersTree;             // ScriptDependencies representing each calling script
+   TCHAR*           szFolder;                 // Folder to search
+   const TCHAR*     szContent;                // Content display string
+   CONTENT_TYPE     eContent;                 // Content type
+   SCRIPT_CONTENT   xContent;                 // Desired content
 };
+
+
+// Worker thread data for auto-update check
+//
+struct UPDATE_OPERATION : OPERATION_DATA     
+{
+   BOOL             bAvailable;               // Whether update available
+   TCHAR           *szName,                   // Release name
+                   *szDate,                   // Release date
+                   *szURL;                    // Release download URL
+   RICH_TEXT       *pDescription;             // Release details
+};
+
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   OPERATION_PROGRESS
@@ -1660,18 +1735,6 @@ enum APPLICATION_WINDOW { AW_MAIN,                    // Main window
 //
 enum RESULT_TYPE  { RT_COMMANDS, RT_GAME_OBJECTS, RT_SCRIPT_OBJECTS, RT_NONE };  
 
-// Application versions
-//
-enum APPLICATION_VERSION { AV_BETA_1          = 1,       // Initial release
-                           AV_BETA_2          = 2,       // Change of windows and state
-                           AV_BETA_2_UPDATE_3 = 3,       // Change from window rectangles to pane ratios
-                           AV_BETA_2_UPDATE_4 = 4,       // Implemented APP_LANGUAGE and GAME_LANGUAGE
-                           AV_BETA_2_UPDATE_5 = 5,       // Added 'Report string merge warnings'
-                           AV_BETA_2_UPDATE_8 = 6,       // [UNRELEASED] Added 'X-Universe Forum Username'
-                           AV_BETA_3          = 7,       // Added Transparent PropertiesDlg. Added ProjectsDlg visibilty. Changed window ratios to pixel sizes.
-                           AV_BETA_3_UPDATE_1 = 8,       // Added some new tutorial windows
-                           AV_BETA_3_UPDATE_4 = 9  };    // Added FindDialog rectangle
-
 // Game data folder state
 //
 enum GAME_FOLDER_STATE   { GFS_INVALID,         // Game folder does not contain the required game data files
@@ -1696,7 +1759,9 @@ struct PREFERENCES
                                                  // [GFS_INVALID]    Game folder does not contain game data files
                                                  // [GFS_INCOMPLETE] Used during calculations only, never used outside the preferences dialog
 
-   TCHAR             szLastFolder[MAX_PATH];     // The last folder opened in the file dialog (Guaranteed to have a trailing backslash) 
+   TCHAR             szLastFolder[MAX_PATH],     // The last folder opened in the file dialog (Guaranteed to have a trailing backslash) 
+                     szBackupFolder[MAX_PATH],   // The last folder used for backups (Guaranteed to have a trailing backslash) 
+                     szBackupFileName[MAX_PATH]; // The last filename used for backups
    FILE_FILTER       eLastFileFilter;            // Last file filter used in the file dialog
    TCHAR             szFindText[MAX_PATH];       // Last search text
    RESULT_TYPE       eSearchDialogTab;           // Current SearchDialog tab
@@ -1728,6 +1793,7 @@ struct PREFERENCES
                      bTransparentProperties,     // Transparent properties dialog
                      bTutorialMode,              // Display dialog tutorial windows on first use
                      bUseDoIfSyntax,             // Use the 'do if' syntax instead of 'skip if not'
+                     bVersionIncrement,          // Auto-increment script version on save
                      bEditorTooltips,            // Display tooltips in the CodeEdit
                      bSearchResultTooltips,      // Display tooltips in results dialog
                      bSuggestions[5],            // Whether to display suggestions for commands, game objects, script objects and variables
@@ -1997,7 +2063,8 @@ struct RICHTEXT_STACK_ITEM
 struct SCRIPT_DEPENDENCY
 {
    TCHAR  szScriptName[128];        // Name of the script, without extension
-   UINT   iCalls;                   // Number of times the script is called
+   UINT   iCalls,                   // Number of times the script is called
+          iLine;                    // Zero-base line number
 };
 
 
@@ -2050,6 +2117,49 @@ struct COMMAND_STREAM
 {
    LIST    *pStandardList,                // Standard COMMANDs
            *pAuxiliaryList;               // Auxiliary COMMANDs
+};
+
+
+// An XMLTreeNode that contains a command and has a CommandType to indicate which command branch it belongs to
+//
+struct COMMAND_NODE
+{
+   COMMAND_TYPE   eType;      // Type of the command
+   XML_TREE_NODE* pNode;      // Node containing the child-nodes that define the command
+};
+
+// Two XMLTreeNodes that contain a PARAMETER data type and PARAMETER value in the first and second nodes respectively
+//
+struct PARAMETER_NODE_TUPLE
+{
+   XML_TREE_NODE  *pType,     // Node containing the parameter type
+                  *pValue;    // Node containing the parameter value
+};
+
+// Identifies the meaning of the next (or next two) parameter nodes in a CommandNode
+//
+enum PARAMETER_NODE_TYPE { PNT_PARAMETER_TUPLE,       // 
+                           PNT_SINGLE_PARAMETER,      // 
+                           PNT_INFIX_EXPRESSION,      // 
+                           PNT_POSTFIX_EXPRESSION,    // 
+                           PNT_PARAMETER_COUNT,       // 
+                           PNT_INFIX_COUNT,           // 
+                           PNT_POSTFIX_COUNT    };    // 
+
+// Identifies the various possible types of <sourcevalue> tag
+//
+enum SOURCE_VALUE_TYPE { SVT_UNKNOWN,   // Unrecognised or missing value type
+                         SVT_ARRAY,     // Array value
+                         SVT_STRING,    // String value
+                         SVT_INTEGER }; // Integer value
+
+// Represents various parameter counts for translating script CommandNodes.
+//
+struct PARAMETER_COUNT
+{
+   UINT    iCount,            // Number of ScriptCall argument or CommandComment parameters
+           iPostfixCount,     // Number of Postfix expression parameters
+           iInfixCount;       // Number of Infix expression parameters
 };
 
 // Used for translating MSCI XML script into a list of translated COMMANDs
@@ -2313,7 +2423,7 @@ struct TEXT_STREAM
 };
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
-///                                     TRANSLATION
+///                                   PARAMETER SYNTAX
 ///
 ///   Used in the conversion of X3 game scripts to text
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -2619,7 +2729,7 @@ struct AVL_TREE_OPERATION
    AVL_TREE_FUNCTOR    pfnFunctor;          // Operation function
    AVL_TREE_TRAVERSAL  eOrder;              // Order in which the nodes should be operated upon
    BOOL                bProcessing;         // Processing flag, operation is aborted if this becomes FALSE
-   QUEUE*              pErrorQueue;         // Custom error queue, if any
+   ERROR_QUEUE*        pErrorQueue;         // Custom error queue, if any
    OPERATION_PROGRESS* pProgress;           // Custom Operation progress, if any
 
    // Parameters
@@ -2629,7 +2739,8 @@ struct AVL_TREE_OPERATION
                        xSecondInput,        // [OPTIONAL] Extra input data
                        xThirdInput,         // [OPTIONAL] Extra input data
                        xFourthInput,        // [OPTIONAL] Extra input data
-                       xOutput;             // [OPTIONAL] Output data from the operation
+                       xOutput,             // [OPTIONAL] Output data from the operation
+                       xOutput2;            // [OPTIONAL] Extra output data 
 
    // Input / Output
    CONST AVL_TREE*     pInputTree;          // [OPTIONAL] Input tree
@@ -2857,7 +2968,7 @@ extern CONST BYTE  iByteOrderingUTF8[3],        // UTF-8 byte ordering header
 //
 struct XML_PROPERTY
 {
-   TCHAR  szName[24],      // Property name
+   TCHAR  szName[32],      // Property name
          *szValue;         // Property value
 };
 
@@ -2872,8 +2983,8 @@ struct XML_TREE_NODE
 
    XML_TREE_NODE *pParent;          // Parent node
 
-   LIST          *pProperties,      // Tag properties (list of XML_PROPERTY*)
-                 *pChildren;        // Child nodes (list of XML_TREE_NODE*)
+   LIST           oProperties,      // Tag properties (list of XML_PROPERTY*)
+                  oChildren;        // Child nodes (list of XML_TREE_NODE*)
    LIST_ITEM     *pItem;            // ListItem that contains this node (within parent's list of children) 
 };
 
@@ -2886,12 +2997,7 @@ struct XML_TREE
 };
 
 // XML file parsing stack
-//
-struct XML_TAG_STACK
-{
-   TCHAR*  pItems[32];     // Stack of tag names
-   UINT    iCount;         // Size of stack
-};
+typedef STACK  XML_TAG_STACK;
 
 // Flags indicating the type of an XML token
 //
@@ -2901,6 +3007,7 @@ enum XML_TOKEN_TYPE  { XTT_TEXT,                 // Text
                        XTT_CLOSING_TAG,          // Closing tag
                        XTT_SELF_CLOSING_TAG,     // Self-Closing tag
                        XTT_COMMENT_TAG,          // Comment
+                       XTT_CDATA_TAG,            // CData
                        XTT_SCHEMA_TAG  };        // Schema tag
 
 // An XML tokeniser
@@ -2911,11 +3018,19 @@ struct XML_TOKENISER
    TCHAR            szText[MAX_STRING];   // Current token
    UINT             iCount;               // Current token length, in characters
    XML_TOKEN_TYPE   eType;                // Token type
+   XML_TREE_NODE   *pNode;                // Node created from current token  (Opening tags only)
    UINT             iLineNumber;          // Line number containing the token (one-based)
+   BOOL             bBlocking;            // Tokeniser is currently blocking new tags (eg. <sourcetext>)
+   const TCHAR*     szFileName;           // Filename
 
 // Private:
    CONST TCHAR     *szSource,             // Input text
                    *szNextToken;          // Current position within the input string (Actually points to the next token)
+
+   /// Ignored: These were created for un-used 'New' XML parser
+   /*UINT          eState;
+   const TCHAR*  szInput;
+   XML_PROPERTY* pProperty;*/
 };
 
 // XML Tag properties parsing state
@@ -2926,47 +3041,5 @@ enum XML_TAG_PARSE_STATE  { XTPS_PROPERTY_NAME, XTPS_PROPERTY_VALUE };
 enum XML_NODE_RELATIONSHIP  { XNR_CHILD,        // First child
                               XNR_SIBLING,      // Next item in the list containing the node
                               XNR_PARENT  };    // Parent
-
-// An XMLTreeNode that contains a command and has a CommandType to indicate which command branch it belongs to
-//
-struct COMMAND_NODE
-{
-   COMMAND_TYPE   eType;      // Type of the command
-   XML_TREE_NODE* pNode;      // Node containing the child-nodes that define the command
-};
-
-// Two XMLTreeNodes that contain a PARAMETER data type and PARAMETER value in the first and second nodes respectively
-//
-struct PARAMETER_NODE_TUPLE
-{
-   XML_TREE_NODE  *pType,     // Node containing the parameter type
-                  *pValue;    // Node containing the parameter value
-};
-
-// Identifies the meaning of the next (or next two) parameter nodes in a CommandNode
-//
-enum PARAMETER_NODE_TYPE { PNT_PARAMETER_TUPLE,       // 
-                           PNT_SINGLE_PARAMETER,      // 
-                           PNT_INFIX_EXPRESSION,      // 
-                           PNT_POSTFIX_EXPRESSION,    // 
-                           PNT_PARAMETER_COUNT,       // 
-                           PNT_INFIX_COUNT,           // 
-                           PNT_POSTFIX_COUNT    };    // 
-
-// Identifies the various possible types of <sourcevalue> tag
-//
-enum SOURCE_VALUE_TYPE { SVT_UNKNOWN,   // Unrecognised or missing value type
-                         SVT_ARRAY,     // Array value
-                         SVT_STRING,    // String value
-                         SVT_INTEGER }; // Integer value
-
-// Represents various parameter counts for translating script CommandNodes.
-//
-struct PARAMETER_COUNT
-{
-   UINT    iCount,            // Number of ScriptCall argument or CommandComment parameters
-           iPostfixCount,     // Number of Postfix expression parameters
-           iInfixCount;       // Number of Infix expression parameters
-};
 
 

@@ -11,7 +11,7 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-#define VALIDATE_BY_TEXT
+//#define VALIDATE_BY_TEXT
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
@@ -42,37 +42,35 @@ CONST UINT  iErrorThreshold = 15;
 // CONST SCRIPT_FILE*  pScriptFile     : [in]     Original script
 // ERROR_QUEUE*        pErrorQueue     : [in/out] Error queue
 // 
-// Return Value   : TRUE
+// Return Value   : OR_FAILURE if errors were found, OR_SUCCESS for warnings only
 // 
-BOOL  validateScriptFileProperties(CONST SCRIPT_FILE*  pValidationFile, CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue)
+OPERATION_RESULT  validateScriptFileProperties(CONST SCRIPT_FILE*  pValidationFile, CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue)
 {
    VARIABLE_NAME  *pVariable1,      // Variable from the validation script
                   *pVariable2;      // Variable from the original script
    ARGUMENT       *pArgument1,      // Argument from the validation script
                   *pArgument2;      // Argument from the original script
-
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// [SCRIPT-NAME] 
    if (!utilCompareStringVariables(pValidationFile->szScriptname, pScriptFile->szScriptname))
       // [WARNING] "The %s property '%s' does not match the original '%s'"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("script name"), pValidationFile->szScriptname, pScriptFile->szScriptname);
+      generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("script name"), pValidationFile->szScriptname, pScriptFile->szScriptname);
 
    /// [DESCRIPTION] 
    if (!utilCompareStringVariables(pValidationFile->szDescription, pScriptFile->szDescription))
       // [WARNING] "The %s property '%s' does not match the original '%s'"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("description"), pValidationFile->szDescription, pScriptFile->szDescription);
+      generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("description"), pValidationFile->szDescription, pScriptFile->szDescription);
 
-   /// [COMMAND ID]
-   if (lstrlen(pValidationFile->szCommandID) AND pScriptFile->szCommandID AND !utilCompareStringVariables(pValidationFile->szCommandID, pScriptFile->szCommandID))
+   /// [COMMAND ID] Ensure both are present/missing. If present, ensure both are equal
+   if (!pValidationFile->szCommandID != !pScriptFile->szCommandID OR (pScriptFile->szCommandID AND !utilCompareStringVariables(pValidationFile->szCommandID, pScriptFile->szCommandID)) )
+   //if (lstrlen(pValidationFile->szCommandID) AND pScriptFile->szCommandID AND !utilCompareStringVariables(pValidationFile->szCommandID, pScriptFile->szCommandID))
       // [WARNING] "The %s property '%s' does not match the original '%s'"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("command ID"), pValidationFile->szCommandID, pScriptFile->szCommandID);
+      generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("command ID"), pValidationFile->szCommandID, pScriptFile->szCommandID);
 
    /// [GAME VERSION]
    if (pValidationFile->eGameVersion != pScriptFile->eGameVersion)
       // [WARNING] "The %s property '%s' does not match the original '%s'"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("game version"), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameVersionString(pScriptFile->eGameVersion));
+      generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_STRING_PROPERTY_MISMATCH), TEXT("game version"), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameVersionString(pScriptFile->eGameVersion));
 
    ///// [SIGNATURE]
    //if (pValidationFile->bSignature != pScriptFile->bSignature)
@@ -82,7 +80,7 @@ BOOL  validateScriptFileProperties(CONST SCRIPT_FILE*  pValidationFile, CONST SC
    /// [VERSION]
    if (pValidationFile->iVersion != pScriptFile->iVersion)
       // [WARNING] "The %s property '%d' does not match the original '%d'"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_INTEGER_PROPERTY_MISMATCH), TEXT("version"), pValidationFile->iVersion, pScriptFile->iVersion);
+      generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_INTEGER_PROPERTY_MISMATCH), TEXT("version"), pValidationFile->iVersion, pScriptFile->iVersion);
 
    /// [ARGUMENT COUNT]
    if (getTreeNodeCount(pValidationFile->pArgumentTreeByID) != getTreeNodeCount(pScriptFile->pArgumentTreeByID))
@@ -99,15 +97,15 @@ BOOL  validateScriptFileProperties(CONST SCRIPT_FILE*  pValidationFile, CONST SC
       /// [NAME]
       if (!utilCompareStringVariables(pArgument1->szName, pArgument2->szName))
          // [WARNING] "The %s property of %s %d is '%s', which does not match the original '%s'"
-         generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_VARIABLE_STRING_MISMATCH), TEXT("name"), TEXT("argument"), iIndex, pArgument1->szName, pArgument2->szName);
+         generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_VARIABLE_STRING_MISMATCH), TEXT("name"), TEXT("argument"), iIndex, pArgument1->szName, pArgument2->szName);
       /// [DESCRIPTION]
       if (!utilCompareStringVariables(pArgument1->szDescription, pArgument2->szDescription))
          // [WARNING] "The %s property of %s %d is '%s', which does not match the original '%s'"
-         generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_VARIABLE_STRING_MISMATCH), TEXT("description"), TEXT("argument"), iIndex, pArgument1->szDescription, pArgument2->szDescription);
+         generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_VARIABLE_STRING_MISMATCH), TEXT("description"), TEXT("argument"), iIndex, pArgument1->szDescription, pArgument2->szDescription);
       /// [TYPE]
       if (pArgument1->eType != pArgument2->eType)
          // [WARNING] "The %s property of %s %d is '%s', which does not match the original '%s'"
-         generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_VARIABLE_STRING_MISMATCH), TEXT("syntax"), TEXT("argument"), iIndex, szParameterSyntax[pArgument1->eType], szParameterSyntax[pArgument2->eType]);
+         generateQueuedError(pErrorQueue, HERE(IDS_VALIDATION_VARIABLE_STRING_MISMATCH), TEXT("syntax"), TEXT("argument"), iIndex, szParameterSyntax[pArgument1->eType], szParameterSyntax[pArgument2->eType]);
    }
 
    /// [VARIABLES]
@@ -123,9 +121,8 @@ BOOL  validateScriptFileProperties(CONST SCRIPT_FILE*  pValidationFile, CONST SC
          generateQueuedWarning(pErrorQueue, HERE(IDS_VALIDATION_VARIABLE_INTEGER_MISMATCH), TEXT("ID"), TEXT("variable"), iIndex, pVariable1->iID, pVariable2->iID);
    }
 
-   // Return TRUE
-   END_TRACKING();
-   return TRUE;
+   // Return FAILURE if any errors occurred
+   return identifyErrorQueueType(pErrorQueue) != ET_ERROR ? OR_SUCCESS : OR_FAILURE;
 }
 
 
@@ -276,9 +273,7 @@ BOOL  validateScriptArrayNodes(CONST XML_TREE_NODE*  pValidation, CONST XML_TREE
                    *pOriginalIterator;       // Child Node iterator for original node
    BOOL             bResult;                 // Validation result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Ensure both nodes exist
    ASSERT(pValidation AND pOriginal);
 
@@ -305,7 +300,6 @@ BOOL  validateScriptArrayNodes(CONST XML_TREE_NODE*  pValidation, CONST XML_TREE
    }
    
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -335,9 +329,7 @@ BOOL  validateScriptCommandNodes(XML_TREE_NODE*  pValidationCommand, XML_TREE_NO
                          iReferenceIndex;          // [AUXILIARY] ID of the associated standard command
    BOOL                  bResult;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Ensure both nodes exist
    ASSERT(pValidationCommand AND pOriginalCommand);
 
@@ -367,7 +359,7 @@ BOOL  validateScriptCommandNodes(XML_TREE_NODE*  pValidationCommand, XML_TREE_NO
    if (!bResult)
    {
       // Prepare
-      pCommandNode = createCommandNode(eType, (XML_TREE_NODE*)pValidationCommand);
+      pCommandNode = createCommandNode(eType, pValidationCommand);
 
       // [CHECK] Lookup syntax for this command
       getCommandNodeID(pCommandNode, iCommandID, pError);
@@ -408,7 +400,6 @@ BOOL  validateScriptCommandNodes(XML_TREE_NODE*  pValidationCommand, XML_TREE_NO
    }
    
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -436,9 +427,7 @@ OPERATION_RESULT  validateScriptFileCommands(SCRIPT_TRANSLATOR*  pValidation, SC
    UINT                      iLineNumber,                // Line number of the commands being checked
                              iCommandID,                 // ID of the command being checked
                              iFailureCount;              // Failure count
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pValidationLayout = &pValidation->oLayout;
    pOriginalLayout   = &pOriginal->oLayout;
@@ -528,7 +517,6 @@ OPERATION_RESULT  validateScriptFileCommands(SCRIPT_TRANSLATOR*  pValidation, SC
    }
 
    // Return result
-   END_TRACKING();
    return (iFailureCount == 0 ? OR_SUCCESS : OR_FAILURE);
 }
 
@@ -555,9 +543,7 @@ OPERATION_RESULT  validateScriptFileCodeArray(CONST XML_SCRIPT_LAYOUT*  pValidat
    SUGGESTION_RESULT  xTreeItem;                // Used for checking presence of variables
    UINT               iIndex,                   // Current node index
                       iFailureCount;            // Failure count
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pOriginalVariables = createVariableNameTreeByText();
    eResult            = OR_SUCCESS;
@@ -669,7 +655,6 @@ OPERATION_RESULT  validateScriptFileCodeArray(CONST XML_SCRIPT_LAYOUT*  pValidat
 
    // Cleanup and return result
    deleteAVLTree(pOriginalVariables);
-   END_TRACKING();
    return (eResult == OR_ABORTED ? OR_ABORTED : (iFailureCount == 0 ? OR_SUCCESS : OR_FAILURE));
 }
 
@@ -689,19 +674,16 @@ OPERATION_RESULT  validateScriptFile(CONST SCRIPT_FILE*  pValidationFile, CONST 
 {
    OPERATION_RESULT  eResult;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Prepare
-   eResult = OR_SUCCESS;
-
    /// [INFO] Validate properties : "Validating the properties of %s script '%s'"
    pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_VALIDATING_SCRIPT_PROPERTIES), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameFileFilename(pValidationFile)));
-   validateScriptFileProperties(pValidationFile, pScriptFile, pErrorQueue);
+   eResult = validateScriptFileProperties(pValidationFile, pScriptFile, pErrorQueue);
 
-   /// [INFO] Validate CodeArray : "Validating the CodeArray of %s script '%s'"
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_VALIDATING_SCRIPT_CODEARRAY), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameFileFilename(pValidationFile)));
-   eResult = validateScriptFileCodeArray(&pValidationFile->pTranslator->oLayout, &pScriptFile->pTranslator->oLayout, pErrorQueue);
+   if (eResult == OR_SUCCESS)
+   {
+      /// [INFO] Validate CodeArray : "Validating the CodeArray of %s script '%s'"
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_VALIDATING_SCRIPT_CODEARRAY), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameFileFilename(pValidationFile)));
+      eResult = validateScriptFileCodeArray(&pValidationFile->pTranslator->oLayout, &pScriptFile->pTranslator->oLayout, pErrorQueue);
+   }
 
    // [SUCCESS] Validate commands
    if (eResult == OR_SUCCESS)
@@ -709,6 +691,9 @@ OPERATION_RESULT  validateScriptFile(CONST SCRIPT_FILE*  pValidationFile, CONST 
       /// [INFO] Validate Commands : "Validating the commands within %s script '%s'"
       pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_VALIDATING_SCRIPT_COMMANDS), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameFileFilename(pValidationFile)));
       eResult = validateScriptFileCommands(pValidationFile->pTranslator, pScriptFile->pTranslator, pValidationFile->eGameVersion, pProgress, pErrorQueue);
+
+      // [DEBUG]
+      //eResult = OR_SUCCESS;
    }
    // [ABORTED] Cannot perform validation on this script, due to an error in design.
    else if (eResult == OR_ABORTED)
@@ -716,7 +701,6 @@ OPERATION_RESULT  validateScriptFile(CONST SCRIPT_FILE*  pValidationFile, CONST 
       eResult = OR_SUCCESS;
    
    // Return result
-   END_TRACKING();
    return eResult;
 }
 
@@ -739,12 +723,16 @@ OPERATION_RESULT  validateScriptFileByText(CONST SCRIPT_FILE*  pValidationFile, 
    UINT      iFailureCount;
 
    // Prepare
-   TRACK_FUNCTION();
    iFailureCount = 0;
 
    /// [INFO/PROGRESS] Define progress as number of commands.  "Validating the commands within %s script '%s'"
    pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_VALIDATING_SCRIPT_COMMANDS), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameFileFilename(pValidationFile)));
    updateOperationProgressMaximum(pProgress, getScriptTranslatorOutputCount(pScriptFile->pTranslator));
+
+   /// [INFO] Validate properties : "Validating the properties of %s script '%s'"
+   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_VALIDATING_SCRIPT_PROPERTIES), identifyGameVersionString(pValidationFile->eGameVersion), identifyGameFileFilename(pValidationFile)));
+   if (validateScriptFileProperties(pValidationFile, pScriptFile, pErrorQueue) == OR_FAILURE)
+      return OR_FAILURE;
 
    /// [COMMAND COUNT]
    if (getScriptTranslatorOutputCount(pValidationFile->pTranslator) != getScriptTranslatorOutputCount(pScriptFile->pTranslator))
@@ -784,7 +772,6 @@ OPERATION_RESULT  validateScriptFileByText(CONST SCRIPT_FILE*  pValidationFile, 
    }
 
    // Return result
-   END_TRACKING();
    return (iFailureCount == 0 ? OR_SUCCESS : OR_FAILURE);
 }
 
@@ -808,53 +795,46 @@ OPERATION_RESULT  validateScriptFileByText(CONST SCRIPT_FILE*  pValidationFile, 
 BearScriptAPI
 DWORD   threadprocValidateScriptFile(VOID*  pParameter)
 {
-   DOCUMENT_OPERATION  *pOperationData;      // Convenience pointer
-   OPERATION_RESULT     eResult;             // Operation result, defaults to SUCCESS
-   SCRIPT_FILE         *pScriptFile,         // Convenience pointer
-                       *pValidationFile;     //
-   TCHAR               *szValidationPath,    //
-                       *szScriptFolder;      //
+   DOCUMENT_OPERATION  *pOperationData;         // Convenience pointer
+   OPERATION_RESULT     eResult = OR_FAILURE;   // Operation result, defaults to SUCCESS
+   SCRIPT_FILE         *pScriptFile,            // Convenience pointer
+                       *pValidationFile;        //
+   TCHAR               *szValidationPath,       //
+                       *szScriptFolder;         //
 
    // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND_BOLD();
    SET_THREAD_NAME("Script Validation");
    setThreadLanguage(getAppPreferences()->eAppLanguage);
-
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
    
-   // Prepare
-   pOperationData = (DOCUMENT_OPERATION*)pParameter;
-   pScriptFile    = (SCRIPT_FILE*)pOperationData->pGameFile;
-   eResult        = OR_FAILURE;
-
-   /// Generate validation path
-   szValidationPath = utilCreateStringf(MAX_PATH, TEXT("%sCode.Validation\\%s"), szScriptFolder = utilDuplicateFolderPath(pOperationData->szFullPath), PathFindFileName(pOperationData->szFullPath));
-   PathRenameExtension(szValidationPath, TEXT(".xml"));
-
-   /// Create validation file
-   pValidationFile = createScriptFileByOperation(SFO_TRANSLATION, szValidationPath);
-
-   // [STAGE] Set parsing stage
-   ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PARSING_SCRIPT);
-
-   /// [GUARD BLOCK]
    __try
    {
-      // [INFO] "Searching for %s script '%s'..."
-      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_VALIDATION_SCRIPT), TEXT("original"), PathFindFileName(pOperationData->szFullPath)));
-      VERBOSE_SMALL_PARTITION();
+      // [CHECK] Ensure parameter exists
+      ASSERT(pParameter);
+      
+      // Prepare
+      pOperationData = (DOCUMENT_OPERATION*)pParameter;
+      pScriptFile    = (SCRIPT_FILE*)pOperationData->pGameFile;
 
+      /// Generate validation path
+      szValidationPath = utilCreateStringf(MAX_PATH, TEXT("%sCode.Validation\\%s"), szScriptFolder = utilDuplicateFolderPath(pOperationData->szFullPath), PathFindFileName(pOperationData->szFullPath));
+      PathRenameExtension(szValidationPath, TEXT(".xml"));
+
+      /// Create validation file
+      pValidationFile = createScriptFileByOperation(SFO_TRANSLATION, szValidationPath);
+
+      // [STAGE] "Searching for %s script '%s'..."
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_PARSING_SCRIPT);
+      pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_VALIDATION_SCRIPT), TEXT("original"), PathFindFileName(pOperationData->szFullPath)));
+      
       /// [LOAD] Load original script into ScriptFile
       if (!loadGameFileFromFileSystemByPath(getFileSystem(), pScriptFile, NULL, pOperationData->pErrorQueue))
-         // [ERROR] "The MSCI script '%s' is unavailable or could not be accessed"
-         enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_LOAD_IO_ERROR), pOperationData->szFullPath);
+         // No enhancement necessary      // [ERROR] "The MSCI script '%s' is unavailable or could not be accessed"
+         eResult = OR_FAILURE;            //enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_SCRIPT_LOAD_IO_ERROR), pOperationData->szFullPath);
       else 
       {
          // [INFO] "Searching for %s script '%s'..."
          pushErrorQueue(pOperationData->pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_VALIDATION_SCRIPT), TEXT("validation"), PathFindFileName(pValidationFile->szFullPath)));
-         VERBOSE_SMALL_PARTITION();
 
          /// [LOAD] Load validation script into ScriptFile
          if (!loadGameFileFromFileSystemByPath(getFileSystem(), pValidationFile, NULL, pOperationData->pErrorQueue))
@@ -889,24 +869,19 @@ DWORD   threadprocValidateScriptFile(VOID*  pParameter)
             }
          }
       }
+
+      // Cleanup
+      deleteScriptFile(pValidationFile);
+      utilDeleteStrings(szValidationPath, szScriptFolder);
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pOperationData->pErrorQueue))
+   __except (pushException(pOperationData->pErrorQueue))
    {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while validate the script '%s'"
-      enhanceLastError(pOperationData->pErrorQueue, ERROR_ID(IDS_EXCEPTION_VALIDATE_SCRIPT_FILE), pOperationData->szFullPath);
-      
       // [FAILURE]
       eResult = OR_FAILURE;
    }
 
-   // Cleanup
-   deleteScriptFile(pValidationFile);
-   utilDeleteStrings(szValidationPath, szScriptFolder);
-
    // Return result
-   VERBOSE_THREAD_COMPLETE("SCRIPT VALIDATION WORKER THREAD COMPLETED");
+   CONSOLE_COMPLETE("SCRIPT VALIDATION", eResult);
    closeThreadOperation(pOperationData, eResult);
-   END_TRACKING();
    return THREAD_RETURN;
 }

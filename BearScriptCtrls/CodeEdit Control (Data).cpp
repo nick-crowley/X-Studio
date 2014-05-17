@@ -7,6 +7,8 @@
 
 #include "stdafx.h"
 
+// onException: Pass to MainWindow for display
+#define  ON_EXCEPTION()         debugCodeEditData(pWindowData);  SendMessage(getAppWindow(), UN_CODE_EDIT_EXCEPTION, NULL, (LPARAM)pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -108,7 +110,7 @@ CODE_EDIT_LINE*  createCodeEditLine()
 // Description     : Creates a new line data object containing the text and properties of a COMMAND object
 // 
 // CONST CODE_EDIT_DATA*  pWindowData : [in] Window Data
-// CONST COMMAND*          pCommand    : [in] COMMAND containing the data to be displayed by the line
+// CONST COMMAND*         pCommand    : [in] COMMAND containing the data to be displayed by the line
 // 
 // Return Value   : New CodeEditLine object, you are responsible for destroying it
 // 
@@ -116,25 +118,33 @@ CODE_EDIT_LINE*  createCodeEditLineFromCommand(CONST CODE_EDIT_DATA*  pWindowDat
 {
    CODE_EDIT_LINE*  pLineData;
 
-   // Create empty line
-   pLineData = createCodeEditLine();
-
-   /// Append input text
-   for (UINT iIndex = 0; pCommand->szBuffer[iIndex] ;iIndex++)
-      appendCodeEditCharacterToLine(pLineData, pCommand->szBuffer[iIndex]);
-
-   /// Duplicate translation errors, if any
-   if (hasErrors(pCommand->pErrorQueue))
+   TRY
    {
-      pLineData->pErrorQueue = duplicateErrorQueue(pCommand->pErrorQueue);
-      pLineData->eSeverity   = identifyErrorQueueType(pCommand->pErrorQueue);
+      // Create empty line
+      pLineData = createCodeEditLine();
+
+      /// Append input text
+      for (UINT iIndex = 0; pCommand->szBuffer[iIndex] ;iIndex++)
+         appendCodeEditCharacterToLine(pLineData, pCommand->szBuffer[iIndex]);
+
+      /// Duplicate translation errors, if any
+      if (hasErrors(pCommand->pErrorQueue))
+      {
+         pLineData->pErrorQueue = duplicateErrorQueue(pCommand->pErrorQueue);
+         pLineData->eSeverity   = identifyErrorQueueType(pCommand->pErrorQueue);
+      }
+
+      /// Duplicate input COMMAND and extract the relevant properties
+      updateCodeEditLineCommand(pWindowData, pLineData, pCommand);
+      
+      // Return object
+      return pLineData;
    }
+   CATCH0("");
+   debugCommand(pCommand);
 
-   /// Duplicate input COMMAND and extract the relevant properties
-   updateCodeEditLineCommand(pWindowData, pLineData, pCommand);
-
-   // Return object
-   return pLineData;
+   // Return empty line
+   return createCodeEditLine();
 }
 
 

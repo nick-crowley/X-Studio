@@ -8,6 +8,9 @@
 
 #include "stdafx.h"
 
+// onException: Pass to MainWindow for display
+#define  ON_EXCEPTION()         debugCodeEditData(pWindowData);  SendMessage(getAppWindow(), UN_CODE_EDIT_EXCEPTION, NULL, (LPARAM)pException);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +38,8 @@ CONST UINT  iTypeColumnWidths[CST_SCRIPT_OBJECT + 1] =
 // Column IDs
 #define    OBJECT_COLUMN_NAME                 0
 #define    OBJECT_COLUMN_TYPE                 1
+
+static const TCHAR*  szSuggestionTypes[5] = { TEXT("None"), TEXT("Variables"), TEXT("Commands"), TEXT("Game Objects"), TEXT("Script Objects"),  };
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
@@ -71,11 +76,13 @@ BOOL   createCodeEditSuggestionList(CODE_EDIT_DATA*  pWindowData)
                                         ptOrigin.x, ptOrigin.y + pWindowData->siCharacterSize.cy + 1, CW_USEDEFAULT, CW_USEDEFAULT, 
                                         pWindowData->hWnd, (HMENU)IDC_SUGGESTION_LIST, getControlsInstance(), NULL);  
 
-      ERROR_CHECK("creating suggestion ListView", pSuggestion->hCtrl);
+      SILENT_ERROR_CHECK("creating suggestion ListView", pSuggestion->hCtrl);
 
       // [CHECK] Ensure control was created successfully
       if (pSuggestion->hCtrl)
       {
+         CONSOLE("Displaying '%s' suggestions for char %d line %d", szSuggestionTypes[pSuggestion->eType], pSuggestion->ptOrigin.iIndex, pSuggestion->ptOrigin.iLine);
+
          // [COLUMNS] Display one column for commands, two columns for everything else
          oListView.iColumnCount = (pSuggestion->eType != CST_COMMAND ? 2 : 1);
          
@@ -112,6 +119,8 @@ VOID  destroyCodeEditSuggestionList(CODE_EDIT_DATA*  pWindowData)
    /// [CHECK] Ensure control DOES exist
    if (pSuggestion->hCtrl)
    {
+      //CONSOLE("Destroying Suggestions ListView");
+
       // Preserve the window handle
       hCtrl = pSuggestion->hCtrl;      /// Prevent re-entry from LoseFocus handler upon destruction
       pSuggestion->hCtrl = NULL;
@@ -156,7 +165,7 @@ BOOL   findCodeEditSuggestionByIndex(CODE_EDIT_DATA*  pWindowData, CONST UINT  i
       case CST_GAME_OBJECT:      
       case CST_SCRIPT_OBJECT:    szOutput = eResult.asObjectName->szText;              break;
       case CST_VARIABLE:         szOutput = eResult.asVariableName->szName;            break;
-      case CST_COMMAND:          szOutput = eResult.asCommandSyntax->szSuggestionText; break;
+      case CST_COMMAND:          szOutput = eResult.asCommandSyntax->szSuggestion; break;
       }
    }
 
@@ -348,7 +357,7 @@ UINT   findCodeEditSuggestionByText(CODE_EDIT_DATA*  pWindowData)
       deleteCommandHash(pCommandHash);
       break;
 
-   /// [REMAINDER] Pass the CodeEdit at the origin
+   /// [REMAINDER] Pass the codeobject at the origin
    default:
       // Generate CodeObject
       pCodeObject = createCodeObject(szLineText);
@@ -399,6 +408,7 @@ AVL_TREE*   generateCodeEditSuggestionTree(CODE_EDIT_DATA*  pWindowData)
    // Create operation
    pOperationData = createAVLTreeOperation(treeprocBuildCodeEditSuggestionTree, ATT_INORDER);
    pOperationData->xFirstInput = (LPARAM)pSuggestion->eType;
+   pOperationData->xSecondInput = (LPARAM)pWindowData->pScriptFile;
 
    /// Create output tree
    switch (pSuggestion->eType)
@@ -572,11 +582,6 @@ BOOL  insertCodeEditSuggestionAtCaret(CODE_EDIT_DATA*  pWindowData)
          // Insert verbatim
          StringCchPrintf(szOutput, COMPONENT_LENGTH, TEXT(" %s"), szSuggestion);
          insertCodeEditTextAtCaret(pWindowData, szOutput, TRUE);
-
-         /*SUGGESTION_RESULT  xResult;
-         if (findObjectInAVLTreeByIndex(pSuggestion->pResultsTree, ListView_GetNextItem(pSuggestion->hCtrl, -1, LVNI_SELECTED WITH LVNI_ALL), xResult) AND xResult.asCommandSyntax->iID == CMD_CALL_SCRIPT_VAR_ARGS)
-         {
-         }*/
       }
       /// [NON-COMMAND] Replace CodeObject only
       else
@@ -606,6 +611,9 @@ BOOL  insertCodeEditSuggestionAtCaret(CODE_EDIT_DATA*  pWindowData)
          // Cleanup
          deleteCodeObject(pCodeObject);
       }
+
+      // [TRACK]
+      VERBOSE("Inserting %s suggestion '%s' at char %d line %d", szSuggestionTypes[pSuggestion->eType], szOutput, pSuggestion->ptOrigin.iIndex, pSuggestion->ptOrigin.iLine);
          
       // Cleanup
       utilDeleteString(szLineText);
@@ -831,7 +839,7 @@ VOID   onCodeEditSuggestionItemRequest(CODE_EDIT_DATA*  pWindowData, CONST UINT 
          {
             // Lookup group name
             if (pItemData->mask INCLUDES LVIF_TEXT)
-               LoadString(getResourceInstance(), FIRST_OBJECTNAME_GROUP_NAME + xResult.asObjectName->eGroup, pItemData->pszText, pItemData->cchTextMax);
+               loadString(FIRST_OBJECTNAME_GROUP_NAME + xResult.asObjectName->eGroup, pItemData->pszText, pItemData->cchTextMax);
             
             // Right-aligned grey text
             pItemData->cColumns = DT_RIGHT;
@@ -905,9 +913,11 @@ BOOL  onCodeEditSuggestionKeyDown(CODE_EDIT_DATA*  pWindowData, CONST UINT  iVir
    /// [KEY PRESS] Examine key-press
    else if (bKeyPress) switch (iVirtualKey)
    {
-   /// [LEFT/RIGHT] Update List
+   /// [LEFT/RIGHT/HOME/END] Update List
    case VK_LEFT:
    case VK_RIGHT:
+   case VK_HOME:
+   case VK_END:
       // Update suggestions after caret has moved
       if (bProcessed AND pSuggestion->hCtrl)
          updateCodeEditSuggestionList(pWindowData, pWindowData->oCaret.oLocation.iIndex, TRUE);
@@ -921,13 +931,11 @@ BOOL  onCodeEditSuggestionKeyDown(CODE_EDIT_DATA*  pWindowData, CONST UINT  iVir
          updateCodeEditSuggestionList(pWindowData, max(0, (INT)pWindowData->oCaret.oLocation.iIndex - 1), TRUE);
       break;
 
-   /// [UP/DOWN,PAGE-UP/PAGE-DOWN,HOME/END] Pass to List
+   /// [UP/DOWN,PAGE-UP/PAGE-DOWN] Pass to List
    case VK_UP:
    case VK_DOWN:
    case VK_PRIOR:
    case VK_NEXT:
-   case VK_HOME:
-   case VK_END:
       // Handled by SuggestionList
       if (!bProcessed AND pSuggestion->hCtrl)
       {
@@ -1120,14 +1128,14 @@ VOID   onCodeEditSuggestionListKeyDown(CODE_EDIT_DATA*  pWindowData, CONST UINT 
 // AVL_TREE_NODE*       pCurrentNode   : [in] Current node
 // AVL_TREE_OPERATION*  pOperationData : [in] Operation data
 // 
-///                         xFirstInput  : SUGGESTION_TYPE : [in]               Type of suggestion tree being built
-///                         xSecondInput : CODEOBJECT*     : [in] [OBJECT NAME] CodeObject being examined
-///                         xThirdInput  : CONST TCHAR*    : [in] [COMMANDS]    Hash of the line being examined
+///                         xFirstInput  : SUGGESTION_TYPE : [in]            Type of suggestion tree being built
+///                         xSecondInput : SCRIPT_FILE*    : [in] [COMMANDS] ScriptFile 
 // 
 VOID  treeprocBuildCodeEditSuggestionTree(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
 {
    SUGGESTION_RESULT  xNode;               // Node contents
    SUGGESTION_TYPE    eSuggestionType;     // Type of the current node
+   SCRIPT_FILE*       pScriptFile;
 
    // Extract parameters
    eSuggestionType = (SUGGESTION_TYPE)pOperationData->xFirstInput;
@@ -1138,7 +1146,11 @@ VOID  treeprocBuildCodeEditSuggestionTree(AVL_TREE_NODE*  pCurrentNode, AVL_TREE
    {
    /// [COMMAND] Exclude 'Hidden' commands
    case CST_COMMAND:
-      if (xNode.asCommandSyntax->eGroup != CG_HIDDEN OR xNode.asCommandSyntax->iID == CMD_RETURN)
+      pScriptFile = (SCRIPT_FILE*)pOperationData->xSecondInput;
+
+      // Exclude hidden, ensure compatible.  (Allow hidden 'return' command)
+      if ((xNode.asCommandSyntax->eGroup != CG_HIDDEN AND isCommandSyntaxCompatible(xNode.asCommandSyntax, pScriptFile->eGameVersion))
+          OR xNode.asCommandSyntax->iID == CMD_RETURN)
          // [SUCCESS] Insert into the results tree
          insertObjectIntoAVLTree(pOperationData->pOutputTree, pCurrentNode->pData);
       break;

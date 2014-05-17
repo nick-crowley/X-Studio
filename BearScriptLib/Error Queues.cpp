@@ -12,6 +12,25 @@
 ///                                    CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : createErrorQueue
+// Description     : Create an empty ErrorQueue
+//
+// Return Value   : New ErrorQueue, you are responsible for destroying it
+// 
+BearScriptAPI
+ERROR_QUEUE*  createErrorQueue()
+{
+   ERROR_QUEUE*  pQueue = utilCreateEmptyObject(ERROR_QUEUE);
+
+   // Store deletion function
+   pQueue->pfnDeleteItem = destructorErrorStack;
+   pQueue->bLiveReport   = FALSE;
+
+   // Return new queue
+   return pQueue;
+}
+
+
 /// Function name  : duplicateErrorQueue
 // Description     : Duplicate an ErrorQueue and the errors within it
 // 
@@ -122,6 +141,24 @@ ERROR_STACK*  getErrorQueueItem(CONST ERROR_QUEUE*  pErrorQueue, CONST UINT  iIn
 
    // Return item if found, otherwise NULL
    return pOutput;
+}
+
+
+/// Function name  : pushErrorQueue
+// Description     : Adds an error a queue
+// 
+// ERROR_QUEUE*  pErrorQueue : [in] Queue
+// ERROR_STACK*  pError      : [in] Error
+// 
+BearScriptAPI
+VOID  pushErrorQueue(ERROR_QUEUE* pErrorQueue, ERROR_STACK*  pError)
+{
+   // Add to queue
+   pushLastQueueObject(pErrorQueue, (LPARAM)pError);
+
+   // [LIVE REPORT] Print to console
+   if (pErrorQueue->bLiveReport)
+      consolePrintTopError(pError);
 }
 
 
@@ -295,6 +332,50 @@ VOID    generateQueuedError(ERROR_QUEUE*  pErrorQueue, CONST UINT  iErrorCode, C
    /// Add to stack
    pushErrorQueue(pErrorQueue, pError);
 }
+
+
+
+/// Function name  : generateAttachmentError
+// Description     : Flattens a Queue into an attachment, adds it to an error, inserts the error into an output queue
+// 
+// ERROR_QUEUE*        pQueue      : [in/out] Queue to push error into
+// const ERROR_QUEUE*  pAttachment : [in] Attachment for error
+// ERROR_STACK*        pError      : [in] Error
+// 
+VOID  generateAttachmentError(ERROR_QUEUE*  pOutput, const ERROR_QUEUE*  pAttachments, ERROR_STACK*  pError)
+{
+   TCHAR*        szAttachment = utilCreateEmptyString(ERROR_LENGTH);
+   ERROR_STACK*  pIterator;
+
+   // Flatten all messages into a single string
+   for (UINT  iIndex = 0, iLength = 0; findErrorStackByIndex(pAttachments, iIndex, pIterator); iIndex++)
+   {
+      ERROR_MESSAGE*  pAttachment = topErrorStack(pIterator);
+
+      // Measure message
+      iLength += lstrlen(pAttachment->szMessage);
+
+      // [BUFFER EXCEEDED] Commit attachment + Start new one
+      if (iLength >= ERROR_LENGTH)
+      {
+         attachTextToError(pError, szAttachment);
+         szAttachment[0] = NULL;
+         // Calc new attachment length
+         iLength = lstrlen(pAttachment->szMessage);
+      }
+
+      // Append message 
+      utilStringCchCatf(szAttachment, ERROR_LENGTH, iIndex == 0 ? TEXT("%s") : TEXT("\r\n%s"), pAttachment->szMessage);
+   }
+
+   // Commit final attachment + Error
+   attachTextToError(pError, szAttachment);
+   pushErrorQueue(pOutput, pError);
+
+   // Cleanup
+   utilDeleteString(szAttachment);
+}
+
 
 
 /// Function name  : generateFlattenedErrorStackText

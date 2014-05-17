@@ -8,10 +8,21 @@
 #include "stdafx.h"
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-///                                        CONSTANTS / GLOBALS
+///                                        DECLARATIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Functions
+VOID       insertLanguageFileIntoGameStringTrees(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue);
+VOID       insertLanguagePagesIntoGameStringTrees(LANGUAGE_FILE*  pLanguageFile);
+UINT       insertLanguageStringsIntoGameStringTrees(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue);
+BOOL       insertSpecialCasesIntoGameStringTrees();
+BOOL       isSearchResultDuplicate(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult);
+BOOL       isSearchResultSupplementary(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult);
+BOOL       resolveGameStringTreeSubstrings(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pOutputQueue);
 
+// Tree operations
+VOID       treeprocMergeGamePages(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
+VOID       treeprocMergeGameStrings(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        CREATION / DESTRUCTION
@@ -24,7 +35,7 @@
 //  
 AVL_TREE*  createGamePageTreeByID()
 {
-   return createAVLTree(extractGamePageTreeNode, deleteGamePageTreeNode, createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), NULL, NULL);
+   return createAVLTree(extractGamePageNode, deleteGamePageNode, createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), NULL, NULL);
 }
 
 
@@ -35,18 +46,7 @@ AVL_TREE*  createGamePageTreeByID()
 //  
 AVL_TREE*  createGameStringTreeByPageID()
 {
-   return createAVLTree(extractGameStringTreeNode, deleteGameStringTreeNode, createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), createAVLTreeSortKey(AK_ID, AO_ASCENDING), NULL);
-}
-
-
-/// Function name  : createGameStringTreeByText
-// Description     : Creates a GameStrings tree but sorted by TEXT, arranged in alphabetical order
-// 
-// Return Value   : New AVLTree, you are responsible for destroying it
-//  
-AVL_TREE*  createGameStringTreeByText()
-{
-   return createAVLTree(extractGameStringTreeNode, NULL, createAVLTreeSortKey(AK_TEXT, AO_ASCENDING), NULL, NULL);
+   return createAVLTree(extractGameStringNode, deleteGameStringNode, createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), createAVLTreeSortKey(AK_ID, AO_ASCENDING), NULL);
 }
 
 
@@ -57,28 +57,28 @@ AVL_TREE*  createGameStringTreeByText()
 // 
 AVL_TREE*  createGameStringTreeByVersion()
 {
-   return createAVLTree(extractGameStringTreeNode, deleteGameStringTreeNode, createAVLTreeSortKey(AK_VERSION, AO_ASCENDING), createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), createAVLTreeSortKey(AK_ID, AO_ASCENDING));
+   return createAVLTree(extractGameStringNode, deleteGameStringNode, createAVLTreeSortKey(AK_VERSION, AO_ASCENDING), createAVLTreeSortKey(AK_PAGE_ID, AO_ASCENDING), createAVLTreeSortKey(AK_ID, AO_ASCENDING));
 }
 
 
-/// Function name  : deleteGamePageTreeNode
+/// Function name  : deleteGamePageNode
 // Description     : Deletes a GamePage within an AVLTree Node
 // 
 // LPARAM  pData : [in] Reference to a GamePage pointer
 // 
-VOID   deleteGamePageTreeNode(LPARAM  pData)
+VOID   deleteGamePageNode(LPARAM  pData)
 {
    // Delete node contents
    deleteGamePage((GAME_PAGE*&)pData);
 }
 
 
-/// Function name  : deleteGameStringTreeNode
+/// Function name  : deleteGameStringNode
 // Description     : Deletes a GameString within an AVLTree Node
 // 
 // LPARAM  pData : [in] Reference to a GameString pointer
 // 
-VOID   deleteGameStringTreeNode(LPARAM  pData)
+VOID   deleteGameStringNode(LPARAM  pData)
 {
    // Delete node contents
    deleteGameString((GAME_STRING*&)pData);
@@ -88,7 +88,7 @@ VOID   deleteGameStringTreeNode(LPARAM  pData)
 ///                                               HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : extractGameStringTreeNode
+/// Function name  : extractGameStringNode
 // Description     : Extract the desired property from a given TreeNode containing a GameString
 // 
 // LPARAM                   pNode      : [in] GAME_STRING* : Node data containing a GameString
@@ -97,7 +97,7 @@ VOID   deleteGameStringTreeNode(LPARAM  pData)
 // Return Value   : Value of the specified property or NULL if the property is unsupported
 // 
 BearScriptAPI
-LPARAM  extractGameStringTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty)
+LPARAM  extractGameStringNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty)
 {
    GAME_STRING*  pGameString;    // Convenience pointer
    LPARAM        xOutput;        // Property value output
@@ -120,7 +120,7 @@ LPARAM  extractGameStringTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  ePrope
 }
 
 
-/// Function name  : extractGamePageTreeNode
+/// Function name  : extractGamePageNode
 // Description     : Extract the desired property from a given TreeNode containing a GamePage
 // 
 // LPARAM                   pNode      : [in] GAME_PAGE* : Node data containing a GamePage
@@ -129,7 +129,7 @@ LPARAM  extractGameStringTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  ePrope
 // Return Value   : Value of the specified property or NULL if the property is unsupported
 // 
 BearScriptAPI
-LPARAM  extractGamePageTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty)
+LPARAM  extractGamePageNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  eProperty)
 {
    GAME_PAGE*  pGamePage;    // Convenience pointer
    LPARAM      xOutput;      // Property value output
@@ -175,11 +175,67 @@ LPARAM  extractGamePageTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  ePropert
    return xOutput;
 }
 
+
+
+/// Function name  : findGameStringByID
+// Description     : Find a game string from the game data strings tree by it's string and page IDs
+//
+// CONST UINT     iStringID : [in]  ID of the string to search for
+// CONST UINT     iPageID   : [in]  ID of the page containing the string to search for
+// GAME_STRING*  &pOutput   : [out] Resultant game string object, or NULL If not found
+// 
+// Return type : TRUE if found, FALSE If not
+//
+BearScriptAPI
+BOOL    findGameStringByID(CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput)
+{
+   // Query game strings tree
+   return findObjectInAVLTreeByValue(getGameData()->pGameStringsByID, iPageID, iStringID, (LPARAM&)pOutput);
+}
+
+
+/// Function name  :  findGameStringInTreeByID
+// Description     : Search for a GameString in a specified binary tree
+// 
+// CONST AVL_TREE*  pTree     : [in] Binary tree to search
+// CONST UINT       iStringID : [in] ID of the string to search for
+// CONST UINT       iPageID   : [in] ID of the page containing the string
+// GAME_STRING*    &pOutput   : [out] Resultant GameString, if found
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BearScriptAPI
+BOOL   findGameStringInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput)
+{
+   // Query tree
+   return findObjectInAVLTreeByValue(pTree, iPageID, iStringID, (LPARAM&)pOutput);
+}
+
+
+/// Function name  : findGamePageInTreeByID
+// Description     : Find a GamePage in a specified tree by it's ID
+// 
+// CONST BINARY_TREE*  pTree    : [in]  The GamePage tree to search
+// CONST UINT          iPageID  : [in]  The ID of the Page to search for
+// GAME_PAGE*         &pOutput  : [out] Resultant GamePage, if found
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BearScriptAPI
+BOOL   findGamePageInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iPageID, GAME_PAGE*  &pOutput)
+{
+   // [CHECK] Ensure tree contains game pages
+   //ASSERT(pTree->eType == AT_GAME_PAGE);
+
+   // Query tree
+   return findObjectInAVLTreeByValue(pTree, iPageID, NULL, (LPARAM&)pOutput);
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                              FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : insertLanguageFileIntoGameData
+/// Function name  : insertLanguageFileIntoGameStringTrees
 // Description     : Inserts a processed master/supplementary language file into the game string trees
 // 
 // LANGUAGE_FILE*       pLanguageFile : [in/out] Language file containing the GameString and GamePages to insert
@@ -187,52 +243,112 @@ LPARAM  extractGamePageTreeNode(LPARAM  pNode, CONST AVL_TREE_SORT_KEY  ePropert
 ///                                                Supplementary: Contents of the trees are added to the existing game data. (GameData trees must exist)
 // ERROR_QUEUE*         pErrorQueue   : [in/out] Contains Warning messages generated from overwriting existing game strings
 // 
-// Return Value   : Number of strings overwritten 
-// 
-UINT  insertLanguageFileIntoGameData(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue)
+VOID  insertLanguageFileIntoGameStringTrees(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue)
 {
-   UINT    iStringsOverwritten;
+   __try
+   {
+      /// [MASTER] Sever trees and use as game data
+      if (isLanguageFileMaster(pLanguageFile))
+      {
+         // [CHECK] Ensure GameData does not exist
+         ASSERT(!getGameData()->pGameStringsByID AND !getGameData()->pGamePagesByID);
 
-   // [FUNCTION]
-   TRACK_FUNCTION();
+         // Transfer LanguageFile GameString/GamePage trees 
+         transferAVLTree(pLanguageFile->pGamePagesByID, getGameData()->pGamePagesByID);
+         transferAVLTree(pLanguageFile->pGameStringsByID, getGameData()->pGameStringsByID);
+
+         // Index GamePages for LanguageDocuments
+         performAVLTreeIndexing(getGameData()->pGamePagesByID);
+      }
+      /// [SUPPLEMENTARY] Merge trees into game data
+      else
+      {
+         // [CHECK] Ensure GameData exists
+         ASSERT(getGameData()->pGameStringsByID AND getGameData()->pGamePagesByID);
+
+         // Merge pages into the game data
+         insertLanguagePagesIntoGameStringTrees(pLanguageFile);
+
+         // Merge strings into the game data
+         insertLanguageStringsIntoGameStringTrees(pLanguageFile, pErrorQueue);
+      }
+   }
+   PUSH_CATCH(pErrorQueue)
+   {
+      EXCEPTION1("Unable to merge supplementary language file '%s' into the game data", PathFindFileName(pLanguageFile->szFullPath));
+   }
+}
+
+
+
+/// Function name  : insertLanguagePagesIntoGameStringTrees
+// Description     : Mergers all the GamePages within a supplementary LanguageFile into the game data. Existing pages are overwritten. No warnings are produced.
+// 
+// LANGUAGE_FILE*  pLanguageFile   : [in] Supplementary language file
+// 
+VOID  insertLanguagePagesIntoGameStringTrees(LANGUAGE_FILE*  pLanguageFile)
+{
+   AVL_TREE_OPERATION  *pMergePageOperation;          // Operation data for merging the game pages
+   
+   // [CHECK] Ensure this is a supplementary Language file
+   ASSERT(!isLanguageFileMaster(pLanguageFile) AND pLanguageFile->eType == LFT_STRINGS);
 
    // Prepare
-   iStringsOverwritten = 0;
+   pMergePageOperation = createAVLTreeOperation(treeprocMergeGamePages, ATT_INORDER);
+   
+   /// Merge strings/pages into the game data
+   pMergePageOperation->pOutputTree = getGameData()->pGamePagesByID;
+   performOperationOnAVLTree(pLanguageFile->pGamePagesByID, pMergePageOperation);      // Ownership of the GamePages has now passed to the game data tree
 
-   /// [MASTER] Sever trees and use as game data
-   if (isLanguageFileMaster(pLanguageFile))
-   {
-      // [CHECK] Ensure GameData does not exist
-      ASSERT(!getGameData()->pGameStringsByID AND !getGameData()->pGamePagesByID);
+   // Ensure LanguageFile does not delete pages
+   pLanguageFile->pGamePagesByID->pfnDeleteNode   = NULL;
 
-      // Transfer LanguageFile GameString/GamePage trees 
-      transferAVLTree(pLanguageFile->pGamePagesByID, getGameData()->pGamePagesByID);
-      transferAVLTree(pLanguageFile->pGameStringsByID, getGameData()->pGameStringsByID);
+   // Cleanup
+   deleteAVLTreeOperation(pMergePageOperation);
+}
 
-      // Index GamePages for LanguageDocuments
-      performAVLTreeIndexing(getGameData()->pGamePagesByID);
 
-      // Return number of strings in the LanguageFile
-      iStringsOverwritten = getTreeNodeCount(getGameData()->pGameStringsByID);
-   }
-   else
-   {
-      // [CHECK] Ensure GameData exists
-      ASSERT(getGameData()->pGameStringsByID AND getGameData()->pGamePagesByID);
+/// Function name  : insertLanguageStringsIntoGameStringTrees
+// Description     : Inserts all the GameStrings in a LanguageFile into the GameData, producing a warning for each string overwritten.
+// 
+// LANGUAGE_FILE*  pLanguageFile : [in]     Supplementary LanguageFile
+// ERROR_QUEUE*    pErrorQueue   : [in/out] ErrorQueue
+// 
+// Return Value : Number of game data strings overwritten
+//
+UINT  insertLanguageStringsIntoGameStringTrees(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue)
+{
+   AVL_TREE_OPERATION*  pOperation;      // Operation data for merging the game pages
+   ERROR_QUEUE*         pMergeQueue;     // Contains only errors re: overwritten strings
+   UINT                 iMergeCount;     // Number of strings overwritten
+   
+   // [CHECK] Ensure this is a supplementary Language file
+   ASSERT(!isLanguageFileMaster(pLanguageFile) AND pLanguageFile->eType == LFT_STRINGS);
 
-      /// [SUPPLEMENTARY] Merge contents into the game data
-      VERBOSE("Merging supplementary language file '%s' into the game data", PathFindFileName(pLanguageFile->szFullPath));
+   // Prepare
+   pOperation = createAVLTreeOperationEx(treeprocMergeGameStrings, ATT_INORDER, pErrorQueue, NULL);
+   pMergeQueue = createErrorQueue();
+   
+   // Pass filename + official flag + MergeQueue
+   pOperation->xFirstInput  = (LPARAM)PathFindFileName(pLanguageFile->szFullPath);
+   pOperation->xSecondInput = isLanguageFileOfficial(pLanguageFile);
+   pOperation->xThirdInput  = (LPARAM)pMergeQueue;
+   pOperation->pOutputTree  = getGameData()->pGameStringsByID;
 
-      /// Merge pages into the game data
-      performLanguageFileGamePageMerge(pLanguageFile);
+   /// Merge strings into the game data + Take Ownership
+   performOperationOnAVLTree(pLanguageFile->pGameStringsByID, pOperation);  // Ownership of the GameString has now passed to the game data tree
+   pLanguageFile->pGameStringsByID->pfnDeleteNode = NULL;
 
-      /// Merge strings into the game data
-      iStringsOverwritten = performLanguageFileGameStringMerge(pLanguageFile, pErrorQueue);
-   }
-
-   // [SUCCESS] Return iStringsOverwritten
-   END_TRACKING();
-   return iStringsOverwritten;
+   // [CHECK] Any strings overwritten?
+   if (iMergeCount = pOperation->xOutput)
+      // [WARNING] "The supplementary language file '%s' has overwritten %u strings"
+      generateAttachmentError(pErrorQueue, pMergeQueue, generateDualWarning(HERE(IDS_LANGUAGE_SUPPLEMENTARY_FILE_MERGED), PathFindFileName(pLanguageFile->szFullPath), iMergeCount));
+   
+   // Cleanup + return MergeCount
+   pOperation->pErrorQueue = NULL;
+   deleteErrorQueue(pMergeQueue);
+   deleteAVLTreeOperation(pOperation);
+   return iMergeCount;
 }
 
 
@@ -287,7 +403,7 @@ BOOL  insertSpecialCasesIntoGameStringTrees()
       updateGameStringText(pGameString, TEXT("T"));
 
    // [PIRATE TS] -- Alter ambiguous 'TS' object class to 'Pirate TS'
-   if (findGameStringInTreeByID(pGameStringTree, 2035, GPI_OBJECT_CLASSES,  pGameString) AND utilCompareString(pGameString->szText, "TS"))
+   if (findGameStringInTreeByID(pGameStringTree, 2035, GPI_OBJECT_CLASSES,  pGameString) AND utilCompareStringN(pGameString->szText, "TS", 2))
       updateGameStringText(pGameString, TEXT("Pirate TS"));
 
    // [PLAYER HQ] -- Alter ambiguous 'Headquarters' object class to 'Player Headquarters'
@@ -310,7 +426,7 @@ BOOL  insertSpecialCasesIntoGameStringTrees()
 }
 
 
-/// Function name  : isResultSupplementaryLanguageFile
+/// Function name  : isSearchResultSupplementary
 // Description     : Checks whether a FileSearch result should be loaded as a supplementary LanguageFile or not
 // 
 // CONST FILE_SEARCH*  pFileSearch   : [in] Supplementary language file FileSearch object
@@ -318,7 +434,7 @@ BOOL  insertSpecialCasesIntoGameStringTrees()
 // 
 // Return Value   : TRUE/FALSE
 // 
-BOOL  isResultSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult)
+BOOL  isSearchResultSupplementary(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult)
 {
    TCHAR  *szLanguageID;    // Language ID filename identifier
    BOOL    bResult;         // Operation result
@@ -329,18 +445,32 @@ BOOL  isResultSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch, CONST F
    // [CHECK] Ensure result is not a folder
    if (~pSearchResult->iAttributes INCLUDES FIF_FOLDER)
    {
-      // Generate the 'L0nn' language identification portion of a language file filename  (Also format as -L0nn.' for extra safety)
-      szLanguageID = utilCreateStringf(8, TEXT("-L0%02u."), getAppPreferences()->eGameLanguage);
+      if (getAppPreferences()->eGameVersion >= GV_TERRAN_CONFLICT)
+      {
+         // [X3TC/X3AP] Generate the 'L0nn' language file identifier (format as '-L0nn.')
+         szLanguageID = utilCreateStringf(8, TEXT("-L0%02u."), getAppPreferences()->eGameLanguage);
 
-      // [CHECK] Is this a supplementary file for the current game language?
-      if (!utilCompareStringN(pSearchResult->szDisplayName, "0001-", 5) AND utilFindSubStringVariableI(pSearchResult->szDisplayName, szLanguageID))
-         /// [SUCCESS] Return TRUE unless there is an equivilent PCK file
-         bResult = !isResultDuplicateSupplementaryLanguageFile(pFileSearch, pSearchResult);
+         // [CHECK] Exclude master files + search for language ID substring
+         if (!utilCompareStringN(pSearchResult->szDisplayName, "0001-", 5) AND utilFindSubStringVariableI(pSearchResult->szDisplayName, szLanguageID))
+            bResult = TRUE;
 
-      // [SPECIAL CASE] Is this the english version of '0002', which has no language identifier for some reason
-      else if (getAppPreferences()->eGameLanguage == GL_ENGLISH AND utilCompareStringN(pSearchResult->szDisplayName, "0002.", 5))
-         /// [SUCCESS] Return TRUE unless there is an equivilent PCK file
-         bResult = !isResultDuplicateSupplementaryLanguageFile(pFileSearch, pSearchResult);
+         // [SPECIAL CASE] Is this the english version of '0002', which has no language identifier for some reason
+         else if (getAppPreferences()->eGameLanguage == GL_ENGLISH AND utilCompareStringN(pSearchResult->szDisplayName, "0002.", 5))
+            bResult = TRUE;
+      }
+      else
+      {
+         // [X3R] Generate the 'nn' language id
+         szLanguageID = utilCreateStringf(8, TEXT("%02u"), getAppPreferences()->eGameLanguage);
+
+         // [CHECK] Exclude master files + search for language ID substring
+         if (!utilFindSubStringVariableI(pSearchResult->szDisplayName, TEXT("0001.")) AND utilCompareStringVariablesN(pSearchResult->szDisplayName, szLanguageID, 2))
+            bResult = TRUE;
+      }
+
+      /// [SUCCESS] Return TRUE unless there is an equivilent PCK file
+      if (bResult)
+         bResult = !isSearchResultDuplicate(pFileSearch, pSearchResult);
 
       // Cleanup
       utilDeleteString(szLanguageID);
@@ -351,7 +481,7 @@ BOOL  isResultSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch, CONST F
 }
 
 
-/// Function name  : isResultDuplicateSupplementaryLanguageFile
+/// Function name  : isSearchResultDuplicate
 // Description     : Determines whether a supplementary language file search result is just the extracted XML version of an existing PCK file
 // 
 // CONST FILE_SEARCH*  pFileSearch   : [in] Supplementary language file FileSearch object
@@ -359,7 +489,7 @@ BOOL  isResultSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch, CONST F
 // 
 // Return Value   : TRUE / FALSE
 // 
-BOOL  isResultDuplicateSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult)
+BOOL  isSearchResultDuplicate(CONST FILE_SEARCH*  pFileSearch, CONST FILE_ITEM*  pSearchResult)
 {
    TCHAR      *szPackedEquivilent;     // Full path of .PCK equivilent of the input .XML file
    FILE_ITEM  *pDummy;                 // Dummy search result used for querying the file search tree
@@ -385,6 +515,161 @@ BOOL  isResultDuplicateSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch
 
 
 
+/// Function name  : loadMasterLanguageFile
+// Description     : Generate the GameString trees from the master language file 
+// 
+// CONST FILE_SYSTEM*  pFileSystem : [in]  Virtual FileSystem object
+// HWND                hParentWnd  : [in]  Ignored
+// OPERATION_PROGRESS* pProgress   : [in/out] Operation progress
+// ERROR_QUEUE*        pErrorQueue : [in/out] Error message, if any
+// 
+// Operation Stages  : THREE
+// 
+// Return Value  : OR_SUCCESS - GameString trees were created succesfully. If any errors were encountered, they were ignored.
+//                 OR_FAILURE - GameString trees may have been created
+//
+OPERATION_RESULT  loadMasterLanguageFile(CONST FILE_SYSTEM*  pFileSystem, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+{
+   OPERATION_RESULT     eResult;                // Operation result
+   LANGUAGE_FILE*       pLanguageFile;          // LanguageFile used for processing each language file
+   TCHAR*               szFileSubPath = NULL;   // SubPath of the master or supplementary language file being processed
+   
+   __try
+   {
+      CONSOLE_STAGE();
+      
+      // [INFO/STAGE] "Loading master language file '%s'"
+      szFileSubPath = generateGameLanguageFileSubPath(GFI_MASTER_LANGUAGE, getAppPreferences()->eGameVersion, getAppPreferences()->eGameLanguage);
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_MASTER_LANGUAGE), szFileSubPath));
+      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_MASTER_STRINGS);
+
+      // [CHECK] GameString trees don't exist yet
+      ASSERT(!getGameData()->pGameStringsByID AND !getGameData()->pGamePagesByID);
+
+      /// Create master LanguageFile
+      pLanguageFile = createLanguageFile(LFT_STRINGS, NULL, FALSE);
+
+      /// Translate the master language file
+      if ((eResult = loadLanguageFile(pFileSystem, pLanguageFile, FALSE, hParentWnd, pProgress, pErrorQueue)) == OR_SUCCESS)
+         /// [SUCCESS] Create the initial game data from the master language file 
+         insertLanguageFileIntoGameStringTrees(pLanguageFile, pErrorQueue);
+      else
+      {
+         // [FAILURE] "The master language file '%s' could not be loaded"
+         enhanceLastError(pErrorQueue, ERROR_ID(IDS_LANGUAGE_MASTER_FILE_FAILED), szFileSubPath);
+         generateOutputTextFromLastError(pErrorQueue);
+      }
+      
+      // Cleanup
+      deleteLanguageFile(pLanguageFile);
+      utilDeleteString(szFileSubPath);
+      return eResult;
+   }
+   /// [EXCEPTION HANDLER]
+   PUSH_CATCH(pErrorQueue)
+   {
+      EXCEPTION1("Unable to load the master language file '%s'", szFileSubPath);
+      return OR_FAILURE;
+   }
+}
+
+
+/// Function name  : loadSupplementaryLanguageFiles
+// Description     : Generate the GameString trees from the master langauge file and any supplementary language files
+// 
+// CONST FILE_SYSTEM*  pFileSystem : [in]  Virtual FileSystem object
+// HWND                hParentWnd  : [in]  Ignored
+// OPERATION_PROGRESS* pProgress   : [in/out] Operation progress
+// ERROR_QUEUE*        pErrorQueue : [in/out] Error message, if any
+// 
+// Operation Stages  : THREE
+// 
+// Return Value  : OR_SUCCESS - All supplementary language files loaded successfully
+//                 OR_FAILURE - Some supplementary language files failed to load
+//
+OPERATION_RESULT  loadSupplementaryLanguageFiles(CONST FILE_SYSTEM*  pFileSystem, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+{
+   OPERATION_RESULT     eResult = OR_SUCCESS;// Operation result
+   LANGUAGE_FILE*       pLanguageFile;       // LanguageFile used for processing each language file
+   TCHAR*               szLanguageFolder;    // Full path of the language file folder  (the 't' subfolder)
+   TCHAR*               szFileSubPath = 0;   // SubPath of the master or supplementary language file being processed
+   FILE_SEARCH*         pFileSearch;         // FileSearch for all LanguageFiles
+   FILE_ITEM*           pSearchResult;       // LanguageFile FileSearch result
+   //UINT                 iMergeCount;
+
+   __try
+   {
+      /// Merge the supplementary language files into the game data
+      CONSOLE("Searching for supplementary language files");
+
+      // Search for supplementary language files
+      szLanguageFolder = generateGameDataFilePath(GFI_LANGUAGE_FOLDER, getAppPreferences()->szGameFolder, getAppPreferences()->eGameVersion);
+      pFileSearch      = performFileSystemSearch(pFileSystem, szLanguageFolder, FF_LANGUAGE_FILES, AK_PATH, AO_DESCENDING, NULL);
+
+      // [PROGRESS] Define progress limit as the number of supplementary language files
+      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_SUPPLEMENTARY_STRINGS);
+      updateOperationProgressMaximum(pProgress, getFileSearchResultCount(pFileSearch));
+
+      /// Iterate through supplementary language files (unless user aborts)
+      while (eResult == OR_SUCCESS AND findNextFileSearchResult(pFileSearch, pSearchResult))
+      {
+         // [CHECK] Skip inappropriate supplemenary language files
+         if (!isSearchResultSupplementary(pFileSearch, pSearchResult))
+         {
+            // [SKIP] Update current progress
+            advanceOperationProgressValue(pProgress);
+            continue;
+         }
+
+         // Create supplementary language file
+         pLanguageFile = createLanguageFile(LFT_STRINGS, pSearchResult->szFullPath, TRUE);
+
+         // Re-Generate sub-path
+         szFileSubPath = generateGameLanguageFileSubPath(GFI_LANGUAGE_FOLDER, getAppPreferences()->eGameVersion, getAppPreferences()->eGameLanguage);
+         StringCchCat(szFileSubPath, MAX_PATH, pSearchResult->szDisplayName);
+
+         // [INFO] "Loading supplementary language file '%s'"
+         pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SUPPLEMENTARY_LANGUAGE), szFileSubPath));
+
+         // Translate supplementary language file
+         switch (eResult = loadLanguageFile(pFileSystem, pLanguageFile, TRUE, hParentWnd, NULL, pErrorQueue))
+         {
+         /// [SUCCESS] Merge supplementary language file with the existing game data
+         case OR_SUCCESS:
+            // Merge language file
+            insertLanguageFileIntoGameStringTrees(pLanguageFile, pErrorQueue);
+            break;
+
+         /// [FAILURE] Switch result to SUCCESS since failing to translate a supplementary language file is not a critical failure
+         case OR_FAILURE:
+            eResult = OR_SUCCESS;
+            // [ERROR] "Unable to merge the supplementary language file '%s' with the game data"
+            enhanceLastError(pErrorQueue, ERROR_ID(IDS_LANGUAGE_SUPPLEMENTARY_FILE_FAILED), szFileSubPath);
+            generateOutputTextFromLastError(pErrorQueue);
+            break;
+         }
+
+         // [PROGRESS] Update current progress
+         advanceOperationProgressValue(pProgress);
+
+         // Cleanup
+         utilDeleteString(szFileSubPath);
+         deleteLanguageFile(pLanguageFile);
+      }  // END: find next supplementary language file
+
+      // Cleanup
+      deleteFileSearch(pFileSearch);
+      utilDeleteString(szLanguageFolder);
+      return eResult;
+   }
+   PUSH_CATCH(pErrorQueue)
+   {
+      EXCEPTION1("Unable to load supplementary language file '%s'", pSearchResult ? pSearchResult->szDisplayName : NULL);
+      return OR_FAILURE;
+   }
+}
+
+
 /// Function name  : loadGameStringTrees
 // Description     : Generate the GameString trees from the master langauge file and any supplementary language files
 // 
@@ -401,154 +686,20 @@ BOOL  isResultDuplicateSupplementaryLanguageFile(CONST FILE_SEARCH*  pFileSearch
 //
 OPERATION_RESULT  loadGameStringTrees(CONST FILE_SYSTEM*  pFileSystem, HWND  hParentWnd, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
 {
-   OPERATION_RESULT     eResult;             // Operation result
-   LANGUAGE_FILE*       pLanguageFile;       // LanguageFile used for processing each language file
-   TCHAR*               szLanguageFolder;    // Full path of the language file folder  (the 't' subfolder)
-   TCHAR*               szFileSubPath;       // SubPath of the master or supplementary language file being processed
-   FILE_SEARCH*         pFileSearch;         // FileSearch for all LanguageFiles
-   FILE_ITEM*           pSearchResult;       // LanguageFile FileSearch result
-   UINT                 iMergeCount;
-
-   // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
+   OPERATION_RESULT  eResult;    // Operation result
 
    __try
    {
-      // [INFO/STAGE] "Loading master language file '%s'"
-      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_MASTER_LANGUAGE), szFileSubPath = generateGameLanguageFileSubPath(GFI_MASTER_LANGUAGE, getAppPreferences()->eGameVersion, getAppPreferences()->eGameLanguage)));
-      ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_MASTER_STRINGS);
-      utilDeleteString(szFileSubPath);
+      /// Load master language file
+      if ((eResult = loadMasterLanguageFile(pFileSystem, hParentWnd, pProgress, pErrorQueue)) != OR_SUCCESS)
+         return eResult;
 
-      // [CHECK] GameString trees don't exist yet
-      ASSERT(!getGameData()->pGameStringsByID AND !getGameData()->pGamePagesByID);
+      /// Load supplementary language files
+      if ((eResult = loadSupplementaryLanguageFiles(pFileSystem, hParentWnd, pProgress, pErrorQueue)) != OR_SUCCESS)
+         return eResult;
 
-      /// Create master LanguageFile
-      pLanguageFile = createLanguageFile(LFT_STRINGS, NULL, FALSE);
+      CONSOLE("Inserting special cases...");
 
-      /// Translate the master language file
-      if (eResult = loadLanguageFile(pFileSystem, pLanguageFile, FALSE, hParentWnd, pProgress, pErrorQueue))
-      {
-         // [FAILURE] "The master language file '%s' could not be loaded"
-         enhanceLastError(pErrorQueue, ERROR_ID(IDS_LANGUAGE_MASTER_FILE_FAILED), szFileSubPath);
-         generateOutputTextFromLastError(pErrorQueue);
-
-         // Cleanup temporary LanguageFile
-         deleteLanguageFile(pLanguageFile);
-      }
-      else
-      {
-         /// [SUCCESS] Create the initial game data from the master language file 
-         insertLanguageFileIntoGameData(pLanguageFile, pErrorQueue);
-
-         // Cleanup 
-         deleteLanguageFile(pLanguageFile);
-      }
-   }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pErrorQueue))
-   {
-      // [FAILURE] "An unidentified and unexpected critical error has occurred while loading the %s file '%s'"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_GAME_STRING_TREES), identifyLanguageFile(pLanguageFile), identifyGameFileFilename(pLanguageFile));
-      consolePrintError(lastErrorQueue(pErrorQueue));
-      eResult = OR_FAILURE;
-   }
-    
-   /// [SUCCESS] Merge the supplementary language files into the game data
-   if (eResult == OR_SUCCESS)
-   {
-      // [VERBOSE]
-      VERBOSE_HEADING("Searching for supplementary language files");
-
-      __try
-      {
-         // Search for supplementary language files
-         szLanguageFolder = generateGameDataFilePath(GFI_LANGUAGE_FOLDER, getAppPreferences()->szGameFolder, getAppPreferences()->eGameVersion);
-         pFileSearch      = performFileSystemSearch(pFileSystem, szLanguageFolder, FF_LANGUAGE_FILES, AK_PATH, AO_DESCENDING, NULL);
-
-         // [PROGRESS] Define progress limit as the number of supplementary language files
-         ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_LOADING_SUPPLEMENTARY_STRINGS);
-         updateOperationProgressMaximum(pProgress, getFileSearchResultCount(pFileSearch));
-
-         /// Iterate through supplementary language files (unless user aborts)
-         while (eResult != OR_ABORTED AND findNextFileSearchResult(pFileSearch, pSearchResult))
-         {
-            // [CHECK] Skip inappropriate supplemenary language files
-            if (!isResultSupplementaryLanguageFile(pFileSearch, pSearchResult))
-            {
-               // [SKIP] Update current progress
-               advanceOperationProgressValue(pProgress);
-               continue;
-            }
-
-            // Create supplementary language file
-            pLanguageFile = createLanguageFile(LFT_STRINGS, pSearchResult->szFullPath, TRUE);
-
-            // Re-Generate sub-path
-            szFileSubPath = generateGameLanguageFileSubPath(GFI_LANGUAGE_FOLDER, getAppPreferences()->eGameVersion, getAppPreferences()->eGameLanguage);
-            StringCchCat(szFileSubPath, MAX_PATH, pSearchResult->szDisplayName);
-
-            // [INFO] "Loading supplementary language file '%s'"
-            pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_LOADING_SUPPLEMENTARY_LANGUAGE), szFileSubPath));
-
-            // Translate supplementary language file
-            switch (eResult = loadLanguageFile(pFileSystem, pLanguageFile, TRUE, hParentWnd, NULL, pErrorQueue))
-            {
-            /// [SUCCESS] Merge supplementary language file with the existing game data
-            case OR_SUCCESS:
-               // Merge language file
-               iMergeCount = insertLanguageFileIntoGameData(pLanguageFile, pErrorQueue);
-
-               // [WARNING] "The supplementary language file '%s' has overwritten %u strings"
-               if (iMergeCount > 0)
-                  pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_LANGUAGE_SUPPLEMENTARY_FILE_MERGED), szFileSubPath, iMergeCount));
-               break;
-
-            /// [FAILURE] Switch result to SUCCESS since failing to translate a supplementary language file is not a critical failure
-            case OR_FAILURE:
-               eResult = OR_SUCCESS;
-               // [ERROR] "Unable to merge the supplementary language file '%s' with the game data"
-               enhanceLastError(pErrorQueue, ERROR_ID(IDS_LANGUAGE_SUPPLEMENTARY_FILE_FAILED), szFileSubPath);
-               generateOutputTextFromLastError(pErrorQueue);
-               break;
-            }
-
-            // [PROGRESS] Update current progress
-            advanceOperationProgressValue(pProgress);
-
-            // Cleanup
-            utilDeleteString(szFileSubPath);
-            deleteLanguageFile(pLanguageFile);
-         }  // END: find next supplementary language file
-
-         // Cleanup
-         deleteFileSearch(pFileSearch);
-         utilDeleteString(szLanguageFolder);
-      }
-      /// [EXCEPTION HANDLER]
-      __except (generateQueuedExceptionError(GetExceptionInformation(), pErrorQueue))
-      {
-         // [FAILURE] "An unidentified and unexpected critical error has occurred while loading the %s file '%s'"
-         enhanceLastError(pErrorQueue, ERROR_ID(IDS_EXCEPTION_LOAD_GAME_STRING_TREES), TEXT("supplementary language"), pSearchResult ? pSearchResult->szDisplayName : TEXT("<Unknown>"));
-         consolePrintError(lastErrorQueue(pErrorQueue));
-         eResult = OR_FAILURE;
-      }
-   } 
-
-   /// Examine overall result
-   switch (eResult)
-   {
-   // [SUCCESS] GameString trees loaded successfully
-   case OR_SUCCESS:  VERBOSE_HEADING("Loaded %d game strings over %d game pages", getTreeNodeCount(getGameData()->pGameStringsByID), getTreeNodeCount(getGameData()->pGamePagesByID));  break;
-   // [ABORTED] User aborted the translation of the master or supplementary file
-   case OR_ABORTED:  VERBOSE_HEADING("ABORT: User aborted the loading of language files");           break;
-   // [FAILURE] Critical error in the master language file
-   case OR_FAILURE:  VERBOSE_HEADING("ERROR: Critical syntax error in the master language file");    break;
-   }
-
-   /// [SUCCESS] Generate ScriptObjects
-   if (eResult == OR_SUCCESS)
-   {
       // [SPECIAL CASE] Fudge and create a few entries for script translation
       insertSpecialCasesIntoGameStringTrees();
 
@@ -556,175 +707,84 @@ OPERATION_RESULT  loadGameStringTrees(CONST FILE_SYSTEM*  pFileSystem, HWND  hPa
       ASSERT(advanceOperationProgressStage(pProgress) == IDS_PROGRESS_RESOLVING_SUBSTRINGS);
       updateOperationProgressMaximum(pProgress, 2 * getTreeNodeCount(getGameData()->pGameStringsByID));
 
+      CONSOLE("Resolving sub-strings...");
+
       /// Resolve sub-strings
-      performGameStringTreeSubstringResolution(pProgress, pErrorQueue);
+      if (!resolveGameStringTreeSubstrings(pProgress, pErrorQueue))
+         return OR_FAILURE;
+
+      // [SUCCESS]
+      CONSOLE_HEADING("Loaded %d game strings over %d game pages", getTreeNodeCount(getGameData()->pGameStringsByID), getTreeNodeCount(getGameData()->pGamePagesByID));
 
       /// Generate ScriptObjects
-      loadScriptObjectsTrees(pProgress, pErrorQueue);
+      if (!loadScriptObjectsTrees(pProgress, pErrorQueue))
+         return OR_FAILURE;
+      
+      // Return result
+      return eResult;
    }
-
-   // Return result
-   END_TRACKING();
-   return eResult;
+   PUSH_CATCH(pErrorQueue)
+   {
+      EXCEPTION("Unable to resolve substrings / generate script objects");
+      return OR_FAILURE;
+   }
 }
 
 
-/// Function name  : performGameStringTreeSubstringResolution
+/// Function name  : resolveGameStringTreeSubstrings
 // Description     : Resolves the substring markers in the game strings tree
 // 
 // OPERATION_PROGRESS*  pProgress   : [in/out] Progress tracker, with stage and maximum already set
-// ERROR_QUEUE*         pErrorQueue : [in/out] ErrorQueue, may already contain errors
+// ERROR_QUEUE*         pOutputQueue : [in/out] ErrorQueue, may already contain errors
 // 
-VOID   performGameStringTreeSubstringResolution(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+BOOL   resolveGameStringTreeSubstrings(OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pOutputQueue)
 {
    AVL_TREE_OPERATION*   pOperationData;
+   ERROR_QUEUE          *pErrorQueue,
+                        *pAttachmentQueue;
+   ERROR_STACK*          pError;
+   UINT                  iProblemCount;
 
    __try
    {
       // [INFO] "Resolving language file substrings..."
-      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_RESOLVING_SUBSTRINGS)));
-      VERBOSE_HEADING("Resovling game string tree substrings");
+      pushErrorQueue(pOutputQueue, generateDualInformation(HERE(IDS_OUTPUT_RESOLVING_SUBSTRINGS)));
 
       // Prepare
-      pOperationData = createAVLTreeOperationEx(treeprocResolveGameStringSubstrings, ATT_INORDER, pErrorQueue, pProgress);
-
+      pAttachmentQueue = createErrorQueue();
+      pOperationData   = createAVLTreeOperationEx(treeprocResolveGameStringSubstrings, ATT_INORDER, pErrorQueue = createErrorQueue(), pProgress);
+      
       /// Resolve all sub-strings in the language file's strings tree
       performOperationOnAVLTree(getGameData()->pGameStringsByID, pOperationData);
 
+      // Transfer Errors to OutputQueue + Warnings to Attachment Queue
+      while (pError = popErrorQueue(pErrorQueue))
+         pushErrorQueue(pError->eType == ET_WARNING ? pAttachmentQueue : pOutputQueue, pError);
+      
       // [CHECK] Were any sub-strings missing?
-      if (pOperationData->xOutput)
-         // [ERROR] "Unresolvable substrings are present in %u of the loaded language strings"
-         pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_GAME_STRING_SUBSTRING_MISSING_COUNT), pOperationData->xOutput));
-
+      if (iProblemCount = pOperationData->xOutput)
+         // [WARNING] "Unresolvable substrings are present in %u of the loaded language strings"
+         generateAttachmentError(pOutputQueue, pAttachmentQueue, generateDualWarning(HERE(IDS_GAME_STRING_SUBSTRING_MISSING_COUNT), iProblemCount));
+         
       // Cleanup
-      pOperationData->pErrorQueue = NULL;
+      deleteErrorQueue(pAttachmentQueue);
       deleteAVLTreeOperation(pOperationData);
+      return TRUE;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pErrorQueue))
+   PUSH_CATCH(pOutputQueue)
    {
-      // [FAILURE] "An unidentified and unexpected critical error has occurred while resolving the language file substrings"
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_EXCEPTION_RESOLVE_SUBSTRINGS));
-      consolePrintError(lastErrorQueue(pErrorQueue));
+      EXCEPTION("Unable to resolve Gamestring tree substrings");
+      return FALSE;
    }
 }
 
-
-
-/// Function name  : performLanguageFileGamePageMerge
-// Description     : Mergers all the GamePages within a supplementary LanguageFile into the game data. Existing pages are overwritten. No warnings are produced.
-// 
-// LANGUAGE_FILE*  pLanguageFile   : [in] Supplementary language file
-// 
-VOID  performLanguageFileGamePageMerge(LANGUAGE_FILE*  pLanguageFile)
-{
-   AVL_TREE_OPERATION  *pMergePageOperation;          // Operation data for merging the game pages
-   
-   // [CHECK] Ensure this is a supplementary Language file
-   ASSERT(!isLanguageFileMaster(pLanguageFile) AND pLanguageFile->eType == LFT_STRINGS);
-
-   // Prepare
-   pMergePageOperation = createAVLTreeOperation(treeprocMergeSupplementaryGamePages, ATT_INORDER);
-   
-   /// Merge strings/pages into the game data
-   pMergePageOperation->pOutputTree = getGameData()->pGamePagesByID;
-   performOperationOnAVLTree(pLanguageFile->pGamePagesByID, pMergePageOperation);      // Ownership of the GamePages has now passed to the game data tree
-
-   // Ensure LanguageFile does not delete pages
-   pLanguageFile->pGamePagesByID->pfnDeleteNode   = NULL;
-
-   // Cleanup
-   deleteAVLTreeOperation(pMergePageOperation);
-}
-
-
-/// Function name  : performLanguageFileGameStringMerge
-// Description     : Inserts all the GameStrings in a LanguageFile into the GameData, producing a warning for each string overwritten.
-// 
-// LANGUAGE_FILE*  pLanguageFile : [in]     Supplementary LanguageFile
-// ERROR_QUEUE*    pErrorQueue   : [in/out] ErrorQueue
-// 
-// Return Value : Number of game data strings overwritten
-//
-UINT  performLanguageFileGameStringMerge(LANGUAGE_FILE*  pLanguageFile, ERROR_QUEUE*  pErrorQueue)
-{
-   AVL_TREE_OPERATION*  pMergeStringOperation;          // Operation data for merging the game pages
-   UINT                 iStringsOverwritten;          // Number of strings overwritten
-   
-   // [CHECK] Ensure this is a supplementary Language file
-   ASSERT(!isLanguageFileMaster(pLanguageFile) AND pLanguageFile->eType == LFT_STRINGS);
-
-   // Prepare
-   pMergeStringOperation = createAVLTreeOperationEx(treeprocMergeSupplementaryGameStrings, ATT_INORDER, pErrorQueue, NULL);
-   
-   // Pass filename, official flag and 'Report Merges' flags
-   pMergeStringOperation->xFirstInput  = (LPARAM)PathFindFileName(pLanguageFile->szFullPath);
-   pMergeStringOperation->xSecondInput = isLanguageFileOfficial(pLanguageFile);
-   pMergeStringOperation->xThirdInput  = getAppPreferences()->bReportGameStringOverwrites;
-   
-   /// Merge strings into the game data
-   pMergeStringOperation->pOutputTree = getGameData()->pGameStringsByID;
-   performOperationOnAVLTree(pLanguageFile->pGameStringsByID, pMergeStringOperation);  // Ownership of the GameString has now passed to the game data tree
-
-   // Set result
-   iStringsOverwritten = pMergeStringOperation->xOutput;
-
-   // Ensure LanguageFile does not delete pages
-   pLanguageFile->pGameStringsByID->pfnDeleteNode = NULL;
-   
-   // Sever ErrorQueue and Cleanup
-   pMergeStringOperation->pErrorQueue = NULL;
-   deleteAVLTreeOperation(pMergeStringOperation);
-
-   // Return strings overwritten
-   return iStringsOverwritten;
-}
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        TREE OPERATIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : treeprocResolveGameStringSubstrings
-// Description     : Resolve lookup sub-strings in the specified GameString. Copy mission sub-strings verbatim,
-//                    and delete comment sub-strings entirely.
-// 
-// BINARY_TREE_NODE*            pNode           : [in] Node containing a GameString
-// BINARY_TREE_OPERATION_DATA*  pOperationData  : [in] Not used
-// 
-VOID   treeprocResolveGameStringSubstrings(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
-{
-   GAME_STRING*  pGameString;    // Convenience pointer
-   TCHAR*        szOutput;       // Output string containing resolved sub-strings
-   LIST*         pResolutionList;
-
-   // Prepare
-   pGameString = extractPointerFromTreeNode(pNode, GAME_STRING);
-
-   // [CHECK] Abort if string contains no special characters
-   if (findNextNonEscapedCharacters(pGameString->szText, TEXT("({")) == NULL)
-      return;
-
-   // Prepare
-   szOutput = utilCreateEmptyString(MAX_STRING);
-   pResolutionList = createStack(NULL);
-
-   /// Attempt to resolve sub-strings. Increment running total of failures.
-   pOperationData->xOutput += performGameStringResolution(pGameString, szOutput, MAX_STRING, pResolutionList, pOperationData->pErrorQueue);
-
-   // Replace GameString text
-   pGameString->szText = utilReplaceString(pGameString->szText, szOutput);
-   pGameString->iCount = lstrlen(pGameString->szText);
-
-   // [RESOLVED] Mark as resolved
-   pGameString->bResolved = TRUE;
-
-   // Cleanup
-   deleteStack(pResolutionList);
-   utilDeleteString(szOutput);
-}
-
-
-/// Function name  : treeprocMergeSupplementaryGamePages
+/// Function name  : treeprocMergeGamePages
 // Description     : Copies the GamePage into the game data. No errors are generated.
 ///                    ->  Conflicting GamePages are overwritten
 // 
@@ -732,7 +792,7 @@ VOID   treeprocResolveGameStringSubstrings(AVL_TREE_NODE*  pNode, AVL_TREE_OPERA
 // AVL_TREE_OPERATION*  pOperationData : [in] Operation data
 ///                                             -> pOutputTree : [in/out] Game data GamePages tree
 // 
-VOID  treeprocMergeSupplementaryGamePages(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
+VOID  treeprocMergeGamePages(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
 {
    GAME_PAGE    *pGamePage;    // Convenience pointer
 
@@ -749,32 +809,33 @@ VOID  treeprocMergeSupplementaryGamePages(AVL_TREE_NODE*  pCurrentNode, AVL_TREE
 }
 
 
-/// Function name  : treeprocMergeSupplementaryGameStrings
+/// Function name  : treeprocMergeGameStrings
 // Description     : Inserts each GameString into the game data
 ///                    -> Conflicting GameStrings are overwritten
 ///                    -> A warning is produced each time a conflict is overwritten
 // 
 // AVL_TREE_NODE*       pCurrentNode   : [in] Node containing the string to merge
 // AVL_TREE_OPERATION*  pOperationData : [in] Operation data
-///                                             -> pOutputTree : AVL_TREE*    : [in/out] Game data GameStrings tree
-///                                             -> pErrorQueue : AVL_TREE*    : [in/out] Output error queue for conflict warnings
-///                                             -> xFirstInput : CONST TCHAR* : [in]     Filename of the source language file [For conflict warnings]
-///                                             -> xFirstInput : BOOL         : [in]     Whether this is an official Egosoft supplementary file [Suppresses warnings]
+///                                             -> xFirstInput  : CONST TCHAR* : [in]     LanguageFile Filename [For conflict warnings]
+///                                             -> xSecondInput : BOOL         : [in]     Official LanguageFile flag [Suppresses warnings]
+///                                             -> xThirdInput  : ERROR_QUEUE* : [in]     ErrorQueue purely for warnings of string overwrites
+///                                             -> pOutputTree  : AVL_TREE*    : [in/out] Game data GameStrings tree
+///                                             -> pErrorQueue  : AVL_TREE*    : [in/out] Output error queue for conflict warnings
 // 
-VOID  treeprocMergeSupplementaryGameStrings(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
+VOID  treeprocMergeGameStrings(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPERATION*  pOperationData)
 {
    GAME_STRING    *pGameString,              // Convenience pointer
                   *pConflictString;
    CONST TCHAR    *szLanguageFileName;       // Name of the LanguageFile containing the strings
+   ERROR_QUEUE    *pMergeQueue;              // Specialist Queue for 'merge' warnings
    TCHAR          *szPreviewText[2];         // Truncated version of the game string text, used for warning reporting
-   BOOL            bEgosoftFile,             // Whether this is an official supplementary language file
-                   bReportWarnings;
+   BOOL            bEgosoftFile;             // Whether this is an official supplementary language file
 
    // Prepare
    pGameString        = extractPointerFromTreeNode(pCurrentNode, GAME_STRING);
    szLanguageFileName = (CONST TCHAR*)pOperationData->xFirstInput;
    bEgosoftFile       = (BOOL)pOperationData->xSecondInput;
-   bReportWarnings    = (BOOL)pOperationData->xThirdInput; 
+   pMergeQueue        = (ERROR_QUEUE*)pOperationData->xThirdInput; 
 
    // [MOD STRING] Add flag to the GameString to indicate it came from a mod
    if (!bEgosoftFile)
@@ -784,33 +845,36 @@ VOID  treeprocMergeSupplementaryGameStrings(AVL_TREE_NODE*  pCurrentNode, AVL_TR
    if (!insertObjectIntoAVLTree(pOperationData->pOutputTree, (LPARAM)pGameString))
    {
       /// [CONFLICT] Lookup and display conflicting GameString and insert replacement
-      findObjectInAVLTreeByValue(pOperationData->pOutputTree, pGameString->iPageID, pGameString->iID, (LPARAM&)pConflictString);
+      findGameStringInTreeByID(pOperationData->pOutputTree, pGameString->iID, pGameString->iPageID, pConflictString);
 
-      /// [COMMAND OVERRIDE] Display name of command overridden
-      if (pGameString->iPageID == GPI_OBJECT_COMMANDS)
-         // [WARNING] "The command %s has overridden the command %s"
-         pushErrorQueue(pOperationData->pErrorQueue, generateDualWarning(HERE(IDS_LANGUAGE_SUPPLEMENTARY_COMMAND_MERGED), pGameString->szText, pConflictString->szText));
-      
-      // [CHECK] Suppress warnings for official supplementary language files
-      else if (!bEgosoftFile AND bReportWarnings)
+      // [CHECK] Ensure text is different
+      if (StrCmp(pGameString->szText, pConflictString->szText) != 0)
       {
-         // [UNOFFICIAL] Extract a portion of the GameString text and convert to ST_INTERNAL
-         szPreviewText[0] = generateInternalGameStringPreview(pGameString, 96);
-         szPreviewText[1] = generateInternalGameStringPreview(pConflictString, 96);
+         /// [COMMAND OVERRIDE] Display name of command overridden
+         if (pGameString->iPageID == GPI_OBJECT_COMMANDS)
+            // [WARNING] "The command %s has overridden the command %s"
+            pushErrorQueue(pOperationData->pErrorQueue, generateDualWarning(HERE(IDS_LANGUAGE_SUPPLEMENTARY_COMMAND_MERGED), pGameString->szText, pConflictString->szText));
          
-         /// [WARNING] "The string %u:'%s' found in '%s' has overwritten game data '%s' (page %u)"
-         pushErrorQueue(pOperationData->pErrorQueue, generateDualWarning(HERE(IDS_LANGUAGE_SUPPLEMENTARY_STRING_MERGED), pGameString->iID, szPreviewText[0], szLanguageFileName, szPreviewText[1], pGameString->iPageID));
+         // [CHECK] Suppress warnings for official supplementary language files
+         else if (!bEgosoftFile)
+         {
+            // Extract an 'ST_INTERNAL' text preview
+            szPreviewText[0] = generateInternalGameStringPreview(pGameString, 96);
+            szPreviewText[1] = generateInternalGameStringPreview(pConflictString, 96);
+            
+            /// [WARNING] "Page:%d  String:%d : '%s' overwritten by '%s'"
+            generateQueuedWarning(pMergeQueue, HERE(IDS_LANGUAGE_SUPPLEMENTARY_STRING_MERGED), pGameString->iPageID, pGameString->iID, szPreviewText[1], szPreviewText[0]);
+            utilDeleteStrings(szPreviewText[0], szPreviewText[1]);      // NB: If individual reporting if OFF, Push warning into 'Merge Queue'
 
-         // Cleanup
-         utilDeleteStrings(szPreviewText[0], szPreviewText[1]);
+            // Increment overwritten string count
+            pOperationData->xOutput++;
+         }
       }
       
-      // Increment overwritten string count
-      pOperationData->xOutput++;
-
       /// [OVER-WRITE] Destroy the conflicting GameString and insert replacement
       destroyObjectInAVLTreeByValue(pOperationData->pOutputTree, pConflictString->iPageID, pConflictString->iID);
       insertObjectIntoAVLTree(pOperationData->pOutputTree, (LPARAM)pGameString);
    }
 }
+
 

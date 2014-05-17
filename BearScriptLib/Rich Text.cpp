@@ -15,6 +15,7 @@
 CONST TCHAR*         getCompatibleColourTag(const LANGUAGE_MESSAGE*  pMessage, const GAME_TEXT_COLOUR  eColour, const bool  bOpening);
 COMPATIBILITY        calculateMessageCompatibility(const LANGUAGE_MESSAGE*  pMessage, const TCHAR*  szSourceText);
 CONST TCHAR*         convertTagToString(RICHTEXT_TAG  eTag);
+BOOL                 findTagInStack(const STACK*  pTagStack, const RICHTEXT_TAG  eTag);
 UINT                 getRichItemCount(const RICH_PARAGRAPH*  pParagraph);
 UINT                 getParagraphCount(const RICH_TEXT*  pRichText);
 RICHTEXT_TAG         identifyColourTagFromChar(const TCHAR  chChar);
@@ -29,9 +30,8 @@ BOOL                 translateLanguageMessageTag(CONST RICHTEXT_TOKENISER*  pTok
 ///                                       CONSTANTS / GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Paragraph alignment tags
 CONST TCHAR*  szAlignmentTags[5] = { TEXT("N/A"),    TEXT("left"),    TEXT("right"), TEXT("center"), TEXT("justify") };
-CONST TCHAR*  szColourTags[10]   = { TEXT("black"),  TEXT("blue"),    TEXT("cyan"),  TEXT("N/A"),    TEXT("green"), 
-                                     TEXT("orange"), TEXT("magenta"), TEXT("red"),   TEXT("white"),  TEXT("yellow") };
 
 /// Macro: topTagStackItem
 #define  topTagStackItem(pStack)    ((RICHTEXT_STACK_ITEM*)topStackObject(pStack))
@@ -132,11 +132,11 @@ COMPATIBILITY  calculateMessageCompatibility(const LANGUAGE_MESSAGE*  pMessage, 
    RICH_PARAGRAPH*  pParagraph;   // LanguageMessage paragraphs iterator
    RICH_ITEM*       pItem;        // LanguageMessage items iterator
    
-   /// LOGBOOK: Check for [ARTICLE] or [RANK] or [TEXT] or [AUTHOR] or [TITLE]
+   /// LOGBOOK: If [ARTICLE] or [RANK] or [TEXT] or [AUTHOR] or [TITLE] present
    if (pMessage->bArticle OR pMessage->bCustomRank OR pMessage->iColumnCount > 1 OR pMessage->bCustomSpacing OR pMessage->bCustomWidth OR lstrlen(pMessage->szAuthor) OR lstrlen(pMessage->szTitle))
       return LMC_LOGBOOK;
 
-   /// LOGBOOK: Check for [SELECT]
+   /// LOGBOOK: If [SELECT] present
    for (LIST_ITEM*  pParagraphIterator = getListHead(pMessage->pParagraphList); pParagraph = extractListItemPointer(pParagraphIterator, RICH_PARAGRAPH); pParagraphIterator = pParagraphIterator->pNext)
    {
       for (LIST_ITEM*  pItemIterator = getListHead(pParagraph->pItemList); pItem = extractListItemPointer(pItemIterator, RICH_ITEM); pItemIterator = pItemIterator->pNext)
@@ -144,7 +144,7 @@ COMPATIBILITY  calculateMessageCompatibility(const LANGUAGE_MESSAGE*  pMessage, 
             return LMC_LOGBOOK;
    }
 
-   /// CUSTOM MENU: Check for \033 tags
+   /// CUSTOM MENU: If \033 tags present
    return utilFindSubString(szSourceText, "\\033") ? LMC_CUSTOM_MENU : LMC_LOGBOOK;
 }
 
@@ -182,7 +182,7 @@ CONST TCHAR*  convertTagToString(RICHTEXT_TAG  eTag)
    case RTT_WHITE:   szOutput = TEXT("white");    break;
    case RTT_SILVER:  szOutput = TEXT("silver");   break;
    case RTT_YELLOW:  szOutput = TEXT("yellow");   break;
-   case RTT_DEFAULT: szOutput = TEXT("\\033X");   break;
+   case RTT_DEFAULT: szOutput = TEXT("grey");     break;
 
    case RTT_LEFT:    szOutput = TEXT("left");     break;
    case RTT_RIGHT:   szOutput = TEXT("right");    break;
@@ -200,6 +200,27 @@ CONST TCHAR*  convertTagToString(RICHTEXT_TAG  eTag)
    return szOutput;
 }
 
+
+/// Function name  : findTagInStack
+// Description     : Checks for the presence of a tag
+// 
+// const STACK*        pTagStack : [in] Stack
+// const RICHTEXT_TAG  eTag      : [in] Tag
+// 
+// Return Value   : TRUE/FALSE
+// 
+BOOL  findTagInStack(const STACK*  pTagStack, const RICHTEXT_TAG  eTag)
+{
+   RICHTEXT_STACK_ITEM*  pItem;
+
+   for (STACK_ITEM*  pIterator = getListHead(pTagStack); pItem = extractListItemPointer(pIterator, RICHTEXT_STACK_ITEM); pIterator = pIterator->pNext)
+   {
+      if (pItem->eTag == eTag)
+         return TRUE;
+   }
+
+   return FALSE;
+}
 
 
 /// Function name  : getRichItemCount
@@ -269,7 +290,6 @@ GAME_TEXT_COLOUR  identifyColourFromTag(CONST RICHTEXT_TAG  eTag)
    case RTT_BLACK:   eOutput = GTC_BLACK;    break;
    case RTT_BLUE:    eOutput = GTC_BLUE;     break;
    case RTT_CYAN:    eOutput = GTC_CYAN;     break;
-   case RTT_DEFAULT: eOutput = GTC_DEFAULT;  break;
    case RTT_GREEN:   eOutput = GTC_GREEN;    break;
    case RTT_ORANGE:  eOutput = GTC_ORANGE;   break;
    case RTT_PURPLE:  eOutput = GTC_PURPLE;   break;
@@ -293,6 +313,13 @@ GAME_TEXT_COLOUR  identifyColourFromTag(CONST RICHTEXT_TAG  eTag)
 // 
 RICHTEXT_TAG  identifyRichTextTag(CONST TCHAR*  szTag)
 {
+   //TCHAR  szTag[32];
+
+   //// Trim tag of symbols
+   //StringCchCopy(szTag, 32, szInput);
+   //StrTrim(szTag, TEXT("[/]"));
+
+   // Examine tag
    if (utilCompareString(szTag, "b"))                 return RTT_BOLD;
    else if (utilCompareString(szTag, "u"))            return RTT_UNDERLINE;
    else if (utilCompareString(szTag, "i"))            return RTT_ITALIC;
@@ -306,6 +333,7 @@ RICHTEXT_TAG  identifyRichTextTag(CONST TCHAR*  szTag)
    else if (utilCompareString(szTag, "blue"))         return RTT_BLUE;
    else if (utilCompareString(szTag, "cyan"))         return RTT_CYAN;
    else if (utilCompareString(szTag, "green"))        return RTT_GREEN;
+   else if (utilCompareString(szTag, "grey"))         return RTT_DEFAULT;
    else if (utilCompareString(szTag, "magenta"))      return RTT_PURPLE;
    else if (utilCompareString(szTag, "orange"))       return RTT_ORANGE;
    else if (utilCompareString(szTag, "red"))          return RTT_RED;
@@ -319,7 +347,6 @@ RICHTEXT_TAG  identifyRichTextTag(CONST TCHAR*  szTag)
    else if (utilCompareString(szTag, "justify"))      return RTT_JUSTIFY;
 
    else if (utilCompareStringN(szTag, "image", 5))    return RTT_IMAGE;
-
    else if (utilCompareStringN(szTag, "select", 6))   return RTT_SELECT;
 
    else return RTT_NONE;
@@ -463,11 +490,11 @@ BOOL  findNextRichObject(RICHTEXT_TOKENISER*  pToken, ERROR_STACK*  &pError)
 
    /// [TAG] Identify tag from the string
    case RTC_FORMAT_TAG:  
-      // Trim tag and identify
+      // Identify tag
       StrTrim(pToken->szText, TEXT("[/]"));
       pToken->eTag = identifyRichTextTag(pToken->szText);
-
-      // Classify object based on the tag
+      
+      // [SUCCESS] Classify object based on the tag
       switch (pToken->eTag)
       {
       // [ALIGNMENT TAGS]
@@ -538,8 +565,6 @@ BOOL  findNextRichObject(RICHTEXT_TOKENISER*  pToken, ERROR_STACK*  &pError)
    // Return TRUE if successful
    return (pError == NULL);
 }
-
-
 
 
 /// Function name  : performMessageCompatibilityChange
@@ -717,7 +742,7 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
          {
          /// [ALIGNMENT TAG] Set alignment or start new paragraph.  Reset attributes
          case RTC_ALIGNMENT_TAG:
-            if (getListItemCount(pParagraph->pItemList) == 0)
+            if (!getRichItemCount(pParagraph))
                pParagraph->eAlignment = (PARAGRAPH_ALIGNMENT)pToken->eTag;
             else
                appendRichTextParagraph(pOutput, pParagraph = createRichParagraph((PARAGRAPH_ALIGNMENT)pToken->eTag));
@@ -768,8 +793,8 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
       /// [CLOSING TAG] Commit item + clear attributes
       else if (pToken->bClosingTag)
       {
-         // [CHECK] Ensure there is at least one open tag
-         if (!getStackItemCount(pTagStack) AND pToken->eTag != RTT_DEFAULT)     // Allow excess \033X tags, they have no effect
+         // [CHECK] Ensure there is a matching tag on the stack   [EXCEPTION: Allow orphan \033X tags]
+         if ((pToken->eTag != RTT_DEFAULT AND pOutput->eType == RTT_RICH_TEXT) AND !findTagInStack(pTagStack, pToken->eTag))  
             // [ERROR] "Unexpected formatting tag [/%s] found in message"
             pError = generateDualError(HERE(IDS_RICHTEXT_EXCESS_CLOSING_TAGS), convertTagToString(pToken->eTag));
          else 
@@ -800,6 +825,8 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
             case RTC_ALIGNMENT_TAG:
                pItem->bBold   = pItem->bItalic = pItem->bUnderline = FALSE;
                pItem->eColour = GTC_DEFAULT;
+               // Open new left-aligned paragraph
+               appendRichTextParagraph(pOutput, pParagraph = createRichParagraph(PA_LEFT));
                break;
             }
 
@@ -818,6 +845,10 @@ BOOL  generateRichTextFromSourceText(CONST TCHAR*  szSourceText, CONST UINT  iTe
 
    /// Commit final item (if exists)
    lstrlen(pItem->szText) ? appendRichTextItem(pParagraph, pItem) : deleteRichItem(pItem);
+
+   /// Remove unused final paragraph, if any
+   if (getParagraphCount(pOutput) > 1 AND !getRichItemCount(pParagraph))
+      destroyListItemByIndex(pOutput->pParagraphList, getParagraphCount(pOutput) - 1);
 
    // Pop any remaining colour tags from the stack
    while ((pTopItem = topTagStackItem(pTagStack)) AND pTopItem->eClass == RTC_COLOUR_TAG)
@@ -870,7 +901,6 @@ BOOL  generateSourceTextFromRichText(CONST LANGUAGE_MESSAGE*  pMessage, GAME_STR
    RICH_ITEM*            pItem;                  // Item iterator
    BOOL                  bDefaultParagraph,      // TRUE if the formatting of the first paragraph is LEFT - ie. what's assumed if there is no initial alignment tag
                          bTextTag = FALSE;       // TRUE if the message uses anything other than a single standard column
-                         
    TEXT_STREAM*          pStream;                // Output stream
 
    // [CHECK] Validate parameters
@@ -919,8 +949,6 @@ BOOL  generateSourceTextFromRichText(CONST LANGUAGE_MESSAGE*  pMessage, GAME_STR
          // Close tag
          appendStringToTextStream(pStream, TEXT("]"));
       }
-      /*else if (bTextTag = lstrlen(pMessage->szAuthor) OR lstrlen(pMessage->szTitle))
-         appendStringToTextStream(pStream, TEXT("[text]"));*/
    }
    
    /// Iterate through paragraphs and their items

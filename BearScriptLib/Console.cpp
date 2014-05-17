@@ -191,8 +191,11 @@ VOID   consolePrint(CONST TCHAR* szText)
    // Append CRLF to output string and convert to ANSI
    szOutputTextW = utilCreateStringf(lstrlen(szText) + 32, TEXT("0x%04x: %s\r\n"), GetCurrentThreadId(), szText);
 
-   /// [GUARD BLOCK]
+   /// [CRITICAL SECTION]
    EnterCriticalSection(&getAppConsole()->oCriticalSection);
+
+   // Set working folder
+   SetCurrentDirectory(getAppFolder());
 
    /// Attempt to open Console.log for writing
    if ((hLogFile = CreateFile(szLogFileName, FILE_ALL_ACCESS, NULL, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE)
@@ -210,16 +213,19 @@ VOID   consolePrint(CONST TCHAR* szText)
       utilDeleteObject(szOutputTextA);
    }
 
-   /// [GUARD BLOCK] 
+   /// [CRITICAL SECTION] 
    LeaveCriticalSection(&getAppConsole()->oCriticalSection);
 
-   // [CHECK] Does console window exist yet?
-   if (IsWindow(getAppConsole()->hWnd))
-      /// [SUCCESS] Pass UNICODE version to console window
-      PostMessage(getAppConsole()->hWnd, UM_CONSOLE, NULL, (LPARAM)szOutputTextW);
-   else
-      // [FAILURE] Cleanup
-      utilDeleteString(szOutputTextW);
+   //// [CHECK] Does console window exist yet?
+   //if (IsWindow(getAppConsole()->hWnd))
+   //   /// [SUCCESS] Pass UNICODE version to console window
+   //   PostMessage(getAppConsole()->hWnd, UM_CONSOLE, NULL, (LPARAM)szOutputTextW);
+   //else
+   //   // [FAILURE] Cleanup
+   //   utilDeleteString(szOutputTextW);
+
+   // Cleanup
+   utilDeleteString(szOutputTextW);
 }
 
 
@@ -227,7 +233,7 @@ VOID   consolePrint(CONST TCHAR* szText)
 /// Function name  : consolePrintError
 // Description     : Outputs an ErrorStack to the console
 //
-// CONST ERROR_STACK*  pError : [in] 
+// CONST ERROR_STACK*  pError : [in] Error
 // 
 BearScriptAPI 
 VOID   consolePrintError(CONST ERROR_STACK*  pError)
@@ -239,8 +245,6 @@ VOID   consolePrintError(CONST ERROR_STACK*  pError)
    {
       // Output flattened error text
       consolePrint(szErrorText = generateFlattenedErrorStackText(pError));
-
-      // Cleanup
       utilDeleteString(szErrorText);
    }
 }
@@ -263,7 +267,29 @@ VOID   consolePrintErrorQueue(CONST ERROR_QUEUE*  pErrorQueue)
    utilDeleteString(szErrorText);
 }
 
+/// Function name  : consolePrintTopError
+// Description     : Outputs an ErrorStack to the console
+//
+// CONST ERROR_STACK*  pError : [in] Error
+// 
+BearScriptAPI 
+VOID   consolePrintTopError(CONST ERROR_STACK*  pError)
+{
+   const ERROR_MESSAGE*  pMessage;
 
+   // [ERROR/WARNING] Print to console
+   if (pError->eType != ET_INFORMATION)
+   {
+      // Print all non-location messages
+      for (UINT  iIndex = 0; findErrorMessageByLogicalIndex(pError, iIndex, MT_MESSAGE, pMessage); iIndex++)
+         if (pMessage->iID != IDS_ERROR_APPEND_LOCATION)
+            consolePrintf(TEXT("%s: %s"), pMessage->szID, pMessage->szMessage); 
+
+      // Attachments
+      if (findErrorMessageByLogicalIndex(pError, 0, MT_ATTACHMENT, pMessage))
+         consolePrintf(TEXT("Attachment: %s"), pMessage->szMessage); 
+   }
+}
 
 /// Function name  : consolePrintf
 // Description     : Outputs formatted variable argument strings to the console window
@@ -274,10 +300,7 @@ VOID   consolePrintErrorQueue(CONST ERROR_QUEUE*  pErrorQueue)
 BearScriptAPI 
 VOID   consolePrintf(CONST TCHAR* szFormat, ...)
 {
-   va_list  pArgList;       // First variable arg pointer
-   
-   // Prepare
-   pArgList = utilGetFirstVariableArgument(&szFormat);
+   va_list  pArgList = utilGetFirstVariableArgument(&szFormat);       // First variable arg pointer
    
    // Add to console window
    consoleVPrintf(szFormat, pArgList);
@@ -293,19 +316,11 @@ VOID   consolePrintf(CONST TCHAR* szFormat, ...)
 BearScriptAPI 
 VOID   consolePrintfA(CONST CHAR* szFormatA, ...)
 {
-   va_list  pArgList;       // First variable arg pointer
-   TCHAR*   szFormatW;
-   
-   // Prepare
-   pArgList = utilGetFirstVariableArgument(&szFormatA);
-
-   // Translate formatting string to UNICODE
-   szFormatW = utilTranslateStringToUNICODE(szFormatA, lstrlenA(szFormatA));
+   va_list  pArgList  = utilGetFirstVariableArgument(&szFormatA);                         // First variable arg pointer
+   TCHAR*   szFormatW = utilTranslateStringToUNICODE(szFormatA, lstrlenA(szFormatA));     // Translate formatting string to UNICODE
    
    // Add to console window
    consoleVPrintf(szFormatW, pArgList);
-   
-   // Cleanup
    utilDeleteString(szFormatW);
 }
 
@@ -375,33 +390,6 @@ VOID  consolePrintVerboseA(CONST CHAR*  szFormat, ...)
 }
 
 
-/// Function name  : consolePrintVerboseHeadingA
-// Description     : Prints verbose console output, followed by a small partition
-// 
-// CONST CHAR*  szFormat  : [in] ANSI Formatting string, for use with macros
-// <any type>    ...      : [in] Wide formatting Arguments
-// 
-BearScriptAPI
-VOID  consolePrintVerboseHeadingA(CONST CHAR*  szFormat, ...)
-{
-   va_list  pArgList;
-
-   // Prepare
-   pArgList = utilGetFirstVariableArgument(&szFormat);
-
-   // [CHECK] Is verbose output enabled?
-   if (isAppVerbose())
-   {
-      // [PARTITION]
-      consolePrintfA(SMALL_PARTITION);
-
-      /// [VERBOSE] Print formatted output
-      consoleVPrintfA(szFormat, pArgList);
-      consolePrintfA(SMALL_PARTITION);
-   }
-}
-
-
 /// Function name  : consoleVPrintf
 // Description     : Outputs formatted variable argument strings to the console window
 //
@@ -447,6 +435,24 @@ VOID   consoleVPrintfA(CONST CHAR* szFormatA, va_list  pArgList)
 
    // Cleanup
    utilDeleteString(szFormatW);
+}
+
+
+/// Function name  : consolePrintHeadingA
+// Description     : Prints console output, followed by a small partition
+// 
+// CONST CHAR*  szFormat  : [in] ANSI Formatting string, for use with macros
+// <any type>    ...      : [in] Wide formatting Arguments
+// 
+BearScriptAPI
+VOID  consolePrintHeadingA(CONST CHAR*  szFormat, ...)
+{
+   va_list  pArgList = utilGetFirstVariableArgument(&szFormat);
+
+   /// Print formatted output
+   consolePrintfA(SMALL_PARTITION);
+   consoleVPrintfA(szFormat, pArgList);
+   consolePrintfA(SMALL_PARTITION);
 }
 
 

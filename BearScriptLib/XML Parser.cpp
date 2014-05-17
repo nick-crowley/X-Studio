@@ -11,6 +11,9 @@
 ///                                     MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// OnException: Print to console
+#define    ON_EXCEPTION()    printException(pException);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -24,34 +27,15 @@
 // 
 XML_PROPERTY*  createXMLProperty(CONST TCHAR*  szName)
 {
-   XML_PROPERTY*  pNewProperty;  // New property
-
-   // Create new object
-   pNewProperty = utilCreateEmptyObject(XML_PROPERTY);
+   XML_PROPERTY*  pNewProperty = utilCreateEmptyObject(XML_PROPERTY);  // New property
 
    // Set name property
-   StringCchCopy(pNewProperty->szName, 24, szName);
+   StringCchCopy(pNewProperty->szName, 32, szName);
 
    // Return new object
    return pNewProperty;
 }
 
-
-/// Function name  : createXMLTagStack
-// Description     : Creates an XML parsing stack
-// 
-// Return Value   : New XML parsing stack, you are responsible for destroying it
-// 
-XML_TAG_STACK*  createXMLTagStack()
-{
-   XML_TAG_STACK*  pStack;  // New stack
-
-   // Create new stack
-   pStack = utilCreateEmptyObject(XML_TAG_STACK);
-
-   // Return new stack
-   return pStack;
-}
 
 
 /// Function name  : createXMLTokeniser
@@ -61,16 +45,14 @@ XML_TAG_STACK*  createXMLTagStack()
 // 
 // Return Value   : New XML tokeniser, you are responsible for destroying it
 // 
-XML_TOKENISER*  createXMLTokeniser(CONST TCHAR*  szInput)
+XML_TOKENISER*  createXMLTokeniser(const TCHAR*  szFileName, const TCHAR*  szInput)
 {
-   XML_TOKENISER*  pTokeniser;
-
-   // Create new tokeniser
-   pTokeniser = utilCreateEmptyObject(XML_TOKENISER);
+   XML_TOKENISER*  pTokeniser = utilCreateEmptyObject(XML_TOKENISER);
 
    // Set properties
    pTokeniser->szSource    = szInput;
    pTokeniser->szNextToken = szInput;
+   pTokeniser->szFileName  = szFileName;
    pTokeniser->iLineNumber = 1;
 
    // Return new tokeniser
@@ -86,10 +68,7 @@ XML_TOKENISER*  createXMLTokeniser(CONST TCHAR*  szInput)
 BearScriptAPI
 XML_TREE*  createXMLTree()
 {
-   XML_TREE*  pNewTree;
-
-   // Create new tree
-   pNewTree = utilCreateEmptyObject(XML_TREE);
+   XML_TREE*  pNewTree = utilCreateEmptyObject(XML_TREE);
 
    // Create new root
    pNewTree->pRoot  = createXMLTreeRoot();
@@ -108,22 +87,20 @@ XML_TREE*  createXMLTree()
 // 
 // Return Value   : New XML Tree Node, you are responsible for destroying it
 // 
-XML_TREE_NODE*   createXMLTreeNode(XML_TREE_NODE*  pParent, CONST XML_TOKENISER*  pToken)
+XML_TREE_NODE*   createXMLTreeNode(const XML_TOKENISER*  pToken)
 {
-   XML_TREE_NODE*   pNewNode;  // New tree node
+   XML_TREE_NODE*   pNewNode = utilCreateEmptyObject(XML_TREE_NODE);  // New tree node
 
    // [CHECK] Nodes can only be created from certain tags
    ASSERT(pToken->eType == XTT_OPENING_TAG OR pToken->eType == XTT_SELF_CLOSING_TAG);
 
-   // Create new node
-   pNewNode = utilCreateEmptyObject(XML_TREE_NODE);
-
    // Set properties
-   pNewNode->pParent     = pParent;
-   pNewNode->pChildren   = createList(destructorXMLTreeNode);
-   pNewNode->pProperties = createList(destructorXMLProperty);
    pNewNode->iLineNumber = pToken->iLineNumber;
    pNewNode->iIndex      = 0;
+
+   // Create lists
+   pNewNode->oChildren.pfnDeleteItem   = destructorXMLTreeNode;      //pNewNode->pChildren   = createList(destructorXMLTreeNode);
+   pNewNode->oProperties.pfnDeleteItem = destructorXMLProperty;      //pNewNode->pProperties = createList(destructorXMLProperty);
 
    // Parse tag name properties into node
    translateXMLTagIntoNode(pToken->szText, pToken->iCount, pNewNode);
@@ -140,15 +117,14 @@ XML_TREE_NODE*   createXMLTreeNode(XML_TREE_NODE*  pParent, CONST XML_TOKENISER*
 // 
 XML_TREE_NODE*   createXMLTreeRoot()
 {
-   XML_TREE_NODE*  pNewRoot;  // New root node
-
-   // Create new root
-   pNewRoot = utilCreateEmptyObject(XML_TREE_NODE);
+   XML_TREE_NODE*  pNewRoot = utilCreateEmptyObject(XML_TREE_NODE);  // New root node
 
    // Set properties
    StringCchCopy(pNewRoot->szName, 24, TEXT("root"));
-   pNewRoot->pChildren   = createList(destructorXMLTreeNode);
-   pNewRoot->pProperties = createList(destructorXMLProperty);
+
+   // Create lists
+   pNewRoot->oChildren.pfnDeleteItem   = destructorXMLTreeNode;      //pNewNode->pChildren   = createList(destructorXMLTreeNode);
+   pNewRoot->oProperties.pfnDeleteItem = destructorXMLProperty;      //pNewNode->pProperties = createList(destructorXMLProperty);
 
    // Return new root
    return pNewRoot;
@@ -160,7 +136,7 @@ XML_TREE_NODE*   createXMLTreeRoot()
 // 
 // XML_PROPERTY*  &pProperty   : [in] XML Property object to delete
 // 
-__forceinline 
+
 VOID  deleteXMLProperty(XML_PROPERTY*  &pProperty)
 {   
    // Delete value
@@ -168,32 +144,6 @@ VOID  deleteXMLProperty(XML_PROPERTY*  &pProperty)
 
    // Delete calling object
    utilDeleteObject(pProperty);
-}
-
-/// Function name  : destructorXMLProperty
-// Description     : Callback function for a 'deleteListItem' so it can delete item data for XMLProperty lists
-// 
-// LPARAM  pListItem : [in] ListItem data that is actually an XMLProperty object
-// 
-__forceinline 
-VOID  destructorXMLProperty(LPARAM  pListItem)
-{
-   deleteXMLProperty((XML_PROPERTY*&)pListItem);
-}
-
-/// Function name  : deleteXMLTagStack
-// Description     : Delete an XMLTagStack and any items it contains
-// 
-// XML_TAG_STACK*  &pStack   : [in] XMLTagStack to delete
-// 
-VOID  deleteXMLTagStack(XML_TAG_STACK*  &pStack)
-{
-   // Delete any remaining stack items
-   while (hasItems(pStack))
-      popXMLTagStack(pStack);
-   
-   // Delete calling object
-   utilDeleteObject(pStack);
 }
 
 
@@ -220,14 +170,19 @@ VOID  deleteXMLTokeniser(XML_TOKENISER*  &pTokeniser)
 BearScriptAPI
 VOID  deleteXMLTree(XML_TREE*  &pTree)
 {
-   // [CHECK] Tree must exist
-   ASSERT(pTree);
+   TRY
+   {
+      // [CHECK] Tree must exist
+      if (pTree != NULL)
+      {
+         // Delete nodes
+         deleteXMLTreeNode(pTree->pRoot);
 
-   // Delete nodes
-   deleteXMLTreeNode(pTree->pRoot);
-
-   // Delete calling object
-   utilDeleteObject(pTree);
+         // Delete calling object
+         utilDeleteObject(pTree);
+      }
+   }
+   CATCH0("Unable to delete XML tree")
 }
 
 
@@ -236,18 +191,28 @@ VOID  deleteXMLTree(XML_TREE*  &pTree)
 // 
 // XML_TREE_NODE*  &pNode : [in] XMLTreeNode to destroy
 // 
-__forceinline 
 VOID  deleteXMLTreeNode(XML_TREE_NODE*  &pNode)
 {
    // Delete node text
    utilSafeDeleteString(pNode->szText);
 
    // Delete lists
-   deleteList(pNode->pChildren);
-   deleteList(pNode->pProperties);
+   deleteListContents(&pNode->oChildren);    // deleteList(pNode->pChildren);
+   deleteListContents(&pNode->oProperties);  // deleteList(pNode->pProperties);
 
    // Delete calling object
    utilDeleteObject(pNode);
+}
+
+
+/// Function name  : destructorXMLProperty
+// Description     : Callback function for a 'deleteListItem' so it can delete item data for XMLProperty lists
+// 
+// LPARAM  pListItem : [in] ListItem data that is actually an XMLProperty object
+// 
+VOID  destructorXMLProperty(LPARAM  pListItem)
+{
+   deleteXMLProperty((XML_PROPERTY*&)pListItem);
 }
 
 
@@ -256,7 +221,6 @@ VOID  deleteXMLTreeNode(XML_TREE_NODE*  &pNode)
 // 
 // LPARAM  pItemData : [in] ListItem data that is actually an XMLTreeNode object
 // 
-__forceinline 
 VOID  destructorXMLTreeNode(LPARAM  pItemData)
 {
    deleteXMLTreeNode((XML_TREE_NODE*&)pItemData);
@@ -265,19 +229,6 @@ VOID  destructorXMLTreeNode(LPARAM  pItemData)
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                     HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
-/// Function name  : duplicateNodeText
-// Description     : Duplicates the node's text
-// 
-// CONST XML_TREE_NODE*  pNode   : [in] 
-// 
-// Return Value   : 
-// 
-TCHAR*  duplicateNodeText(CONST XML_TREE_NODE*  pNode)
-{
-   return utilDuplicateSimpleString(pNode->szText);
-}
-
 
 /// Function name  : getXMLNodeCount
 // Description     : Determine the number of child nodes an XMLTreeNode possesses
@@ -289,21 +240,9 @@ TCHAR*  duplicateNodeText(CONST XML_TREE_NODE*  pNode)
 BearScriptAPI 
 UINT  getXMLNodeCount(CONST XML_TREE_NODE*  pNode)
 {
-   return pNode->pChildren->iCount;
+   return pNode->oChildren.iCount;
 }
 
-
-/// Function name  : getXMLPropertyFromItem
-// Description     : Extract the XMLProperty from a ListItem
-// 
-// CONST LIST_ITEM*  pListItem   : [in] ListItem containing an XMLProperty
-// 
-// Return Value   : XML Property
-// 
-XML_PROPERTY*  getXMLPropertyFromItem(CONST LIST_ITEM*  pListItem)
-{
-   return extractListItemPointer(pListItem, XML_PROPERTY);
-}
 
 /// Function name  : getXMLTreeItemCount
 // Description     : Return the number of items in an XMLTree
@@ -315,83 +254,6 @@ XML_PROPERTY*  getXMLPropertyFromItem(CONST LIST_ITEM*  pListItem)
 UINT  getXMLTreeItemCount(CONST XML_TREE*  pTree)
 {
    return pTree->iCount;
-}
-
-
-/// Function name  : getXMLTreeNodeFromItem
-// Description     : Extract the XMLTree Node from a ListItem
-// 
-// CONST LIST_ITEM*  pListItem   : [in] ListItem containing an XML Tree Node
-// 
-// Return Value   : XML Tree node
-// 
-XML_TREE_NODE*  getXMLTreeNodeFromItem(CONST LIST_ITEM*  pListItem)
-{
-   return extractListItemPointer(pListItem, XML_TREE_NODE);
-}
-
-
-/// Function name  : getFirstXMLPropertyListItem
-// Description     : Get the first ListItem from an XMLTreeNode's list of properties
-// 
-// XML_TREE_NODE*  pNode : [in] XML Tree node containing a (possibly empty) list of properties
-// 
-// Return Value   : First item in the list, or NULL if list is empty
-// 
-LIST_ITEM*  getFirstXMLPropertyListItem(CONST XML_TREE_NODE*  pNode)
-{
-   return getListHead(pNode->pProperties);
-}
-
-
-/// Function name  : getFirstXMLTreeNodeListItem
-// Description     : Get the first ListItem from an XML Tree Node's list of children
-// 
-// XML_TREE_NODE*  pNode : [in] XML Tree node containing a (possibly empty) list of children
-// 
-// Return Value   : First child in the list, or NULL if list is empty
-// 
-LIST_ITEM*  getFirstXMLTreeNodeListItem(CONST XML_TREE_NODE*  pNode)
-{
-   return getListHead(pNode->pChildren);
-}
-
-
-/// Function name  : hasChildren
-// Description     : Determine whether an XML Tree node has any children or not
-// 
-// CONST XML_TREE_NODE*  pNode : [in] XML Tree node to test
-// 
-// Return Value   : TRUE or FALSE
-// 
-BOOL  hasChildren(CONST XML_TREE_NODE*  pNode)
-{
-   return (getListItemCount(pNode->pChildren) > 0);
-}
-
-/// Function name  : hasItems
-// Description     : Determine whether an XML parse stack has any items or not
-// 
-// CONST XML_TAG_STACK*  pStack   : [in] XML parse stack to test
-// 
-// Return Value   : TRUE or FALSE
-// 
-BOOL  hasItems(CONST XML_TAG_STACK*  pStack)
-{
-   return (pStack->iCount > 0);
-}
-
-
-/// Function name  : hasProperties
-// Description     : Determine whether an XML Tree node has any properties or not
-// 
-// CONST XML_TREE_NODE*  pNode : [in] XML Tree node to test
-// 
-// Return Value   : TRUE or FALSE
-// 
-BOOL  hasProperties(CONST XML_TREE_NODE*  pNode)
-{
-   return (getListItemCount(pNode->pProperties) > 0);
 }
 
 
@@ -430,23 +292,21 @@ BOOL  isStringWhitespace(CONST TCHAR*  szString)
 // CONST TCHAR*    szTag      : [in]     Tag to push onto the stack
 // CONST UINT      iTagLength : [in]     Length of tag, in characters
 // 
-VOID  pushXMLTagStack(XML_TAG_STACK*  pStack, CONST TCHAR*  szTag, CONST UINT  iTagLength)
+VOID  pushXMLTagStack(XML_TAG_STACK*  pStack, const XML_TOKENISER*  pTag)
 {
    TCHAR  *szTagCopy,      // Copy of the input tag
           *szNameEnd;      // Marker to the end of the tag name (and start of the properties)
 
-   if (pStack->iCount < 32)
-   {
-      // Duplicate tag
-      szTagCopy = utilDuplicateString(szTag, iTagLength);
+   // Duplicate tag
+   szTagCopy = utilDuplicateString(pTag->szText, pTag->iCount);
 
-      // Truncate tag to exclude any properties
-      if (szNameEnd = utilFindCharacter(szTagCopy, ' '))
-         szNameEnd[0] = NULL;
+   // Truncate tag to exclude any properties
+   if (szNameEnd = utilFindCharacter(szTagCopy, ' '))
+      szNameEnd[0] = NULL;
 
-      // Add to stack
-      pStack->pItems[pStack->iCount++] = szTagCopy;
-   }
+   // Add to stack
+   pushObjectOntoStack(pStack, (LPARAM)szTagCopy);
+   
 }
 
 /// Function name  : popXMLTagStack
@@ -458,15 +318,10 @@ VOID  popXMLTagStack(XML_TAG_STACK*  pStack)
 {
    TCHAR*  szTopItem;   // Current top item
 
-   // [CHECK] Ensure stack isn't empty
-   if (hasItems(pStack))
-   {
-      // Delete top item
-      szTopItem = pStack->pItems[pStack->iCount-1];
+   /// Pop stack
+   if (szTopItem = (TCHAR*)popObjectFromStack(pStack))
+      // [SUCCESS] Delete item
       utilDeleteString(szTopItem);
-      // Remove from stack
-      pStack->pItems[--pStack->iCount] = NULL;
-   }
 }
 
 /// Function name  : topXMLTagStack
@@ -478,7 +333,7 @@ VOID  popXMLTagStack(XML_TAG_STACK*  pStack)
 // 
 CONST TCHAR*  topXMLTagStack(CONST XML_TAG_STACK*  pStack)
 {
-   return hasItems(pStack) ? pStack->pItems[pStack->iCount - 1] : NULL;
+   return (TCHAR*)topStackObject(pStack);
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -494,15 +349,13 @@ CONST TCHAR*  topXMLTagStack(CONST XML_TAG_STACK*  pStack)
 // 
 VOID  appendChildToXMLTreeNode(XML_TREE*  pTree, XML_TREE_NODE*  pParent, XML_TREE_NODE*  pChild)
 {
-   LIST_ITEM*  pListItem;  // New list item for the node
+   // Set ListItem + Index
+   pChild->pParent = pParent;
+   pChild->pItem   = createListItem((LPARAM)pChild);
+   pChild->iIndex  = getXMLNodeCount(pParent);  
 
-   // Create new list item from child
-   pListItem     = createListItem((LPARAM)pChild);
-   pChild->pItem = pListItem;
-
-   /// Add new item as a child of the parent
-   pChild->iIndex = getXMLNodeCount(pParent);  // Set appropriate index
-   appendItemToList(pParent->pChildren, pListItem);
+   // Append
+   appendItemToList(&pParent->oChildren, pChild->pItem);
 
    // Increment tree size
    pTree->iCount++;
@@ -516,13 +369,8 @@ VOID  appendChildToXMLTreeNode(XML_TREE*  pTree, XML_TREE_NODE*  pParent, XML_TR
 // 
 VOID  appendPropertyToXMLTreeNode(XML_TREE_NODE*  pNode, XML_PROPERTY*  pProperty)
 {
-   LIST_ITEM*  pListItem;
-
-   // Create new list item from property
-   pListItem = createListItem((LPARAM)pProperty);
-
-   // Add new item to properties list
-   appendItemToList(pNode->pProperties, pListItem);
+   // Append to properties list
+   appendObjectToList(&pNode->oProperties, (LPARAM)pProperty);
 }
 
 /// Function name  : calculateCharacterCountInString
@@ -553,210 +401,214 @@ UINT  calculateCharacterCountInString(CONST TCHAR*  szString, CONST TCHAR  chCha
 /// Function name  : findNextXMLToken
 // Description     : Retrieve the next XML token from an XML string using an XML tokeniser
 // 
-// XML_TOKENISER*  &pOutput : [in/out] XML Tokeniser containing the input string. On output this will contain the next token.
-// ERROR_STACK*    &pError  : [out]    New Error message, if any
+// XML_TOKENISER*  pOutput : [in/out] XML Tokeniser containing the input string. On output this will contain the next token.
+// ERROR_STACK*    &pError : [out]    New Error message, if any
 // 
 // Return Value   : FALSE if there are no more tokens. 
 ///           NOTE: This function does not return FALSE if there is an error, you must check 'pError' for that.
 // 
-BOOL  findNextXMLToken(XML_TOKENISER*  &pOutput, ERROR_STACK*  &pError)
+BOOL  findNextXMLToken(XML_TOKENISER*  pOutput, ERROR_STACK*  &pError)
 {
    CONST TCHAR  *szTokenEnd,     // Marks the end of the token
                 *szTokenStart;   // Marks the beginning of the token
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Prepare
-   szTokenStart = pOutput->szNextToken;
-   pError       = NULL;
-
-   /// [NO MORE TOKENS] Return FALSE
-   if (!szTokenStart OR !szTokenStart[0])
+   TRY
    {
-      pOutput->szText[0] = NULL;
-      pOutput->iCount = NULL;
-      return FALSE;
-   }
+      // Prepare
+      szTokenStart = pOutput->szNextToken;
+      pError       = NULL;
 
-   // Determine whether token is a tag or not
-   pOutput->eType = (szTokenStart[0] == '<' ? XTT_OPENING_TAG : XTT_TEXT);
-
-   // [CHECK] Is this a comment tag?
-   if (utilCompareStringN(szTokenStart, "<!--", 4))
-   {
-      /// [COMMENT] Search for the closing comment brace
-      if (szTokenEnd = utilFindSubString(&szTokenStart[3], "-->"))
+      /// [NO MORE TOKENS] Return FALSE
+      if (!szTokenStart OR !szTokenStart[0])
       {
-         pOutput->eType = XTT_COMMENT_TAG;
-         szTokenEnd += 2;  // Position 'TokenEnd' at the '>' character
+         pOutput->szText[0] = NULL;
+         pOutput->iCount = NULL;
+         return FALSE;
       }
-      else
-         // [ERROR] "An unclosed <%s> tag was detected in the attached XML snippet from line %u"
-         pError = generateDualError(HERE(IDS_XML_UNCLOSED_OPENING_TAG), TEXT("comment"), pOutput->iLineNumber);
-   }
-   // [CHECK] Is this a character-data block?
-   else if (utilCompareStringN(szTokenStart, "<![CDATA[", 9))
-   {
-      /// [CHARACTER DATA] Search for the closing character data brace
-      if (szTokenEnd = utilFindSubString(&szTokenStart[3], "]]>"))
+
+      // Determine whether token is a tag or not
+      pOutput->eType = (szTokenStart[0] == '<' ? XTT_OPENING_TAG : XTT_TEXT);
+
+      // [CHECK] Is this a comment tag?
+      if (utilCompareStringN(szTokenStart, "<!--", 4))
       {
-         pOutput->eType = XTT_COMMENT_TAG;
-         szTokenEnd += 2;  // Position 'TokenEnd' at the '>' character
-      }
-      else
-         // [ERROR] "An unclosed <%s> tag was detected in the attached XML snippet from line %u"
-         pError = generateDualError(HERE(IDS_XML_UNCLOSED_OPENING_TAG), TEXT("!CDATA"), pOutput->iLineNumber);
-   }
-   else
-      /// [NON-COMMENT] Search for closing tag (or an illegal opening tag)
-      szTokenEnd = utilFindCharacterInSet(&szTokenStart[1], "<>");
-   
-   // [NON-FINAL TOKEN]
-   if (!pError AND szTokenEnd)
-   {
-      // Examine token type
-      switch (pOutput->eType)
-      {
-      /// [TAG] Determine tag type and extract without the angle brackets
-      case XTT_OPENING_TAG:
-         // [CHECK] Ensure tags finish with '>'
-         if (szTokenEnd[0] == '<')
-         {  
-            // [ERROR] "An unexpected opening tag '<' character was detected in the attached XML snippet from line %u"
-            pError = generateDualError(HERE(IDS_XML_UNEXPECTED_OPENING_BRACKET), pOutput->iLineNumber);
-            break;
-         }
-         
-         /// Identify tag type
-         // [CLOSING] Indicated by the tag starting with '</'
-         if (szTokenStart[1] == '/')
-            pOutput->eType = XTT_CLOSING_TAG;
-         // [SELF CLOSING] Indicated by the tag ending with '/>'
-         else if (szTokenEnd[-1] == '/')
-            pOutput->eType = XTT_SELF_CLOSING_TAG;
-         // [COMMENT] Indicated by the tag starting with '<!'
-         else if (szTokenStart[1] == '!')
+         /// [COMMENT] Search for the closing comment brace
+         if (szTokenEnd = utilFindSubString(&szTokenStart[3], "-->"))
+         {
             pOutput->eType = XTT_COMMENT_TAG;
-         // [SCHEMA] Indicated by the tag starting with '<?'
-         else if (szTokenStart[1] == '?')
-            pOutput->eType = XTT_SCHEMA_TAG;
-
-         // Fall through...
-
-      /// [COMMENT TAG] Already identified, just copy the text
-      case XTT_COMMENT_TAG:
-         /// Copy and measure tag (without the special characters)
+            szTokenEnd += 2;  // Position 'TokenEnd' at the '>' character
+         }
+         else
+            // [ERROR] "An unclosed <%s> tag was detected in the attached XML snippet from line %d of '%s'"
+            pError = generateDualError(HERE(IDS_XML_UNCLOSED_OPENING_TAG), TEXT("comment"), pOutput->iLineNumber, pOutput->szFileName);
+      }
+      // [CHECK] Is this a character-data block?
+      else if (utilCompareStringN(szTokenStart, "<![CDATA[", 9))
+      {
+         /// [CHARACTER DATA] Search for the closing character data brace
+         if (szTokenEnd = utilFindSubString(&szTokenStart[3], "]]>"))
+         {
+            pOutput->eType = XTT_COMMENT_TAG;
+            szTokenEnd += 2;  // Position 'TokenEnd' at the '>' character
+         }
+         else
+            // [ERROR] "An unclosed <%s> tag was detected in the attached XML snippet from line %d of '%s'"
+            pError = generateDualError(HERE(IDS_XML_UNCLOSED_OPENING_TAG), TEXT("!CDATA"), pOutput->iLineNumber, pOutput->szFileName);
+      }
+      else
+         /// [NON-COMMENT] Search for closing tag (or an illegal opening tag)
+         szTokenEnd = utilFindCharacterInSet(&szTokenStart[1], "<>");
+      
+      // [NON-FINAL TOKEN]
+      if (!pError AND szTokenEnd)
+      {
+         // Examine token type
          switch (pOutput->eType)
          {
-         /// [OPENING TAG] Copy without < and >
+         /// [TAG] Determine tag type and extract without the angle brackets
          case XTT_OPENING_TAG:
-            pOutput->iCount = max(0, szTokenEnd - szTokenStart - 1);
-            StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[1], pOutput->iCount);
-            break;
-         /// [CLOSING TAG] Copy without </ and >
-         case XTT_CLOSING_TAG:
-            pOutput->iCount = max(0, szTokenEnd - szTokenStart - 2);
-            StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[2], pOutput->iCount);
-            break;
-         /// [SELF CLOSING TAG] Copy with < and />
-         case XTT_SELF_CLOSING_TAG:
-            pOutput->iCount = max(0, szTokenEnd - szTokenStart - 2);
-            StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[1], pOutput->iCount);
-            break;
-         /// [COMMENT TAG] Copy without <!-- and -->
+            // [CHECK] Ensure tags finish with '>'
+            if (szTokenEnd[0] == '<')
+            {  
+               // [ERROR] "An unexpected opening tag '<' character was detected in the attached XML snippet from line %d of '%s'"
+               pError = generateDualError(HERE(IDS_XML_UNEXPECTED_OPENING_BRACKET), pOutput->iLineNumber, pOutput->szFileName);
+               break;
+            }
+            
+            /// Identify tag type
+            // [CLOSING] Indicated by the tag starting with '</'
+            if (szTokenStart[1] == '/')
+               pOutput->eType = XTT_CLOSING_TAG;
+            // [SELF CLOSING] Indicated by the tag ending with '/>'
+            else if (szTokenEnd[-1] == '/')
+               pOutput->eType = XTT_SELF_CLOSING_TAG;
+            // [COMMENT] Indicated by the tag starting with '<!'
+            else if (szTokenStart[1] == '!')
+               pOutput->eType = XTT_COMMENT_TAG;
+            // [SCHEMA] Indicated by the tag starting with '<?'
+            else if (szTokenStart[1] == '?')
+               pOutput->eType = XTT_SCHEMA_TAG;
+
+            // Fall through...
+
+         /// [COMMENT TAG] Already identified, just copy the text
          case XTT_COMMENT_TAG:
-            pOutput->iCount = max(0, szTokenEnd - szTokenStart - 6);
-            StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[4], pOutput->iCount);
+            /// Copy and measure tag (without the special characters)
+            switch (pOutput->eType)
+            {
+            /// [OPENING TAG] Copy without < and >
+            case XTT_OPENING_TAG:
+               pOutput->iCount = max(0, szTokenEnd - szTokenStart - 1);
+               StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[1], pOutput->iCount);
+               break;
+            /// [CLOSING TAG] Copy without </ and >
+            case XTT_CLOSING_TAG:
+               pOutput->iCount = max(0, szTokenEnd - szTokenStart - 2);
+               StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[2], pOutput->iCount);
+               break;
+            /// [SELF CLOSING TAG] Copy with < and />
+            case XTT_SELF_CLOSING_TAG:
+               pOutput->iCount = max(0, szTokenEnd - szTokenStart - 2);
+               StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[1], pOutput->iCount);
+               break;
+            /// [COMMENT TAG] Copy without <!-- and -->
+            case XTT_COMMENT_TAG:
+               pOutput->iCount = max(0, szTokenEnd - szTokenStart - 6);
+               StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[4], pOutput->iCount);
+               break;
+            /// [SCHEMA TAG] Copy without <? and ?>
+            case XTT_SCHEMA_TAG:
+               pOutput->iCount = max(0, szTokenEnd - szTokenStart - 3);
+               StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[2], pOutput->iCount);
+               break;
+            }
+
+            // Set 'next token' as the character beyond the end of the tag
+            pOutput->szNextToken = &szTokenEnd[1];
             break;
-         /// [SCHEMA TAG] Copy without <? and ?>
-         case XTT_SCHEMA_TAG:
-            pOutput->iCount = max(0, szTokenEnd - szTokenStart - 3);
-            StringCchCopyN(pOutput->szText, MAX_STRING, &szTokenStart[2], pOutput->iCount);
+
+         /// [TEXT] Extract tag and identify whitespace 
+         case XTT_TEXT:
+   #ifdef BUG_FIX
+            // [CHECK] Ensure text finishes with '<'
+            if (szTokenEnd[0] == '>')
+            {  
+               // [ERROR] "An unexpected closing tag '>' character was detected in the attached XML snippet from line %d of '%s'"
+               pError = generateDualError(HERE(IDS_XML_UNEXPECTED_CLOSING_BRACKET), pOutput->iLineNumber, pOutput->szFileName);
+               attachXMLToError(pError, szTokenStart);
+               break;
+            }
+   #endif
+            // [CHECK] Ensure text finishes with '<'
+            if (szTokenEnd[0] == '>')                    /// [FIX] BUG:002 'You receieve multiple 'an unexpected close tag was detected' errors when loading scripts created by eXscriptor for the first time'
+            {  
+               //// [ERROR] "An unexpected closing tag '>' character was detected in the attached XML snippet from line %d of '%s'"
+               //pError = generateDualWarning(HERE(IDS_XML_UNEXPECTED_CLOSING_BRACKET), pOutput->iLineNumber, pOutput->szFileName);
+
+               // Search for next opening character
+               szTokenEnd = utilFindCharacter(&szTokenEnd[1], '<');
+               ASSERT(szTokenEnd);            
+            }
+
+            // Measure text
+            pOutput->iCount = (szTokenEnd - szTokenStart);
+
+            /// [CHECK] Attempt to copy string
+            if (pOutput->iCount >= MAX_STRING OR StringCchCopyN(pOutput->szText, MAX_STRING, szTokenStart, pOutput->iCount) != S_OK)
+               // [ERROR] "A string exceeding 32,768 characters was detected on line %d of '%s', this is not supported by X-Studio"
+               pError = generateDualError(HERE(IDS_XML_TEXT_EXCEEDS_BUFFER), pOutput->iLineNumber, pOutput->szFileName);
+
+            // [CHECK] Check for character entities
+            else if (utilFindSubString(pOutput->szText, "&#"))
+               // [FOUND] Replace entities
+               pOutput->iCount = performXMLCharacterEntityReplacement(pOutput->szText, pOutput->iCount);
+            
+            // Set 'next token' as the start of the next tag
+            pOutput->szNextToken = szTokenEnd;
             break;
          }
-
-         // Set 'next token' as the character beyond the end of the tag
-         pOutput->szNextToken = &szTokenEnd[1];
-         break;
-
-      /// [TEXT] Extract tag and identify whitespace 
-      case XTT_TEXT:
-#ifdef BUG_FIX
-         // [CHECK] Ensure text finishes with '<'
-         if (szTokenEnd[0] == '>')
-         {  
-            // [ERROR] "An unexpected closing tag '>' character was detected in the attached XML snippet from line %u"
-            pError = generateDualError(HERE(IDS_XML_UNEXPECTED_CLOSING_BRACKET), pOutput->iLineNumber);
-            attachXMLToError(pError, szTokenStart);
-            break;
-         }
-#endif
-         // [CHECK] Ensure text finishes with '<'
-         if (szTokenEnd[0] == '>')                    /// [FIX] BUG:002 'You receieve multiple 'an unexpected close tag was detected' errors when loading scripts created by eXscriptor for the first time'
-         {  
-            //// [ERROR] "An unexpected closing tag '>' character was detected in the attached XML snippet from line %u"
-            //pError = generateDualWarning(HERE(IDS_XML_UNEXPECTED_CLOSING_BRACKET), pOutput->iLineNumber);
-
-            // Search for next opening character
-            szTokenEnd = utilFindCharacter(&szTokenEnd[1], '<');
-            ASSERT(szTokenEnd);            
-         }
-
-         /// Measure and copy text
-         pOutput->iCount = min(MAX_STRING, szTokenEnd - szTokenStart);
-         StringCchCopyN(pOutput->szText, MAX_STRING, szTokenStart, pOutput->iCount);
-
-         // [CHECK] Check for character entities
-         if (utilFindSubString(pOutput->szText, "&#"))
-            // [FOUND] Replace entities
-            pOutput->iCount = performXMLCharacterEntityReplacement(pOutput->szText, pOutput->iCount);
-         
-
-         // Set 'next token' as the start of the next tag
-         pOutput->szNextToken = szTokenEnd;
-         break;
       }
-   }
-   // [FINAL TOKEN] Set the next token to NULL
-   else
-   {
-      // Set next token to NULL
-      pOutput->szNextToken = NULL;
-
-      /// Extract final token text
-      StringCchCopy(pOutput->szText, MAX_STRING, szTokenStart);
-      pOutput->iCount = lstrlen(pOutput->szText);
-   }
-
-   /// [WHITESPACE] Determine whether text is whitespace
-   if (pOutput->eType == XTT_TEXT AND isStringWhitespace(pOutput->szText))
-      pOutput->eType = XTT_WHITESPACE;
-   
-   /// [LINE NUMBER] Calculate the new line number
-   pOutput->iLineNumber += calculateCharacterCountInString(pOutput->szText, '\n');     // [FIX] BUG:1018 'Errors produced by findNextXMLToken() don't have a Line number in any of the messages'
-
-   // [CHECK] Append XML snippets to all errors
-   if (pError)
-   {
-      // Append XML snippet
-      generateOutputTextFromError(pError);
-      attachXMLToError(pError, szTokenStart, (szTokenStart - pOutput->szSource));
-
-      /// [ERROR] Skip beyond the end of the current token
-      if (isError(pError))
+      // [FINAL TOKEN] Set the next token to NULL
+      else
       {
+         // Set next token to NULL
+         pOutput->szNextToken = NULL;
+
+         /// Extract final token text
+         StringCchCopy(pOutput->szText, MAX_STRING, szTokenStart);
+         pOutput->iCount = lstrlen(pOutput->szText);
+      }
+
+      /// [WHITESPACE] Determine whether text is whitespace
+      if (pOutput->eType == XTT_TEXT AND isStringWhitespace(pOutput->szText))
+         pOutput->eType = XTT_WHITESPACE;
+      
+      /// [LINE NUMBER] Calculate the new line number
+      pOutput->iLineNumber += calculateCharacterCountInString(pOutput->szText, '\n');     // [FIX] BUG:1018 'Errors produced by findNextXMLToken() don't have a Line number in any of the messages'
+
+      /// [NEW TAG] Create node from token
+      if (!pOutput->bBlocking AND (pOutput->eType == XTT_OPENING_TAG OR pOutput->eType == XTT_SELF_CLOSING_TAG))
+         pOutput->pNode = createXMLTreeNode(pOutput);
+
+      // [ERROR] Append XML snippets to all errors
+      if (pError)
+      {
+         // Append XML snippet
+         generateOutputTextFromError(pError);
+         attachXMLToError(pError, szTokenStart, (szTokenStart - pOutput->szSource));
+
          // Skip beyond token
          pOutput->szNextToken = &szTokenEnd[1];
          // Zero any existing token
          pOutput->szText[0] = NULL;
          pOutput->iCount    = 0;
       }
-   }
 
-   // Return TRUE to indicate there are more tokens, even if an error occurred
-   END_TRACKING();
-   return TRUE;
+      // Return TRUE to indicate there are more tokens, even if an error occurred
+      return TRUE;
+   }
+   CATCH0("Unable to retrieve next token");
+   return FALSE;
 }
 
 
@@ -792,7 +644,7 @@ BOOL  findLastXMLTreeNode(CONST XML_TREE_NODE*  pNode, CONST XML_NODE_RELATIONSH
       else if (pNode->pItem->pPrev)
       {
          pItem   = pNode->pItem->pPrev;
-         pOutput = getXMLTreeNodeFromItem(pItem);
+         pOutput = extractListItemPointer(pItem, XML_TREE_NODE);
       }
       // [NOT FOUND] Set result to NULL
       else
@@ -835,8 +687,8 @@ BOOL  findNextXMLTreeNode(CONST XML_TREE_NODE*  pNode, CONST XML_NODE_RELATIONSH
       // Advance to the first child of the current node (if any)
       if (getXMLNodeCount(pNode))
       {
-         pItem = getFirstXMLTreeNodeListItem(pNode);
-         pOutput = getXMLTreeNodeFromItem(pItem);
+         pItem = getListHead(&pNode->oChildren);
+         pOutput = extractListItemPointer(pItem, XML_TREE_NODE);
       }
       // [NOT FOUND] Set result to NULL
       else
@@ -853,7 +705,7 @@ BOOL  findNextXMLTreeNode(CONST XML_TREE_NODE*  pNode, CONST XML_NODE_RELATIONSH
       else if (pNode->pItem->pNext)
       {
          pItem = pNode->pItem->pNext;
-         pOutput = getXMLTreeNodeFromItem(pItem);
+         pOutput = extractListItemPointer(pItem, XML_TREE_NODE);
       }
       // [NOT FOUND] Set result to NULL
       else
@@ -871,6 +723,53 @@ BOOL  findNextXMLTreeNode(CONST XML_TREE_NODE*  pNode, CONST XML_NODE_RELATIONSH
 }
 
 
+
+/// Function name  : findXMLPropertyByIndex
+// Description     : Finds the specified property of an XML node by index
+// 
+// XML_TREE_NODE*  pNode   : [in]  Node containing the property
+// CONST UINT      iIndex  : [in]  Zero-based index of the property to retrieve
+// XML_PROPERTY*  &pOutput : [out] Desired property if found, otherwise NULL
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BOOL  findXMLPropertyByIndex(CONST XML_TREE_NODE*  pNode, CONST UINT  iIndex, XML_PROPERTY*  &pOutput)
+{
+   // Search properties
+   return findListObjectByIndex(&pNode->oProperties, iIndex, (LPARAM&)pOutput);
+}
+
+
+/// Function name  : findXMLPropertyByName
+// Description     : Search for a property within a node by name
+// 
+// CONST XML_TREE_NODE*  pNode      : [in] Node
+// CONST TCHAR*          szProperty : [in] Property name
+// XML_PROPERTY*        &pOutput    : [out] Property
+// 
+// Return Value   : TRUE/FALSE
+// 
+BOOL   findXMLPropertyByName(CONST XML_TREE_NODE*  pNode, CONST TCHAR*  szProperty, XML_PROPERTY*  &pOutput)
+{
+   XML_PROPERTY*  pProperty;
+
+   // Prepare
+   pOutput = NULL;
+
+   /// Iterate through node properties
+   for (LIST_ITEM*  pIterator = getListHead(&pNode->oProperties); !pOutput AND (pProperty = extractListItemPointer(pIterator, XML_PROPERTY)); pIterator = pIterator->pNext)
+   {
+      /// Determine whether property name matches
+      if (utilCompareStringVariables(pProperty->szName, szProperty))
+         // [FOUND] Set result and abort
+         pOutput = pProperty;
+   }
+
+   // Return TRUE if found
+   return pOutput != NULL;
+}
+
+
 /// Function name  : findXMLTreeNodeByIndex
 // Description     : Finds the specified child of a node by index
 // 
@@ -883,22 +782,7 @@ BOOL  findNextXMLTreeNode(CONST XML_TREE_NODE*  pNode, CONST XML_NODE_RELATIONSH
 BearScriptAPI
 BOOL  findXMLTreeNodeByIndex(CONST XML_TREE_NODE*  pParentNode, CONST UINT  iIndex, XML_TREE_NODE*  &pOutput)
 {
-   LIST_ITEM*  pIterator;        // Child nodes list iterator
-   UINT        iCurrentIndex;    // Child nodes list iterator index
-
-   // Prepare
-   iCurrentIndex = 0;
-   pOutput       = NULL;
-   
-   /// Iterate through child node list
-   for (pIterator = getFirstXMLTreeNodeListItem(pParentNode); pOutput == NULL AND iCurrentIndex < getListItemCount(pParentNode->pChildren); pIterator = pIterator->pNext)
-      // Check whether current item is the desired item
-      if (iIndex == iCurrentIndex++)
-         /// [FOUND] Set result and abort search
-         pOutput = getXMLTreeNodeFromItem(pIterator);
-   
-   // Return TRUE if node was found
-   return (pOutput != NULL);
+   return findListObjectByIndex(&pParentNode->oChildren, iIndex, (LPARAM&)pOutput);
 }
 
 
@@ -924,11 +808,8 @@ BOOL  findXMLTreeNodeByName(CONST XML_TREE_NODE*  pStartNode, CONST TCHAR*  szNa
    pOutput = NULL;
 
    /// Iterate through child node list
-   for (LIST_ITEM*  pIterator = getFirstXMLTreeNodeListItem(pStartNode); pIterator; pIterator = pIterator->pNext)
+   for (LIST_ITEM*  pIterator = getListHead(&pStartNode->oChildren); pCurrentNode = extractListItemPointer(pIterator, XML_TREE_NODE); pIterator = pIterator->pNext)
    {
-      // Extract node from item
-      pCurrentNode = getXMLTreeNodeFromItem(pIterator);
-
       // Check node name
       if (utilCompareStringVariables(pCurrentNode->szName, szName))
       {
@@ -950,13 +831,13 @@ BOOL  findXMLTreeNodeByName(CONST XML_TREE_NODE*  pStartNode, CONST TCHAR*  szNa
 /// Function name  : generateXMLTree
 // Description     : Generate an XML Tree from an input string of XML
 // 
-// CONST TCHAR*         szXML       : [in]     Input string containing the XML
-// CONST UINT           iInputLength : [in]    Length of input string, in characters
-// CONST TCHAR*         szFileName  : [in]     Filename   [Only used for error reporting]
-// HWND                 hParentWnd  : [in]     Parent window to display an error messages
-// XML_TREE*           &pOutput     : [out]    New XML Tree if successful, otherwise NULL.  You are responsible for destroying it
-// OPERATION_PROGRESS*  pProgress   : [in/out][optional] Operation progress object, if feedback is required
-// ERROR_QUEUE*         pErrorQueue : [in/out] Error message queue
+// CONST TCHAR*         szXML        : [in]     Input string containing the XML
+// CONST UINT           iInputLength : [in]     Length of input string, in characters
+// CONST TCHAR*         szFileName   : [in]     Filename   [Only used for error reporting]
+// HWND                 hParentWnd   : [in]     Ignored
+// XML_TREE*           &pOutput      : [out]    New XMLTree, You are responsible for destroying it
+// OPERATION_PROGRESS*  pProgress    : [in/out][optional] Operation progress object, if feedback is required
+// ERROR_QUEUE*         pErrorQueue  : [in/out] Error message queue
 // 
 // Return Value   : OR_SUCCESS - File was parsed successfully, any errors were ignored by the user
 //                  OR_ABORTED - File was NOT parsed successfully due to the user aborting after minor errors
@@ -967,20 +848,13 @@ OPERATION_RESULT  generateXMLTree(CONST TCHAR*  szXML, CONST UINT  iInputLength,
    OPERATION_RESULT   eResult;         // Operation result
    XML_TOKENISER*     pToken;          // XML token currently being processed
    XML_TAG_STACK*     pStack;          // XML parse stack
-   XML_TREE_NODE     *pCurrentNode,    // Parent for the node currently being processed
-                     *pNewNode;        // New node currently being created 
+   XML_TREE_NODE*     pCurrentNode;    // Parent for the node currently being processed
    ERROR_STACK*       pError;          // Current error, if any
-   UINT               iNodeTextLength; // Length of the text in the current node, in characters.  Used only for extending inline text when another node is nested within it.
-
-   // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE("Generating XML-Tree from file '%s'", (szFileName ? szFileName : TEXT("(Resource Based)")));
 
    // Prepare
    eResult  = OR_SUCCESS;
    pError   = NULL;
 
-   /// [GUARD BLOCK]
    __try
    {
       // Prepare
@@ -988,7 +862,7 @@ OPERATION_RESULT  generateXMLTree(CONST TCHAR*  szXML, CONST UINT  iInputLength,
       pCurrentNode = pOutput->pRoot;
       
       // Create parsing objects
-      pToken = createXMLTokeniser(szXML);
+      pToken = createXMLTokeniser(szFileName, szXML);
       pStack = createXMLTagStack();
 
       // [OPTIONAL] Define progress based on the number of pages processed
@@ -1002,153 +876,135 @@ OPERATION_RESULT  generateXMLTree(CONST TCHAR*  szXML, CONST UINT  iInputLength,
          if (pProgress)
             updateOperationProgressValue(pProgress, pToken->szNextToken - pToken->szSource);
 
-         /// [PARSE ERROR] Determine whether to abort
-         if (pError)
+         // [CHECK] Ensure token was parsed succesfully
+         if (!pError)
          {
-            // [ERROR] "A minor error has occurred while parsing the XML file '%s'"
-            enhanceError(pError, ERROR_ID(IDS_XML_MINOR_PARSING_ERROR), szFileName);
-            attachXMLToError(pError, pToken->szNextToken, pToken->szNextToken - pToken->szSource);
-            pushErrorQueue(pErrorQueue, pError);
-            //generateOutputTextFromError(pError);
-
-            // [QUESTION] "A minor error has occurred while parsing the XML file '%s', would you like to continue processing?"
-            if (displayOperationError(hParentWnd, pError, ERROR_ID(IDS_XML_MINOR_PARSING_ERROR_QUESTION), szFileName) == EH_ABORT)
-               eResult = OR_ABORTED;
-         }
-         else switch (pToken->eType)
-         {
-         /// [COMMENT, SCHEMA, WHITESPACE] Ignore...
-         case XTT_COMMENT_TAG:
-         case XTT_SCHEMA_TAG:
-         case XTT_WHITESPACE:
-            continue;
-
-         default:
-            /// [OPENING TAG] Add tag to the stack. update the 'current node'
-            if (pToken->eType == XTT_OPENING_TAG)
+            switch (pToken->eType)
             {
-               // Add to the stack
-               pushXMLTagStack(pStack, pToken->szText, pToken->iCount);
+            /// [COMMENT, SCHEMA, WHITESPACE] Ignore...
+            case XTT_COMMENT_TAG:
+            case XTT_CDATA_TAG:
+            case XTT_SCHEMA_TAG:
+            case XTT_WHITESPACE:
+               continue;
 
-               // Create new node and add as a child of the 'current node'
-               pNewNode = createXMLTreeNode(pCurrentNode, pToken);
-               appendChildToXMLTreeNode(pOutput, pCurrentNode, pNewNode);
+            /// [TAG/TEXT] Process if unblocked, skip otherwise
+            case XTT_OPENING_TAG:
+            case XTT_SELF_CLOSING_TAG:
+            case XTT_CLOSING_TAG:
+            case XTT_TEXT:
+               // [BLOCKING] Skip all tags until </sourcetext> is found
+               if (pToken->bBlocking)
+               {
+                  if (pToken->eType != XTT_CLOSING_TAG OR !utilCompareString(pToken->szText, "sourcetext"))
+                     continue;
+                  
+                  pToken->bBlocking = FALSE;
+               }
 
-               // Set as the 'current node'
-               pCurrentNode = pNewNode;
-            }
-            /// [SELF CLOSING TAG] Add as child of the current node
-            else if (pToken->eType == XTT_SELF_CLOSING_TAG)
-            {
-               // Create new node and add as a child of the 'current node'
-               pNewNode = createXMLTreeNode(pCurrentNode, pToken);
-               appendChildToXMLTreeNode(pOutput, pCurrentNode, pNewNode);
-            }
-            // [NON-EMPTY STACK] Check for matching closing tags and store any inline text
-            else if (hasItems(pStack))
-            {
+               // Examine tag
                switch (pToken->eType)
                {
+               /// [OPENING TAG] Add tag to stack + Add node to tree + Set as 'current node'
+               case XTT_OPENING_TAG:
+                  // Push tag onto stack
+                  pushXMLTagStack(pStack, pToken);
+
+                  // Append new node to 'CurrentNode' + Update 'CurrentNode'
+                  appendChildToXMLTreeNode(pOutput, pCurrentNode, pToken->pNode);      //pNewNode = createXMLTreeNode(pCurrentNode, pToken);
+                  pCurrentNode = pToken->pNode;
+
+                  // [BLOCK] Skip all tags within <sourcetext>
+                  if (utilCompareString(pToken->szText, "sourcetext"))
+                     pToken->bBlocking = TRUE;
+                  break;
+                  
+               /// [SELF CLOSING TAG] Add node to tree
+               case XTT_SELF_CLOSING_TAG:
+                  // Append new node to 'CurrentNode'
+                  appendChildToXMLTreeNode(pOutput, pCurrentNode, pToken->pNode);      // pNewNode = createXMLTreeNode(pCurrentNode, pToken);
+                  break;
+                  
                /// [CLOSING TAG] Ensure tag matches the currently open tag
                case XTT_CLOSING_TAG:
-                  if (utilCompareStringVariables(pToken->szText, topXMLTagStack(pStack)))
+                  // [CHECK] Ensure stack isn't empty
+                  if (!getStackItemCount(pStack))
+                     // [ERROR] "An unexpected closing tag </%s> was detected on line %d of '%s'"
+                     pError = generateDualError(HERE(IDS_XML_UNEXPECTED_CLOSING_TAG), pToken->szText, pToken->iLineNumber, pToken->szFileName);
+
+                  // [CHECK] Ensure tags match
+                  else if (utilCompareStringVariables(pToken->szText, topXMLTagStack(pStack)))
                   {
-                     // Remove currently open tag. Set it's parent node as active.
+                     // [SUCCESS] Remove matching tag. Set parent as 'Current'
                      popXMLTagStack(pStack);
                      pCurrentNode = pCurrentNode->pParent;
                   }
-                  else
-                     // [ERROR] "The closing tag </%s> on line %u does not match the currently open <%s> tag"
-                     pError = generateDualError(HERE(IDS_XML_MISMATCHED_CLOSING_TAG), pToken->szText, pToken->iLineNumber, topXMLTagStack(pStack));
+                  else  // [ERROR] "The closing tag </%s> on line %d does not match the currently open <%s> tag in '%s'"
+                     pError = generateDualError(HERE(IDS_XML_MISMATCHED_CLOSING_TAG), pToken->szText, pToken->iLineNumber, topXMLTagStack(pStack), pToken->szFileName);
                   break;
 
                /// [TEXT] Save text in the current node
                case XTT_TEXT:
-                  // [NOTE] If you have a node nested within inline text, this node will already contain text.
-                  //             eg.  <text>the quick brown <comment>fox</comment> jumped over the</text>
-                  if (pCurrentNode->szText == NULL)
+                  // [CHECK] Ensure stack isn't empty / Node doesn't already have text
+                  if (getStackItemCount(pStack) AND !pCurrentNode->szText)
+                     // [SUCCESS] Save node text
                      pCurrentNode->szText = utilDuplicateString(pToken->szText, pToken->iCount);
                   else
-                  {
-                     // Measure existing length and extend by enough to append token
-                     iNodeTextLength = lstrlen(pCurrentNode->szText);
-                     pCurrentNode->szText = utilExtendString(pCurrentNode->szText, iNodeTextLength, iNodeTextLength + pToken->iCount);
-
-                     // Calculate new length and append token
-                     iNodeTextLength = iNodeTextLength + pToken->iCount;
-                     StringCchCat(pCurrentNode->szText, iNodeTextLength + 1, pToken->szText);
-                  }               
+                     // [ERROR] "Unexpected text '%s' was detected on line %d of '%s'"
+                     pError = generateDualError(HERE(IDS_XML_UNEXPECTED_TEXT), pToken->szText, pToken->iLineNumber, pToken->szFileName);
                   break;
-               }
-            }
-            // [EMPTY STACK] Ensure only opening tags are allowed
-            else switch (pToken->eType)
-            {
-            /// [CLOSING TAG] Unexpected closing tag
-            case XTT_CLOSING_TAG:
-               // [HACK] Is this a child of a <text> node?
-               /*if (topXMLTagStack(pStack)*/
-               // [ERROR] "An unexpected closing tag </%s> was detected on line %u"
-               pError = generateDualError(HERE(IDS_XML_UNEXPECTED_CLOSING_TAG), pToken->szText, pToken->iLineNumber);
-               break;
-
-            /// [TEXT] Unexpected text
-            case XTT_TEXT:
-               // [ERROR] "Unexpected text '%s' was detected on line %u"
-               pError = generateDualError(HERE(IDS_XML_UNEXPECTED_TEXT), pToken->szText, pToken->iLineNumber);
-               break;
+               } // END: switch (pToken->eType)
             }
 
-            /// [SYNTAX ERROR] Determine whether to abort
+            // [DEBUG]
+            //debugXMLToken(pToken);
+
+            /// [SYNTAX ERROR] "A minor error has been detected in the syntax of the XML file '%s'"
             if (pError)
             {
-               // Add output error and XML attachment
                generateOutputTextFromError(pError);
+               //enhanceError(pError, ERROR_ID(IDS_XML_MINOR_SYNTAX_ERROR), szFileName);
                attachXMLToError(pError, pToken->szNextToken, pToken->szNextToken - pToken->szSource);
-
-               // [OUTPUT-ERROR] "A minor error has been detected in the syntax of the XML file '%s'"
-               enhanceError(pError, ERROR_ID(IDS_XML_MINOR_SYNTAX_ERROR), szFileName);
-               pushErrorQueue(pErrorQueue, pError);
-               
-               // [QUESTION] "A minor error has been detected in the syntax of the XML file '%s', would you like to continue processing?"
-               if (displayOperationError(hParentWnd, pError, ERROR_ID(IDS_XML_MINOR_SYNTAX_ERROR_QUESTION), szFileName) == EH_ABORT)
-                  eResult = OR_ABORTED;
             }
-         } // END: if (token isn't schema, comment or whitespace)
 
-         // [CHECK] Stop processing if user has aborted
-         if (eResult != OR_SUCCESS)
+         } // END: if (!pError)
+         /*else
+            /// [PARSE ERROR] "A minor error has occurred while parsing the XML file '%s'"
+            enhanceError(pError, ERROR_ID(IDS_XML_MINOR_PARSING_ERROR), szFileName);*/
+
+         // [ERROR] Abort
+         if (pError)
+         {
+            pushErrorQueue(pErrorQueue, pError);
+            eResult = OR_FAILURE;
             break;
+         }
 
-      } // END: for (each XML token)
+      } // END: while (findNextXMLToken(pToken, pError))
 
       /// [CHECK] Detect any open tags remaining
-      while (eResult == OR_SUCCESS AND hasItems(pStack))
+      while (eResult == OR_SUCCESS AND getStackItemCount(pStack))
       {
-         // [WARNING] "An unclosed <%s> tag was detected on line %d"
-         pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_XML_UNCLOSED_OPENING_TAG), topXMLTagStack(pStack), -1));
-         // Remove item
+         // [WARNING] "An unclosed <%s> tag was detected on an unknown line of '%s'"
+         pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_XML_UNCLOSED_TAG_REMAINING), topXMLTagStack(pStack), pToken->szFileName));
+         generateOutputTextFromLastError(pErrorQueue);
          popXMLTagStack(pStack);
       }
 
-      // [CHECK] Destroy output tree if user aborted
-      if (eResult != OR_SUCCESS)
-         deleteXMLTree(pOutput);
+      // Cleanup and return result
+      deleteXMLTagStack(pStack);
+      deleteXMLTokeniser(pToken);
+      return eResult;
+
+      //// [ERROR] Destroy output tree
+      //if (eResult != OR_SUCCESS)
+      //   deleteXMLTree(pOutput);
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateQueuedExceptionError(GetExceptionInformation(), pErrorQueue))
+   __except (pushException(pErrorQueue))
    {
-      // [FAILURE] "A critical error occurred while parsing the XML file '%s', at token '%s' on line %u."
-      enhanceLastError(pErrorQueue, ERROR_ID(IDS_EXCEPTION_GENERATE_XML_TREE), szFileName, TEXT("TEST"), pToken->iLineNumber);
-      attachTextToLastError(pErrorQueue, pToken->szText);
-      eResult = OR_FAILURE;
+      EXCEPTION3("Unable to parse XML file '%s' at token '%s' on line %u", szFileName, pToken->szText, pToken->iLineNumber);
+      return OR_FAILURE;
    }
-   
-   // Cleanup and return result
-   deleteXMLTagStack(pStack);
-   deleteXMLTokeniser(pToken);
-   END_TRACKING();
-   return eResult;
 }
 
 
@@ -1165,26 +1021,19 @@ BOOL   getXMLPropertyInteger(CONST XML_TREE_NODE*  pNode, CONST TCHAR*  szProper
 {
    XML_PROPERTY*  pProperty;
 
-   /// Iterate through node properties
-   for (LIST_ITEM*  pIterator = getListHead(pNode->pProperties); pIterator; pIterator = pIterator->pNext)
-   {
-      // Extract property from item
-      pProperty = extractListItemPointer(pIterator, XML_PROPERTY);
-
-      /// Determine whether property name matches (and value exists)
-      if (utilCompareStringVariables(pProperty->szName, szProperty) AND pProperty->szValue != NULL)
-      {
-         // [FOUND] Convert value to an integer and return TRUE
-         iOutput = utilConvertStringToInteger(pProperty->szValue);
-         return TRUE;
-      }
-   }
-
-   // [NOT FOUND] Return FALSE
+   // Prepare
    iOutput = NULL;
-   return FALSE;
+
+   /// Lookup property
+   if (!findXMLPropertyByName(pNode, szProperty, pProperty) OR !pProperty->szValue)
+      return FALSE;
+   
+   // [FOUND] Convert value to an integer and return TRUE
+   iOutput = utilConvertStringToInteger(pProperty->szValue);
+   return TRUE;
 }
 
+ 
 
 /// Function name  : getXMLPropertyString
 // Description     : Retrieve the string version of a specified property
@@ -1200,24 +1049,16 @@ BOOL   getXMLPropertyString(CONST XML_TREE_NODE*  pNode, CONST TCHAR*  szPropert
 {
    XML_PROPERTY*  pProperty;
 
-   /// Iterate through node properties
-   for (LIST_ITEM*  pIterator = getListHead(pNode->pProperties); pIterator; pIterator = pIterator->pNext)
-   {
-      // Extract property from item
-      pProperty = extractListItemPointer(pIterator, XML_PROPERTY);
-
-      /// Determine whether property name matches (and value exists)
-      if (utilCompareStringVariables(pProperty->szName, szProperty) AND pProperty->szValue != NULL)
-      {
-         // [FOUND] Set result and return TRUE
-         szOutput = pProperty->szValue;
-         return TRUE;
-      }
-   }
-
-   // [NOT FOUND] Return FALSE
+   // Prepare
    szOutput = NULL;
-   return FALSE;
+
+   /// Lookup property
+   if (!findXMLPropertyByName(pNode, szProperty, pProperty) OR !pProperty->szValue)
+      return FALSE;
+   
+   // [FOUND] Return TRUE
+   szOutput = pProperty->szValue;
+   return TRUE;
 }
 
 
@@ -1344,7 +1185,7 @@ VOID  translateXMLTagIntoNode(CONST TCHAR*  szTag, CONST UINT  iLength, XML_TREE
 
          /// [VALUE] Store value in the current property
          case XTPS_PROPERTY_VALUE:
-            pProperty->szValue = utilDuplicateString(szToken, lstrlen(szToken));
+            pProperty->szValue = utilDuplicateSimpleString(szToken);
 
             // [CHECK] Replace any character entities
             if (utilFindSubString(pProperty->szValue, "&#"))
@@ -1379,13 +1220,10 @@ VOID  traverseXMLTree(XML_TREE_NODE*  pStartNode)
    ASSERT(pStartNode != NULL);
 
    // Iterate through child node list
-   for (LIST_ITEM*  pIterator = getFirstXMLTreeNodeListItem(pStartNode); pIterator; pIterator = pIterator->pNext)
+   for (LIST_ITEM*  pIterator = getListHead(&pStartNode->oChildren); pCurrentNode = extractListItemPointer(pIterator, XML_TREE_NODE); pIterator = pIterator->pNext)
    {
-      // Extract node from item
-      pCurrentNode = getXMLTreeNodeFromItem(pIterator);
-
       // Print tag name
-      CONSOLE("Node: '%s' (%u properties)", pCurrentNode->szName, pCurrentNode->pProperties->iCount);
+      CONSOLE("Node: '%s' (%u properties)", pCurrentNode->szName, pCurrentNode->oProperties.iCount);
 
       // Recurse into children
       traverseXMLTree(pCurrentNode);

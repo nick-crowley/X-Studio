@@ -8,9 +8,11 @@
 #include "stdafx.h"
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
-///                                   CONSTANTS / GLOBALS
+///                                       MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CREATION / DESTRUCTION
@@ -30,7 +32,7 @@ HWND  createOutputDialog(OUTPUT_DIALOG_DATA*  pDialogData, HWND  hParentWnd)
    HWND   hDialog;    // New dialog window handle
 
    // Create dialog
-   hDialog = CreateDialogParam(getResourceInstance(), TEXT("OUTPUT_DIALOG"), hParentWnd, dlgprocOutputDialog, (LPARAM)pDialogData);
+   hDialog = loadDialog(TEXT("OUTPUT_DIALOG"), hParentWnd, dlgprocOutputDialog, (LPARAM)pDialogData);
    ERROR_CHECK("creating output dialog", hDialog);
 
    // [DEBUG]
@@ -296,7 +298,7 @@ VOID  initOutputDialog(OUTPUT_DIALOG_DATA*  pDialogData)
 
    /// Stretch ListView over entire dialog
    GetClientRect(pDialogData->hDialog, &rcClientRect);
-   utilSetClientRect(pDialogData->hListView, &rcClientRect, TRUE);
+   utilSetWindowRect(pDialogData->hListView, &rcClientRect, TRUE);
 
    /// Setup ListView
    oColumns.iColumnWidths[0] = (rcClientRect.right - rcClientRect.left);
@@ -327,7 +329,7 @@ VOID  insertOutputDialogItem(HWND  hDialog, OUTPUT_DIALOG_ITEM*  pNewItem)
    insertObjectIntoAVLTree(pDialogData->pItemTreeByOperation, (LPARAM)pNewItem);
 
    // [DEBUG] Print item to the console
-   consolePrint(pNewItem->szText);
+   /// REM: consolePrint(pNewItem->szText);
 }
 
 
@@ -367,15 +369,13 @@ VOID  printMessageToOutputDialogf(CONST OUTPUT_DIALOG_ICON  eIcon, CONST UINT  i
                        *szOutput;        // Generated item text
    HWND                 hDialog;         // Output dialog
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pArguments = utilGetFirstVariableArgument(&iMessageID);
    hDialog    = getMainWindowData()->hOutputDlg;
    
    /// Load and format string
-   szFormat = utilLoadString(getResourceInstance(), iMessageID, 512);
+   szFormat = loadString(iMessageID, 512);
    szOutput = utilCreateStringVf(512, szFormat, pArguments);
 
    /// Create new item
@@ -390,7 +390,6 @@ VOID  printMessageToOutputDialogf(CONST OUTPUT_DIALOG_ICON  eIcon, CONST UINT  i
 
    // Cleanup
    utilDeleteStrings(szFormat, szOutput);
-   END_TRACKING();
 }
 
 
@@ -408,7 +407,6 @@ VOID  printOperationErrorToOutputDialog(CONST OPERATION_DATA*  pOperation, CONST
    HWND                 hDialog;          // Output dialog
 
    // Prepare
-   TRACK_FUNCTION();
    pOutputMessage = NULL;
 
    // [CHECK] Ensure ErrorStack isn't empty
@@ -443,8 +441,6 @@ VOID  printOperationErrorToOutputDialog(CONST OPERATION_DATA*  pOperation, CONST
    // Insert new item. Do not update ListView, this function is often used in batch.
    insertOutputDialogItem(hDialog, pNewItem);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -457,13 +453,10 @@ VOID  printOperationErrorToOutputDialog(CONST OPERATION_DATA*  pOperation, CONST
 VOID  printOperationErrorQueueToOutputDialog(CONST OPERATION_DATA*  pOperation)
 {
    ERROR_STACK*  pError;
-   UINT          iIndex;
-
-   // Prepare
-   iIndex = 1;
+   UINT          iIndex = 1;
 
    // [VERBOSE]
-   VERBOSE_HEADING("Appending operation ErrorQueue...");
+   //CONSOLE_HEADING("Appending operation ErrorQueue...");
 
    /// Add to error to the output dialog
    for (LIST_ITEM*  pIterator = getListHead(pOperation->pErrorQueue); pError = extractListItemPointer(pIterator, ERROR_STACK); pIterator = pIterator->pNext)
@@ -473,7 +466,7 @@ VOID  printOperationErrorQueueToOutputDialog(CONST OPERATION_DATA*  pOperation)
    // Do not update ListView yet.
    
    /// [CONSOLE] Print to console
-   consolePrintErrorQueue(pOperation->pErrorQueue);
+   /// REM: consolePrintErrorQueue(pOperation->pErrorQueue);
 }
 
 
@@ -494,9 +487,7 @@ VOID  printOperationStateToOutputDialogf(OPERATION_DATA*  pOperation, CONST UINT
    HWND                 hDialog;         // Output dialog
    UINT                 iItemIndex;      // Index of item being inserted
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Ensure operation exists
    ASSERT(pOperation);
 
@@ -520,7 +511,7 @@ VOID  printOperationStateToOutputDialogf(OPERATION_DATA*  pOperation, CONST UINT
    }
    
    /// Load and format string
-   szFormat = utilLoadString(getResourceInstance(), iMessageID, 512);
+   szFormat = loadString(iMessageID, 512);
    szOutput = utilCreateStringVf(512, szFormat, pArguments);
 
    // [RESULT] Use the success/failure icon
@@ -536,18 +527,7 @@ VOID  printOperationStateToOutputDialogf(OPERATION_DATA*  pOperation, CONST UINT
 
    // Cleanup
    utilDeleteStrings(szFormat, szOutput);
-   END_TRACKING();
 }
-
-//VOID  setOutputDialogRedraw(HWND  hDialog, CONST BOOL  bEnable)
-//{
-//   OUTPUT_DIALOG_DATA*  pDialogData;
-//
-//   // [CHECK] Ensure window is visible
-//   if (pDialogData = getOutputDialogData(hDialog))
-//      // [SUCCESS]
-//      SetWindowRedraw(pDialogData->hListView, bEnable);
-//}
 
 /// Function name  : updateOutputDialogList
 // Description     : Update the ListView to reflect the current number of items
@@ -603,7 +583,6 @@ BOOL  onOutputDialogCommand(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iContr
    BOOL   bResult;
 
    // Prepare
-   TRACK_FUNCTION();
    bResult = FALSE;
 
    // Examine source
@@ -617,7 +596,6 @@ BOOL  onOutputDialogCommand(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iContr
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -632,7 +610,6 @@ VOID  onOutputDialogContextMenu(OUTPUT_DIALOG_DATA*  pDialogData, HWND  hCtrl, P
 {
    CUSTOM_MENU*  pCustomMenu;    // Custom Popup menu
 
-   TRACK_FUNCTION();
 
    // [CHECK] Ensure source was the ListView
    if (GetDlgCtrlID(hCtrl) == IDC_OUTPUT_LIST)
@@ -650,7 +627,6 @@ VOID  onOutputDialogContextMenu(OUTPUT_DIALOG_DATA*  pDialogData, HWND  hCtrl, P
       deleteCustomMenu(pCustomMenu);
    }
 
-   END_TRACKING();
 }
 
 
@@ -664,49 +640,28 @@ VOID  onOutputDialogContextMenu(OUTPUT_DIALOG_DATA*  pDialogData, HWND  hCtrl, P
 //
 BOOL  onOutputDialogDoubleClick(OUTPUT_DIALOG_DATA*  pDialogData, NMITEMACTIVATE*  pClickData)
 {
-   OUTPUT_DIALOG_ITEM*  pItem;      // Output dialog item
-   CONST TCHAR*         szErrorType;
-   TCHAR*               szTitle;
+static UINT  iTitles[] = { IDS_OUTPUT_GAME_DATA_ITEM, IDS_OUTPUT_LANGUAGE_LOAD_ITEM, IDS_OUTPUT_SCRIPT_LOAD_ITEM, IDS_OUTPUT_PROJECT_LOAD_ITEM, IDS_OUTPUT_LANGUAGE_SAVE_ITEM, 
+                           IDS_OUTPUT_SCRIPT_SAVE_ITEM, IDS_OUTPUT_PROJECT_SAVE_ITEM, IDS_OUTPUT_VALIDATION_ITEM, NULL, IDS_OUTPUT_DEPENDENCY_ITEM, 
+                           IDS_OUTPUT_SUBMISSION_ITEM, IDS_OUTPUT_CORRECTION_ITEM, IDS_OUTPUT_UPDATE_ITEM };
 
-   // Prepare
-   TRACK_FUNCTION();
-   szTitle = NULL;
+   OUTPUT_DIALOG_ITEM*  pItem;      // Output dialog item
+   const ERROR_STACK*   pError;
+   const TCHAR*         szTitle;
+
 
    // [ERROR ITEMS] Display the ErrorStack in a message box
    if (pClickData->iItem != -1 AND findOutputDialogItem(pDialogData, pClickData->iItem, pItem))
    {
       // [CHECK] Ensure item is an error
-      if (pItem->pError AND pItem->pError->eType != ET_INFORMATION)
-      {
-         // Prepare
-         szErrorType = identifyErrorTypeString(pItem->pError->eType);
-
-         // Generate title
-         switch (pItem->eOperationType)
-         {
-           case OT_LOAD_GAME_DATA:       szTitle = utilCreateStringf(128, TEXT("Game Data Translation %s"), szErrorType);     break;
-           case OT_LOAD_PROJECT_FILE:    szTitle = utilCreateStringf(128, TEXT("Project Loading %s"), szErrorType);           break;
-           case OT_SAVE_PROJECT_FILE:    szTitle = utilCreateStringf(128, TEXT("Project Saving %s"), szErrorType);            break;
-           case OT_LOAD_SCRIPT_FILE:     szTitle = utilCreateStringf(128, TEXT("MSCI Script Decompiler %s"), szErrorType);    break;
-           case OT_LOAD_LANGUAGE_FILE:   szTitle = utilCreateStringf(128, TEXT("Language File Decompiler %s"), szErrorType);  break;
-           case OT_SAVE_SCRIPT_FILE:     szTitle = utilCreateStringf(128, TEXT("MSCI Script Compiler %s"), szErrorType);      break;
-           case OT_SAVE_LANGUAGE_FILE:   szTitle = utilCreateStringf(128, TEXT("Langage File Compiler %s"), szErrorType);     break;
-           case OT_SUBMIT_BUG_REPORT:    szTitle = utilCreateStringf(128, TEXT("Bug Submission %s"), szErrorType);            break;
-           case OT_SUBMIT_CORRECTION:    szTitle = utilCreateStringf(128, TEXT("Correction Submission %s"), szErrorType);     break;
-           case OT_SEARCH_SCRIPT_CALLS:  szTitle = utilCreateStringf(128, TEXT("Dependency Search %s"), szErrorType);         break;
-           case OT_VALIDATE_SCRIPT_FILE: szTitle = utilCreateStringf(128, TEXT("MSCI Script Validation %s"), szErrorType);    break;
-         }
-
-         // Display message
-         displayErrorMessageDialog(NULL, pItem->pError, szTitle, MDF_OK);
-
-         // Cleanup
-         utilSafeDeleteString(szTitle);
+      if ((pError = pItem->pError) AND pError->eType != ET_INFORMATION)
+      {         
+         /// Generate title + Display Message
+         szTitle = loadTempStringf(iTitles[pItem->eOperationType], identifyErrorTypeString(pError->eType));
+         displayErrorMessageDialog(NULL, pError, szTitle, MDF_OK);
       }
    }
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -775,9 +730,7 @@ BOOL  onOutputDialogNotify(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iContro
    NMLVDISPINFO*  pDisplayInfo;
    BOOL           bResult;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    bResult = TRUE;
 
@@ -797,6 +750,11 @@ BOOL  onOutputDialogNotify(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iContro
       onOutputDialogRequestData(pDialogData, &pDisplayInfo->item);
       break;
 
+   /// [FOCUSED]
+   case NM_SETFOCUS:
+      CONSOLE("OutputDialog ListView receiving input focus");
+      break;
+
    // [UNHANDLED] Pass to CustomListView handler
    default: 
       bResult = onCustomListViewNotify(pDialogData->hDialog, TRUE, IDC_OUTPUT_LIST, pMessage);
@@ -804,7 +762,6 @@ BOOL  onOutputDialogNotify(OUTPUT_DIALOG_DATA*  pDialogData, CONST UINT  iContro
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -820,17 +777,15 @@ VOID  onOutputDialogResize(OUTPUT_DIALOG_DATA*  pDialogData, CONST SIZE*  pNewSi
    RECT  rcClientRect;     // Dialog client rectangle        
    SIZE  siClient;         // Size of dialog client rect
 
-   TRACK_FUNCTION();
    
    /// Stretch ListView control over entire dialog
    GetClientRect(pDialogData->hDialog, &rcClientRect);
-   utilSetClientRect(pDialogData->hListView, &rcClientRect, TRUE);
+   utilSetWindowRect(pDialogData->hListView, &rcClientRect, TRUE);
 
    // Adjust ListView column width to match
    utilConvertRectangleToSize(&rcClientRect, &siClient);
    ListView_SetColumnWidth(pDialogData->hListView, 0, siClient.cx - GetSystemMetrics(SM_CXVSCROLL));
 
-   END_TRACKING();
 }
 
 
@@ -845,7 +800,6 @@ VOID  onOutputDialogRequestData(OUTPUT_DIALOG_DATA*  pDialogData, LVITEM*  pOutp
    OUTPUT_DIALOG_ITEM*  pItem;
    BOOL                 bDrBullwinkle = TRUE;
 
-   TRACK_FUNCTION();
    ASSERT(bDrBullwinkle AND pOutput != NULL);
 
    /// Lookup desired item
@@ -874,12 +828,9 @@ VOID  onOutputDialogRequestData(OUTPUT_DIALOG_DATA*  pDialogData, LVITEM*  pOutp
       }
    }
    // [ERROR] Item not found
-   else if (pOutput->mask INCLUDES LVIF_TEXT)
-      StringCchPrintf(pOutput->pszText, pOutput->cchTextMax, TEXT("ERROR: Item %d of %d not found"), pOutput->iItem, getTreeNodeCount(pDialogData->pItemTreeByOperation));
-   else
-      pOutput->pszText = TEXT("ERROR: Item not found");
+   else 
+      setMissingListViewItem(pOutput, getTreeNodeCount(pDialogData->pItemTreeByOperation));
 
-   END_TRACKING();
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -892,17 +843,14 @@ VOID  onOutputDialogRequestData(OUTPUT_DIALOG_DATA*  pDialogData, LVITEM*  pOutp
 INT_PTR  dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    OUTPUT_DIALOG_DATA*  pDialogData;      // Dialog data
-   ERROR_STACK*         pException;       // Exception error
    POINT                ptCursor;         // Cursor position
    SIZE                 siWindow;         // Window size
-   BOOL                 bResult;          // Operation result
+   BOOL                 bResult = TRUE;   // Operation result
 
    // Prepare
-   TRACK_FUNCTION();
-   bResult = TRUE;
 
    /// [GUARD BLOCK]
-   __try
+   TRY
    {
       // Get dialog data
       pDialogData = getOutputDialogData(hDialog);
@@ -989,6 +937,11 @@ INT_PTR  dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
          ListView_SetBkColor(pDialogData->hListView, getThemeSysColour(TEXT("Tab"), COLOR_WINDOW));
          break;
 
+      /// [HELP]
+      case WM_HELP:
+         displayHelp(TEXT("Window_Output"));
+         break;
+
       // [UNHANDLED]
       default:
          bResult = FALSE;
@@ -997,19 +950,12 @@ INT_PTR  dlgprocOutputDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPAR
 
       // [FOCUS HANDLER]
       updateMainWindowToolBar(iMessage, wParam, lParam);
+
+      // Return result
+      return (INT_PTR)bResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the output tool window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_OUTPUT_DIALOG));
-      displayException(pException);
-      // Return TRUE
-      bResult = TRUE;
-   }
-
-   // Return result
-   END_TRACKING();
-   return (INT_PTR)bResult;
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 

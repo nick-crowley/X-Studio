@@ -13,8 +13,11 @@
 
 CONST UINT   iToolBarButtonCount    = 17,    // Number of buttons and separators in the toolbar
              iToolBarSeparatorCount = 4,     // Number of separators in the toolbar
-             iMessageTextSize       = 8,     // Point size of message text
+             iMessageTextSize       = 10,    // Point size of message text
              iMessageTitleSize      = 11;    // Point size of message titles
+
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                       CREATION / DESTRUCTION
@@ -172,16 +175,17 @@ BOOL  initRichTextDialog(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
 
    // Set default formatting
    oCharFormat.cbSize      = sizeof(CHARFORMAT);
-   oCharFormat.dwMask      = CFM_COLOR WITH CFM_FACE;
+   oCharFormat.dwMask      = CFM_COLOR WITH CFM_FACE WITH CFM_SIZE;
    oCharFormat.crTextColor = getGameTextColour(GTC_DEFAULT);
+   oCharFormat.yHeight     = iMessageTextSize * 20;
    StringCchCopy(oCharFormat.szFaceName, LF_FACESIZE, TEXT("Arial"));
    RichEdit_SetCharFormat(pDocument->hRichEdit, SCF_DEFAULT, &oCharFormat);
 
    /// Setup RichEdit control
    RichEdit_SetBackgroundColour(pDocument->hRichEdit, FALSE, RGB(22,31,46));
    RichEdit_SetEventMask(pDocument->hRichEdit, ENM_UPDATE WITH ENM_SELCHANGE WITH ENM_CHANGE); 
-   RichEdit_SetFontSize(pDocument->hRichEdit, 14);
    Edit_SetReadOnly(pDocument->hRichEdit, pDocument->bVirtual);
+   Edit_LimitText(pDocument->hRichEdit, MAX_STRING);
 
    // Clear RichEdit
    SetWindowText(pDocument->hRichEdit, TEXT(""));
@@ -415,7 +419,6 @@ BOOL  onRichTextDialog_Command(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CON
 {
    BOOL  bResult = FALSE;
 
-   TRACK_FUNCTION();
    switch (iControlID)
    {
    /// [COLOUR POPUP MENU]
@@ -463,6 +466,12 @@ BOOL  onRichTextDialog_Command(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CON
       bResult = onRichTextDialog_InsertButton(pDocument);
       break;
 
+   /// [PROPERTIES] -- Invoke the document properties dialog
+   case IDM_GAMESTRING_PROPERTIES:
+   case IDM_RICHEDIT_PROPERTIES:
+      sendAppMessage(AW_MAIN, WM_COMMAND, IDM_VIEW_DOCUMENT_PROPERTIES, NULL);
+      break;
+
    // [EDIT NOTIFICATIONS]
    case IDC_LANGUAGE_EDIT:
       switch (iNotification)
@@ -482,7 +491,6 @@ BOOL  onRichTextDialog_Command(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CON
       break;
    }
 
-   END_TRACKING();
    return bResult;
 }
 
@@ -526,7 +534,6 @@ BOOL  onRichTextDialog_Destroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
    IRichEditOle*  pRichEdit;  // RichEdit control OLE interface
    REOBJECT       oImage;     // RichEdit control OLE object attributes
 
-   TRACK_FUNCTION();
 
    /// Destroy ToolBar + it's child combo
    if (pDocument->hToolBar)
@@ -564,7 +571,6 @@ BOOL  onRichTextDialog_Destroy(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog)
    // Release interfaces
    utilReleaseInterface(pRichEdit);
    utilReleaseInterface(pDocument->pOleCallback);
-   END_TRACKING();
    return TRUE;
 }
 
@@ -600,7 +606,6 @@ BOOL   onRichTextDialog_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST UI
    UINT  iSelection;
 
    // [TRACKING]
-   TRACK_FUNCTION();
 
    // Examine command
    switch (iCommandID)
@@ -629,7 +634,6 @@ BOOL   onRichTextDialog_GetMenuItemState(LANGUAGE_DOCUMENT*  pDocument, CONST UI
       break;
    }
 
-   END_TRACKING();
    return TRUE;
 }
 
@@ -670,7 +674,6 @@ BOOL   onRichTextDialog_Notify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMH
 {
    BOOL  bResult = FALSE;
 
-   TRACK_FUNCTION();
    switch (pMessage->code)
    {
    // [TOOLBAR REQUESTING TOOLTIP]
@@ -684,7 +687,6 @@ BOOL   onRichTextDialog_Notify(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, NMH
       break;
    }
 
-   END_TRACKING();
    return bResult;
 }
 
@@ -760,17 +762,14 @@ BOOL  onRichTextDialog_Resize(LANGUAGE_DOCUMENT*  pDocument, HWND  hDialog, CONS
 INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    LANGUAGE_DOCUMENT*  pDocument;   // Language document data
-   ERROR_STACK*        pException;
    PAINTSTRUCT         oPaintData;
    BOOL                bResult = FALSE;
 
-   // Get window data
-   TRACK_FUNCTION();
-   pDocument = (LANGUAGE_DOCUMENT*)GetWindowLong(hDialog, DWL_USER);
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
+      // Get window data
+      pDocument = (LANGUAGE_DOCUMENT*)GetWindowLong(hDialog, DWL_USER);
+
       switch (iMessage)
       {
       /// [CREATION]
@@ -839,16 +838,11 @@ INT_PTR CALLBACK  dlgprocRichTextDialog(HWND  hDialog, UINT  iMessage, WPARAM  w
 
       // [FOCUS HANDLER]
       updateMainWindowToolBar(iMessage, wParam, lParam);
+
+      return (INT_PTR)bResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the rich edit dialog"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_RICHTEXT_DIALOG));
-      displayException(pException);
-   }
-
-   END_TRACKING();
-   return (INT_PTR)bResult;
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 

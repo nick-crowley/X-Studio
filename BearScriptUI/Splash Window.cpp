@@ -11,8 +11,10 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
 #define ARGB(a,r,g,b)          ((COLORREF)(((BYTE)(r) WITH ((WORD)((BYTE)(g))<<8)) WITH (((DWORD)(BYTE)(b))<<16) WITH (((DWORD)(BYTE)(a))<<24)))
+
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
@@ -58,7 +60,6 @@ SPLASH_WINDOW_DATA*   createSplashWindowData()
 // 
 VOID  deleteSplashWindowData(SPLASH_WINDOW_DATA*  &pWindowData)
 {
-   TRACK_FUNCTION();
 
    /// Delete drawing objects
    if (pWindowData->hProgressFont)
@@ -70,7 +71,6 @@ VOID  deleteSplashWindowData(SPLASH_WINDOW_DATA*  &pWindowData)
    // Delete calling object
    utilDeleteObject(pWindowData);
 
-   END_TRACKING();
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,6 @@ HWND   displaySplashWindow(MAIN_WINDOW_DATA*  pMainWindowData)
    HWND                 hWnd;                // Splash window
 
    // Prepare
-   TRACK_FUNCTION();
    pWindowData = createSplashWindowData();
    
    /// Create centered splash window   
@@ -112,7 +111,6 @@ HWND   displaySplashWindow(MAIN_WINDOW_DATA*  pMainWindowData)
       deleteSplashWindowData(pWindowData);
    
    // Return window handle
-   END_TRACKING();
    return hWnd;
 }
 
@@ -136,7 +134,6 @@ VOID  drawSplashWindow(SPLASH_WINDOW_DATA*  pWindowData)
                   iProgressBarLength;     // Length of the progress bar, in pixels
 
    // Prepare
-   TRACK_FUNCTION();
    utilZeroObject(&oBlendData, BLENDFUNCTION);
    siWindowSize = siLogoBitmap;
    ptOrigin.x = 0;
@@ -146,7 +143,7 @@ VOID  drawSplashWindow(SPLASH_WINDOW_DATA*  pWindowData)
    hScreenDC      = GetDC(NULL);
    hMemoryDC      = CreateCompatibleDC(hScreenDC);
    pDCState       = utilCreateDeviceContextState(hMemoryDC);
-   szProgressText = utilLoadString(getResourceInstance(), getCurrentOperationStageID(getMainWindowData()->pOperationPool), 128);
+   szProgressText = loadString(getCurrentOperationStageID(getMainWindowData()->pOperationPool), 128);
 
    /// Create bitmap
    pWindowData->hLogoBitmap = (HBITMAP)LoadImage(getResourceInstance(), TEXT("LOGO_BITMAP"), IMAGE_BITMAP, siLogoBitmap.cx, siLogoBitmap.cy, LR_CREATEDIBSECTION);
@@ -189,7 +186,6 @@ VOID  drawSplashWindow(SPLASH_WINDOW_DATA*  pWindowData)
    DeleteBitmap(pWindowData->hLogoBitmap);
    ReleaseDC(NULL, hScreenDC);
    utilDeleteString(szProgressText);
-   END_TRACKING();
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +204,6 @@ VOID  onSplashWindowCreate(SPLASH_WINDOW_DATA*  pWindowData, HWND  hWnd)
            rcSplashWindow;      // Splash window rectangle
    HDC     hDC;
 
-   TRACK_FUNCTION();
 
    // Prepare
    GetWindowRect(getAppWindow(), &rcMainWindow);
@@ -236,7 +231,6 @@ VOID  onSplashWindowCreate(SPLASH_WINDOW_DATA*  pWindowData, HWND  hWnd)
 
    // Set update timer
    SetTimer(hWnd, SPLASH_TICKER, 200, NULL);
-   END_TRACKING();
 }
 
 
@@ -247,7 +241,6 @@ VOID  onSplashWindowCreate(SPLASH_WINDOW_DATA*  pWindowData, HWND  hWnd)
 // 
 VOID  onSplashWindowDestroy(SPLASH_WINDOW_DATA*  pWindowData)
 {
-   TRACK_FUNCTION();
 
    // [CHECK] Are we running in windows 7
    if (getAppWindowsVersion() >= WINDOWS_7)
@@ -261,7 +254,6 @@ VOID  onSplashWindowDestroy(SPLASH_WINDOW_DATA*  pWindowData)
    SetWindowLong(pWindowData->hWnd, 0, NULL);
    deleteSplashWindowData(pWindowData);
 
-   END_TRACKING();
 }
 
 
@@ -287,15 +279,9 @@ LRESULT  wndprocSplashWindow(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM 
 {
    SPLASH_WINDOW_DATA*  pWindowData;
    CREATESTRUCT*        pCreationData;
-   ERROR_STACK*         pException;
-   BOOL                 bResult;
+   BOOL                 bResult = TRUE;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   bResult = TRUE;
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
       // Prepare
       pWindowData = (SPLASH_WINDOW_DATA*)GetWindowLong(hWnd, 0);
@@ -326,19 +312,12 @@ LRESULT  wndprocSplashWindow(HWND  hWnd, UINT  iMessage, WPARAM  wParam, LPARAM 
          bResult = DefWindowProc(hWnd, iMessage, wParam, lParam);
          break;
       }
+
+      return bResult;
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the splash dialog"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_SPLASH_DIALOG));
-      displayException(pException);
-
-      // Ensure main window is enabled
-      EnableWindow(getAppWindow(), TRUE);
-   }
-
-   END_TRACKING();
-   return bResult;
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   EnableWindow(getAppWindow(), TRUE);
+   return FALSE;
 }
 

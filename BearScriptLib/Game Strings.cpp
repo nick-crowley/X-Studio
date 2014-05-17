@@ -210,6 +210,7 @@ VOID  deleteGamePage(GAME_PAGE*  &pGamePage)
    utilDeleteObject(pGamePage);
 }
 
+
 /// Function name  : deleteSubString
 // Description     : Deletes a SubString object
 // 
@@ -255,6 +256,7 @@ VOID  appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szFormat, ..
    utilDeleteStrings(szAppendedText, szReplacementString);
 }
 
+
 /// Function name  : calculateOutputPageID
 // Description     : Generates the original PageID using game version
 // 
@@ -266,60 +268,6 @@ VOID  appendGameStringText(GAME_STRING*  pGameString, CONST TCHAR*  szFormat, ..
 UINT  calculateOutputPageID(const UINT  iPageID, const GAME_VERSION  eVersion)
 {
    return iPageID + iPageVersionValues[eVersion];
-}
-
-/// Function name  : findGameStringByID
-// Description     : Find a game string from the game data strings tree by it's string and page IDs
-//
-// CONST UINT     iStringID : [in]  ID of the string to search for
-// CONST UINT     iPageID   : [in]  ID of the page containing the string to search for
-// GAME_STRING*  &pOutput   : [out] Resultant game string object, or NULL If not found
-// 
-// Return type : TRUE if found, FALSE If not
-//
-BearScriptAPI
-BOOL    findGameStringByID(CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput)
-{
-   // Query game strings tree
-   return findObjectInAVLTreeByValue(getGameData()->pGameStringsByID, iPageID, iStringID, (LPARAM&)pOutput);
-}
-
-
-/// Function name  :  findGameStringInTreeByID
-// Description     : Search for a GameString in a specified binary tree
-// 
-// CONST AVL_TREE*  pTree     : [in] Binary tree to search
-// CONST UINT       iStringID : [in] ID of the string to search for
-// CONST UINT       iPageID   : [in] ID of the page containing the string
-// GAME_STRING*    &pOutput   : [out] Resultant GameString, if found
-// 
-// Return Value   : TRUE if found, FALSE otherwise
-// 
-BearScriptAPI
-BOOL   findGameStringInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iStringID, CONST UINT  iPageID, GAME_STRING*  &pOutput)
-{
-   // Query tree
-   return findObjectInAVLTreeByValue(pTree, iPageID, iStringID, (LPARAM&)pOutput);
-}
-
-
-/// Function name  : findGamePageInTreeByID
-// Description     : Find a GamePage in a specified tree by it's ID
-// 
-// CONST BINARY_TREE*  pTree    : [in]  The GamePage tree to search
-// CONST UINT          iPageID  : [in]  The ID of the Page to search for
-// GAME_PAGE*         &pOutput  : [out] Resultant GamePage, if found
-// 
-// Return Value   : TRUE if found, FALSE otherwise
-// 
-BearScriptAPI
-BOOL   findGamePageInTreeByID(CONST AVL_TREE*  pTree, CONST UINT  iPageID, GAME_PAGE*  &pOutput)
-{
-   // [CHECK] Ensure tree contains game pages
-   //ASSERT(pTree->eType == AT_GAME_PAGE);
-
-   // Query tree
-   return findObjectInAVLTreeByValue(pTree, iPageID, NULL, (LPARAM&)pOutput);
 }
 
 
@@ -527,7 +475,7 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
                else
                {
                   // [UNRESOLVED] Recursively resolve sub-strings
-                  performGameStringResolution(pLookupString, pSubString->szText, MAX_STRING, pHistoryStack, pErrorQueue);
+                  resolveGameStringSubStrings(pLookupString, pSubString->szText, MAX_STRING, pHistoryStack, pErrorQueue);
                   pSubString->iCount = lstrlen(pSubString->szText);
                }
             }
@@ -540,13 +488,9 @@ BOOL   findNextSubString(CONST GAME_STRING*  pGameString, SUBSTRING*  pSubString
                // Report number of missing strings
                iMissingCount++;
 
-               // [CHECK] Is individual reporting enabled?
-               if (getAppPreferences()->bReportMissingSubStrings)
-               {
-                  // [WARNING] "Missing sub-string %s detected in page %u, string %u : '%s'"
-                  pushErrorQueue(pErrorQueue, generateDualWarning(HERE(IDS_GAME_STRING_SUBSTRING_NOT_FOUND), pSubString->szText, pGameString->iPageID, pGameString->iID, szPreview = generateGameStringPreview(pGameString, 96)));
-                  utilDeleteString(szPreview);
-               }
+               // [WARNING] "Page:%d  String:%d : Missing sub-string %s in '%s'"
+               generateQueuedWarning(pErrorQueue, HERE(IDS_GAME_STRING_SUBSTRING_NOT_FOUND), pGameString->iPageID, pGameString->iID, pSubString->szText, szPreview = generateGameStringPreview(pGameString, 96));
+               utilDeleteString(szPreview);
             }
             // Set the type
             pSubString->eType  = SST_LOOKUP;
@@ -813,7 +757,7 @@ BOOL  isSubStringLookup(CONST TCHAR*  szSubString, CONST UINT  iLength)
 }
 
 
-/// Function name  : performGameStringResolution
+/// Function name  : resolveGameStringSubStrings
 // Description     : Expands sub-strings within the source-text and strips out any comments
 // 
 // CONST GAME_STRING*  pGameString    : [in]     GameString currently being resolved
@@ -824,7 +768,7 @@ BOOL  isSubStringLookup(CONST TCHAR*  szSubString, CONST UINT  iLength)
 // 
 // Return Value : Number of sub-strings that could not be resolved
 //
-UINT  performGameStringResolution(CONST GAME_STRING*  pGameString, TCHAR*  szOutput, CONST UINT  iOutputLength, STACK*  pHistoryStack, ERROR_QUEUE*  pErrorQueue)
+UINT  resolveGameStringSubStrings(CONST GAME_STRING*  pGameString, TCHAR*  szOutput, CONST UINT  iOutputLength, STACK*  pHistoryStack, ERROR_QUEUE*  pErrorQueue)
 {
    SUBSTRING*    pSubString;           // SubString iterator
    GAME_STRING*  pSourceString;        // First game string in the list
@@ -841,7 +785,7 @@ UINT  performGameStringResolution(CONST GAME_STRING*  pGameString, TCHAR*  szOut
       findListObjectByIndex(pHistoryStack, 0, (LPARAM&)pSourceString);
 
       // [ERROR] "Circular sub-string references detected in page %u, string %u : '%s'"
-      pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_GAME_STRING_SUBSTRING_RECURSIVE), pSourceString->iPageID, pSourceString->iID, szPreview = generateGameStringPreview(pGameString, 96)));
+      generateQueuedError(pErrorQueue, HERE(IDS_GAME_STRING_SUBSTRING_RECURSIVE), pSourceString->iPageID, pSourceString->iID, szPreview = generateGameStringPreview(pGameString, 96));
       utilDeleteString(szPreview);
       return FALSE;
    }
@@ -882,18 +826,17 @@ UINT  performGameStringResolution(CONST GAME_STRING*  pGameString, TCHAR*  szOut
    return iMissingSubstrings;
 }
 
-
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        TREE OPERATIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Function name  : treeprocConvertGameStringToInternal
-// Description     : Convert a GameStrings binary tree node from external to internal
+/// Function name  : treeprocConvertGameStringType
+// Description     : Converts a GameString's StringType
 // 
 // BINARY_TREE_NODE*            pNode            : [in] Current tree node
 // BINARY_TREE_OPERATION_DATA*  pOperationData   : [in] xFirstInput : Conversion flags
 // 
-VOID    treeprocConvertGameStringToInternal(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
+VOID    treeprocConvertGameStringType(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
 {
    GAME_STRING*  pGameString;    // Convenience pointer
    TCHAR*        szConverted;    // Convert string, if any
@@ -901,25 +844,59 @@ VOID    treeprocConvertGameStringToInternal(AVL_TREE_NODE*  pNode, AVL_TREE_OPER
    // Prepare
    pGameString = extractPointerFromTreeNode(pNode, GAME_STRING);
 
-   // [CHECK] Is string already 'Internal'?
-   if (pGameString->eType != ST_INTERNAL)
+   /// Create converted string
+   if (generateConvertedString(pGameString->szText, pOperationData->xFirstInput, szConverted))
    {
-      /// Create converted string
-      if (generateConvertedString(pGameString->szText, pOperationData->xFirstInput, szConverted))
-      {
-         /// Replace text buffer
-         utilDeleteString(pGameString->szText);
-         pGameString->szText = szConverted;
+      /// Replace text buffer
+      utilDeleteString(pGameString->szText);
+      pGameString->szText = szConverted;
 
-         // Re-Calculate length
-         pGameString->iCount = lstrlen(pGameString->szText);
-      }
-
-      // Update string type
-      pGameString->eType = ST_INTERNAL;
+      // Re-Calculate length
+      pGameString->iCount = lstrlen(pGameString->szText);
    }
+
+   // Update string type
+   pGameString->eType = (STRING_TYPE)pOperationData->xSecondInput;
 }
 
+/// Function name  : treeprocResolveGameStringSubstrings
+// Description     : Resolve lookup sub-strings in the specified GameString. Copy mission sub-strings verbatim,
+//                    and delete comment sub-strings entirely.
+// 
+// AVL_TREE_NODE*            pNode           : [in] Node containing a GameString
+// AVL_TREE_OPERATION_DATA*  pOperationData  : [in] xFirstInput : ERROR_QUEUE* : [in/out] Failure queue
+// 
+VOID   treeprocResolveGameStringSubstrings(AVL_TREE_NODE*  pNode, AVL_TREE_OPERATION*  pOperationData)
+{
+   GAME_STRING*  pGameString;    // Convenience pointer
+   TCHAR*        szOutput;       // Output string containing resolved sub-strings
+   LIST*         pResolutionList;
+
+   // Prepare
+   pGameString = extractPointerFromTreeNode(pNode, GAME_STRING);
+
+   // [CHECK] Abort if string contains no special characters
+   if (findNextNonEscapedCharacters(pGameString->szText, TEXT("({")) == NULL)
+      return;
+
+   // Prepare
+   szOutput = utilCreateEmptyString(MAX_STRING);
+   pResolutionList = createStack(NULL);
+
+   /// Attempt to resolve sub-strings. Increment running total of failures.
+   pOperationData->xOutput += resolveGameStringSubStrings(pGameString, szOutput, MAX_STRING, pResolutionList, pOperationData->pErrorQueue);
+
+   // Replace GameString text
+   pGameString->szText = utilReplaceString(pGameString->szText, szOutput);
+   pGameString->iCount = lstrlen(pGameString->szText);
+
+   // [RESOLVED] Mark as resolved
+   pGameString->bResolved = TRUE;
+
+   // Cleanup
+   deleteStack(pResolutionList);
+   utilDeleteString(szOutput);
+}
 
 
 

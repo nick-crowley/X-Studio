@@ -94,7 +94,7 @@ VOID  performCodeEditUndoAction(CODE_EDIT_DATA*  pWindowData, CODE_EDIT_UNDO_ITE
    CODE_EDIT_UNDO&  oUndo = pWindowData->oUndo;
 
    // [DEBUGGING]
-   //VERBOSE("Performing undo action %d between (%d:%d) and (%d:%d) : '%s'", pAction->eType, pAction->oStart.iLine, pAction->oStart.iIndex, pAction->oFinish.iLine, pAction->oFinish.iIndex, pAction->szText);
+   VERBOSE("%s text between index %d and %d on lines %d to %d : '%s'", pAction->eType == UIT_ADDITION ? TEXT("Removing") : TEXT("Inserting"), pAction->oStart.iIndex, pAction->oFinish.iIndex, pAction->oStart.iLine, pAction->oFinish.iLine, pAction->szText);
 
    // Cancel any selection
    removeCodeEditSelection(pWindowData);
@@ -264,6 +264,8 @@ VOID  onCodeEditRedoLastAction(CODE_EDIT_DATA*  pWindowData)
    // [CHECK] Extract last redo action
    if (pLastAction = (CODE_EDIT_UNDO_ITEM*)popObjectFromStack(oUndo.pRedoStack))
    {
+      CONSOLE_ACTION();
+
       /// Perform last action 
       performCodeEditUndoAction(pWindowData, pLastAction);
 
@@ -287,6 +289,8 @@ VOID  onCodeEditUndoLastAction(CODE_EDIT_DATA*  pWindowData)
    // [CHECK] Extract last undo action
    if (pLastAction = (CODE_EDIT_UNDO_ITEM*)popObjectFromStack(oUndo.pUndoStack))
    {
+      CONSOLE_ACTION();
+
       /// Perform last action
       performCodeEditUndoAction(pWindowData, pLastAction);
 

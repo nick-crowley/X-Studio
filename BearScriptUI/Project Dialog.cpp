@@ -11,7 +11,8 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
+// OnException: Display in output
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
@@ -38,7 +39,7 @@ HWND  createProjectDialog(HWND  hParentWnd)
    pDialogData = createProjectDialogData();
 
    /// Create dialog
-   hDialog = CreateDialogParam(getResourceInstance(), TEXT("PROJECT_DIALOG"), hParentWnd, dlgprocProjectDialog, (LPARAM)pDialogData);
+   hDialog = loadDialog(TEXT("PROJECT_DIALOG"), hParentWnd, dlgprocProjectDialog, (LPARAM)pDialogData);
    ERROR_CHECK("creating project dialog", hDialog);
 
    // [CHECK] Destroy data if dialog failed to create
@@ -299,7 +300,7 @@ VOID  updateProjectDialog(HWND  hDialog)
    {
       // Define folders
       oInsertItem.hInsertAfter = TVI_LAST;
-      oInsertItem.hParent      = pDialogData->hRoot;
+      oInsertItem.hParent      = TVI_ROOT; //pDialogData->hRoot;
       
       // Iterate through all folders
       for (PROJECT_FOLDER  eFolder = PF_SCRIPT; eFolder <= PF_MISSION; eFolder = (PROJECT_FOLDER)(eFolder + 1))
@@ -309,7 +310,7 @@ VOID  updateProjectDialog(HWND  hDialog)
          pDialogData->hFolderNode[eFolder] = TreeView_InsertItem(pDialogData->hTreeView, &oInsertItem);
 
          // Iterate through all files in the list
-         for (LIST_ITEM*  pIterator = getListHead(getActiveProject()->pProjectFile->pFileList[eFolder]); pDocument = extractListItemPointer(pIterator, STORED_DOCUMENT); pIterator = pIterator->pNext)
+         for (LIST_ITEM*  pIterator = getListHead(getActiveProjectFile()->pFileList[eFolder]); pDocument = extractListItemPointer(pIterator, STORED_DOCUMENT); pIterator = pIterator->pNext)
             /// Insert file node
             addDocumentToProjectDialog(pDialogData->hDialog, pDocument);
       }
@@ -347,6 +348,18 @@ VOID  updateProjectDialogRoot(HWND  hDialog)
 ///                                     MESSAGE HANDLERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+/// Function name  : onProjectDialog_Close
+// Description     : Command the main window to toggle the visibility of the dialog
+// 
+// PROJECT_DIALOG_DATA*  pDialogData : [in] Window data
+//
+VOID  onProjectDialog_Close(PROJECT_DIALOG_DATA*  pDialogData)
+{
+   // Send 'Toggle Output Dialog' to MainWindow
+   SendMessage(getAppWindow(), WM_COMMAND, IDM_VIEW_PROJECT_EXPLORER, NULL);
+}
+
+
 /// Function name  : onProjectDialog_ContextMenu
 // Description     : Project dialog context menu
 // 
@@ -366,8 +379,8 @@ VOID  onProjectDialog_ContextMenu(PROJECT_DIALOG_DATA*  pDialogData, HWND  hCtrl
    // [CHECK] Ensure source was the TreeView
    if (GetWindowID(hCtrl) == IDC_PROJECT_TREE)
    {
-      // [VERBOSE]
-      VERBOSE_LIB_COMMAND();
+      // [TRACK]
+      CONSOLE_ACTION();
 
       // Prepare
       pProject      = getActiveProject();
@@ -426,16 +439,18 @@ BOOL  onProjectDialog_Command(PROJECT_DIALOG_DATA*  pDialogData, CONST UINT  iCo
    {
    /// [REMOVE SELECTED]
    case IDM_PROJECT_REMOVE_DOCUMENT:
+      CONSOLE_MENU(IDM_PROJECT_REMOVE_DOCUMENT);
       // Retrieve item and StoredDocument
       hSelectedItem   = TreeView_GetSelection(pDialogData->hTreeView);
       pStoredDocument = getDocumentFromProjectDialogItem(pDialogData, hSelectedItem);
+      debugStoredDocument(pStoredDocument);
 
       // [CHECK] Ensure both exist
       if (hSelectedItem AND pStoredDocument)
       {
          /// Remove item and StoredDocument
          TreeView_DeleteItem(pDialogData->hTreeView, hSelectedItem);
-         removeFileFromProject(getActiveProject()->pProjectFile, pStoredDocument);
+         removeFileFromProject(getActiveProjectFile(), pStoredDocument);
 
          // [MODIFIED] Set modified flag
          setProjectModifiedFlag(getActiveProject(), TRUE);
@@ -445,10 +460,13 @@ BOOL  onProjectDialog_Command(PROJECT_DIALOG_DATA*  pDialogData, CONST UINT  iCo
 
    /// [OPEN SELECTED]
    case IDM_PROJECT_OPEN_DOCUMENT:
+      CONSOLE_MENU(IDM_PROJECT_OPEN_DOCUMENT);
+
       // Retrieve item and StoredDocument
       hSelectedItem   = TreeView_GetSelection(pDialogData->hTreeView);
       pStoredDocument = getDocumentFromProjectDialogItem(pDialogData, hSelectedItem);
-
+      debugStoredDocument(pStoredDocument);
+      
       // [CHECK] Ensure both exist
       if (hSelectedItem AND pStoredDocument)
       {
@@ -460,6 +478,8 @@ BOOL  onProjectDialog_Command(PROJECT_DIALOG_DATA*  pDialogData, CONST UINT  iCo
 
    /// [ADD ALL DOCUMENTS]
    case IDM_PROJECT_ADD_ALL_DOCUMENTS:
+      CONSOLE_MENU(IDM_PROJECT_ADD_ALL_DOCUMENTS);
+
       // Iterate through all documents
       for (UINT iIndex = 0; findDocumentByIndex(getMainWindowData()->hDocumentsTab, iIndex, pDocument); iIndex++)
          // [CHECK] Include current document if possible
@@ -469,6 +489,8 @@ BOOL  onProjectDialog_Command(PROJECT_DIALOG_DATA*  pDialogData, CONST UINT  iCo
 
    /// [EDIT VARIABLES] Display project variables dialog
    case IDM_PROJECT_EDIT_VARIABLES:
+      CONSOLE_MENU(IDM_PROJECT_EDIT_VARIABLES);
+
       displayProjectVariablesDialog(getAppWindow());
       bResult = TRUE;
       break;
@@ -647,49 +669,56 @@ BOOL  onProjectDialog_Moving(PROJECT_DIALOG_DATA*  pDialogData, RECT*  pWindowRe
 BOOL  onProjectDialog_Notify(PROJECT_DIALOG_DATA*  pDialogData, NMHDR*  pMessage)
 {
    TVHITTESTINFO  oHitTest;
-   BOOL           bResult;
+   BOOL           bResult = FALSE;
 
-   // Prepare
-   bResult = FALSE;
-
-   // Examine code
-   switch (pMessage->code)
+   TRY
    {
-   /// [CUSTOM DRAW]
-   case NM_CUSTOMDRAW:
-      /*if (pDialogData AND (bResult = onProjectDialog_CustomDraw(pDialogData, (NMTVCUSTOMDRAW*)pMessage)))
+      // Examine code
+      switch (pMessage->code)
       {
-         SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, bResult);
+      /// [CUSTOM DRAW]
+      case NM_CUSTOMDRAW:
+         /*if (pDialogData AND (bResult = onProjectDialog_CustomDraw(pDialogData, (NMTVCUSTOMDRAW*)pMessage)))
+         {
+            SetWindowLong(pDialogData->hDialog, DWL_MSGRESULT, bResult);
+            bResult = TRUE;
+         }*/
+         break;
+
+      /// [RIGHT-CLICK] Select item, ensuring the context menu is displayed for item beneath cursor, not item currently selected
+      case NM_RCLICK:
+         // Perform hit-test
+         utilGetWindowCursorPos(pDialogData->hTreeView, &oHitTest.pt);
+         if (TreeView_HitTest(pDialogData->hTreeView, &oHitTest))
+         {
+            // [FOUND] Select item beneath the cursor
+            TreeView_SelectItem(pDialogData->hTreeView, oHitTest.hItem);
+            //VERBOSE("TreeView: NM_RCLICK");
+         }
+         break;
+
+      /// [DOUBLE CLICK] Open selected document
+      case NM_DBLCLK:
+         onProjectDialog_Command(pDialogData, IDM_PROJECT_OPEN_DOCUMENT, NULL, NULL);
+         break;
+
+      /// [FOCUSED]
+      case NM_SETFOCUS:
+         CONSOLE("ProjectDialog ListView receiving input focus");
+         break;
+
+      /// [REQUEST DATA]
+      case TVN_GETDISPINFO:
+         onProjectDialog_RequestData(pDialogData, (NMTVDISPINFO*)pMessage);
          bResult = TRUE;
-      }*/
-      break;
-
-   /// [RIGHT-CLICK] Select item, ensuring the context menu is displayed for item beneath cursor, not item currently selected
-   case NM_RCLICK:
-      // Perform hit-test
-      utilGetWindowCursorPos(pDialogData->hTreeView, &oHitTest.pt);
-      if (TreeView_HitTest(pDialogData->hTreeView, &oHitTest))
-      {
-         // [FOUND] Select item beneath the cursor
-         TreeView_SelectItem(pDialogData->hTreeView, oHitTest.hItem);
-         VERBOSE("TreeView: NM_RCLICK");
+         break;
       }
-      break;
 
-   /// [DOUBLE CLICK] Open selected document
-   case NM_DBLCLK:
-      onProjectDialog_Command(pDialogData, IDM_PROJECT_OPEN_DOCUMENT, NULL, NULL);
-      break;
-
-   /// [REQUEST DATA]
-   case TVN_GETDISPINFO:
-      onProjectDialog_RequestData(pDialogData, (NMTVDISPINFO*)pMessage);
-      bResult = TRUE;
-      break;
+      // Return result
+      return bResult;
    }
-
-   // Return result
-   return bResult;
+   CATCH1("pMessage->code=%d", pMessage->code);
+   return FALSE;
 }
 
 
@@ -701,71 +730,74 @@ BOOL  onProjectDialog_Notify(PROJECT_DIALOG_DATA*  pDialogData, NMHDR*  pMessage
 // 
 VOID  onProjectDialog_RequestData(PROJECT_DIALOG_DATA*  pDialogData, NMTVDISPINFO*  pHeader)
 {
-   PROJECT_FOLDER  eFolder;
-   STORED_DOCUMENT*      pStoredDoc;
-   TVITEM*               pItem;      // Convenience pointer
+   PROJECT_FOLDER    eFolder;
+   STORED_DOCUMENT*  pStoredDoc;
+   TVITEM*           pItem;         // Convenience pointer
 
-   // Prepare
-   pItem = &pHeader->item;
-
-   // Examine node
-   switch (eFolder = (PROJECT_FOLDER)pItem->lParam)
+   TRY
    {
-   /// [ROOT]
-   case PF_ROOT:
-      if (pItem->mask INCLUDES TVIF_TEXT)
-      {
-         if (getActiveProject())
-            StringCchPrintf(pItem->pszText, pItem->cchTextMax, isModified(getActiveProject()) ? TEXT("%s *") : TEXT("%s"), getDocumentFileName(getActiveProject()));
-         else
-            StringCchCopy(pItem->pszText, pItem->cchTextMax, TEXT("No Project"));
-      }
-
-      if (pItem->mask INCLUDES (TVIF_IMAGE WITH TVIF_SELECTEDIMAGE))
-         pItem->iImage = pItem->iSelectedImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_PROJECT_FILE_ICON")); 
-
-      if (pItem->mask INCLUDES TVIF_CHILDREN)
-         pItem->cChildren = (getActiveProject() ? 1 : 0);
-      break;
-
-   /// [PROJECT FOLDER]
-   case PF_SCRIPT:
-   case PF_LANGUAGE:
-   case PF_MISSION:
-      if (pItem->mask INCLUDES TVIF_TEXT)
-         LoadString(getResourceInstance(), IDS_PROJECT_FOLDER_SCRIPT + eFolder, pItem->pszText, pItem->cchTextMax);
-
-      if (pItem->mask INCLUDES (TVIF_IMAGE WITH TVIF_SELECTEDIMAGE))
-         pItem->iImage = pItem->iSelectedImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("FOLDERS_ICON"));
-
-      if (pItem->mask INCLUDES TVIF_CHILDREN)
-         pItem->cChildren = (getProjectFileCountByFolder(getActiveProject()->pProjectFile, eFolder) ? 1 : 0);
-      break;
-
-   /// [PROJECT ITEM]
-   default:
       // Prepare
-      pStoredDoc = (STORED_DOCUMENT*)pItem->lParam;
+      pItem = &pHeader->item;
 
-      if (pItem->mask INCLUDES TVIF_TEXT)
-         StringCchCopy(pItem->pszText, pItem->cchTextMax, PathFindFileName(pStoredDoc->szFullPath));
-
-      if (pItem->mask INCLUDES (TVIF_IMAGE WITH TVIF_SELECTEDIMAGE))
+      // Examine node
+      switch (eFolder = (PROJECT_FOLDER)pItem->lParam)
       {
-         switch (pStoredDoc->eType)
+      /// [ROOT]
+      case PF_ROOT:
+         if (pItem->mask INCLUDES TVIF_TEXT)
          {
-         case FIF_SCRIPT:    pItem->iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_SCRIPT_FILE_ICON"));     break;
-         case FIF_LANGUAGE:  pItem->iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_LANGUAGE_FILE_ICON"));   break;
-         case FIF_MISSION:   pItem->iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_MISSION_FILE_ICON"));    break;
+            if (getActiveProject())
+               StringCchPrintf(pItem->pszText, pItem->cchTextMax, isModified(getActiveProject()) ? TEXT("%s *") : TEXT("%s"), getDocumentFileName(getActiveProject()));
+            else
+               StringCchCopy(pItem->pszText, pItem->cchTextMax, loadTempString(IDS_PROJECT_NOT_LOADED));
          }
-         pItem->iSelectedImage = pItem->iImage;
+
+         if (pItem->mask INCLUDES (TVIF_IMAGE WITH TVIF_SELECTEDIMAGE))
+            pItem->iImage = pItem->iSelectedImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_PROJECT_FILE_ICON")); 
+
+         if (pItem->mask INCLUDES TVIF_CHILDREN)
+            pItem->cChildren = (getActiveProject() ? 1 : 0);
+         break;
+
+      /// [PROJECT FOLDER]
+      case PF_SCRIPT:
+      case PF_LANGUAGE:
+      case PF_MISSION:
+         if (pItem->mask INCLUDES TVIF_TEXT)
+            StringCchCopy(pItem->pszText, pItem->cchTextMax, loadTempString(IDS_PROJECT_FOLDER_SCRIPT + eFolder));
+
+         if (pItem->mask INCLUDES (TVIF_IMAGE WITH TVIF_SELECTEDIMAGE))
+            pItem->iImage = pItem->iSelectedImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("FOLDERS_ICON"));
+
+         if (pItem->mask INCLUDES TVIF_CHILDREN)
+            pItem->cChildren = (getProjectFileCountByFolder(getActiveProjectFile(), eFolder) ? 1 : 0);
+         break;
+
+      /// [PROJECT ITEM]
+      default:
+         // Prepare
+         pStoredDoc = (STORED_DOCUMENT*)pItem->lParam;
+
+         if (pItem->mask INCLUDES TVIF_TEXT)
+            StringCchCopy(pItem->pszText, pItem->cchTextMax, PathFindFileName(pStoredDoc->szFullPath));
+
+         if (pItem->mask INCLUDES (TVIF_IMAGE WITH TVIF_SELECTEDIMAGE))
+         {
+            switch (pStoredDoc->eType)
+            {
+            case FIF_SCRIPT:    pItem->iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_SCRIPT_FILE_ICON"));     break;
+            case FIF_LANGUAGE:  pItem->iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_LANGUAGE_FILE_ICON"));   break;
+            case FIF_MISSION:   pItem->iImage = getAppImageTreeIconIndex(ITS_SMALL, TEXT("NEW_MISSION_FILE_ICON"));    break;
+            }
+            pItem->iSelectedImage = pItem->iImage;
+         }
+
+         if (pItem->mask INCLUDES TVIF_CHILDREN)
+            pItem->cChildren = 0;
+         break;
       }
-
-      if (pItem->mask INCLUDES TVIF_CHILDREN)
-         pItem->cChildren = 0;
-      break;
    }
-
+   CATCH2("eFolder=%d  pItem->mask=%d", eFolder, pItem->mask);
 }
 
 
@@ -783,7 +815,7 @@ VOID  onProjectDialog_Resize(PROJECT_DIALOG_DATA*  pDialogData, CONST SIZE*  pNe
    GetClientRect(pDialogData->hDialog, &rcClientRect);
 
    /// Stretch TreeView control over entire dialog
-   utilSetClientRect(pDialogData->hTreeView, &rcClientRect, TRUE);
+   utilSetWindowRect(pDialogData->hTreeView, &rcClientRect, TRUE);
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -797,95 +829,107 @@ VOID  onProjectDialog_Resize(PROJECT_DIALOG_DATA*  pDialogData, CONST SIZE*  pNe
 INT_PTR  dlgprocProjectDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROJECT_DIALOG_DATA*  pDialogData;      // Window data
-   POINT                 ptCursor;          // Cursor position
+   POINT                 ptCursor;         // Cursor position
    SIZE                  siWindow;         // Window size
-   BOOL                  bResult;          // Operation result
+   BOOL                  bResult = TRUE;   // Operation result
 
-   // Prepare
-   pDialogData = getProjectDialogData(hDialog);
-   bResult     = TRUE;
-
-   // Examine message
-   switch (iMessage)
+   TRY
    {
-   /// [CREATE] Create and store window data
-   case WM_INITDIALOG:
-      initProjectDialog((PROJECT_DIALOG_DATA*)lParam, hDialog);
-      break;
+      // Prepare
+      pDialogData = getProjectDialogData(hDialog);
 
-   /// [DESTROY] Cleanup the window data
-   case WM_DESTROY:
-      onProjectDialog_Destroy(pDialogData);
-      break;
+      // Examine message
+      switch (iMessage)
+      {
+      /// [CREATE] Create and store window data
+      case WM_INITDIALOG:
+         initProjectDialog((PROJECT_DIALOG_DATA*)lParam, hDialog);
+         break;
 
-   /// [COMMAND]
-   case WM_COMMAND:
-      bResult = onProjectDialog_Command(pDialogData, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
-      break;
+      /// [DESTROY] Cleanup the window data
+      case WM_DESTROY:
+         onProjectDialog_Destroy(pDialogData);
+         break;
 
-   /// [NOTIFICATION] 
-   case WM_NOTIFY:
-      bResult = onProjectDialog_Notify(pDialogData, (NMHDR*)lParam);
-      break;
+      /// [CLOSE] Block message and invoke the main window's "Show/Hide Output" command
+      case WM_CLOSE:
+         onProjectDialog_Close(pDialogData);
+         bResult = FALSE; 
+         break;
 
-   /// [CONTEXT MENU]
-   case WM_CONTEXTMENU:
-      ptCursor.x = GET_X_LPARAM(lParam);
-      ptCursor.y = GET_Y_LPARAM(lParam);
-      onProjectDialog_ContextMenu(pDialogData, (HWND)wParam, &ptCursor);
-      break;
+      /// [COMMAND]
+      case WM_COMMAND:
+         bResult = onProjectDialog_Command(pDialogData, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
+         break;
 
-   /// [MENU ITEM HOVER] Forward messages up the chain to the Main window
-   case WM_MENUSELECT:
-      sendAppMessage(AW_MAIN, WM_MENUSELECT, wParam, lParam);
-      break;
+      /// [NOTIFICATION] 
+      case WM_NOTIFY:
+         bResult = onProjectDialog_Notify(pDialogData, (NMHDR*)lParam);
+         break;
 
-   /// [MENU ITEM STATE]
-   case UM_GET_MENU_ITEM_STATE:
-      bResult = onProjectDialog_GetMenuItemState(pDialogData, wParam, (UINT*)lParam);
-      break;
+      /// [CONTEXT MENU]
+      case WM_CONTEXTMENU:
+         ptCursor.x = GET_X_LPARAM(lParam);
+         ptCursor.y = GET_Y_LPARAM(lParam);
+         onProjectDialog_ContextMenu(pDialogData, (HWND)wParam, &ptCursor);
+         break;
 
-   /// [MOVING] Prevent window from being dragged
-   case WM_MOVING:
-      bResult = onProjectDialog_Moving(pDialogData, (RECT*)lParam);
-      break;
+      /// [MENU ITEM HOVER] Forward messages up the chain to the Main window
+      case WM_MENUSELECT:
+         sendAppMessage(AW_MAIN, WM_MENUSELECT, wParam, lParam);
+         break;
 
-   /// [RECEIVE FOCUS] Focus TreeView
-   case WM_SETFOCUS:
-      SetFocus(pDialogData->hTreeView);
-      break;
+      /// [MENU ITEM STATE]
+      case UM_GET_MENU_ITEM_STATE:
+         bResult = onProjectDialog_GetMenuItemState(pDialogData, wParam, (UINT*)lParam);
+         break;
 
-   /// [NON-CLIENT PAINT]
-   case WM_NCPAINT:
-      onDialog_PaintNonClient(pDialogData->hDialog, (HRGN)wParam);
-      break;
+      /// [MOVING] Prevent window from being dragged
+      case WM_MOVING:
+         bResult = onProjectDialog_Moving(pDialogData, (RECT*)lParam);
+         break;
 
-   /// [RESIZE] Stretch Treeview
-   case WM_SIZE:
-      siWindow.cx = LOWORD(lParam);
-      siWindow.cy = HIWORD(lParam);
-      onProjectDialog_Resize(pDialogData, &siWindow);
-      break;
+      /// [RECEIVE FOCUS] Focus TreeView
+      case WM_SETFOCUS:
+         if (pDialogData)
+            SetFocus(pDialogData->hTreeView);
+         break;
 
-   /// [HELP] Invoke help
-   case WM_HELP:
-      displayHelp(TEXT("Project_Overview"));
-      break;
+      /// [NON-CLIENT PAINT]
+      case WM_NCPAINT:
+         onDialog_PaintNonClient(pDialogData->hDialog, (HRGN)wParam);
+         break;
 
-   /// [CUSTOM MENU]
-   case WM_DRAWITEM:    bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);            break;
-   case WM_MEASUREITEM: bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);  break;
+      /// [RESIZE] Stretch Treeview
+      case WM_SIZE:
+         siWindow.cx = LOWORD(lParam);
+         siWindow.cy = HIWORD(lParam);
+         onProjectDialog_Resize(pDialogData, &siWindow);
+         break;
 
-   // [UNHANDLED] 
-   default:
-      bResult = FALSE;
-      break;
+      /// [HELP] Invoke help
+      case WM_HELP:
+         displayHelp(TEXT("Project_Overview"));
+         break;
+
+      /// [CUSTOM MENU]
+      case WM_DRAWITEM:    bResult = onWindow_DrawItem((DRAWITEMSTRUCT*)lParam);            break;
+      case WM_MEASUREITEM: bResult = onWindow_MeasureItem(hDialog, (MEASUREITEMSTRUCT*)lParam);  break;
+
+      // [UNHANDLED] 
+      default:
+         bResult = FALSE;
+         break;
+      }
+
+      // [FOCUS HANDLER]
+      updateMainWindowToolBar(iMessage, wParam, lParam);
+
+      // Return return
+      return bResult;
    }
-
-   // [FOCUS HANDLER]
-   updateMainWindowToolBar(iMessage, wParam, lParam);
-
-   // Return return
-   return bResult;
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 

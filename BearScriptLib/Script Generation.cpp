@@ -13,6 +13,13 @@
 //
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
+///                                       MACROS
+/// /////////////////////////////////////////////////////////////////////////////////////////
+
+// OnException: Print ScriptFile
+#define  ON_EXCEPTION()     debugScriptFile(pScriptFile);
+
+/// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +45,6 @@ BOOL  generateCommandFromString(CONST SCRIPT_FILE*  pScriptFile, CONST TCHAR*  s
    ERROR_STACK*   pError;           // Operation error, if any
    
    // Prepare
-   TRACK_FUNCTION();
    pCommandHash = createCommandHash();
    pOutput      = createCommandFromText(szCommandText, iLineNumber);
    pError       = NULL;
@@ -85,7 +91,6 @@ BOOL  generateCommandFromString(CONST SCRIPT_FILE*  pScriptFile, CONST TCHAR*  s
    
    // Cleanup and return TRUE if there was no error
    deleteCommandHash(pCommandHash);
-   END_TRACKING();
    return (pError == NULL);
 }
 
@@ -109,7 +114,6 @@ BOOL   generateParameterFromCodeObject(CONST SCRIPT_FILE*  pScriptFile, CONST CO
    TCHAR*          szParameterText;    // Used for extracting the relevant portion of the input CodeObject
 
    // [CHECK] Ensure output and error do not exist
-   TRACK_FUNCTION();
    ASSERT(pOutput == NULL AND pError == NULL);
 
    // Prepare
@@ -180,7 +184,7 @@ BOOL   generateParameterFromCodeObject(CONST SCRIPT_FILE*  pScriptFile, CONST CO
       szParameterText = utilDuplicateSubString(pCodeObject->szText, pCodeObject->iLength, 1, pCodeObject->iLength - 2);
 
       // Reverse lookup constant in the game data
-      if (!findScriptObjectByText(szParameterText, pGameConstant))
+      if (!findScriptObjectByText(szParameterText, pGameConstant) OR pGameConstant->eGroup == ONG_OPERATOR)
          // [ERROR] "Unknown script object '%s' in the script command on line %u : '%s'"
          pError = generateDualError(HERE(IDS_GENERATION_CONSTANT_NOT_FOUND), pCodeObject->szText, iLineNumber, pCodeObject->szSource);
       
@@ -244,7 +248,6 @@ BOOL   generateParameterFromCodeObject(CONST SCRIPT_FILE*  pScriptFile, CONST CO
 
    // Cleanup and return TRUE if the PARAMETER was created successfully
    utilSafeDeleteString(szParameterText);
-   END_TRACKING();
    return (pOutput != NULL);
 }
 
@@ -270,7 +273,6 @@ BOOL  generateParameters(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pCommand, ER
    TCHAR             chPreviousChar;      // Character preceeding a minus operator in an expression
 
    // Prepare
-   TRACK_FUNCTION();
    pCodeObject     = createCodeObject(pCommand->szBuffer);
    pParameterIndex = createParameterIndex(NULL, 0);
    pReturnObject   = NULL;
@@ -433,27 +435,30 @@ BOOL  generateParameters(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pCommand, ER
    // [CHECK] Ensure generation was successful
    if (!pError)
    {
-      /// [VARIABLE ARGUMENTS] Parse commands with parameters in a non-uniform quantity and format
+      // [VARIABLE ARGUMENTS] Parse commands with parameters in a non-uniform quantity and format
       switch (pCommand->iID)
       {
-      // [SCRIPT CALL] Generate PARAMETERS from any remaining non-operator and non-word CodeObjects
+      /// [SCRIPT CALL] Parse any remaining non-operator and non-word CodeObjects
       case CMD_CALL_SCRIPT_VAR_ARGS:
          generateParametersForScriptCall(pScriptFile, pCommand, pCodeObject, pParameterIndex, pError);
          break;
 
-      // [DEFINE ARRAY] Generate PARAMETERS from any remaining non-operator CodeObjects
+      /// [DEFINE ARRAY] Parse any remaining non-operator CodeObjects
       case CMD_DEFINE_ARRAY:
          generateParametersForDefineArray(pScriptFile, pCommand, pCodeObject, pParameterIndex, pError);
          break;
          
-      // [EXPRESSION] Generate a PostFix list of PARAMETERS for output
+      /// [EXPRESSION] Generate a PostFix list of PARAMETERS
       case CMD_EXPRESSION:
          if (!validateExpressionParameters(pCommand, pError) OR !generateParametersForExpression(pCommand, pError))
-         {
             generateOutputTextFromError(pError);
-            // [ERROR] "Syntax error in the expression on line %u : '%s'"
-            //enhanceError(pError, ERROR_ID(IDS_GENERATION_EXPRESSION_INVALID), pCommand->iLineNumber, pCommand->szBuffer);
-         }
+         break;
+
+      // [DEFAULT] Ensure no variable arguments exist
+      default:
+         if (findNextParameterCodeObject(pCodeObject, TRUE)) 
+            // [ERROR] "Unexpected '%s' found while processing script command on line %u : '%s'"
+            pError = generateDualError(HERE(IDS_GENERATION_COMMAND_TEXT_UNEXPECTED), pCodeObject->szText, pCommand->iLineNumber, pCommand->szBuffer);
          break;
       }
    }
@@ -461,7 +466,6 @@ BOOL  generateParameters(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  pCommand, ER
    // Cleanup and return TRUE if there was no error
    deleteCodeObject(pCodeObject);
    deleteParameterIndex(pParameterIndex);
-   END_TRACKING();
    return (pError == NULL);
 }
 
@@ -572,7 +576,6 @@ BOOL   generateParametersForExpression(COMMAND*  pCommand, ERROR_STACK*  &pError
    //GAME_STRING*          pLookupString;         /// DEBUG: Lookup buffer
 
    // [CHECK] Ensure COMMAND is an EXPRESSION
-   TRACK_FUNCTION();
    ASSERT(isCommandType(pCommand, CT_EXPRESSION) AND isCommandID(pCommand, CMD_EXPRESSION));
 
    // Prepare
@@ -695,7 +698,6 @@ BOOL   generateParametersForExpression(COMMAND*  pCommand, ERROR_STACK*  &pError
    // Cleanup and return TRUE if there were no errors
    utilDeleteString(szOutput);
    deleteOperatorStack(pOperatorStack);
-   END_TRACKING();
    return (pError == NULL);
 }
 
@@ -770,7 +772,6 @@ BOOL  generateParametersSpecialCases(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  
    PARAMETER*  pParameter;    // Parameter being altered
 
    // Prepare
-   TRACK_FUNCTION();
    pError = NULL;
 
    // Examine command
@@ -837,7 +838,6 @@ BOOL  generateParametersSpecialCases(CONST SCRIPT_FILE*  pScriptFile, COMMAND*  
    }
 
    // Return TRUE if there were no errors
-   END_TRACKING();
    return (pError == NULL);
 }
 
@@ -857,56 +857,59 @@ BOOL  generateScript(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_PROGR
 {
    ARGUMENT*  pArgument;      // ScriptFile ARGUMENT list iterator
 
-   // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_THREAD_COMMAND();
+   __try
+   {
+      // [TRACKING]
+      CONSOLE_STAGE();
 
-   // [INFO/STAGE] "Checking syntax of commands in '%s' and their compatbility with %s"
-   VERBOSE("Generating script file '%s'", pScriptFile->szFullPath);
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_PARSING_SCRIPT_COMMANDS), identifyScriptName(pScriptFile), identifyGameVersionString(pScriptFile->eGameVersion)));
-   updateOperationProgressMaximum(pProgress, Edit_GetLineCount(hCodeEdit));
+      // [INFO/STAGE] "Checking syntax of commands in '%s' and their compatbility with %s"
+      VERBOSE("Generating script file '%s'", pScriptFile->szFullPath);
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_PARSING_SCRIPT_COMMANDS), identifyScriptName(pScriptFile), identifyGameVersionString(pScriptFile->eGameVersion)));
+      updateOperationProgressMaximum(pProgress, Edit_GetLineCount(hCodeEdit));
 
-   // Empty any previous generation data
-   initScriptFileGenerator(pScriptFile);   
+      // Empty any previous generation data
+      initScriptFileGenerator(pScriptFile);   
 
-   /// [ENUMERATE ARGUMENTS] Add each of the ScriptFile ARGUMENTS to the VariableName list
-   for (UINT iIndex = 0; findArgumentInScriptFileByIndex(pScriptFile, iIndex, pArgument); iIndex++)
-      // Append to Generator's Arguments+Variables list
-      appendArgumentNameToGenerator(pScriptFile->pGenerator, pArgument->szName);
+      /// [ENUMERATE ARGUMENTS] Add each of the ScriptFile ARGUMENTS to the VariableName list
+      for (UINT iIndex = 0; findArgumentInScriptFileByIndex(pScriptFile, iIndex, pArgument); iIndex++)
+         // Append to Generator's Arguments+Variables list
+         appendArgumentNameToGenerator(pScriptFile->pGenerator, pArgument->szName);
 
-   /// [VALIDATE PROPERTIES] Ensure necessary properties are present and valid
-   if (!validateScriptProperties(pScriptFile, pErrorQueue))
-      // [ERROR] "Compilation aborted due to missing or invalid script properties"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_PROPERTIES));
+      /// [VALIDATE PROPERTIES] Ensure necessary properties are present and valid
+      if (!validateScriptProperties(pScriptFile, pErrorQueue))
+         // [ERROR] "Compilation aborted due to missing or invalid script properties"
+         generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_PROPERTIES));
 
-   /// [PARSE/VALIDATE COMMANDS] Parse script commands into COMMAND objects and add to the SCRIPT_FILE list
-   else if (!generateScriptCommands(hCodeEdit, pScriptFile, pProgress, pErrorQueue))
-      // [ERROR] "Compilation aborted due to syntax errors in script commands"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_SYNTAX));
+      /// [PARSE/VALIDATE COMMANDS] Parse script commands into COMMAND objects and add to the SCRIPT_FILE list
+      else if (!generateScriptCommands(hCodeEdit, pScriptFile, pProgress, pErrorQueue))
+         // [ERROR] "Compilation aborted due to syntax errors in script commands"
+         generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_SYNTAX));
 
-   /// [BRANCHING LOGIC] Insert jump information into the branching commands.  (Also splits 'translated' command list into the standard and auxiliary lists)
-   else if (!generateBranchingCommandLogic(hCodeEdit, pScriptFile, pProgress, pErrorQueue))
-      // [ERROR] "Compilation aborted due to logical errors in conditional script commands"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_CONDITIONALS));
+      /// [BRANCHING LOGIC] Insert jump information into the branching commands.  (Also splits 'translated' command list into the standard and auxiliary lists)
+      else if (!generateBranchingCommandLogic(hCodeEdit, pScriptFile, pErrorQueue))
+         // [ERROR] "Compilation aborted due to logical errors in conditional script commands"
+         generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_CONDITIONALS));
 
-   /// [SUBROUTINE LOGIC] Insert jump information into label and subroutine commands
-   else if (!generateSubroutineCommandLogic(hCodeEdit, pScriptFile, pProgress, pErrorQueue))
-      // [ERROR] "Compilation aborted due to logical errors in sub-routine script commands"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_SUBROUTINES));
+      /// [SUBROUTINE LOGIC] Insert jump information into label and subroutine commands
+      else if (!generateSubroutineCommandLogic(hCodeEdit, pScriptFile, pErrorQueue))
+         // [ERROR] "Compilation aborted due to logical errors in sub-routine script commands"
+         generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_SUBROUTINES));
 
-   /// [BUILD XML TREE] Build the COMMAND lists and the SCRIPT_FILE properties into an XML tree
-   else if (!generateOutputTree(hCodeEdit, pScriptFile, pProgress, pErrorQueue))
-      // [ERROR] "Compilation aborted due to errors generating the script tree"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_XML_TREE));
+      /// [BUILD XML TREE] Build the COMMAND lists and the SCRIPT_FILE properties into an XML tree
+      else if (!generateOutputTree(hCodeEdit, pScriptFile, pProgress, pErrorQueue))
+         // [ERROR] "Compilation aborted due to errors generating the script tree"
+         generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_XML_TREE));
 
-   /// [FLATTEN] Convert the XML tree to a string
-   else if (!generateScriptFromOutputTree(pScriptFile))
-      // [ERROR] "Compilation aborted due to errors generating XML code from the script tree"
-      generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_FLATTEN_XML));
-   
-   // Return TRUE if there were no errors (warnings are acceptable)
-   END_TRACKING();
-   return (identifyErrorQueueType(pErrorQueue) != ET_ERROR);
+      /// [FLATTEN] Convert the XML tree to a string
+      else if (!generateScriptFromOutputTree(pScriptFile))
+         // [ERROR] "Compilation aborted due to errors generating XML code from the script tree"
+         generateQueuedWarning(pErrorQueue, HERE(IDS_GENERATION_ABORT_FLATTEN_XML));
+      
+      // Return TRUE if there were no errors (warnings are acceptable)
+      return (identifyErrorQueueType(pErrorQueue) != ET_ERROR);
+   }
+   PUSH_CATCH0(pErrorQueue, "");
+   return FALSE;
 }
 
 /// Function name  : generateCustomMenuMacro
@@ -1313,81 +1316,67 @@ BOOL  generateScriptMacroCommands(SCRIPT_FILE*  pScriptFile, COMMAND*  pVirtualC
 // 
 BOOL   generateScriptCommands(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE* pErrorQueue)
 {
-   TCHAR*       szLine;            // Text of the script command currently being processed
+   TCHAR*       szLine = NULL;     // Text of the script command currently being processed
    UINT         iCommandCount;     // Number of lines in the CodeEdit
-   COMMAND*     pCommand;          // COMMAND of the script command currently being processed
+   COMMAND*     pCommand = NULL;   // COMMAND of the script command currently being processed
 
-   // [VERBOSE]
-   TRACK_FUNCTION();
-
-   // Clear any previous errors and determine line count
-   CodeEdit_ClearLineErrors(hCodeEdit);
-   iCommandCount = Edit_GetLineCount(hCodeEdit);
-
-   /// Attempt to parse each script command into a new COMMAND object
-   for (UINT iLine = 0; iLine < iCommandCount; iLine++)
+   __try
    {
-      // Prepare
-      pCommand = NULL;
-      szLine   = CodeEdit_GetLineText(hCodeEdit, iLine);
+      // Clear any previous errors and determine line count
+      CodeEdit_ClearLineErrors(hCodeEdit);
+      iCommandCount = Edit_GetLineCount(hCodeEdit);
 
-      // [PROGRESS] Update progress object, if present
-      if (pProgress)
-         updateOperationProgressValue(pProgress, iLine);
-
-      /// Attempt to parse script command into a COMMAND object with PARAMETERS
-      if (generateCommandFromString(pScriptFile, szLine, iLine, pCommand, pErrorQueue))
+      /// Attempt to parse each script command into a new COMMAND object
+      for (UINT iLine = 0; iLine < iCommandCount; iLine++)
       {
-         // [CHECK] Is command a macro?
-         if (!isCommandType(pCommand, CT_VIRTUAL))
-            /// [PHYSICAL] Add directly to GENERATION INPUT
-            appendCommandToGenerator(pScriptFile->pGenerator, CL_INPUT, pCommand);
-         
-         else
-         {
-            /// [MACROS] Generate equivilent standard commands directly into GENERATION INPUT
-            if (!generateScriptMacroCommands(pScriptFile, pCommand, pErrorQueue))
-               // [FAILURE] Inform CodeEdit this line contains an error
-               setCodeEditLineError(hCodeEdit, pCommand);
+         // Prepare
+         pCommand = NULL;
+         szLine   = CodeEdit_GetLineText(hCodeEdit, iLine);
 
-            // Destroy virtual command
+         // [PROGRESS] Update progress object, if present
+         if (pProgress)
+            updateOperationProgressValue(pProgress, iLine);
+
+         /// Attempt to parse script command into a COMMAND object with PARAMETERS
+         if (generateCommandFromString(pScriptFile, szLine, iLine, pCommand, pErrorQueue))
+         {
+            // [CHECK] Is command a macro?
+            if (!isCommandType(pCommand, CT_VIRTUAL))
+               /// [PHYSICAL] Add directly to GENERATION INPUT
+               appendCommandToGenerator(pScriptFile->pGenerator, CL_INPUT, pCommand);
+            
+            else
+            {
+               /// [MACROS] Generate equivilent standard commands directly into GENERATION INPUT
+               if (!generateScriptMacroCommands(pScriptFile, pCommand, pErrorQueue))
+                  // [FAILURE] Inform CodeEdit this line contains an error
+                  setCodeEditLineError(hCodeEdit, pCommand);
+
+               // Destroy virtual command
+               deleteCommand(pCommand);
+            }
+         }
+         else
+         {  // [FAILURE] Inform CodeEdit this line contains an error
+            setCodeEditLineError(hCodeEdit, pCommand);
             deleteCommand(pCommand);
          }
-      }
-      else
-      {  // [FAILURE] Inform CodeEdit this line contains an error
-         setCodeEditLineError(hCodeEdit, pCommand);
-         deleteCommand(pCommand);
+
+         // Cleanup
+         utilDeleteString(szLine);
       }
 
-      // Cleanup
-      utilDeleteString(szLine);
+      /// [SKIP-IF] Ensure no command uses a recursive Skip-If
+      if (validateSkipIfCommands(pScriptFile, pErrorQueue))
+         /// [VAR USAGE] Ensure all variables are assigned before use
+         validateVariableUsage(pScriptFile, pErrorQueue);
+
+      // Return TRUE if there were no errors (warnings are acceptable)
+      return (identifyErrorQueueType(pErrorQueue) != ET_ERROR);
    }
-
-   // [CHECK] Ensure no command uses a recursive Skip-If
-   if (validateSkipIfCommands(pScriptFile, pErrorQueue))
-   {
-      // [CHECK] Ensure all variables are assigned before use
-      validateVariableUsage(pScriptFile, pErrorQueue);
-
-      // Recalculate command count
-      iCommandCount = getListItemCount(pScriptFile->pGenerator->pInputList);
-
-      /// [CHECK] Ensure at least one command was generated 
-      if (iCommandCount == 0)
-         // [ERROR] "Cannot compile a script with zero standard commands"
-         generateQueuedError(pErrorQueue, HERE(IDS_GENERATION_NO_COMMANDS_FOUND));
-      
-      /// [CHECK] Ensure the final command is CMD_RETURN
-      else if (!findCommandInGeneratorInput(pScriptFile->pGenerator, iCommandCount - 1, pCommand) OR !(isCommandID(pCommand, CMD_RETURN) OR isCommandID(pCommand, CMD_END) OR isCommandID(pCommand, CMD_COMMENT) 
-                OR isCommandID(pCommand, CMD_COMMAND_COMMENT) OR isCommandID(pCommand, CMD_NOP)))
-         // [ERROR] "The last command in any script must always be 'return' or 'end'"
-         generateQueuedError(pErrorQueue, HERE(IDS_GENERATION_FINAL_RETURN_MISSING));
-   }
-   
-   // Return TRUE if there were no errors (warnings are acceptable)
-   END_TRACKING();
-   return (identifyErrorQueueType(pErrorQueue) != ET_ERROR);
+   PUSH_CATCH1(pErrorQueue, "szLine=%s", szLine);
+   debugCommand(pCommand);
+   return FALSE;
 }
 
 
@@ -1591,30 +1580,34 @@ BOOL  validateExpressionParameters(CONST COMMAND*  pCommand, ERROR_STACK*  &pErr
 // 
 BOOL  validateScriptProperties(CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue)
 {
-   SCRIPT_OBJECT*  pCommandNameLookup;
-   GAME_STRING*    pCommandIDLookup;
-   ERROR_STACK*    pError;
+   SCRIPT_OBJECT*  pCommandNameLookup = NULL;
+   GAME_STRING*    pCommandIDLookup = NULL;
+   ERROR_STACK*    pError = NULL;
 
-   // Prepare
-   pError = NULL;
+   __try
+   {
+      /// [SCRIPT NAME]
+      if (!lstrlen(pScriptFile->szScriptname))
+         // [ERROR] "This script has no name"
+         pError = generateDualWarning(HERE(IDS_GENERATION_SCRIPTNAME_MISSING));
 
-   /// [SCRIPT NAME]
-   if (!lstrlen(pScriptFile->szScriptname))
-      // [ERROR] "This script has no name"
-      pError = generateDualWarning(HERE(IDS_GENERATION_SCRIPTNAME_MISSING));
+      /// [COMMAND ID] Ensure ID matches known command
+      else if (isStringNumeric(pScriptFile->szCommandID) AND !findGameStringByID(utilConvertStringToInteger(pScriptFile->szCommandID), GPI_OBJECT_COMMANDS, pCommandIDLookup))
+         // [WARNING] "This script implements an unknown ship or station command with ID %s"
+         pError = generateDualWarning(HERE(IDS_GENERATION_COMMAND_UNRECOGNISED), pScriptFile->szCommandID);
 
-   /// [COMMAND ID] Ensure ID matches known command
-   else if (isStringNumeric(pScriptFile->szCommandID) AND !findGameStringByID(utilConvertStringToInteger(pScriptFile->szCommandID), GPI_OBJECT_COMMANDS, pCommandIDLookup))
-      // [WARNING] "This script implements an unknown ship or station command with ID %s"
-      pError = generateDualWarning(HERE(IDS_GENERATION_COMMAND_UNRECOGNISED), pScriptFile->szCommandID);
-
-   /// [COMMAND NAME] Ensure name matches known command
-   else if (lstrlen(pScriptFile->szCommandID) AND !findScriptObjectByText(pScriptFile->szCommandID, pCommandNameLookup))
-      // [WARNING] "This script implements an unknown ship or station command with ID %s", 
-      pError = generateDualWarning(HERE(IDS_GENERATION_COMMAND_UNRECOGNISED), pScriptFile->szCommandID);
-   
-   // Return TRUE if successful or only warnings
-   return !isError(pError);
+      /// [COMMAND NAME] Ensure name matches known command
+      else if (lstrlen(pScriptFile->szCommandID) AND !findScriptObjectByText(pScriptFile->szCommandID, pCommandNameLookup))
+         // [WARNING] "This script implements an unknown ship or station command with ID %s", 
+         pError = generateDualWarning(HERE(IDS_GENERATION_COMMAND_UNRECOGNISED), pScriptFile->szCommandID);
+      
+      // Return TRUE if successful or only warnings
+      return !isError(pError);
+   }
+   PUSH_CATCH0(pErrorQueue, "");
+   debugGameString(pCommandIDLookup);
+   debugObjectName(pCommandNameLookup);
+   return FALSE;
 }
 
 
@@ -1633,7 +1626,6 @@ BOOL  validateSkipIfCommands(CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErr
                  *pPrevSkipIf;
 
    // Prepare
-   TRACK_FUNCTION();
    pPrevSkipIf = NULL;
    pError      = NULL;
    
@@ -1652,18 +1644,17 @@ BOOL  validateSkipIfCommands(CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErr
       /// [COMMAND]
       default:
          // [SKIP-IF] Are we within a skip-if bracket?
-         if (pPrevSkipIf AND (pCommand->eConditional == CI_SKIP_IF OR pCommand->eConditional == CI_SKIP_IF_NOT))
+         if (pPrevSkipIf AND (isIfConditional(pCommand->eConditional) OR isSkipIfConditional(pCommand->eConditional)))
             // [ERROR] "Cannot use 'skip/do if' on the command on line %u due to previous 'skip/do if' on line %u"
             pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_GENERATION_RECURSIVE_SKIP_IF), iLine + 1, pPrevSkipIf->iLineNumber + 1));
             
          // [CHECK] Store or reset 'previous skip-if' marker
-         pPrevSkipIf = (pCommand->eConditional == CI_SKIP_IF OR pCommand->eConditional == CI_SKIP_IF_NOT ? pCommand : NULL);
+         pPrevSkipIf = (isSkipIfConditional(pCommand->eConditional) ? pCommand : NULL);
          break;
       }
    }
 
    // Return TRUE if there were no errors
-   END_TRACKING();
    return (pError == NULL);
 }
 
@@ -1685,7 +1676,6 @@ BOOL  validateVariableUsage(CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErro
    AVL_TREE      *pVariablesTree;
 
    // Prepare
-   TRACK_FUNCTION();
    pVariablesTree = createVariableNameTreeByText(); 
    pError         = NULL;
 
@@ -1745,6 +1735,5 @@ BOOL  validateVariableUsage(CONST SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErro
 
    // Return TRUE if there were no errors
    deleteAVLTree(pVariablesTree);
-   END_TRACKING();
    return (pError == NULL);
 }

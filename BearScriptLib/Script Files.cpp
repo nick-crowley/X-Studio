@@ -214,6 +214,48 @@ BOOL  findArgumentInScriptFileByIndex(CONST SCRIPT_FILE*  pScriptFile, CONST UIN
    return findObjectInAVLTreeByIndex(pScriptFile->pArgumentTreeByID, iIndex, (LPARAM&)pOutput);
 }
 
+/// Function name  : generateScriptFileArgumentList
+// Description     : Flattens script file arguments tree into an ordered list
+// 
+// CONST SCRIPT_FILE*  pScriptFile   : [in] Script file
+// 
+// Return Value   : New list, you are responsible for destroying it
+// 
+LIST*  generateScriptFileArgumentList(CONST SCRIPT_FILE*  pScriptFile)
+{
+   LIST*  pList = createList(NULL);
+   ARGUMENT*  pArgument;
+
+   // Flatten tree into a list
+   for (UINT i = 0; findObjectInAVLTreeByIndex(pScriptFile->pArgumentTreeByID, i, (LPARAM&)pArgument); i++)
+      appendObjectToList(pList, (LPARAM)pArgument);
+
+   // Return list
+   return pList;
+}
+
+/// Function name  : generateScriptFileArgumentTree
+// Description     : Generates a script file tree from an ordered list of arguments
+// 
+// LIST*  pArgumentList : [in] Ordered argument list
+// 
+// Return Value   : New tree, you are responsible for destroying it
+// 
+AVL_TREE*  generateScriptFileArgumentTree(LIST*  pArgumentList)
+{
+   AVL_TREE*  pTree = createArgumentTreeByID();
+   ARGUMENT*  pArgument;
+
+   // Populate tree
+   for (UINT i = 0; findListObjectByIndex(pArgumentList, i, (LPARAM&)pArgument); i++)
+   {
+      pArgument->iID = i;
+      insertObjectIntoAVLTree(pTree, (LPARAM)pArgument);
+   }
+
+   // Return
+   return pTree;
+}
 
 /// Function name  : isArgumentInScriptFile
 // Description     : Checks whether a variable name is an argument in a ScriptFile
@@ -271,6 +313,63 @@ BOOL  removeArgumentFromScriptFileByIndex(CONST SCRIPT_FILE*  pScriptFile, CONST
    return bResult;
 }
 
+
+/// Function name  : replaceScriptFileArguments
+// Description     : Replaces the arguments tree of a script file
+// 
+// SCRIPT_FILE*  pScriptFile   : [in] Script file
+// AVL_TREE*  pNewArguments   : [in] New tree
+// 
+VOID  replaceScriptFileArguments(SCRIPT_FILE*  pScriptFile, AVL_TREE*  pNewArguments)
+{
+   // Delete tree but not arguments
+   pScriptFile->pArgumentTreeByID->pfnDeleteNode = NULL;
+   deleteAVLTree(pScriptFile->pArgumentTreeByID);
+
+   // Replace + re-index
+   pScriptFile->pArgumentTreeByID = pNewArguments;
+   performAVLTreeIndexing(pScriptFile->pArgumentTreeByID);
+}
+
+
+/// Function name  : findArgumentInScriptFileByIndex
+// Description     : Retrieve an ARGUMENT from a ScriptFile's Argument list by it's index
+// 
+// CONST SCRIPT_FILE*  pScriptFile : [in]  ScriptFile to search
+// CONST UINT          iIndex      : [in]  Zero based index of the argument to retrieve
+// ARGUMENT*          &pOutput     : [out] Argument if found, otherwise NULL
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BearScriptAPI
+BOOL  reorderScriptFileArgument(SCRIPT_FILE*  pScriptFile, CONST UINT  iIndex, CONST BOOL  iOffset)
+{
+   LIST_ITEM* pItem;
+   LIST*      pList;
+
+   // Validate index
+   if (iOffset == 1 && (iIndex >= getScriptFileArgumentCount(pScriptFile)-1))
+      return FALSE;
+
+   // Validate index
+   else if (iOffset == -1 && (iIndex == 0 || iIndex >= getScriptFileArgumentCount(pScriptFile)))
+      return FALSE;
+
+   // Perform re-ordering
+   pList = generateScriptFileArgumentList(pScriptFile);
+
+   // Remove/Re-insert object at different index
+   removeItemFromListByIndex(pList, iIndex, pItem);
+   insertObjectIntoListByIndex(pList, iIndex + iOffset, pItem->pData);
+
+   // Re-create arguments tree
+   replaceScriptFileArguments(pScriptFile, generateScriptFileArgumentTree(pList));
+
+   // Cleanup
+   deleteListItem(pList, pItem, FALSE);
+   deleteList(pList);
+   return TRUE;
+}
 
 /// Function name  : setScriptNameFromPath
 // Description     : Updates the ScriptName to match the file path

@@ -7,6 +7,12 @@
 
 #include "stdafx.h"
 
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                     MACROS
+/// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// OnException: Print to console
+#define ON_EXCEPTION()     printException(pException)
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION  /  DESTRUCTION
@@ -321,93 +327,96 @@ VOID  drawCustomComboBoxItem(DRAWITEMSTRUCT*  pDrawInfo, CONST CUSTOM_COMBO_ITEM
                      rcIconRect;         // Icon drawing rectangle
    BOOL              bEditItem;          // Whether the item is being drawn in the combo's edit control
    UINT              iIndentation;
+   UINT              iDebugState = 0;
 
    /// Checkpoints added for linux user having access violations throughout this function
-
-   // [CHECK] Ensure OwnerDraw data is for a ComboBox
-   TRACK_FUNCTION();
-   ASSERT(pDrawInfo->CtlType == ODT_COMBOBOX);
-
-   // [VERBOSE]
-   //VERBOSE("drawCustomComboBoxItem: ID=%d, Index=%d, Action=%d", pDrawInfo->CtlID, pDrawInfo->itemID, pDrawInfo->itemAction);
-
-   // Prepare
-   bEditItem        = (pDrawInfo->itemState INCLUDES ODS_COMBOBOXEDIT ? TRUE : FALSE);
-   eIconSize        = (IMAGE_TREE_SIZE)ComboBox_GetItemHeightEx(pDrawInfo->hwndItem, (bEditItem ? -1 : NULL));
-   pPrevState       = utilCreateDeviceContextState(pDrawInfo->hDC);
-   rcBackgroundRect = pDrawInfo->rcItem;
-   iIndentation     = (bEditItem ? 0 : (eIconSize * pItemData->iIndent));
-
-   // [VERBOSE]
-   //VERBOSE("drawCustomComboBoxItem: Check point 1");
-
-   // Calculate icon and text rectangles
-   SetRect(&rcIconRect, rcBackgroundRect.left + GetSystemMetrics(SM_CXEDGE), rcBackgroundRect.top, rcBackgroundRect.right,                             rcBackgroundRect.bottom);
-   SetRect(&rcTextRect, rcIconRect.left + GetSystemMetrics(SM_CXEDGE) * 2,   rcIconRect.top,       rcIconRect.right - GetSystemMetrics(SM_CXEDGE) * 2, rcIconRect.bottom);
-
-   // [ICON/INDENTATION] Shift text to the right
-   if (pItemData->szIconID OR pItemData->hImageList)
-      rcTextRect.left += eIconSize + iIndentation;
-
-   // Prepare
-   utilSetDeviceContextBackgroundMode(pPrevState, TRANSPARENT);
-   
-   // [CHECK] Is the item selected?
-   if (pDrawInfo->itemState INCLUDES ODS_SELECTED)
+   TRY
    {
-      //VERBOSE("drawCustomComboBoxItem: Check point 2a");
-      /// [HOVER] Draw a light blue hover rectangle for selected items
-      drawCustomSelectionRectangle(pDrawInfo->hDC, &rcBackgroundRect);
+      // [CHECK] Ensure OwnerDraw data is for a ComboBox
+      ASSERT(pDrawInfo->CtlType == ODT_COMBOBOX);
+
+      // [VERBOSE]
+      //VERBOSE("drawCustomComboBoxItem: ID=%d, Index=%d, Action=%d", pDrawInfo->CtlID, pDrawInfo->itemID, pDrawInfo->itemAction);
+      iDebugState = 1;
+
+      // Prepare
+      bEditItem        = (pDrawInfo->itemState INCLUDES ODS_COMBOBOXEDIT ? TRUE : FALSE);
+      eIconSize        = (IMAGE_TREE_SIZE)ComboBox_GetItemHeightEx(pDrawInfo->hwndItem, (bEditItem ? -1 : NULL));
+      pPrevState       = utilCreateDeviceContextState(pDrawInfo->hDC);
+      rcBackgroundRect = pDrawInfo->rcItem;
+      iIndentation     = (bEditItem ? 0 : (eIconSize * pItemData->iIndent));
+
+      // [DEBUG]
+      iDebugState = 2;
+
+      // Calculate icon and text rectangles
+      SetRect(&rcIconRect, rcBackgroundRect.left + GetSystemMetrics(SM_CXEDGE), rcBackgroundRect.top, rcBackgroundRect.right,                             rcBackgroundRect.bottom);
+      SetRect(&rcTextRect, rcIconRect.left + GetSystemMetrics(SM_CXEDGE) * 2,   rcIconRect.top,       rcIconRect.right - GetSystemMetrics(SM_CXEDGE) * 2, rcIconRect.bottom);
+
+      // [ICON/INDENTATION] Shift text to the right
+      if (pItemData->szIconID OR pItemData->hImageList)
+         rcTextRect.left += eIconSize + iIndentation;
+
+      // Prepare
+      utilSetDeviceContextBackgroundMode(pPrevState, TRANSPARENT);
+      
+      // [CHECK] Is the item selected?
+      if (pDrawInfo->itemState INCLUDES ODS_SELECTED)
+      {
+         /// [HOVER] Draw a light blue hover rectangle for selected items
+         iDebugState = 3;
+         drawCustomSelectionRectangle(pDrawInfo->hDC, &rcBackgroundRect);
+      }
+      else
+      {
+         // [DEFAULT] Draw a white background
+         iDebugState = 4;
+         utilFillSysColourRect(pDrawInfo->hDC, &pDrawInfo->rcItem, COLOR_WINDOW);   
+      }
+
+      /// [ICON] Draw icon (in grey if disabled)
+      if (pItemData->szIconID)
+      {
+         iDebugState = 5;
+         drawImageTreeIcon(eIconSize, pItemData->szIconID, pDrawInfo->hDC, rcIconRect.left + iIndentation, rcIconRect.top, pDrawInfo->itemState INCLUDES ODS_DISABLED ? IS_DISABLED : IS_NORMAL);
+      }
+      /// [IMAGELIST] Draw icon (in grey if disabled
+      else if (pItemData->hImageList)
+      {
+         iDebugState = 6;
+         drawIcon(pItemData->hImageList, pItemData->iIconIndex, pDrawInfo->hDC, rcIconRect.left + iIndentation, rcIconRect.top, pDrawInfo->itemState INCLUDES ODS_DISABLED ? IS_DISABLED : IS_NORMAL);
+      }
+
+      // [DEBUG]
+      iDebugState = 7;
+
+      // Set appropriate colour
+      if ((pDrawInfo->itemState & ODS_DISABLED) OR pItemData->clColour == clNullColour)
+         clTextColour = getThemeSysColour(TEXT("Window"), pDrawInfo->itemState & ODS_DISABLED ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
+      else
+         clTextColour = pItemData->clColour;
+
+      /// [TEXT] Draw main text on the left (in grey if disabled)
+      utilSetDeviceContextFont(pPrevState, pItemData->hFont, clTextColour);
+      DrawText(pDrawInfo->hDC, pItemData->szMainText, lstrlen(pItemData->szMainText), &rcTextRect, DT_LEFT WITH DT_VCENTER WITH DT_SINGLELINE);
+
+      // [DEBUG]
+      iDebugState = 8;
+
+      /// [AUXILIARY] Draw auxiliary text (except when being displayed in the edit)
+      if (pItemData->szAuxText AND !bEditItem)
+      {
+         SetTextColor(pDrawInfo->hDC, GetSysColor(COLOR_GRAYTEXT));
+         DrawText(pDrawInfo->hDC, pItemData->szAuxText, lstrlen(pItemData->szAuxText), &rcTextRect, DT_RIGHT WITH DT_VCENTER WITH DT_SINGLELINE);
+      }
+
+      // [DEBUG]
+      iDebugState = 9;
+
+      // Cleanup
+      utilDeleteDeviceContextState(pPrevState);
    }
-   else
-   {
-      //VERBOSE("drawCustomComboBoxItem: Check point 2b");
-      // [DEFAULT] Draw a white background
-      utilFillSysColourRect(pDrawInfo->hDC, &pDrawInfo->rcItem, COLOR_WINDOW);   
-   }
-
-   /// [ICON] Draw icon (in grey if disabled)
-   if (pItemData->szIconID)
-   {
-      //VERBOSE("drawCustomComboBoxItem: Check point 3a");
-      drawImageTreeIcon(eIconSize, pItemData->szIconID, pDrawInfo->hDC, rcIconRect.left + iIndentation, rcIconRect.top, pDrawInfo->itemState INCLUDES ODS_DISABLED ? IS_DISABLED : IS_NORMAL);
-   }
-   /// [IMAGELIST] Draw icon (in grey if disabled
-   else if (pItemData->hImageList)
-   {
-      //VERBOSE("drawCustomComboBoxItem: Check point 3b");
-      drawIcon(pItemData->hImageList, pItemData->iIconIndex, pDrawInfo->hDC, rcIconRect.left + iIndentation, rcIconRect.top, pDrawInfo->itemState INCLUDES ODS_DISABLED ? IS_DISABLED : IS_NORMAL);
-   }
-
-   // [VERBOSE]
-   //VERBOSE("drawCustomComboBoxItem: Check point 4");
-
-   // Set appropriate colour
-   if ((pDrawInfo->itemState & ODS_DISABLED) OR pItemData->clColour == clNullColour)
-      clTextColour = getThemeSysColour(TEXT("Window"), pDrawInfo->itemState & ODS_DISABLED ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
-   else
-      clTextColour = pItemData->clColour;
-
-   /// [TEXT] Draw main text on the left (in grey if disabled)
-   utilSetDeviceContextFont(pPrevState, pItemData->hFont, clTextColour);
-   DrawText(pDrawInfo->hDC, pItemData->szMainText, lstrlen(pItemData->szMainText), &rcTextRect, DT_LEFT WITH DT_VCENTER WITH DT_SINGLELINE);
-
-   // [VERBOSE]
-   //VERBOSE("drawCustomComboBoxItem: Check point 5");
-
-   /// [AUXILIARY] Draw auxiliary text (except when being displayed in the edit)
-   if (pItemData->szAuxText AND !bEditItem)
-   {
-      SetTextColor(pDrawInfo->hDC, GetSysColor(COLOR_GRAYTEXT));
-      DrawText(pDrawInfo->hDC, pItemData->szAuxText, lstrlen(pItemData->szAuxText), &rcTextRect, DT_RIGHT WITH DT_VCENTER WITH DT_SINGLELINE);
-   }
-
-   // [VERBOSE]
-   //VERBOSE("drawCustomComboBoxItem: Check point 6");
-
-   // Cleanup
-   utilDeleteDeviceContextState(pPrevState);
-   END_TRACKING();
+   CATCH1("iDebugState=%d", iDebugState);
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -421,22 +430,18 @@ VOID  drawCustomComboBoxItem(DRAWITEMSTRUCT*  pDrawInfo, CONST CUSTOM_COMBO_ITEM
 // 
 BOOL  onOwnerDrawCustomComboBox(DRAWITEMSTRUCT*  pDrawInfo)
 {
-   BOOL   bResult;
+   BOOL   bResult = FALSE;
 
-   // Prepare
-   TRACK_FUNCTION();
-   bResult = FALSE;
-
-   // [CHECK] Abort if item data isn't provided (not sure why this happens anymore, thought it was when drawing in the edit)
-   if (pDrawInfo->itemData != CB_ERR AND pDrawInfo->itemData != NULL)
+   TRY
    {
+   // [CHECK] Abort if item data isn't provided (not sure why this happens anymore, thought it was when drawing in the edit)
+   if (bResult = (pDrawInfo->itemData AND pDrawInfo->itemData != CB_ERR))
       /// Draw item
       drawCustomComboBoxItem(pDrawInfo, (CUSTOM_COMBO_ITEM*)pDrawInfo->itemData);
-      bResult = TRUE;
    }
-
+   CATCH0("");
+   
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -468,13 +473,18 @@ BOOL  onWindow_CompareComboBoxItems(const UINT  iControl, COMPAREITEMSTRUCT*  pD
 ControlsAPI 
 BOOL  onWindow_MeasureComboBox(MEASUREITEMSTRUCT*  pMeasureData, CONST IMAGE_TREE_SIZE  eControlSize, CONST IMAGE_TREE_SIZE  eDropDownSize)
 {
-   // [CHECK] Is control a ComboBox?
-   if (pMeasureData->CtlType == ODT_COMBOBOX)
-      // Display a small ComboBox with medium Icons
-      pMeasureData->itemHeight = (pMeasureData->itemID == -1 ? eControlSize : eDropDownSize);
-    
-   // Return TRUE if handled
-   return (pMeasureData->CtlType == ODT_COMBOBOX);
+   TRY
+   {
+      // [CHECK] Is control a ComboBox?
+      if (pMeasureData->CtlType == ODT_COMBOBOX)
+         // Display a small ComboBox with medium Icons
+         pMeasureData->itemHeight = (pMeasureData->itemID == -1 ? eControlSize : eDropDownSize);
+       
+      // Return TRUE if handled
+      return (pMeasureData->CtlType == ODT_COMBOBOX);
+   }
+   CATCH0("");
+   return FALSE;
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////

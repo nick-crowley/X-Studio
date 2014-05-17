@@ -31,6 +31,9 @@ CONST TCHAR*  szVariableTypes[2]  = { TEXT("Local"), TEXT("Global") };
 // VariableDependencies Usages
 CONST TCHAR*  szVariableUsages[4] = { NULL, TEXT("Get"),   TEXT("Set"),   TEXT("Get/Set") };
 
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
+
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +46,7 @@ CONST TCHAR*  szVariableUsages[4] = { NULL, TEXT("Get"),   TEXT("Set"),   TEXT("
 VOID   updateScriptDependenciesPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 {
    // [VERBOSE]
-   VERBOSE_LIB_COMMAND();
+   //CONSOLE("Updating 'Dependencies' page tree/list");
 
    // Delete existing dependencies tree (if any)
    if (pSheetData->pScriptDependecies)
@@ -67,7 +70,7 @@ VOID   updateScriptStringsPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage)
    PROJECT_DOCUMENT*  pProject;
 
    // [VERBOSE]
-   VERBOSE_LIB_COMMAND();
+   //CONSOLE("Updating 'Strings' page tree/list");
 
    // Delete existing GameStrings tree (if any)
    if (pSheetData->pStringDependencies)
@@ -92,7 +95,7 @@ VOID   updateScriptStringsPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 VOID   updateScriptVariablesPage_List(PROPERTIES_DATA*  pSheetData, HWND  hPage)
 {
    // [VERBOSE]
-   VERBOSE_LIB_COMMAND();
+   //CONSOLE("Updating 'Variables' page tree/list");
 
    // Delete existing dependencies tree (if any)
    if (pSheetData->pVariableDependencies)
@@ -124,16 +127,17 @@ BOOL  onDependenciesPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, C
    CUSTOM_MENU*  pCustomMenu;    // Custom Popup menu
    UINT          iSubMenuID;     // Popup submenu ID
 
-   // [VERBOSE]
-   VERBOSE_LIB_COMMAND();
+   // [TRACK]
+   CONSOLE_ACTION();
 
    // Determine submenu
    switch (GetWindowID(hCtrl))
    {
    /// [LISTVIEW] Display the appropriate popup menu
-   case IDC_DEPENDENCIES_LIST:   iSubMenuID = IDM_DEPENDENCIES_POPUP;  break;
-   case IDC_VARIABLES_LIST:      iSubMenuID = IDM_VARIABLES_POPUP;     break;
-   case IDC_STRINGS_LIST:        iSubMenuID = IDM_STRINGS_POPUP;       break;
+   case IDC_DEPENDENCIES_LIST:   iSubMenuID = IDM_DEPENDENCIES_POPUP;  CONSOLE("Displaying dependencies menu");  break;
+   case IDC_VARIABLES_LIST:      iSubMenuID = IDM_VARIABLES_POPUP;     CONSOLE("Displaying variables menu");     break;
+   case IDC_STRINGS_LIST:        iSubMenuID = IDM_STRINGS_POPUP;       CONSOLE("Displaying strings menu");       break;
+   default:                      return FALSE;
    }
 
    // Create Dependencies Custom Popup menu
@@ -161,76 +165,50 @@ BOOL  onDependenciesPage_ContextMenu(SCRIPT_DOCUMENT*  pDocument, HWND  hCtrl, C
 VOID   onDependenciesPage_LoadSelectedScripts(HWND  hPage, SCRIPT_FILE*  pScriptFile, AVL_TREE*  pDependenciesTree)
 {
    SCRIPT_DEPENDENCY*   pDependency;      // ScriptDependency associated with the selected item
-   ERROR_QUEUE*         pMessageQueue;    // Contains the error messages for any external scripts that do not exist
-   TCHAR*               szFullPath;       // Full filepath of the selected script
+   LOADING_OPTIONS      oOptions;         // Used for highlighting caller
+   HWND                 hListView;        // Dependencies ListView
+   TCHAR*               szFolder;         // Folder of input script
    LIST*                pDependencyList;  // List of selected ScriptDepdencies
-   INT                  iSelectedItem;    // Index of the selected item
+   INT                  iSelected;        // Index of the selected item
             
    /// [CHECK] Are any dependencies selected?
-   if (SendDlgItemMessage(hPage, IDC_DEPENDENCIES_LIST, LVM_GETSELECTEDCOUNT, NULL, NULL))
+   if (ListView_GetSelectedCount(hListView = GetDlgItem(hPage, IDC_DEPENDENCIES_LIST)) == 0)
+      return;
+   
+   // [VERBOSE]
+   CONSOLE_COMMAND();
+
+   // Prepare
+   utilZeroObject(&oOptions, LOADING_OPTIONS);
+   pDependencyList = createList(NULL);
+   
+   /// Extract ScriptDependencies for selected scripts
+   for (iSelected = ListView_GetSelected(hListView); findObjectInAVLTreeByIndex(pDependenciesTree, iSelected, (LPARAM&)pDependency); iSelected = ListView_GetNextItem(hListView, iSelected, LVNI_SELECTED))
    {
-      // [VERBOSE]
-      VERBOSE_LIB_COMMAND();
-
-      // Prepare
-      pDependencyList = createList(NULL);
-      pMessageQueue   = createErrorQueue();
-      iSelectedItem   = -1;
-      
-      /// Lookup the ScriptDependency for each selected item, before ListView is erased
-      while ((iSelectedItem = SendDlgItemMessage(hPage, IDC_DEPENDENCIES_LIST, LVM_GETNEXTITEM, iSelectedItem, LVNI_SELECTED)) != -1)
-      {
-         // Lookup associated ScriptDependency
-         findObjectInAVLTreeByIndex(pDependenciesTree, iSelectedItem, (LPARAM&)pDependency);
-         ASSERT(pDependency);
-
-         // Store in list
-         appendObjectToList(pDependencyList, (LPARAM)pDependency);
-      }
-
-      /// Attempt to open each selected item  (Erases ListView contents)
-      for (LIST_ITEM*  pIterator = getListHead(pDependencyList); pIterator; pIterator = pIterator->pNext)
-      {
-         // Prepare
-         pDependency = extractListItemPointer(pIterator, SCRIPT_DEPENDENCY);
-
-         // Generate full filepath with .pck extension
-         szFullPath = utilRenameFilePath(pScriptFile->szFullPath, pDependency->szScriptName);
-         StringCchCat(szFullPath, MAX_PATH, TEXT(".pck"));
-
-         /// Attempt to open .pck / .xml version of script
-         if (!commandLoadScriptDependency(getMainWindowData(), szFullPath, !pIterator->pNext, NULL))  // Activate the final document
-            // [ERROR] "The script dependency '%s' could not be found in the folder containing the script '%s'"
-            pushErrorQueue(pMessageQueue, generateDualError(HERE(IDS_GENERAL_DEPENDENCY_NOT_FOUND), pDependency->szScriptName, pScriptFile->szScriptname));
-
-         // Cleanup
-         utilDeleteString(szFullPath);
-      }
-
-      /// Display all missing script dependencies in an error queue dialog
-      if (hasErrors(pMessageQueue))
-         displayErrorQueueDialog(NULL, pMessageQueue, TEXT("Missing Script Dependencies"));
-
-      // Cleanup
-      deleteList(pDependencyList);
-      deleteErrorQueue(pMessageQueue);
+      appendObjectToList(pDependencyList, (LPARAM)pDependency);
+      debugScriptDependency(pDependency);
    }
-}
 
+   // Clear selection
+   ListView_SetItemState(hListView, -1, NULL, LVIS_SELECTED);
+   szFolder = utilDuplicateFolderPath(pScriptFile->szFullPath);
 
-/// Function name  : onDependenciesPage_OperationComplete
-// Description     : Displays the results of the script-call search operation
-// 
-// PROPERTIES_DATA*  pSheetData   : [in] Properties sheet dialog data
-// AVL_TREE*         pCallersTree : [in] ScriptDependency tree
-// 
-VOID  onDependenciesPage_OperationComplete(PROPERTIES_DATA*  pSheetData, AVL_TREE*  pCallersTree)
-{
-   // [DEBUG]
-   CONSOLE("onDependenciesPage_OperationComplete: Tree count = %d", getTreeNodeCount(pCallersTree));
+   /// Attempt to open each selected script
+   for (LIST_ITEM*  pIterator = getListHead(pDependencyList); pDependency = extractListItemPointer(pIterator, SCRIPT_DEPENDENCY); pIterator = pIterator->pNext)
+   {
+      //// Highlight Scriptcall on load
+      //oOptions.bHighlight = TRUE;
+      //StringCchCopy(oOptions.szSearchText, 256, pScriptFile->szScriptname);
 
-   // Display dialog
-   displayScriptCallDialog(pSheetData->hSheetDlg, pCallersTree);
+      /// Attempt to open .pck / .xml version of script
+      if (!commandLoadScriptDependency(getMainWindowData(), szFolder, pDependency, !pIterator->pNext, &oOptions))  // Activate the final document
+         // [ERROR] "The script dependency '%s' could not be found in '%s'"
+         displayMessageDialogf(hPage, IDS_GENERAL_DEPENDENCY_NOT_FOUND, MDF_OK WITH MDF_ERROR, pDependency->szScriptName, szFolder);
+   }
+
+   // Cleanup
+   deleteList(pDependencyList);
+   utilDeleteString(szFolder);
 }
 
 
@@ -240,22 +218,27 @@ VOID  onDependenciesPage_OperationComplete(PROPERTIES_DATA*  pSheetData, AVL_TRE
 // PROPERTIES_DATA*  pSheetData   : [in] Properties sheet dialog data
 // HWND              hPage        : [in] Window handle of the dependencies page
 // 
-VOID  onDependenciesPage_PerformSearch(PROPERTIES_DATA*  pSheetData, HWND  hPage)
+VOID  onDependenciesPage_PerformSearch(SCRIPT_DOCUMENT*  pDocument, HWND  hPage)
 {
-   SCRIPTCALL_OPERATION*  pOperationData;
+   SCRIPT_CONTENT     xContent;
+   TCHAR*             szFolder;
 
-   // [QUESTION] "Would you like to search for all external scripts that depend upon '%s'?"
-   if (displayMessageDialogf(NULL, IDS_GENERAL_CONFIRM_DEPENDENCY_SEARCH, TEXT("External Dependency Search"), MDF_YESNO WITH MDF_QUESTION, identifyScriptName(pSheetData->pScriptDocument->pScriptFile)) == IDYES)
+   // Get script folder
+   szFolder = utilDuplicateFolderPath(getDocumentPath(pDocument));
+
+   // [QUESTION] "Would you like to search '%s' for all scripts that depend upon '%s'?"
+   if (displayMessageDialogf(NULL, IDS_GENERAL_CONFIRM_DEPENDENCY_SEARCH, MDF_YESNO WITH MDF_QUESTION, szFolder, identifyScriptName(pDocument->pScriptFile)) == IDYES)
    {
       // [VERBOSE]
-      VERBOSE_LIB_COMMAND();
-
-      // [SUCCESS] Create operation data
-      pOperationData = createScriptCallOperationData(identifyScriptName(pSheetData->pScriptDocument->pScriptFile));
-
+      CONSOLE_COMMAND();
+      
       /// Launch search thread
-      launchOperation(getMainWindowData(), pOperationData);
+      xContent.asScript = identifyScriptName(pDocument->pScriptFile);
+      launchOperation(getMainWindowData(), createScriptOperationData(CT_SCRIPT, szFolder, xContent));
    }
+
+   // Cleanup
+   utilDeleteString(szFolder);
 }
 
 
@@ -301,10 +284,8 @@ VOID   onDependenciesPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage,
       }
    }
    // [FAILED] Error!
-   else if (oOutput.mask INCLUDES LVIF_TEXT)
-      StringCchPrintf(oOutput.pszText, oOutput.cchTextMax, TEXT("Error: Item %d Not found"), oOutput.iItem);
-   else
-      oOutput.pszText = TEXT("ERROR: Item not found");
+   else 
+      setMissingListViewItem(&oOutput, getTreeNodeCount(pSheetData->pScriptDependecies));
 }
 
 
@@ -368,10 +349,8 @@ VOID   onStringsPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLV
       }
    }
    // [FAILED] Error!
-   else if (oOutput.mask INCLUDES LVIF_TEXT)
-      StringCchPrintf(oOutput.pszText, oOutput.cchTextMax, TEXT("Error: Item %d Not found"), oOutput.iItem);
-   else
-      oOutput.pszText = TEXT("ERROR: Item not found");
+   else 
+      setMissingListViewItem(&oOutput, getTreeNodeCount(pSheetData->pStringDependencies));
 }
 
 
@@ -422,14 +401,12 @@ VOID   onVariablesPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NM
       }
    }
    else
-      StringCchCopy(oOutput.pszText, oOutput.cchTextMax, TEXT("Error: Item Not found"));
+      setMissingListViewItem(&oOutput, getTreeNodeCount(pSheetData->pVariableDependencies));
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       DIALOG PROCEDURE
 /// /////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 /// Function name  : dlgprocDependenciesPage
 // Description     : Window procedure for the 'ScriptDependencies' properties dialog page
@@ -438,72 +415,84 @@ VOID   onVariablesPage_RequestData(PROPERTIES_DATA*  pSheetData, HWND  hPage, NM
 INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROPERTIES_DATA*  pDialogData;
-   NMHDR*            pNotifyHeader;
+   NMHDR*            pMessage;
 
-   // Get properties dialog data
-   pDialogData = getPropertiesDialogData(hPage);
-
-   switch (iMessage)
+   TRY
    {
-   /// [COMMAND PROCESSING]
-   case WM_COMMAND:
-      switch (LOWORD(wParam))
+      // Get properties dialog data
+      pDialogData = getPropertiesDialogData(hPage);
+
+      switch (iMessage)
       {
-      // [LOAD SELECTED SCRIPTS]
-      case IDM_DEPENDENCIES_LOAD:
-         onDependenciesPage_LoadSelectedScripts(hPage, pDialogData->pScriptDocument->pScriptFile, pDialogData->pScriptDependecies);
-         return TRUE;
-
-      // [REFRESH SCRIPT DEPENDENCIES]
-      case IDM_DEPENDENCIES_REFRESH:      // menu item
-      case IDC_REFRESH_DEPENDENCIES:      // button
-         updateScriptDependenciesPage_List(pDialogData, hPage);
-         return TRUE;
-
-      // [SEARCH SCRIPT-CALLS]
-      case IDC_SEARCH_DEPENDENCIES:
-         onDependenciesPage_PerformSearch(pDialogData, hPage);
-         return TRUE;
-      }
-      break;
-
-   /// [CONTEXT MENU]
-   case WM_CONTEXTMENU:
-      return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
-
-   /// [NOTIFICATION] - Handle ListView notifications
-   case WM_NOTIFY:
-      pNotifyHeader = (NMHDR*)lParam;
-
-      // Examine notification
-      switch (pNotifyHeader->code)
-      {
-      // [REQUEST DEPENDENCY DATA] Supply ScriptDependency/VariableDependency data
-      case LVN_GETDISPINFO:
-         onDependenciesPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
-         return TRUE;
-
-      // [CUSTOM DRAW] Draw Refresh button and ListView
-      case NM_CUSTOMDRAW:
-         switch (pNotifyHeader->idFrom)
+      /// [COMMAND PROCESSING]
+      case WM_COMMAND:
+         switch (LOWORD(wParam))
          {
-         case IDC_REFRESH_DEPENDENCIES:
-            onCustomDrawButton(hPage, pNotifyHeader, ITS_MEDIUM, TEXT("REFRESH_ICON"), TRUE); 
+         // [LOAD SELECTED SCRIPTS]
+         case IDM_DEPENDENCIES_LOAD:
+            CONSOLE_MENU(IDM_DEPENDENCIES_LOAD);
+            onDependenciesPage_LoadSelectedScripts(hPage, pDialogData->pScriptDocument->pScriptFile, pDialogData->pScriptDependecies);
             return TRUE;
 
-         case IDC_SEARCH_DEPENDENCIES:
-            onCustomDrawButton(hPage, pNotifyHeader, ITS_MEDIUM, TEXT("SCRIPT_CALLER_ICON"), TRUE); 
+         // [REFRESH SCRIPT DEPENDENCIES]
+         case IDM_DEPENDENCIES_REFRESH:      // menu item
+         case IDC_REFRESH_DEPENDENCIES:      // button
+            CONSOLE_MENU(IDM_DEPENDENCIES_REFRESH);
+            updateScriptDependenciesPage_List(pDialogData, hPage);
             return TRUE;
-         
-         case IDC_DEPENDENCIES_LIST:
-            onCustomListViewNotify(hPage, TRUE, IDC_DEPENDENCIES_LIST, pNotifyHeader);
+
+         // [SEARCH SCRIPT-CALLS]
+         case IDC_SEARCH_DEPENDENCIES:
+            CONSOLE_MENU(IDC_SEARCH_DEPENDENCIES);
+            onDependenciesPage_PerformSearch(pDialogData->pScriptDocument, hPage);
             return TRUE;
          }
          break;
-      }
-      break;
 
+      /// [CONTEXT MENU]
+      case WM_CONTEXTMENU:
+         return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+
+      /// [NOTIFICATION] - Handle ListView notifications
+      case WM_NOTIFY:
+         pMessage = (NMHDR*)lParam;
+
+         // Examine notification
+         switch (pMessage->code)
+         {
+         // [REQUEST DEPENDENCY DATA] Supply ScriptDependency/VariableDependency data
+         case LVN_GETDISPINFO:
+            onDependenciesPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
+            return TRUE;
+
+         // [CUSTOM DRAW] Draw Refresh button and ListView
+         case NM_CUSTOMDRAW:
+            switch (pMessage->idFrom)
+            {
+            case IDC_REFRESH_DEPENDENCIES:
+               onCustomDrawButton(hPage, pMessage, ITS_MEDIUM, TEXT("REFRESH_ICON"), TRUE); 
+               return TRUE;
+
+            case IDC_SEARCH_DEPENDENCIES:
+               onCustomDrawButton(hPage, pMessage, ITS_MEDIUM, TEXT("SCRIPT_CALLER_ICON"), TRUE); 
+               return TRUE;
+            
+            case IDC_DEPENDENCIES_LIST:
+               SetWindowLong(hPage, DWL_MSGRESULT, onCustomDrawListView(hPage, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage));
+               return TRUE;
+            }
+            break;
+         }
+         break;
+
+      /// [THEME CHANGED] Update ListView background colour
+      case WM_THEMECHANGED:
+         ListView_SetBkColor(GetControl(hPage, IDC_DEPENDENCIES_LIST), getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
+         return TRUE;
+      }
    }
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
 
    // Pass to base proc
    return dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_SCRIPT_DEPENDENCIES);
@@ -518,60 +507,72 @@ INT_PTR   dlgprocDependenciesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, L
 INT_PTR   dlgprocStringsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROPERTIES_DATA*  pDialogData;
-   NMHDR*            pNotifyHeader;
+   NMHDR*            pMessage;
 
-   // Get properties dialog data
-   pDialogData = getPropertiesDialogData(hPage);
-
-   // Examine message
-   switch (iMessage)
+   TRY
    {
-   /// [COMMAND PROCESSING]
-   case WM_COMMAND:
-      switch (LOWORD(wParam))
+      // Get properties dialog data
+      pDialogData = getPropertiesDialogData(hPage);
+
+      // Examine message
+      switch (iMessage)
       {
-      // [REFRESH VARIABLE DEPENDENCIES]
-      case IDM_STRINGS_REFRESH:      // menu item
-      case IDC_REFRESH_STRINGS:      // button
-         updateScriptStringsPage_List(pDialogData, hPage);
-         return TRUE;
-      }
-      break;
-
-   /// [CONTEXT MENU]
-   case WM_CONTEXTMENU:
-      return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
-
-   /// [NOTIFICATION] - Handle ListView notifications
-   case WM_NOTIFY:
-      // Prepare
-      pNotifyHeader = (NMHDR*)lParam;
-
-      // Examine notification
-      switch (pNotifyHeader->code)
-      {
-      // [REQUEST DEPENDENCY DATA] Supply GameString data
-      case LVN_GETDISPINFO:
-         onStringsPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
-         return TRUE;
-
-      // [CUSTOM DRAW] Draw Refresh button and ListView
-      case NM_CUSTOMDRAW:
-         switch (pNotifyHeader->idFrom)
+      /// [COMMAND PROCESSING]
+      case WM_COMMAND:
+         switch (LOWORD(wParam))
          {
-         case IDC_REFRESH_STRINGS:
-            onCustomDrawButton(hPage, pNotifyHeader, ITS_MEDIUM, TEXT("REFRESH_ICON"), TRUE); 
-            return TRUE;
-         
-         case IDC_STRINGS_LIST:
-            onCustomListViewNotify(hPage, TRUE, IDC_STRINGS_LIST, pNotifyHeader);
+         // [REFRESH VARIABLE DEPENDENCIES]
+         case IDM_STRINGS_REFRESH:      // menu item
+         case IDC_REFRESH_STRINGS:      // button
+            updateScriptStringsPage_List(pDialogData, hPage);
             return TRUE;
          }
          break;
-      }
-      break;
 
+      /// [CONTEXT MENU]
+      case WM_CONTEXTMENU:
+         return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+
+      /// [NOTIFICATION] - Handle ListView notifications
+      case WM_NOTIFY:
+         // Prepare
+         pMessage = (NMHDR*)lParam;
+
+         // Examine notification
+         switch (pMessage->code)
+         {
+         // [REQUEST DEPENDENCY DATA] Supply GameString data
+         case LVN_GETDISPINFO:
+            onStringsPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
+            return TRUE;
+
+         // [CUSTOM DRAW] Draw Refresh button and ListView
+         case NM_CUSTOMDRAW:
+            switch (pMessage->idFrom)
+            {
+            case IDC_REFRESH_STRINGS:
+               onCustomDrawButton(hPage, pMessage, ITS_MEDIUM, TEXT("REFRESH_ICON"), TRUE); 
+               return TRUE;
+            
+            case IDC_STRINGS_LIST:
+               SetWindowLong(hPage, DWL_MSGRESULT, onCustomDrawListView(hPage, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage));
+               return TRUE;
+            }
+            break;
+         }
+         break;
+
+      /// [THEME CHANGED] Update ListView background colour
+      case WM_THEMECHANGED:
+         ListView_SetBkColor(GetControl(hPage, IDC_STRINGS_LIST), getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
+         return TRUE;
+      }
+
+      // Pass to base proc
+      return dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_SCRIPT_STRINGS);
    }
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
 
    // Pass to base proc
    return dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_SCRIPT_STRINGS);
@@ -585,67 +586,79 @@ INT_PTR   dlgprocStringsPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM
 INT_PTR   dlgprocVariablesPage(HWND  hPage, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    PROPERTIES_DATA*  pDialogData;
-   NMHDR*            pNotifyHeader;
+   NMHDR*            pMessage;
 
-   // Get properties dialog data
-   pDialogData = getPropertiesDialogData(hPage);
-
-   switch (iMessage)
+   TRY
    {
-   /// [COMMAND PROCESSING]
-   case WM_COMMAND:
-      switch (LOWORD(wParam))
+      // Get properties dialog data
+      pDialogData = getPropertiesDialogData(hPage);
+
+      switch (iMessage)
       {
-      // [REFRESH VARIABLE DEPENDENCIES]
-      case IDM_VARIABLES_REFRESH:      // menu item
-      case IDC_REFRESH_VARIABLES:      // button
-         updateScriptVariablesPage_List(pDialogData, hPage);
-         return TRUE;
-
-      // [PROJECT VARIABLES]
-      case IDC_PROJECT_VARIABLES:
-         displayProjectVariablesDialog(pDialogData->hSheetDlg);
-         return TRUE;
-      }
-      break;
-
-   /// [CONTEXT MENU]
-   case WM_CONTEXTMENU:
-      return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
-
-   /// [NOTIFICATION] - Handle ListView notifications
-   case WM_NOTIFY:
-      pNotifyHeader = (NMHDR*)lParam;
-
-      // Examine notification
-      switch (pNotifyHeader->code)
-      {
-      // [REQUEST DEPENDENCY DATA] Supply VariableDependency data
-      case LVN_GETDISPINFO:
-         onVariablesPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
-         return TRUE;
-
-      // [CUSTOM DRAW] Draw Refresh button and ListView
-      case NM_CUSTOMDRAW:
-         switch (pNotifyHeader->idFrom)
+      /// [COMMAND PROCESSING]
+      case WM_COMMAND:
+         switch (LOWORD(wParam))
          {
-         case IDC_REFRESH_VARIABLES:
-            onCustomDrawButton(hPage, pNotifyHeader, ITS_MEDIUM, TEXT("REFRESH_ICON"), TRUE); 
+         // [REFRESH VARIABLE DEPENDENCIES]
+         case IDM_VARIABLES_REFRESH:      // menu item
+         case IDC_REFRESH_VARIABLES:      // button
+            updateScriptVariablesPage_List(pDialogData, hPage);
             return TRUE;
 
+         // [PROJECT VARIABLES]
          case IDC_PROJECT_VARIABLES:
-            onCustomDrawButton(hPage, pNotifyHeader, ITS_MEDIUM, TEXT("VARIABLE_ICON"), TRUE); 
-            return TRUE;
-
-         case IDC_VARIABLES_LIST:
-            onCustomListViewNotify(hPage, TRUE, IDC_VARIABLES_LIST, pNotifyHeader);
+            displayProjectVariablesDialog(pDialogData->hSheetDlg);
             return TRUE;
          }
          break;
-      }
-      break;
 
+      /// [CONTEXT MENU]
+      case WM_CONTEXTMENU:
+         return onDependenciesPage_ContextMenu(pDialogData->pScriptDocument, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+
+      /// [NOTIFICATION] - Handle ListView notifications
+      case WM_NOTIFY:
+         pMessage = (NMHDR*)lParam;
+
+         // Examine notification
+         switch (pMessage->code)
+         {
+         // [REQUEST DEPENDENCY DATA] Supply VariableDependency data
+         case LVN_GETDISPINFO:
+            onVariablesPage_RequestData(pDialogData, hPage, (NMLVDISPINFO*)lParam);
+            return TRUE;
+
+         // [CUSTOM DRAW] Draw Refresh button and ListView
+         case NM_CUSTOMDRAW:
+            switch (pMessage->idFrom)
+            {
+            case IDC_REFRESH_VARIABLES:
+               onCustomDrawButton(hPage, pMessage, ITS_MEDIUM, TEXT("REFRESH_ICON"), TRUE); 
+               return TRUE;
+
+            case IDC_PROJECT_VARIABLES:
+               onCustomDrawButton(hPage, pMessage, ITS_MEDIUM, TEXT("VARIABLE_ICON"), TRUE); 
+               return TRUE;
+
+            case IDC_VARIABLES_LIST:
+               SetWindowLong(hPage, DWL_MSGRESULT, onCustomDrawListView(hPage, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage));
+               return TRUE;
+            }
+            break;
+         }
+         break;
+
+      /// [THEME CHANGED] Update ListView background colour
+      case WM_THEMECHANGED:
+         ListView_SetBkColor(GetControl(hPage, IDC_VARIABLES_LIST), getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
+         return TRUE;
+      }
+
+      // Pass to base proc
+      return dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_SCRIPT_VARIABLES);
    }
+   /// [EXCEPTION HANDLER]
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
 
    // Pass to base proc
    return dlgprocPropertiesPage(hPage, iMessage, wParam, lParam, PP_SCRIPT_VARIABLES);

@@ -216,7 +216,7 @@ VOID  onFileDialogNamespace_Changed(FILE_DIALOG_DATA*  pDialogData)
       performFileDialogFolderChange(pDialogData, szPath);
    else
       /// [VIRTUAL LOCATION] Not currently supported
-      displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_ERROR WITH MDF_OK, TEXT("Browsing Virtual Namespace Folders"));
+      displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_ERROR WITH MDF_OK, TEXT("Browsing Virtual Namespace Folders"));
 }
 
 

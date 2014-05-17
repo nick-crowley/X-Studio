@@ -279,7 +279,7 @@ BOOL   findScriptTranslationNodes(SCRIPT_TRANSLATOR*  pTranslator, ERROR_STACK* 
    XML_TREE_NODE*     pCommandNode;       // First node in the standard/auxiliary command branches
 
    // [VERBOSE]
-   VERBOSE("Locating crucial XML-Tree nodes");
+   //VERBOSE("Locating crucial XML-Tree nodes");
 
    // Prepare
    pLayout = &pTranslator->oLayout;
@@ -384,6 +384,9 @@ BOOL   findScriptTranslationNodes(SCRIPT_TRANSLATOR*  pTranslator, ERROR_STACK* 
    
    else 
    {
+      // [ARGUMENTS] Find the codeArray arguments branch
+      findXMLTreeNodeByIndex(pLayout->pCodeArrayNode, CAI_ARGUMENTS, pLayout->pArgumentsBranch);
+
       // [SIGNATURE] Find the <signature> node (if any)
       findXMLTreeNodeByName(pLayout->pScriptNode, TEXT("signature"), FALSE, pLayout->pSignatureNode);
 

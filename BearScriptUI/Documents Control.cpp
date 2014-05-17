@@ -11,7 +11,8 @@
 ///                                        MACROS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
@@ -39,9 +40,7 @@ HWND   createDocumentsControl(HWND  hParentWnd, CONST RECT*  pRect, CONST UINT  
    RECT             rcCtrlRect;        // Rect of new control
    HWND             hTabCtrl;          // Convenience pointer
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    rcCtrlRect = *pRect;
 
@@ -76,7 +75,6 @@ HWND   createDocumentsControl(HWND  hParentWnd, CONST RECT*  pRect, CONST UINT  
    }
 
    // Return window handle or NULL
-   END_TRACKING();
    return hTabCtrl;
 }
 
@@ -111,9 +109,7 @@ DOCUMENTS_DATA*  createDocumentsControlData(HWND  hTabCtrl)
 // 
 VOID  deleteDocumentsControlData(DOCUMENTS_DATA*  &pDocumentsData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Delete Documents list
    deleteList(pDocumentsData->pDocumentList);
 
@@ -124,9 +120,7 @@ VOID  deleteDocumentsControlData(DOCUMENTS_DATA*  &pDocumentsData)
    // Delete calling object
    utilDeleteObject(pDocumentsData);
 
-   // [TRACK]
-   END_TRACKING();
-}
+   }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
@@ -168,9 +162,7 @@ BOOL   findDocumentIndexByPath(HWND  hTabCtrl, CONST TCHAR*  szFullPath, INT&  i
    LIST_ITERATOR*  pIterator;      // List iterator
    DOCUMENT*       pDocument;      // List iterator
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pWindowData = getDocumentsControlData(hTabCtrl);
    iOutput     = -1;
@@ -189,7 +181,6 @@ BOOL   findDocumentIndexByPath(HWND  hTabCtrl, CONST TCHAR*  szFullPath, INT&  i
 
    // Cleanup and return TRUE if found
    deleteListIterator(pIterator);
-   END_TRACKING();
    return (iOutput != -1);
 }
 
@@ -208,9 +199,7 @@ BOOL   findDocumentIndexByValue(DOCUMENTS_DATA*  pWindowData, CONST DOCUMENT*  p
    LIST_ITERATOR*  pIterator;             // List iterator
    DOCUMENT*       pCurrentDocument;      // List iterator
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    iOutput = -1;
 
@@ -228,7 +217,6 @@ BOOL   findDocumentIndexByValue(DOCUMENTS_DATA*  pWindowData, CONST DOCUMENT*  p
 
    // Cleanup and return TRUE if found
    deleteListIterator(pIterator);
-   END_TRACKING();
    return (iOutput != -1);
 }
 
@@ -247,6 +235,17 @@ DOCUMENT*   getActiveDocument()
 
    // Return active document
    return (pWindowData ? pWindowData->pActiveDocument : NULL);
+}
+
+
+/// Function name  : getActiveDocumentFileName
+// Description     : Gets the filename of the active document, if any
+// 
+// Return Value   : Filename or NULL
+// 
+const TCHAR*   getActiveDocumentFileName()
+{
+   return getDocumentFileName(getActiveDocument());
 }
 
 
@@ -393,7 +392,8 @@ BOOL   isDocumentOpen(CONST TCHAR*  szFullPath)
 VOID  setActiveDocument(DOCUMENTS_DATA*  pWindowData, DOCUMENT*  pDocument)
 {
    // [TRACK]
-   TRACK_FUNCTION();
+   CONSOLE_COMMAND_BOLD1(getDocumentFileName(pDocument));
+   CONSOLE("Activating document '%s'", pDocument ? pDocument->szFullPath : NULL);
 
    // Replace ActiveDocument
    pWindowData->pActiveDocument = pDocument;
@@ -410,14 +410,11 @@ VOID  setActiveDocument(DOCUMENTS_DATA*  pWindowData, DOCUMENT*  pDocument)
       SetFocus(pDocument->hWnd);
 
       // [DEBUG]
-      DEBUG_WINDOW("ActiveDocument", pDocument->hWnd);
+      //DEBUG_WINDOW("ActiveDocument", pDocument->hWnd);
    }
 
    /// [EVENT] Document switched
    sendDocumentSwitched(AW_DOCUMENTS_CTRL, pDocument);
-
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -437,9 +434,7 @@ VOID  appendDocument(HWND  hTabCtrl, DOCUMENT*  pDocument)
    TCITEM           oTabItem;       // New Tab data 
    SIZE             siTabCtrl;      // Size of the tab control
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pWindowData = getDocumentsControlData(hTabCtrl);
 
@@ -468,8 +463,6 @@ VOID  appendDocument(HWND  hTabCtrl, DOCUMENT*  pDocument)
       PostMessage(hTabCtrl, WM_SIZE, NULL, MAKE_LONG(siTabCtrl.cx, siTabCtrl.cy));    // BUG_FIX: Using updateDocumentSize(pWindowData, pDocument) didn't work, TabCtrl must need to update something internal first...
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -485,7 +478,7 @@ BOOL   closeAllDocuments(HWND  hTabCtrl, CONST BOOL  bExcludeActive)
    UINT               iDocumentCount;  // Document count
 
    // [TRACK]
-   TRACK_FUNCTION();
+   CONSOLE_COMMAND_BOLD();
 
    // Prepare  
    pWindowData = getDocumentsControlData(hTabCtrl);
@@ -516,7 +509,6 @@ BOOL   closeAllDocuments(HWND  hTabCtrl, CONST BOOL  bExcludeActive)
       postAppClose(MWS_DOCUMENTS_CLOSED);
 
    // Return TRUE if all documents were closed
-   END_TRACKING();
    return (iDocumentCount == 0);
 }
 
@@ -536,7 +528,6 @@ BOOL  closeDocumentByIndex(HWND  hTabCtrl, CONST UINT  iIndex)
    CLOSURE_TYPE     eResult;        // Document closure type
    
    // Prepare
-   TRACK_FUNCTION();
    pWindowData = getDocumentsControlData(hTabCtrl);
    eResult     = DCT_DISCARD;
 
@@ -553,8 +544,23 @@ BOOL  closeDocumentByIndex(HWND  hTabCtrl, CONST UINT  iIndex)
    }
 
    // Return TRUE if closing sequence was not aborted
-   END_TRACKING();
    return (eResult != DCT_ABORT);
+}
+
+
+/// Function name  : displayDocument
+// Description     : Changes the active tab and displays the appropriate document
+// 
+// HWND             hTabCtrl  : [in] Document control handle
+// CONST DOCUMENT*  pDocument : [in] Document
+// 
+VOID  displayDocument(HWND  hTabCtrl, DOCUMENT*  pDocument)
+{
+   INT  iIndex;
+
+   // Lookup document and display
+   if (findDocumentIndexByPath(hTabCtrl, pDocument->szFullPath, iIndex))
+      displayDocumentByIndex(hTabCtrl, iIndex);
 }
 
 
@@ -569,9 +575,7 @@ VOID  displayDocumentByIndex(HWND  hTabCtrl, CONST UINT  iIndex)
    DOCUMENTS_DATA*  pWindowData;    // Window data
    DOCUMENT*        pDocument;      // Target Document
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pWindowData  = getDocumentsControlData(hTabCtrl);
 
@@ -589,8 +593,6 @@ VOID  displayDocumentByIndex(HWND  hTabCtrl, CONST UINT  iIndex)
       setActiveDocument(pWindowData, pDocument);
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -606,7 +608,6 @@ VOID  displayNextDocument(HWND  hTabCtrl)
           iNextIndex;
 
    // Prepare
-   TRACK_FUNCTION();
    iDocumentCount = getDocumentCount();
 
    // [CHECK]
@@ -623,8 +624,6 @@ VOID  displayNextDocument(HWND  hTabCtrl)
       displayDocumentByIndex(hTabCtrl, iNextIndex);
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -639,9 +638,7 @@ VOID  removeDocument(DOCUMENTS_DATA*  pWindowData, DOCUMENT*  pDocument, CONST U
 {
    UINT   iReplacementIndex;    // Index of document to display instead
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Are we closing the ActiveDocument?
    if (pDocument == getActiveDocument())
    {
@@ -666,9 +663,6 @@ VOID  removeDocument(DOCUMENTS_DATA*  pWindowData, DOCUMENT*  pDocument, CONST U
    if (getActiveDocument())
       // [ACTIVE DOCUMENT] Resize in case a row of tabs has been removed
       updateDocumentSize(pWindowData, getActiveDocument());
-
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -712,9 +706,7 @@ VOID    updateDocumentTitle(DOCUMENT*  pDocument)
    TCITEM           oTabData;      // Document Tab data 
    INT              iIndex;        // Document index
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    pWindowData      = getDocumentsControlData(getMainWindowData()->hDocumentsTab);
    oTabData.pszText = utilCreateEmptyString(128);
@@ -737,7 +729,6 @@ VOID    updateDocumentTitle(DOCUMENT*  pDocument)
       
    // Cleanup
    utilDeleteString(oTabData.pszText);
-   END_TRACKING();
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
@@ -757,9 +748,6 @@ BOOL  onDocumentsControl_ContextMenu(DOCUMENTS_DATA*  pWindowData, CONST POINT* 
    DOCUMENT*      pDocument;           // Document that was clicked, if any
    INT            iDocumentIndex;      // Index of the document that was clicked
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
    // Prepare
    oHitTest.pt    = *ptClick;
    oHitTest.flags = TCHT_ONITEM;
@@ -771,6 +759,8 @@ BOOL  onDocumentsControl_ContextMenu(DOCUMENTS_DATA*  pWindowData, CONST POINT* 
    // Lookup document (Will fails if user did not click a tab heading)
    if (findDocumentByIndex(pWindowData->hTabCtrl, iDocumentIndex, pDocument))
    {
+      CONSOLE_ACTION();
+
       // Generate custom menu
       pCustomMenu = createCustomMenu(TEXT("DIALOG_MENU"), TRUE, IDM_DOCUMENT_POPUP);
 
@@ -801,7 +791,6 @@ BOOL  onDocumentsControl_ContextMenu(DOCUMENTS_DATA*  pWindowData, CONST POINT* 
    }
    
    // Return TRUE if handled, otherwise FALSE
-   END_TRACKING();
    return (iDocumentIndex != -1);
 }
 
@@ -816,9 +805,7 @@ VOID  onDocumentsControl_Create(DOCUMENTS_DATA*  pWindowData)
    WNDCLASS    oBaseClass;    // Window class of base Tab control
    HDC         hDC;           // Control DC
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    hDC = GetDC(pWindowData->hTabCtrl);
 
@@ -830,17 +817,14 @@ VOID  onDocumentsControl_Create(DOCUMENTS_DATA*  pWindowData)
    pWindowData->pfnBaseWindowProc = oBaseClass.lpfnWndProc;
 
    /// Create 'bold' tab font
-   pWindowData->hTitleFont = utilCreateFont(hDC, TEXT("MS Sans Serif"), 9, TRUE, FALSE, FALSE);
+   pWindowData->hTitleFont = utilCreateFont(hDC, TEXT("MS Shell Dlg"), 8, FALSE, FALSE, FALSE);
 
    /// Create 32-bit colour replacement tab ImageList
    pWindowData->hImageList = utilCreateImageList(getResourceInstance(), 20, 3, "NEW_SCRIPT_FILE_ICON", "NEW_LANGUAGE_FILE_ICON", "OPEN_SAMPLES_ICON");
 
    // Cleanup
    ReleaseDC(pWindowData->hTabCtrl, hDC);
-
-   // [TRACK]
-   END_TRACKING();
-}
+ }
 
 /// Function name  : onDocumentsControl_Destroy
 // Description     : Destroys window data and any remaining documents
@@ -849,14 +833,9 @@ VOID  onDocumentsControl_Create(DOCUMENTS_DATA*  pWindowData)
 // 
 VOID  onDocumentsControl_Destroy(DOCUMENTS_DATA*  &pWindowData)
 {
-   ERROR_STACK*  pException;
-
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
+
       // [CHECK] Ensure there are no documents
       ASSERT(!getDocumentCount());
 
@@ -866,20 +845,13 @@ VOID  onDocumentsControl_Destroy(DOCUMENTS_DATA*  &pWindowData)
       /// Sever and destroy window data
       SetWindowLong(pWindowData->hTabCtrl, sizeof(DOCUMENTS_DATA*), NULL);
       deleteDocumentsControlData(pWindowData);
-   }
-   /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred while closing the documents window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_DESTROY_DOCUMENTS_CTRL));
-      displayException(pException);
 
-      // Sever window data
-      SetWindowLong(pWindowData->hTabCtrl, sizeof(DOCUMENTS_DATA*), NULL);
+      return;
    }
+   CATCH0("");
 
-   // [TRACK]
-   END_TRACKING();
+   SetWindowLong(pWindowData ? pWindowData->hTabCtrl : NULL, sizeof(DOCUMENTS_DATA*), NULL);
+   pWindowData = NULL;
 }
 
 
@@ -892,9 +864,7 @@ VOID  onDocumentsControl_DocumentUpdated(DOCUMENTS_DATA*  pWindowData)
 {
    DOCUMENT*   pDocument;     // Active document
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Ensure active document exists
    ASSERT(getActiveDocument());
 
@@ -909,8 +879,6 @@ VOID  onDocumentsControl_DocumentUpdated(DOCUMENTS_DATA*  pWindowData)
    sendDocumentUpdated(AW_PROPERTIES);
    sendDocumentUpdated(AW_MAIN);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -925,7 +893,6 @@ VOID  onDocumentsControl_DocumentPropertyUpdated(DOCUMENTS_DATA*  pWindowData, C
    DOCUMENT*   pDocument;     // Active document
 
    // Prepare
-   TRACK_FUNCTION();
    pDocument = getActiveDocument();
 
    // [CHECK] Ignore notifications sent while a document is being created/destroyed
@@ -945,8 +912,6 @@ VOID  onDocumentsControl_DocumentPropertyUpdated(DOCUMENTS_DATA*  pWindowData, C
    sendDocumentPropertyUpdated(AW_SEARCH, iControlID); 
    sendDocumentPropertyUpdated(AW_DOCUMENT, iControlID); 
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -958,16 +923,12 @@ VOID  onDocumentsControl_DocumentPropertyUpdated(DOCUMENTS_DATA*  pWindowData, C
 // 
 VOID  onDocumentsControl_DocumentSwitched(DOCUMENTS_DATA*  pWindowData, DOCUMENT*  pNewDocument)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    /// Inform PropertiesDialog, MainWindow and SearchWindow
    sendDocumentSwitched(AW_PROPERTIES, pNewDocument);
    sendDocumentSwitched(AW_MAIN, pNewDocument);  
    sendDocumentSwitched(AW_SEARCH, pNewDocument); 
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -982,8 +943,8 @@ VOID  onDocumentsControl_LoadComplete(DOCUMENTS_DATA*  pWindowData, CONST DOCUME
    DOCUMENT*  pDocument;    // New document
 
    // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_EVENT();
+   CONSOLE_EVENT1(PathFindFileName(pOperationData->szFullPath));
+   debugDocumentOperationData(pOperationData);
 
    // [CHECK] Was the operation successful?
    if (isOperationSuccessful(pOperationData))
@@ -1032,8 +993,6 @@ VOID  onDocumentsControl_LoadComplete(DOCUMENTS_DATA*  pWindowData, CONST DOCUME
          commandScriptValidationBatchTest(getMainWindowData(), BTC_STOP);
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1048,9 +1007,7 @@ VOID  onDocumentsControl_MiddleClick(DOCUMENTS_DATA*  pWindowData, CONST POINT  
    TCHITTESTINFO     oHitTest;      // Hit test properties
    INT               iTabIndex;     // Zero-based index of the tab that was clicked
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    oHitTest.pt = ptClick;
 
@@ -1062,8 +1019,6 @@ VOID  onDocumentsControl_MiddleClick(DOCUMENTS_DATA*  pWindowData, CONST POINT  
       /// [SUCCESS] Close (and possibly save) specified document
       closeDocumentByIndex(pWindowData->hTabCtrl, iTabIndex);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1101,9 +1056,7 @@ BOOL  onDocumentsControl_Notify(DOCUMENTS_DATA*  pWindowData, CONST UINT  iContr
 // 
 VOID  onDocumentsControl_OperationComplete(DOCUMENTS_DATA*  pWindowData, DOCUMENT_OPERATION*  pOperationData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Examine operation
    switch (pOperationData->eType)
    {
@@ -1123,8 +1076,6 @@ VOID  onDocumentsControl_OperationComplete(DOCUMENTS_DATA*  pWindowData, DOCUMEN
    case OT_SAVE_PROJECT_FILE:    onProject_SaveComplete(pOperationData);      break;
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1158,9 +1109,7 @@ VOID  onDocumentsControl_RequestTooltip(DOCUMENTS_DATA*  pWindowData, NMTTDISPIN
    DOCUMENT*      pDocument;     // Document beneath cursor
    UINT           iIndex;        // Tab/Document index
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Perform hit-test
    utilGetWindowCursorPos(pWindowData->hTabCtrl, &oHitTest.pt);
    iIndex = TabCtrl_HitTest(pWindowData->hTabCtrl, &oHitTest);
@@ -1173,8 +1122,6 @@ VOID  onDocumentsControl_RequestTooltip(DOCUMENTS_DATA*  pWindowData, NMTTDISPIN
       pHeader->lpszText = szTooltip;
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1190,8 +1137,8 @@ VOID  onDocumentsControl_SaveComplete(DOCUMENTS_DATA*  pWindowData, CONST DOCUME
    INT        iIndex;         // Document index
 
    // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_EVENT();
+   CONSOLE_EVENT();
+   debugDocumentOperationData(pOperationData);
 
    // Prepare
    pDocument = (DOCUMENT*)pOperationData->pDocument;
@@ -1219,8 +1166,6 @@ VOID  onDocumentsControl_SaveComplete(DOCUMENTS_DATA*  pWindowData, CONST DOCUME
    // Sever GameFile to prevent destruction
    pOperationData->pGameFile = NULL;
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1236,8 +1181,7 @@ VOID  onDocumentsControl_ValidationComplete(DOCUMENTS_DATA*  pWindowData, CONST 
    DOCUMENT*     pDocument;        // Document created on failure
    
    // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_EVENT();
+   CONSOLE_EVENT();
 
    // [CHECK] Was the operation succeed?
    if (isOperationSuccessful(pOperationData))
@@ -1279,8 +1223,6 @@ VOID  onDocumentsControl_ValidationComplete(DOCUMENTS_DATA*  pWindowData, CONST 
       }
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1333,7 +1275,6 @@ VOID  onDocumentsControl_ValidationComplete(DOCUMENTS_DATA*  pWindowData, CONST 
 LRESULT  wndprocDocumentsCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
    DOCUMENTS_DATA*  pWindowData;        // Window data
-   ERROR_STACK*     pException;         // Exception error
    DOCUMENT*        pActiveDocument;    // Active document
    WNDCLASS         oBaseClass;         // Window class of base Tab control
    POINT            ptClick;            // Click location
@@ -1342,14 +1283,10 @@ LRESULT  wndprocDocumentsCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARA
    RECT             rcClient;
 #endif
 
-   // Prepare
-   TRACK_FUNCTION();
-   bPassToBase = TRUE;
-
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
       // Prepare
+      bPassToBase = TRUE;
       pWindowData = getDocumentsControlData(hCtrl);
 
       // Examine message
@@ -1480,21 +1417,17 @@ LRESULT  wndprocDocumentsCtrl(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LPARA
          break;
 #endif
       }
+
+      // [HANDLED] Return 0
+      if (!bPassToBase)
+         return 0;
+      
+      /// [UNHANDLED] Pass to base
+      GetClassInfo(NULL, WC_TABCONTROL, &oBaseClass);
+      return CallWindowProc(oBaseClass.lpfnWndProc, hCtrl, iMessage, wParam, lParam);
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the documents container window"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_DOCUMENTS_WINDOW));
-      displayException(pException);
-   }
-
-   // [CHECK] Pass to base? 
-   if (bPassToBase)
-      GetClassInfo(NULL, WC_TABCONTROL, &oBaseClass);
-    
-   /// Return TRUE if handled here, otherwise pass to base
-   END_TRACKING();
-   return (bPassToBase ? CallWindowProc(oBaseClass.lpfnWndProc, hCtrl, iMessage, wParam, lParam) : 0);
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 

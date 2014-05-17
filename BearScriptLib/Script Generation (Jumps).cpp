@@ -9,6 +9,13 @@
 #include "stdafx.h"
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
+///                                       MACROS
+/// /////////////////////////////////////////////////////////////////////////////////////////
+
+// OnException: Print ScriptFile
+#define  ON_EXCEPTION()     debugScriptFile(pScriptFile);
+
+/// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                 CONSTRUCTION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -94,6 +101,20 @@ VOID   destroyJumpStackItemByIndex(STACK*  pStack, CONST UINT  iIndex)
 BOOL  isIfConditional(CONST CONDITIONAL_ID   eConditional)
 {
    return (eConditional == CI_IF OR eConditional == CI_IF_NOT);
+}
+
+
+
+/// Function name  : isSkipIfConditional
+// Description     : Determines whether a conditional is 'SKIP-IF' or not
+// 
+// CONST CONDITIONAL_ID   eConditional : [in] Conditional to test
+// 
+// Return Value   : TRUE or FALSE
+// 
+BOOL  isSkipIfConditional(CONST CONDITIONAL_ID   eConditional)
+{
+   return (eConditional == CI_SKIP_IF OR eConditional == CI_SKIP_IF_NOT);
 }
 
 
@@ -468,180 +489,155 @@ BOOL  findPrevJumpStackItem(STACK*  pStack, STACK_ITEM*  &pIterator, JUMP_STACK_
 // 
 // HWND                 hCodeEdit   : [in]     Window handle of the CodeEdit containing the commands
 // SCRIPT_FILE*         pScriptFile : [in/out] Contains the COMMANDS to be translated on input and the generated commands on output
-// OPERATION_PROGRESS*  pProgress   : [in]     Progress object
 // ERROR_QUEUE*         pErrorQueue : [in/out] Empty error queue
 // 
 // Return Value   : TRUE if successful, FALSE If there were errors
 // 
-BOOL   generateBranchingCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+BOOL   generateBranchingCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue)
 {
    COMMAND          *pSourceCommand,   // Read-Only 'source' copy of the COMMAND currently being processed
                     *pCommand,         // COMMAND currently being processed
                     *pJumpCommand;     // Used for creating 'hidden jump' COMMANDs
    ERROR_STACK      *pError;           // Operation error, if any
-   STACK            *pJumpStack;       // For storing branching commands
+   STACK            *pJumpStack = NULL;// For storing branching commands
    JUMP_STACK_ITEM  *pJumpItem;
 
-   // [INFO] "Compiling commands in '%s' for %s"     
-   VERBOSE("Generating branching logic for '%s'", identifyScriptName(pScriptFile));
-   pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_GENERATING_BRANCHING_LOGIC), identifyScriptName(pScriptFile), identifyGameVersionString(pScriptFile->eGameVersion)));
-
-   // Prepare
-   pError     = NULL;
-   pJumpStack = createJumpStack();
-
-   /// Iterate through GENERATOR INPUT list
-   for (UINT iIndex = 0; findCommandInGeneratorInput(pScriptFile->pGenerator, iIndex, pSourceCommand); iIndex++)
+   __try
    {
-      // Duplicate command for insertion into other command lists
-      pCommand = duplicateCommand(pSourceCommand);
+      // [INFO] "Compiling commands in '%s' for %s"     
+      VERBOSE("Generating branching logic for '%s'", identifyScriptName(pScriptFile));
+      pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_GENERATING_BRANCHING_LOGIC), identifyScriptName(pScriptFile), identifyGameVersionString(pScriptFile->eGameVersion)));
 
-      //VERBOSE("BRANCHING: Index %d : Command 0x%08x : '%s'", iIndex, pCommand, pCommand->szBuffer);
+      // Prepare
+      pError     = NULL;
+      pJumpStack = createJumpStack();
 
-      // Examine command
-      switch (pCommand->iID)
+      /// Iterate through GENERATOR INPUT list
+      for (UINT iIndex = 0; findCommandInGeneratorInput(pScriptFile->pGenerator, iIndex, pSourceCommand); iIndex++)
       {
-      // [COMMAND] Examine conditional to determine whether a hidden jump is necessary
-      default:
-         switch (pCommand->eConditional)
+         // Duplicate command for insertion into other command lists
+         pCommand = duplicateCommand(pSourceCommand);
+
+         //VERBOSE("BRANCHING: Index %d : Command 0x%08x : '%s'", iIndex, pCommand, pCommand->szBuffer);
+
+         // Examine command
+         switch (pCommand->iID)
          {
-         /// [NO CONDITIONAL/START/LABEL/SUBROUTINE] Add COMMAND -> OUTPUT
-         case CI_NONE:
-         case CI_LABEL:
-         case CI_START:
-         case CI_GOTO_LABEL:
-         case CI_GOTO_SUB:
-         case CI_END_SUB:
-            appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
+         // [COMMAND] Examine conditional to determine whether a hidden jump is necessary
+         default:
+            switch (pCommand->eConditional)
+            {
+            /// [NO CONDITIONAL/START/LABEL/SUBROUTINE] Add COMMAND -> OUTPUT
+            case CI_NONE:
+            case CI_LABEL:
+            case CI_START:
+            case CI_GOTO_LABEL:
+            case CI_GOTO_SUB:
+            case CI_END_SUB:
+               appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
+               break;
+
+            /// [VARIABLE/IF/WHILE] Add COMMAND -> OUTPUT + STACK
+            case CI_IF:
+            case CI_IF_NOT:
+            case CI_WHILE:
+            case CI_WHILE_NOT:
+               appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
+               pushJumpStack(pJumpStack, pCommand, NULL);
+               break;
+
+            /// [ELSE-IF] Add COMMAND + JUMP -> OUTPUT and STACK
+            case CI_ELSE_IF:
+            case CI_ELSE_IF_NOT:
+               // Add hidden jump and command to output
+               appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pJumpCommand = createHiddenJumpCommand(EMPTY_JUMP));
+               appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
+               // Add both to JumpStack
+               pushJumpStack(pJumpStack, pCommand, pJumpCommand);
+               break;
+
+            /// [SKIP-IF] Add COMMAND -> OUTPUT
+            case CI_SKIP_IF:
+            case CI_SKIP_IF_NOT:
+               // Add command to output
+               appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
+               // Target the next line manually
+               setCommandJumpDestinationByIndex(pCommand, pCommand->iIndex + 2);    /// [VALIDATION_FIX]
+               break;
+
+            /// [????]
+            default:
+               // [ERROR]
+               ASSERT(FALSE);
+            }
             break;
 
-         /// [VARIABLE/IF/WHILE] Add COMMAND -> OUTPUT + STACK
-         case CI_IF:
-         case CI_IF_NOT:
-         case CI_WHILE:
-         case CI_WHILE_NOT:
-            appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
-            pushJumpStack(pJumpStack, pCommand, NULL);
-            break;
-
-         /// [ELSE-IF] Add COMMAND + JUMP -> OUTPUT and STACK
-         case CI_ELSE_IF:
-         case CI_ELSE_IF_NOT:
+         /// [ELSE / BREAK / CONTINUE] Add COMMAND + JUMP -> OUTPUT and STACK
+         case CMD_ELSE:
+         case CMD_BREAK:
+         case CMD_CONTINUE:
             // Add hidden jump and command to output
             appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pJumpCommand = createHiddenJumpCommand(EMPTY_JUMP));
             appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
-            // Add both to JumpStack
+            // Add to JumpStack
             pushJumpStack(pJumpStack, pCommand, pJumpCommand);
             break;
 
-         /// [SKIP-IF] Add COMMAND -> OUTPUT
-         case CI_SKIP_IF:
-         case CI_SKIP_IF_NOT:
-            // Add command to output
-            appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
-            // Target the next line manually
-            setCommandJumpDestinationByIndex(pCommand, pCommand->iIndex + 2);    /// [VALIDATION_FIX]
+         /// [END] Examine the JumpStack for a matching conditional, and calculate their jump destinations
+         case CMD_END:
+            if (!appendEndCommandToScriptFile(hCodeEdit, pScriptFile, pJumpStack, pCommand, pError))
+            {
+               // [ERROR] Invalid placement of a branching command.  No enhancement necessary. 
+               generateOutputTextFromError(pError);
+               pushErrorQueue(pErrorQueue, duplicateErrorStack(pError));      // Add to output error queue manually - appendEndCommandToScriptFile distributes it to the correct COMMAND and informs the CodeEdit.
+            }
             break;
-
-         /// [????]
-         default:
-            // [ERROR]
-            ASSERT(FALSE);
          }
-         break;
-
-      /// [ELSE / BREAK / CONTINUE] Add COMMAND + JUMP -> OUTPUT and STACK
-      case CMD_ELSE:
-      case CMD_BREAK:
-      case CMD_CONTINUE:
-         // Add hidden jump and command to output
-         appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pJumpCommand = createHiddenJumpCommand(EMPTY_JUMP));
-         appendCommandToGenerator(pScriptFile->pGenerator, CL_OUTPUT, pCommand);
-         // Add to JumpStack
-         pushJumpStack(pJumpStack, pCommand, pJumpCommand);
-         break;
-
-      /// [END] Examine the JumpStack for a matching conditional, and calculate their jump destinations
-      case CMD_END:
-         if (!appendEndCommandToScriptFile(hCodeEdit, pScriptFile, pJumpStack, pCommand, pError))
-         {
-            // [ERROR] Invalid placement of a branching command.  No enhancement necessary. 
-            generateOutputTextFromError(pError);
-            pushErrorQueue(pErrorQueue, duplicateErrorStack(pError));      // Add to output error queue manually - appendEndCommandToScriptFile distributes it to the correct COMMAND and informs the CodeEdit.
-         }
-         break;
       }
+
+      /// [CHECK] Any conditionals left in the stack indicate a missing 'END' command
+      while (pJumpItem = topJumpStack(pJumpStack))
+      {
+         // [ERROR] "Missing 'end' command for the conditional command on line %u"
+         pError = generateDualError(HERE(IDS_GENERATION_UNCLOSED_CONDITIONAL), pJumpItem->pCommand->iLineNumber);
+         // Add to output queues and CodeEdit
+         pushCommandAndOutputQueues(pError, pErrorQueue, pJumpItem->pCommand->pErrorQueue, ET_ERROR);
+         setCodeEditLineError(hCodeEdit, pJumpItem->pCommand);
+
+         // Destroy item
+         popJumpStack(pJumpStack);
+      }
+
+      /// [CHECK] Ensure at least one command was generated 
+      if (!findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_STANDARD, 0, pCommand))
+         // [ERROR] "Cannot compile a script with zero standard commands"
+         pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_GENERATION_NO_COMMANDS_FOUND)) );
+
+      /// [CHECK] Ensure last command is RETURN or ENDSUB
+      else if (!findLastCommandInGeneratorOutput(pScriptFile->pGenerator, pCommand) OR !(isCommandID(pCommand, CMD_RETURN) OR isCommandID(pCommand, CMD_END_SUB)) )
+         // [ERROR] "The last command in any script must always be 'return' or 'end'"
+         pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_GENERATION_FINAL_RETURN_MISSING)) );
+
+      // [DEBUG]
+      /*VERBOSE("------------------------------");
+      for (UINT  iIndex = 0; findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_STANDARD, iIndex, pCommand); iIndex++)
+         VERBOSE("VALIDATION: STANDARD (Index %d) : Command 0x%08x : '%s'", iIndex, pCommand, pCommand->szBuffer);
+
+      VERBOSE("------------------------------");
+      for (UINT  iIndex = 0; findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_AUXILIARY, iIndex, pCommand); iIndex++)
+         VERBOSE("VALIDATION: AUXILIARY (Index %d) : Command 0x%08x : '%s'", iIndex, pCommand, pCommand->szBuffer);*/
+
+      // Cleanup and return TRUE if there were no errors
+      deleteJumpStack(pJumpStack);
+      return (pError == NULL);
    }
-
-   /// [CHECK] Any conditionals left in the stack indicate a missing 'END' command
-   while (pJumpItem = topJumpStack(pJumpStack))
-   {
-      // [ERROR] "Missing 'end' command for the conditional command on line %u"
-      pError = generateDualError(HERE(IDS_GENERATION_UNCLOSED_CONDITIONAL), pJumpItem->pCommand->iLineNumber);
-      // Add to output queues and CodeEdit
-      pushCommandAndOutputQueues(pError, pErrorQueue, pJumpItem->pCommand->pErrorQueue, ET_ERROR);
-      setCodeEditLineError(hCodeEdit, pJumpItem->pCommand);
-
-      // Destroy item
-      popJumpStack(pJumpStack);
-   }
-
-   /*VERBOSE("------------------------------");
-   for (UINT  iIndex = 0; findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_STANDARD, iIndex, pCommand); iIndex++)
-      VERBOSE("VALIDATION: STANDARD (Index %d) : Command 0x%08x : '%s'", iIndex, pCommand, pCommand->szBuffer);
-
-   VERBOSE("------------------------------");
-   for (UINT  iIndex = 0; findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_AUXILIARY, iIndex, pCommand); iIndex++)
-      VERBOSE("VALIDATION: AUXILIARY (Index %d) : Command 0x%08x : '%s'", iIndex, pCommand, pCommand->szBuffer);*/
-
-   // Cleanup and return TRUE if there were no errors
-   deleteJumpStack(pJumpStack);
-   return (pError == NULL);
+   PUSH_CATCH0(pErrorQueue, "");
+   debugCommand(pCommand);
+   debugJumpStack(pJumpStack);
+   return FALSE;
 }
 
 
-
-/// Function name  : generateLabelStackItem
-// Description     : Generates a new LabelStackItem from a COMMAND containing a 'define label' command - if the label name used is unique
-// 
-// STACK*     pLabelStack : [in]  LabelStack to add new label item to
-// COMMAND*        pCommand    : [in]  COMMAND containing a 'define label' command
-// ERROR_STACK*   &pError      : [out] New error if label name is a duplicate, otherwise NULL
-// 
-// Return Value   : TRUE if the label name was unique, FALSE otherwise
-// 
-BOOL  generateLabelStackItem(STACK*  pLabelStack, COMMAND*  pCommand, ERROR_STACK*  &pError)
-{
-   PARAMETER        *pNewLabelName,         // Label name PARAMETER within the input COMMAND
-                    *pCurrentLabelName;     // Label name PARAMETER within COMMAND being processed
-   JUMP_STACK_ITEM  *pStackItem;
-
-   // [CHECK] Ensure COMMAND is 'DEFINE LABEL' and has a single 'LABEL NAME' PARAMETER
-   ASSERT(isCommandID(pCommand, CMD_DEFINE_LABEL));
-   ASSERT(findParameterInCommandByIndex(pCommand, PT_DEFAULT, 0, pNewLabelName) AND pNewLabelName->eSyntax == PS_LABEL_NAME);
-
-   // Prepare
-   pError = NULL;
-
-   /// Extract Label parameter from input COMMAND
-   findParameterInCommandByIndex(pCommand, PT_DEFAULT, 0, pNewLabelName);
-   
-   /// Ensure it doesn't conflict with any labels in the stack
-   for (UINT iIndex = 0; !pError AND findListObjectByIndex(pLabelStack, iIndex, (LPARAM&)pStackItem); iIndex++)
-   {
-      // Extract PARAMETER containing the label name and check it doesn't conflict with the name label name
-      if (findParameterInCommandByIndex(pStackItem->pCommand, PT_DEFAULT, 0, pCurrentLabelName) AND utilCompareStringVariables(pCurrentLabelName->szValue, pNewLabelName->szValue))
-         // [ERROR] "The label '%s' on line %u is a duplicate of the label '%s' on line %u"
-         pError = generateDualError(HERE(IDS_GENERATION_DUPLICATE_LABEL_NAME), pNewLabelName->szValue, (pCommand->iLineNumber + 1), pCurrentLabelName->szValue, (pStackItem->pCommand->iLineNumber + 1));
-   }
-
-   /// [UNIQUE LABEL NAME] Add to Label stack
-   if (!pError)
-      pushJumpStack(pLabelStack, pCommand, NULL);
-   
-   // Return TRUE if label was generated successfully
-   return (pError == NULL);
-}
 
 
 /// Function name  : generateSubroutineCommandLogic
@@ -649,51 +645,41 @@ BOOL  generateLabelStackItem(STACK*  pLabelStack, COMMAND*  pCommand, ERROR_STAC
 // 
 // HWND                 hCodeEdit   : [in]     Window handle of the CodeEdit containing the commands
 // SCRIPT_FILE*         pScriptFile : [in/out] Contains the COMMANDS to generate subroutine logic for
-// OPERATION_PROGRESS*  pProgress   : [in]     Progress object
 // ERROR_QUEUE*         pErrorQueue : [in/out] Empty error queue
 // 
 // Return Value   : TRUE if successful, FALSE If there were errors
 // 
-BOOL  generateSubroutineCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, OPERATION_PROGRESS*  pProgress, ERROR_QUEUE*  pErrorQueue)
+BOOL  validateSubroutineLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue)
 {
-   STACK                *pLabelStack,       // Stores all 'LABEL' commands for jump destination generation
-                        *pSubroutineStack;  // Stores current 'LABEL' commands for sub-routine syntax verification
-   COMMAND              *pCommand;          // 'Standard generated' Command list iterator
-   PARAMETER            *pLabelName;        // PARAMETER of the 'GOTO LABEL' or 'GOSUB' COMMAND that contains the label name
-   JUMP_STACK_ITEM      *pTargetLabel,      // LabelStack item containing a 'DEFINE LABEL' command
-                        *pTopItem,
-                        *pItem;             // Subroutine stack iterator, for locating an 'IF' command
-   ERROR_STACK          *pError;            // Operation error, if any
+   JUMP_STACK_ITEM  *pItem;             // Stack item iterator
+   STACK            *pSubroutineStack;  // Stores current 'LABEL' commands for sub-routine syntax verification
+   COMMAND          *pCommand = NULL;   // 'Standard generated' Command list iterator
+   ERROR_STACK      *pError = NULL;     // Operation error, if any
    
-   // [INFO] "Generating subroutine logic for MSCI script '%s'"
-   VERBOSE("Generating subroutine branching logic for '%s'", identifyScriptName(pScriptFile));
-   //pushErrorQueue(pErrorQueue, generateDualInformation(HERE(IDS_OUTPUT_GENERATING_SUBROUTINE_LOGIC), identifyScriptName(pScriptFile)));
-
-   // Prepare
-   pSubroutineStack = createJumpStack();
-   pLabelStack      = createJumpStack();
-   pError           = NULL;
-
-   /// [VERIFY SUBROUTINES] Ensure each 'endsub' command is matched with a preceeding 'define label' command
-   // Iterate through STANARD OUTPUT list
-   for (UINT iIndex = 0; findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_STANDARD, iIndex, pCommand); iIndex++)
+   __try
    {
+      // [DEBUG] 
+      VERBOSE("Validating subroutine branching logic for '%s'", identifyScriptName(pScriptFile));
+
       // Prepare
-      pError = NULL;
+      pSubroutineStack = createJumpStack();
+      pError           = NULL;
 
-      // Examine command
-      switch (pCommand->iID)
+      /// [VERIFY SUBROUTINES] Ensure each 'endsub' command is matched with a preceeding 'define label' command
+      // Iterate through generator INPUT list
+      for (UINT iLine = 0; findCommandInGeneratorInput(pScriptFile->pGenerator, iLine, pCommand); iLine++)
       {
-      /// [LABEL] Add to Stack (Also add to LabelStack for use in Verifying Label Names later)
-      case CMD_DEFINE_LABEL:
-         pushJumpStack(pSubroutineStack, pCommand, NULL);
-         generateLabelStackItem(pLabelStack, pCommand, pError);
-         break;
+         // Prepare
+         pError = NULL;
 
-      // [NORMAL COMMAND]
-      default:
+         // Examine conditional
          switch (pCommand->eConditional)
          {
+         /// [DEFINE LABEL] Add to Stack 
+         case CI_LABEL:
+            pushJumpStack(pSubroutineStack, pCommand, NULL);
+            break;
+
          /// [IF/SKIP-IF] Add to Stack
          case CI_IF:
          case CI_IF_NOT:
@@ -702,116 +688,165 @@ BOOL  generateSubroutineCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile,
             pushJumpStack(pSubroutineStack, pCommand, NULL);
             break;
 
-         /// [NORMAL COMMAND] Check for 'SKIP-IF' on the previous line and remove from the stack
+         /// [COMMAND] Remove 'SKIP-IF', if present
          default:
-            if (pTopItem = topJumpStack(pSubroutineStack))
-            {
-               switch (pTopItem->eConditional)
-               {
-               case CI_SKIP_IF:
-               case CI_SKIP_IF_NOT:
-                  // Check whether SKIP-IF is on the line immediately preceeding this command
-                  if (pCommand->iLineNumber == (pTopItem->pCommand->iLineNumber + 1))
-                     popJumpStack(pSubroutineStack);
-               }
-            }
-         }
-         break;
-
-      /// [END] Remove last 'IF' from the stack
-      case CMD_END:
-         // Search backwards through the stack
-         for (UINT  iStackIndex = getStackItemCount(pSubroutineStack) - 1; findListObjectByIndex(pSubroutineStack, iStackIndex, (LPARAM&)pItem); iStackIndex--) 
-         {
-            // [CHECK] Search for IF/IF-NOT
-            if (pItem->eConditional == CI_IF OR pItem->eConditional == CI_IF_NOT)
-            {
-               // [FOUND] Remove item and abort search
-               destroyJumpStackItemByIndex(pSubroutineStack, iStackIndex);
-               break;
-            }
-         }
-         break;
-
-      /// [ENDSUB] Check stack for a matching label
-      case CMD_END_SUB:
-         /// [EMPTY STACK] Error - ENDSUB without a LABEL definition
-         if (!topJumpStack(pSubroutineStack))
-            // [ERROR] "Cannot use 'endsub' on line %u without a previous label or subroutine definition"
-            pError = generateDualError(HERE(IDS_GENERATION_UNEXPECTED_END_SUB), pCommand->iLineNumber + 1);
-         
-         // Examine the conditional of the last item in the stack
-         else switch (topJumpStack(pSubroutineStack)->eConditional)
-         {
-         /// [IF] ENDSUB is within an IF conditional - ignore it
-         case CI_IF:
-         case CI_IF_NOT:
-            break;
-
-         /// [SKIP-IF] If ENDSUB is on the line immediately following a SKIP-IF conditional, remove the SKIP-IF and ignore the ENDSUB
-         case CI_SKIP_IF:
-         case CI_SKIP_IF_NOT:
-            if (topJumpStack(pSubroutineStack)->pCommand->iLineNumber == pCommand->iLineNumber - 1)
+            if (topJumpStack(pSubroutineStack) AND isSkipIfConditional(topJumpStack(pSubroutineStack)->eConditional))
                popJumpStack(pSubroutineStack);
             break;
 
-         /// [LABEL] ENDSUB follows a LABEL, remove label from the stack
-         case CI_LABEL:
-            popJumpStack(pSubroutineStack);
+         /// [END] Remove last 'IF' from the stack
+         case CI_END:
+            // Search backwards through the stack
+            for (UINT  iIndex = getStackItemCount(pSubroutineStack) - 1; findListObjectByIndex(pSubroutineStack, iIndex, (LPARAM&)pItem); iIndex--) 
+            {
+               // [CHECK] Search for IF/IF-NOT
+               if (isIfConditional(pItem->eConditional))
+               {
+                  // [FOUND] Remove item and abort search
+                  destroyJumpStackItemByIndex(pSubroutineStack, iIndex);
+                  break;
+               }
+            }
+            break;
+
+         /// [ENDSUB] Check stack for a matching label
+         case CI_END_SUB:
+            /// [EMPTY STACK] Error - ENDSUB without a LABEL definition
+            if (!topJumpStack(pSubroutineStack))
+               // [ERROR] "Cannot use 'endsub' on line %u without a previous subroutine definition"
+               pError = generateDualError(HERE(IDS_GENERATION_UNEXPECTED_END_SUB), pCommand->iLineNumber + 1);
+            
+            // Examine the conditional of the last item in the stack
+            else switch (topJumpStack(pSubroutineStack)->eConditional)
+            {
+            /// [IF] ENDSUB is within an IF conditional - ignore it
+            case CI_IF:
+            case CI_IF_NOT:
+               break;
+
+            /// [SKIP-IF] ENDSUB is within a SKIP-IF conditional - ignore it  (And remove Skip-If)
+            case CI_SKIP_IF:
+            case CI_SKIP_IF_NOT:
+               popJumpStack(pSubroutineStack);
+               break;
+
+            /// [LABEL] ENDSUB follows a LABEL, remove label from the stack
+            case CI_LABEL:
+               popJumpStack(pSubroutineStack);
+               break;
+            }
             break;
          }
-         break;
+
+         // [ERROR] Add to error queues and inform CodeEdit
+         if (pError)
+         {
+            pushCommandAndOutputQueues(pError, pErrorQueue, pCommand->pErrorQueue, ET_ERROR);
+            setCodeEditLineError(hCodeEdit, pCommand);
+         }
       }
 
-      // [ERROR] Add to error queues and inform CodeEdit
-      if (pError)
-      {
-         pushCommandAndOutputQueues(pError, pErrorQueue, pCommand->pErrorQueue, ET_ERROR);
-         setCodeEditLineError(hCodeEdit, pCommand);
-      }
+      // Cleanup and return TRUE if there were no errors
+      deleteJumpStack(pSubroutineStack);
+      return (pError == NULL);
    }
+   PUSH_CATCH0(pErrorQueue, "");
+   debugCommand(pCommand);
+   debugJumpStack(pSubroutineStack);
+   return FALSE;
+}
 
-   /// [VERIFY LABEL NAMES] Verify labels and convert the their names into line numbers
-   if (pError == NULL)
+
+/// Function name  : generateSubroutineCommandLogic
+// Description     : Generates the jump information in goto label/sub-routine commands.
+// 
+// HWND                 hCodeEdit   : [in]     CodeEdit
+// SCRIPT_FILE*         pScriptFile : [in/out] Scriptfile containing generated commands
+// ERROR_QUEUE*         pErrorQueue : [in/out] ErrorQueue
+// 
+// Return Value   : TRUE if successful, FALSE If there were errors
+// 
+BOOL  generateSubroutineCommandLogic(HWND  hCodeEdit, SCRIPT_FILE*  pScriptFile, ERROR_QUEUE*  pErrorQueue)
+{
+   STACK        *pLabelStack;       // Stores all 'LABEL' commands for jump destination generation
+   COMMAND      *pCommand = NULL;   // 'Standard generated' Command list iterator
+   ERROR_STACK  *pError = NULL;     // Operation error, if any
+   
+   __try
    {
-      // Iterate through STANDARD OUTPUT list
+      /// [VALIDATE] Validate label/gosub placement
+      if (!validateSubroutineLogic(hCodeEdit, pScriptFile, pErrorQueue))
+         return FALSE;
+
+      // Prepare
+      pLabelStack = createJumpStack();
+
+      // Populate label stack
       for (UINT iIndex = 0; findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_STANDARD, iIndex, pCommand); iIndex++)
       {
-         // Examine command
-         switch (pCommand->iID)
+         JUMP_STACK_ITEM  *pConflict;     // Item data for conflicting label 
+         CONST TCHAR      *szLabel,       // Name of label being defined
+                          *szConflict;    // Name of conflicting label 
+
+         /// [DEFINE LABEL] Ensure unique and add to stack
+         if (isCommandID(pCommand, CMD_DEFINE_LABEL))
          {
-         // [GOTO LABEL/GOSUB] Change the label name into a jump destination - if target label exists
-         case CMD_GOTO_LABEL:
-         case CMD_GOTO_SUB:
-            // Lookup PARAMETER containing the Label name
-            findParameterInCommandByIndex(pCommand, PT_DEFAULT, 0, pLabelName);
-            ASSERT(pLabelName);
-
-            /// Check that the label exists
-            if (!findLabelInJumpStackByName(pLabelStack, pLabelName->szValue, pTargetLabel))
+            // [CHECK] Lookup label name and ensure unique
+            if (findStringParameterInCommandByIndex(pCommand, 0, szLabel) AND !findLabelInJumpStackByName(pLabelStack, szLabel, pConflict))
+               pushJumpStack(pLabelStack, pCommand, NULL);
+            else
             {
-               // [ERROR] "The label '%s' specified by the command on line %u does not exist"
-               pError = generateDualError(HERE(IDS_GENERATION_LABEL_NOT_FOUND), pLabelName->szValue, pCommand->iLineNumber + 1);
-
+               // [ERROR] "The label '%s' on line %u is a duplicate of the label '%s' on line %u"
+               findStringParameterInCommandByIndex(pConflict->pCommand, 0, szConflict);
+               pError = generateDualError(HERE(IDS_GENERATION_DUPLICATE_LABEL_NAME), szLabel, (pCommand->iLineNumber + 1), szConflict, (pConflict->pCommand->iLineNumber + 1));
                // Add to error queues and inform CodeEdit
                pushCommandAndOutputQueues(pError, pErrorQueue, pCommand->pErrorQueue, ET_ERROR);
                setCodeEditLineError(hCodeEdit, pCommand);
             }
-            /// Convert label name into a jump destination
+         }
+      }
+         
+      /// [VERIFY LABEL NAMES] Verify labels and convert the their names into line numbers
+      for (UINT iIndex = 0; findCommandInGeneratorOutput(pScriptFile->pGenerator, CT_STANDARD, iIndex, pCommand); iIndex++)
+      {
+         JUMP_STACK_ITEM*  pTarget;       // Item data for target label
+         CONST TCHAR*      szTarget;      // Name of target label
+         PARAMETER*        pReference;    // Parameter in 'goto' command referencing the target label
+
+         // Examine command
+         switch (pCommand->iID)
+         {
+         /// [GOTO LABEL/GOSUB] Change the label name into a jump destination - if target label exists
+         case CMD_GOTO_LABEL:
+         case CMD_GOTO_SUB:
+            /// Check that the label exists
+            if (!findStringParameterInCommandByIndex(pCommand, 0, szTarget) OR !findLabelInJumpStackByName(pLabelStack, szTarget, pTarget))
+            {
+               // [ERROR] "The label '%s' specified by the command on line %u does not exist"
+               pError = generateDualError(HERE(IDS_GENERATION_LABEL_NOT_FOUND), szTarget, pCommand->iLineNumber + 1);
+               // Add to error queues and inform CodeEdit
+               pushCommandAndOutputQueues(pError, pErrorQueue, pCommand->pErrorQueue, ET_ERROR);
+               setCodeEditLineError(hCodeEdit, pCommand);
+            }
+            /// [SUCCESS] Convert label name into a jump destination
             else
             {
-               pLabelName->eSyntax = PS_LABEL_NUMBER;
-               pLabelName->eType   = DT_INTEGER;
-               pLabelName->iValue  = pTargetLabel->pCommand->iIndex;
+               findParameterInCommandByIndex(pCommand, PT_DEFAULT, 0, pReference);
+               pReference->eSyntax = PS_LABEL_NUMBER;
+               pReference->eType   = DT_INTEGER;
+               pReference->iValue  = pTarget->pCommand->iIndex;
             }
             break;
          }
       }
-   }
 
-   // Cleanup and return TRUE if there were no errors
-   deleteJumpStack(pLabelStack);
-   deleteJumpStack(pSubroutineStack);
-   return (pError == NULL);
+      // Cleanup and return TRUE if there were no errors
+      deleteJumpStack(pLabelStack);
+      return (pError == NULL);
+   }
+   PUSH_CATCH0(pErrorQueue, "");
+   debugCommand(pCommand);
+   debugJumpStack(pLabelStack);
+   return FALSE;
 }
 

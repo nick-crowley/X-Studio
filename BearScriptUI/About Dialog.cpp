@@ -8,82 +8,150 @@
 #include "stdafx.h"
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
-///                                        MACROS
+///                                        DECLARATIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// Helpers
+VOID  printDirectShowError(HRESULT  hResult);
+VOID  playAudioFile(const TCHAR*  szFullPath);
+VOID  stopAudioFile();
 
+// Functions
+BOOL  initAboutDialog(HWND  hDialog);
+BOOL  initCreditsDialog(HWND  hDialog);
+
+// Message Handlers
+BOOL  onAboutDialog_Command(HWND  hDialog, CONST UINT  iControlID, CONST UINT  iNotification, HWND  hCtrl);
+BOOL  onAboutDialog_Destroy(HWND  hDialog);
+BOOL  onAboutDialog_LinkClick(HWND  hDialog, CONST UINT  iControlID, NMLINK*  pHeader);
+BOOL  onCreditsDialog_Destroy(HWND  hDialog);
+BOOL  onCreditsDialog_LinkClick(HWND  hDialog, CONST UINT  iControlID, NMLINK*  pHeader);
+
+// Dialog procedure
+INT_PTR  dlgprocAboutBox(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+INT_PTR  dlgprocCreditsDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
+INT_PTR  dlgprocLicenseDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam);
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                    CONSTANTS / GLOBALS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
+// DirectShow Interfaces
+IGraphBuilder*  g_pGraphBuilder = 0;
+IMediaControl*  g_pGraphControl = 0;
+IBasicAudio*    g_pAudioControl = 0;
 
+// Timer IDs
+static const UINT  iMoveTimer = 42,
+                   iWaitTimer = 40;
+
+// Scroll position
+static INT   iScrollPos = 0,
+             iMaxScrollPos = 1130;
+
+// Timings
+static UINT  iScrollTimeout = 80,
+             iWaitTimeout = 5000;
+
+// Credits dialog
+static HWND  hCreditsDialog;
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION / DESTRUCTION
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                        HELPERS
 /// /////////////////////////////////////////////////////////////////////////////////////////
 
-BOOL  setDialogStrings(HWND  hDialog, const UINT  iStringID, const UINT  iSkipCount, ...)
+/// Function name  : printDirectShowError
+// Description     : Prints DirectShow errors to the Console
+// 
+// HRESULT  hResult   : [in] 
+// 
+VOID  printDirectShowError(HRESULT  hResult)
 {
-   CONST TCHAR  *szClasses[] = { WC_STATIC, WC_BUTTON, WC_LINK },      // Supported window classes
-                *szCtrlText;        // Text for current control
-   TCHAR        *szAllStrings,      // All strings
-                *pIterator;         // tokeniser
-   TCHAR         szCtrlClass[32];   // Window class of current control
-   UINT          iCtrlID,
-                 iIndex = 0,
-                 iSkipIDs[10];
-          
-   // Load dialog string
-   if ((szAllStrings = utilLoadString(getResourceInstance(), iStringID, 4096)) == NULL)
-      return FALSE;
+   TCHAR*  szError = utilCreateEmptyString(512);
 
-   // Enumerate IDs of controls to skip, if any
-   for (va_list  pArgument = utilGetFirstVariableArgument(&iSkipCount); iIndex < iSkipCount AND iIndex < 10; pArgument = utilGetNextVariableArgument(pArgument, UINT))
-      iSkipIDs[iIndex++] = utilGetCurrentVariableArgument(pArgument, UINT);
+   // Print error to console
+   AMGetErrorText(hResult, szError, 512);
+   CONSOLE("ERROR: printDirectShowError() : Unable to playback file: %s", szError);
+   utilDeleteString(szError);
+}
+
+
+/// Function name  : playAudioFile
+// Description     : Plays an audio file using DirectShow
+// 
+// const TCHAR*  szFullPath   : [in] File to play
+// 
+VOID  playAudioFile(const TCHAR*  szFullPath)
+{
+   HRESULT  hResult;
+
+   // Create Graph Builder
+   if (SUCCEEDED(hResult= CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (IInterface*)&g_pGraphBuilder)))
+      g_pGraphBuilder->AddRef();
    
-   // Extract first text
-   szCtrlText = utilTokeniseString(szAllStrings, "$", &pIterator);
+   // Create graph controller
+   if (g_pGraphBuilder AND SUCCEEDED(hResult= g_pGraphBuilder->QueryInterface(IID_IMediaControl, (IInterface*)&g_pGraphControl)))
+      g_pGraphControl->AddRef();
 
-   /// Iterate through dialog child windows
-   for (HWND  hCtrl = GetFirstChild(hDialog); szCtrlText AND GetClassName(hCtrl, szCtrlClass, 32) AND (iCtrlID = GetWindowID(hCtrl)); hCtrl = GetNextSibling(hCtrl))
-   {
-      BOOL  bMatch = FALSE,
-            bSkip  = FALSE;
+   // Create audio controller
+   if (g_pGraphControl AND SUCCEEDED(hResult= g_pGraphBuilder->QueryInterface(IID_IBasicAudio, (IInterface*)&g_pAudioControl)))
+      g_pAudioControl->AddRef();
 
-      // [CHECK] Ensure control ID isn't in the skip list
-      for (UINT  i = 0; !bSkip AND i < iSkipCount; i++)
-         if (bSkip = (iCtrlID == iSkipIDs[i]))
-            break;
+   /// Render file
+   if (g_pGraphBuilder AND g_pGraphControl AND g_pAudioControl AND SUCCEEDED(hResult = g_pGraphBuilder->RenderFile(szFullPath, NULL)))
+      /// [SUCCESS] Play 
+      g_pGraphControl->Run();
+   else
+      // [FAILURE] Print to console
+      printDirectShowError(hResult);
+}
 
-      // [CHECK] Ensure control is: STATIC, BUTTON or LINK
-      for (UINT  iClass = 0; !bSkip AND !bMatch AND iClass < 3; iClass++)
-         if (bMatch = utilCompareStringVariables(szCtrlClass, szClasses[iClass]))
-            break;
-      
-      // [FAILED] Move to next child
-      if (bSkip OR !bMatch)
-         continue;
 
-      /// [FOUND] Set control text and extract next string
-      SetWindowText(hCtrl, szCtrlText);
-      szCtrlText = utilGetNextToken("$", &pIterator);
-   }
+/// Function name  : stopAudioFile
+// Description     : Stops playback of file
+// 
+// 
+VOID  stopAudioFile()
+{
+   // Fade out
+   if (g_pAudioControl)
+      for (UINT  iStep = 0; iStep < 5; iStep++)
+      {
+         g_pAudioControl->put_Volume(iStep * -500);
+         Sleep(100);
+      }
 
-   // Cleanup and return
-   utilDeleteString(szAllStrings);
-   return TRUE;
+   // Stop playback
+   if (g_pGraphControl)
+      g_pGraphControl->Stop();
+
+   /// Release Interfaces
+   utilReleaseInterface(g_pAudioControl);
+   utilReleaseInterface(g_pGraphControl);
+   utilReleaseInterface(g_pGraphBuilder);
 }
 
 /// /////////////////////////////////////////////////////////////////////////////////////////
 ///                                       FUNCTIONS
 /// /////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : displayAboutDialog
+// Description     : Displays the About dialog
+// 
+// HWND  hParent   : [in] Parent
+// 
+// Return Value   : TRUE if successful, FALSE otherwise
+// 
+BOOL   displayAboutDialog(HWND  hParent)
+{
+   // Launch the About Dialog
+   return showDialog(TEXT("ABOUT_DIALOG"), hParent, dlgprocAboutBox, NULL) != -1;
+}
+
 
 /// Function name  : initAboutDialog
 // Description     : Loads the dialog icons and centres the dialog
@@ -93,6 +161,58 @@ BOOL  setDialogStrings(HWND  hDialog, const UINT  iStringID, const UINT  iSkipCo
 // Return Value   : TRUE
 // 
 BOOL   initAboutDialog(HWND  hDialog)
+{
+   RECT    rcCredits, rcIcon, rcHeading, rcZLib;
+   SIZE    siCredits;
+   TCHAR*  szMixTension;
+
+   // Prepare
+   GetClientRect(hDialog, &rcCredits);
+   utilGetDlgItemRect(hDialog, IDC_DIALOG_ICON, &rcIcon);
+   utilGetDlgItemRect(hDialog, IDC_DIALOG_HEADING_1, &rcHeading);
+   utilGetDlgItemRect(hDialog, IDC_ABOUT_ZLIB_STATIC, &rcZLib);
+
+   // Calculate CreditsDlg rectangle
+   rcCredits.top    = rcHeading.bottom + 6;
+   rcCredits.left   = rcIcon.right + 2;
+   rcCredits.bottom = rcZLib.top - 6;
+   utilConvertRectangleToSize(&rcCredits, &siCredits);
+
+   // Centre dialog
+   utilCentreWindow(getAppWindow(), hDialog);
+
+   // [OWNER DRAW]
+   utilAddWindowStyle(GetDlgItem(hDialog, IDC_DIALOG_TITLE), SS_OWNERDRAW WITH CSS_CENTRE);
+   utilAddWindowStyle(GetDlgItem(hDialog, IDC_DIALOG_HEADING_1), SS_OWNERDRAW WITH CSS_CENTRE);
+
+   /// Play 'MixTension' soundtrack MP3
+   playAudioFile( szMixTension = utilCreateStringf(MAX_PATH, TEXT("%s\\soundtrack\\08217.mp3"), getAppPreferences()->szGameFolder) );
+
+   /// Wait 4 seconds before scrolling
+   SetTimer(hDialog, iWaitTimer, iWaitTimeout, NULL);
+
+   /// Create/position CreditsDlg
+   hCreditsDialog = CreateDialogW(getResourceInstance(), TEXT("CREDITS_DIALOG"), hDialog, dlgprocCreditsDialog);
+   MoveWindow(hCreditsDialog, rcCredits.left, rcCredits.top, siCredits.cx, siCredits.cy, TRUE);
+   ShowWindow(hCreditsDialog, SW_SHOW);
+
+   // Set scroll position
+   iScrollPos = 0;
+
+   // Return TRUE
+   utilDeleteString(szMixTension);
+   return TRUE;
+}
+
+
+/// Function name  : initCreditsDialog
+// Description     : Loads the dialog icons and centres the dialog
+// 
+// HWND  hDialog   : [in] Credits dialog
+// 
+// Return Value   : TRUE
+// 
+BOOL   initCreditsDialog(HWND  hDialog)
 {
    HICON   hIcon;
 
@@ -105,16 +225,9 @@ BOOL   initAboutDialog(HWND  hDialog)
    Static_SetIcon(GetControl(hDialog, IDC_ABOUT_DOUBLESHADOW_ICON), hIcon);
 
    // [OWNER DRAW]
-   utilAddWindowStyle(GetDlgItem(hDialog, IDC_ABOUT_DIALOG_TITLE), SS_OWNERDRAW WITH CSS_CENTRE);
-   utilAddWindowStyle(GetDlgItem(hDialog, IDC_ABOUT_DIALOG_VERSION_HEADING), SS_OWNERDRAW WITH CSS_CENTRE);
-   utilAddWindowStyle(GetDlgItem(hDialog, IDC_ABOUT_DIALOG_THANKS_HEADING), SS_OWNERDRAW);
+   utilAddWindowStyle(GetDlgItem(hDialog, IDC_DIALOG_HEADING_2), SS_OWNERDRAW);
+   utilAddWindowStyle(GetDlgItem(hDialog, IDC_DIALOG_HEADING_3), SS_OWNERDRAW);
    
-   // Centre dialog
-   utilCentreWindow(getAppWindow(), hDialog);
-
-   /// Localize dialog strings
-   setDialogStrings(hDialog, IDS_ABOUT_DIALOG_STRINGS, 4, IDC_ABOUT_DIALOG_ICON, IDC_ABOUT_EXSCRIPTOR_ICON, IDC_ABOUT_DOUBLESHADOW_ICON, IDC_ABOUT_XUNIVERSE_BITMAP);
-
    // Return TRUE
    return TRUE;
 }
@@ -144,7 +257,7 @@ BOOL  onAboutDialog_Command(HWND  hDialog, CONST UINT  iControlID, CONST UINT  i
    {
    /// [LICENSE DIALOG]
    case IDC_ABOUT_LICENSE:
-      DialogBox(getResourceInstance(), TEXT("LICENSE_DIALOG"), hDialog, dlgprocLicenseDialog);
+      showDialog(TEXT("LICENSE_DIALOG"), hDialog, dlgprocLicenseDialog, NULL);
       bResult = TRUE;
       break;
 
@@ -162,13 +275,69 @@ BOOL  onAboutDialog_Command(HWND  hDialog, CONST UINT  iControlID, CONST UINT  i
 
 
 /// Function name  : onAboutDialog_Destroy
-// Description     : Destroys the dialog icons
+// Description     : Stops playback. Destroys Credits dialog
 // 
 // HWND  hDialog   : [in] About dialog
 // 
 // Return Value   : TRUE
 // 
 BOOL  onAboutDialog_Destroy(HWND  hDialog)
+{
+   /// Stop playback
+   stopAudioFile();
+
+   /// Kill timers
+   KillTimer(hDialog, iMoveTimer);
+   KillTimer(hDialog, iWaitTimer);
+
+   /// Destroy Credits dialog
+   utilDeleteWindow(hCreditsDialog);
+
+   // Return TRUE
+   return TRUE;
+}
+
+
+
+/// Function name  : onAboutDialog_Timer
+// Description     : Scrolls Credits dialog
+// 
+// HWND        hDialog  : [in] About dialog
+// const UINT  iTimerID : [in] Timer
+// 
+// Return Value   : TRUE
+// 
+BOOL  onAboutDialog_Timer(HWND  hDialog, const UINT  iTimerID)
+{
+   /// [WAIT] Commence scrolling
+   if (iTimerID == iWaitTimer)
+   {
+      KillTimer(hDialog, iWaitTimer);
+      SetTimer(hDialog, iMoveTimer, iScrollTimeout, NULL);
+   }
+   /// [SCROLL] Scroll credits dialog
+   else
+   {
+      ScrollWindowEx(hCreditsDialog, 0, -1, NULL, NULL, NULL, NULL, SW_SCROLLCHILDREN|SW_INVALIDATE|SW_ERASE);
+      UpdateWindow(hCreditsDialog);
+
+      // [CHECK] Should we stop?
+      if (--iScrollPos <= -iMaxScrollPos)
+         KillTimer(hDialog, iMoveTimer);
+   }
+
+   return TRUE;
+}
+
+
+/// Function name  : onAboutDialog_Destroy
+// Description     : Destroys the dialog icons
+// 
+// HWND  hDialog   : [in] About dialog
+// 
+// Return Value   : TRUE
+// 
+BOOL  onCreditsDialog_Destroy(HWND  hDialog)
 {
    HICON   hIcon;
 
@@ -185,16 +354,16 @@ BOOL  onAboutDialog_Destroy(HWND  hDialog)
 }
 
 
-/// Function name  : onAboutDialog_LinkClick
+/// Function name  : onCreditsDialog_LinkClick
 // Description     : Launches the specified link
 // 
-// HWND        hDialog    : [in] About dialog
+// HWND        hDialog    : [in] Credits dialog
 // CONST UINT  iControlID : [in] Control sending the notification
 // NMLINK*     pLinkInfo  : [in] Link notification header
 // 
 // Return Value   : TRUE
 // 
-BOOL  onAboutDialog_LinkClick(HWND  hDialog, CONST UINT  iControlID, NMLINK*  pHeader)
+BOOL  onCreditsDialog_LinkClick(HWND  hDialog, CONST UINT  iControlID, NMLINK*  pHeader)
 {
    LITEM*  pLink;    // Convenience pointer
 
@@ -228,11 +397,7 @@ BOOL  onAboutDialog_LinkClick(HWND  hDialog, CONST UINT  iControlID, NMLINK*  pH
 // 
 INT_PTR   dlgprocAboutBox(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
-   NMHDR*   pHeader;   // SysLink notification header
-   BOOL     bResult;   // Operation result
-
-   // Prepare
-   bResult = FALSE;
+   BOOL  bResult = FALSE;   // Operation result
 
    // Examine message
    switch (iMessage)
@@ -251,32 +416,71 @@ INT_PTR   dlgprocAboutBox(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM 
    case WM_COMMAND:
       bResult = onAboutDialog_Command(hDialog, LOWORD(wParam), HIWORD(wParam), (HWND)lParam);
       break;
-      
-   /// [NOTIFICATION]
-   case WM_NOTIFY:
-      // Prepare
-      pHeader = (NMHDR*)lParam;
 
-      // Examine source control
-      switch (pHeader->idFrom)
-      {
-      case IDC_ABOUT_LINK_EGOSOFT:
-      case IDC_ABOUT_LINK_FORUMS:
-         // [CLICK] Launch link
-         if (pHeader->code == NM_CLICK)
-            bResult = onAboutDialog_LinkClick(hDialog, pHeader->idFrom, (NMLINK*)pHeader);         
-         break;
-      }
+   /// [TIMER]
+   case WM_TIMER:
+      bResult = onAboutDialog_Timer(hDialog, wParam);
       break;
 
    /// [OWNER DRAW]
    case WM_DRAWITEM:
       switch (wParam)
       {
-      case IDC_ABOUT_DIALOG_ICON:            bResult = onOwnerDrawStaticIcon(lParam, szMainWindowClass, 96);    break;
-      case IDC_ABOUT_DIALOG_TITLE:           bResult = onOwnerDrawStaticTitle(lParam);                          break;
-      case IDC_ABOUT_DIALOG_VERSION_HEADING:
-      case IDC_ABOUT_DIALOG_THANKS_HEADING:  bResult = onOwnerDrawStaticHeading(lParam);                        break;
+      case IDC_DIALOG_TITLE:      bResult = onOwnerDrawStaticTitle(lParam);                        break;
+      case IDC_DIALOG_HEADING_1:  bResult = onOwnerDrawStaticHeading(lParam);                      break;
+      case IDC_DIALOG_ICON:       bResult = onOwnerDrawStaticIcon(lParam, szMainWindowClass, 96);  break;
+      }
+      break;
+
+   /// [VISUAL STYLE]
+   default:
+      bResult = dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam);
+      break;
+   }
+
+   // Return result
+   return bResult;
+}
+
+
+
+/// Function name  : dlgprocCreditsDialog
+// Description     : Scrolling 'Credits' dialog procedure
+// 
+INT_PTR   dlgprocCreditsDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
+{
+   NMHDR*   pHeader;           // SysLink notification header
+   BOOL     bResult = FALSE;   // Operation result
+
+   // Examine message
+   switch (iMessage)
+   {
+   /// [CREATION]
+   case WM_INITDIALOG:
+      bResult = initCreditsDialog(hDialog);
+      break;
+
+   /// [DESTRUCTION]
+   case WM_DESTROY:
+      bResult = onCreditsDialog_Destroy(hDialog);
+      break;
+      
+   /// [NOTIFICATION]
+   case WM_NOTIFY:
+      // Prepare
+      pHeader = (NMHDR*)lParam;
+
+      /// [CLICK] Launch link
+      if (pHeader->idFrom == IDC_ABOUT_LINK_FORUMS AND pHeader->code == NM_CLICK)
+         bResult = onCreditsDialog_LinkClick(hDialog, pHeader->idFrom, (NMLINK*)pHeader);         
+      break;
+
+   /// [OWNER DRAW]
+   case WM_DRAWITEM:
+      switch (wParam)
+      {
+      case IDC_DIALOG_HEADING_2:
+      case IDC_DIALOG_HEADING_3:  bResult = onOwnerDrawStaticHeading(lParam);    break;
       }
       break;
 

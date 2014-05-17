@@ -6,25 +6,41 @@
 // 
 
 #include "stdafx.h"
+#include "Dbghelp.h"
+
+// String table entry
+struct TABLE_STRING
+{
+   TCHAR  Length;
+   TCHAR Text[0xFFFF];
+};
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          GLOBALS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Global application data
-APPLICATION*     pApplication      = NULL;     
+APPLICATION*         pApplication      = NULL;     
 
 // Logic module instance handle
-HINSTANCE        hLibraryInstance  = NULL;     
+HINSTANCE            hLibraryInstance  = NULL; 
+
+// App Version
+APPLICATION_VERSION  eBuildVersion     = AV_BETA_5_UPDATE_8;
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          CONSTANTS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Size of the small/medium ImageTrees
-CONST UINT       iSmallIconCount  = 57,
-                 iMediumIconCount = 95,
+CONST UINT       iSmallIconCount  = 60,
+                 iMediumIconCount = 101,
                  iLargeIconCount  = 10;
+
+// Language Identifiers
+LANGID  iLanguageIDs[3] = { MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL),     // AL_ENGLISH
+                            NULL,                                          // AL_FRENCH
+                            MAKELANGID(LANG_GERMAN, SUBLANG_NEUTRAL) };    // AL_GERMAN
 
 // Defines the small icons used by controls
 CONST TCHAR*     szSmallIcons[iSmallIconCount] = 
@@ -59,9 +75,9 @@ CONST TCHAR*     szSmallIcons[iSmallIconCount] =
    TEXT("SPANISH_ICON"),         TEXT("MAIN_WINDOW"),              TEXT("EXSCRIPTOR_ICON"),       TEXT("THREAT_ICON"),           TEXT("VISUAL_STUDIO_ICON"),
 
    // Colours
-   TEXT("BLACK_ICON"),           TEXT("BLUE_ICON"),                TEXT("CYAN_ICON"),             TEXT("GREEN_ICON"),            TEXT("ORANGE_ICON"),
+   TEXT("BLACK_ICON"),           TEXT("BLUE_ICON"),                TEXT("CYAN_ICON"),             TEXT("GREEN_ICON"),            TEXT("ORANGE_ICON"),              TEXT("PINK_ICON"), 
    TEXT("PURPLE_ICON"),          TEXT("RED_ICON"),                 TEXT("WHITE_ICON"),            TEXT("YELLOW_ICON"),           TEXT("GREY_ICON"),
-   TEXT("DARK_GREEN_ICON"),      TEXT("DARK_GREY_ICON"),           TEXT("DARK_RED_ICON"),
+   TEXT("DARK_GREEN_ICON"),      TEXT("DARK_GREY_ICON"),           TEXT("DARK_ORANGE_ICON"),      TEXT("DARK_RED_ICON"),         TEXT("DARK_YELLOW_ICON"),
 
    // Overlays
    TEXT("INVALID_OVERLAY"),      TEXT("DESCRIPTION_OVERLAY"),
@@ -79,14 +95,14 @@ CONST TCHAR*     szMediumIcons[iMediumIconCount] =
    TEXT("NEW_LANGUAGE_FILE_ICON"), TEXT("NEW_MISSION_FILE_ICON"), TEXT("NEW_SCRIPT_FILE_ICON"),     TEXT("OPEN_FILE_ICON"),      TEXT("OPEN_SAMPLES_ICON"),     TEXT("OUTPUT_WINDOW_ICON"),
    TEXT("PASTE_ICON"),             TEXT("PREFERENCES_ICON"),      TEXT("PROPERTIES_ICON"),          TEXT("QUIT_ICON"),           TEXT("REDO_ICON"),             TEXT("SAVE_FILE_ICON"), 
    TEXT("SAVE_FILE_AS_ICON"),      TEXT("SAVE_ALL_FILES_ICON"),   TEXT("SCRIPT_OBJECT_ICON"),       TEXT("SELECT_ALL_ICON"),     TEXT("SUBMIT_REPORT_ICON"),    TEXT("UNDO_ICON"), 
-   TEXT("UPDATE_ICON"),            TEXT("COMMENT_ICON"),          TEXT("FIND_TEXT_ICON"),           TEXT("TUTORIAL_ICON"),       TEXT("NEW_PROJECT_FILE_ICON"),
+   TEXT("UPDATE_ICON"),            TEXT("COMMENT_ICON"),          TEXT("FIND_TEXT_ICON"),           TEXT("TUTORIAL_ICON"),       TEXT("NEW_PROJECT_FILE_ICON"), TEXT("OPEN_VFS_ICON"),
    
    // CodeEdit
    TEXT("ERROR_ICON"),             TEXT("WARNING_ICON"),          TEXT("EDIT_FORMATTING_ICON"), 
 
    // Properties Dialog
    TEXT("ADD_ICON"),               TEXT("REFRESH_ICON"),          TEXT("REMOVE_ICON"),              TEXT("SIGNED_ICON"),         TEXT("SCRIPT_CALLER_ICON"),    TEXT("SCRIPT_DEPENDENCY_ICON"),
-   TEXT("THREAT_ICON"),            TEXT("REUNION_ICON"),          TEXT("TERRAN_CONFLICT_ICON"),     TEXT("ALBION_PRELUDE_ICON"),
+   TEXT("THREAT_ICON"),            TEXT("REUNION_ICON"),          TEXT("TERRAN_CONFLICT_ICON"),     TEXT("ALBION_PRELUDE_ICON"), TEXT("MOVE_UP_ICON"),          TEXT("MOVE_DOWN_ICON"),
 
    // Script Document
    TEXT("FUNCTION_ICON"),          TEXT("VARIABLE_ICON"),
@@ -113,9 +129,9 @@ CONST TCHAR*     szMediumIcons[iMediumIconCount] =
    TEXT("MAIN_WINDOW"),            TEXT("EXSCRIPTOR_ICON"),       TEXT("THREAT_ICON"),              TEXT("VISUAL_STUDIO_ICON"),
 
    // Colours
-   TEXT("BLACK_ICON"),             TEXT("BLUE_ICON"),             TEXT("CYAN_ICON"),                TEXT("GREEN_ICON"),          TEXT("ORANGE_ICON"),
-   TEXT("PURPLE_ICON"),            TEXT("RED_ICON"),              TEXT("WHITE_ICON"),               TEXT("YELLOW_ICON"),         TEXT("GREY_ICON"),
-   TEXT("DARK_GREEN_ICON"),        TEXT("DARK_GREY_ICON"),        TEXT("DARK_RED_ICON")
+   TEXT("BLACK_ICON"),           TEXT("BLUE_ICON"),                TEXT("CYAN_ICON"),             TEXT("GREEN_ICON"),            TEXT("ORANGE_ICON"),              TEXT("PINK_ICON"), 
+   TEXT("PURPLE_ICON"),          TEXT("RED_ICON"),                 TEXT("WHITE_ICON"),            TEXT("YELLOW_ICON"),           TEXT("GREY_ICON"),
+   TEXT("DARK_GREEN_ICON"),      TEXT("DARK_GREY_ICON"),           TEXT("DARK_ORANGE_ICON"),      TEXT("DARK_RED_ICON"),         TEXT("DARK_YELLOW_ICON"),
 };
 
 // Defines the small icons used by tooltips
@@ -131,11 +147,6 @@ CONST TCHAR*     szLargeIcons[iLargeIconCount] =
    // File dialog
    TEXT("LANGUAGE_FOLDER_ICON"), TEXT("MISSION_FOLDER_ICON"),     TEXT("SCRIPT_FOLDER_ICON"),
 };
-
-// Language Identifiers
-LANGID  iLanguageIDs[3] = { MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_UK),     // AL_ENGLISH
-                            NULL,                                             // AL_FRENCH
-                            MAKELANGID(LANG_GERMAN, SUBLANG_GERMAN) };        // AL_GERMAN
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                   CREATION  /  DESTRUCTION
@@ -166,6 +177,14 @@ VOID   createApplication(HINSTANCE  hInstance)
    pApplication->hAppInstance     = hInstance;   
    pApplication->hLibraryInstance = hLibraryInstance;
    pApplication->eWindowsVersion  = utilGetWindowsVersion();
+   pApplication->eVersion         = eBuildVersion;
+
+   // Set working folder
+   GetModuleFileName(NULL, pApplication->szFolder, MAX_PATH);
+   utilFindCharacterReverse(pApplication->szFolder, '\\')[1] = NULL;
+
+   // Create theme brushes
+   generateAppThemeBrushes(TRUE);
 
    // [DEBUGGING] Set working folder
    utilSetProcessWorkingFolder();
@@ -192,13 +211,66 @@ VOID  deleteApplication()
    deleteImageTree(pApplication->pMediumImageTree);
    deleteImageTree(pApplication->pLargeImageTree);
 
+   // Destroy brushes
+   generateAppThemeBrushes(FALSE);
+
    /// Destroy Application object
    utilDeleteObject(pApplication);
+
+#ifdef DEBUG_HELP   
+   /// Cleanup DebugHelp.dll
+   SymCleanup(GetCurrentProcess());
+#endif
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          HELPERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Function name  : getAppLanguage
+// Description     : Get application language ID
+// 
+// Return Value   : Language ID
+//
+LANGID  getAppLanguage()
+{
+   return iLanguageIDs[getAppPreferences() ? getAppPreferences()->eAppLanguage : AL_ENGLISH];    // Desired language
+}
+
+
+/// Function name  : findString
+// Description     : Finds a string resource for the current UI language from a string table
+// 
+// const UINT  iResourceID : [in] String ID
+// 
+// Return Value   : Table string, or NULL
+// 
+TABLE_STRING*  findString(const UINT  iResourceID)
+{
+   HRSRC  resource;
+   int    table = iResourceID/16+1;     // Table index
+   int    index = iResourceID % 16;     // String index
+   LANGID lang = getAppLanguage();
+
+   // Lookup string table
+   SILENT_ERROR_CHECK("Finding localised string resource", resource = FindResourceEx(getResourceInstance(), RT_STRING, MAKEINTRESOURCE(table), lang));
+   int size = SizeofResource(getResourceInstance(), resource);
+
+   // [NOT FOUND]
+   if (resource==NULL)
+      return NULL;
+
+   // Get first string
+   TABLE_STRING* string = (TABLE_STRING*)LockResource(LoadResource(getResourceInstance(), resource));
+   
+   // Find desired string
+   for (int i = 0; i < index; i++)
+      string = (TABLE_STRING*)(reinterpret_cast<TCHAR*>(string)+string->Length+1);
+
+   // Return string
+   return string;
+}
+
 
 /// Function name  : setThreadLanguage
 // Description     : Sets the thread language to the preferences based interface language
@@ -211,7 +283,7 @@ VOID  setThreadLanguage(const APP_LANGUAGE  eLanguage)
    LANGID  iLangID = iLanguageIDs[eLanguage];   // Lookup language ID
 
    /// Set thread locate and UI language
-   SetThreadLocale(iLangID);  
+   ERROR_CHECK("Setting thread locale", SetThreadLocale(MAKELCID(iLangID, SORT_DEFAULT)));
    SetThreadUILanguage(iLangID);
 }
 
@@ -376,6 +448,66 @@ VOID  loadAppImageTrees()
 }
 
 
+/// Function name  : loadDialog
+// Description     : Loads/displays a localised modeless dialog 
+// 
+// const TCHAR*  szID    : [in] Dialog ID
+// HWND          hParent : [in] Parent window
+// DLGPROC       dlgProc : [in] Dialog proc
+// LPARAM        lParam  : [in] Dialog Parameter
+// 
+// Return Value   : Dialog handle if successful, otherwise NULL
+// 
+BearScriptAPI
+HWND  loadDialog(const TCHAR*  szID, HWND  hParent, DLGPROC  dlgProc, LPARAM  lParam)
+{
+   return CreateDialogIndirectParam(getResourceInstance(), loadDialogTemplate(szID), hParent, dlgProc, lParam);
+}
+
+/// Function name  : loadDialogTemplate
+// Description     : Loads a localised dialog template resource
+// 
+// const TCHAR*  szID : [in] Dialog ID
+// 
+// Return Value   : Dialog template if successful, otherwise NULL
+// 
+BearScriptAPI
+DLGTEMPLATE*  loadDialogTemplate(const TCHAR*  szID)
+{
+   HRSRC  resource;
+   LANGID lang = getAppLanguage();    // Desired language
+   HWND   hDlg = NULL;
+
+   // Lookup dialog template
+   SILENT_ERROR_CHECK("Finding localised dialog resource", resource = FindResourceEx(getResourceInstance(), RT_DIALOG, szID, lang));
+   return resource ? (DLGTEMPLATE*)LockResource(LoadResource(getResourceInstance(), resource)) : NULL;
+
+   // Debugging attempt to copy memory to non-readonly portion
+   /*int size = SizeofResource(getResourceInstance(), resource);
+   VOID* dlg = utilAllocateMemory(size);
+   utilCopyMemory(dlg, (DLGTEMPLATE*)LockResource(LoadResource(getResourceInstance(), resource)), size);
+   return (DLGTEMPLATE*)dlg;*/
+}
+
+/// Function name  : loadMenu
+// Description     : Loads a localised menu resource
+// 
+// const TCHAR*  szID : [in] Menu ID
+// 
+// Return Value   : Menu handle if successful, otherwise NULL
+// 
+BearScriptAPI
+HMENU  loadMenu(const TCHAR*  szID)
+{
+   HRSRC  resource;
+   LANGID lang = getAppLanguage();    // Desired language
+   HWND   hDlg = NULL;
+
+   // Lookup menu
+   SILENT_ERROR_CHECK("Finding localised menu resource", resource = FindResourceEx(getResourceInstance(), RT_MENU, szID, lang));
+   return resource ? LoadMenuIndirect((MENUTEMPLATE*)LockResource(LoadResource(getResourceInstance(), resource))) : NULL;
+}
+
 /// Function name : loadHelpLibrary
 // Description    : Initialises the HTML help API and launches the separate help thread
 //
@@ -401,9 +533,6 @@ BOOL  loadResourceLibrary(CONST APP_LANGUAGE  eLanguage, ERROR_STACK*  &pError)
 {
    TCHAR*  szLibraryPath;     // Full path of library
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   
    // [CHECK] Ensure library is not already loaded
    VERBOSE("Loading %s resource library", identifyAppLanguageString(eLanguage));
    ASSERT(getResourceInstance() == NULL);
@@ -417,16 +546,13 @@ BOOL  loadResourceLibrary(CONST APP_LANGUAGE  eLanguage, ERROR_STACK*  &pError)
    /// Load resource library for the specified language
    if (pApplication->hResourceInstance = LoadLibrary(szLibraryPath))
    {
-      /// Set thread language
-      setThreadLanguage(eLanguage);
-
       // [SUCCESS] Load application title and resource DLL path
-      LoadString(getResourceInstance(), IDS_APPLICATION_NAME, pApplication->szName, 128);
+      loadString(IDS_APPLICATION_NAME, pApplication->szName, 128);
       StringCchCopy(pApplication->szResourceLibrary, MAX_PATH, szLibraryPath);
 
       // Load game version strings
       for (UINT iVersion = GV_THREAT; iVersion <= GV_UNKNOWN; iVersion++)
-         LoadString(getResourceInstance(), (IDS_GAME_VERSION_THREAT + iVersion), pApplication->szGameVersions[iVersion], 32);
+         loadString((IDS_GAME_VERSION_THREAT + iVersion), pApplication->szGameVersions[iVersion], 32);
    }
    else
       // [ERROR] "There was an error while loading the dynamic link library containing the application resources - check '%s' is not missing."
@@ -434,7 +560,6 @@ BOOL  loadResourceLibrary(CONST APP_LANGUAGE  eLanguage, ERROR_STACK*  &pError)
 
    // Cleanup and return TRUE if loaded successfully
    utilDeleteString(szLibraryPath);
-   END_TRACKING();
    return (getResourceInstance() != NULL);
 }
 
@@ -452,6 +577,88 @@ BOOL  loadRichEditLibrary()
 
    // Return result
    return (pApplication->hRichEditDLL != NULL);
+}
+
+
+/// Function name  : loadString
+// Description     : Loads a string from the resource library
+// 
+// const UINT  iResourceID : [in] ID
+// const UINT  iLength     : [in] Length
+// 
+// Return Value   : New string, or NULL
+// 
+BearScriptAPI
+TCHAR*  loadString(const UINT  iResourceID, const UINT  iLength)
+{
+   if (utilGetWindowsVersion() >= WINDOWS_VISTA)
+      return utilLoadString(getResourceInstance(), iResourceID, iLength);
+   else
+   {
+      TCHAR*         text;
+      TABLE_STRING*  string;
+
+      // Lookup table string
+      if ((string=findString(iResourceID)) == NULL)
+         return utilDuplicateSimpleString(TEXT("<Missing string resource>"));
+
+      // [FOUND] Return text  
+      utilCopyString(text=utilCreateEmptyString(iLength), string->Text, string->Length); // Supply desired buffer size because I've relied on that fact in various places
+      return text;
+   }
+}
+
+
+/// Function name  : loadString
+// Description     : Loads a string from the resource library
+// 
+// const UINT  iResourceID : [in]     String ID
+// TCHAR*      szBuffer    : [in/out] Buffer to fill
+// const UINT  iLength     : [in]     Buffer length
+// 
+// Return Value   : Characters read
+// 
+BearScriptAPI
+INT  loadString(const UINT  iResourceID, TCHAR* szBuffer, const UINT  iLength)
+{
+   if (utilGetWindowsVersion() >= WINDOWS_VISTA)
+      return LoadString(getResourceInstance(), iResourceID, szBuffer, iLength);
+   else
+   {
+      TABLE_STRING*  string;
+
+      // Lookup table string
+      if ((string=findString(iResourceID)) == NULL)
+      {
+         utilCopyString(szBuffer, TEXT("<Missing string resource>"), iLength);
+         return 0;
+      }
+
+      // [FOUND] Return text  
+      utilCopyString(szBuffer, string->Text, string->Length);
+      return string->Length;
+   }
+}
+
+/// Function name  : loadTempStringf
+// Description     : Loads a string from the resource library
+// 
+// const UINT  iResourceID : [in] ID
+//             ...         : [in] Variable arguments
+// 
+// Return Value   : Newstatic buffer, valid until next call
+// 
+BearScriptAPI
+const TCHAR*  loadStringf(const UINT  iResourceID, const UINT  iLength, ...)
+{
+   TCHAR  *szFormat, *szOutput;
+
+   /// Load + Assemble string
+   szOutput = utilCreateStringVf(iLength, szFormat = loadString(iResourceID, iLength), utilGetFirstVariableArgument(&iResourceID));
+   utilDeleteString(szFormat);
+
+   // Return assembled string
+   return szOutput;
 }
 
 
@@ -474,9 +681,9 @@ BOOL  loadSystemImageListIcons()
       /// Manually identify resource DLL icon ordinal
       switch (eVersion)
       {
-      case GV_THREAT:            iAppIconIndex = 98;     break;
-      case GV_REUNION:           iAppIconIndex = 81;     break;
-      case GV_TERRAN_CONFLICT:   iAppIconIndex = 97;     break;
+      case GV_THREAT:            iAppIconIndex = 102;    break;
+      case GV_REUNION:           iAppIconIndex = 85;     break;
+      case GV_TERRAN_CONFLICT:   iAppIconIndex = 101;    break;
       case GV_ALBION_PRELUDE:    iAppIconIndex = 3;      break;
       }
 
@@ -488,13 +695,71 @@ BOOL  loadSystemImageListIcons()
    }
 
    /// [DOCUMENT TYPE] Force the System ImageList to extract the DocumentType icons
-   pApplication->iSystemImageListIcons[4] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 56, GIL_DONTCACHE);  // Ordinal 56 == NEW_LANGUAGE_FILE_ICON
-   pApplication->iSystemImageListIcons[5] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 57, GIL_DONTCACHE);  // Ordinal 57 == NEW_MISSION_FILE_ICON
-   pApplication->iSystemImageListIcons[6] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 58, GIL_DONTCACHE);  // Ordinal 58 == NEW_PROJECT_FILE_ICON
-   pApplication->iSystemImageListIcons[7] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 59, GIL_DONTCACHE);  // Ordinal 59 == NEW_SCRIPT_FILE_ICON
+   pApplication->iSystemImageListIcons[4] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 58, GIL_DONTCACHE);  // Ordinal 56 == NEW_LANGUAGE_FILE_ICON
+   pApplication->iSystemImageListIcons[5] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 59, GIL_DONTCACHE);  // Ordinal 57 == NEW_MISSION_FILE_ICON
+   pApplication->iSystemImageListIcons[6] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 60, GIL_DONTCACHE);  // Ordinal 58 == NEW_PROJECT_FILE_ICON
+   pApplication->iSystemImageListIcons[7] = utilGetCachedIconIndex(getAppResourceLibraryPath(), 61, GIL_DONTCACHE);  // Ordinal 59 == NEW_SCRIPT_FILE_ICON
 
    // [SUCCESS]
    return TRUE;
+}
+
+
+/// Function name  : loadString
+// Description     : Loads a string from the resource library
+// 
+// const UINT  iResourceID : [in] ID
+// 
+// Return Value   : static buffer, valid until next call
+// 
+BearScriptAPI
+const TCHAR*  loadTempString(const UINT  iResourceID)
+{
+   static TCHAR  szBuffer[512] = {NULL};
+
+   /// Load string and return static buffer
+   LoadString(getResourceInstance(), iResourceID, szBuffer, 512);
+   return szBuffer;
+}
+
+/// Function name  : loadTempStringf
+// Description     : Loads a string from the resource library
+// 
+// const UINT  iResourceID : [in] ID
+//             ...         : [in] Variable arguments
+// 
+// Return Value   : Newstatic buffer, valid until next call
+// 
+BearScriptAPI
+const TCHAR*  loadTempStringf(const UINT  iResourceID, ...)
+{
+   static TCHAR  szBuffer[512] = {NULL};
+   TCHAR*        szFormat;
+
+   /// Load + Assemble string
+   StringCchVPrintf(szBuffer, 512, szFormat = loadString(iResourceID, 512), utilGetFirstVariableArgument(&iResourceID));
+
+   // Return static buffer
+   utilDeleteString(szFormat);
+   return szBuffer;
+}
+
+
+/// Function name  : showDialog
+// Description     : Loads/Displays a localised modal dialog 
+// 
+// const TCHAR*  szID    : [in] Dialog ID
+// HWND          hParent : [in] Parent window
+// DLGPROC       dlgProc : [in] Dialog proc
+// LPARAM        lParam  : [in] Dialog Parameter
+// 
+// Return Value   : Parameter passed to EndDialog(..)
+// 
+BearScriptAPI
+INT_PTR  showDialog(const TCHAR*  szID, HWND  hParent, DLGPROC  dlgProc, LPARAM  lParam)
+{
+   // Load/Display dialog
+   return DialogBoxIndirectParam(getResourceInstance(), loadDialogTemplate(szID), hParent, dlgProc, lParam);
 }
 
 
@@ -505,7 +770,7 @@ BearScriptAPI
 VOID   unloadApplication()
 {
    // [VERBOSE]
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND();
 
    // Validate heap
    ERROR_CHECK("validating heap", utilValidateMemory());

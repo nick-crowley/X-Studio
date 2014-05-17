@@ -21,8 +21,11 @@
 APP_LANGUAGE   displayFirstRunDialog(HWND  hParentWnd)
 {
    // Display 'FirstRun' dialog to query display language
-   return (APP_LANGUAGE)DialogBox(getResourceInstance(), TEXT("FIRST_TIME_DIALOG"), hParentWnd, dlgprocFirstRunDialog);
+   return (APP_LANGUAGE)showDialog(TEXT("FIRST_TIME_DIALOG"), hParentWnd, dlgprocFirstRunDialog, NULL);
 }
+
+// onException: Display 
+#define  ON_EXCEPTION()    displayException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                        FUNCTIONS
@@ -37,32 +40,12 @@ APP_LANGUAGE   displayFirstRunDialog(HWND  hParentWnd)
 // 
 BOOL  initFirstRunDialog(HWND  hDialog)
 {
-   TCHAR*    szLanguage;    // Language string of the language being processed
-
-   // Prepare
-   TRACK_FUNCTION();
-
-   /// [CAPTION] Set window caption
+   // Set window caption
    SetWindowText(hDialog, getAppName());
 
-   /// [LANGUAGES] Iterate through Interface languages
-   for (APP_LANGUAGE  eLanguage = AL_ENGLISH; eLanguage <= AL_RUSSIAN; eLanguage = (APP_LANGUAGE)(eLanguage + 1))
-   {
-      // Examine language
-      switch (eLanguage)
-      {
-      case AL_ENGLISH:
-      case AL_GERMAN:
-      //case AL_RUSSIAN:
-         /// Load interface language name and add to ComboBox
-         ASSERT(szLanguage = utilLoadString(getResourceInstance(), IDS_LANGUAGE_ENGLISH + eLanguage, 64));
-         appendCustomComboBoxItemEx(GetControl(hDialog, IDC_FIRST_LANGUAGE_COMBO), szLanguage, NULL, szLanguageIcons[eLanguage], NULL);
-
-         // Cleanup
-         utilDeleteString(szLanguage);
-         break;
-      }
-   }
+   /// Populate interface languages ComboBox
+   appendCustomComboBoxItemEx(GetControl(hDialog, IDC_FIRST_LANGUAGE_COMBO), loadTempString(IDS_LANGUAGE_ENGLISH + AL_ENGLISH), NULL, szLanguageIcons[AL_ENGLISH], NULL);
+   appendCustomComboBoxItemEx(GetControl(hDialog, IDC_FIRST_LANGUAGE_COMBO), loadTempString(IDS_LANGUAGE_ENGLISH + AL_GERMAN), NULL, szLanguageIcons[AL_GERMAN], NULL);
 
    // [OWNER DRAW]
    utilAddWindowStyle(GetControl(hDialog, IDC_FIRST_WELCOME_STATIC), SS_OWNERDRAW);
@@ -73,7 +56,6 @@ BOOL  initFirstRunDialog(HWND  hDialog)
    SetFocus(GetDlgItem(hDialog, IDOK));
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -92,17 +74,13 @@ BOOL  onFirstRunDialog_Close(HWND  hDialog)
 {
    INTERFACE_LANGUAGE  eInterfaceLanguage;   // Language selection
 
-   // Prepare
-   TRACK_FUNCTION();
-
    // Retrieve the currently selected language
-   eInterfaceLanguage = (INTERFACE_LANGUAGE)ComboBox_GetCurSel(GetControl(hDialog, IDC_APPLICATION_LANGUAGE_COMBO));
+   eInterfaceLanguage = (INTERFACE_LANGUAGE)ComboBox_GetCurSel(GetControl(hDialog, IDC_FIRST_LANGUAGE_COMBO));
 
    // Convert into an ApplicationLanguage
    EndDialog(hDialog, (INT_PTR)convertInterfaceLanguageToAppLanguage(eInterfaceLanguage));
 
    // Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -115,14 +93,10 @@ BOOL  onFirstRunDialog_Close(HWND  hDialog)
 // 
 INT_PTR  dlgprocFirstRunDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARAM  lParam)
 {
-   ERROR_STACK*  pException;  // Exception
-   BOOL          bResult;     // Operation result
+   BOOL   bResult = TRUE;     // Operation result
 
    // Prepare
-   TRACK_FUNCTION();
-   bResult = FALSE;
-
-   __try
+   TRY
    {
       // Examine message
       switch (iMessage)
@@ -161,22 +135,11 @@ INT_PTR  dlgprocFirstRunDialog(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LP
       }
 
       /// [VISTA STYLE] Pass to VistaDialog base or return result
-      if (!bResult)
-         bResult = (INT_PTR)dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam);
+      return bResult ? bResult : (INT_PTR)dlgprocVistaStyleDialog(hDialog, iMessage, wParam, lParam);
    }
    /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the language selection dialog"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_FIRST_RUN_DIALOG));
-      displayException(pException);
-
-      // Return TRUE
-      bResult = TRUE;
-   }
-
-   END_TRACKING();
-   return bResult;
+   CATCH3("iMessage=%s  wParam=%d  lParam=%d", identifyMessage(iMessage), wParam, lParam);
+   return FALSE;
 }
 
 

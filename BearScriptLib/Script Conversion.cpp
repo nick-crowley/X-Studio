@@ -439,6 +439,20 @@ BOOL  findCommandInGeneratorOutput(CONST SCRIPT_GENERATOR*  pGenerator, CONST CO
 }
 
 
+/// Function name  : findLastCommandInGeneratorOutput
+// Description     : Finds the last standard COMMAND in a generators OUTPUT
+// 
+// CONST SCRIPT_GENERATOR*  pGenerator : [in]  Script generator
+// COMMAND*                &pOutput    : [out] Resultant COMMAND if found, otherwise NULL
+// 
+// Return Value   : TRUE if found, FALSE otherwise
+// 
+BOOL  findLastCommandInGeneratorOutput(CONST SCRIPT_GENERATOR*  pGenerator, COMMAND*  &pOutput)
+{
+   return findListObjectByIndex(pGenerator->pOutputStream->pStandardList, getListItemCount(pGenerator->pOutputStream->pStandardList) - 1, (LPARAM&)pOutput);
+}
+
+
 /// Function name  : findVariableNameInGeneratorByIndex
 // Description     : Locate a VariableName within a ScriptGenerator by ZERO-BASED index
 // 

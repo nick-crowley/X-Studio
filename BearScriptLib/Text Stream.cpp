@@ -88,8 +88,9 @@ TCHAR*  getTextStreamBuffer(CONST TEXT_STREAM*  pTextStream)
 BearScriptAPI 
 VOID  appendStringToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR*  szText)
 {
-   // Extend stream if buffer more than 85% full
-   if (pTextStream->iBufferUsed > utilCalculatePercentage(pTextStream->iBufferSize, 85))
+   // [CHECK] Extend buffer if necessary
+   //if (pTextStream->iBufferUsed > utilCalculatePercentage(pTextStream->iBufferSize, 85))   // Extend stream if buffer more than 85% full
+   if (pTextStream->iBufferUsed + lstrlen(szText) >= pTextStream->iBufferSize)
    {
       pTextStream->iBufferSize *= 2;
       pTextStream->szBuffer = utilExtendString(pTextStream->szBuffer, pTextStream->iBufferUsed, pTextStream->iBufferSize);
@@ -122,8 +123,9 @@ VOID  appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szForma
    /// Assemble input text
    StringCchVPrintf(pTextStream->szAssembledText, MAX_STRING, szFormat, pArguments);
 
-   // Extend stream if buffer more than 85% full
-   if (pTextStream->iBufferUsed > utilCalculatePercentage(pTextStream->iBufferSize, 85))
+   // [CHECK] Extend buffer if necessary
+   //if (pTextStream->iBufferUsed > utilCalculatePercentage(pTextStream->iBufferSize, 85))      // Extend stream if buffer more than 85% full
+   if (pTextStream->iBufferUsed + lstrlen(pTextStream->szAssembledText) >= pTextStream->iBufferSize)
    {
       pTextStream->iBufferSize *= 2;
       pTextStream->szBuffer = utilExtendString(pTextStream->szBuffer, pTextStream->iBufferUsed, pTextStream->iBufferSize);
@@ -147,6 +149,13 @@ VOID  appendStringToTextStreamf(TEXT_STREAM*  pTextStream, CONST TCHAR*  szForma
 BearScriptAPI 
 VOID  appendCharToTextStream(TEXT_STREAM*  pTextStream, CONST TCHAR  chCharacter)
 {
+   // [CHECK] Extend buffer if necessary
+   if (pTextStream->iBufferUsed + 1 >= pTextStream->iBufferSize)
+   {
+      pTextStream->iBufferSize *= 2;
+      pTextStream->szBuffer = utilExtendString(pTextStream->szBuffer, pTextStream->iBufferUsed, pTextStream->iBufferSize);
+   }
+
    // Append character to text stream
    getTextStreamBuffer(pTextStream)[0] = chCharacter;
 

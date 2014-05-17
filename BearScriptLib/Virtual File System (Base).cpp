@@ -345,106 +345,99 @@ UINT   loadCatalogueFile(CONST TCHAR*  szFullPath, RAW_FILE*  &szOutput)
 // 
 BOOL   loadRawFileFromUnderlyingFileSystemByPath(CONST TCHAR*  szFullPath, CONST VIRTUAL_FILE*  pVirtualFile, RAW_FILE*  &pOutputBuffer, ERROR_QUEUE*  pErrorQueue)
 {
-   ERROR_STACK*  pError;
-   RAW_FILE*     pInputBuffer;      // ANSI buffer to hold the file
-   HANDLE        hFile;             // File handle
-   TCHAR*        szSystemError,     // String version of 'GetLastError'
-                 pByteOrdering[3];  // First three bytes of the file, used for checking byte ordering heading
-   DWORD         iFileSize,         // File size in bytes (excluding the byte ordering header)
-                 iBytesRead,        // Number of bytes read in a read operation
-                 iErrorCode;        // System error code, if any
+   TCHAR*        szSystemError,            // String version of 'GetLastError'
+                 pByteOrdering[3];         // First three bytes of the file, used for checking byte ordering heading
+   ERROR_STACK*  pError       = NULL;
+   RAW_FILE*     pInputBuffer = NULL;      // ANSI buffer to hold the file
+   HANDLE        hFile        = NULL;      // File handle
+   DWORD         iFileSize    = NULL,      // File size in bytes (excluding the byte ordering header)
+                 iBytesRead   = NULL,      // Number of bytes read in a read operation
+                 iErrorCode   = NULL;      // System error code, if any
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
-   // Prepare
-   iErrorCode    = NULL;
-   iBytesRead    = NULL;
-   iFileSize     = NULL;
-   pInputBuffer  = NULL;
-   pOutputBuffer = NULL;
-   pError        = NULL;
-
-   // [VERBOSE]
-   if (pVirtualFile)
-      VERBOSE("Loading virtual file '%s' from game catalogue '%s'", pVirtualFile->szFullPath, szFullPath);
-   else
-      VERBOSE("Loading physical file '%s'", szFullPath);
-
-   /// Open file
-   hFile = CreateFile(szFullPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-   // [CHECK] File opened OK?
-   if (hFile == INVALID_HANDLE_VALUE)
-      iErrorCode = GetLastError();
-   else
+   __try
    {
-      /// Determine physical/virtual file size and create input buffer
-      iFileSize    = (!pVirtualFile ? GetFileSize(hFile, NULL) : pVirtualFile->iPackedSize);
-      pInputBuffer = createRawFileBuffer(iFileSize + 1);
+      // Prepare
+      pOutputBuffer = NULL;
+   
+      /// Open file
+      hFile = CreateFile(szFullPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-      // [VIRTUAL FILES] Seek to the correct position within the data file
-      if (pVirtualFile)
-         SetFilePointer(hFile, pVirtualFile->iDataOffset, NULL, FILE_BEGIN);
-
-      // [CHECK] Ensure file isn't empty
-      if (!iFileSize)
-         // [ERROR] "Cannot read from the file '%s' because it contains no data"
-         pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_FILE_EMPTY), szFullPath));
-
-      /// [BYTE ORDER MARK] Check the first three bytes for a BOM
-      else if (!ReadFile(hFile, (VOID*)pByteOrdering, 3, &iBytesRead, NULL))
+      // [CHECK] File opened OK?
+      if (hFile == INVALID_HANDLE_VALUE)
          iErrorCode = GetLastError();
-
-      // [UTF-16] Unsupported for the moment
-      else if (utilCompareMemory(pByteOrdering, iByteOrderingUTF16_BE, 2) OR utilCompareMemory(pByteOrdering, iByteOrderingUTF16_LE, 2))
-         // [ERROR] "Cannot read the file '%s' because it is using the currently unsupported UTF-16 byte ordering 0x%02X, 0x%02X"
-         pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_FILE_UTF16_UNSUPPORTED), szFullPath, (UINT)pByteOrdering[0], (UINT)pByteOrdering[1]));
-
       else
       {
-         // [UTF-8] Read the remaining file normally
-         if (utilCompareMemory(pByteOrdering, iByteOrderingUTF8, 3))
-            iFileSize -= 3;
-         // [NONE] Re-Seek to the to the start of the (virtual/physical) file
-         else
-            SetFilePointer(hFile, (pVirtualFile ? pVirtualFile->iDataOffset : 0), NULL, FILE_BEGIN);
-   
-         /// Attempt to read file
-         if (!ReadFile(hFile, pInputBuffer, iFileSize, &iBytesRead, NULL))
+         /// Determine physical/virtual file size and create input buffer
+         iFileSize    = (!pVirtualFile ? GetFileSize(hFile, NULL) : pVirtualFile->iPackedSize);
+         pInputBuffer = createRawFileBuffer(iFileSize + 1);
+
+         // [VIRTUAL FILES] Seek to the correct position within the data file
+         if (pVirtualFile)
+            SetFilePointer(hFile, pVirtualFile->iDataOffset, NULL, FILE_BEGIN);
+
+         // [CHECK] Ensure file isn't empty
+         if (!iFileSize)
+            // [ERROR] "Cannot read from the file '%s' because it contains no data"
+            pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_FILE_EMPTY), szFullPath));
+
+         /// [BYTE ORDER MARK] Check the first three bytes for a BOM
+         else if (!ReadFile(hFile, (VOID*)pByteOrdering, 3, &iBytesRead, NULL))
             iErrorCode = GetLastError();
-         else 
-            // Null terminate input buffer buffer
-            pInputBuffer[iBytesRead] = NULL;
+
+         // [UTF-16] Unsupported for the moment
+         else if (utilCompareMemory(pByteOrdering, iByteOrderingUTF16_BE, 2) OR utilCompareMemory(pByteOrdering, iByteOrderingUTF16_LE, 2))
+            // [ERROR] "Cannot read the file '%s' because it is using the currently unsupported UTF-16 byte ordering 0x%02X, 0x%02X"
+            pushErrorQueue(pErrorQueue, pError = generateDualError(HERE(IDS_FILE_UTF16_UNSUPPORTED), szFullPath, (UINT)pByteOrdering[0], (UINT)pByteOrdering[1]));
+
+         else
+         {
+            // [UTF-8] Read the remaining file normally
+            if (utilCompareMemory(pByteOrdering, iByteOrderingUTF8, 3))
+               iFileSize -= 3;
+            // [NONE] Re-Seek to the to the start of the (virtual/physical) file
+            else
+               SetFilePointer(hFile, (pVirtualFile ? pVirtualFile->iDataOffset : 0), NULL, FILE_BEGIN);
+      
+            /// Attempt to read file
+            if (!ReadFile(hFile, pInputBuffer, iFileSize, &iBytesRead, NULL))
+               iErrorCode = GetLastError();
+            else 
+               // Null terminate input buffer buffer
+               pInputBuffer[iBytesRead] = NULL;
+         }
+            
+         // Close file
+         utilCloseHandle(hFile);
       }
-         
-      // Close file
-      utilCloseHandle(hFile);
-   }
 
-   /// If there was any kind of error then delete the input buffer (if it exists) 
-   if (iErrorCode OR pError)
-   {
-      // Cleanup
-      if (pInputBuffer)
-         deleteRawFileBuffer(pInputBuffer);
-
-      // [SYSTEM ERROR] Convert the system error into an error queue message
-      if (!pError)
+      /// If there was any kind of error then delete the input buffer (if it exists) 
+      if (iErrorCode OR pError)
       {
-         szSystemError = utilCreateEmptyString(ERROR_LENGTH);
-         // Get system error and add to queue
-         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iErrorCode, NULL, szSystemError, ERROR_LENGTH, NULL);
-         pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_LOAD_FILE_SYSTEM_ERROR), szFullPath, szSystemError));
          // Cleanup
-         utilDeleteString(szSystemError);
+         if (pInputBuffer)
+            deleteRawFileBuffer(pInputBuffer);
+
+         // [SYSTEM ERROR] Convert the system error into an error queue message
+         if (!pError)
+         {
+            szSystemError = utilCreateEmptyString(ERROR_LENGTH);
+            // Get system error and add to queue
+            FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, iErrorCode, NULL, szSystemError, ERROR_LENGTH, NULL);
+            pushErrorQueue(pErrorQueue, generateDualError(HERE(IDS_LOAD_FILE_SYSTEM_ERROR), szFullPath, szSystemError));
+            // Cleanup
+            utilDeleteString(szSystemError);
+         }
       }
+      
+      /// Set output and return
+      pOutputBuffer = pInputBuffer;
+      return iBytesRead;
    }
-   
-   /// Set output and return
-   pOutputBuffer = pInputBuffer;
-   END_TRACKING();
-   return iBytesRead;
+   __except (pushException(pErrorQueue))
+   {
+      pVirtualFile ? EXCEPTION2("Unable to load virtual file '%s' from game catalogue '%s'", pVirtualFile->szFullPath, szFullPath) : EXCEPTION1("Unable to load physical file '%s'", szFullPath);
+      return 0;
+   }
 }
 
 
@@ -494,9 +487,7 @@ UINT   performRawFileDecryption(CONST TCHAR*  szFileName, RAW_FILE*  &szInputOut
    BYTE       iDecryptionKey;       // Decryption key calculated from encrypted GZIP header
    WORD       iDecryptionKeyWord;   // Convenience value for expressing decryption key as a WORD
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Calculate decryption key from first byte
    iDecryptionKey     = (szInputOutput[0] ^ ENCRYPTED_GZIP_KEY);
    iDecryptionKeyWord = MAKEWORD(iDecryptionKey, iDecryptionKey);
@@ -507,8 +498,7 @@ UINT   performRawFileDecryption(CONST TCHAR*  szFileName, RAW_FILE*  &szInputOut
    /// [CHECK] Is this an encrypted GZIP archive?   (Are the 2nd and 3rd bytes an encrypted GZIP header?)
    if ((extractWordFromByteBuffer(&szInputOutput[1]) ^ iDecryptionKeyWord) == GZIP_MAGIC_NUMBER)
    {
-      // [VERBOSE]
-      VERBOSE("Decompressing encrypted GZip archive '%s'", szFileName);
+      //CONSOLE("Decompressing encrypted GZip archive '%s'", szFileName);
 
       // [DECRYPT] Decrypt remaining buffer using the decryption key above
       for (UINT iByte = 1; iByte < iInputSize; iByte++)
@@ -527,8 +517,7 @@ UINT   performRawFileDecryption(CONST TCHAR*  szFileName, RAW_FILE*  &szInputOut
    {
    /// [VIRTUAL] Decrypt all virtual files using a special decryption key
    case FIF_VIRTUAL:
-      // [VERBOSE]
-      VERBOSE("Decrypting virtual file '%s'", szFileName);
+      //CONSOLE("Decrypting virtual file '%s'", szFileName);
 
       // [DECRYPT] Decrypt entire using a hard-coded key
       for (UINT iByte = 0; iByte < iInputSize; iByte++)
@@ -542,8 +531,7 @@ UINT   performRawFileDecryption(CONST TCHAR*  szFileName, RAW_FILE*  &szInputOut
       // [CHECK] Is the file a GZIP archive?
       if (extractWordFromByteBuffer(szInputOutput) == GZIP_MAGIC_NUMBER)
       {
-         // [VERBOSE]
-         VERBOSE("Decompressing GZip archive '%s'", szFileName);
+         //CONSOLE("Decompressing GZip archive '%s'", szFileName);
 
          // [EXTRACT] Decompress entire buffer into a new buffer
          iOutputSize = performGZipFileDecompression(szInputOutput, iInputSize, szDecompressed, pErrorQueue);
@@ -555,7 +543,6 @@ UINT   performRawFileDecryption(CONST TCHAR*  szFileName, RAW_FILE*  &szInputOut
    }
 
    // Return length of output buffer
-   END_TRACKING();
    return iOutputSize;
 }
 
@@ -585,9 +572,7 @@ UINT   performGZipFileCompression(CONST TCHAR*  szFileName, RAW_FILE*  szInput, 
    TCHAR       *szErrorMessageW;      // UNICODE version of the error returned by Z-Lib (if any)
    CHAR        *szFileNameA;          // ANSI version of the input filename
 	
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Ensure output does not exist
    ASSERT(!szOutput);
 
@@ -703,7 +688,6 @@ UINT   performGZipFileCompression(CONST TCHAR*  szFileName, RAW_FILE*  szInput, 
 
    // Cleanup and return output size
    utilDeleteObject(szFileNameA);
-   END_TRACKING();
    return iOutputSize;
 }
 
@@ -891,9 +875,7 @@ VOID  performPhysicalFileSystemSearch(CONST FILE_SYSTEM*  pFileSystem, CONST TCH
    TCHAR*               szSearchTerm;        // Search term for the physical file search
    BOOL                 bMoreFiles;          // FileSearch iterator flag
 
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    utilZeroObject(&oResultData, WIN32_FIND_DATA);
    pPotentialResults = createAVLTree(extractFileItemTreeNode, NULL, createAVLTreeSortKey(AK_PATH, AO_DESCENDING), NULL, NULL);
@@ -940,7 +922,6 @@ VOID  performPhysicalFileSystemSearch(CONST FILE_SYSTEM*  pFileSystem, CONST TCH
    deleteAVLTree(pPotentialResults);
    deleteAVLTreeOperation(pOperationData);
    utilDeleteString(szSearchTerm);
-   END_TRACKING();
 }
 
 
@@ -959,7 +940,6 @@ VOID  performVirtualFileSystemSearch(CONST FILE_SYSTEM*  pFileSystem, CONST TCHA
    TCHAR*                szSearchFolder;
 
    // [CHECK] Input folder is a game-subfolder
-   TRACK_FUNCTION();
    ASSERT(isPathSubFolderOf(pFileSystem->szGameFolder, szFolder));
 
    // Prepare
@@ -988,7 +968,6 @@ VOID  performVirtualFileSystemSearch(CONST FILE_SYSTEM*  pFileSystem, CONST TCHA
    // Cleanup
    utilDeleteString(szSearchFolder);
    deleteAVLTreeOperation(pOperationData);
-   END_TRACKING();
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1117,45 +1096,45 @@ VOID  treeprocSearchVirtualFileSystem(AVL_TREE_NODE*  pCurrentNode, AVL_TREE_OPE
 // 
 // VOID*  pParameter : [in] 
 // 
-// Return Value   : 
+// Return Value   : OR_SUCCESS/OR_FAILURE
 // 
 BearScriptAPI
 DWORD   threadprocFileSystemSearch(VOID*  pParameter)
 {
-   SEARCH_OPERATION*  pOperationData;
+   SEARCH_OPERATION*  pOperationData = (SEARCH_OPERATION*)pParameter;
+   OPERATION_RESULT   eResult = OR_SUCCESS;      
 
-   // [DEBUGGING]
-   TRACK_FUNCTION();
-   SET_THREAD_NAME("File System Search");
-   setThreadLanguage(getAppPreferences()->eAppLanguage);
+   __try
+   {
+      // [DEBUGGING]
+      CONSOLE_COMMAND_BOLD();
+      SET_THREAD_NAME("File System Search");
+      setThreadLanguage(getAppPreferences()->eAppLanguage);
 
-   // [CHECK] Ensure parameter exists
-   ASSERT(pParameter);
+      // Prepare
+      CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
-   // Prepare
-   pOperationData = (SEARCH_OPERATION*)pParameter;
+      // [STAGE] Define progress stage
+      ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_SEARCHING_PHYSICAL);
+      CONSOLE("Searching '%s' : eFilter=%d", pOperationData->szFolder, pOperationData->eFilter);
 
-   // [COM]
-   CoInitializeEx(NULL, COINIT_MULTITHREADED);
+      /// Destroy previous FileSearch
+      if (pOperationData->pFileSearch)
+         deleteFileSearch(pOperationData->pFileSearch);
 
-   // [STAGE] Define progress stage
-   ASSERT(getOperationProgressStageID(pOperationData->pProgress) == IDS_PROGRESS_SEARCHING_PHYSICAL);
+      /// Search the VirtualFileSystem for items matching the specified filter and folder.
+      pOperationData->pFileSearch = performFileSystemSearch(getFileSystem(), pOperationData->szFolder, pOperationData->eFilter, pOperationData->eSortKey, pOperationData->eDirection, pOperationData->pProgress);
+      
+      // Cleanup 
+      CoUninitialize();
+   }
+   __except (pushException(pOperationData->pErrorQueue))
+   {
+      eResult = OR_FAILURE;
+   }
 
-   /// Destroy previous FileSearch
-   if (pOperationData->pFileSearch)
-      deleteFileSearch(pOperationData->pFileSearch);
-
-   /// Search the VirtualFileSystem for items matching the specified filter and folder.
-   pOperationData->pFileSearch = performFileSystemSearch(getFileSystem(), pOperationData->szFolder, pOperationData->eFilter, pOperationData->eSortKey, pOperationData->eDirection, pOperationData->pProgress);
-   
-   // [DEBUG] Separate previous output from further output for claritfy
-   VERBOSE_THREAD_COMPLETE("FILE SEARCH WORKER THREAD COMPLETED");
-
-   // [COM]
-   CoUninitialize();
-
-   // Cleanup and return
-   closeThreadOperation(pOperationData, OR_SUCCESS);
-   END_TRACKING();
+   // Cleanup
+   CONSOLE_COMPLETE("FILE SEARCH", eResult);
+   closeThreadOperation(pOperationData, eResult);
    return THREAD_RETURN;
 }

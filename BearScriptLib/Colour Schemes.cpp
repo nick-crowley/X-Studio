@@ -30,10 +30,10 @@ BearScriptAPI CONST COLORREF  clTooltipColours[GAME_TEXT_COLOURS] =
 /// CodeEdit Colours
 BearScriptAPI CONST COLORREF  clInterfaceColours[INTERFACE_COLOURS] = 
 {  
-   RGB(0,0,0),                                                                  // Black
-   RGB(0,0,255),     RGB(0,115,0),     RGB(70,70,60),    RGB(140,0,0),          // D-Blue, D-Green, D-Grey, D-Red
-   RGB(0,230,240),   RGB(0,255,0),     RGB(175,175,175), RGB(255,0,0),          // L-blue, L-green, L-grey, L-red
-   RGB(255,150,20),  RGB(210,20,255),  RGB(255,255,0),   RGB(255,255,255)       // Orange, Purple, Yellow, White
+   RGB(0,0,0),                                                                                    // IC_BLACK
+   RGB(45,45,255),   RGB(0,115,0),     RGB(70,70,60),    RGB(218,152,14),  RGB(122,34,132),       // IC_DARK_BLUE     IC_DARK_GREEN   IC_DARK_GREY   IC_DARK_ORANGE   IC_PURPLE
+   RGB(125,0,0),     RGB(160,165,0),   RGB(6,205,227),   RGB(0,223,17),    RGB(175,175,175),      // IC_DARK_RED      IC_DARK_YELLOW  IC_LIGHT_BLUE  IC_LIGHT_GREEN   IC_LIGHT_GREY
+   RGB(255,150,20),  RGB(255,0,0),     RGB(210,20,255),  RGB(234,234,0),   RGB(255,255,255)       // IC_LIGHT_ORANGE  IC_LIGHT_RED    IC_PINK        IC_LIGHT_YELLOW  IC_WHITE
 };
 
 /// Colour Schemes
@@ -41,23 +41,23 @@ CONST COLOUR_SCHEME    oDefaultScheme[4] =
 { 
    /// Default colour scheme -- BBC Micro style
    TEXT("X-Studio Standard (Default)"),   TEXT("Tahoma"),     10, FALSE, IC_BLACK, 
-   //  Arguments   Commands   Comments     GameObjects     Keywords     Labels       Numbers   Operators  ScriptObjs   Strings       Variables        Null       Whitespace
-     { IC_ORANGE, IC_WHITE, IC_LIGHT_GREY, IC_LIGHT_BLUE, IC_DARK_BLUE, IC_PURPLE, IC_LIGHT_RED, IC_WHITE, IC_YELLOW, IC_LIGHT_RED, IC_LIGHT_GREEN, IC_LIGHT_GREEN, IC_BLACK },
+   //   Arguments     Commands    Comments      GameObjects     Keywords     Labels    Numbers    Operators   ScriptObjects    Strings        Variables         Null      Whitespace
+   { IC_LIGHT_ORANGE, IC_WHITE, IC_LIGHT_GREY, IC_LIGHT_BLUE, IC_DARK_BLUE, IC_PINK, IC_LIGHT_RED, IC_WHITE, IC_LIGHT_YELLOW, IC_LIGHT_RED, IC_LIGHT_GREEN, IC_LIGHT_GREEN, IC_BLACK },
 
    /// Exscriptor Emulation -- Black background, few colours
    TEXT("eXscriptor Emulation"),          TEXT("Courier New"), 8, FALSE, IC_BLACK,
-   //     Arguments     Commands   Comments    Gameobject  Keywords   Labels       Numbers    Operators ScriptObjs    Strings       Variables        Null        Whitespace
-     { IC_LIGHT_GREEN, IC_WHITE, IC_LIGHT_GREY, IC_YELLOW, IC_WHITE, IC_WHITE, IC_LIGHT_BLUE, IC_WHITE, IC_YELLOW, IC_LIGHT_BLUE, IC_LIGHT_GREEN, IC_LIGHT_GREEN, IC_BLACK },
+   //   Arguments     Commands   Comments      Gameobject     Keywords   Labels      Numbers    Operators   ScriptObjects      Strings       Variables           Null      Whitespace
+   { IC_LIGHT_GREEN, IC_WHITE, IC_LIGHT_GREY, IC_LIGHT_YELLOW, IC_WHITE, IC_WHITE, IC_LIGHT_BLUE, IC_WHITE, IC_LIGHT_YELLOW, IC_LIGHT_BLUE, IC_LIGHT_GREEN, IC_LIGHT_GREEN, IC_BLACK },
 
    /// MSCI Emulation -- Black background, almost no colours
    TEXT("M.S.C.I. Emulation"),            TEXT("Arial"),      10, FALSE, IC_BLACK,
-   //    Arguments     Commands   Comments      GameObject Keywords    Labels    Numbers  Operators  ScriptObjs  Strings     Variables         Null        Whitespace
-     { IC_LIGHT_GREEN, IC_WHITE, IC_LIGHT_GREY, IC_YELLOW, IC_WHITE, IC_YELLOW, IC_YELLOW, IC_WHITE, IC_YELLOW, IC_YELLOW, IC_LIGHT_GREEN, IC_LIGHT_GREEN, IC_BLACK },
+   //  Arguments     Commands   Comments        GameObject    Keywords       Labels          Numbers       Operators   ScriptObject      Strings        Variables         Null        Whitespace
+   { IC_LIGHT_GREEN, IC_WHITE, IC_LIGHT_GREY, IC_LIGHT_YELLOW, IC_WHITE, IC_LIGHT_YELLOW, IC_LIGHT_YELLOW, IC_WHITE, IC_LIGHT_YELLOW, IC_LIGHT_YELLOW, IC_LIGHT_GREEN, IC_LIGHT_GREEN, IC_BLACK },
 
    /// Windows Scheme -- Colours that contrast a white background
    TEXT("Visual Studio Style"),           TEXT("Arial"),      10, FALSE, IC_WHITE,
-   //  Arguments   Commands   Comments      GameObjs      Keywords     Labels      Numbers     Operators  ScriptObjs      Strings       Variables        Null      Whitespace
-     { IC_ORANGE, IC_BLACK, IC_DARK_GREY, IC_LIGHT_BLUE, IC_DARK_BLUE, IC_PURPLE, IC_LIGHT_RED, IC_BLACK, IC_LIGHT_BLUE, IC_LIGHT_RED, IC_DARK_GREEN, IC_DARK_GREEN, IC_WHITE }
+   //  Arguments     Commands   Comments     GameObjects   Keywords       Labels      Numbers     Operators  ScriptObjects    Strings       Variables       Null      Whitespace
+   { IC_DARK_ORANGE, IC_BLACK, IC_LIGHT_GREY, IC_PURPLE, IC_DARK_BLUE, IC_DARK_RED, IC_DARK_RED, IC_BLACK, IC_DARK_YELLOW, IC_DARK_RED, IC_DARK_GREEN, IC_DARK_GREEN, IC_WHITE }
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////

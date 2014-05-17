@@ -195,16 +195,19 @@ AVL_TREE*  duplicateAVLTree(AVL_TREE*  pTree, AVL_TREE_KEY*  pNewPrimaryKey, AVL
 BearScriptAPI
 VOID  deleteAVLTree(AVL_TREE*  &pTree)
 {
-   // Delete sort keys
-   for (UINT iKey = 0; iKey < pTree->iKeyCount; iKey++)
-      deleteAVLTreeSortKey(pTree->pSortKeys[iKey]);
+   if (pTree)
+   {
+      // Delete sort keys
+      for (UINT iKey = 0; iKey < pTree->iKeyCount; iKey++)
+         deleteAVLTreeSortKey(pTree->pSortKeys[iKey]);
 
-   // Delete contents (if any)
-   if (pTree->pRoot)
-      deleteAVLTreeNode(pTree, pTree->pRoot, TRUE);
+      // Delete contents (if any)
+      if (pTree->pRoot)
+         deleteAVLTreeNode(pTree, pTree->pRoot, TRUE);
 
-   // Delete calling object
-   utilDeleteObject(pTree);
+      // Delete calling object
+      utilDeleteObject(pTree);
+   }
 }
 
 
@@ -217,7 +220,7 @@ BearScriptAPI
 VOID  deleteAVLTreeContents(AVL_TREE*  &pTree)
 {
    // Delete contents (if any)
-   if (pTree->pRoot)
+   if (pTree AND pTree->pRoot)
       deleteAVLTreeNode(pTree, pTree->pRoot, TRUE);
 }
 

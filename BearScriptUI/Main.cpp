@@ -27,10 +27,13 @@ CONST TCHAR*   szLanguageDocumentClass    = TEXT("LanguageDocument");
 CONST TCHAR*   szSplashWindowClass        = TEXT("SplashWindow");
 
 // Month names, used by the Console logfile
-CONST TCHAR*   szMonths[] = { TEXT("Jan"), TEXT("Feb"), TEXT("Mar"), TEXT("Apr"), TEXT("May"), TEXT("Jun"), TEXT("Jul"), TEXT("Aug"), TEXT("Sep"), TEXT("Oct"), TEXT("Nov"), TEXT("Dec") };
+CONST TCHAR*   szMonths[] = { TEXT("N/A"), TEXT("Jan"), TEXT("Feb"), TEXT("Mar"), TEXT("Apr"), TEXT("May"), TEXT("Jun"), TEXT("Jul"), TEXT("Aug"), TEXT("Sep"), TEXT("Oct"), TEXT("Nov"), TEXT("Dec") };
 
 // Language icons
 CONST TCHAR*   szLanguageIcons[LANGUAGES] = { TEXT("ENGLISH_ICON"), TEXT("FRENCH_ICON"), TEXT("GERMAN_ICON"), TEXT("ITALIAN_ICON"), TEXT("POLISH_ICON"), TEXT("RUSSIAN_ICON"), TEXT("SPANISH_ICON")  };
+
+// OnException: Display+Print
+#define    ON_EXCEPTION()    displayException(pException);
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                  CREATION  /  DESTRUCTION
@@ -84,7 +87,6 @@ BOOL   displayApplication(INT  nCmdShow, ERROR_STACK*  &pError)
    HWND  hMainWnd;
 
    // Prepare
-   TRACK_FUNCTION();
    pError = NULL;
 
    /// Create main window
@@ -115,7 +117,6 @@ BOOL   displayApplication(INT  nCmdShow, ERROR_STACK*  &pError)
       pError = generateDualError(HERE(IDS_INIT_MAIN_WINDOW_FAILED));
    
    // Return TRUE if successful, otherwise FALSE
-   END_TRACKING();
    return (pError == NULL);
 }
 
@@ -132,8 +133,7 @@ BOOL   displayLanguageDialog(ERROR_STACK*  &pError)
    APP_LANGUAGE  eAppLanguage;      // Used selected application language
   
    // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE("Displaying language selection dialog");
+   CONSOLE_COMMAND();
 
    // Prepare
    pError = NULL;
@@ -141,23 +141,23 @@ BOOL   displayLanguageDialog(ERROR_STACK*  &pError)
    /// Display 'Select Language' dialog
    eAppLanguage = displayFirstRunDialog(GetDesktopWindow());
 
-   /// Saves languages to Preferences
-   setAppPreferencesLanguages(eAppLanguage, GL_ENGLISH);
+   /// Save to Preferences + Set Thread language
+   setAppPreferencesLanguages(eAppLanguage, convertAppLanguageToGameLanguage(eAppLanguage));
+   setThreadLanguage(eAppLanguage);
 
-   // [LANGUAGE CHANGE] Reload resource library
-   if (eAppLanguage != AL_ENGLISH)
-   {
-      // Unload existing resource library
-      unloadResourceLibrary();
+   //// [LANGUAGE CHANGE] Reload resource library
+   //if (eAppLanguage != AL_ENGLISH)
+   //{
+   //   // Unload existing resource library
+   //   unloadResourceLibrary();
 
-      // Attempt to load desired language
-      if (!loadResourceLibrary(eAppLanguage, pError))
-         // [ERROR] Chosen library missing
-         return FALSE;     
-   }
+   //   // Attempt to load desired language
+   //   if (!loadResourceLibrary(eAppLanguage, pError))
+   //      // [ERROR] Chosen library missing
+   //      return FALSE;     
+   //}
 
    // [SUCCESS] Return TRUE
-   END_TRACKING();
    return TRUE;
 }
 
@@ -206,15 +206,13 @@ BOOL   initApplication(ERROR_STACK*  &pError)
 {
    INITCOMMONCONTROLSEX  oCommonControls;       // Common controls initialisation object
    PREFERENCES_STATE     ePreferencesState;     // Current state of application preferences
-   ERROR_STACK*          pException;
    APP_LANGUAGE          eLanguage;             // Interface language
    BOOL                  bResult;               // Operation result
    
-   __try
+   TRY
    {
       // [VERBOSE]
-      TRACK_FUNCTION();
-      VERBOSE_LIB_COMMAND();
+      CONSOLE_COMMAND();
 
       // Prepare
       pError = NULL;
@@ -229,6 +227,9 @@ BOOL   initApplication(ERROR_STACK*  &pError)
          // [FAILED] Default to ENGLISH
          eLanguage = AL_ENGLISH;
 
+      /// Set thread language
+      setThreadLanguage(eLanguage);
+
       /// Load relevant resource library
       if (loadResourceLibrary(eLanguage, pError))
       {
@@ -241,7 +242,6 @@ BOOL   initApplication(ERROR_STACK*  &pError)
          {
          /// [NEWER VERSION] Abort...
          case PS_ERROR:      
-            END_TRACKING();
             return FALSE;
 
          // [NORMAL] Verify game data folder state from current contents
@@ -254,7 +254,7 @@ BOOL   initApplication(ERROR_STACK*  &pError)
 
          // [UPGRADE] "Preferences from a previous version of X-Studio were detected and destroyed"
          case PS_UPGRADED:   
-            displayMessageDialogf(GetDesktopWindow(), IDS_INIT_PREFERENCES_UPGRADED, TEXT("Previous Version Detected"), MDF_OK WITH MDF_INFORMATION);   
+            displayMessageDialogf(GetDesktopWindow(), IDS_GENERAL_PREFERENCES_UPGRADED, MDF_OK WITH MDF_INFORMATION);   
             // Fall through...
 
          // [FIRST RUN] Query user for display langage and game data folder
@@ -272,7 +272,7 @@ BOOL   initApplication(ERROR_STACK*  &pError)
 
          // [FORUM USERNAME] Add to console.log
          if (lstrlen(getAppPreferences()->szForumUserName))
-            VERBOSE_HEADING("X-Forums Username: %s", getAppPreferences()->szForumUserName);
+            CONSOLE_HEADING("X-Forums Username: %s", getAppPreferences()->szForumUserName);
          
          /// Init Common Controls library
          ERROR_CHECK("Initialising Common Controls library", bResult = InitCommonControlsEx(&oCommonControls));
@@ -315,18 +315,9 @@ BOOL   initApplication(ERROR_STACK*  &pError)
       }
 
       // Return TRUE if there were no errors
-      END_TRACKING();
       return (pError == NULL);
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pException))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred during initialisation of the application"
-      enhanceError(pException, ERROR_ID(IDS_EXCEPTION_INIT_APPLICATION));      
-      consolePrintError(pException);
-      displayException(pException);      
-   }
-
+   CATCH0("");
    return FALSE;
 }
 
@@ -342,7 +333,6 @@ VOID  initApplicationLogFile()
                  *szVersion;
 
    // Prepare
-   TRACK_FUNCTION();
    GetSystemTime(&oCurrentTime);
 
    /// Destroy any previous logfile
@@ -350,7 +340,7 @@ VOID  initApplicationLogFile()
 
    /// Print version header
    CONSOLE("=============================");
-   CONSOLE(" X-Studio Beta IV ");
+   CONSOLE(" X-Studio v1.08  ");
    CONSOLE("=============================");
 
    // Generate date
@@ -358,11 +348,10 @@ VOID  initApplicationLogFile()
 
    /// Print date and windows version
    consolePrint(szDate);
-   consolePrintf(TEXT("Operating System: %s"), szVersion = utilGetWindowsVersionString());
+   CONSOLE("Operating System: %s", (szVersion = utilGetWindowsVersionString()));
 
    // Cleanup
    utilDeleteStrings(szDate, szVersion);
-   END_TRACKING();
 }
 
 
@@ -386,7 +375,7 @@ BOOL  parseCommandLineSwitches()
       if (utilFindSubStringI(szAppName, "-help"))
       {
          /// [HELP] Display supported switches and abort program
-         MessageBox(GetDesktopWindow(), TEXT("The following command line switches are supported:\n\n-verbose : Outputs extra details to the 'Console.log' file\n-reset : Removes any application preferences stored in the registry"), TEXT("X-Studio Beta II"), MB_OK WITH MB_ICONINFORMATION);
+         MessageBox(GetDesktopWindow(), TEXT("The following command line switches are supported:\n\n-verbose : Outputs extra details to the 'Console.log' file\n-reset : Removes any application preferences stored in the registry"), TEXT("X-Studio"), MB_OK WITH MB_ICONINFORMATION);
          return FALSE; 
       }
 
@@ -400,7 +389,7 @@ BOOL  parseCommandLineSwitches()
       {
          /// [DESTROY PREFERENCES] Destroy any existing application preferences
          deleteAppPreferencesRegistryKey();
-         MessageBox(GetDesktopWindow(), TEXT("Any application preferences stored in the registry have been destroyed"), TEXT("X-Studio Beta II"), MB_OK WITH MB_ICONINFORMATION);
+         MessageBox(GetDesktopWindow(), TEXT("Any application preferences stored in the registry have been destroyed"), TEXT("X-Studio"), MB_OK WITH MB_ICONINFORMATION);
          return FALSE;
       }
    }
@@ -593,7 +582,6 @@ BOOL   verifyInitialGameFolderState()
    BOOL               bResult;
 
    // Prepare
-   TRACK_FUNCTION();
    bResult = FALSE;
 
    // [CHECK] Skip verification if no game folder is present
@@ -607,7 +595,7 @@ BOOL   verifyInitialGameFolderState()
          // [CHECK] Was game data previously present?
          if (getAppPreferences()->eGameFolderState == GFS_VALID)
             // [WARNING] "Game data could no longer be found in the folder '%s'"
-            displayMessageDialogf(GetDesktopWindow(), IDS_INIT_GAME_DATA_LOST, TEXT("Game Data Is Missing"), MDF_OK WITH MDF_INFORMATION, getAppPreferences()->szGameFolder);
+            displayMessageDialogf(GetDesktopWindow(), IDS_GENERAL_GAME_DATA_LOST, MDF_OK WITH MDF_INFORMATION, getAppPreferences()->szGameFolder);
 
          // Set state to INVALID
          setAppPreferencesGameFolderState(GFS_INVALID, GV_UNKNOWN);
@@ -618,7 +606,7 @@ BOOL   verifyInitialGameFolderState()
          // [CHECK] Was game data previously absent?
          if (getAppPreferences()->eGameFolderState == GFS_INVALID)
             // [WARNING] "New game data has now been found in the folder '%s'"
-            displayMessageDialogf(GetDesktopWindow(), IDS_INIT_GAME_DATA_FOUND, TEXT("New Game Data Found"), MDF_OK WITH MDF_INFORMATION, getAppPreferences()->szGameFolder);
+            displayMessageDialogf(GetDesktopWindow(), IDS_GENERAL_GAME_DATA_FOUND, MDF_OK WITH MDF_INFORMATION, getAppPreferences()->szGameFolder);
 
          // Set state to VALID
          setAppPreferencesGameFolderState(GFS_VALID, eNewVersion);
@@ -644,7 +632,6 @@ BOOL   verifyInitialGameFolderState()
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -675,19 +662,27 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
       return FALSE;
    }
 
-   /// [GUARD BLOCK]
-   __try
+   TRY
    {
+#ifdef DEBUG_HELP  
+      /// Initialise DebugHelp.dll
+      SymInitialize(GetCurrentProcess(), NULL, TRUE);
+      SymSetOptions(SYMOPT_LOAD_LINES);
+#endif
+
       /// [APP] Create application
       createApplication(hInstance);
-      TRACK_FUNCTION();
 
       // [CONSOLE] Start new console logfile
       initApplicationLogFile();
 
       // [COMMAND LINE] Parse the command line to check for special operation modes
       if (!parseCommandLineSwitches())
+      {
+         // [TERMINATE] Cleanup
+         deleteApplication();
          return FALSE;
+      }
 
       /// [DEBUG]
 #ifdef ANDREW_WILDE
@@ -699,6 +694,7 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
       {
          // [ERROR] Display error and return FALSE
          displayErrorMessageDialog(GetDesktopWindow(), pError, TEXT("Initialisation Error"), MDF_OK WITH MDF_ERROR);
+         consolePrint(generateFlattenedErrorStackText(pError));
 
          // [TERMINATE] Cleanup
          unloadApplication();
@@ -788,15 +784,8 @@ INT WINAPI   wWinMain(HINSTANCE  hInstance, HINSTANCE  hPrevInstance, TCHAR*  lp
       deleteApplication();
       return (INT)oMsg.wParam;
    }
-   /// [EXCEPTION HANDLER]
-   __except (generateExceptionError(GetExceptionInformation(), pError))
-   {
-      // [ERROR] "An unidentified and unexpected critical error has occurred in the application message pump"
-      enhanceError(pError, ERROR_ID(IDS_EXCEPTION_MESSAGE_PUMP));
-      consolePrintError(pError);
-      displayException(pError);
-   }
-
+   CATCH0("");
+   
    // [TERMINATE]
    return FALSE;
 }

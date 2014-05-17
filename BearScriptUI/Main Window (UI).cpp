@@ -38,8 +38,10 @@ VOID  addDocumentToRecentDocumentList(MAIN_WINDOW_DATA*  pWindowData, CONST DOCU
    LIST*             pRecentList;
    HKEY              hRecentKey;
 
+   // [DEBUG]
+   CONSOLE("Adding '%s' to MRU list", getDocumentPath(pDocument));
+
    // Prepare
-   TRACK_FUNCTION();
    pRecentList = generateRecentDocumentList(pWindowData);
    szSubKey    = utilCreateEmptyString(32);
 
@@ -85,7 +87,6 @@ VOID  addDocumentToRecentDocumentList(MAIN_WINDOW_DATA*  pWindowData, CONST DOCU
    // Cleanup
    deleteList(pRecentList);
    utilDeleteString(szSubKey);
-   END_TRACKING();
 }
 
 
@@ -103,8 +104,7 @@ BOOL  commandLoadGameData(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iTestCaseI
    BOOL              bResult;             // Operation Result
 
    // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND_BOLD();
 
    // Create thread data for a LOAD_GAME_DATA operation
    pOperationData = createGameDataOperationData();
@@ -117,8 +117,6 @@ BOOL  commandLoadGameData(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iTestCaseI
    /// Attempt to launch thread
    bResult = launchOperation(pWindowData, pOperationData);
 
-   // [TRACK]
-   END_TRACKING();
    return bResult;
 }
 
@@ -138,14 +136,13 @@ BOOL  commandLoadDocument(MAIN_WINDOW_DATA*  pWindowData, CONST FILE_ITEM_FLAG  
 {
    DOCUMENT_OPERATION*  pOperationData;  // Thread data
    OPERATION_TYPE       eOperation;      // Required operation
-   //PROJECT_DOCUMENT*    pProject;
    GAME_FILE*           pGameFile;       // New document data
    INT                  iDocumentIndex;  // Index of document if already open
    BOOL                 bResult;         // Operation result
 
    // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND_BOLD1(PathFindFileName(szFullPath));
+   CONSOLE("Opening '%s' eType=%d  bSetActive=%d  pOptions=0x%x", szFullPath, eFileType, bSetActive, pOptions);
 
    // Prepare
    pGameFile = NULL;
@@ -179,37 +176,22 @@ BOOL  commandLoadDocument(MAIN_WINDOW_DATA*  pWindowData, CONST FILE_ITEM_FLAG  
 
    /// [LANGUAGE FILE] Launch language translation thread
    case FIF_LANGUAGE:
-      // [ERROR] "The feature '%s' has been temporarily disabled in this release"
-      //displayMessageDialogf(NULL, IDS_FEATURE_DISABLED, TEXT("Feature Disabled"), MDF_OK WITH MDF_ERROR, TEXT("Language File Editing"));
-
       pGameFile  = createLanguageFile(LFT_STRINGS, szFullPath, TRUE);
       eOperation = OT_LOAD_LANGUAGE_FILE;
       bResult    = TRUE;
       break;
 
-   /// [MISSION SCRIPTS] Not implemented
-   case FIF_MISSION:
-      // [ERROR] "The feature '%s' has not been implemented"
-      displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_ERROR, TEXT("Mission Director Script Editing"));
-      break;
+   /// [UNSUPPORTED] "Unable to identify the document type, the file may be damaged or unsupported"
+   default:                displayMessageDialogf(NULL, IDS_GENERAL_UNKNOWN_FILE_TYPE, MDF_OK WITH MDF_ERROR);      break;
 
-   /// [CONVERSATIONS] Not implemented
-   case FIF_CONVERSATION:
-      // [ERROR] "The feature '%s' has not been implemented"
-      displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_ERROR, TEXT("Conversation Browser"));
-      break;
+   /// [MISSION SCRIPTS] "The feature '%s' has not been implemented"
+   case FIF_MISSION:       displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_OK WITH MDF_ERROR, TEXT("Mission Director Script Editing"));  break;
 
-   /// [GALAXY MAPS] Not supported
-   case FIF_UNIVERSE:
-      // [ERROR] "Galaxy maps cannot be viewed or edited using X-Studio"
-      displayMessageDialogf(NULL, IDS_GENERAL_GALAXY_MAPS_UNSUPPORTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_ERROR);
-      break;
+   /// [CONVERSATIONS] "The feature '%s' has not been implemented"
+   case FIF_CONVERSATION:  displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_OK WITH MDF_ERROR, TEXT("Conversation Browser"));             break;
 
-   /// [UNSUPPORTED] Error
-   default:
-      // [ERROR] "Unable to identify the document type, the file may be damaged or unsupported"
-      displayMessageDialogf(NULL, IDS_GENERAL_UNKNOWN_FILE_TYPE, TEXT("Unsupported Document Type"), MDF_OK WITH MDF_ERROR);
-      break;
+   /// [GALAXY MAPS] "Galaxy maps cannot be viewed or edited using X-Studio"
+   case FIF_UNIVERSE:      displayMessageDialogf(NULL, IDS_GENERAL_GALAXY_MAPS_UNSUPPORTED, MDF_OK WITH MDF_ERROR);                                   break;
    }
 
    // [CHECK] Are we launching or was there an error?
@@ -221,14 +203,14 @@ BOOL  commandLoadDocument(MAIN_WINDOW_DATA*  pWindowData, CONST FILE_ITEM_FLAG  
       // Set properties
       pOperationData->bActivateOnLoad = bSetActive;
 
-      // [CHECK] Are there advanced script loading options?
-      if (eFileType == FIF_SCRIPT AND pOptions)
+      // [OPTIONS] Are there advanced loading options?
+      if (pOptions)
       {
          /// [ADVANCED] Set advanced options
          pOperationData->oAdvanced = (*pOptions);
 
          // [GENERATION] Store file-path for later verification
-         if (pOptions->eCompilerTest == ODT_GENERATION)
+         if (eFileType == FIF_SCRIPT AND pOptions->eCompilerTest == ODT_GENERATION)
             StringCchCopy(pOperationData->oAdvanced.szOriginalPath, MAX_PATH, szFullPath);
       }
       
@@ -237,7 +219,6 @@ BOOL  commandLoadDocument(MAIN_WINDOW_DATA*  pWindowData, CONST FILE_ITEM_FLAG  
    }
    
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -253,37 +234,36 @@ BOOL  commandLoadDocument(MAIN_WINDOW_DATA*  pWindowData, CONST FILE_ITEM_FLAG  
 //
 // Return type : TRUE file could be found, otherwise FALSE
 //
-BOOL  commandLoadScriptDependency(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szFullPath, CONST BOOL  bSetActive, CONST LOADING_OPTIONS*  pOptions)
+BOOL  commandLoadScriptDependency(MAIN_WINDOW_DATA*  pWindowData, const TCHAR*  szFolder, const SCRIPT_DEPENDENCY*  pDependency, CONST BOOL  bSetActive, CONST LOADING_OPTIONS*  pOptions)
 {
-   TCHAR*    szFilePathCopy;    // Copy of input path, used for renaming
+   TCHAR*    szFullPath;    // Copy of input path, used for renaming
    BOOL      bResult;           // Operation Result
 
    // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND_BOLD1(pDependency->szScriptName);
+   CONSOLE("Loading script dependency '%s' from '%s': bSetActive=%d  pOptions=%s", pDependency->szScriptName, szFolder, bSetActive, pOptions ? TEXT("Present") : TEXT("None"));
 
-   // Prepare
-   szFilePathCopy = utilDuplicatePath(szFullPath);
-   bResult        = FALSE;
+   // Generate full filepath with .pck extension
+   szFullPath = utilCreateStringf(MAX_PATH, TEXT("%s%s.pck"), szFolder, pDependency->szScriptName);
+   CONSOLE("Generated path of target script: '%s'", szFullPath);
 
    // [CHECK] Does the PCK version exist?
-   if (isFilePresent(getFileSystem(), szFilePathCopy))
+   if (bResult = isFilePresent(getFileSystem(), szFullPath))
       /// [SUCCESS] Attempt to open script
-      bResult = commandLoadDocument(pWindowData, FIF_SCRIPT, szFilePathCopy, bSetActive, pOptions);
+      bResult = commandLoadDocument(pWindowData, FIF_SCRIPT, szFullPath, bSetActive, pOptions);
    else
    {
       // [FAILED] Change extension to .xml
-      PathRenameExtension(szFilePathCopy, TEXT(".xml"));
+      PathRenameExtension(szFullPath, TEXT(".xml"));
 
       // [CHECK] Does the XML version exist?
-      if (isFilePresent(getFileSystem(), szFilePathCopy))
+      if (isFilePresent(getFileSystem(), szFullPath))
          /// [SUCCESS] Attempt to open script
-         bResult = commandLoadDocument(pWindowData, FIF_SCRIPT, szFilePathCopy, bSetActive, pOptions);
+         bResult = commandLoadDocument(pWindowData, FIF_SCRIPT, szFullPath, bSetActive, pOptions);
    }
 
    // Cleanup and return result
-   utilDeleteString(szFilePathCopy);
-   END_TRACKING();
+   utilDeleteString(szFullPath);
    return bResult;
 }
 
@@ -306,8 +286,7 @@ BOOL  commandSaveDocument(MAIN_WINDOW_DATA*  pWindowData, DOCUMENT*  pDocument, 
    BOOL                 bResult;         // Thread launch result
 
    // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND_BOLD1(getDocumentFileName(pDocument));
 
    // [CHECK] Document must not be virtual 
    ASSERT(!pDocument->bVirtual);
@@ -336,20 +315,26 @@ BOOL  commandSaveDocument(MAIN_WINDOW_DATA*  pWindowData, DOCUMENT*  pDocument, 
    pOperationData->pDocument = (LPARAM)pDocument;
    pDocument->bClosing       = bCloseDocument;
 
-   // Set unique properties
+   // [SCRIPT] Set unique properties
    if (pDocument->eType == DT_SCRIPT)
-      pOperationData->hCodeEdit = ((SCRIPT_DOCUMENT*)pDocument)->hCodeEdit;
+   {
+      SCRIPT_DOCUMENT*  pScriptDoc = (SCRIPT_DOCUMENT*)pDocument;
 
-   // [OPTIONS] Store options, if any
-   if (pDocument->eType == DT_SCRIPT AND pOptions)
-      pOperationData->oAdvanced = (*pOptions);
+      // Set CodeEdit
+      pOperationData->hCodeEdit = pScriptDoc->hCodeEdit;
+
+      // [AUTO-VERSION] Increment script version
+      if (getAppPreferences()->bVersionIncrement)  pScriptDoc->pScriptFile->iVersion++;
+
+      // [OPTIONS] Store options, if any
+      if (pOptions)  pOperationData->oAdvanced = (*pOptions);
+   }
 
    /// Attempt to launch thread
    bResult = launchOperation(pWindowData, pOperationData);
 
    // Cleanup and return result
    utilDeleteString(szFolderPath);
-   END_TRACKING();
    return bResult;
 }
 
@@ -367,8 +352,7 @@ BOOL  commandSubmitReport(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szCorrec
    BOOL                    bResult;             // Operation Result
 
    // [TRACKING]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND_BOLD();
 
    // [CHECK] Ensure forum username is present
    ASSERT(lstrlen(getAppPreferences()->szForumUserName));
@@ -379,8 +363,6 @@ BOOL  commandSubmitReport(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szCorrec
    /// Attempt to launch thread
    bResult = launchOperation(pWindowData, pOperationData);
 
-   // [TRACK]
-   END_TRACKING();
    return bResult;
 }
 
@@ -392,18 +374,14 @@ BOOL  commandSubmitReport(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szCorrec
 // 
 VOID  displayOperationStatus(OPERATION_DATA*  pOperation)
 {
-   DOCUMENT_OPERATION    *pDocumentOperation;     // Convenience pointer
-   SCRIPTCALL_OPERATION  *pScriptCallOperation;
-   CONST TCHAR           *szGameVersion,          // Convenience string - game version
-                         *szFileName;             // Convenience string - file name
-   UINT                   iMessageID;             // Resource ID of the name/result
+   DOCUMENT_OPERATION  *pDocumentOperation;     // Convenience pointer
+   SCRIPT_OPERATION    *pScriptCallOperation;
+   CONST TCHAR         *szGameVersion,          // Convenience string - game version
+                       *szFileName;             // Convenience string - file name
+   UINT                 iMessageID;             // Resource ID of the name/result
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
    // Prepare
    pDocumentOperation = (DOCUMENT_OPERATION*)pOperation;
-   szGameVersion      = identifyGameVersionString(getAppPreferences()->eGameVersion);
    iMessageID         = identifyOperationStatusMessageID(pOperation);
 
    // Format messages according to operation type
@@ -412,6 +390,7 @@ VOID  displayOperationStatus(OPERATION_DATA*  pOperation)
    /// [LOAD GAME DATA]
    case OT_LOAD_GAME_DATA: 
       // [OPERATION] "Loading %s game data from '%s"
+      szGameVersion = identifyGameVersionString(getAppPreferences()->eGameVersion);
       printOperationStateToOutputDialogf(pOperation, iMessageID, szGameVersion, getAppPreferences()->szGameFolder);  
 
       // [CHECK] Operation failed?
@@ -432,7 +411,9 @@ VOID  displayOperationStatus(OPERATION_DATA*  pOperation)
          // [OPERATION] "Loading MSCI script '%s'..."
          printOperationStateToOutputDialogf(pOperation, iMessageID, szFileName);  
       else
-      {  // [RESULT] "Loaded %s script '%s' successfully/failed/aborted by user"
+      {  
+         szGameVersion = identifyGameVersionString(pDocumentOperation->pGameFile ? static_cast<SCRIPT_FILE*>(pDocumentOperation->pGameFile)->eGameVersion : GV_UNKNOWN);
+         // [RESULT] "Loaded %s script '%s' successfully/failed/aborted by user"
          printOperationStateToOutputDialogf(pOperation, iMessageID, szGameVersion, szFileName);
          setMainWindowStatusBarTextf(0, iMessageID, szGameVersion, szFileName);
       }
@@ -455,25 +436,24 @@ VOID  displayOperationStatus(OPERATION_DATA*  pOperation)
          setMainWindowStatusBarTextf(0, iMessageID, szFileName);
       break;
 
-   /// [SCRIPT-CALLS] Add script name
-   case OT_SEARCH_SCRIPT_CALLS:
+   /// [SCRIPT-CONTENT] Add folder + content
+   case OT_SEARCH_SCRIPT_CONTENT:
       // Prepare
-      pScriptCallOperation = (SCRIPTCALL_OPERATION*)pOperation;
+      pScriptCallOperation = (SCRIPT_OPERATION*)pOperation;
 
-      // [OPERATION] "Searching for scripts that depend upon '%s'..."
-      printOperationStateToOutputDialogf(pOperation, iMessageID, pScriptCallOperation->szScriptName); 
+      // [OPERATION] "Searching '%s' for scripts containing '%s'..."
+      printOperationStateToOutputDialogf(pOperation, iMessageID, pScriptCallOperation->szFolder, pScriptCallOperation->szContent); 
       break;
 
    /// [SUBMIT REPORT] Output verbatim
    case OT_SUBMIT_BUG_REPORT: 
    case OT_SUBMIT_CORRECTION:
+   case OT_AUTOMATIC_UPDATE:
       // [OPERATION] "Submitting bug report..."
       printOperationStateToOutputDialogf(pOperation, iMessageID); 
       break;
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -491,9 +471,7 @@ BOOL    displayOutputDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    PANE*            pDocumentPane;      // Workspace pane containing the documents tab and (possibly) the projects dialog
    BOOL             bResult;            // Operation result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND();
 
    // Prepare
    bResult = FALSE;
@@ -501,6 +479,8 @@ BOOL    displayOutputDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    // [CHECK] Ensure dialog does't exist
    if (bShow AND !pWindowData->hOutputDlg)
    {
+      CONSOLE("Creating Output dialog");
+
       // Lookup the workspace pane containing the DocumentsCtrl and Projects dialog
       if (findWorkspacePaneByHandle(pWindowData->hWorkspace, pWindowData->hDocumentsTab, pWindowData->hProjectDlg, NULL, pDocumentPane))
       {
@@ -524,6 +504,8 @@ BOOL    displayOutputDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    // [CHECK] Ensure dialog exists
    else if (!bShow AND pWindowData->hOutputDlg)
    {
+      CONSOLE("Destroying Output dialog");
+
       // Save the window size to preferences
       setAppPreferencesDialogSplit(AW_OUTPUT, getWorkspaceWindowSize(pWindowData->hWorkspace, pWindowData->hOutputDlg));
 
@@ -536,7 +518,6 @@ BOOL    displayOutputDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    updateMainWindowToolBar(pWindowData);
 
    // Cleanup and return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -556,9 +537,7 @@ BOOL  displayProjectDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    PANE*            pDocumentPane;      // Workspace pane containing the documents tab
    BOOL             bResult;            // Operation result
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND();
 
    // Prepare
    pProject = getActiveProject();
@@ -567,6 +546,7 @@ BOOL  displayProjectDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    // [CHECK] Ensure dialog doesn't exist
    if (bShow AND !pWindowData->hProjectDlg)
    {
+      CONSOLE("Creating Project dialog");
       // Lookup the workspace pane containing the Documents Ctrl
       if (findWorkspacePaneByHandle(pWindowData->hWorkspace, pWindowData->hDocumentsTab, NULL, NULL, pDocumentPane))
       {
@@ -590,6 +570,7 @@ BOOL  displayProjectDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    // [CHECK] Ensure dialog exists
    else if (!bShow AND pWindowData->hProjectDlg)
    {
+      CONSOLE("Destroying Project dialog");
       // Save the window size to preferences
       setAppPreferencesDialogSplit(AW_PROJECT, getWorkspaceWindowSize(pWindowData->hWorkspace, pWindowData->hProjectDlg));
 
@@ -609,7 +590,6 @@ BOOL  displayProjectDialog(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bShow)
    updateMainWindowToolBar(pWindowData);
 
    // Cleanup and return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -629,9 +609,7 @@ BOOL   displaySearchDialog(MAIN_WINDOW_DATA*  pWindowData, CONST RESULT_TYPE  eD
    PANE*            pTargetPane;      // Workspace pane containing the DocumentsCtrl, OutputDialog and ProjectDialog
    BOOL             bResult;          // Operation result
    
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_COMMAND();
+   CONSOLE_COMMAND();
 
    // [CHECK] Ensure dialog ID is valid
    ASSERT(eDialogID != RT_NONE);
@@ -642,6 +620,7 @@ BOOL   displaySearchDialog(MAIN_WINDOW_DATA*  pWindowData, CONST RESULT_TYPE  eD
    // [CHECK] Does the SearchDialog exist?
    if (pWindowData->hSearchTabDlg)
    {
+      CONSOLE("Creating Search dialog");
       // [CHECK] Determine whether to switch or destroy dialog
       if (eDialogID != identifyActiveResultsDialog(pWindowData->hSearchTabDlg))
          /// [SWITCH] Display desired dialog
@@ -665,6 +644,7 @@ BOOL   displaySearchDialog(MAIN_WINDOW_DATA*  pWindowData, CONST RESULT_TYPE  eD
    // [CHECK] Lookup the workspace pane containing the DocumentsCtrl, OutputDlg and ProjectDlg
    else if (findWorkspacePaneByHandle(pWindowData->hWorkspace, pWindowData->hDocumentsTab, pWindowData->hOutputDlg, pWindowData->hProjectDlg, pTargetPane))
    {
+      CONSOLE("Destroying Search dialog");
       /// [CREATE] Create SearchDialog with the desired ResultsDialog
       if (pWindowData->hSearchTabDlg = createSearchDialog(pWindowData->hMainWnd, eDialogID))
       {
@@ -688,7 +668,6 @@ BOOL   displaySearchDialog(MAIN_WINDOW_DATA*  pWindowData, CONST RESULT_TYPE  eD
    updateMainWindowToolBar(pWindowData);
 
    // [TRACK] Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -709,7 +688,6 @@ LIST*  generateRecentDocumentList(MAIN_WINDOW_DATA*  pWindowData)
    HKEY             hRecentKey;       // Sub-key used to access each document
 
    // Prepare
-   TRACK_FUNCTION();
    szFullPath = utilCreateEmptyString(MAX_PATH);
    szSubKey   = utilCreateEmptyString(32);
 
@@ -740,7 +718,6 @@ LIST*  generateRecentDocumentList(MAIN_WINDOW_DATA*  pWindowData)
 
    // Cleanup and return list
    utilDeleteStrings(szFullPath, szSubKey);
-   END_TRACKING();
    return pOutputList;
 }
 
@@ -757,7 +734,6 @@ LIST*  generateRecentDocumentList(MAIN_WINDOW_DATA*  pWindowData)
 BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID)
 {
    DOCUMENT*   pDocument;        // Used for determining whether an item in the Window menu is the active document or not
-   //TCHAR       szClassName[32];  // WindowClass name of the window with keyboard focus
    BOOL        iOutput;          // Operation result
    
    // Prepare
@@ -773,14 +749,15 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
    case IDM_VIEW_PREFERENCES:
    /// [RECENT MENU] Always enabled
    case IDM_FILE_RECENT_FIRST: 
-   case IDM_FILE_RECENT_FIRST+1:  case IDM_FILE_RECENT_FIRST+4:  case IDM_FILE_RECENT_FIRST+7:
-   case IDM_FILE_RECENT_FIRST+2:  case IDM_FILE_RECENT_FIRST+5:  case IDM_FILE_RECENT_FIRST+8:
-   case IDM_FILE_RECENT_FIRST+3:  case IDM_FILE_RECENT_FIRST+6:  case IDM_FILE_RECENT_FIRST+9:
+   case IDM_FILE_RECENT_FIRST+1:        case IDM_FILE_RECENT_FIRST+4:         case IDM_FILE_RECENT_FIRST+7:
+   case IDM_FILE_RECENT_FIRST+2:        case IDM_FILE_RECENT_FIRST+5:         case IDM_FILE_RECENT_FIRST+8:
+   case IDM_FILE_RECENT_FIRST+3:        case IDM_FILE_RECENT_FIRST+6:         case IDM_FILE_RECENT_FIRST+9:
    case IDM_FILE_RECENT_LAST:     
    /// [HELP MENU] Always enabled
    case IDM_HELP_HELP:
    case IDM_HELP_FORUMS:
    case IDM_HELP_SUBMIT_FILE:
+   case IDM_HELP_UPDATES:
    case IDM_HELP_TUTORIAL_OPEN_FILE:    case IDM_HELP_TUTORIAL_FILE_OPTIONS:  case IDM_HELP_TUTORIAL_GAME_DATA:
    case IDM_HELP_TUTORIAL_GAME_FOLDER:  case IDM_HELP_TUTORIAL_GAME_OBJECTS:  case IDM_HELP_TUTORIAL_EDITOR:
    case IDM_HELP_TUTORIAL_PROJECTS:     case IDM_HELP_TUTORIAL_COMMANDS:      case IDM_HELP_TUTORIAL_SCRIPT_OBJECTS:
@@ -799,17 +776,14 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
       break;
 
    /// [NOT IMPLEMENTED] Always disabled
-   //case IDM_FILE_NEW_LANGUAGE:
    case IDM_FILE_NEW_MISSION:
-   case IDM_HELP_UPDATES:
    case IDM_TOOLS_MISSION_HIERARCHY:
    case IDM_TOOLS_CONVERSATION_BROWSER: 
    /// [RECENT PLACEHOLDER]
    case IDM_FILE_RECENT_EMPTY:
-   /// [LANGUAGE/MEDIA] Temporarily disabled
-   //case IDM_TOOLS_GAME_STRINGS:
+   /// [MEDIA] Temporarily disabled
    case IDM_TOOLS_MEDIA_BROWSER:
-   /// [OLD TEST STUFF] Always Disabled
+   /// [TEST CODE] Always Disabled
    case IDM_TEST_OUTPUT_SCRIPT:
    case IDM_TEST_COMMAND_DESCRIPTIONS:
    case IDM_TEST_GAME_DATA:
@@ -922,16 +896,20 @@ BOOL  identifyMainWindowCommandStateByID(MAIN_WINDOW_DATA*  pWindowData, CONST U
 // 
 VOID   loadDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
 {
+   STORED_DOCUMENT *pDocument;
    DOCUMENT_TYPE    eDocumentType;    // Document file type
+   LIST            *pSessionList;
    TCHAR           *szFullPath,       // Full path to document/project
                    *szSubKey;         // Name of the sub-key currently being created
    HKEY             hDocumentKey,     // Sub-key used to access the current document
                     hProjectKey;      // Sub-key used to access the stored project
 
+   CONSOLE_COMMAND_BOLD();
+
    // Prepare
-   TRACK_FUNCTION();
-   szFullPath = utilCreateEmptyString(MAX_PATH);
-   szSubKey   = utilCreateEmptyString(32);
+   pSessionList = createList(destructorStoredDocument);
+   szFullPath   = utilCreateEmptyString(MAX_PATH);
+   szSubKey     = utilCreateEmptyString(32);
 
    // Generate project sub-key
    StringCchPrintf(szSubKey, 32, TEXT("%s\\Project"), getAppRegistrySubKey(ARK_SESSION));
@@ -939,9 +917,11 @@ VOID   loadDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
    /// [PROJECT] Check for stored project
    if (hProjectKey = utilRegistryOpenAppSubKey(getAppRegistryKey(), szSubKey))
    {
-      // [SUCCESS] Extract path and load project
+      // [SUCCESS] Extract path and append to session list
       utilRegistryReadString(hProjectKey, TEXT("szFullPath"), szFullPath, MAX_PATH);
-      commandLoadDocument(pWindowData, FIF_PROJECT, szFullPath, FALSE, NULL);
+
+      CONSOLE("Session Project '%s'", szFullPath);
+      appendObjectToList(pSessionList, (LPARAM)createStoredDocument(FIF_PROJECT, szFullPath));     //commandLoadDocument(pWindowData, FIF_PROJECT, szFullPath, FALSE, NULL);
       
       // Cleanup
       utilRegistryCloseKey(hProjectKey);
@@ -960,8 +940,9 @@ VOID   loadDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
          utilRegistryReadNumber(hDocumentKey, TEXT("eType"), &eDocumentType);
          utilRegistryReadString(hDocumentKey, TEXT("szFullPath"), szFullPath, MAX_PATH);
 
-         /// Load current document
-         commandLoadDocument(pWindowData, calculateFileTypeFromDocumentType(eDocumentType), szFullPath, FALSE, NULL);
+         /// Append to session list
+         CONSOLE("Session Document '%s': eType=%s", szFullPath, identifyDocumentTypeString(eDocumentType));
+         appendObjectToList(pSessionList, (LPARAM)createStoredDocument(calculateFileTypeFromDocumentType(eDocumentType), szFullPath));  //commandLoadDocument(pWindowData, calculateFileTypeFromDocumentType(eDocumentType), szFullPath, FALSE, NULL);
          
          // Cleanup
          utilRegistryCloseKey(hDocumentKey);
@@ -971,9 +952,13 @@ VOID   loadDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
          break;
    }
 
+   /// Load documents
+   for (UINT  iIndex = 0; findListObjectByIndex(pSessionList, iIndex, (LPARAM&)pDocument) ; iIndex++)
+      commandLoadDocument(pWindowData, pDocument->eType, pDocument->szFullPath, FALSE, NULL);
+
    // Cleanup
+   deleteList(pSessionList);
    utilDeleteStrings(szFullPath, szSubKey);
-   END_TRACKING();
 }
 
 
@@ -986,9 +971,7 @@ VOID   loadDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  performMainWindowReInitialisation(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iTestCaseID)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // [CHECK] Ensure there are no MODIFIED documents
    ASSERT(!isAnyDocumentModified(pWindowData->hDocumentsTab));
 
@@ -1017,8 +1000,6 @@ VOID  performMainWindowReInitialisation(MAIN_WINDOW_DATA*  pWindowData, CONST UI
          commandLoadGameData(pWindowData, iTestCaseID);
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1054,7 +1035,7 @@ VOID  storeDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
                hProjectKey;      // Sub-key used to store the current project
 
    // Prepare
-   TRACK_FUNCTION();
+   CONSOLE_COMMAND();
    szSubKey = utilCreateEmptyString(32);
 
    /// Delete entire previous session (if any)
@@ -1073,6 +1054,9 @@ VOID  storeDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
       // Create subkey
       if (hDocumentKey = utilRegistryCreateAppSubKey(getAppRegistryKey(), szSubKey))
       {
+         //CONSOLE("Storing document '%s' eType=%s", getDocumentPath(pDocument), identifyDocumentTypeString(pDocument->eType));
+         debugDocument(pDocument);
+
          /// [SUCCESS] Store current document into registry
          utilRegistryWriteNumber(hDocumentKey, TEXT("eType"), pDocument->eType);
          utilRegistryWriteString(hDocumentKey, TEXT("szFullPath"), getDocumentPath(pDocument));
@@ -1085,6 +1069,9 @@ VOID  storeDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
    // [CHECK] Is there an active project?
    if ((pDocument = getActiveProject()) AND !pDocument->bUntitled)
    {
+      //CONSOLE("Storing project '%s' eType=%s", getDocumentPath(pDocument), identifyDocumentTypeString(pDocument->eType));
+      debugDocument(pDocument);
+
       // Generate project sub-key
       StringCchPrintf(szSubKey, 32, TEXT("%s\\Project"), getAppRegistrySubKey(ARK_SESSION));
 
@@ -1099,7 +1086,6 @@ VOID  storeDocumentSession(MAIN_WINDOW_DATA*  pWindowData)
    
    // Cleanup
    utilDeleteString(szSubKey);
-   END_TRACKING();
 }
 
 
@@ -1140,12 +1126,8 @@ VOID  updateMainWindowTitle(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindow_ChildException(MAIN_WINDOW_DATA*  pWindowData, HWND  hSourceWnd, ERROR_STACK*  pException)
 {
-   // Display
-   printErrorToOutputDialog(pException);
-   //displayErrorMessageDialog(NULL, pException, MAKEINTRESOURCE(IDS_TITLE_EXCEPTION), MDF_OK WITH MDF_ERROR);
-
-   // Cleanup
-   deleteErrorStack(pException);
+   // Display + delete error
+   displayError(pException);
 }
 
 
@@ -1157,14 +1139,19 @@ VOID  onMainWindow_ChildException(MAIN_WINDOW_DATA*  pWindowData, HWND  hSourceW
 // 
 VOID  onMainWindow_Close(MAIN_WINDOW_DATA*  pWindowData, CONST MAIN_WINDOW_STATE  eState)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
+   DOCUMENT*  pDocument;   // debug
 
    // Examine current state
    switch (eState)
    {
    /// [CLOSING] Close any open documents
    case MWS_CLOSING:
+      CONSOLE_UI(WM_CLOSE, MWS_CLOSING);
+
+      // [DEBUG] Print open documents
+      for (UINT  iIndex = 0; findDocumentByIndex(pWindowData->hDocumentsTab, iIndex, pDocument); iIndex++)
+         debugDocument(pDocument);
+
       // [CHECK] Ensure we're not already closing
       if (!isAppClosing())
       {
@@ -1181,12 +1168,16 @@ VOID  onMainWindow_Close(MAIN_WINDOW_DATA*  pWindowData, CONST MAIN_WINDOW_STATE
 
    /// [DOCUMENTS CLOSED] Close project
    case MWS_DOCUMENTS_CLOSED:
+      CONSOLE_UI(WM_CLOSE, MWS_DOCUMENTS_CLOSED);
+
       // Save/Close active project
       closeActiveProject(NULL);         /// [EVENT] Fires UM_MAIN_WINDOW_CLOSING with state MWS_PROJECT_CLOSED
       break;
 
    /// [PROJECT CLOSED] Submit bug report if appropriate
    case MWS_PROJECT_CLOSED:
+      CONSOLE_UI(WM_CLOSE, MWS_PROJECT_CLOSED);
+
       // [CHECK] Is a bug report necessary/enabled?
       if (getAppPreferences()->bSubmitBugReports AND hasAppErrors() AND displayBugReportDialog(pWindowData->hMainWnd, FALSE) == IDOK)
       {
@@ -1198,6 +1189,8 @@ VOID  onMainWindow_Close(MAIN_WINDOW_DATA*  pWindowData, CONST MAIN_WINDOW_STATE
 
    /// [REPORT SUBMITTED, CANCELLED or DISABLED] Exit app
    case MWS_REPORT_SUBMITTED:
+      CONSOLE_UI(WM_CLOSE, MWS_REPORT_SUBMITTED);
+
       // [MINIMIZED] Restore window before saving dialog sizes
       if (IsMinimized(pWindowData->hMainWnd))
          ShowWindow(pWindowData->hMainWnd, SW_RESTORE);
@@ -1243,9 +1236,6 @@ VOID  onMainWindow_Close(MAIN_WINDOW_DATA*  pWindowData, CONST MAIN_WINDOW_STATE
       DestroyWindow(pWindowData->hMainWnd);     /// BUG_FIX: Don't use utilDeleteWindow here, causes an access violation within the heap API
       break;
    }
-
-   // [TRACK]
-   END_TRACKING();
 }
 
 /// Function name  : onMainWindow_DocumentPropertyUpdated
@@ -1300,8 +1290,8 @@ VOID   onMainWindow_OperationComplete(MAIN_WINDOW_DATA*  pWindowData, OPERATION_
    SUBMISSION_OPERATION*  pSubmissionOperation;      // Convenience pointer
 
    // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_LIB_EVENT();
+   CONSOLE_EVENT1(identifyOperationTypeString(pOperationData->eType));
+   debugOperationData(pOperationData);
 
    // Examine operation
    switch (pOperationData->eType)
@@ -1357,10 +1347,19 @@ VOID   onMainWindow_OperationComplete(MAIN_WINDOW_DATA*  pWindowData, OPERATION_
    /// [CORRECTION] Do nothing
    case OT_SUBMIT_CORRECTION:
       break;
+
+   /// [SCRIPTS CONTENT] Display Dependency dialog
+   case OT_SEARCH_SCRIPT_CONTENT:
+      displayDependencyDialog(NULL, (SCRIPT_OPERATION*)pOperationData);
+      break;
+
+   /// [UPDATE CHECK] Display update dialog
+   case OT_AUTOMATIC_UPDATE:
+      if (reinterpret_cast<UPDATE_OPERATION*>(pOperationData)->bAvailable)
+         displayUpdateDialog(NULL, (UPDATE_OPERATION*)pOperationData);
+      break;
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1381,35 +1380,27 @@ VOID    onMainWindow_PreferencesChanged(MAIN_WINDOW_DATA*  pWindowData)
 // Description     : Opens files dragged into the main window from the windows shell
 // 
 // MAIN_WINDOW_DATA*  pWindowData : [in] Main window data
-// HDROP              hDrop           : [in] Shell drag'n'drop handle
+// HDROP              hDrop       : [in] Shell drag'n'drop handle
 // 
 VOID  onMainWindow_ShellDropFiles(MAIN_WINDOW_DATA*  pWindowData, HDROP  hDrop)
 {
-   TCHAR*   szFullPath;    // Path of the file currently being processed
-   UINT     iFileCount;    // Number of files being dragged
+   TCHAR*   szFullPath = utilCreateEmptyPath();                   // Path of the file currently being processed
+   UINT     iFileCount = DragQueryFile(hDrop, -1, NULL, NULL);    // Number of files being dragged
 
-   // [TRACK]
-   TRACK_FUNCTION();
+   CONSOLE_ACTION_BOLD();
 
-   // Prepare
-   szFullPath = utilCreateEmptyPath();
-
-   // Query the number of files being dropped
-   iFileCount = DragQueryFile(hDrop, -1, NULL, NULL);
+   // [DEBUG]
+   for (UINT  iFile = 0; DragQueryFile(hDrop, iFile, szFullPath, MAX_PATH); iFile++)
+      CONSOLE("User dropping file '%s'", szFullPath);
 
    /// Iterate through dropped files
-   for (UINT  iFile = 0; iFile < iFileCount; iFile++)
-   {
-      // Extract file path
-      if (DragQueryFile(hDrop, iFile, szFullPath, MAX_PATH))
-         /// Identify filetype. Load file. Activate the final document.
-         commandLoadDocument(pWindowData, identifyFileType(getFileSystem(), szFullPath), szFullPath, (iFile == iFileCount - 1), NULL);
-   }
-
+   for (UINT  iFile = 0; DragQueryFile(hDrop, iFile, szFullPath, MAX_PATH); iFile++)
+      /// Identify filetype. Load file. Activate the final document.
+      commandLoadDocument(pWindowData, identifyFileType(getFileSystem(), szFullPath), szFullPath, (iFile == iFileCount - 1), NULL);
+   
    // Cleanup
    DragFinish(hDrop);
    utilDeleteString(szFullPath);
-   END_TRACKING();
 }
 
 
@@ -1430,9 +1421,7 @@ VOID  onMainWindow_TutorialTimer(MAIN_WINDOW_DATA*  pWindowData, CONST TUTORIAL_
    /// [GAME-DATA + FIRST RUN] Display preferences
    if (eTutorial == TW_GAME_FOLDER AND getAppState() == AS_FIRST_RUN)
    {
-      // [VERBOSE]
-      VERBOSE("Displaying Preferences dialog due to first-run state");
-      VERBOSE_SMALL_PARTITION();
+      CONSOLE("Displaying Preferences dialog due to first-run state");
 
       // Display preferences
       displayPreferencesDialog(pWindowData->hMainWnd, PP_FOLDERS);   // Moves AppState to AS_NO_GAME_DATA

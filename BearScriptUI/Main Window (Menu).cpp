@@ -26,6 +26,28 @@ CONST TCHAR*  szScriptTemplate = TEXT("*****************************************
 ///                                          FUNCTIONS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const TCHAR*  getMessageString(UINT  iMessage)
+{
+   const TCHAR*  szOutput;
+
+   switch (iMessage)
+   {
+      case IDM_EDIT_CUT:            szOutput = TEXT("IDM_EDIT_CUT");             break;
+      case IDM_EDIT_COPY:           szOutput = TEXT("IDM_EDIT_COPY");            break;
+      case IDM_EDIT_PASTE:          szOutput = TEXT("IDM_EDIT_PASTE");           break;
+      case IDM_EDIT_DELETE:         szOutput = TEXT("IDM_EDIT_DELETE");          break;
+      case IDM_EDIT_SELECT_ALL:     szOutput = TEXT("IDM_EDIT_SELECT_ALL");      break;
+      case IDM_EDIT_UNDO:           szOutput = TEXT("IDM_EDIT_UNDO");            break;
+      case IDM_EDIT_REDO:           szOutput = TEXT("IDM_EDIT_REDO");            break;
+      case IDM_RICHEDIT_BOLD:       szOutput = TEXT("IDM_RICHEDIT_BOLD");        break;
+      case IDM_RICHEDIT_ITALIC:     szOutput = TEXT("IDM_RICHEDIT_ITALIC");      break;
+      case IDM_RICHEDIT_UNDERLINE:  szOutput = TEXT("IDM_RICHEDIT_UNDERLINE");   break;
+      case IDM_EDIT_COMMENT:        szOutput = TEXT("IDM_EDIT_COMMENT");         break;
+      default:                      szOutput = TEXT("Error");                    break;
+   }
+   return szOutput;
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                          MESSAGE HANDLERS
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,172 +63,213 @@ CONST TCHAR*  szScriptTemplate = TEXT("*****************************************
 BOOL  onMainWindowCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID)
 {
    DOCUMENT*  pActiveDocument;
-   BOOL       bResult;
+   BOOL       bResult = TRUE;
 
    // Prepare
-   TRACK_FUNCTION();
-   bResult = TRUE;
 
    // Examine command
    switch (iCommandID)
    {
    /// [ACCELERATORS]
-   case IDM_CODE_EDIT_VIEW_SUGGESTIONS:
-   //case IDM_CODE_EDIT_LOOKUP_COMMAND:
-      if (pActiveDocument = getActiveDocument())
+   case IDM_CODE_EDIT_VIEW_SUGGESTIONS:      //case IDM_CODE_EDIT_LOOKUP_COMMAND:
+      CONSOLE_MENU(IDM_CODE_EDIT_VIEW_SUGGESTIONS);
+   
+      if (pActiveDocument = getActiveScriptDocument())
          SendMessage(pActiveDocument->hWnd, WM_COMMAND, iCommandID, NULL);
       else
          bResult = FALSE;
       break;
 
+   // [FIND NEXT]
+   case IDM_EDIT_FIND_NEXT:
+      CONSOLE_MENU(IDM_EDIT_FIND_NEXT);
+
+      // Simulate clicking 'FindNext' in text dialog
+      if (pWindowData->hFindTextDlg)
+         SendMessage(pWindowData->hFindTextDlg, WM_COMMAND, IDC_FIND_NEXT, NULL);
+      break;
+
    /// [FILE MENU]
    // [FILE: CLOSE DOCUMENT]
    case IDM_FILE_CLOSE:
+		CONSOLE_MENU(IDM_FILE_CLOSE);
       onMainWindowFileClose(pWindowData);
       break;
 
    // [FILE: CLOSE PROJECT]
    case IDM_FILE_CLOSE_PROJECT:
+		CONSOLE_MENU(IDM_FILE_CLOSE_PROJECT);
       onMainWindowFileCloseProject(pWindowData);
       break;
 
    // [FILE: NEW DOCUMENT]
    case IDM_FILE_NEW:
+		CONSOLE_MENU(IDM_FILE_NEW);
       onMainWindowFileNewDocument(pWindowData);
       break;
 
    // [FILE: NEW LANGUAGE FILE]
    case IDM_FILE_NEW_LANGUAGE:
+		CONSOLE_MENU(IDM_FILE_NEW_LANGUAGE);
       onMainWindowFileNewLanguageDocument(pWindowData, NULL);
       break;
 
    // [FILE: NEW SCRIPT FILE]
    case IDM_FILE_NEW_SCRIPT:
+		CONSOLE_MENU(IDM_FILE_NEW_SCRIPT);
       onMainWindowFileNewScriptDocument(pWindowData, NULL);
       break;
 
    // [FILE: NEW PROJECT FILE]
    case IDM_FILE_NEW_PROJECT:
+		CONSOLE_MENU(IDM_FILE_NEW_PROJECT);
       onMainWindowFileNewProjectDocument(pWindowData, NULL);
       break;
 
    // [FILE: OPEN FILE]
    case IDM_FILE_OPEN:
+		CONSOLE_MENU(IDM_FILE_OPEN);
       onMainWindowFileOpen(pWindowData, TRUE);
       break;
 
    // [FILE: SCRIPT BROWSER]
    case IDM_FILE_BROWSE:
+		CONSOLE_MENU(IDM_FILE_BROWSE);
       onMainWindowFileOpen(pWindowData, FALSE);
       break;
 
    // [FILE: SAVE DOCUMENT]
    case IDM_FILE_SAVE:
+		CONSOLE_MENU(IDM_FILE_SAVE);
       onMainWindowFileSave(pWindowData);
       break;
 
    // [FILE: EXPORT PROJECT]
    case IDM_FILE_EXPORT_PROJECT:
+		CONSOLE_MENU(IDM_FILE_EXPORT_PROJECT);
       onMainWindowFileExportProject(pWindowData);
       break;
 
    // [FILE: SAVE DOCUMENT AS]
    case IDM_FILE_SAVE_AS:
+		CONSOLE_MENU(IDM_FILE_SAVE_AS);
       onMainWindowFileSaveAs(pWindowData);
       break;
 
    // [FILE: SAVE DOCUMENT COPY]
    case IDM_FILE_SAVE_ALL:
+		CONSOLE_MENU(IDM_FILE_SAVE_ALL);
       onMainWindowFileSaveAll(pWindowData);
       break;
 
    // [FILE: EXIT]
    case IDM_FILE_EXIT:
+		CONSOLE_MENU(IDM_FILE_EXIT);
       onMainWindowFileExit(pWindowData);
       break;
 
    /// [EDIT MENU]
-   // [EDIT: CUT/COPY/PASTE/DELETE] Send to focus window
-   case IDM_EDIT_CUT:         SendMessage(GetFocus(), WM_CUT,   NULL, NULL);    break;
-   case IDM_EDIT_COPY:        SendMessage(GetFocus(), WM_COPY,  NULL, NULL);    break;
-   case IDM_EDIT_PASTE:       SendMessage(GetFocus(), WM_PASTE, NULL, NULL);    break;
-   case IDM_EDIT_DELETE:      SendMessage(GetFocus(), WM_CLEAR, NULL, NULL);    break;
-   case IDM_EDIT_SELECT_ALL:  SendMessage(GetFocus(), EM_SETSEL, 0, -1);        break;
-   case IDM_EDIT_UNDO:        SendMessage(GetFocus(), WM_UNDO, NULL, NULL);     break;
-   case IDM_EDIT_REDO:        SendMessage(GetFocus(), EM_REDO, NULL, NULL);     break;
-
-   // [EDIT: BOLD/ITALIC/UNDERLINE/COMMENT] Send to parent of focus window
-   case IDM_RICHEDIT_BOLD:
-   case IDM_RICHEDIT_ITALIC:
-   case IDM_RICHEDIT_UNDERLINE: 
-   case IDM_EDIT_COMMENT:
-      SendMessage(GetParent(GetFocus()), WM_COMMAND, iCommandID, NULL);   
+   // [EDIT: CUT/COPY/PASTE/DELETE/BOLD/ITALIC/UNDERLINE/COMMENT]
+   case IDM_EDIT_CUT:         case IDM_EDIT_COPY:        case IDM_EDIT_PASTE:       
+   case IDM_EDIT_DELETE:      case IDM_EDIT_UNDO:        case IDM_EDIT_REDO:        
+   case IDM_RICHEDIT_BOLD:    case IDM_RICHEDIT_ITALIC:  case IDM_RICHEDIT_UNDERLINE: 
+   case IDM_EDIT_SELECT_ALL:  case IDM_EDIT_COMMENT:
+      CONSOLE("Menu Cmd: Sending %s to [parent of] input focus window", getMessageString(iCommandID));
+      switch (iCommandID)
+      {
+      // [EDIT: CUT/COPY/PASTE/DELETE] Send to focus window
+      case IDM_EDIT_CUT:         SendMessage(GetFocus(), WM_CUT,   NULL, NULL);    break;
+      case IDM_EDIT_COPY:        SendMessage(GetFocus(), WM_COPY,  NULL, NULL);    break;
+      case IDM_EDIT_PASTE:       SendMessage(GetFocus(), WM_PASTE, NULL, NULL);    break;
+      case IDM_EDIT_DELETE:      SendMessage(GetFocus(), WM_CLEAR, NULL, NULL);    break;
+      case IDM_EDIT_SELECT_ALL:  SendMessage(GetFocus(), EM_SETSEL, 0, -1);        break;
+      case IDM_EDIT_UNDO:        SendMessage(GetFocus(), WM_UNDO, NULL, NULL);     break;
+      case IDM_EDIT_REDO:        SendMessage(GetFocus(), EM_REDO, NULL, NULL);     break;
+      // [EDIT: BOLD/ITALIC/UNDERLINE/COMMENT] Send to parent of focus window
+      case IDM_RICHEDIT_BOLD:
+      case IDM_RICHEDIT_ITALIC:
+      case IDM_RICHEDIT_UNDERLINE: 
+      case IDM_EDIT_COMMENT:     SendMessage(GetParent(GetFocus()), WM_COMMAND, iCommandID, NULL);     break;
+      }
       break;
 
    // [EDIT: FIND] 
    case IDM_EDIT_FIND:
+		CONSOLE_MENU(IDM_EDIT_FIND);
       onMainWindowEditFindText(pWindowData);
       break;
 
    /// [VIEW MENU]
    // [VIEW: COMMAND LIST]
    case IDM_VIEW_COMMAND_LIST:
+		CONSOLE_MENU(IDM_VIEW_COMMAND_LIST);
       onMainWindowViewSearchDialog(pWindowData, RT_COMMANDS);
       break;
 
    // [VIEW: GAME OBJECTS LIST]
    case IDM_VIEW_GAME_OBJECTS_LIST:
+		CONSOLE_MENU(IDM_VIEW_GAME_OBJECTS_LIST);
       onMainWindowViewSearchDialog(pWindowData, RT_GAME_OBJECTS);
       break;
 
    // [VIEW: SCRIPT OBJECTS LIST]
    case IDM_VIEW_SCRIPT_OBJECTS_LIST:
+		CONSOLE_MENU(IDM_VIEW_SCRIPT_OBJECTS_LIST);
       onMainWindowViewSearchDialog(pWindowData, RT_SCRIPT_OBJECTS);
       break;
 
    // [VIEW: OUTPUT WINDOW]
    case IDM_VIEW_COMPILER_OUTPUT:
+		CONSOLE_MENU(IDM_VIEW_COMPILER_OUTPUT);
       onMainWindowViewOutputDialog(pWindowData);
       break;
 
    // [VIEW: PROJECT WINDOW]
    case IDM_VIEW_PROJECT_EXPLORER:
+		CONSOLE_MENU(IDM_VIEW_PROJECT_EXPLORER);
       onMainWindowViewProjectDialog(pWindowData);
       break;
 
    // [VIEW: SCRIPT PROPERTIES]
    case IDM_VIEW_DOCUMENT_PROPERTIES:
+		CONSOLE_MENU(IDM_VIEW_DOCUMENT_PROPERTIES);
       onMainWindowViewPropertiesDialog(pWindowData);
       break;
 
    // [VIEW: APP PREFERENCES]
    case IDM_VIEW_PREFERENCES:
+		CONSOLE_MENU(IDM_VIEW_PREFERENCES);
       onMainWindowViewPreferencesDialog(pWindowData);
       break;
 
    /// [DATA MENU]
    // [DATA: GAME STRINGS]
    case IDM_TOOLS_GAME_STRINGS:
+		CONSOLE_MENU(IDM_TOOLS_GAME_STRINGS);
       onMainWindowDataGameStrings(pWindowData);
       break;
 
    // [DATA: GAME MEDIA]
    case IDM_TOOLS_MEDIA_BROWSER:
+		CONSOLE_MENU(IDM_TOOLS_MEDIA_BROWSER);
       onMainWindowDataMediaBrowser(pWindowData);
       break;
 
    // [DATA: MISSIONS]
    case IDM_TOOLS_MISSION_HIERARCHY:
+		CONSOLE_MENU(IDM_TOOLS_MISSION_HIERARCHY);
       onMainWindowDataMissionHierarchy(pWindowData);
       break;
 
    // [DATA: CONVERSATIONS]
    case IDM_TOOLS_CONVERSATION_BROWSER:
+		CONSOLE_MENU(IDM_TOOLS_CONVERSATION_BROWSER);
       onMainWindowDataConversationBrowser(pWindowData);
       break;
 
    // [DATA: RELOAD]
    case IDM_TOOLS_RELOAD_GAME_DATA:
+		CONSOLE_MENU(IDM_TOOLS_RELOAD_GAME_DATA);
       onMainWindowDataReload(pWindowData);
       break;
 
@@ -226,42 +289,50 @@ BOOL  onMainWindowCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID
 
    // [WINDOW: CLOSE ALL DOCUMENTS]
    case IDM_WINDOW_CLOSE_ALL_DOCUMENTS:
+		CONSOLE_MENU(IDM_WINDOW_CLOSE_ALL_DOCUMENTS);
       onMainWindowWindowCloseDocuments(pWindowData, FALSE);
       break;
 
    // [WINDOW: CLOSE OTHER DOCUMENTS]
    case IDM_WINDOW_CLOSE_OTHER_DOCUMENTS:
+		CONSOLE_MENU(IDM_WINDOW_CLOSE_OTHER_DOCUMENTS);
       onMainWindowWindowCloseDocuments(pWindowData, TRUE);
       break;
 
    // [WINDOW: NEXT DOCUMENT]
    case IDM_WINDOW_NEXT_DOCUMENT:
+		CONSOLE_MENU(IDM_WINDOW_NEXT_DOCUMENT);
       displayNextDocument(pWindowData->hDocumentsTab);
       break;
 
    /// [HELP MENU]
    // [HELP: HELP FILE]
    case IDM_HELP_HELP:
+		CONSOLE_MENU(IDM_HELP_HELP);
       onMainWindowHelpFile(pWindowData);
       break;
 
    // [HELP: CHECK UPDATES]
    case IDM_HELP_UPDATES:
+		CONSOLE_MENU(IDM_HELP_UPDATES);
       onMainWindowHelpUpdates(pWindowData);
       break;
 
    // [HELP: FORUMS]
    case IDM_HELP_FORUMS:
+		CONSOLE_MENU(IDM_HELP_FORUMS);
       onMainWindowHelpForums(pWindowData);
       break;
 
    // [HELP: SUBMIT FILE]
    case IDM_HELP_SUBMIT_FILE:
+		CONSOLE_MENU(IDM_HELP_SUBMIT_FILE);
       onMainWindowHelpSubmitFile(pWindowData);
       break;
 
    // [HELP: ABOUT BOX]
    case IDM_HELP_ABOUT:
+		CONSOLE_MENU(IDM_HELP_ABOUT);
       onMainWindowHelpAbout(pWindowData);
       break;
 
@@ -275,52 +346,60 @@ BOOL  onMainWindowCommand(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iCommandID
    /// [TEST MENU]
    // [TEST: LOAD COMMAND DESCRIPTIONS]
    case IDM_TEST_COMMAND_DESCRIPTIONS:
+		CONSOLE_MENU(IDM_TEST_COMMAND_DESCRIPTIONS);
       onMainWindowTestCommandDescriptions(pWindowData);
       break;
 
    // [TEST: GAME DATA] Run GameData TestCases
    case IDM_TEST_GAME_DATA:
+		CONSOLE_MENU(IDM_TEST_GAME_DATA);
       onMainWindowTestGameData(pWindowData);
       break;
 
    // [TEST: SCRIPT TRANSLATION] Run ScriptTranslation TestCases
    case IDM_TEST_SCRIPT_TRANSLATION:
+		CONSOLE_MENU(IDM_TEST_SCRIPT_TRANSLATION);
       onMainWindowTestScriptTranslation(pWindowData);
       break;
 
    // [TEST: INTERPRET DOCUMENT] Attempt to compile current script
    case IDM_TEST_INTERPRET_DOCUMENT:
+		CONSOLE_MENU(IDM_TEST_INTERPRET_DOCUMENT);
       onMainWindowTestScriptGeneration(pWindowData);
       break;
 
    // [TEST: OPEN EXAMPLE SCRIPT]
    case IDM_TEST_ORIGINAL_SCRIPT:
+		CONSOLE_MENU(IDM_TEST_ORIGINAL_SCRIPT);
       onMainWindowTestOriginalScript(pWindowData);
       break;
 
    // [TEST: OPEN PREVIOUS OUTPUT SCRIPT]
    case IDM_TEST_OUTPUT_SCRIPT:
+		CONSOLE_MENU(IDM_TEST_OUTPUT_SCRIPT);
       onMainWindowTestOutputScript(pWindowData);
       break;
 
    // [TEST: TEST CURRENT CODE] Display ALL loaded wares
    case IDM_TEST_CURRENT_CODE:
+		CONSOLE_MENU(IDM_TEST_CURRENT_CODE);
       onMainWindowTestCurrentCode(pWindowData);
       break;
 
    // [TEST: TEST WARES] Print GameObjectNames to the console
    case IDM_TEST_VALIDATE_XML_SCRIPTS:
+		CONSOLE_MENU(IDM_TEST_VALIDATE_XML_SCRIPTS);
       onMainWindowTestValidateUserScripts(pWindowData);
       break;
 
    // [TEST: CUSTOM TEST CASES] Run whatever TestCase you're debugging right now
    case IDM_TEST_VALIDATE_ALL_SCRIPTS:
+		CONSOLE_MENU(IDM_TEST_VALIDATE_ALL_SCRIPTS);
       onMainWindowTestValidateAllScripts(pWindowData);
       break;
    }
 
    // Return result
-   END_TRACKING();
    return bResult;
 }
 
@@ -334,10 +413,6 @@ VOID   onMainWindowDataGameStrings(MAIN_WINDOW_DATA*  pWindowData)
 {
    DOCUMENT*       pDocument;
    INT             iDocumentIndex;
-
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
 
    /// [CHECK] Is this file already open?
    if (findDocumentIndexByPath(pWindowData->hDocumentsTab, TEXT("Game Data"), iDocumentIndex))
@@ -356,8 +431,6 @@ VOID   onMainWindowDataGameStrings(MAIN_WINDOW_DATA*  pWindowData)
       updateMainWindowToolBar(pWindowData);
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -368,16 +441,10 @@ VOID   onMainWindowDataGameStrings(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowDataMediaBrowser(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // Create new document and update document properties
    TODO("Re-write Media document code");
    ///addMediaDocumentToDocumentsCtrl(pWindowData->hDocumentsTab);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -388,15 +455,9 @@ VOID  onMainWindowDataMediaBrowser(MAIN_WINDOW_DATA*  pWindowData)
 //
 VOID  onMainWindowDataMissionHierarchy(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // [ERROR] "The feature '%s' has not been implemented"
-   displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_ERROR, TEXT("Mission Director Support"));
+   displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_OK WITH MDF_ERROR, TEXT("Mission Director Support"));
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -407,15 +468,9 @@ VOID  onMainWindowDataMissionHierarchy(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowDataConversationBrowser(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // [ERROR] "The feature '%s' has not been implemented"
-   displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_ERROR, TEXT("Conversation Browser"));
+   displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_OK WITH MDF_ERROR, TEXT("Conversation Browser"));
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -426,15 +481,11 @@ VOID  onMainWindowDataConversationBrowser(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowDataReload(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // [CHECK] Are there any MODIFIED documents open?
    if (isAnyDocumentModified(pWindowData->hDocumentsTab))
    {
       /// [MODIFIED] "You must save all documents before attempting to reload your game data, would you like to save them now?"
-      if (displayMessageDialogf(NULL, IDS_GENERAL_RELOAD_DOCUMENTS_OPEN, TEXT("Unsaved Documents Are Open"), MDF_YESNO WITH MDF_WARNING) == IDYES)
+      if (displayMessageDialogf(NULL, IDS_GENERAL_REQUIREMENTS_RELOAD, MDF_YESNO WITH MDF_WARNING) == IDYES)
          // [YES] Save all documents
          onMainWindowFileSaveAll(pWindowData);
    }
@@ -442,8 +493,6 @@ VOID  onMainWindowDataReload(MAIN_WINDOW_DATA*  pWindowData)
       /// [UNMODIFIED] Reload game data
       performMainWindowReInitialisation(pWindowData, NULL);
    
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -456,8 +505,11 @@ VOID   onMainWindowEditFindText(MAIN_WINDOW_DATA*  pWindowData)
 {
    // [CHECK] Does dialog already exist?
    if (pWindowData->hFindTextDlg)
+   {
       // [EXISTS] Focus dialog
+      CONSOLE("Focusing existing FindText dialog");
       SetForegroundWindow(pWindowData->hFindTextDlg);
+   }
    else
       // [NEW] Create and display dialog
       pWindowData->hFindTextDlg = displayFindTextDialog(pWindowData->hMainWnd);
@@ -473,10 +525,6 @@ VOID   onMainWindowFileClose(MAIN_WINDOW_DATA*  pWindowData)
 {
    DOCUMENT*  pFocusedDocument;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // [CHECK] Ensure there's a focused document
    if (pFocusedDocument = getFocusedDocument(pWindowData))
    {
@@ -489,8 +537,6 @@ VOID   onMainWindowFileClose(MAIN_WINDOW_DATA*  pWindowData)
          closeDocumentByIndex(pWindowData->hDocumentsTab, TabCtrl_GetCurSel(pWindowData->hDocumentsTab));
    }
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -501,15 +547,9 @@ VOID   onMainWindowFileClose(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID   onMainWindowFileCloseProject(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Close/save active project
    closeActiveProject(NULL);
    
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -520,9 +560,6 @@ VOID   onMainWindowFileCloseProject(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowFileExit(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [VERBOSE]
-   VERBOSE_UI_COMMAND();
-
    // Invoke CLOSE
    postAppClose(MWS_CLOSING);
 }
@@ -535,59 +572,9 @@ VOID  onMainWindowFileExit(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowFileExportProject(MAIN_WINDOW_DATA*  pWindowData)
 {
-   PROJECT_DOCUMENT  *pProject;
-   STORED_DOCUMENT   *pDocument;
-   BROWSEINFO         oBrowseData;      // Properties for the browse window
-   ITEMIDLIST        *pFolderObject;   // The IDList of the folder the user selects
-   TCHAR             *szFolderPath,      // The path of the folder the user selects
-                     *szDestination;
-
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
-   // [CHECK] Ensure active project eixsts
-   if (pProject = getActiveProject())
-   {
-      // Prepare
-      utilZeroObject(&oBrowseData, BROWSEINFO);
-      szFolderPath = utilCreateEmptyPath();
-      szDestination = utilCreateEmptyPath();
-
-      // Setup dialog: "Select destination folder for project files" 
-      oBrowseData.lpszTitle = utilLoadString(getResourceInstance(), IDS_GENERAL_PROJECT_EXPORT_BROWSE, 128);
-      oBrowseData.hwndOwner = getAppWindow();
-      oBrowseData.ulFlags   = BIF_RETURNONLYFSDIRS;
-
-      /// Query user for a folder
-      if (pFolderObject = SHBrowseForFolder(&oBrowseData))
-      {
-         // [SUCCESS] Resolve path
-         SHGetPathFromIDList(pFolderObject, szFolderPath);
-         PathAddBackslash(szFolderPath);
-         
-         // Iterate through MSCI scripts
-         for (UINT iIndex = 0; findDocumentInProjectFileByIndex(pProject->pProjectFile, PF_SCRIPT, iIndex, pDocument); iIndex++)
-         {
-            /// Generate target path and copy file
-            StringCchPrintf(szDestination, MAX_PATH, TEXT("%s%s"), szFolderPath, PathFindFileName(pDocument->szFullPath));
-            CopyFile(pDocument->szFullPath, szDestination, TRUE);
-         }
-
-         // [SUCCESS] "Successfully exported %d project files to '%s'"
-         PathRemoveBackslash(szFolderPath);
-         displayMessageDialogf(NULL, IDS_GENERAL_PROJECT_EXPORT_SUCCESS, TEXT("Project Exported Successfully"), MDF_OK WITH MDF_INFORMATION, getProjectFileCountByFolder(pProject->pProjectFile, PF_SCRIPT), szFolderPath);
-
-         // Cleanup
-         CoTaskMemFree(pFolderObject);
-      }
-
-      // Cleanup
-      utilDeleteStrings((TCHAR*&)oBrowseData.lpszTitle, szFolderPath, szDestination);
-   }
-
-   // [TRACK]
-   END_TRACKING();
+   // Display 'Export Project' dialog
+   if (getActiveProject())
+      displayExportProjectDialog(pWindowData, getActiveProject()->pProjectFile);
 }
 
 
@@ -599,10 +586,6 @@ VOID  onMainWindowFileExportProject(MAIN_WINDOW_DATA*  pWindowData)
 VOID  onMainWindowFileNewDocument(MAIN_WINDOW_DATA*  pWindowData)
 {
    NEW_DOCUMENT_DATA*  pDialogData;
-
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
 
    /// Display 'Insert Document' dialog and ask user for a filename
    if (pDialogData = displayInsertDocumentDialog(pWindowData))
@@ -627,24 +610,18 @@ VOID  onMainWindowFileNewDocument(MAIN_WINDOW_DATA*  pWindowData)
       // Cleanup
       deleteInsertDocumentDialogData(pDialogData);
    }
-
-   // [TRACK]
-   END_TRACKING();
 }
 
 /// Function name  : onMainWindowFileNewLanguageDocument
 // Description     : Create an empty language document
 // 
 // MAIN_WINDOW_DATA*  pWindowData : [in] Window data
-// CONST TCHAR*       szFullPath  : [in] Full Path
+// CONST TCHAR*       szFullPath  : [in] Full path of document if called via 'New Document' dialog, otherwise NULL
 // 
 VOID  onMainWindowFileNewLanguageDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szFullPath)
 {
    LANGUAGE_FILE*  pLanguageFile;
    DOCUMENT*       pDocument;
-
-   // [VERBOSE]
-   VERBOSE_UI_COMMAND();
 
    /// Create LanguageFile with single empty Page
    pLanguageFile = createUserLanguageFile(utilEither(szFullPath, TEXT("Untitled.xml")), getAppPreferences()->eGameLanguage);
@@ -658,7 +635,8 @@ VOID  onMainWindowFileNewLanguageDocument(MAIN_WINDOW_DATA*  pWindowData, CONST 
 
    // [MODIFY] Set modified and Untitled
    setDocumentModifiedFlag(pDocument, TRUE);
-   pDocument->bUntitled = TRUE;
+   pDocument->bUntitled = (!szFullPath || utilCompareString(PathFindFileName(szFullPath), "Untitled.xml")
+                                       || utilCompareString(PathFindFileName(szFullPath), "Untitled.pck") ? TRUE : FALSE);
 
    // Update Toolbar
    //updateMainWindowToolBar(pWindowData);
@@ -669,16 +647,12 @@ VOID  onMainWindowFileNewLanguageDocument(MAIN_WINDOW_DATA*  pWindowData, CONST 
 // Description     : Create an empty project document
 // 
 // MAIN_WINDOW_DATA*  pMainWindowDatda : [in] Window data
-// CONST TCHAR*       szFullPath       : [in] Full path of project file
+// CONST TCHAR*       szFullPath       : [in] Full path of project file if called via 'New Document' dialog, otherwise NULL
 // 
 VOID  onMainWindowFileNewProjectDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szFullPath)
 {
    PROJECT_FILE*      pProjectFile;
    PROJECT_DOCUMENT*  pDocument;
-
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
 
    // [CHECK] Query how user would like to close the existing project, if any
    switch (closeActiveProject(NULL))
@@ -699,7 +673,7 @@ VOID  onMainWindowFileNewProjectDocument(MAIN_WINDOW_DATA*  pWindowData, CONST T
 
       // [MODIFY] Set modified and Untitled
       setDocumentModifiedFlag(pDocument, TRUE);
-      pDocument->bUntitled = TRUE;
+      pDocument->bUntitled = (!szFullPath || utilCompareString(PathFindFileName(szFullPath), "Untitled.xprj") ? TRUE : FALSE);
 
       // Update Toolbar
       //updateMainWindowToolBar(pWindowData);
@@ -707,14 +681,14 @@ VOID  onMainWindowFileNewProjectDocument(MAIN_WINDOW_DATA*  pWindowData, CONST T
    }
 
    // Cleanup
-   END_TRACKING();
 }
 
 
 /// Function name  : onMainWindowFileNewScriptDocument
 // Description     : Create an empty script document
 // 
-// MAIN_WINDOW_DATA*  pMainWindowDatda   : [in] 
+// MAIN_WINDOW_DATA*  pMainWindowDatda : [in] Window data
+// CONST TCHAR*       szFullPath       : [in] Full path of document if called via 'New Document' dialog, otherwise NULL
 // 
 VOID  onMainWindowFileNewScriptDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TCHAR*  szFullPath)
 {
@@ -723,10 +697,7 @@ VOID  onMainWindowFileNewScriptDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TC
    TCHAR        *szInitialText,
                 *szDate;
    
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-   ASSERT(szFullPath != NULL);
+   CONSOLE_ACTION_BOLD();
    
    // Prepare
    GetDateFormat(LOCALE_USER_DEFAULT, NULL, NULL, TEXT("d MMMM yyyy"), szDate = utilCreateEmptyString(32), 32);
@@ -746,12 +717,12 @@ VOID  onMainWindowFileNewScriptDocument(MAIN_WINDOW_DATA*  pWindowData, CONST TC
 
    // [MODIFY]
    setDocumentModifiedFlag(pDocument, TRUE);
-   pDocument->bUntitled = TRUE;
+   pDocument->bUntitled = (!szFullPath || utilCompareString(PathFindFileName(szFullPath), "Untitled.xml")
+                                       || utilCompareString(PathFindFileName(szFullPath), "Untitled.pck") ? TRUE : FALSE);
 
    // Cleanup and update toolbar
    //updateMainWindowToolBar(pWindowData);
    utilDeleteStrings(szInitialText, szDate);
-   END_TRACKING();
 }
 
 
@@ -764,10 +735,6 @@ VOID   onMainWindowFileOpen(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bUseSyst
 {
    FILE_DIALOG_DATA*  pFileDialogData;
    STORED_DOCUMENT*   pStoredFile;
-
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
 
    // Create 'open' dialog data
    pFileDialogData = createFileDialogData(FDT_OPEN, getAppPreferences()->szLastFolder, NULL);
@@ -783,7 +750,6 @@ VOID   onMainWindowFileOpen(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bUseSyst
 
    // Cleanup
    deleteFileDialogData(pFileDialogData);
-   END_TRACKING();
 }
 
 
@@ -798,9 +764,8 @@ VOID  onMainWindowFileOpenRecent(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iIn
    STORED_DOCUMENT*  pRecentFile;
    LIST*             pRecentFileList;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
+   CONSOLE_ACTION();
+   CONSOLE("Activating MRU document index=%d", iIndex);
 
    // Prepare
    pRecentFileList = generateRecentDocumentList(pWindowData);
@@ -812,7 +777,6 @@ VOID  onMainWindowFileOpenRecent(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iIn
 
    // Cleanup
    deleteList(pRecentFileList);
-   END_TRACKING();
 }
 
 
@@ -825,16 +789,10 @@ VOID  onMainWindowFileSave(MAIN_WINDOW_DATA*  pWindowData)
 {
    DOCUMENT*   pFocusedDocument;      // Focused document or project
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Save focused document
    if (pFocusedDocument = getFocusedDocument(pWindowData))
       saveDocument(pFocusedDocument, FALSE, FALSE);
    
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -847,16 +805,10 @@ VOID  onMainWindowFileSaveAs(MAIN_WINDOW_DATA*  pWindowData)
 {
    DOCUMENT*    pFocusedDocument;    // Focused document or project
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Display SaveAs dialog and save document/project under new filename
    if (pFocusedDocument = getFocusedDocument(pWindowData))
       saveDocument(pFocusedDocument, TRUE, FALSE);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -869,10 +821,6 @@ VOID  onMainWindowFileSaveAll(MAIN_WINDOW_DATA*  pWindowData)
 {
    DOCUMENT*   pDocument;     // Document currently being processed
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // Iterate through all open documents
    for (UINT  iIndex = 0; findDocumentByIndex(pWindowData->hDocumentsTab, iIndex, pDocument); iIndex++)
       /// [DOCUMENT] Save document
@@ -882,8 +830,6 @@ VOID  onMainWindowFileSaveAll(MAIN_WINDOW_DATA*  pWindowData)
    if (pDocument = getActiveProject())
       saveDocument(pDocument, FALSE, FALSE);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -894,12 +840,8 @@ VOID  onMainWindowFileSaveAll(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID   onMainWindowHelpAbout(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [VERBOSE]
-   VERBOSE_UI_COMMAND();
-
    // Launch the About Dialog
-   DialogBox(getResourceInstance(), TEXT("ABOUT_DIALOG"), pWindowData->hMainWnd, dlgprocAboutBox);
-   
+   displayAboutDialog(pWindowData->hMainWnd);
 }
 
 
@@ -910,15 +852,9 @@ VOID   onMainWindowHelpAbout(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowHelpFile(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // Display Help
    displayHelp(TEXT("XStudio_Welcome"));
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -929,15 +865,9 @@ VOID  onMainWindowHelpFile(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID   onMainWindowHelpForums(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // Launch forum URL
    utilLaunchURL(pWindowData->hMainWnd, TEXT("http://forum.egosoft.com"), SW_SHOWMAXIMIZED);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -948,17 +878,11 @@ VOID   onMainWindowHelpForums(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID   onMainWindowHelpSubmitFile(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Display bug report dialog
    if (displayBugReportDialog(pWindowData->hMainWnd, TRUE) == IDOK)
       // [SUBMIT] Launch the submission thread
       commandSubmitReport(pWindowData, NULL);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -972,30 +896,26 @@ VOID  onMainWindowHelpTutorial(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iComm
 {
    TUTORIAL_WINDOW  eTutorial;
 
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
+   //CONSOLE_ACTION();
 
    // Examine command ID
    switch (iCommandID)
    {
-   case IDM_HELP_TUTORIAL_OPEN_FILE:         eTutorial = TW_OPEN_FILE;          break;
-   case IDM_HELP_TUTORIAL_FILE_OPTIONS:      eTutorial = TW_FILE_OPTIONS;       break;  
-   case IDM_HELP_TUTORIAL_GAME_DATA:         eTutorial = TW_GAME_DATA;          break;
-   case IDM_HELP_TUTORIAL_GAME_FOLDER:       eTutorial = TW_GAME_FOLDER;        break; 
-   case IDM_HELP_TUTORIAL_GAME_OBJECTS:      eTutorial = TW_GAME_OBJECTS;       break;  
-   case IDM_HELP_TUTORIAL_EDITOR:            eTutorial = TW_SCRIPT_EDITING;     break;
-   case IDM_HELP_TUTORIAL_PROJECTS:          eTutorial = TW_PROJECTS;           break;    
-   case IDM_HELP_TUTORIAL_COMMANDS:          eTutorial = TW_SCRIPT_COMMANDS;    break;  
-   case IDM_HELP_TUTORIAL_SCRIPT_OBJECTS:    eTutorial = TW_SCRIPT_OBJECTS;     break;
+   case IDM_HELP_TUTORIAL_OPEN_FILE:         eTutorial = TW_OPEN_FILE;         CONSOLE_MENU(IDM_HELP_TUTORIAL_OPEN_FILE);        break;
+   case IDM_HELP_TUTORIAL_FILE_OPTIONS:      eTutorial = TW_FILE_OPTIONS;      CONSOLE_MENU(IDM_HELP_TUTORIAL_FILE_OPTIONS);     break;  
+   case IDM_HELP_TUTORIAL_GAME_DATA:         eTutorial = TW_GAME_DATA;         CONSOLE_MENU(IDM_HELP_TUTORIAL_GAME_DATA);        break;
+   case IDM_HELP_TUTORIAL_GAME_FOLDER:       eTutorial = TW_GAME_FOLDER;       CONSOLE_MENU(IDM_HELP_TUTORIAL_GAME_FOLDER);      break; 
+   case IDM_HELP_TUTORIAL_GAME_OBJECTS:      eTutorial = TW_GAME_OBJECTS;      CONSOLE_MENU(IDM_HELP_TUTORIAL_GAME_OBJECTS);     break;  
+   case IDM_HELP_TUTORIAL_EDITOR:            eTutorial = TW_SCRIPT_EDITING;    CONSOLE_MENU(IDM_HELP_TUTORIAL_EDITOR);           break;
+   case IDM_HELP_TUTORIAL_PROJECTS:          eTutorial = TW_PROJECTS;          CONSOLE_MENU(IDM_HELP_TUTORIAL_PROJECTS);         break;    
+   case IDM_HELP_TUTORIAL_COMMANDS:          eTutorial = TW_SCRIPT_COMMANDS;   CONSOLE_MENU(IDM_HELP_TUTORIAL_COMMANDS);         break;  
+   case IDM_HELP_TUTORIAL_SCRIPT_OBJECTS:    eTutorial = TW_SCRIPT_OBJECTS;    CONSOLE_MENU(IDM_HELP_TUTORIAL_SCRIPT_OBJECTS);   break;
    default:                                  return;
    }
 
    /// Force display of tutorial window
    displayTutorialDialog(utilGetTopWindow(getAppWindow()), eTutorial, TRUE);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 /// Function name  : onMainWindowHelpUpdates
@@ -1005,15 +925,11 @@ VOID  onMainWindowHelpTutorial(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iComm
 // 
 VOID  onMainWindowHelpUpdates(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
+   //// [ERROR] "The feature '%s' has not been implemented"
+   //displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_OK WITH MDF_ERROR, TEXT("Automatic Updates"));
 
-   // [ERROR] "The feature '%s' has not been implemented"
-   displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_ERROR, TEXT("Automatic Updates"));
+   launchOperation(pWindowData, createUpdateOperation());
 
-   // [TRACK]
-   END_TRACKING();
 }
  
 
@@ -1024,15 +940,9 @@ VOID  onMainWindowHelpUpdates(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID    onMainWindowViewOutputDialog(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Toggle output dialog
    displayOutputDialog(pWindowData, !pWindowData->hOutputDlg);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1045,15 +955,9 @@ VOID   onMainWindowViewPreferencesDialog(MAIN_WINDOW_DATA*  pWindowData)
 {
    UINT    iPreferencesChanged;    // Flag indicating what (if any) important preferences have changed
 
-   // [VERBOSE]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Display preferences dialog
    iPreferencesChanged = displayPreferencesDialog(pWindowData->hMainWnd, PP_GENERAL);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1064,15 +968,9 @@ VOID   onMainWindowViewPreferencesDialog(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowViewProjectDialog(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Toggle project dialog
    displayProjectDialog(pWindowData, !pWindowData->hProjectDlg);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1083,15 +981,9 @@ VOID  onMainWindowViewProjectDialog(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID   onMainWindowViewPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    /// Toggle properties window
    displayPropertiesDialog(pWindowData, !pWindowData->hPropertiesSheet);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1103,15 +995,9 @@ VOID   onMainWindowViewPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID    onMainWindowViewSearchDialog(MAIN_WINDOW_DATA*  pWindowData, CONST RESULT_TYPE  eDialog)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-
    // Change to the desired tab, unless tab is already displayed -- then dialog is hidden
    displaySearchDialog(pWindowData, eDialog);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1165,11 +1051,8 @@ BOOL   onMainWindowTestCommandDescriptions(MAIN_WINDOW_DATA*  pWindowData)
    // Test output dialog
    //testOutputDialog(pWindowData->hOutputDlg);
 
-   // [VERBOSE]
-   VERBOSE_UI_COMMAND();
-
    // [ERROR] "The feature '%s' has not been implemented"
-   displayMessageDialogf(NULL, IDS_FEATURE_NOT_IMPLEMENTED, MAKEINTRESOURCE(IDS_TITLE_NOT_IMPLEMENTED), MDF_OK WITH MDF_INFORMATION, TEXT("Test command Descriptions"));
+   displayMessageDialogf(NULL, IDS_GENERAL_NOT_IMPLEMENTED, MDF_OK WITH MDF_INFORMATION, TEXT("Test command Descriptions"));
    
    return TRUE;
 }
@@ -1186,6 +1069,30 @@ VOID  onMainWindowTestCurrentCode(MAIN_WINDOW_DATA*  pWindowData)
 
    /*if (pDocument = getActiveScriptDocument())
       CodeEdit_FindText(pDocument->hCodeEdit, CSF_FROM_CARET, TEXT("script"));*/
+
+   //SCRIPT_OPERATION*  pOperationData;
+
+   //// [QUESTION] "Would you like to search for all external scripts that depend upon '%s'?"
+   //if (displayMessageDialogf(NULL, IDS_GENERAL_CONFIRM_DEPENDENCY_SEARCH, MDF_YESNO WITH MDF_QUESTION, TEXT("ignored")) == IDYES)
+   //{
+   //   // [VERBOSE]
+   //   CONSOLE_COMMAND();
+
+   //   // [SUCCESS] Create operation data
+   //   pOperationData = createScriptOperationData(OT_SEARCH_SCRIPT_CONTENT, NULL, CMD_SIZE_OF_ARRAY);
+
+   //   /// Launch search thread
+   //   launchOperation(getMainWindowData(), pOperationData);
+   //}
+
+   TRY
+   {
+      debugAccessViolation();
+   }
+   CATCH
+   {
+      displayException(pException);
+   }
 }
 
 
@@ -1306,15 +1213,9 @@ VOID   onMainWindowTestValidateUserScripts(MAIN_WINDOW_DATA*  pWindowData)
 // 
 VOID  onMainWindowWindowCloseDocuments(MAIN_WINDOW_DATA*  pWindowData, CONST BOOL  bExcludeActive)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-   
    /// Remove all documents [except active]
    closeAllDocuments(pWindowData->hDocumentsTab, bExcludeActive);
 
-   // [TRACK]
-   END_TRACKING();
 }
 
 
@@ -1326,14 +1227,11 @@ VOID  onMainWindowWindowCloseDocuments(MAIN_WINDOW_DATA*  pWindowData, CONST BOO
 // 
 VOID  onMainWindowWindowShowDocument(MAIN_WINDOW_DATA*  pWindowData, CONST UINT  iIndex)
 {
-   // [TRACK]
-   TRACK_FUNCTION();
-   VERBOSE_UI_COMMAND();
-   
+   CONSOLE_ACTION();
+   CONSOLE("Activating document index=%d", iIndex);
+
    /// Display desired document
    displayDocumentByIndex(pWindowData->hDocumentsTab, iIndex);
 
-   // [TRACK]
-   END_TRACKING();
 }
 

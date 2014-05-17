@@ -36,7 +36,7 @@ HWND   createMediaPlayerDialog(HWND  hParentWnd)
    pDialogData = utilCreateEmptyObject(MEDIA_PLAYER_DATA);
 
    // Create dialog
-   hDialog = CreateDialogParam(getResourceInstance(), TEXT("DOCUMENT_MEDIA_PLAYER_DIALOG"), hParentWnd, dlgprocMediaPlayerDialog, (LPARAM)pDialogData);
+   hDialog = loadDialog(TEXT("DOCUMENT_MEDIA_PLAYER_DIALOG"), hParentWnd, dlgprocMediaPlayerDialog, (LPARAM)pDialogData);
    ERROR_CHECK("creating media player dialog", hDialog);
 
    // Return window handle or NULL

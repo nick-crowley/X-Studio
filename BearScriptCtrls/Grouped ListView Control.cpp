@@ -89,7 +89,7 @@ LISTVIEW_GROUP*   createGroupedListViewGroup(CONST UINT  iGroupID, CONST UINT  i
 
    // Set properties
    pNewGroup->iID    = iGroupID;
-   pNewGroup->szName = utilLoadString(getResourceInstance(), iGroupNameResourceID, 96);
+   pNewGroup->szName = loadString(iGroupNameResourceID, 96);
 
    /// NOTE: Item count is always set to ZERO
 
@@ -578,6 +578,8 @@ BOOL  onGroupedListView_CustomDrawTooltip(GROUPED_LISTVIEW*  pWindowData, HWND  
    LVHITTESTINFO   oHitTest;        // ListView hit test
    BOOL            iResultCode;
 
+   //CONSOLE_COMMAND();
+
    // Prepare
    utilZeroObject(&oDataRequest, NMLVGETINFOTIP);
    utilGetWindowCursorPos(pWindowData->hCtrl, &oHitTest.pt);
@@ -698,6 +700,7 @@ LRESULT   wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LP
    LISTVIEW_ITEM      oItem;
    LVHITTESTINFO*     pHitTest;
    NMHDR*             pHeader;
+   //UINT               iHoverTime;
 
    // Examine message
    switch (iMessage)
@@ -721,6 +724,14 @@ LRESULT   wndprocGroupedListView(HWND  hCtrl, UINT  iMessage, WPARAM  wParam, LP
       if (pHeader->code == NM_CUSTOMDRAW AND pHeader->hwndFrom == ListView_GetToolTips(pWindowData->hCtrl))
          return onGroupedListView_CustomDrawTooltip(pWindowData, pHeader->hwndFrom, pHeader);
       break;
+
+   /*case WM_MOUSEMOVE:
+      SystemParametersInfo(SPI_GETMOUSEHOVERTIME, NULL, &iHoverTime, NULL);
+      utilTrackMouseEvent(hCtrl, TME_HOVER, iHoverTime);
+      break;
+
+   case WM_MOUSEHOVER:
+      break;*/
 
    // [CUSTOM MESSAGES]
    // -----------------

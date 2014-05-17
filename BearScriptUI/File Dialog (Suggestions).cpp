@@ -105,7 +105,7 @@ VOID  updateFileDialogSuggestionPosition(FILE_DIALOG_DATA*  pDialogData)
 
    /// Reposition ListView
    utilSetRectangle(&rcListView, rcEdit.left, rcEdit.bottom, siListView.cx, siListView.cy);
-   utilSetClientRect(pDialogData->hSuggestionList, &rcListView, TRUE);
+   utilSetWindowRect(pDialogData->hSuggestionList, &rcListView, TRUE);
 
    // [COLUMN] Resize to encompass entire ListView
    if (iDisplayCount < getTreeNodeCount(pDialogData->pSuggestionTree))
@@ -229,9 +229,7 @@ BOOL  onFileDialog_SuggestionNotify(FILE_DIALOG_DATA*  pDialogData, NMHDR*  pMes
    NMLVKEYDOWN*       pKeyPressInfo;      //
    BOOL               bResult;            // Operation result
    
-   // [TRACK]
-   TRACK_FUNCTION();
-
+   
    // Prepare
    bResult = FALSE;
 
@@ -281,7 +279,6 @@ BOOL  onFileDialog_SuggestionNotify(FILE_DIALOG_DATA*  pDialogData, NMHDR*  pMes
    }
 
    // Cleanup and return result
-   END_TRACKING();
    return bResult;
 }
 

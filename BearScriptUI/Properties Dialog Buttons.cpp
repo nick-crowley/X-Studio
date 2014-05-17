@@ -126,12 +126,9 @@ VOID  onButtonPage_LabelEditEnd(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMLVD
       {
       /// [TEXT] Ensure text isn't empty, then delete the OLE button and generate a new one
       case BUTTON_COLUMN_TEXT:
-         if (bAccept = lstrlen(szValue))
-         {
-            // Replace desired button + Store resultant button data
-            if (modifyButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, szValue, pOldButton->eColour, pNewButton))
-               insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pNewButton);   
-         }
+         // Replace desired button + Store resultant button data
+         if (bAccept = lstrlen(szValue) AND modifyButtonInRichEditByIndex(pDocument->hRichEdit, pLabelData->item.iItem, szValue, pOldButton->eColour, pNewButton))
+            insertObjectIntoAVLTree(pDocument->pButtonsByID, (LPARAM)pNewButton);   
          break;
 
       /// [ID] Ensure ID is valid, then replace
@@ -177,6 +174,11 @@ BOOL   onButtonPage_Notification(PROPERTIES_DATA*  pSheetData, HWND  hPage, NMHD
       // [END EDIT]
       case LVN_ENDLABELEDIT:
          onButtonPage_LabelEditEnd(pSheetData, hPage, (NMLVDISPINFO*)pMessage);
+         return TRUE;
+
+      // [CUSTOM DRAW]
+      case NM_CUSTOMDRAW:
+         SetWindowLong(hPage, DWL_MSGRESULT, onCustomDrawListView(hPage, pMessage->hwndFrom, (NMLVCUSTOMDRAW*)pMessage));
          return TRUE;
       }
    }
@@ -252,6 +254,11 @@ INT_PTR   dlgprocButtonPage(HWND  hDialog, UINT  iMessage, WPARAM  wParam, LPARA
       ptCursor.x = LOWORD(lParam);
       ptCursor.y = HIWORD(lParam);
       return onButtonPage_ContextMenu(pDialogData, hDialog, (HWND)wParam, &ptCursor);
+
+   /// [THEME CHANGED] Update ListView background colour
+   case WM_THEMECHANGED:
+      ListView_SetBkColor(GetControl(hDialog, IDC_BUTTONS_LIST), getThemeSysColour(TEXT("TAB"), COLOR_WINDOW));
+      return TRUE;
    }
 
    // Pass to common handlers
