@@ -1,0 +1,1195 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.viewsalvage</name>
+   <version>105</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: View Salvage: View and repair salvaged items</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* ****************************************************</comment></line>
+      <line linenr="002" indent=""><comment>* VIEW SALVAGE  by  MISTER BEAR  v1.05  Dec-2010</comment></line>
+      <line linenr="003" indent=""><comment>* </comment></line>
+      <line linenr="004" indent=""><comment>* NOTE: Salvage data is an array of salvaged (but damaged) components, stored on calling object.</comment></line>
+      <line linenr="005" indent=""><comment>* SALVAGE DATA: ARRAY( WARE 1, DAMAGE% 1, ... , WARE n, DAMAGE% n )</comment></line>
+      <line linenr="006" indent=""> </line>
+      <line linenr="007" indent=""><comment>* IDEA: You could let the user save 50% of the cost by using materials instead of cash.</comment></line>
+      <line linenr="008" indent=""><comment>* Suggest MICROCHIPS (2-S), COMPUTER COMPONENTS (1-S), QUANTUM TUBES (5-M)</comment></line>
+      <line linenr="009" indent=""> </line>
+      <line linenr="010" indent=""><comment>* ******* GET SALVAGE DATA, OR CREATE EMPTY ******</comment></line>
+      <line linenr="011" indent=""><text></text><var>$aSalvage =</var><text> </text><var>[THIS]</var><text>  ->  get local variable: name=</text><var>'piracy.salvage.data'</var><text></text></line>
+      <line linenr="012" indent=""><var>if </var><text></text><var>$aSalvage == null </var><text></text></line>
+      <line linenr="013" indent="&#160;"><text></text><var>$aSalvage =</var><text> = array alloc: size=</text><var>0</var><text></text></line>
+      <line linenr="014" indent="&#160;"><text></text><var>[THIS]</var><text>  ->  set local variable: name=</text><var>'piracy.salvage.data'</var><text> value=</text><var>$aSalvage</var><text></text></line>
+      <line linenr="015" indent=""><text>end</text></line>
+      <line linenr="016" indent=""> </line>
+      <line linenr="017" indent=""><comment>* ******* DISPLAY INSTRUCTIONS ******</comment></line>
+      <line linenr="018" indent=""><var>$iMenuID = </var><text></text><var>null </var><text></text></line>
+      <line linenr="019" indent=""><var>dialogRefresh</var><text>:</text></line>
+      <line linenr="020" indent=""> </line>
+      <line linenr="021" indent=""><text></text><var>$aMenu =</var><text> = create custom menu array: heading=</text><var>null</var><text></text></line>
+      <line linenr="022" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'Salvaged components are always damaged to some extent. Before they'</var><text></text></line>
+      <line linenr="023" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'can be installed in a ship you must buy the parts to repair them.'</var><text></text></line>
+      <line linenr="024" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'This shows the salvaged components currently in your cargo bay.'</var><text></text></line>
+      <line linenr="025" indent=""> </line>
+      <line linenr="026" indent=""><comment>* DISPLAY REPAIR NOTIFICATION</comment></line>
+      <line linenr="027" indent=""><var>if </var><text></text><var>$iMenuID != null </var><text></text></line>
+      <line linenr="028" indent="&#160;"><text></text><var>$szRepairCost =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.lib.ui'</var><text>, </text><var>'CommaDelimitNumber'</var><text>, </text><var>$iRepairCost</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="029" indent="&#160;"><text></text><var>$szTemp =</var><text> = sprintf: fmt=</text><var>'SUCCESS: Repaired %s for %s cr'</var><text>, </text><var>$oWare</var><text>, </text><var>$szRepairCost</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="030" indent="&#160;"> </line>
+      <line linenr="031" indent="&#160;"><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>' '</var><text></text></line>
+      <line linenr="032" indent="&#160;"><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>$szTemp</var><text></text></line>
+      <line linenr="033" indent=""><text>end</text></line>
+      <line linenr="034" indent=""> </line>
+      <line linenr="035" indent=""><comment>* ******* RESOURCES HEADER ******</comment></line>
+      <line linenr="036" indent=""><comment>* CREATE HEADER</comment></line>
+      <line linenr="037" indent=""><text></text><var>$aListItem =</var><text> = create text for custom menu, left=</text><var>'Resources'</var><text>, right=</text><var>'Amount'</var><text></text></line>
+      <line linenr="038" indent=""><text>add custom menu heading to array </text><var>$aMenu</var><text>: title=</text><var>$aListItem</var><text></text></line>
+      <line linenr="039" indent=""> </line>
+      <line linenr="040" indent=""><comment>* FORMAT PLAYER MONEY STRING</comment></line>
+      <line linenr="041" indent=""><text></text><var>$iPlayerMoney =</var><text> get player money</text></line>
+      <line linenr="042" indent=""><text></text><var>$szTemp =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.lib.ui'</var><text>, </text><var>'CommaDelimitNumber'</var><text>, </text><var>$iPlayerMoney</var><text>, </text><var>1</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="043" indent=""> </line>
+      <line linenr="044" indent=""><text></text><var>$aListItem =</var><text> = create text for custom menu, left=</text><var>'Credits available'</var><text>, right=</text><var>$szTemp</var><text></text></line>
+      <line linenr="045" indent=""><text>add custom menu item to array </text><var>$aMenu</var><text>: text=</text><var>$aListItem</var><text> returnvalue=</text><var>null</var><text></text></line>
+      <line linenr="046" indent=""> </line>
+      <line linenr="047" indent=""><comment>* ******* CREATE SALVAGE HEADER ******</comment></line>
+      <line linenr="048" indent=""><text></text><var>$aListItemSpacings =</var><text> = create new array, arguments=</text><var>1</var><text>, </text><var>145</var><text>, </text><var>-1</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="049" indent=""><text></text><var>$aListItem =</var><text> = create new array, arguments=</text><var>'Salvaged Components'</var><text>, </text><var>'Amount of Damage'</var><text>, </text><var>'Repair Cost'</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="050" indent=""><text></text><var>$aListItem =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.lib.ui'</var><text>, </text><var>'CreateListItem'</var><text>, </text><var>$aListItemSpacings</var><text>, </text><var>$aListItem</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="051" indent=""><text>add section to custom menu: </text><var>$aMenu</var><text></text></line>
+      <line linenr="052" indent=""><text>add custom menu heading to array </text><var>$aMenu</var><text>: title=</text><var>$aListItem</var><text></text></line>
+      <line linenr="053" indent=""> </line>
+      <line linenr="054" indent=""><comment>* ******* LIST SALVAGE ******</comment></line>
+      <line linenr="055" indent=""><text></text><var>$iCount =</var><text> size of array </text><var>$aSalvage</var><text></text></line>
+      <line linenr="056" indent=""> </line>
+      <line linenr="057" indent=""><var>skip if </var><text></text><var>$iCount &gt; 0 </var><text></text></line>
+      <line linenr="058" indent="&#160;"><text>add custom menu item to array </text><var>$aMenu</var><text>: text=</text><var>'None at the moment'</var><text> returnvalue=</text><var>null</var><text></text></line>
+      <line linenr="059" indent=""> </line>
+      <line linenr="060" indent=""><var>while </var><text></text><var>$iCount &gt; 0 </var><text></text></line>
+      <line linenr="061" indent="&#160;"><comment>* RETRIEVE SALVAGE ITEM PROPERTIES</comment></line>
+      <line linenr="062" indent="&#160;"><text>dec </text><var>$iCount</var><text> =</text></line>
+      <line linenr="063" indent="&#160;"><text></text><var>$iComponentDamage =</var><text> </text><var>$aSalvage</var><text>[</text><var>$iCount</var><text>]</text></line>
+      <line linenr="064" indent="&#160;"><text>dec </text><var>$iCount</var><text> =</text></line>
+      <line linenr="065" indent="&#160;"><text></text><var>$oWare =</var><text> </text><var>$aSalvage</var><text>[</text><var>$iCount</var><text>]</text></line>
+      <line linenr="066" indent="&#160;"><comment>* CALCULATE REPAIR COST from DAMAGE PERCENTAGE</comment></line>
+      <line linenr="067" indent="&#160;"><text></text><var>$i =</var><text> = get average price of ware </text><var>$oWare</var><text></text></line>
+      <line linenr="068" indent="&#160;"><var>$iRepairCost = </var><text></text><var>$i * $iComponentDamage / 100 </var><text></text></line>
+      <line linenr="069" indent="&#160;"><comment>* DETERMINE ITEM COLOUR BASED ON AFFORDABILITY (GREY or GREEN)</comment></line>
+      <line linenr="070" indent="&#160;"><var>if </var><text></text><var>$iRepairCost &gt; $iPlayerMoney </var><text></text></line>
+      <line linenr="071" indent="&#160;&#160;"><var>$iTextColourScheme = </var><text></text><var>912 </var><text></text></line>
+      <line linenr="072" indent="&#160;&#160;"><var>$iProgressBarColourScheme = </var><text></text><var>16 </var><text></text></line>
+      <line linenr="073" indent="&#160;"><text>else</text></line>
+      <line linenr="074" indent="&#160;&#160;"><var>$iTextColourScheme = </var><text></text><var>900 </var><text></text></line>
+      <line linenr="075" indent="&#160;&#160;"><var>$iProgressBarColourScheme = </var><text></text><var>1 </var><text></text></line>
+      <line linenr="076" indent="&#160;"><text>end</text></line>
+      <line linenr="077" indent="&#160;"> </line>
+      <line linenr="078" indent="&#160;"><comment>* COLOUR WARE NAME</comment></line>
+      <line linenr="079" indent="&#160;"><text></text><var>$szWare =</var><text> = sprintf: pageid=</text><var>7540</var><text> textid=</text><var>$iTextColourScheme</var><text>, </text><var>$oWare</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="080" indent="&#160;"><comment>* FORMAT DAMAGE AS PROGRESS BAR</comment></line>
+      <line linenr="081" indent="&#160;"><text></text><var>$szDamage =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.lib.controls'</var><text>, </text><var>'CreateProgressBar'</var><text>, </text><var>$iComponentDamage</var><text>, </text><var>30</var><text>, </text><var>-1</var><text>, </text><var>$iProgressBarColourScheme</var><text></text></line>
+      <line linenr="082" indent="&#160;"><comment>* FORMAT REPAIR COST STRING</comment></line>
+      <line linenr="083" indent="&#160;"><text></text><var>$szTemp =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.lib.ui'</var><text>, </text><var>'CommaDelimitNumber'</var><text>, </text><var>$iRepairCost</var><text>, </text><var>1</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="084" indent="&#160;"><text></text><var>$szRepairCost =</var><text> = sprintf: pageid=</text><var>7540</var><text> textid=</text><var>$iTextColourScheme</var><text>, </text><var>$szTemp</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="085" indent="&#160;"> </line>
+      <line linenr="086" indent="&#160;"><comment>* DISPLAY SALVAGE ITEM</comment></line>
+      <line linenr="087" indent="&#160;"><text></text><var>$aListItem =</var><text> = create new array, arguments=</text><var>$szWare</var><text>, </text><var>$szDamage</var><text>, </text><var>$szRepairCost</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="088" indent="&#160;"><text></text><var>$aListItem =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.lib.ui'</var><text>, </text><var>'CreateListItem'</var><text>, </text><var>$aListItemSpacings</var><text>, </text><var>$aListItem</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="089" indent="&#160;"><var>$iMenuID = </var><text></text><var>$iCount + 100 </var><text></text></line>
+      <line linenr="090" indent="&#160;"><text>add custom menu item to array </text><var>$aMenu</var><text>: text=</text><var>$aListItem</var><text> returnvalue=</text><var>$iMenuID</var><text></text></line>
+      <line linenr="091" indent=""><text>end</text></line>
+      <line linenr="092" indent=""> </line>
+      <line linenr="093" indent=""><comment>* ******* COMPLETE DIALOG ******</comment></line>
+      <line linenr="094" indent=""><text>add section to custom menu: </text><var>$aMenu</var><text></text></line>
+      <line linenr="095" indent=""><text>add custom menu heading to array </text><var>$aMenu</var><text>: title=</text><var>'Actions Available'</var><text></text></line>
+      <line linenr="096" indent=""><text>add custom menu item to array </text><var>$aMenu</var><text>: text=</text><var>'Close Salvage Interface'</var><text> returnvalue=</text><var>'Option.Cancel'</var><text></text></line>
+      <line linenr="097" indent=""> </line>
+      <line linenr="098" indent=""><comment>* ******* GET USER INPUT *******</comment></line>
+      <line linenr="099" indent=""><text></text><var>$iMenuID =</var><text> open custom menu: title=</text><var>'Repair Salvage'</var><text> description=</text><var>'More info'</var><text> option array=</text><var>$aMenu</var><text></text></line>
+      <line linenr="100" indent=""> </line>
+      <line linenr="101" indent=""><comment>* ******* REPAIR ITEM *********</comment></line>
+      <line linenr="102" indent=""><var>if </var><text></text><var>$iMenuID != 'Option.Cancel' AND $iMenuID != -1 </var><text></text></line>
+      <line linenr="103" indent="&#160;"><comment>* CONVERT MENU ID TO WARE</comment></line>
+      <line linenr="104" indent="&#160;"><var>$iMenuID = </var><text></text><var>$iMenuID - 100 </var><text></text></line>
+      <line linenr="105" indent="&#160;"><text></text><var>$oWare =</var><text> </text><var>$aSalvage</var><text>[</text><var>$iMenuID</var><text>]</text></line>
+      <line linenr="106" indent="&#160;"><comment>* CALCULATE PRICE OF REPAIRING WARE</comment></line>
+      <line linenr="107" indent="&#160;"><text>inc </text><var>$iMenuID</var><text> =</text></line>
+      <line linenr="108" indent="&#160;"><text></text><var>$iComponentDamage =</var><text> </text><var>$aSalvage</var><text>[</text><var>$iMenuID</var><text>]</text></line>
+      <line linenr="109" indent="&#160;"><text></text><var>$i =</var><text> = get average price of ware </text><var>$oWare</var><text></text></line>
+      <line linenr="110" indent="&#160;"><var>$iRepairCost = </var><text></text><var>$i * $iComponentDamage / 100 </var><text></text></line>
+      <line linenr="111" indent="&#160;"> </line>
+      <line linenr="112" indent="&#160;"><comment>* DEBIT MONEY FROM PLAYER ACCOUNT</comment></line>
+      <line linenr="113" indent="&#160;"><var>$i = </var><text></text><var>- $iRepairCost </var><text></text></line>
+      <line linenr="114" indent="&#160;"><text>add money to player: </text><var>$i</var><text></text></line>
+      <line linenr="115" indent="&#160;"> </line>
+      <line linenr="116" indent="&#160;"><comment>* CONVERT 'SCRAP' TO REPAIRED WARE</comment></line>
+      <line linenr="117" indent="&#160;"><text></text><var>$i =</var><text> = get volume of ware </text><var>$oWare</var><text></text></line>
+      <line linenr="118" indent="&#160;"><var>$i = </var><text></text><var>- $i </var><text></text></line>
+      <line linenr="119" indent="&#160;"><text></text><var> =</var><text> </text><var>[THIS]</var><text>  ->  add </text><var>$i</var><text> units of </text><var>Scrap 7171</var><text></text></line>
+      <line linenr="120" indent="&#160;"><text></text><var> =</var><text> </text><var>[THIS]</var><text>  ->  add </text><var>1</var><text> units of </text><var>$oWare</var><text></text></line>
+      <line linenr="121" indent="&#160;"> </line>
+      <line linenr="122" indent="&#160;"><comment>* REMOVE WARE and DAMAGE PERCENTAGE from SALVAGE ARRAY</comment></line>
+      <line linenr="123" indent="&#160;"><text>remove element from array </text><var>$aSalvage</var><text> at index </text><var>$iMenuID</var><text></text></line>
+      <line linenr="124" indent="&#160;"><text>dec </text><var>$iMenuID</var><text> =</text></line>
+      <line linenr="125" indent="&#160;"><text>remove element from array </text><var>$aSalvage</var><text> at index </text><var>$iMenuID</var><text></text></line>
+      <line linenr="126" indent="&#160;"> </line>
+      <line linenr="127" indent="&#160;"><text>goto label </text><var><var>dialogRefresh</var><text>:</text></var><text></text></line>
+      <line linenr="128" indent=""><text>end</text></line>
+      <line linenr="129" indent=""> </line>
+      <line linenr="130" indent=""><text>return </text><var>null</var><text></text></line>
+      <line linenr="131" indent=""> </line>
+      <line linenr="132" indent=""> </line>
+      <line linenr="133" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.viewsalvage" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: View Salvage: View and repair salvaged items" />
+         <sval type="int" val="105" />
+         <sval type="int" val="0" />
+         <sval type="array" size="17">
+            <sval type="string" val="aSalvage" />
+            <sval type="string" val="iMenuID" />
+            <sval type="string" val="aMenu" />
+            <sval type="string" val="szRepairCost" />
+            <sval type="string" val="iRepairCost" />
+            <sval type="string" val="szTemp" />
+            <sval type="string" val="oWare" />
+            <sval type="string" val="aListItem" />
+            <sval type="string" val="iPlayerMoney" />
+            <sval type="string" val="aListItemSpacings" />
+            <sval type="string" val="iCount" />
+            <sval type="string" val="iComponentDamage" />
+            <sval type="string" val="i" />
+            <sval type="string" val="iTextColourScheme" />
+            <sval type="string" val="iProgressBarColourScheme" />
+            <sval type="string" val="szWare" />
+            <sval type="string" val="szDamage" />
+         </sval>
+         <sval type="array" size="73">
+            <sval type="array" size="6">
+               <sval type="int" val="156" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.salvage.data" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610611709" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="128" />
+               <sval type="int" val="0" />
+               <sval type="int" val="4" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="155" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.salvage.data" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="101" />
+               <sval type="string" val="dialogRefresh" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="1416" />
+               <sval type="int" val="2" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Salvaged components are always damaged to some extent. Before they" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="can be installed in a ship you must buy the parts to repair them." />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="This shows the salvaged components currently in your cargo bay." />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610608893" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.lib.ui" />
+               <sval type="int" val="5" />
+               <sval type="string" val="CommaDelimitNumber" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="14">
+               <sval type="int" val="149" />
+               <sval type="int" val="5" />
+               <sval type="int" val="5" />
+               <sval type="string" val="SUCCESS: Repaired %s for %s cr" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="3" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val=" " />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="1523" />
+               <sval type="int" val="7" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Resources" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Amount" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1448" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="7" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="626" />
+               <sval type="int" val="8" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.lib.ui" />
+               <sval type="int" val="5" />
+               <sval type="string" val="CommaDelimitNumber" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="8" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="1523" />
+               <sval type="int" val="7" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Credits available" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1447" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="7" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="12">
+               <sval type="int" val="1415" />
+               <sval type="int" val="9" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="145" />
+               <sval type="int" val="4" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="12">
+               <sval type="int" val="1415" />
+               <sval type="int" val="7" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Salvaged Components" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Amount of Damage" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Repair Cost" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="7" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.lib.ui" />
+               <sval type="int" val="5" />
+               <sval type="string" val="CreateListItem" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="9" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="7" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1522" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1448" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="7" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="131" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-536863481" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="10" />
+               <sval type="int" val="4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="2" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="2" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1447" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="None at the moment" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610599671" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="10" />
+               <sval type="int" val="4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="2" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="2" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="143" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="129" />
+               <sval type="int" val="11" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="143" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="129" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="629" />
+               <sval type="int" val="12" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+            </sval>
+            <sval type="array" size="19">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="5" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="12" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="11" />
+               <sval type="int" val="15" />
+               <sval type="int" val="13" />
+               <sval type="int" val="4" />
+               <sval type="int" val="100" />
+               <sval type="int" val="15" />
+               <sval type="int" val="14" />
+               <sval type="int" val="5" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="13" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="14" />
+               <sval type="int" val="-4" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610602493" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="8" />
+               <sval type="int" val="15" />
+               <sval type="int" val="2" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="2" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="13" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="912" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="14" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="16" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="42" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="13" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="900" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="14" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="150" />
+               <sval type="int" val="15" />
+               <sval type="int" val="4" />
+               <sval type="int" val="7540" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="13" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="16" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.lib.controls" />
+               <sval type="int" val="5" />
+               <sval type="string" val="CreateProgressBar" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="11" />
+               <sval type="int" val="4" />
+               <sval type="int" val="30" />
+               <sval type="int" val="4" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="14" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.lib.ui" />
+               <sval type="int" val="5" />
+               <sval type="string" val="CommaDelimitNumber" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="150" />
+               <sval type="int" val="3" />
+               <sval type="int" val="4" />
+               <sval type="int" val="7540" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="13" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="12">
+               <sval type="int" val="1415" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="15" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="16" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="3" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="7" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.lib.ui" />
+               <sval type="int" val="5" />
+               <sval type="string" val="CreateListItem" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="9" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="7" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="10" />
+               <sval type="int" val="4" />
+               <sval type="int" val="100" />
+               <sval type="int" val="15" />
+               <sval type="int" val="11" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="11" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1447" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="29" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1522" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1448" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Actions Available" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1447" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Close Salvage Interface" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Option.Cancel" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="1230" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Repair Salvage" />
+               <sval type="int" val="5" />
+               <sval type="string" val="More info" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610594301" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Option.Cancel" />
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="int" val="15" />
+               <sval type="int" val="9" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="100" />
+               <sval type="int" val="15" />
+               <sval type="int" val="12" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="12" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="129" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="142" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="129" />
+               <sval type="int" val="11" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="629" />
+               <sval type="int" val="12" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+            </sval>
+            <sval type="array" size="19">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="5" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="12" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="11" />
+               <sval type="int" val="15" />
+               <sval type="int" val="13" />
+               <sval type="int" val="4" />
+               <sval type="int" val="100" />
+               <sval type="int" val="15" />
+               <sval type="int" val="14" />
+               <sval type="int" val="5" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="13" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="14" />
+               <sval type="int" val="-4" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="104" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="15" />
+               <sval type="int" val="65555" />
+               <sval type="int" val="2" />
+               <sval type="int" val="65555" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="662" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="12" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="604" />
+               <sval type="int" val="12" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="104" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="12" />
+               <sval type="int" val="15" />
+               <sval type="int" val="65555" />
+               <sval type="int" val="2" />
+               <sval type="int" val="65555" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="12" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786472" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="136" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="143" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="136" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="100" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="62">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="****************************************************" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="VIEW SALVAGE  by  MISTER BEAR  v1.05  Dec-2010" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="NOTE: Salvage data is an array of salvaged (but damaged) components, stored on calling object." />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="SALVAGE DATA: ARRAY( WARE 1, DAMAGE% 1, ... , WARE n, DAMAGE% n )" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="IDEA: You could let the user save 50% of the cost by using materials instead of cash." />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Suggest MICROCHIPS (2-S), COMPUTER COMPONENTS (1-S), QUANTUM TUBES (5-M)" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* GET SALVAGE DATA, OR CREATE EMPTY ******" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="4" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* DISPLAY INSTRUCTIONS ******" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="10" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="10" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DISPLAY REPAIR NOTIFICATION" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="13" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="15" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="15" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* RESOURCES HEADER ******" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="string" val="CREATE HEADER" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="17" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="17" />
+               <sval type="int" val="1" />
+               <sval type="string" val="FORMAT PLAYER MONEY STRING" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="19" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="21" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="21" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* CREATE SALVAGE HEADER ******" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="26" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="26" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* LIST SALVAGE ******" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="27" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="29" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="30" />
+               <sval type="int" val="1" />
+               <sval type="string" val="RETRIEVE SALVAGE ITEM PROPERTIES" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="34" />
+               <sval type="int" val="1" />
+               <sval type="string" val="CALCULATE REPAIR COST from DAMAGE PERCENTAGE" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="36" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DETERMINE ITEM COLOUR BASED ON AFFORDABILITY (GREY or GREEN)" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="40" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="42" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="42" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="42" />
+               <sval type="int" val="1" />
+               <sval type="string" val="COLOUR WARE NAME" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="43" />
+               <sval type="int" val="1" />
+               <sval type="string" val="FORMAT DAMAGE AS PROGRESS BAR" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="44" />
+               <sval type="int" val="1" />
+               <sval type="string" val="FORMAT REPAIR COST STRING" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="46" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="46" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DISPLAY SALVAGE ITEM" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="51" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="51" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="51" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* COMPLETE DIALOG ******" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="54" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="54" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* GET USER INPUT *******" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="55" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="55" />
+               <sval type="int" val="1" />
+               <sval type="string" val="******* REPAIR ITEM *********" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="56" />
+               <sval type="int" val="1" />
+               <sval type="string" val="CONVERT MENU ID TO WARE" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="58" />
+               <sval type="int" val="1" />
+               <sval type="string" val="CALCULATE PRICE OF REPAIRING WARE" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="62" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="62" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DEBIT MONEY FROM PLAYER ACCOUNT" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="64" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="64" />
+               <sval type="int" val="1" />
+               <sval type="string" val="CONVERT 'SCRAP' TO REPAIRED WARE" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="68" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="68" />
+               <sval type="int" val="1" />
+               <sval type="string" val="REMOVE WARE and DAMAGE PERCENTAGE from SALVAGE ARRAY" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="71" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="72" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="72" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="73" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="73" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="73" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="string" val="COMMAND_VIEW_SALVAGE" />
+      </sval>
+   </codearray>
+</script>

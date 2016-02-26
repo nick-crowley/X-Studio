@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="LUM03" name="Create Ships" description="Creates a group of ships and sets their attributes" />
+    <version number="0.1a" date="24/05/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="LUM03 Create Ships" library="1">
+      <documentation>
+        <content reference="LUM03" name="Create Ships" type="utility"/>
+        <version date="11/02/2008" number="0.2" status="testing"/>
+        <params>
+          <param name="Cue" description="Where the created ships will be localised."/>
+          <param name="Cancel Cue" type="cuename"/>
+          <param name="Result" type="valuename" description="Will contain 1 when finished!"/>
+          <param name="Group Name" description="The group name assigned to the created ships."/>
+          <param name="Ship Amount" description="The amount of ships created"/>
+          <param name="Ship Class" description="The class of ships created"/>
+          <!--<param name="Loadout" type="text" compulsory="1" default="maximum" description="Loadout String for the Ship. Valid Values are: none, minimum, default, maximum"/>-->
+          <param name="Maker Race" compulsory="1" description="The race ID of the ship maker. Can be strings 'default' or 'pirategroup'"/>
+          <param name="Race" description="The race of the ship"/>
+          <param name="Ship Scanned" description="0/1 Cargo is revealed."/>
+          <param name="Ship Capturable" description="0/1 The ships are capturable"/>
+          <param name="Ship Communicates" description="0/1 The ships communicate"/>
+          <param name="Ship Covered" description="0/1 Pirate Ships are Covered"/>
+          <param name="Ship Highlight" description="0/1 The ships are Highlighted"/>
+          <param name="Ship Race Logic" description="0/1 Turn racelogic on or off"/>
+          <param name="Position Object"/>
+          <param name="Ship X"/>
+          <param name="Ship Y"/>
+          <param name="Ship Z"/>
+          <param name="Distance" description="Distance from the position object"/>
+          <param name="Sector" description="The sector if spawned in space"/>
+          <param name="Dockobject" description="Dockobject if needed"/>
+        </params>
+        <history>
+          <change date="28/05/2008" author="XGamer" description="Removed Loadout again for now"/>
+          <change date="26/05/2008" author="XGamer" description="Added Loadout Parameter"/>
+          <change date="23/05/2008" author="XGamer" description="Added Return Value."/>
+          <change date="11/02/2008" author="Owen Lake" description="Changed some SRST stuff. Added the documentation tags. Added a shiptype valid check"/>
+        </history>
+      </documentation>
+      <cues>
+        <cue name="LUM03 Check Amount">
+          <condition>
+            <check_value value="{param@Ship Amount}-{value@LUM03 Create Ships.Created Count}" min="1"/>
+          </condition>
+          <action>
+            <set_value name="LUM03 Create Ships.Created Count" exact="{value@LUM03 Create Ships.Created Count}+1"/>
+          </action>
+          <cues>
+            <cue name="LUM03 ref SRST">
+              <condition>
+                <cue_completed cue="LUM03 Check Amount"/>
+              </condition>
+              <cues>
+                <cue ref="SRST">
+                  <params>
+                    <param name="Race ID" value="{param@Maker Race}"/>
+                    <param name="Class ID" value="{param@Ship Class}"/>
+                    <param name="Cue" value="LUM03 Create Ships"/>
+                    <param name="CancelCue" value="LUM03 ref SRST"/>
+                    <param name="Shiptype Address" value="LUM03 Create Ships.ShipType"/>
+                    <param name="Include M3P" value="0" comment="Include the M3Plus ships in the M3 search"/>
+                    <param name="Include M4P" value="0" comment="Include the M4Plus ships in the M4 search"/>
+                    <param name="Include M5P" value="0" comment="Include the M5Plus ships in the M5 search"/>
+                    <param name="Include M6M" value="0" comment="Include the M6M ships in the M6 search"/>
+                    <param name="Include M7M" value="0" comment="Include the M7M ships in the M7 search"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="LUM03 Create A Ship">
+              <condition>
+                <cue_cancelled cue="LUM03 ref SRST"/>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{value@LUM03 Create Ships.ShipType}" exact="0" negate="1">
+                    <do_choose>
+                      <do_when value="{object.exists@{param@Dockobject}}" exact="1">
+                        <create_ship group="{param@Cue}.{param@Group Name}" typename="{value@LUM03 Create Ships.ShipType}" race="{param@Race}" dockobject="{object@{param@Dockobject}}">
+                          <equipment loadout="maximum"/>
+                        </create_ship>
+                      </do_when>
+                      <do_otherwise>
+                        <do_choose>
+                          <do_when value="{object.exists@{param@Position Object}}" exact="1">
+                            <create_ship group="{param@Cue}.{param@Group Name}" typename="{value@LUM03 Create Ships.ShipType}" race="{param@Race}">
+                              <position object="{param@Position Object}" exact="{param@Distance}"/>
+                              <sector sector="{param@Sector}"/>
+                              <equipment loadout="maximum"/>
+                            </create_ship>
+                          </do_when>
+                          <do_otherwise>
+                            <create_ship group="{param@Cue}.{param@Group Name}" typename="{value@LUM03 Create Ships.ShipType}" race="{param@Race}">
+                              <position x="{param@Ship X}" y="{param@Ship Y}" z="{param@Ship Z}" exact="{param@Distance}"/>
+                              <sector sector="{param@Sector}"/>
+                              <equipment loadout="maximum"/>
+                            </create_ship>
+                          </do_otherwise>
+                        </do_choose>
+                      </do_otherwise>
+                    </do_choose>
+                    <!--
+                    <do_choose>
+                      <do_when value="{param.exists@Loadout}" exact="1">
+                        <do_choose>
+                          <do_when value="{object.exists@{param@Dockobject}}" exact="1">
+                            <create_ship group="{param@Cue}.{param@Group Name}" typename="{value@LUM03 Create Ships.ShipType}" race="{param@Race}" dockobject="{object@{param@Dockobject}}">
+                              <equipment loadout="{param@Loadout}"/>
+                            </create_ship>
+                          </do_when>
+                          <do_otherwise>
+                            <do_choose>
+                              <do_when value="{object.exists@{param@Position Object}}" exact="1">
+                                <create_ship group="{param@Cue}.{param@Group Name}" typename="{value@LUM03 Create Ships.ShipType}" race="{param@Race}">
+                                  <position object="{param@Position Object}" exact="{param@Distance}"/>
+                                  <sector sector="{param@Sector}"/>
+                                  <equipment loadout="{param@Loadout}"/>
+                                </create_ship>
+                              </do_when>
+                              <do_otherwise>
+                                <create_ship group="{param@Cue}.{param@Group Name}" typename="{value@LUM03 Create Ships.ShipType}" race="{param@Race}">
+                                  <position x="{param@Ship X}" y="{param@Ship Y}" z="{param@Ship Z}" exact="{param@Distance}"/>
+                                  <sector sector="{param@Sector}"/>
+                                  <equipment loadout="{param@Loadout}"/>
+                                </create_ship>
+                              </do_otherwise>
+                            </do_choose>
+                          </do_otherwise>
+                        </do_choose>
+                      </do_when>
+                      <do_otherwise>
+                      normal stuff like above here for the loadout not supplied
+                      </do_otherwise>
+                    </do_choose>
+                    -->
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="LUM03 Create Ship Reset">
+                  <action>
+                    <do_choose>
+                      <do_when value="{param@Ship Amount}-{value@LUM03 Create Ships.Created Count}" max="0">
+                        <do_if value="{param.exists@Ship Capturable}" exact="1">
+                          <do_if value="{param@Ship Capturable}" exact="0">
+                            <set_group_capturable group="{param@Cue}.{param@Group Name}" capturable="0"/>
+                          </do_if>
+                          <do_if value="{param@Ship Capturable}" exact="1">
+                            <set_group_capturable group="{param@Cue}.{param@Group Name}" capturable="1"/>
+                          </do_if>
+                        </do_if>
+                        <do_if value="{param.exists@Ship Scanned}" exact="1">
+                          <do_if value="{param@Ship Scanned}" exact="0">
+                            <set_group_scanned group="{param@Cue}.{param@Group Name}" scanned="0"/>
+                          </do_if>
+                          <do_if value="{param@Ship Scanned}" exact="1">
+                            <set_group_scanned group="{param@Cue}.{param@Group Name}" scanned="1"/>
+                          </do_if>
+                        </do_if>
+                        <do_if value="{param.exists@Ship Highlight}" exact="1">
+                          <do_if value="{param@Ship Highlight}" exact="0">
+                            <set_group_highlight group="{param@Cue}.{param@Group Name}" highlight="0"/>
+                          </do_if>
+                          <do_if value="{param@Ship Highlight}" exact="1">
+                            <set_group_highlight group="{param@Cue}.{param@Group Name}" highlight="1"/>
+                          </do_if>
+                        </do_if>
+                        <do_if value="{param.exists@Ship Covered}" exact="1">
+                          <do_if value="{param@Ship Covered}" exact="0">
+                            <set_group_covered group="{param@Cue}.{param@Group Name}" covered="0"/>
+                          </do_if>
+                          <do_if value="{param@Ship Covered}" exact="1">
+                            <set_group_covered group="{param@Cue}.{param@Group Name}" covered="1"/>
+                          </do_if>
+                        </do_if>
+                        <do_if value="{param.exists@Communicates}" exact="1">
+                          <do_if value="{param@Ship Communicates}" exact="0">
+                            <set_group_communicates group="{param@Cue}.{param@Group Name}" communicates="0"/>
+                          </do_if>
+                          <do_if value="{param@Ship Communicates}" exact="1">
+                            <set_group_communicates group="{param@Cue}.{param@Group Name}" communicates="1"/>
+                          </do_if>
+                        </do_if>
+                        <do_if value="{param.exists@Ship Race Logic}" exact="1">
+                          <do_if value="{param@Ship Race Logic}" exact="0">
+                            <set_group_racelogic group="{param@Cue}.{param@Group Name}" racelogic="0"/>
+                          </do_if>
+                          <do_if value="{param@Ship Race Logic}" exact="1">
+                            <set_group_racelogic group="{param@Cue}.{param@Group Name}" racelogic="1"/>
+                          </do_if>
+                        </do_if>
+                        <set_value name="{param@Result}" exact="1"/>
+                        <!--<do_if value="{param.exists@Cancel Cue}">-->
+                          <cancel_cue cue="{param@Cancel Cue}"/>
+                        <!--</do_if>-->
+                      </do_when>
+                      <do_otherwise>
+                        <reset_cue cue="LUM03 Check Amount"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>qzIlN+EczN8+jJBe8gfKK72eZSNfIF6pwNabAUsOYDAjdKmG1bD2bxFEEB0eD3rdi6JEIYbNaQIgUwzn05PnmQP0PRSAxg0VOXKpelApZ493nwMwDM1f8ZtW0PWmo8hca66dicU3z2yRhCRJTcHW/CU/BbCDzOsqe2kGdai/iX9bNH0yvFM5UjUADPY2Fau8vUKAjCL0lV5HPCZhvb+IvEygYZpz3L3gatd8ME65wC6kaL/63DjE3T7okKcaq7i5piNewagIpG1YfNUAg0kbpCo0fsuLXUB24NDCUIUdYlPlr2ytL8F3RqGoWYb8VEXQbC6Vc8JeSSveUaC8XVX6oA==</signature>
+</director>

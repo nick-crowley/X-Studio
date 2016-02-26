@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen_Lake@eogsoft.com Skype: Owen Lake"/>
+    <content reference="OBJ05" name="Provide Station" description="Objective to provide a Station with a ware"/>
+    <version number="0.1" date="23/06/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="OBJ05" library="1">
+      <documentation>
+        <content name="OBJ05 Provide Station" reference="XXXT" type="objective"/>
+        <version date="23/06/2008" number="0.1" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue"/>
+          <param name="Step" type="number" compulsory="1" description="The step number"/>
+          <param name="Station" type="objectid" compulsory="1" description="The station object id"/>
+          <param name="Ware" type="number" compulsory="1" description="Ware type code"/>
+          <param name="Amount" type="number" compulsory="1" description="The amount of the ware needed"/>
+          <param name="Feedback Name" type="valuename" compulsory="1" description="The value name for the feedback value"/>
+        </params>
+        <history>
+          <change date="23/06/2008" author="Owen Lake" description="Initial version"/>
+        </history>
+      </documentation>
+      <action>
+        <set_value name="OBJ05.Needed" exact="{param@Amount}"/>
+      </action>
+      <cues>
+        <cue name="OBJ02 Wait">
+          <condition>
+            <cue_completed cue="OBJ05"/>
+          </condition>
+          <cues>
+            <cue name="OBJ02 In Stock" delay="5s" instantiate="static">
+              <condition>
+                <check_value value="{object.cargo.{param@Ware}.exists@{param@Station}}" exact="1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <do_all>
+                    <do_choose>
+                      <do_when value="{object.cargo.{param@Ware}.count@{param@Station}}" min="{value@OBJ05.Needed}+1">
+                        <set_value name="this.RemoveCount" exact="{value@OBJ05.Needed}"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_value name="this.RemoveCount" exact="{object.cargo.{param@Ware}.count@{param@Station}}"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <set_value name="OBJ05.Needed" exact="{value@OBJ05.Needed}-{value@this.RemoveCount}"/>
+                    <add_cargo object="{param@Station}">
+                      <ware typename="{param@Ware}" exact="-{value@this.RemoveCount}"/>
+                    </add_cargo>
+                    <do_choose>
+                      <do_when value="{value@OBJ05.Needed}" min="1">
+                        <create_briefing cue="{param@Cue}">
+                          <objectives>
+                            <objective step="{value@{param@Step}}">
+                              <deliver object="{param@Station}">
+                                <ware typename="{param@Ware}" exact="{value@OBJ05.Needed}"/>
+                              </deliver>
+                            </objective>
+                          </objectives>
+                        </create_briefing>
+                        <set_objective cue="{param@Cue}" silent="1">
+                          <briefing cue="{param@Cue}" step="{value@{param@Step}}"/>
+                          <deliver object="{param@Station}">
+                            <ware typename="{param@Ware}" exact="{value@OBJ05.Needed}"/>
+                          </deliver>
+                        </set_objective>
+                      </do_when>
+                      <do_otherwise>
+                        <set_value name="{param@Feedback Name}" exact="1"/>
+                        <cancel_cue cue="OBJ05"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_all>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>FqM+mldHXs/kGq55CgBAWzkRartbv/Z2gu2xc6z8UXmIbg3ShgrRT48kj5vTu3B9ifw3r4C0VYck/tDz0IjWSP1gKuvgYXINz8hGABsNlJzufuAMAIsJlqXn95ILI2JkByxnxariNijaFWGWg7wH1f/D/uLjCsr8VzIL2sYeVhIRHO2QvGf5rrJmalLwEJOF/09/NkDWQXz1vWGSTua8CgG5ItQhE2PwDqaI8nnkIM8ulycIWlH2wa1z2UedRscibS/WuOAy+XnufzeHFLL5IFg+WCvtiepVPlvFAlg2iFCB0Xo+rH8w8grPSbXuTxSMzxee5Tnpm7gg801y+D+BGg==</signature>
+</director>

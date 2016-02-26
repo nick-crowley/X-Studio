@@ -1,0 +1,67 @@
+<page id="302003" title="Script Command Names" descr="0" voice="no">
+ <t id="213">send incoming question %0 to player: callback=%1 flags=%2</t>
+ <t id="570">%1%0 move to position continue: x=%2 y=%3 z=%4 with precision %5 m</t>
+ <t id="571">%1%0 can missile %2 be installed</t>
+ <t id="722">%1%0 get most destructive missile type that can be installed</t>
+ <t id="799">%0create debris: type=%1 addto=%2 resource=%3 yield=%4 x=%5 y=%6 z=%7</t>
+ <t id="1179">%1%0 get asteroid yield</t>
+ <t id="1181">%1%0 get job idle rate</t>
+ <t id="1182">%1%0 get flight time</t>
+ <t id="1183">%1%0 get job jump range</t>
+ <t id="1184">%0start job</t>
+ <t id="1185">START %0 command %1 : arg1=%2, arg2=%3, arg3=%4, arg4=%5</t>
+ <t id="1186">%0connect wing command/signal %1 to script %2 with prio %3</t>
+ <t id="1187">%1%0 get true owner</t>
+ <t id="1188">%1%0 wait idle rate minimum:%2 ms</t>
+ <t id="1189">%1%0 fire laser of turret %2 ahead</t>
+ <t id="1190">%1%0 turn turret %2 to pos %3 relativ:%4 timeout:%5</t>
+ <t id="1191">%0reset flight time</t>
+ <t id="1192">%0auto sync patrol sector with environment: %1</t>
+ <t id="1193">%0add to patrol group for sector: %1</t>
+ <t id="1194">%0remove from patrol group for sector: %1</t>
+ <t id="1195">%0remove all patrol group references</t>
+ <t id="1196">%0add lasers per value:%1(0-100) flags:%2</t>
+ <t id="1197">%0add shields per value:%1(0-100)</t>
+ <t id="1198">%1%0 is asteroid scanned</t>
+ <t id="1199">%0set asteroid scanned to %1</t>
+ <t id="1200">%0set relations from notoriety: include player as target and race &gt; teladi as owner=%1</t>
+ <t id="1201">%0is a new script version available</t>
+ <t id="1202">%1%0 get job id</t>
+ <t id="1203">%1%0 get flying ware count</t>
+ <t id="1204">%1%0 get pilot morale</t>
+ <t id="1205">%1%0 get pilot aggression</t>
+ <t id="1206">%0find a random sector: startsector=%1, jumps=%2, owner=%3, security level=%4</t>
+ <t id="1207">set notoriety of %0 -&gt; %1 to %2 points</t>
+ <t id="1208">%1%0 get intermediates buyable</t>
+ <t id="1209">%0set intermediates buyable to %1</t>
+ <t id="1210">%1%0 get intermediates sellable</t>
+ <t id="1211">%0set intermediates sellable to %1</t>
+ <t id="1212">%0find debris: sector=%1 resource=%2 min yield=%3 flags=%4 refobj=%5 num=%6 max distance=%7 refpos=%8</t>
+ <t id="1213">%1%0 get resource waretype of asteroid</t>
+ <t id="1214">%1%0 has collectible rocks</t>
+ <t id="1215">%0send incoming message: text=%1 temporary=%2</t>
+ <t id="1216">%1%0 move to debris/asteroid %2 and turn turret %3 to target: timeout=%4</t>
+ <t id="1217">add blueprints to player HQ: type=%0</t>
+ <t id="1218">%0player HQ has blueprints for: type=%1</t>
+ <t id="1219">remove blueprints from player HQ: type=%0</t>
+ <t id="1220">%0last load time</t>
+ <t id="1221">%0ignore collisions: %1</t>
+ <t id="1222">%0set pilot morale: %1</t>
+ <t id="1223">%0set pilot aggression: %1</t>
+ <t id="1224">%0force position: x=%1 y=%2 z=%3</t>
+ <t id="1230">%0open custom menu: title=%1 description=%2 option array=%3</t>
+ <t id="1231">%1%0 create passenger in ship: name=%2 race=%3 voice=%4 face=%5</t>
+ <t id="1232">%1%0 add passenger to ship %2</t>
+ <t id="1233">%1%0 remove passenger %2</t>
+ <t id="1234">%1%0 get passenger array</t>
+ <t id="1235">%1%0 enslave passenger %2</t>
+ <t id="1236">%0create passenger: name=%1 race=%2 voice=%3 face=%4</t>
+ <t id="1237">%0release passenger</t>
+ <t id="1238">%1%0 create passenger from pilot: remove pilot from ship=%2</t>
+ <t id="1245">%1%0 pilot eject from ship</t>
+ <t id="1250">%1%0 get repair cost of ship %2</t>
+ <t id="1300">%0get missile flags of %1</t>
+ <t id="1320">%0player has police license for race %1</t>
+ <t id="1325">%1%0 get pilot tradeskill</t>
+ <t id="1326">%0set pilot tradeskill to %1</t>
+</page>

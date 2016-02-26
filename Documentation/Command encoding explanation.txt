@@ -1,0 +1,45 @@
+﻿
+
+COMMAND DEFINITION
+===================================
+646:  %1%0 add %2 units of %3
+
+
+CODE
+====================================
+
+$i = $oShip -> add 42 units of {Spaceflies}
+return null
+
+
+VARIABLE PORTION
+===================================
+
+							<sval type="array" size="2">
+Variable 0 : i					<sval type="string" val="i" />
+Variable 1 : oShip				<sval type="string" val="oShip" />
+							</sval>
+
+
+LINE DEFINITION
+===================================
+
+							<sval type="array" size="2">
+								<sval type="array" size="8">
+Command Number : 646				<sval type="int" val="646" />
+UNKNOWN	    : 131074				<sval type="int" val="131074" />
+
+Parameter 0 : Variable 1 (oShip)	<sval type="int" val="1" />
+Parameter 1 : Variable 0 (i)		<sval type="int" val="0" />
+Unknown	    : 4						<sval type="int" val="4" />
+
+Parameter 2 : 42					<sval type="int" val="42" />
+Unknown	    : 9						<sval type="int" val="9" />
+		    : 1048581 WARE			<sval type="int" val="1048581" />
+						or
+		    : 589824 WARE			<sval type="int" val="589824" />
+						or
+		    : 786478 WARE			<sval type="int" val="786478" />
+
+								</sval>
+							</sval>

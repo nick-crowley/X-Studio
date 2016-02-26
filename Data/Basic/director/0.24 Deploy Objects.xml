@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Level 0 Mission 4" name="Deploy Objects" description="Mission to retrieve some wares"/>
+    <version number="0.6" date="02/06/08" status="development"/>
+  </documentation>
+
+  <cues>
+    <cue name="L0M24 B" library="1">
+      <documentation>
+        <content name="L0M24 Deploy Objects" reference="XXBX" type="briefing" />
+        <version number="0.1" date="01/07/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission ID for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" compulsory="1" description="Page ID of mission description"/>
+          <param name="TextID" compulsory="1" description="Text ID of mission description"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward type" default="Standard credit reward"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="BriefingBackground" type="text" compulsory="0" description="Briefing Background to be used"/>
+          <param name="Difficulty" compulsory="1" description="The difficulty of the mission" default="trivial"/>
+          <param name="IsPlot" compulsory="0" description="If the mission is a plot mission or not" default="non-plot"/>
+          <param name="Step" type="number" compulsory="0" description="Step to begin the briefing on" default="Step 1"/>
+          <param name="Ware" type="number" compulsory="1" description="Ware to be deployed"/>
+          <param name="Amount" type="number" compulsory="1" description="Amount of Ware to be deployed"/>
+          <param name="Sector" type="sectorname" compulsory="1" description="Ware position"/>
+          <param name="PositionX" type="number" compulsory="1" description="Ware position"/>
+          <param name="PositionY" type="number" compulsory="1" description="Ware position"/>
+          <param name="PositionZ" type="number" compulsory="1" description="Ware position"/>
+          <param name="PositionRange" type="number" compulsory="0" description="Ware position"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.{param@ID} L0M24 Progress" type="number" description="1 - Mission Completed"/>
+          <return name="{param@Cue}.{param@ID} L0M24 Progress" type="number" description="2 - Out of time"/>
+        </returns>
+        <history>
+          <change date="01/07/08" author="al_main" description="Initial Version"/>
+        </history>
+        <todo>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_choose>
+            <do_when value="{param@Ware}" list="{lookup.type@SS_WARE_ORBITALLASER}|{lookup.type@SS_SH_ORBITALLASER}">
+              <set_value name="{param@Cue}.{param@ID} L0Action" exact="2061" comment="Deploy Lasertowers"/>
+              <set_value name="{param@Cue}.{param@ID} L0Type" exact="2159" comment="Deploy Lasertowers"/>
+            </do_when>
+            <do_when value="{param@Ware}" list="{lookup.type@SS_WARE_MINE_1}|{lookup.type@SS_WARE_MINE_2}|{lookup.type@SS_WARE_MINE_3}|{lookup.type@SS_WARE_TR_MINE}|{lookup.type@SS_SH_MINE_1}|{lookup.type@SS_SH_MINE_2}|{lookup.type@SS_SH_MINE_3}|{lookup.type@SS_SH_TR_MINE}">
+              <set_value name="{param@Cue}.{param@ID} L0Action" exact="2075" comment="Drop mines"/>
+              <set_value name="{param@Cue}.{param@ID} L0Type" exact="2160" comment="Deploy Mines"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="{param@Cue}.{param@ID} L0Action" exact="2075" comment="Drop other stuff"/>
+            </do_otherwise>
+          </do_choose>
+          <do_choose>
+            <do_when value="{param@Summary}" exact="1">
+              <do_choose>
+                <do_when value="{value@{param@Cue}.{param@ID} L0Type}" min="1">
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{param@Step}">
+                        <custom icon="deliver" action="{35,{value@{param@Cue}.{param@ID} L0Action}}" text="{35,{value@{param@Cue}.{param@ID} L0Type}}"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_when>
+                <do_otherwise>
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{param@Step}">
+                        <custom icon="deliver" action="{35,{value@{param@Cue}.{param@ID} L0Action}}" text="{lookup.type.name@{param@Ware}}"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_otherwise>
+              </do_choose>
+              <cancel_cue cue="L0M24 B"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="{param@Cue}.{param@ID} L0Step" exact="{param@Step}"/>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Step}" min="1" negate="1">
+                <set_value name="{param@Cue}.{param@ID} L0Step" exact="1"/>
+              </do_if>
+              <do_if value="{param.exists@IsPlot}" exact="0">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="3500" max="7000"/>
+                <do_if value="{param.exists@Difficulty}" exact="1">
+                  <do_if value="{param@Difficulty}" min="1">
+                    <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@{param@Cue}.{param@ID} L0Time}/{param@Difficulty}"/>
+                  </do_if>
+                </do_if>
+              </do_if>
+              <set_value name="{param@Cue}.{param@ID} L0M24Ware" exact="{param@Ware}"/>
+              <set_value name="{param@Cue}.{param@ID} L0M24Amount" exact="{param@Amount}"/>
+              <do_if value="{value@{param@Cue}.{param@ID} L0M24Amount}" exact="0">
+                <set_value name="{param@Cue}.{param@ID} L0M24Amount" min="2" max="8"/>
+              </do_if>
+              <!--set title-->
+              <set_value name="{param@Cue}.{param@ID} L0Title" min="1001" max="{3624,1000}" profile="decreasing"/>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Type}" min="1">
+                <set_value name="{param@Cue}.{param@ID} L0Title" min="1051" max="{3624,1050}" profile="decreasing"/>
+              </do_if>
+              <!--set reward-->
+              <do_if value="{value@{param@RewardCr}}" exact="0">
+                <set_value name="this.warevalue" min="{lookup.type.price@{value@{param@Cue}.{param@ID} L0M24Ware}}*{value@{param@Cue}.{param@ID} L0M24Amount}" max="{lookup.type.maxprice@{value@{param@Cue}.{param@ID} L0M24Ware}}*{value@{param@Cue}.{param@ID} L0M24Amount}" profile="bell"/>
+                <set_value name="this.bonus" exact="{reward.money.{param@OfferRace}@{param@Difficulty}.XXBX}"/>
+                <set_value name="{param@RewardCr}" exact="{value@this.warevalue}+{value@this.bonus}"/>
+              </do_if>
+              <!--set position-->
+              <set_sector name="{param@Cue}.{param@ID} L0M24Sector" value="{sector@{param@Sector}}"/>
+              <set_value name="{param@Cue}.{param@ID} L0M24PositionX" exact="{param@PositionX}"/>
+              <set_value name="{param@Cue}.{param@ID} L0M24PositionY" exact="{param@PositionY}"/>
+              <set_value name="{param@Cue}.{param@ID} L0M24PositionZ" exact="{param@PositionZ}"/>
+              <do_if value="{param.exists@PositionRange}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} L0M24PositionRange" exact="{param@PositionRange}"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0M24PositionRange}" min="0" max="6000">
+                <set_value name="{param@Cue}.{param@ID} L0M24PositionRange" exact="8000"/>
+              </do_if>
+              <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3624,{value@{param@Cue}.{param@ID} L0Title}}">
+                <objectives>
+                  <objective step="{value@{param@Cue}.{param@ID} L0Step}">
+                    <!--<thumbnails>
+                      <thumbnail image="{lookup.type.image@{value@{param@Cue}.{param@ID} L0M24Ware1}}"/>
+                      <thumbnail image="{lookup.race.image@{param@OfferRace}}"/>
+                      <thumbnail image="{sector.image@{param@Cue}.{param@ID} L0M24Sector}"/>
+                    </thumbnails>-->
+                    <custom icon="deliver" action="{35,{value@{param@Cue}.{param@ID} L0Action}}" text="{value@{param@Cue}.{param@ID} L0M24Amount} x {lookup.type.name@{value@{param@Cue}.{param@ID} L0M24Ware}}"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="LUM04">
+          <params>
+            <param name="Discipline" value="XXBX"/>
+            <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+          </params>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M24" library="1">
+      <documentation>
+        <content name="L0M24 Deploy Objects" reference="XXBX" type="L0" />
+        <version number="0.1" date="01/07/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" type="number" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" type="number" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" type="actorname" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" type="number" compulsory="1" description="Page ID of mission description"/>
+          <param name="TextID" type="number" compulsory="1" description="Text ID of mission description"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward type" default="Standard credit reward"/>
+          <param name="StoryID" type="number" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" type="number" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Difficulty" type="number"  compulsory="1" description="The difficulty of the mission" default="trivial"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="If the mission is a plot mission or not" default="non-plot"/>
+          <param name="AddText" type="boolean" compulsory="0" description="Whether to add the mission description to the incoming message"/>
+        </params>
+        <history>
+          <change date="01/07/08" author="al_main" description="Initial Version"/>
+        </history>
+        <todo>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_choose>
+            <!--NEEDS SELECTION OF MESSAGE FOR DIFFERENT OFFFER RACES?-->
+            <do_when value="{param@AddText}" min="1">
+              <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{{param@PageID},{param@TextID}}\n\n{3624,101}"/>
+            </do_when>
+            <do_otherwise>
+              <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3624,101}"/>
+            </do_otherwise>
+          </do_choose>
+          <set_objective cue="{param@Cue}" title="{3624,{value@{param@Cue}.{param@ID} L0Title}}">
+            <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+            <mission level="{param@Difficulty}" discipline="XXBX"/>
+            <custom icon="deliver" action="{35,{value@{param@Cue}.{param@ID} L0Action}}" text="{value@{param@Cue}.{param@ID} L0M24Amount} x {lookup.type.name@{value@{param@Cue}.{param@ID} L0M24Ware}}"/>
+          </set_objective>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="LUM05"/>
+        <cue name="L0M24 Mission">
+          <cues>
+            <cue name="L0M24 Deployed" delay="1s">
+              <condition>
+                <count_objects class="stationary" typename="{value@{param@Cue}.{param@ID} L0M24Ware}" race="player" min="{value@{param@Cue}.{param@ID} L0M24Amount}">
+                  <position x="{value@{param@Cue}.{param@ID} L0M24PositionX}" y="{value@{param@Cue}.{param@ID} L0M24PositionY}" z="{value@{param@Cue}.{param@ID} L0M24PositionZ}"/>             
+                  <sector sector="{param@Cue}.{param@ID} L0M24Sector"/>
+                  <distance max="{value@{param@Cue}.{param@ID} L0M24PositionRange}m"/>
+                </count_objects>
+              </condition>
+              <action>
+                <do_all>
+                  <find_object group="this.objects" class="stationary" typename="{value@{param@Cue}.{param@ID} L0M24Ware}" race="player" multiple="1" max="{value@{param@Cue}.{param@ID} L0M24Amount}">
+                    <position x="{value@{param@Cue}.{param@ID} L0M24PositionX}" y="{value@{param@Cue}.{param@ID} L0M24PositionY}" z="{value@{param@Cue}.{param@ID} L0M24PositionZ}"/>
+                    <sector sector="{param@Cue}.{param@ID} L0M24Sector"/>
+                    <distance max="{value@{param@Cue}.{param@ID} L0M24PositionRange}m"/>
+                  </find_object>
+                  <set_group_owner group="this.objects" race="{param@OfferRace}"/>
+                  <set_value name="{param@Cue}.{param@ID} L0M24 Progress" exact="1"/>
+                </do_all>
+              </action>              
+            </cue>
+            <cue name="L0M24 Time Out" check="cancel">
+              <condition>
+                <check_value value="{value@{param@Cue}.{param@ID} L0Time}" min="1"/>
+              </condition>
+              <timing>
+                <time exact="{value@{param@Cue}.{param@ID} L0Time}s"/>
+              </timing>
+              <action>
+                <set_value name="{param@Cue}.{param@ID} L0M24 Progress" exact="2"/>
+              </action>
+            </cue>
+            <cue name="L0M24 Aborted">
+              <condition>
+                <objective_cancelled cue="{param@Cue}"/>
+              </condition>
+              <action>
+                <set_value name="{param@Cue}.{param@ID} L0M24 Progress" exact="99"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L0M24 Cleanup">
+          <condition>
+            <check_value value="{value@{param@Cue}.{param@ID} L0M24 Progress}" min="1"/>
+          </condition>
+          <action>
+            <cancel_cue cue="L0M24 Mission"/>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>RKmCblHGQaXYgCOSeGZ5pi8jl8+yzECjdDTHsy/y5Ob7PW9DGF8YcxeHq9TPdobgSz3gPikY8VFF/PMjQqHCNCKFCqhstmnkhOCVHYj5yXsDrY7g4XqOUhEYQw3VlnAtJRqQZFx4+/lNAmBki730JETLUUuMA8DlDdi+iLg4PMB0ue1Bv5Xcp82OWjSXGwbKkYhwZ7DGa4U67Ls/FlD3kMVnp7+VOxh68Fwvjt97D0x2hESUUKvyBy31sFEwqY/bFZ3PA+akrbjYem+/JWiNMb6VxDaPlF1kysWyeTenQf3pjOba6+mSxrxWYN6MJMJI9rxetoJ8NVnSmZsKiOTbqA==</signature>
+</director>

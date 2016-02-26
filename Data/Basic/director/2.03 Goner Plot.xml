@@ -1,0 +1,2656 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al Main" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="L2M03" name="Goner Plot" description="Goner Plot"/>
+    <version number="0.1" date="12/04/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M03" library="1">
+      <documentation>
+        <content reference="L2M03" name="Goner Plot"  type="L2"/>
+        <version number="0.1" date="11/08/2008" status="release"/>
+        <history>
+          <change date="26/08/08" author="al_main"   description="Now adds Bright Profit to map when player must go there"/>
+          <change date="11/08/08" author="Owen Lake" description="Added cue L2M03 Sc2 St2 Set Start Time."/>
+          <change date="08/08/08" author="Owen Lake" description="Altered Temple Co-ords. Destroyed DefendObj TS after mission. Changed check_value to check_age for L2M03 Scene 4.Start Time.
+                   Ozias highlight off at end. Added final Hall message. Changed set_objective guidance attributes to actor or object. 'L2M03 Sc4 St1 TLS Docked' restructured. Added missing set_... attributes"/>
+          <change date="07/08/08" author="al_main"   description="L2M03 Sc3 St1 now waits till player IS before restarting the mission"/>
+          <change date="06/08/08" author="al_main"   description="Temple building and parts added"/>
+          <change date="05/08/08" author="al_main"   description="Updated create_station to use default values"/>
+          <change date="24/07/08" author="al_main"   description="Fixed ship need to follow's race in scene 4"/>
+          <change date="21/07/08" author="al_main"   description="RC2 version"/>
+          <change date="16/07/08" author="al_main"   description="Fixed some missing object attributes in set_command"/>
+          <change date="09/07/08" author="al_main"   description="RC1 version"/>
+          <change date="08/07/08" author="al_main"   description="Added task='1' to goner ship preach run_script"/>
+          <change date="07/07/08" author="al_main"   description="Fixed build Teladinium Foundry reward"/>
+          <change date="25/06/08" author="al_main"   description="Fixed mutual relation setting"/>
+          <change date="25/06/08" author="al_main"   description="fixed Teladianium delivery reward, fixed build station mission completing automatically"/>
+          <change date="18/06/08" author="al_main"   description="Slowed down protect ships section, also added checks for player already in fight"/>
+          <change date="17/06/08" author="al_main"   description="Fixed capturable and highligh statuses"/>
+        </history>
+        <todo>
+          <item priority="high" description="Check timing in L2M03 Sc1 St1 End Wait"/>
+          <item priority="medium" description="Cutscene showing ship in L2M03 Sc4 St1 IS"/>
+        </todo>
+      </documentation>
+      <condition>
+        <count_stations min="1" race="argon|goner">
+          <sector x="14" y="5"/>
+        </count_stations>
+      </condition>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_sector name="L2M03.EoL" x="14" y="5"/>
+          <do_choose>
+            <do_when value="{sector.exists@L2M03.EoL}" exact="0">
+              <cancel_cue cue="L2M03"/>
+            </do_when>
+            <do_otherwise>
+              <!--create construction site in EoL-->
+              <!--central coords are 6.3km, -0.75km, -4.3km-->
+              <!--a="32768" b="0" g="0"-->
+              <create_special name="L2M03.tempconstruction" typename="SS_SPECIAL_GONER_PARTIAL1">
+                <position x="6300m" y="-750m" z="-4300m"/>
+                <rotation alpha="32768"/>
+                <sector sector="L2M03.EoL"/>
+              </create_special>
+              <create_ship name="L2M03.GonerTL" class="tl" capturable="0" race="goner" highlight="1" typename="SS_SH_GO_TL" invincible="1" warp="1" racelogic="0">
+                <position x="0" y="2000m" z="-4250m" min="2km" max="10km"/>
+                <sector sector="L2M03.EoL"/>
+                <equipment loadout="maximum"/>
+                <command command="idle"/>
+              </create_ship>
+              <create_actor name="L2M03.Avens" character="Osamu Avens" face="915" voice="3833" race="argon" object="this.GonerTL" location="crew"/>
+              <create_actor name="L2M03.Hall" character="Jani Hall" face="916" voice="3834" race="argon"/>
+              <find_station name="L2M03.EoL Station" race="argon|goner">
+                <sector sector="L2M03.EoL"/>
+              </find_station>
+              <set_invincible object="L2M03.EoL Station" invincible="1"/>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M03 Sc1 St1" comment="100%">
+          <condition>
+            <cue_completed cue="L2M03"/>
+          </condition>
+          <timing>
+            <time min="500" max="750"/>
+          </timing>
+          <action>
+            <create_offer actor="L2M03.Avens" conversation="L2M03Conv11" discipline="XXXXP" cue="L2M03 Sc1 St1"/>
+          </action>
+          <cues>
+            <cue ref="L0M04 B" comment="Mission 0.4">
+              <params>
+                <param name="Cue" value="L2M03 Sc1 St1"/>
+                <param name="ID" value="1"/>
+                <param name="OfferRace" value="{lookup.race@goner}"/>
+                <param name="Lv1Guide" value="{actor@L2M03.Avens}"/>
+                <param name="Difficulty" value="{lookup.level@average}"/>
+                <param name="RewardCr" value="L2M03 Sc1 St1.RewardCr"/>
+                <param name="Buyer" value="L2M03.Avens"/>
+                <param name="Ware1" value="{lookup.type@SS_WARE_ORE}"/>
+                <param name="Ware1Amt" value="2000"/>
+                <param name="Ware2" value="{lookup.type@SS_WARE_SILICON}"/>
+                <param name="Ware2Amt" value="200"/>
+                <param name="RoundReward" value="1"/>
+                <param name="StoryID" value="3"/>
+                <param name="ChapterID" value="301"/>
+                <param name="BriefingBackground" value="station_goner_temple_new.tga"/>
+                <param name="PageID" value="3203"/>
+                <param name="TextID" value="101"/>
+                <param name="IsPlot" value="1"/>
+              </params>
+            </cue>
+            <cue name="L2M03 Sc1 St1 Accepted">
+              <condition>
+                <conversation_completed answer="accept" conversation="L2M03Conv11" actor="L2M03.Avens"/>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <remove_offer actor="L2M03.Avens" conversation="L2M03Conv11" discipline="XXXXP"/>
+              </action>
+              <cues>
+                <cue ref="L0M04" comment="Mission 0.4">
+                  <params>
+                    <param name="Cue" value="L2M03 Sc1 St1"/>
+                    <param name="ID" value="1"/>
+                    <param name="OfferRace" value="{lookup.race@goner}"/>
+                    <param name="Lv1Guide" value="{actor@L2M03.Avens}"/>
+                    <param name="AddText" value="1"/>
+                    <param name="Difficulty" value="{lookup.level@average}"/>
+                    <param name="RewardCr" value="L2M03 Sc1 St1.RewardCr"/>
+                    <param name="AddToStation" value="0"/>
+                    <param name="StoryID" value="3"/>
+                    <param name="ChapterID" value="301"/>
+                    <param name="PageID" value="3203"/>
+                    <param name="TextID" value="101"/>
+                    <param name="IsPlot" value="1"/>
+                  </params>
+                </cue>
+                <cue name="L2M03 Sc1 St1 End" delay="200">
+                  <condition>
+                    <check_all>
+                      <check_value value="{value@L2M03 Sc1 St1.1 L0M04 Progress}" min="1"/>
+                    </check_all>
+                  </condition>
+                  <timing>
+                    <time exact="8s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <remove_briefing cue="L2M03 Sc1 St1"/>
+                      <do_if value="{value@L2M03 Sc1 St1.1 L0M04 Progress}" exact="1">
+                        <remove_objective cue="L2M03 Sc1 St1" status="complete"/>
+                        <reward_player>
+                          <money exact="{value@L2M03 Sc1 St1.RewardCr}"/>
+                          <notoriety>
+                            <relation race="{lookup.race@goner}" exact="{reward.notoriety.{lookup.race@goner}@{lookup.level@easy}}"/>
+                          </notoriety>
+                        </reward_player>
+                      </do_if>
+                      <play_text actor="L2M03.Hall" textid="344201"/>
+                      <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344201}" silent="1"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc1 St1 End Wait">
+                      <!--This delay is so that the next objective isnt set befor Jani has finished talking-->
+                      <timing>
+                        <time exact="{text.duration@3834,344201}+1s"/>
+                      </timing>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M03 Scene 2" comment="100%">
+          <condition>
+            <cue_completed cue="L2M03 Sc1 St1 End Wait"/>
+          </condition>
+          <cues>
+            <cue name="L2M03 Sc2 St1" comment="Raw resources 2">
+              <action>
+                <do_all>
+                  <set_actor_location actor="L2M03.Hall" object="L2M03.GonerTL" location="crew"/>
+                  <create_offer actor="L2M03.Hall" conversation="L2M03Conv21" discipline="TXXX" cue="L2M03 Sc2 St1"/>
+                  <set_objective cue="L2M03 Sc2 St1" title="{3203,11}" story="{3200,3}" noabort="1">
+                    <briefing cue="L2M03 Sc2 St1" step="1"/>
+                    <mission discipline="XXXT" level="trivial"/>
+                    <talkto actor="L2M03.Hall"/>
+                  </set_objective>
+                  <create_briefing cue="L2M03 Sc2 St1">
+                    <objectives>
+                      <objective step="1" background="station_goner_temple_new.tga">
+                        <talkto actor="L2M03.Hall"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="L0M04 B" comment="Mission 0.4">
+                  <params>
+                    <param name="Cue" value="L2M03 Sc2 St1"/>
+                    <param name="ID" value="1"/>
+                    <param name="Step" value="2"/>
+                    <param name="OfferRace" value="{lookup.race@goner}"/>
+                    <param name="Lv1Guide" value="{actor@L2M03.Hall}"/>
+                    <param name="Difficulty" value="{lookup.level@average}"/>
+                    <param name="RewardCr" value="L2M03 Sc2 St1.RewardCr"/>
+                    <param name="IsPlot" value="1"/>
+                    <param name="Buyer" value="L2M03.Hall"/>
+                    <param name="Ware1" value="{lookup.type@SS_WARE_ORE}"/>
+                    <param name="Ware1Amt" value="2000"/>
+                    <param name="Ware2" value="{lookup.type@SS_WARE_R255}"/>
+                    <param name="Ware2Amt" value="1200"/>
+                    <param name="RoundReward" value="1"/>
+                    <param name="StoryID" value="3"/>
+                    <param name="ChapterID" value="301"/>
+                    <param name="BriefingBackground" value="station_goner_temple_new.tga"/>
+                    <param name="PageID" value="3203"/>
+                    <param name="TextID" value="101"/>
+                  </params>
+                </cue>
+                <cue name="L2M03 Sc2 St1 Accepted">
+                  <condition>
+                    <conversation_completed answer="accept" conversation="L2M03Conv21" actor="L2M03.Hall"/>
+                  </condition>
+                  <timing>
+                    <time min="250" max="350"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <remove_offer actor="L2M03.Hall" conversation="L2M03Conv21" discipline="TXXX"/>
+                      <remove_objective cue="L2M03 Sc2 St1"/>
+                      <!--player is in EoL so create OOS factory for later use-->
+                      <create_station typename="SS_FAC_R255" invincible="1" name="L2M03.GonerFac1" race="teladi">
+                        <position x="17590m" y="30m" z="-2000m"/>
+                        <sector x="18" y="12"/>
+                        <equipment loadout="default"/>
+                        <relations>
+                          <relation relation="friend"/>
+                        </relations>
+                      </create_station>
+                      <set_owner object="L2M03.GonerFac1" race="goner"/>
+                      <create_station typename="SS_FAC_A_ORE_1" invincible="1" name="L2M03.GonerFac2" race="teladi">
+                        <position x="7590m" y="-200m" z="4050m"/>
+                        <sector x="18" y="13"/>
+                        <equipment loadout="default"/>
+                        <relations>
+                          <relation relation="friend"/>
+                        </relations>
+                      </create_station>
+                      <set_owner object="L2M03.GonerFac2" race="goner"/>
+                      <create_station typename="SS_FAC_A_SIL_2" invincible="1" name="L2M03.GonerFac3" race="teladi">
+                        <position x="-11120m" y="100m" z="1450m"/>
+                        <sector x="18" y="13"/>
+                        <equipment loadout="default"/>
+                        <relations>
+                          <relation relation="friend"/>
+                        </relations>
+                      </create_station>
+                      <set_owner object="L2M03.GonerFac3" race="goner"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc2 St1 Mission">
+                      <condition>
+                        <cue_completed cue="L2M03 Sc2 St1 Accepted"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M04" comment="Mission 0.4">
+                          <params>
+                            <param name="Cue" value="L2M03 Sc2 St1"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{lookup.race@goner}"/>
+                            <param name="Lv1Guide" value="{actor@L2M03.Hall}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L2M03 Sc2 St1.RewardCr"/>
+                            <param name="AddToStation" value="0"/>
+                            <param name="StoryID" value="3"/>
+                            <param name="ChapterID" value="301"/>
+                            <param name="PageID" value="3203"/>
+                            <param name="TextID" value="101"/>
+                            <param name="NoMessage" value="1"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M03 Sc2 St1 End" delay="200">
+                      <condition>
+                        <check_value value="{value@L2M03 Sc2 St1.1 L0M04 Progress}" min="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <remove_briefing cue="L2M03 Sc2 St1"/>
+                          <do_if value="{value@L2M03 Sc2 St1.1 L0M04 Progress}" exact="1">
+                            <remove_objective cue="L2M03 Sc2 St1" status="complete"/>
+                            <reward_player>
+                              <money exact="{value@L2M03 Sc2 St1.RewardCr}"/>
+                              <notoriety>
+                                <relation race="{lookup.race@goner}" exact="{reward.notoriety.{lookup.race@goner}@{lookup.level@average}}"/>
+                              </notoriety>
+                            </reward_player>
+                          </do_if>
+                          <play_text actor="L2M03.Hall" textid="344205"/>
+                          <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344205}" silent="1"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Build Temple 2" delay="5s">
+                          <condition>
+                            <check_value value="{player.sector}" exact="{sector@L2M03.EoL}" negate="1"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <destroy_object object="L2M03.tempconstruction"/>
+                              <create_special name="L2M03.tempconstruction" typename="SS_SPECIAL_GONER_PARTIAL2">
+                                <position x="6300m" y="-750m" z="-4300m"/>
+                                <rotation alpha="32768"/>
+                                <sector sector="L2M03.EoL"/>
+                              </create_special>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc2 St2" comment="Transport teladianium">
+              <condition>
+                <cue_completed cue="L2M03 Sc2 St1 End"/>
+              </condition>
+              <timing>
+                <time min="900s" max="1200s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <incoming_message author="{actor.name@L2M03.Hall}" text="{3895,344206}"/>
+                  <create_offer actor="L2M03.Hall" conversation="L2M03Conv22" discipline="TXXX" cue="L2M03 Sc2 St2"/>
+                  <set_objective cue="L2M03 Sc2 St2" story="{3200,3}" title="{3203,11}" noabort="1">
+                    <briefing cue="L2M03 Sc2 St2" step="1"/>
+                    <mission discipline="XXXT" level="trivial"/>
+                    <talkto actor="L2M03.Hall"/>
+                  </set_objective>
+                  <create_briefing cue="L2M03 Sc2 St2">
+                    <objectives>
+                      <objective step="1" background="station_goner_temple_new.tga">
+                        <talkto actor="L2M03.Hall"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="L0M16 B" comment="Mission 0.16">
+                  <params>
+                    <param name="Cue" value="L2M03 Sc2 St2"/>
+                    <param name="ID" value="1"/>
+                    <param name="Step" value="2"/>
+                    <param name="OfferRace" value="{lookup.race@goner}"/>
+                    <param name="Lv1Guide" value="L2M03.Hall"/>
+                    <param name="Difficulty" value="{lookup.level@average}"/>
+                    <param name="RewardCr" value="L2M03 Sc2 St2.RewardCr"/>
+                    <param name="Client" value="L2M03.Hall"/>
+                    <param name="Start" value="L2M03.GonerFac1"/>
+                    <param name="Ware" value="{lookup.type@SS_WARE_TPANNELING}"/>
+                    <param name="Amount" value="625"/>
+                    <param name="RoundReward" value="1"/>
+                    <param name="StoryID" value="3"/>
+                    <param name="ChapterID" value="301"/>
+                    <param name="PageID" value="3203"/>
+                    <param name="TextID" value="103"/>
+                    <param name="IsPlot" value="1"/>
+                  </params>
+                </cue>
+                <!--<cue name="L2M03 Sc2 St2 Set Start Time" instantiate="static" delay="10m">
+                  <action>
+                    <create_briefing cue="L2M03 Sc2 St2">
+                      <timer start="{player.age}+650" duration="{value@L2M03 Sc2 St2.1 L0Time}"/>
+                    </create_briefing>
+                  </action>
+                </cue>-->
+                <cue name="L2M03 Sc2 St2 Accepted">
+                  <condition>
+                    <conversation_completed answer="accept" conversation="L2M03Conv22" actor="L2M03.Hall"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M03 Sc2 St2 Set Start Time"/>
+                      <remove_offer actor="L2M03.Hall" conversation="L2M03Conv22" discipline="TXXX"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc2 St2 Accepted Wait">
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <create_offer actor="L2M03.Hall" conversation="L2M03Conv23"/>
+                          <remove_objective cue="L2M03 Sc2 St2"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Sc2 St2 Mission">
+                          <condition>
+                            <cue_completed cue="L2M03 Sc2 St2 Accepted Wait"/>
+                          </condition>
+                          <action>
+                            <reward_player>
+                              <map>
+                                <sector sector="{object.sector@L2M03.GonerFac1}"/>
+                              </map>
+                            </reward_player>
+                          </action>
+                          <cues>
+                            <cue ref="L0M16" comment="Mission 0.16">
+                              <params>
+                                <param name="Cue" value="L2M03 Sc2 St2"/>
+                                <param name="ID" value="1"/>
+                                <param name="OfferRace" value="{lookup.race@goner}"/>
+                                <param name="Lv1Guide" value="{actor@L2M03.Hall}"/>
+                                <param name="AddText" value="1"/>
+                                <param name="Difficulty" value="{lookup.level@average}"/>
+                                <param name="RewardCr" value="L2M03 Sc2 St2.RewardCr"/>
+                                <param name="AddToStation" value="0"/>
+                                <param name="StoryID" value="3"/>
+                                <param name="ChapterID" value="301"/>
+                                <param name="PageID" value="3203"/>
+                                <param name="TextID" value="103"/>
+                                <param name="LostConv" value="L2M03Conv23"/>
+                                <param name="LostCue" value="L2M03 Sc2 St3"/>
+                                <param name="IsPlot" value="1"/>
+                              </params>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L2M03 Sc2 St2 End" delay="200">
+                          <condition>
+                            <check_value value="{value@L2M03 Sc2 St2.1 L0M16 Progress}" exact="1"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <cancel_cue cue="L2M03 Sc2 St3"/>
+                              <remove_briefing cue="L2M03 Sc2 St2"/>
+                              <remove_objective cue="L2M03 Sc2 St2" status="complete"/>
+                              <reward_player>
+                                <money exact="{value@L2M03 Sc2 St2.RewardCr}"/>
+                                <notoriety>
+                                  <relation race="{lookup.race@goner}" exact="{reward.notoriety.{lookup.race@goner}@{lookup.level@average}}"/>
+                                </notoriety>
+                              </reward_player>
+                              <play_text actor="L2M03.Hall" textid="344205"/>
+                              <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344205}" silent="1"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                        <cue name="L2M03 Sc2 St3">
+                          <condition>
+                            <check_value value="{value@L2M03 Sc2 St2.1 L0M16 Progress}" exact="3"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <cancel_cue cue="L2M03 Sc2 St2 End"/>
+                              <remove_briefing cue="L2M03 Sc2 St2"/>
+                              <remove_objective cue="L2M03 Sc2 St2" status="aborted"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue ref="L0M04 B" comment="Mission 0.4">
+                              <params>
+                                <param name="Cue" value="L2M03 Sc2 St3"/>
+                                <param name="ID" value="1"/>
+                                <param name="OfferRace" value="{lookup.race@goner}"/>
+                                <param name="Lv1Guide" value="{actor@L2M03.Hall}"/>
+                                <param name="Difficulty" value="{lookup.level@average}"/>
+                                <param name="RewardCr" value="L2M03 Sc2 St3.RewardCr"/>
+                                <param name="Buyer" value="L2M03.Hall"/>
+                                <param name="Ware1" value="{lookup.type@SS_WARE_R255}" comment="Teladianium"/>
+                                <param name="Ware1Amt" value="600"/>
+                                <param name="RoundReward" value="1"/>
+                                <param name="StoryID" value="3"/>
+                                <param name="ChapterID" value="301"/>
+                                <param name="PageID" value="3203"/>
+                                <param name="TextID" value="101"/>
+                                <param name="IsPlot" value="1"/>
+                              </params>
+                            </cue>
+                            <cue name="L2M03 Sc2 St3 Wait" delay="1000">
+                              <cues>
+                                <cue ref="L0M04" comment="Mission 0.4">
+                                  <params>
+                                    <param name="Cue" value="L2M03 Sc2 St3"/>
+                                    <param name="ID" value="1"/>
+                                    <param name="OfferRace" value="{lookup.race@goner}"/>
+                                    <param name="Lv1Guide" value="{actor@L2M03.Hall}"/>
+                                    <param name="AddText" value="1"/>
+                                    <param name="Difficulty" value="{lookup.level@average}"/>
+                                    <param name="RewardCr" value="L2M03 Sc2 St3.RewardCr"/>
+                                    <param name="AddToStation" value="0"/>
+                                    <param name="StoryID" value="3"/>
+                                    <param name="ChapterID" value="301"/>
+                                    <param name="PageID" value="3203"/>
+                                    <param name="TextID" value="101"/>
+                                  </params>
+                                </cue>
+                                <cue name="L2M03 Sc2 St3 End" delay="200">
+                                  <condition>
+                                    <check_value value="{value@L2M03 Sc2 St3.1 L0M04 Progress}" min="1"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <remove_briefing cue="L2M03 Sc2 St3"/>
+                                      <do_if value="{value@L2M03 Sc2 St3.1 L0M04 Progress}" exact="1">
+                                        <remove_objective cue="L2M03 Sc2 St3" status="complete"/>
+                                        <reward_player>
+                                          <money exact="{value@L2M03 Sc2 St3.RewardCr}"/>
+                                          <notoriety>
+                                            <relation race="{lookup.race@goner}" exact="{reward.notoriety.{lookup.race@goner}@{lookup.level@average}}"/>
+                                          </notoriety>
+                                        </reward_player>
+                                      </do_if>
+                                      <play_text actor="L2M03.Hall" textid="344205"/>
+                                      <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344205}" silent="1"/>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc2 St4" comment="Deliver Transport Ships">
+              <condition>
+                <check_any>
+                  <cue_completed cue="L2M03 Sc2 St2 End"/>
+                  <cue_completed cue="L2M03 Sc2 St3 End"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="900s" max="1200s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <do_all>
+                    <incoming_message author="{actor.name@L2M03.Hall}" text="{3895,344213}"/>
+                    <create_offer actor="L2M03.Hall" conversation="L2M03Conv24" discipline="TXXX" cue="L2M03 Sc2 St4"/>
+                    <set_objective cue="L2M03 Sc2 St4" story="{3200,3}" title="{3203,11}" noabort="1">
+                      <briefing cue="L2M03 Sc2 St4" step="1"/>
+                      <mission discipline="XXXT" level="trivial"/>
+                      <talkto actor="L2M03.Hall"/>
+                    </set_objective>
+                    <create_briefing cue="L2M03 Sc2 St4" title="{3200,301}" text="{3834,344211}">
+                      <objectives>
+                        <objective step="1" background="station_goner_temple_new.tga">
+                          <talkto actor="L2M03.Hall"/>
+                        </objective>
+                      </objectives>
+                    </create_briefing>
+                    <set_value name="L2M03 Sc2 St4.RewardCr" exact="20000"/>
+                    <set_value name="L2M03 Sc2 St4.Step2" exact="2"/>
+                    <set_value name="L2M03 Sc2 St4.Step3" exact="3"/>
+                    <set_value name="L2M03 Sc2 St4.Step4" exact="4"/>
+                  </do_all>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc2 St4 Deliver Ship 1 B">
+                  <condition>
+                    <cue_completed cue="L2M03 Sc2 St4"/>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M29 B">
+                      <params>
+                        <param name="Cue" value="L2M03 Sc2 St4" comment="The cue where the briefing will be localised"/>
+                        <param name="Step" value="L2M03 Sc2 St4.Step2" comment="The initial objective step"/>
+                        <param name="OfferRace" value="{lookup.race@goner}" comment="Offer Race ID"/>
+                        <param name="DestName" value="L2M03.EoL Station" comment="The Address of the destination"/>
+                        <param name="Maker" value="{lookup.race@argon}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                        <param name="Class" value="{lookup.class@ts}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RewardCr" value="L2M03 Sc2 St4.RewardCr" comment="Reward - credits"/>
+                        <param name="IsPlot" value="1"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc2 St4 Deliver Ship 2 B">
+                  <condition>
+                    <cue_completed cue="L2M03 Sc2 St4"/>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M29 B">
+                      <params>
+                        <param name="Cue" value="L2M03 Sc2 St4" comment="The cue where the briefing will be localised"/>
+                        <param name="Step" value="L2M03 Sc2 St4.Step3" comment="The initial objective step"/>
+                        <param name="OfferRace" value="{lookup.race@goner}" comment="Offer Race ID"/>
+                        <param name="DestName" value="L2M03.EoL Station" comment="The Address of the destination"/>
+                        <param name="Maker" value="{lookup.race@argon}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                        <param name="Class" value="{lookup.class@ts}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RewardCr" value="L2M03 Sc2 St4.RewardCr" comment="Reward - credits"/>
+                        <param name="IsPlot" value="1"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc2 St4 Deliver Ship 3 B">
+                  <condition>
+                    <cue_completed cue="L2M03 Sc2 St4"/>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M29 B">
+                      <params>
+                        <param name="Cue" value="L2M03 Sc2 St4" comment="The cue where the briefing will be localised"/>
+                        <param name="Step" value="L2M03 Sc2 St4.Step4" comment="The initial objective step"/>
+                        <param name="OfferRace" value="{lookup.race@goner}" comment="Offer Race ID"/>
+                        <param name="DestName" value="L2M03.EoL Station" comment="The Address of the destination"/>
+                        <param name="Maker" value="{lookup.race@argon}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                        <param name="Class" value="{lookup.class@ts}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RewardCr" value="L2M03 Sc2 St4.RewardCr" comment="Reward - credits"/>
+                        <param name="IsPlot" value="1"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc2 St4 Accepted">
+                  <condition>
+                    <conversation_completed answer="accept" conversation="L2M03Conv24" actor="L2M03.Hall"/>
+                  </condition>
+                  <timing>
+                    <time min="250" max="350"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <remove_offer actor="L2M03.Hall" conversation="L2M03Conv24" discipline="TXXX"/>
+                      <clear_actor_location actor="L2M03.Hall"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc2 St4 Deliver Ship 1">
+                      <cues>
+                        <cue ref="L0M29">
+                          <params>
+                            <param name="Cue" value="L2M03 Sc2 St4" comment="The cue where the briefing will be localised"/>
+                            <param name="Step" value="L2M03 Sc2 St4.Step2" comment="The initial objective step"/>
+                            <param name="OfferRace" value="{lookup.race@goner}" comment="Offer Race ID"/>
+                            <param name="DestName" value="L2M03.EoL Station" comment="The Address of the destination"/>
+                            <param name="Maker" value="{lookup.race@argon}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                            <param name="Class" value="{lookup.class@ts}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                            <param name="SetObjective" value="1"/>
+                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                            <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                            <param name="Offer Actor" value="{actor@L2M03.Hall}"/>
+                            <param name="ShipName" value="L2M03 Sc2 St4.Ship 1" comment="Where the choosen ship will be localized"/>
+                            <param name="FeedbackName" value="L2M03 Sc2 St4.L0M29 Feedback 1" comment="The address where the step value is stored"/>
+                            <!--reward parameters (in priority order)-->
+                            <param name="RewardCr" value="L2M03 Sc2 St4.RewardCr" comment="Reward - credits"/>
+                            <param name="IsPlot" value="1"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M03 Sc2 St4 1 End" delay="200">
+                      <condition>
+                        <check_value value="{value@L2M03 Sc2 St4.L0M29 Feedback 1}" exact="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_owner object="L2M03 Sc2 St4.Ship 1" race="goner"/>
+                          <set_value name="L2M03 Sc2 St4.CumulativeShipreward" operation="add" exact="{object.type.price@L2M03 Sc2 St4.Ship 1}"/>
+                        </do_all>                        
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Sc2 St4 Deliver Ship 2">
+                          <cues>
+                            <cue ref="L0M29">
+                              <params>
+                                <param name="Cue" value="L2M03 Sc2 St4" comment="The cue where the briefing will be localised"/>
+                                <param name="Step" value="L2M03 Sc2 St4.Step3" comment="The initial objective step"/>
+                                <param name="OfferRace" value="{lookup.race@goner}" comment="Offer Race ID"/>
+                                <param name="DestName" value="L2M03.EoL Station" comment="The Address of the destination"/>
+                                <param name="Maker" value="{lookup.race@argon}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                                <param name="Class" value="{lookup.class@ts}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                                <param name="SetObjective" value="1"/>
+                                <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                                <param name="Offer Actor" value="{actor@L2M03.Hall}"/>
+                                <param name="ShipName" value="L2M03 Sc2 St4.Ship 2" comment="Where the choosen ship will be localized"/>
+                                <param name="FeedbackName" value="L2M03 Sc2 St4.L0M29 Feedback 2" comment="The address where the step value is stored"/>
+                                <!--reward parameters (in priority order)-->
+                                <param name="RewardCr" value="L2M03 Sc2 St4.RewardCr" comment="Reward - credits"/>
+                                <param name="IsPlot" value="1"/>
+                              </params>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L2M03 Sc2 St4 2 End" delay="200">
+                          <condition>
+                            <check_value value="{value@L2M03 Sc2 St4.L0M29 Feedback 2}" exact="1"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <set_owner object="L2M03 Sc2 St4.Ship 2" race="goner"/>
+                              <set_value name="L2M03 Sc2 St4.CumulativeShipreward" operation="add" exact="{object.type.price@L2M03 Sc2 St4.Ship 2}"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M03 Sc2 St4 Deliver Ship 3">
+                              <cues>
+                                <cue ref="L0M29">
+                                  <params>
+                                    <param name="Cue" value="L2M03 Sc2 St4" comment="The cue where the briefing will be localised"/>
+                                    <param name="Step" value="L2M03 Sc2 St4.Step4" comment="The initial objective step"/>
+                                    <param name="OfferRace" value="{lookup.race@goner}" comment="Offer Race ID"/>
+                                    <param name="DestName" value="L2M03.EoL Station" comment="The Address of the destination"/>
+                                    <param name="Maker" value="{lookup.race@argon}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                                    <param name="Class" value="{lookup.class@ts}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                                    <param name="SetObjective" value="1"/>
+                                    <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                    <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                                    <param name="Offer Actor" value="{actor@L2M03.Hall}"/>
+                                    <param name="ShipName" value="L2M03 Sc2 St4.Ship 3" comment="Where the choosen ship will be localized"/>
+                                    <param name="FeedbackName" value="L2M03 Sc2 St4.L0M29 Feedback 3" comment="The address where the step value is stored"/>
+                                    <!--reward parameters (in priority order)-->
+                                    <param name="RewardCr" value="L2M03 Sc2 St4.RewardCr" comment="Reward - credits"/>
+                                    <param name="IsPlot" value="1"/>
+                                  </params>
+                                </cue>
+                              </cues>
+                            </cue>
+                            <cue name="L2M03 Sc2 St4 3 End" delay="200">
+                              <condition>
+                                <check_value value="{value@L2M03 Sc2 St4.L0M29 Feedback 3}" exact="1"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <do_all>
+                                    <set_owner object="L2M03 Sc2 St4.Ship 3" race="goner"/>
+                                    <set_value name="L2M03 Sc2 St4.CumulativeShipreward" operation="add" exact="{object.type.price@L2M03 Sc2 St4.Ship 3}"/>
+                                  </do_all>
+                                  <remove_briefing cue="L2M03 Sc2 St4"/>
+                                  <remove_objective cue="L2M03 Sc2 St4" status="complete"/>
+                                  <reward_player>
+                                    <money exact="{value@L2M03 Sc2 St4.RewardCr}+{value@L2M03 Sc2 St4.CumulativeShipreward}"/>
+                                    <notoriety>
+                                      <relation race="{lookup.race@goner}" exact="{reward.notoriety.{lookup.race@goner}@{lookup.level@average}}"/>
+                                    </notoriety>
+                                  </reward_player>
+                                  <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344212}"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc2 St5" comment="Build Teladianium Foundry">
+              <condition>
+                <cue_completed cue="L2M03 Sc2 St4 3 End"/>
+              </condition>
+              <action>
+                <do_all>
+                  <create_offer actor="L2M03.Avens" conversation="L2M03Conv25" discipline="XXBX" cue="L2M03 Sc2 St5"/>
+                  <create_briefing cue="L2M03 Sc2 St5" title="{3200,3}" text="{3203,111}">
+                    <mission discipline="XXXT" level="trivial"/>
+                    <objectives>
+                      <objective background="station_goner_temple_new.tga" step="1">
+                        <talkto actor="L2M03.Avens"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc2 St5 Clean St4 Ships" delay="1s">
+                  <condition>
+                    <check_value value="{player.sector}" exact="{sector@L2M03.EoL}" negate="1"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <destroy_object object="L2M03 Sc2 St4.Ship 1"/>
+                      <destroy_object object="L2M03 Sc2 St4.Ship 2"/>
+                      <destroy_object object="L2M03 Sc2 St4.Ship 3"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M03 Sc2 St5 Reminder">
+                  <timing>
+                    <time min="1800s" max="2700s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <incoming_message author="{actor.name@L2M03.Avens}" text="{3833,334201}"/>
+                      <set_objective cue="L2M03 Sc2 St5" story="{3200,3}" title="{3203,11}" noabort="1">
+                        <briefing cue="L2M03 Sc2 St5" step="1"/>
+                        <mission discipline="XXXT" level="trivial"/>
+                        <talkto actor="L2M03.Avens"/>
+                      </set_objective>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M03 Sc2 St5 Briefing">
+                  <condition>
+                    <conversation_completed answer="briefing" conversation="L2M03Conv25" actor="L2M03.Avens"/>
+                  </condition>
+                  <action>
+                    <cancel_cue cue="L2M03 Sc2 St5 Reminder"/>
+                  </action>
+                  <cues>
+                    <cue ref="L0M22 B">
+                      <params>
+                        <param name="Cue" value="L2M03 Sc2 St5"/>
+                        <param name="ID" value="1"/>
+                        <param name="Step" value="2"/>
+                        <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                        <param name="OfferRace" value="{lookup.race@goner}"/>
+                        <param name="Lv1Guide" value="L2M03.Avens"/>
+                        <param name="AddText" value="1"/>
+                        <param name="Difficulty" value="{lookup.level@average}"/>
+                        <param name="RewardCr" value="L2M03 Sc2 St5.RewardCr"/>
+                        <param name="RoundReward" value="1"/>
+                        <param name="StationX" value="1000"/>
+                        <param name="StationY" value="1250"/>
+                        <param name="StationZ" value="10000"/>
+                        <param name="StationSector" value="L2M03.EoL"/>
+                        <param name="StationWare" value="{lookup.type@SS_WARE_R255}"/>
+                        <param name="StationName" value="2551"/>
+                        <param name="StationCost" value="{lookup.type.price@SS_WARE_R255}"/>
+                        <param name="StoryID" value="3"/>
+                        <param name="ChapterID" value="301"/>
+                        <param name="PageID" value="3203"/>
+                        <param name="TextID" value="111"/>
+                        <param name="IsPlot" value="1"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc2 St5 Accepted">
+                  <condition>
+                    <conversation_completed answer="accept" conversation="L2M03Conv25" actor="L2M03.Avens"/>
+                  </condition>
+                  <timing>
+                    <time min="250" max="350"/>
+                  </timing>
+                  <action>
+                    <remove_offer actor="L2M03.Avens" conversation="L2M03Conv25" discipline="XXBX"/>
+                  </action>
+                  <cues>
+                    <cue ref="L0M22">
+                      <params>
+                        <param name="Cue" value="L2M03 Sc2 St5"/>
+                        <param name="ID" value="1"/>
+                        <param name="Step" value="2"/>
+                        <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                        <param name="OfferRace" value="{lookup.race@goner}"/>
+                        <param name="Lv1Guide" value="L2M03.Avens"/>
+                        <param name="StoryID" value="3"/>
+                        <param name="ChapterID" value="301"/>
+                        <param name="PageID" value="3203"/>
+                        <param name="TextID" value="111"/>
+                        <param name="AddText" value="1"/>
+                        <param name="Difficulty" value="{lookup.level@average}"/>
+                        <param name="RewardCr" value="L2M03 Sc2 St5.RewardCr"/>
+                        <param name="IsPlot" value="1"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M03 Sc2 St5 End" delay="200">
+                      <condition>
+                        <check_value value="{value@L2M03 Sc2 St5.1 L0M22 Progress}" min="1"/>
+                      </condition>
+                      <timing>
+                        <time min="4s" max="5s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_briefing cue="L2M03 Sc2 St5"/>
+                          <!--can this mission be failed without timer?-->
+                          <!--<do_if value="{value@L2M03 Sc2 St1.1 L0M22 Progress}" exact="1">-->
+                          <remove_objective cue="L2M03 Sc2 St5" status="complete"/>
+                          <reward_player>
+                            <money exact="{value@L2M03 Sc2 St5.RewardCr}"/>
+                            <notoriety>
+                              <relation race="{lookup.race@goner}" exact="{reward.notoriety.{lookup.race@goner}@{lookup.level@average}}"/>
+                            </notoriety>
+                          </reward_player>
+                          <play_text actor="L2M03.Avens" textid="334202"/>
+                          <incoming_message author="{actor.name@L2M03.Avens}" text="{{actor.voice@L2M03.Avens},334202}" silent="1"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Build Temple 3" delay="5s">
+                          <condition>
+                            <check_value value="{player.sector}" exact="{sector@L2M03.EoL}" negate="1"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <destroy_object object="L2M03.tempconstruction"/>
+                              <create_special name="L2M03.tempconstruction" typename="SS_SPECIAL_GONER_PARTIAL3">
+                                <position x="6300m" y="-750m" z="-4300m"/>
+                                <rotation alpha="32768"/>
+                                <sector sector="L2M03.EoL"/>
+                              </create_special>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M03 Scene 3" comment="100%">
+          <condition>
+            <cue_is_complete cue="L2M03 Sc2 St5 End"/>
+          </condition>
+          <timing>
+            <time min="400s" max="500s"/>
+          </timing>
+          <action>
+            <do_all>
+              <find_sector name="L2M03.ConvoySector" x="16" y="7"/>
+              <do_if value="{player.sector}" exact="{sector@L2M03.ConvoySector}">
+                <find_sector name="L2M03.ConvoySector" x="17" y="7"/>
+              </do_if>
+              <do_if value="{object.exists@L2M03.CouncilShip}" exact="0">
+                <!--this should only be needed once as invincible-->
+                <create_ship name="L2M03.CouncilShip" invincible="1" capturable="0" highlight="1" leader="1" race="goner" typename="SS_SH_TLS">
+                  <position x="0" y="0" z="0" min="5km" max="8km" height="2km"/>
+                  <sector sector="L2M03.ConvoySector"/>
+                  <equipment loadout="maximum"/>
+                  <command command="idle"/>
+                </create_ship>
+                <add_equipment object="L2M03.CouncilShip">
+                  <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.CouncilShip}-{object.equipment.SS_WARE_TECH213.count@L2M03.CouncilShip}"/>
+                </add_equipment>
+                <set_actor_location actor="L2M03.Hall" object="L2M03.CouncilShip" location="crew"/>
+              </do_if>
+              <do_if value="{value@L2M03.Scene 3 Ran}" exact="1" negate="1">
+                <!--only create convoy once-->
+                <do_if value="{object.exists@L2M03.ConvoyShip2}" exact="0">
+                  <create_ship name="L2M03.ConvoyShip2" group="L2M03.ConvoyShips" capturable="0" race="goner" typename="SS_SH_GONER">
+                    <position object="L2M03.CouncilShip" min="100m" max="500m"/>
+                    <sector sector="L2M03.ConvoySector"/>
+                    <equipment loadout="maximum"/>
+                    <command command="follow" commandobject="L2M03.CouncilShip"/>
+                    <pilot jobtextid="40001"/>
+                  </create_ship>
+                  <add_equipment object="L2M03.ConvoyShip2">
+                    <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.ConvoyShip2}-{object.equipment.SS_WARE_TECH213.count@L2M03.ConvoyShip2}"/>
+                  </add_equipment>
+                </do_if>
+                <do_if value="{object.exists@L2M03.ConvoyShip3}" exact="0">
+                  <create_ship name="L2M03.ConvoyShip3" group="L2M03.ConvoyShips" capturable="0" race="goner" typename="SS_SH_GONER">
+                    <position object="L2M03.CouncilShip" min="100m" max="500m"/>
+                    <sector sector="L2M03.ConvoySector"/>
+                    <equipment loadout="maximum"/>
+                    <command command="follow" commandobject="L2M03.CouncilShip"/>
+                    <pilot jobtextid="40001"/>
+                  </create_ship>
+                  <add_equipment object="L2M03.ConvoyShip3">
+                    <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.ConvoyShip3}-{object.equipment.SS_WARE_TECH213.count@L2M03.ConvoyShip3}"/>
+                  </add_equipment>
+                </do_if>
+                <do_if value="{object.exists@L2M03.ConvoyShip4}" exact="0">
+                  <create_ship name="L2M03.ConvoyShip4" group="L2M03.ConvoyShips" capturable="0" race="goner" typename="SS_SH_A_TP">
+                    <position object="L2M03.CouncilShip" min="100m" max="500m"/>
+                    <sector sector="L2M03.ConvoySector"/>
+                    <equipment loadout="maximum"/>
+                    <command command="follow" commandobject="L2M03.CouncilShip"/>
+                    <pilot jobtextid="40001"/>
+                  </create_ship>
+                  <add_equipment object="L2M03.ConvoyShip4">
+                    <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.ConvoyShip4}-{object.equipment.SS_WARE_TECH213.count@L2M03.ConvoyShip4}"/>
+                  </add_equipment>
+                </do_if>
+                <do_if value="{object.exists@L2M03.ConvoyShip5}" exact="0">
+                  <create_ship name="L2M03.ConvoyShip5" group="L2M03.ConvoyShips" capturable="0" race="goner" typename="SS_SH_GONER">
+                    <position object="L2M03.CouncilShip" min="100m" max="500m"/>
+                    <sector sector="L2M03.ConvoySector"/>
+                    <equipment loadout="maximum"/>
+                    <command command="follow" commandobject="L2M03.CouncilShip"/>
+                    <pilot jobtextid="40001"/>
+                  </create_ship>
+                  <add_equipment object="L2M03.ConvoyShip5">
+                    <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.ConvoyShip5}-{object.equipment.SS_WARE_TECH213.count@L2M03.ConvoyShip5}"/>
+                  </add_equipment>
+                </do_if>
+                <do_if value="{object.exists@L2M03.ConvoyGuard1}" exact="0">
+                  <create_ship name="L2M03.ConvoyGuard1" group="L2M03.ConvoyShips" capturable="0" race="argon" typename="SS_SH_A_M3_1">
+                    <position object="L2M03.CouncilShip" min="100m" max="500m"/>
+                    <sector sector="L2M03.ConvoySector"/>
+                    <equipment loadout="default"/>
+                    <command command="protect" commandobject="L2M03.CouncilShip"/>
+                    <pilot jobtextid="40001"/>
+                  </create_ship>
+                  <add_equipment object="L2M03.ConvoyGuard1">
+                    <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.ConvoyGuard1}-{object.equipment.SS_WARE_TECH213.count@L2M03.ConvoyGuard1}"/>
+                  </add_equipment>
+                </do_if>
+                <do_if value="{object.exists@L2M03.ConvoyGuard2}" exact="0">
+                  <create_ship name="L2M03.ConvoyGuard2" group="L2M03.ConvoyShips" capturable="0" race="argon" typename="SS_SH_A_M4_2">
+                    <position object="L2M03.CouncilShip" min="100m" max="500m"/>
+                    <sector sector="L2M03.ConvoySector"/>
+                    <equipment loadout="default"/>
+                    <command command="protect" commandobject="L2M03.CouncilShip"/>
+                    <pilot jobtextid="40001"/>
+                  </create_ship>
+                  <add_equipment object="L2M03.ConvoyGuard2">
+                    <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.ConvoyGuard2}-{object.equipment.SS_WARE_TECH213.count@L2M03.ConvoyGuard2}"/>
+                  </add_equipment>
+                </do_if>
+                <do_if value="{object.exists@L2M03.ConvoyGuard3}" exact="0">
+                  <create_ship name="L2M03.ConvoyGuard3" group="L2M03.ConvoyShips" capturable="0" race="argon" typename="SS_SH_A_M5_1">
+                    <position object="L2M03.CouncilShip" min="100m" max="500m"/>
+                    <sector sector="L2M03.ConvoySector"/>
+                    <equipment loadout="maximum"/>
+                    <command command="protect" commandobject="L2M03.ConvoyGuard1"/>
+                    <pilot jobtextid="40001"/>
+                  </create_ship>
+                  <add_equipment object="L2M03.ConvoyGuard3">
+                    <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.ConvoyGuard3}-{object.equipment.SS_WARE_TECH213.count@L2M03.ConvoyGuard3}"/>
+                  </add_equipment>
+                </do_if>
+                <set_value name="L2M03.Scene 3 Ran" exact="1"/>
+              </do_if>
+              <!--find gate to create pirates-->
+              <find_gate name="this.gate" nearest="1">
+                <position object="L2M03.CouncilShip"/>
+                <sector sector="{object.sector@L2M03.CouncilShip}"/>
+              </find_gate>
+              <!--if player sector we must try to create ships on other side of gate-->
+              <do_if value="{object.sector@this.gate}" exact="{player.sector}">
+                <do_if value="{object.destination.exists@this.gate}" exact="1">
+                  <set_object name="this.gate" value="{object.destination@this.gate}"/>
+                </do_if>
+              </do_if>
+              <!--create pirate ships-->
+              <do_if value="{object.exists@L2M03.Pirates1}" exact="0">
+                <create_ship name="L2M03.Pirates1" group="L2M03.ConvoyPirates" capturable="0" invincible="1" race="neutral" typename="{random.type@SS_SH_A_M3_P_1|SS_SH_A_M3_P_2}">
+                  <position object="this.gate" min="50m" max="250m"/>
+                  <sector sector="{object.sector@this.gate}"/>
+                  <equipment loadout="maximum"/>
+                  <command command="follow" commandobject="L2M03.CouncilShip"/>
+                  <relations>
+                    <relation relation="enemy" mutual="0"/>
+                  </relations>
+                  <pilot race="pirate" jobtextid="830016"/>
+                </create_ship>
+                <add_equipment object="L2M03.Pirates1">
+                  <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.Pirates1}-{object.equipment.SS_WARE_TECH213.count@L2M03.Pirates1}"/>
+                </add_equipment>
+              </do_if>
+              <do_if value="{object.exists@L2M03.Pirates2}" exact="0">
+                <create_ship name="L2M03.Pirates2" group="L2M03.ConvoyPirates" capturable="0" invincible="1" race="neutral" typename="{random.type@SS_SH_A_M4_P|SS_SH_S_M4_P}">
+                  <position object="this.gate" min="50m" max="250m"/>
+                  <sector sector="{object.sector@this.gate}"/>
+                  <equipment loadout="maximum"/>
+                  <command command="follow" commandobject="L2M03.CouncilShip"/>
+                  <relations>
+                    <relation relation="enemy" mutual="0"/>
+                  </relations>
+                  <pilot race="pirate" jobtextid="830016"/>
+                </create_ship>
+                <add_equipment object="L2M03.Pirates2">
+                  <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03.Pirates2}-{object.equipment.SS_WARE_TECH213.count@L2M03.Pirates2}"/>
+                </add_equipment>
+              </do_if>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M03 Sc3 St1" delay="1s">
+              <condition>
+                <check_all>
+                  <!--pirates are created and have reached location to attack council ship-->
+                  <cue_is_complete cue="L2M03 Scene 3"/>
+                  <all_objects_sector group="L2M03.ConvoyPirates" exact="0">
+                    <sector sector="{object.sector@L2M03.CouncilShip}"/>
+                  </all_objects_sector>
+                  <any_object_position group="L2M03.ConvoyPirates" max="8km">
+                    <position object="L2M03.CouncilShip"/>
+                  </any_object_position>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334301}" popup="1"/>
+                  <set_objective cue="L2M03 Scene 3" story="{3200,3}" title="{3200,302}" noabort="1">
+                    <briefing cue="L2M03 Scene 3" step="1"/>
+                    <mission discipline="XFXX" level="average"/>
+                    <flyto>
+                      <sector sector="L2M03.ConvoySector"/>
+                    </flyto>
+                  </set_objective>
+                  <create_briefing cue="L2M03 Scene 3" title="{3200,302}" text="{3895,334301}" background="station_goner_temple_new.tga">
+                    <mission discipline="XFXX" level="average"/>
+                    <objectives>
+                      <objective step="1">
+                        <flyto>
+                          <sector sector="L2M03.ConvoySector"/>
+                        </flyto>
+                      </objective>
+                      <objective step="2">
+                        <protect object="L2M03.CouncilShip"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc3 St1 IS" delay="2s">
+                  <condition>
+                    <object_sector exact="0">
+                      <sector sector="L2M03.ConvoySector"/>
+                    </object_sector>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M03 Sc3 St1 OOS"/>
+                      <do_if value="{group.object.count@L2M03.ConvoyPirates}" min="1">
+                        <do_if value="{object.exists@L2M03.ConvoyShip2}">
+                          <set_group_command group="L2M03.ConvoyPirates" command="attack" commandobject="L2M03.ConvoyShip2"/>
+                        </do_if>
+                      </do_if>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc3 St1 Mission">
+                      <timing>
+                        <time min="1900" max="2s"/>
+                      </timing>
+                      <action>
+                        <do_if value="{value@L2M03 Sc3 St1.IS FirstTimeDone}" exact="1" negate="1">
+                          <set_target object="L2M03.CouncilShip"/>
+                          <play_cutscene file="Goner Plot S3 C1"/>
+                          <play_sound soundid="1211"/>
+                          <set_object name="L2M03.CouncilShipTemp" value="{object@L2M03.CouncilShip}"/>
+                          <play_text actor="L2M03.Avens" textid="334302"/>
+                          <set_value name="L2M03 Sc3 St1.IS FirstTimeDone" exact="1"/>
+                        </do_if>
+                      </action>
+                      <cues>
+                        <cue ref="L0M35 B">
+                          <params>
+                            <param name="Cue" value="L2M03 Scene 3"/>
+                            <param name="ID" value="1"/>
+                            <param name="Step" value="2"/>
+                            <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                            <param name="OfferRace" value="{lookup.race@goner}"/>
+                            <param name="Lv1Guide" value="L2M03.Avens"/>
+                            <param name="StoryID" value="3"/>
+                            <param name="ChapterID" value="301"/>
+                            <param name="Object" value="L2M03.CouncilShip"/>
+                            <param name="PageID" value="3895"/>
+                            <param name="TextID" value="334301"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                          </params>
+                        </cue>
+                        <cue name="L2M03 Sc3 St1 Wait">
+                          <condition>
+                            <cue_completed cue="L2M03 Sc3 St1 Mission"/>
+                          </condition>
+                          <cues>
+                            <cue ref="L0M35">
+                              <params>
+                                <param name="Cue" value="L2M03 Scene 3"/>
+                                <param name="ID" value="1"/>
+                                <param name="Step" value="2"/>
+                                <param name="Friendlies" value="L2M03.ConvoyShips"/>
+                                <param name="Enemies" value="L2M03.ConvoyPirates"/>
+                                <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                                <param name="OfferRace" value="{lookup.race@goner}"/>
+                                <param name="Lv1Guide" value="L2M03.Avens"/>
+                                <param name="StoryID" value="3"/>
+                                <param name="ChapterID" value="301"/>
+                                <param name="PageID" value="3895"/>
+                                <param name="TextID" value="334301"/>
+                                <param name="Difficulty" value="{lookup.level@average}"/>
+                              </params>
+                            </cue>
+                            <cue name="L2M03 Sc3 St1 End">
+                              <condition>
+                                <check_value value="{value@L2M03 Scene 3.1 L0M35 Progress}" exact="1"/>
+                              </condition>
+                              <timing>
+                                <time min="5s" max="6s"/>
+                              </timing>
+                              <action>
+                                <do_all>
+                                  <remove_objective status="complete" cue="L2M03 Scene 3"/>
+                                  <play_text actor="L2M03.Hall" textid="344301"/>
+                                  <incoming_message author="{actor.name@L2M03.Hall}" text="{{actor.voice@L2M03.Hall},344301}" silent="1"/>
+                                  <cancel_cue cue="L2M03 Sc3 St1 Next Wave"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                            <cue name="L2M03 Sc3 St1 Next Wave">
+                              <condition>
+                                <check_value value="{value@L2M03 Scene 3.1 L0M35 Progress}" min="2"/>
+                              </condition>
+                              <timing>
+                                <time min="1s" max="2s"/>
+                              </timing>
+                              <action>
+                                <do_choose>
+                                  <!--player ran away and left the sector, so fail mission-->
+                                  <do_when value="{value@L2M03 Scene 3.1 L0M35 Progress}" exact="4">
+                                    <incoming_message author="{actor.name@L2M03.Avens}" text="{110,848}"/>
+                                    <remove_briefing cue="L2M03 Scene 3"/>
+                                    <remove_objective cue="L2M03 Scene 3" status="failed"/>
+                                    <destroy_group group="L2M03.ConvoyShips" warp="1"/>
+                                    <destroy_object object="L2M03.CouncilShip" warp="1"/>
+                                  </do_when>
+                                  <do_when value="{value@L2M03 Scene 3.1 L0M35 PlayerDestroyed}" min="1">
+                                    <!--player destroyed atleast 1 ship (and didnt flee) so mission is passed-->
+                                    <set_value name="L2M03 Scene 3.1 L0M35 Progress" exact="1"/>
+                                    <cancel_cue cue="L2M03 Sc3 St1 Next Wave Reset"/>
+                                  </do_when>
+                                  <do_otherwise>
+                                    <!--player didnt destroy any ships so mission must be repeated-->
+                                    <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334304}"/>
+                                    <remove_briefing cue="L2M03 Scene 3"/>
+                                    <remove_objective cue="L2M03 Scene 3" status="failed"/>
+                                    <destroy_group group="L2M03.ConvoyShips" warp="1"/>
+                                    <destroy_object object="L2M03.CouncilShip" warp="1"/>
+                                  </do_otherwise>
+                                </do_choose>
+                              </action>
+                              <cues>
+                                <cue name="L2M03 Sc3 St1 Next Wave Reset">
+                                  <timing>
+                                    <time exact="20s"/>
+                                  </timing>
+                                  <action>
+                                    <reset_cue cue="L2M03 Scene 3"/>
+                                  </action>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc3 St1 OOS">
+                  <timing>
+                    <time min="20m" max="22m"/>
+                  </timing>
+                  <action>
+                    <do_if value="{player.sector}" exact="{sector@L2M03.ConvoySector}" negate="1">
+                      <cancel_cue cue="L2M03 Sc3 St1 OOS Destroyed"/>
+                      <destroy_group group="L2M03.ConvoyPirates"/>
+                      <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334304}"/>
+                      <!--player has never attempted the mission so reset it-->
+                      <remove_briefing cue="L2M03 Scene 3"/>
+                      <remove_objective cue="L2M03 Scene 3" status="aborted"/>
+                      <reset_cue cue="L2M03 Scene 3"/>
+                    </do_if>
+                  </action>
+                </cue>
+                <cue name="L2M03 Sc3 St1 OOS Destroyed">
+                  <condition>
+                    <all_objects_destroyed group="L2M03.ConvoyPirates"/>
+                  </condition>
+                  <action>
+                    <do_if value="{player.sector}" exact="{sector@L2M03.ConvoySector}" negate="1">
+                      <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334304}"/>
+                      <!--player did not attempted the mission before pirates destroyed so reset it-->
+                      <remove_briefing cue="L2M03 Scene 3"/>
+                      <remove_objective cue="L2M03 Scene 3" status="aborted"/>
+                      <reset_cue cue="L2M03 Scene 3"/>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc3 St2">
+              <condition>
+                <cue_completed cue="L2M03 Sc3 St1 End"/>
+              </condition>
+              <timing>
+                <!--this wait to allow Hall to finish speaking-->
+                <time min="3s" max="4s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <set_value name="L2M03 Scene 3.Next ID" exact="2"/>
+                  <play_text actor="L2M03.Avens" textid="334303"/>
+                  <incoming_message author="{actor.name@L2M03.Avens}" text="{{actor.voice@L2M03.Avens},334303}" silent="1"/>
+                  <set_invincible object="L2M03.GonerFac1" invincible="0"/>
+                  <set_invincible object="L2M03.GonerFac2" invincible="0"/>
+                  <set_invincible object="L2M03.GonerFac3" invincible="0"/>
+                  <set_value name="L2M03 Scene 3.Completed" exact="0"/>
+                  <set_value name="L2M03.Sc3St2 Next Time" exact="1"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc3 St2 Next Mission" delay="500">
+                  <condition>
+                    <check_all>
+                      <cue_is_complete cue="L2M03 Sc3 St2"/>
+                      <check_value value="{value@L2M03 Scene 3.Completed}" max="3"/>
+                      <check_value value="{player.ship.attacker.exists}" exact="1" negate="1"/>
+                      <check_age min="{value@L2M03.Sc3St2 Next Time}"/>
+                      <!--<check_value value="{player.target.isenemy}" exact="1" negate="1"/>-->
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L2M03 Sc3 St2 Next Mission.Step" exact="{value@L2M03 Scene 3.Completed}+3"/>
+                      <set_value name="L2M03 Scene 3.Next ID" operation="add"/>
+                      <!--select mission target and potential enemies?-->
+                      <!--first check already attacked factories?-->
+                      <!--<do_when value="{object.attacker.exists@L2M03.GonerFac1}*{object.attacker.target@L2M03.GonerFac1}" exact="{object@L2M03.GonerFac1}">-->
+                      <do_any>
+                        <set_object name="L2M03 Scene 3.DefendObj" value="{object@L2M03.GonerFac1}" chance="15"/>
+                        <set_object name="L2M03 Scene 3.DefendObj" value="{object@L2M03.GonerFac2}" chance="15"/>
+                        <set_object name="L2M03 Scene 3.DefendObj" value="{object@L2M03.GonerFac3}" chance="15"/>
+                        <remove_object object="L2M03 Scene 3.DefendObj" chance="45"/>
+                      </do_any>
+                      <do_if value="{object.exists@L2M03 Scene 3.DefendObj}" exact="0">
+                        <do_any>
+                          <find_sector name="this.Sector" x="20" y="7"/>
+                          <find_sector name="this.Sector" x="18" y="12"/>
+                          <find_sector name="this.Sector" x="18" y="13"/>
+                        </do_any>
+                        <do_if value="{sector@this.Sector}" exact="{player.sector}">
+                          <do_choose>
+                            <do_when value="{sector.x@this.Sector}" exact="20">
+                              <find_sector name="this.Sector" x="18" y="12"/>
+                            </do_when>
+                            <do_when value="{sector.y@this.Sector}" exact="12">
+                              <find_sector name="this.Sector" x="18" y="13"/>
+                            </do_when>
+                            <do_otherwise>
+                              <find_sector name="this.Sector" x="20" y="7"/>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_if>
+                        <find_station name="this.location" class="station">
+                          <sector sector="this.Sector"/>
+                        </find_station>
+                        <create_ship name="L2M03 Scene 3.DefendObj" race="goner" typename="{random.type@SS_SH_GONER|SS_SH_A_TS|SS_SH_A_TS_1}" capturable="0">
+                          <position object="this.location" min="250m" max="600m"/>
+                          <sector sector="this.Sector"/>
+                          <equipment loadout="maximum"/>
+                          <cargo>
+                            <ware typename="SS_WARE_ORE" min="0" max="300"/>
+                            <ware typename="SS_WARE_R255" min="0" max="300"/>
+                            <ware typename="SS_WARE_SILICON" min="0" max="300"/>
+                          </cargo>
+                        </create_ship>
+                        <do_if value="{object.exists@this.location}" exact="0">
+                          <warp_object object="L2M03 Scene 3.DefendObj">
+                            <position x="0" y="0" z="0" max="20km"/>
+                            <sector sector="this.Sector"/>
+                          </warp_object>
+                        </do_if>
+                        <set_command object="L2M03 Scene 3.DefendObj" command="moveposition">
+                          <position x="0" y="0" z="0" min="1km" max="3km"/>
+                          <sector sector="L2M03.EoL"/>
+                        </set_command>
+                        <set_value name="this.pageid" list="110|111"/>
+                        <set_pilot_data object="L2M03 Scene 3.DefendObj" voice="{value@this.pageid}"/>
+                      </do_if>
+                      <do_if value="{value@L2M03 Scene 3.Next ID}" exact="4">
+                        <find_gate name="this.Gate" gate="west">
+                          <sector x="18" y="7"/>
+                        </find_gate>
+                        <warp_object object="L2M03.CouncilShip">
+                          <position object="this.Gate"/>
+                          <sector x="18" y="7"/>
+                        </warp_object>
+                        <set_command object="L2M03.CouncilShip" command="moveposition">
+                          <position x="0" y="0" z="0" min="2500m" max="5km"/>
+                          <sector x="19" y="7"/>
+                        </set_command>
+                        <clear_actor_location actor="L2M03.Hall"/>
+                      </do_if>
+                      <do_if value="{value@L2M03 Scene 3.Next ID}" min="4">
+                        <do_choose>
+                          <do_when value="{object.isclass.station@L2M03 Scene 3.DefendObj}" exact="1">
+                            <do_any>
+                              <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334310} {3895,334305}" popup="1"/>
+                              <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334311} {3895,334306}" popup="1"/>
+                              <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334310} {3895,334307}" popup="1"/>
+                            </do_any>
+                          </do_when>
+                          <do_otherwise>
+                            <do_any>
+                              <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334311} {3895,334307}" popup="1"/>
+                              <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334310} {3895,334308}" popup="1"/>
+                              <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334311} {3895,334309}" popup="1"/>
+                            </do_any>
+                          </do_otherwise>
+                        </do_choose>
+                      </do_if>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc3 St2 In Sector" delay="2s">
+                      <condition>
+                        <object_sector exact="0">
+                          <sector sector="{object.sector@L2M03 Scene 3.DefendObj}"/>
+                        </object_sector>
+                      </condition>
+                      <timing>
+                        <time exact="5s"/>
+                      </timing>
+                      <action>
+                        <do_if value="{object.isclass.ship@L2M03 Scene 3.DefendObj}" exact="1">
+                          <play_text face="{object.pilot.face@L2M03 Scene 3.DefendObj}" pageid="{object.pilot.voice@L2M03 Scene 3.DefendObj}" textid="818"/>
+                        </do_if>
+                      </action>
+                    </cue>
+                    <cue ref="L0M35 B">
+                      <params>
+                        <param name="Cue" value="L2M03 Scene 3"/>
+                        <param name="ID" value="{value@L2M03 Scene 3.Next ID}"/>
+                        <param name="Step" value="{value@L2M03 Sc3 St2 Next Mission.Step}"/>
+                        <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                        <param name="OfferRace" value="{lookup.race@goner}"/>
+                        <param name="Lv1Guide" value="L2M03.Avens"/>
+                        <param name="StoryID" value="3"/>
+                        <param name="ChapterID" value="301"/>
+                        <param name="PageID" value="3203"/>
+                        <param name="TextID" value="132"/>
+                        <param name="Object" value="L2M03 Scene 3.DefendObj"/>
+                        <param name="Difficulty" value="{lookup.level@hard}"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M03 Sc3 St2 Wait">
+                      <condition>
+                        <cue_completed cue="L0M35 B"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M35">
+                          <params>
+                            <param name="Cue" value="L2M03 Scene 3"/>
+                            <param name="ID" value="{value@L2M03 Scene 3.Next ID}"/>
+                            <param name="Step" value="{value@L2M03 Sc3 St2 Next Mission.Step}"/>
+                            <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                            <param name="OfferRace" value="{lookup.race@goner}"/>
+                            <param name="Lv1Guide" value="L2M03.Avens"/>
+                            <param name="StoryID" value="3"/>
+                            <param name="ChapterID" value="301"/>
+                            <param name="PageID" value="3322"/>
+                            <param name="TextID" value="1"/>
+                            <param name="OBSFleetJobTextID" value="30016"/>
+                            <param name="Difficulty" value="{lookup.level@hard}"/>
+                          </params>
+                        </cue>
+                        <cue name="L2M03 Sc3 St2 Done 1">
+                          <condition>
+                            <check_value value="{value@L2M03 Scene 3.{value@L2M03 Scene 3.Next ID} L0M35 Progress}" min="1"/>
+                          </condition>
+                          <timing>
+                            <time min="5s" max="6s"/>
+                          </timing>
+                          <action>
+                            <do_choose>
+                              <do_when value="{value@L2M03 Scene 3.{value@L2M03 Scene 3.Next ID} L0M35 Progress}" exact="1">
+                                <do_if value="{object.exists@L2M03 Scene 3.DefendObj}" exact="1">
+                                  <do_if value="{object.isclass.ship@L2M03 Scene 3.DefendObj}" exact="1">
+                                    <play_text face="{object.pilot.face@L2M03 Scene 3.DefendObj}" pageid="{object.pilot.voice@L2M03 Scene 3.DefendObj}" textid="840"/>
+                                    <do_choose>
+                                      <do_when value="{object.isclass.ts@L2M03 Scene 3.DefendObj}" exact="1">
+                                        <set_command object="L2M03 Scene 3.DefendObj" command="moveposition">
+                                          <position x="0" min="3km" max="5km"/>
+                                          <sector sector="L2M03.EoL"/>
+                                        </set_command>
+                                      </do_when>
+                                      <do_otherwise>
+                                        <run_script script="!job.special.preach" object="L2M03 Scene 3.DefendObj" task="1"/>
+                                        <cancel_cue cue="L2M03 Sc3 St2 Remove DefendOBJ TS"/>
+                                      </do_otherwise>
+                                    </do_choose>
+                                  </do_if>
+                                  <do_choose>
+                                    <do_when value="{object@L2M03 Scene 3.DefendObj}" exact="{object@L2M03.GonerFac1}">
+                                      <remove_object object="L2M03.GonerFac1"/>
+                                    </do_when>
+                                    <do_when value="{object@L2M03 Scene 3.DefendObj}" exact="{object@L2M03.GonerFac2}">
+                                      <remove_object object="L2M03.GonerFac2"/>
+                                    </do_when>
+                                    <do_when value="{object@L2M03 Scene 3.DefendObj}" exact="{object@L2M03.GonerFac3}">
+                                      <remove_object object="L2M03.GonerFac3"/>
+                                    </do_when>
+                                  </do_choose>
+                                  <remove_object object="L2M03 Scene 3.DefendObj"/>
+                                </do_if>
+                                <set_value name="L2M03 Scene 3.Completed" operation="add"/>
+                                <set_value name="L2M03.Sc3St2 Next Time" min="{player.age}+20" max="{player.age}+30"/>
+                                <reset_cue cue="L2M03 Sc3 St2 Next Mission"/>
+                              </do_when>
+                              <do_otherwise>
+                                <remove_objective cue="L2M03 Scene 3" status="failed"/>
+                                <set_value name="L2M03.Sc3St2 Next Time" min="{player.age}+70" max="{player.age}+90"/>
+                                <set_value name="L2M03 Scene 3.{value@L2M03 Scene 3.Next ID} L0M35 Progress" exact="0"/>
+                                <reset_cue cue="L2M03 Sc3 St2 Next Mission"/>
+                              </do_otherwise>
+                            </do_choose>
+                          </action>
+                          <cues>
+                            <cue name="L2M03 Sc3 St2 Remove DefendOBJ TS">
+                              <condition>
+                                <object_changed_sector object="L2M03 Scene 3.DefendObj"/>
+                              </condition>
+                              <action>
+                                <destroy_object object="L2M03 Scene 3.DefendObj"/>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc3 St2 Idle Council" delay="1s">
+                  <condition>
+                    <check_all>
+                      <object_position object="L2M03.CouncilShip" max="2km">
+                        <position x="0" y="0" z="0"/>
+                      </object_position>
+                      <object_sector object="L2M03.CouncilShip" exact="0">
+                        <sector x="19" y="7"/>
+                      </object_sector>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <set_command object="L2M03.CouncilShip" command="idle"/>
+                  </action>
+                </cue>
+                <cue name="L2M03 Sc3 St2 End">
+                  <condition>
+                    <check_value value="{value@L2M03 Scene 3.Completed}" min="4"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M03 Sc3 St2 Next Mission"/>
+                      <remove_briefing cue="L2M03 Scene 3"/>
+                      <remove_objective cue="L2M03 Scene 3" status="complete"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Build Temple 4" delay="5s">
+                      <condition>
+                        <check_value value="{player.sector}" exact="{sector@L2M03.EoL}" negate="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <destroy_object object="L2M03.tempconstruction"/>
+                          <create_special name="L2M03.tempconstruction" typename="SS_SPECIAL_GONER_PARTIAL4">
+                            <position x="6300m" y="-750m" z="-4300m"/>
+                            <rotation alpha="32768"/>
+                            <sector sector="L2M03.EoL"/>
+                          </create_special>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M03 Scene 4" comment="100%">
+          <condition>
+            <cue_completed cue="L2M03 Sc3 St2 End"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_owner object="L2M03.CouncilShip" race="neutral"/>
+              <set_pilot_data object="L2M03.CouncilShip" jobtextid="108"/>
+              <set_boardable object="L2M03.CouncilShip" boardable="1"/>
+              <set_hull object="L2M03.CouncilShip" exact="35"/>
+              <add_equipment>
+                <ware typename="SS_WARE_TECH213" exact="-99"/>
+              </add_equipment>
+              <set_capturable object="L2M03.CouncilShip" capturable="1"/>
+              <cancel_cue cue="L2M03 Sc3 St2 Idle Council"/>
+              <find_gate name="L2M03 Scene 4.NearestGate" nearest="1">
+                <position object="L2M03.CouncilShip"/>
+                <sector sector="{object.sector@L2M03.CouncilShip}"/>
+              </find_gate>
+              <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334401}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M03 Sc4 St1">
+              <timing>
+                <time min="6s" max="8s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <create_briefing cue="L2M03 Scene 4" background="station_goner_temple_new.tga" title="{3200,304}" text="{3895,334401}">
+                    <mission discipline="XXXT" level="average"/>
+                    <objectives>
+                      <objective step="1">
+                        <custom icon="find" action="{35,2023}" text="{object.name@L2M03.CouncilShip}" object="L2M03.CouncilShip"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective story="{3200,3}" chapter="{3200,304}" title="{3203,41}" cue="L2M03 Scene 4" noabort="1">
+                    <briefing cue="L2M03 Scene 4" step="1"/>
+                    <mission discipline="XXXT" level="average"/>
+                    <custom icon="find" action="{35,2023}" text="{object.name@L2M03.CouncilShip}" object="L2M03.CouncilShip"/>
+                  </set_objective>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc4 St1 OBS Finished"/>
+                <cue ref="OBS">
+                  <params>
+                    <param name="OBS Cue" value="L2M03 Sc4 St1"/>
+                    <param name="OBS Cancel Cue" value="L2M03 Sc4 St1 OBS Finished"/>
+                    <param name="OBS Fleet Group Name" value="PirateGuards"/>
+                    <param name="OBSFleetRace" value="{lookup.race@pirate}"/>
+                    <param name="OBSFleetPilotsRace" value="{lookup.race@neutral}"/>
+                    <param name="OBSRaceSetup" value="1"/>
+                    <param name="OBSFleetJobTextID" value="30016"/>
+                    <param name="OBSMissionRank" value="{player.fightrank.rank}"/>
+                    <param name="OBSDifficultyRank" value="{lookup.level@average}"/>
+                    <param name="OBSSector" value="{object.sector@L2M03.CouncilShip}"/>
+                    <param name="OBSPosition" value="50m"/>
+                    <param name="OBSFleetPositionObject" value="L2M03 Scene 4.NearestGate"/>
+                    <param name="OBSFleetCapturable" value="0"/>
+                    <param name="OBSFleetCommunicates" value="1"/>
+                    <param name="OBSFleetCovered" value="0"/>
+                    <param name="OBS Dock Support" value="1"/>
+                    <param name="OBS Support Overflow" value="0"/>
+                    <param name="OBSFleetRelation" value="-1"/>
+                  </params>
+                </cue>
+                <cue name="L2M03 Sc4 St1 OBS Done">
+                  <condition>
+                    <cue_cancelled cue="L2M03 Sc4 St1 OBS Finished"/>
+                  </condition>
+                  <action>
+                    <set_group_command group="L2M03 Sc4 St1.PirateGuards" command="protect" commandobject="L2M03.CouncilShip"/>
+                  </action>
+                </cue>
+                <cue name="L2M03 Sc4 St1 IS">
+                  <condition>
+                    <object_sector exact="0">
+                      <sector sector="{object.sector@L2M03.CouncilShip}"/>
+                    </object_sector>
+                  </condition>
+                  <timing>
+                    <time min="4s" max="5s"/>
+                  </timing>
+                  <action>
+                    <!--CUTSCENE PLANNED HERE?-->
+                    <do_all>
+                      <set_target object="L2M03.CouncilShip"/>
+                      <incoming_message author="{actor.name@L2M03.Avens}" text="{3833,334402}" silent="1"/>
+                      <play_text actor="L2M03.Avens" textid="334402"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc4 St1 Hint">
+                      <condition>
+                        <cue_completed cue="L2M03 Sc4 St1 IS"/>
+                      </condition>
+                      <timing>
+                        <time exact="{text.duration@3833,334402}+2s"/>
+                      </timing>
+                      <action>
+                        <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334409}" popup="1"/>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc4 St1 End">
+                  <condition>
+                    <check_all>
+                      <!--does this work for boarding pod capture?
+                      <object_claimed object="L2M03.CouncilShip"/>-->
+                      <check_value value="{object.race@L2M03.CouncilShip}" exact="{lookup.race@player}"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M03 Sc4 St1 IS"/>
+                      <set_owner object="L2M03.CouncilShip" race="goner"/>
+                      <set_capturable object="L2M03.CouncilShip" capturable="0"/>
+                      <set_highlight object="L2M03.CouncilShip" highlight="0"/>
+                      <find_station name="this.Station" dockingallowed="1" findobject="L2M03.CouncilShip" nearest="1">
+                        <position object="L2M03.GonerTL"/>
+                        <sector sector="{object.sector@L2M03.GonerTL}"/>
+                      </find_station>
+                      <set_invincible object="this.Station" invincible="1"/>
+                      <set_command object="L2M03.CouncilShip" command="dock" commandobject="this.Station"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Build Temple 5" delay="5s">
+                      <condition>
+                        <check_value value="{player.sector}" exact="{sector@L2M03.EoL}" negate="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <destroy_object object="L2M03.tempconstruction"/>
+                          <create_special name="L2M03.tempconstruction" typename="SS_SPECIAL_GONER_PARTIAL5">
+                            <position x="6300m" y="-750m" z="-4300m"/>
+                            <rotation alpha="32768"/>
+                            <sector sector="L2M03.EoL"/>
+                          </create_special>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc4 St1 TLS Docked" comment="Destroyed the Council ship first to free up docking arm">
+                  <condition>
+                    <object_docked object="L2M03.CouncilShip" param="{object@L2M03 Sc4 St1 End.Station}"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_object name="this.Station" value="{object.dockobject@L2M03.CouncilShip}"/>
+                      <set_value name="this.EquipmentCount" exact="{object.equipment.count@L2M03.CouncilShip}"/>
+                      <do_all exact="{value@this.EquipmentCount}" counter="count">
+                        <set_value name="this.EquipmentType {counter@count}" exact="{object.equipment.{counter@count}@L2M03.CouncilShip}"/>
+                        <set_value name="this.EquipmentCount {counter@count}" exact="{object.equipment.{counter@count}.coun@L2M03.CouncilShip}"/>
+                      </do_all>
+                      <destroy_object object="L2M03.CouncilShip" explosion="0"/>
+                      <create_ship name="L2M03.TLS" typename="SS_SH_TLS" dockobject="this.Station" race="player"/>
+                      <do_all exact="{value@this.EquipmentCount}" counter="count">
+                        <add_equipment object="L2M03.TLS">
+                          <ware typename="{value@this.EquipmentType {counter@count}}" exact="{value@this.EquipmentCount {counter@count}}"/>
+                        </add_equipment>
+                      </do_all>
+                      <incoming_message author="{3203,1001}" text="{3203,1002}"/>
+                      <set_invincible object="this.Station" invincible="0"/>
+                      <remove_object object="L2M03.TLS"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc4 St2">
+              <condition>
+                <cue_completed cue="L2M03 Sc4 St1 End"/>
+              </condition>
+              <action>
+                <do_all>
+                  <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334403}"/>
+                  <create_ship name="L2M03 Scene 4.FollowShip" typename="SS_SH_PI_M3P_P" invincible="1" race="neutral">
+                    <position x="0" min="15km" max="20km"/>
+                    <sector x="19" y="8"/>
+                    <equipment loadout="maximum"/>
+                    <command command="idle"/>
+                    <relations>
+                      <relation mutual="0" relation="enemy"/>
+                    </relations>
+                  </create_ship>
+                  <create_actor name="L2M03 Scene 4.FollowShip Actor" voiceflags="32" race="pirate" subrace="teladi" object="L2M03 Scene 4.FollowShip"/>
+                  <set_owner object="L2M03 Scene 4.FollowShip" race="neutral"/>
+                  <set_pilot_data object="L2M03 Scene 4.FollowShip" jobtextid="830016"/>
+                  <create_briefing cue="L2M03 Scene 4" story="{3200,3}" chapter="{3200,304}" title="{3203,41}">
+                    <objectives>
+                      <objective step="2">
+                        <flyto>
+                          <sector x="19" y="8"/>
+                        </flyto>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective story="{3200,3}" chapter="{3200,304}" title="{3203,41}" cue="L2M03 Scene 4" noabort="1">
+                    <briefing cue="L2M03 Scene 4" step="2"/>
+                    <flyto>
+                      <sector x="19" y="8"/>
+                    </flyto>
+                  </set_objective>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc4 St2 IS">
+                  <condition>
+                    <object_sector exact="0">
+                      <sector sector="{object.sector@L2M03 Scene 4.FollowShip}"/>
+                    </object_sector>
+                  </condition>
+                  <timing>
+                    <time min="200" max="300"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <create_ship name="L2M03 Scene 4.VictimShip" typename="SS_SH_T_TP_1" invincible="1" race="neutral">
+                        <position object="L2M03 Scene 4.FollowShip" min="600m" max="900m"/>
+                        <sector sector="{object.sector@L2M03 Scene 4.FollowShip}"/>
+                        <equipment loadout="maximum"/>
+                        <command command="idle"/>
+                        <relations>
+                          <relation object="L2M03 Scene 4.FollowShip" mutual="0" relation="enemy"/>
+                        </relations>
+                        <pilot jobtextid="3008"/>
+                      </create_ship>
+                      <create_crate>
+                        <position object="L2M03 Scene 4.VictimShip" min="50m" max="250m"/>
+                        <sector sector="{object.sector@L2M03 Scene 4.VictimShip}"/>
+                        <ware typename="SS_WARE_TECH206" min="5" max="12"/>
+                      </create_crate>
+                      <create_crate>
+                        <position object="L2M03 Scene 4.VictimShip" min="50m" max="250m"/>
+                        <sector sector="{object.sector@L2M03 Scene 4.VictimShip}"/>
+                        <ware typename="SS_WARE_TECH205" min="4" max="14"/>
+                      </create_crate>
+                      <create_crate>
+                        <position object="L2M03 Scene 4.VictimShip" min="50m" max="250m"/>
+                        <sector sector="{object.sector@L2M03 Scene 4.VictimShip}"/>
+                        <ware typename="SS_WARE_TECH207" min="3" max="9"/>
+                      </create_crate>
+                      <set_command object="L2M03 Scene 4.FollowShip" command="attack" commandobject="L2M03 Scene 4.VictimShip"/>
+                      <set_target object="L2M03 Scene 4.FollowShip"/>
+                      <play_text actor="L2M03.Avens" textid="334404"/>
+                      <set_value name="L2M03 Scene 4.Start Time" exact="{player.age}+1"/>
+                      <create_station name="L2M03.PirateBase" class="piratebase" invincible="1" typename="SS_DOCK_PIRATES" race="neutral">
+                        <position x="-25km" y="0" z="-25km" min="0" max="15km"/>
+                        <sector x="17" y="9"/>
+                        <equipment loadout="default"/>
+                        <products>
+                          <ware typename="SS_WARE_R256" min="1" max="45"/>
+                          <ware typename="SS_WARE_TECH239" min="1" max="45"/>
+                          <ware typename="SS_WARE_SLAVE" min="1" max="45"/>
+                          <ware typename="SS_WARE_MINE_1" min="1" max="45"/>
+                          <ware typename="SS_WARE_ORBITALLASER" min="1" max="4"/>
+                          <ware typename="SS_WARE_LIFESUPPORT" min="1" max="99"/>
+                        </products>
+                        <relations>
+                          <relation mutual="0" relation="enemy"/>
+                        </relations>
+                      </create_station>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc4 St2 Mission" delay="1s">
+                      <condition>
+                        <check_all>
+                          <check_age min="{value@L2M03 Scene 4.Start Time}"/>
+                          <cue_is_complete cue="L2M03 Sc4 St2 IS"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="L2M03 Sc4 St2 IS.Attempts" operation="add"/>
+                          <set_value name="L2M03 Sc4 St2 IS.ID" operation="add"/>
+                          <set_value name="L2M03 Scene 4.St2 Step" exact="3"/>
+                          <do_if value="{value@L2M03 Sc4 St2 IS.Attempts}" min="2">
+                            <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334408}"/>
+                            <set_value name="L2M03 Scene 4.St2 Step" exact="5"/>
+                          </do_if>
+                          <do_if value="{object.exists@L2M03 Scene 4.FollowShip}" exact="0">
+                            <do_any>
+                              <find_sector name="this.sector" exact="0" x="19" y="7" chance="30"/>
+                              <find_sector name="this.sector" exact="0" x="20" y="7" chance="25"/>
+                              <find_sector name="this.sector" exact="0" x="19" y="8" chance="20"/>
+                              <find_sector name="this.sector" exact="0" x="18" y="12" chance="25"/>
+                            </do_any>
+                            <do_if value="{sector@this.sector}" exact="{player.sector}">
+                              <do_choose>
+                                <do_when value="{sector.x@this.Sector}" exact="20">
+                                  <find_sector name="this.Sector" x="19" y="8"/>
+                                </do_when>
+                                <do_when value="{sector.y@this.Sector}" exact="8">
+                                  <find_sector name="this.Sector" x="18" y="12"/>
+                                </do_when>
+                                <do_when value="{sector.y@this.Sector}" exact="12">
+                                  <find_sector name="this.Sector" x="19" y="7"/>
+                                </do_when>
+                                <do_otherwise>
+                                  <find_sector name="this.Sector" x="20" y="7"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_if>
+                            <find_gate name="this.gate">
+                              <sector sector="this.sector"/>
+                              <jumps exact="0"/>
+                            </find_gate>
+                            <create_ship name="L2M03 Scene 4.FollowShip" race="neutral" warp="1" typename="{random.type@SS_SH_T_M3_P|SS_SH_A_M3_P_1|SS_SH_T_M3_P_3|SS_SH_A_M3P_P|SS_SH_T_M3P_P|SS_SH_PI_M3P_P|SS_SH_A_M4_P|SS_SH_T_M4_P_1|SS_SH_T_M4_P_3}">
+                              <position object="this.gate" min="500m" max="1km"/>
+                              <sector sector="this.sector"/>
+                              <equipment loadout="maximum"/>
+                              <command command="idle"/>
+                            </create_ship>
+                            <set_value name="this.FollowShip Tunings" exact="{object.equipment.SS_WARE_TECH213.maxcount@L2M03 Scene 4.FollowShip}-{object.equipment.SS_WARE_TECH213.count@L2M03 Scene 4.FollowShip}"/>
+                            <add_equipment object="L2M03 Scene 4.FollowShip">
+                              <ware typename="SS_WARE_TECH213" min="{value@this.FollowShip Tunings}-1" max="{value@this.FollowShip Tunings}+1"/>
+                            </add_equipment>
+                            <do_any>
+                              <create_actor name="L2M03 Scene 4.FollowShip Actor" voiceflags="32" race="pirate" object="L2M03 Scene 4.FollowShip" subrace="teladi" chance="50"/>
+                              <create_actor name="L2M03 Scene 4.FollowShip Actor" voiceflags="32" race="pirate" object="L2M03 Scene 4.FollowShip" subrace="{object.maker@L2M03 Scene 4.FollowShip}" chance="32"/>
+                              <create_actor name="L2M03 Scene 4.FollowShip Actor" voiceflags="32" race="pirate" object="L2M03 Scene 4.FollowShip" subrace="argon" chance="10"/>
+                            </do_any>
+                            <set_owner object="L2M03 Scene 4.FollowShip" race="neutral"/>
+                            <set_pilot_data object="L2M03 Scene 4.FollowShip" jobtextid="830016"/>
+                          </do_if>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M13 B">
+                          <params>
+                            <param name="Cue" value="L2M03 Scene 4"/>
+                            <param name="ID" value="{value@L2M03 Sc4 St2 IS.ID}"/>
+                            <param name="Step" value="{value@L2M03 Scene 4.St2 Step}"/>
+                            <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                            <param name="OfferRace" value="{lookup.race@goner}"/>
+                            <param name="Lv1Guide" value="L2M03.Avens"/>
+                            <param name="PageID" value="3833"/>
+                            <param name="TextID" value="334404"/>
+                            <param name="AddText" value="1"/>
+                            <param name="StoryID" value="3"/>
+                            <param name="ChapterID" value="301"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="Target" value="L2M03 Scene 4.FollowShip Actor"/>
+                            <param name="Destination" value="L2M03.PirateBase"/>
+                            <param name="IsPlot" value="1"/>
+                          </params>
+                        </cue>
+                        <cue name="L2M03 Sc4 St2 Wait">
+                          <condition>
+                            <cue_completed cue="L0M13 B"/>
+                          </condition>
+                          <cues>
+                            <cue ref="L0M13">
+                              <params>
+                                <param name="Cue" value="L2M03 Scene 4"/>
+                                <param name="ID" value="{value@L2M03 Sc4 St2 IS.ID}"/>
+                                <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                                <param name="OfferRace" value="{lookup.race@goner}"/>
+                                <param name="Lv1Guide" value="L2M03.Avens"/>
+                                <param name="PageID" value="3833"/>
+                                <param name="TextID" value="334404"/>
+                                <param name="AddText" value="1"/>
+                                <param name="Difficulty" value="{lookup.level@average}"/>
+                                <param name="IsPlot" value="1"/>
+                              </params>
+                            </cue>
+                            <cue name="L2M03 Sc4 St2 Failed">
+                              <condition>
+                                <check_value value="{value@L2M03 Scene 4.{value@L2M03 Sc4 St2 IS.ID} L0M13 Progress}" min="2"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <do_choose>
+                                    <do_when value="{value@L2M03 Scene 4.{value@L2M03 Sc4 St2 IS.ID} L0M13 Progress}" exact="3">
+                                      <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334406} {3895,334407}"/>
+                                    </do_when>
+                                    <do_otherwise>
+                                      <incoming_message author="{actor.name@L2M03.Avens}" text="{3895,334405} {3895,334407}"/>
+                                    </do_otherwise>
+                                  </do_choose>
+                                  <set_objective cue="L2M03 Scene 4" noabort="1">
+                                    <briefing cue="L2M03 Scene 4" step="4"/>
+                                    <custom icon="flyto" action="{35,2048}" text="{35,2102}"/>
+                                  </set_objective>
+                                  <create_briefing cue="L2M03 Scene 4">
+                                    <objectives>
+                                      <objective step="4">
+                                        <custom icon="flyto" action="{35,2048}" text="{35,2102}"/>
+                                      </objective>
+                                      <objective step="5">
+                                        <custom icon="find" action="{35,2006}" text="{35,2150}"/>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <set_value name="L2M03 Scene 4.Start Time" min="{player.age}+200" max="{player.age}+500"/>
+                                  <reset_cue cue="L2M03 Sc4 St2 Mission"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                            <cue name="L2M03 Sc4 St2 End">
+                              <condition>
+                                <check_value value="{value@L2M03 Scene 4.{value@L2M03 Sc4 St2 IS.ID} L0M13 Progress}" exact="1"/>
+                              </condition>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc4 St3">
+              <condition>
+                <cue_completed cue="L2M03 Sc4 St2 End"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_invincible object="L2M03.Hall" invincible="1"/>
+                  <create_astronaut name="L2M03 Scene 4.HallAstro" typename="SS_SH_ASTRON" dockobject="L2M03.PirateBase" invincible="1" race="goner"/>
+                  <set_actor_location actor="L2M03.Hall" object="L2M03 Scene 4.HallAstro" location="pilot"/>
+                  <play_text actor="L2M03.Hall" textid="344401"/>
+                  <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344401}"/>
+                  <set_command object="L2M03 Scene 4.HallAstro" command="idle"/>
+                  <set_objective cue="L2M03 Scene 4" noabort="1">
+                    <briefing cue="L2M03 Scene 4" step="{value@L2M03 Scene 4.St2 Step}+1"/>
+                    <custom icon="protect" action="{35,2043}" text="{actor.name@L2M03.Hall}" actor="L2M03.Hall"/>
+                  </set_objective>
+                  <create_briefing cue="L2M03 Scene 4">
+                    <objectives>
+                      <objective step="{value@L2M03 Scene 4.St2 Step}+1">
+                        <custom icon="protect" action="{35,2043}" text="{actor.name@L2M03.Hall}"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc4 St3 Hall Cutscene">
+                  <condition>
+                    <cue_completed cue="L2M03 Sc4 St3"/>
+                  </condition>
+                  <timing>
+                    <time exact="6s"/>
+                  </timing>
+                  <action>
+                    <do_if value="{player.sector}" exact="{object.sector@L2M03 Scene 4.HallAstro}">
+                      <play_cutscene file="Goner Plot S3 C2"/>
+                      <set_object name="L2M03 Scene 4.HallAstroTemp" value="{object@L2M03 Scene 4.HallAstro}"/>
+                    </do_if>
+                  </action>
+                </cue>
+                <cue name="L2M03 Sc4 St3 OBS Finished"/>
+                <cue ref="OBS">
+                  <params>
+                    <param name="OBS Cue" value="L2M03 Sc4 St3"/>
+                    <param name="OBS Cancel Cue" value="L2M03 Sc4 St3 OBS Finished"/>
+                    <param name="OBS Fleet Group Name" value="Pirates"/>
+                    <param name="OBSFleetRace" value="{lookup.race@pirate}"/>
+                    <param name="OBSFleetPilotsRace" value="{lookup.race@neutral}"/>
+                    <param name="OBSRaceSetup" value="1"/>
+                    <param name="OBSFleetJobTextID" value="30016"/>
+                    <param name="OBSMissionRank" value="{player.fightrank.rank}"/>
+                    <param name="OBSDifficultyRank" value="{lookup.level@hard}"/>
+                    <param name="OBSSector" value="{object.sector@L2M03.PirateBase}"/>
+                    <param name="OBSPosition" value="50m"/>
+                    <param name="OBSFleetPositionObject" value="L2M03.PirateBase"/>
+                    <param name="OBSFleetCommunicates" value="1"/>
+                    <param name="OBSFleetCovered" value="0"/>
+                    <param name="OBS Dock Support" value="1"/>
+                    <param name="OBS Support Overflow" value="0"/>
+                    <param name="OBSFleetRelation" value="-1"/>
+                  </params>
+                </cue>
+                <cue name="L2M03 Sc4 St3 Pirate Orders">
+                  <condition>
+                    <cue_cancelled cue="L2M03 Sc4 St3 OBS Finished"/>
+                  </condition>
+                  <action>
+                    <set_group_command group="L2M03 Sc4 St3.Pirates" command="killenemiesrange" distance="12km">
+                      <position object="{actor.ship@L2M03.Hall}"/>
+                      <sector sector="{actor.sector@L2M03.Hall}"/>
+                    </set_group_command>
+                  </action>
+                </cue>
+                <cue name="L2M03 Sc4 St3 Collected">
+                  <condition>
+                    <check_value value="{actor.ship.race@L2M03.Hall}" exact="{lookup.race@player}"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{actor.ship@L2M03.Hall}" exact="{player.ship}">
+                          <play_text actor="L2M03.Hall" textid="344402"/>
+                          <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344402}" silent="1"/>
+                        </do_when>
+                        <do_when value="{actor.sector@L2M03.Hall}" exact="{player.sector}">
+                          <play_text actor="L2M03.Hall" textid="344402"/>
+                          <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344402}" silent="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@L2M03.Hall}" text="{3834,344402}" popup="1"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <set_objective cue="L2M03 Scene 4" noabort="1">
+                        <briefing cue="L2M03 Scene 4" step="{value@L2M03 Scene 4.St2 Step}+2"/>
+                        <custom icon="protect" action="{35,2045}" text="{object.name@L2M03.GonerTL}" object="L2M03.GonerTL"/>
+                      </set_objective>
+                      <create_briefing cue="L2M03 Scene 4">
+                        <objectives>
+                          <objective step="{value@L2M03 Scene 4.St2 Step}+2">
+                            <custom icon="protect" action="{35,2045}" text="{object.name@L2M03.GonerTL}" object="L2M03.GonerTL"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <!--cue to check hall hasnt been ejected?-->
+                    <cue name="L2M03 Sc4 St4 Check">
+                      <condition>
+                        <check_all>
+                          <object_sector exact="0">
+                            <sector sector="L2M03.EoL"/>
+                          </object_sector>
+                          <object_sector object="{actor.ship@L2M03.Hall}" exact="0">
+                            <sector sector="L2M03.EoL"/>
+                          </object_sector>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <add_object_to_group group="L2M03.CheckTransportedGroup" object="L2M03.GonerTL"/>
+                          <set_object name="L2M03.HallsPlayerShip" group="L2M03.CheckTransportedGroup" value="{actor.ship@L2M03.Hall}"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Sc4 St4 Ship Change" delay="250">
+                          <condition>
+                            <check_value value="{object@L2M03.HallsPlayerShip}" exact="{actor.ship@L2M03.Hall}" negate="1"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <remove_object object="L2M03.HallsPlayerShip"/>
+                              <set_object name="L2M03.HallsPlayerShip" group="L2M03.CheckTransportedGroup" value="{actor.ship@L2M03.Hall}"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                        <cue name="L2M03 Sc4 St4 End" delay="250">
+                          <condition>
+                            <check_all>
+                              <object_exists object="L2M03.HallsPlayerShip"/>
+                              <object_sector object="L2M03.HallsPlayerShip" exact="0">
+                                <sector sector="L2M03.EoL"/>
+                              </object_sector>
+                              <check_value value="{group.distance.m@L2M03.CheckTransportedGroup}" max="4800"/>
+                              <object_sector exact="0">
+                                <sector sector="L2M03.EoL"/>
+                              </object_sector>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <play_text actor="L2M03.Hall" textid="344403"/>
+                              <remove_briefing cue="L2M03 Scene 4"/>
+                              <remove_objective cue="L2M03 Scene 4" status="complete"/>
+                              <cancel_cue cue="L2M03 Sc4 St4 Ship Change"/>
+                              <clear_actor_location actor="L2M03.Hall"/>
+                              <set_value name="L2M03.PlotProgress" exact="5"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M03 Scene 5" delay="8447" comment="100%">
+          <condition>
+            <check_value value="{value@L2M03.PlotProgress}" exact="5"/>
+          </condition>
+          <cues>
+            <cue name="L2M03 Sc5 St1">
+              <action>
+                <do_all>
+                  <create_briefing cue="L2M03 Scene 5" title="{3200,305}" text="{3203,151}" background="station_goner_temple_new.tga">
+                    <mission level="average" discipline="XFXX"/>
+                    <objectives>
+                      <objective step="1">
+                        <destroy object="L2M03.PirateBase"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M03 Scene 5" story="{3200,103}" chapter="{3200,305}" noabort="1" title="{3203,51}">
+                    <briefing cue="L2M03 Scene 5" step="1"/>
+                    <mission level="average" discipline="XFXX"/>
+                    <destroy object="L2M03.PirateBase"/>
+                  </set_objective>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc5 St1 End" delay="1s">
+                  <condition>
+                    <check_value value="{player.sector}" exact="{object.sector@L2M03.PirateBase}"/>
+                  </condition>
+                  <timing>
+                    <time exact="5s"/>
+                  </timing>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc5 St2" delay="100">
+              <condition>
+                <cue_is_complete cue="L2M03 Sc5 St1 End"/>
+              </condition>
+              <action>
+                <do_all>
+                  <find_gate name="this.gate" nearest="1">
+                    <sector sector="{object.sector@L2M03.PirateBase}"/>
+                  </find_gate>
+                  <do_if value="{object.destination.exists@this.gate}" exact="1">
+                    <do_if value="{object.sector@this.gate}" exact="{player.sector}">
+                      <set_object name="this.gate" value="{object.destination@this.gate}"/>
+                    </do_if>
+                  </do_if>
+                  <create_ship name="L2M03.GonerM6" capturable="0" typename="SS_SH_A_M6M_PROTO" invincible="1" race="goner" racelogic="0">
+                    <position object="this.gate"/>
+                    <sector sector="{object.sector@this.gate}"/>
+                    <equipment loadout="maximum"/>
+                    <command command="moveposition" distance="55km">
+                      <position object="L2M03.PirateBase"/>
+                      <sector sector="{object.sector@L2M03.PirateBase}"/>
+                    </command>
+                  </create_ship>
+                  <set_actor_location actor="L2M03.Hall" object="L2M03.GonerM6" location="crew"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M03 Sc5 St2 Speak To Player">
+                  <condition>
+                    <object_sector object="L2M03.GonerM6" exact="0">
+                      <sector sector="{player.sector}"/>
+                    </object_sector>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <play_text actor="L2M03.Hall" textid="344501"/>
+                      <create_offer actor="L2M03.Hall" conversation="L2M03Conv51" cue="L2M03 Scene 5" discipline="XXXXP"/>
+                      <incoming_message author="{actor.name@L2M03.Hall}" text="{{actor.voice@L2M03.Hall},344501}" silent="1"/>
+                      <set_objective cue="L2M03 Scene 5" noabort="1">
+                        <briefing cue="L2M03 Scene 5" step="2"/>
+                        <talkto actor="L2M03.Hall"/>
+                      </set_objective>
+                      <create_briefing cue="L2M03 Scene 5">
+                        <objectives>
+                          <objective step="2">
+                            <talkto actor="L2M03.Hall"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M03 Sc5 St2 Talked To">
+                      <condition>
+                        <conversation_completed conversation="L2M03Conv51" actor="L2M03.Hall" answer="accept"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="L2M03.Hall" conversation="L2M03Conv51" discipline="XXXXP"/>
+                          <create_actor name="L2M03.PirateDockManager" character="{3895,41}" voice="3841" race="argon" object="L2M03.PirateBase" location="crew"/>
+                          <create_offer actor="L2M03.PirateDockManager" conversation="L2M03Conv52F" discipline="XXXXP"/>
+                          <create_actor name="L2M03.SerKeppel" character="{3895,35}" face="102" voice="110" race="terran" object="L2M03.PirateBase" location="crew"/>
+                          <create_offer actor="L2M03.SerKeppel" conversation="L2M03Conv51SerKep"/>
+                          <set_invincible object="L2M03.SerKeppel" invincible="1"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Sc5 St2 PDM Allow" delay="500">
+                          <condition>
+                            <object_has_cargo>
+                              <ware typename="SS_WARE_F258" min="35"/>
+                            </object_has_cargo>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <remove_offer actor="L2M03.PirateDockManager" conversation="L2M03Conv52F" discipline="XXXXP"/>
+                              <create_offer actor="L2M03.PirateDockManager" conversation="L2M03Conv52" discipline="XXXXP"/>
+                              <reset_cue cue="L2M03 Sc5 St2 PDM Block"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M03 Sc5 St2 PDM Granted">
+                              <condition>
+                                <conversation_completed actor="L2M03.PirateDockManager" conversation="L2M03Conv52" answer="accept"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <remove_offer actor="L2M03.PirateDockManager" conversation="L2M03Conv52" discipline="XXXXP"/>
+                                  <set_relation object="L2M03.PirateBase">
+                                    <relation relation="friend"/>
+                                  </set_relation>
+                                  <cancel_cue cue="L2M03 Sc5 St2 PDM Block"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M03 Sc5 St2 Enemy">
+                                  <condition>
+                                    <!--pirate base is enemy again-->
+                                    <object_relation object="L2M03.PirateBase">
+                                      <relation relation="enemy"/>
+                                    </object_relation>
+                                  </condition>
+                                  <cues>
+                                    <cue name="L2M03 Sc5 St2 Enemy OOS">
+                                      <condition>
+                                        <!--player has left sector so they forget his indiscretion-->
+                                        <object_sector exact="0" negate="1">
+                                          <sector sector="{object.sector@L2M03.PirateBase}"/>
+                                        </object_sector>
+                                      </condition>
+                                      <action>
+                                        <do_all>
+                                          <reset_cue cue="L2M03 Sc5 St2 PDM Block"/>
+                                          <reset_cue cue="L2M03 Sc5 St2 PDM Allow"/>
+                                        </do_all>
+                                      </action>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L2M03 Sc5 St2 PDM Block" delay="500">
+                          <condition>
+                            <object_has_cargo>
+                              <ware typename="SS_WARE_F258" max="34"/>
+                            </object_has_cargo>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <remove_offer actor="L2M03.PirateDockManager" conversation="L2M03Conv52" discipline="XXXXP"/>
+                              <create_offer actor="L2M03.PirateDockManager" conversation="L2M03Conv52F" discipline="XXXXP"/>
+                              <reset_cue cue="L2M03 Sc5 St2 PDM Allow"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                        <cue name="L2M03 Sc5 St2 Warp Goner">
+                          <timing>
+                            <time exact="15s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <!--<set_command object="L2M03.GonerM6" command="none"/>
+                              <warp_object object="L2M03.GonerM6">
+                                <position x="0" max="20km"/>
+                                <sector sector="L2M03.EoL"/>
+                              </warp_object>-->
+                              <clear_actor_location actor="L2M03.Hall"/>
+                              <destroy_object object="L2M03.GonerM6" warp="1"/>
+                              <create_ship name="L2M03.GonerM6" capturable="0" typename="SS_SH_A_M6M_PROTO" invincible="1" race="goner" racelogic="0">
+                                <position x="0" max="20km"/>
+                                <sector sector="L2M03.EoL"/>
+                                <equipment loadout="maximum"/>
+                                <command command="idle"/>
+                              </create_ship>
+                              <set_actor_location actor="L2M03.Hall" object="L2M03.GonerM6" location="crew"/>
+                              <create_briefing cue="L2M03 Scene 5">
+                                <objectives>
+                                  <objective step="2">
+                                    <custom action="{35,2012}" text="{actor.name@L2M03.Hall}"/>
+                                  </objective>
+                                </objectives>
+                              </create_briefing>
+                            </do_all>
+                          </action>
+                          <!--<cues>
+                            <cue name="L2M03 Sc5 St2 Goner IS" delay="5s">
+                              <condition>
+                                <object_sector object="L2M03.GonerM6" exact="0">
+                                  <sector sector="L2M03.EoL"/>
+                                </object_sector>
+                              </condition>
+                              <action>
+                                <set_command object="L2M03.GonerM6" command="idle"/>
+                              </action>
+                            </cue>
+                          </cues>-->
+                        </cue>
+                        <cue ref="L0M04 B">
+                          <params>
+                            <param name="Cue" value="L2M03 Scene 5"/>
+                            <param name="ID" value="1"/>
+                            <param name="Step" value="3"/>
+                            <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                            <param name="OfferRace" value="{lookup.race@goner}"/>
+                            <param name="Lv1Guide" value="L2M03.SerKeppel"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L2M03 Scene 5.RewardCr"/>
+                            <param name="PageID" value="3203"/>
+                            <param name="TextID" value="151"/>
+                            <param name="Buyer" value="L2M03.SerKeppel"/>
+                            <param name="Ware1" value="{lookup.type@SS_WARE_F258}"/>
+                            <param name="Ware1Amt" value="35"/>
+                            <param name="Ware2" value="{lookup.type@SS_WARE_MINE_1}"/>
+                            <param name="Ware2Amt" value="60"/>
+                            <param name="RoundReward" value="1"/>
+                            <param name="IsPlot" value="1"/>
+                          </params>
+                        </cue>
+                        <cue name="L2M03 Sc5 St2 Wait">
+                          <condition>
+                            <cue_completed cue="L0M04 B"/>
+                          </condition>
+                          <timing>
+                            <time min="50" max="100"/>
+                          </timing>
+                          <cues>
+                            <cue ref="L0M04" comment="Mission 0.3">
+                              <params>
+                                <param name="Cue" value="L2M03 Scene 5"/>
+                                <param name="ID" value="1"/>
+                                <param name="Step" value="3"/>
+                                <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                                <param name="OfferRace" value="{lookup.race@goner}"/>
+                                <param name="Lv1Guide" value="L2M03.SerKeppel"/>
+                                <param name="Difficulty" value="{lookup.level@average}"/>
+                                <param name="RewardCr" value="L2M03 Scene 5.RewardCr"/>
+                                <param name="PageID" value="3203"/>
+                                <param name="TextID" value="151"/>
+                                <param name="IsPlot" value="1"/>
+                              </params>
+                            </cue>
+                            <cue name="L2M03 Sc5 St2 End">
+                              <condition>
+                                <check_value value="{value@L2M03 Scene 5.1 L0M04 Progress}" exact="1"/>
+                              </condition>
+                              <action>
+                                <create_briefing cue="L2M03 Scene 5">
+                                  <objectives>
+                                    <objective step="1">
+                                      <custom action="{35,2004}" text="{35,2151}"/>                                    </objective>
+                                    <objective step="3">
+                                      <custom action="{35,2003}" text="35 x {lookup.type.name@SS_WARE_F258}"/>
+                                    </objective>
+                                    <objective step="4">
+                                      <custom action="{35,2003}" text="60 x {lookup.type.name@SS_WARE_MINE_1}"/>
+                                    </objective>
+                                  </objectives>
+                                </create_briefing>
+                              </action>
+                              <cues>
+                                <cue name="L2M03 Build Temple Full" delay="2s">
+                                  <condition>
+                                    <check_value value="{player.sector}" exact="{sector@L2M03.EoL}" negate="1"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <remove_offer actor="L2M03.SerKeppel" conversation="L2M03Conv51SerKep"/>
+                                      <destroy_object object="L2M03.tempconstruction"/>
+                                      <create_station name="L2M03.TheGonerTemple" race="goner" typename="SS_DOCK_GONER_NEW" invincible="1">
+                                        <position x="6300m" y="-750m" z="-4300m"/>
+                                        <rotation alpha="32768"/>
+                                        <sector sector="L2M03.EoL"/>
+                                        <equipment loadout="default"/>
+                                        <products>
+                                          <ware typename="SS_WARE_BEAMING" exact="8"/>
+                                          <ware typename="SS_WARE_TECH209" exact="50"/>
+                                          <ware typename="SS_WARE_WARPING" exact="2"/>
+                                          <ware typename="SS_WARE_L_A" exact="1"/>
+                                        </products>
+                                        <relations>
+                                          <relation relation="friend"/>
+                                        </relations>
+                                      </create_station>
+                                      <create_special typename="SS_SPECIAL_GONERSIGN" channel="-1">
+                                        <position object="L2M03.TheGonerTemple"/>
+                                        <rotation alpha="32768"/>
+                                      </create_special>
+                                      <set_safety object="L2M03.TheGonerTemple" safety="0"/>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M03 Sc5 St2 Idle">
+                  <condition>
+                    <object_finished object="L2M03.GonerM6"/>
+                  </condition>
+                  <action>
+                    <set_command object="L2M03.GonerM6" command="idle"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M03 Sc5 St3" delay="100">
+              <condition>
+                <cue_is_complete cue="L2M03 Sc5 St2 End"/>
+              </condition>
+              <cues>
+                <cue ref="L0M03 B">
+                  <params>
+                    <param name="Cue" value="L2M03 Scene 5"/>
+                    <param name="ID" value="5"/>
+                    <param name="Step" value="5"/>
+                    <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                    <param name="OfferRace" value="{lookup.race@goner}"/>
+                    <param name="Lv1Guide" value="L2M03.SerKeppel"/>
+                    <param name="Passenger" value="L2M03.SerKeppel"/>
+                    <param name="Dest" value="L2M03.GonerTL"/>
+                    <!--switch for the completed goner temple???-->
+                    <param name="Difficulty" value="{lookup.level@average}"/>
+                    <param name="RewardCr" value="L2M03 Sc5 St3.RewardCr"/>
+                    <param name="PageID" value="3203"/>
+                    <param name="TextID" value="151"/>
+                    <param name="IsPlot" value="1"/>
+                  </params>
+                </cue>
+                <cue name="L2M03 Sc5 St3 Wait">
+                  <condition>
+                    <cue_completed cue="L0M03 Create Briefing"/>
+                  </condition>
+                  <timing>
+                    <time min="50" max="100"/>
+                  </timing>
+                  <cues>
+                    <cue ref="L0M03" comment="Mission 0.3">
+                      <params>
+                        <param name="Cue" value="L2M03 Scene 5"/>
+                        <param name="ID" value="5"/>
+                        <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                        <param name="OfferRace" value="{lookup.race@goner}"/>
+                        <param name="Lv1Guide" value="L2M03.SerKeppel"/>
+                        <param name="Difficulty" value="{lookup.level@average}"/>
+                        <param name="RewardCr" value="L2M03 Sc5 St3.RewardCr"/>
+                        <param name="PageID" value="3203"/>
+                        <param name="TextID" value="151"/>
+                        <param name="AddText" value="1"/>
+                        <param name="IsPlot" value="1"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M03 Sc5 St3 On Board">
+                      <condition>
+                        <check_all>
+                          <check_value value="{actor.station@L2M03.SerKeppel}" exact="{object@L2M03.PirateBase}" negate="1"/>
+                          <check_value value="{actor.ship.exists@L2M03.SerKeppel}" exact="1"/>
+                          <object_is_docked object="{player.ship}" negate="1"/>
+                        </check_all>
+                      </condition>
+                      <timing>
+                        <time min="4s" max="8s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <do_if value="{actor.sector@L2M03.SerKeppel}" exact="{player.sector}">
+                            <play_text actor="L2M03.SerKeppel" textid="354502"/>
+                            <incoming_message author="{actor.name@L2M03.SerKeppel}" text="{110,537}" silent="1"/>
+                          </do_if>
+                          <cancel_cue cue="L2M03 Sc5 St2 PDM Allow"/>
+                          <cancel_cue cue="L2M03 Sc5 St2 PDM Block"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Sc5 St3 Base Cutscene Wait">
+                          <timing>
+                            <time exact="15s"/>
+                          </timing>
+                        </cue>
+                        <cue name="L2M03 Sc5 St3 Base Cutscene">
+                          <condition>
+                            <check_all>
+                              <cue_completed cue="L2M03 Sc5 St3 Base Cutscene Wait"/>
+                              <object_sector exact="0">
+                                <sector sector="{object.sector@L2M03.PirateBase}"/>
+                              </object_sector>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <play_cutscene file="Goner Plot S5 C1"/>
+                              <set_object name="this.PirateBase" value="{object@L2M03.PirateBase}"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                        <cue name="L2M03 Sc5 St3 Destroy Base">
+                          <timing>
+                            <time exact="18s"/>
+                          </timing>
+                          <action>
+                            <destroy_object object="L2M03.PirateBase" explosion="1"/>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M03 Sc5 St3 End">
+                      <condition>
+                        <check_value value="{value@L2M03 Scene 5.5 L0M03 Progress}" exact="1"/>
+                      </condition>
+                      <timing>
+                        <time exact="6s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <add_inventory typename="SS_WARE_UNFOCUS_JUMP"/>
+                          <set_highlight object="L2M03.GonerTL" highlight="0"/>
+                          <set_invincible object="L2M03.EoL Station" invincible="0"/>
+                          <destroy_actor actor="L2M03.SerKeppel"/>
+                          <set_value name="this.value" exact="{text.duration@{actor.voice@L2M03.Hall},344506}"/>
+                          <play_text actor="L2M03.Hall" textid="344506" priority="99"/>
+                          <incoming_message author="{actor.name@L2M03.Hall}" text="{{actor.voice@L2M03.Hall},344506}" silent="1"/>
+                          <remove_briefing cue="L2M03 Scene 5"/>
+                          <remove_objective cue="L2M03 Scene 5" status="complete"/>
+                          <enable_gamestart requirements="64"/>
+                          <reward_player>
+                            <money exact="{value@L2M03 Sc5 St3.RewardCr}"/>
+                          </reward_player>
+                          <!--incase not cancelled yet-->
+                          <cancel_cue cue="L2M03 Sc5 St3 Base Cutscene"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M03 Sc5 St3 Movie">
+                          <condition>
+                            <cue_completed cue="L2M03 Sc5 St3 End"/>
+                          </condition>
+                          <timing>
+                            <time exact="{text.duration@3834,344506}+2s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <play_movie movieid="8150"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>O9JAjnXutq+4YW3Kvrrfwf4B660CiqICdfWQFZqHIXgxiBGnzRqdZ95zozOlYPQAF1bm1Mj71nD1J+fhWNh5FK50AXFlmyHcyU8vDb3QBv/1ae09olbw+5tXtzJRVfglLLuTI+bLpq1IG0kgeldO+WUycDHWSk7MiG7VE3uDEkAIlYVd70mkxAhjlzDAL8bnkPIWNabr3RGz84aG2CIFY1xBnHRO4298RjseDQECshC0uO8adm7hQ6TcS6ueVqrF7M3TfE1ee8qRvhDGWv/6YJWAqCPkFE6gUTfizJ6IYzJ50Oa5n3odm0GmxoJJWcKT10Kl42zTkqR0uUaUPgDIkA==</signature>
+</director>
+
+
+

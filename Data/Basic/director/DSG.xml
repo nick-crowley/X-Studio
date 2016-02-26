@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Daniel Winsor" alias="AalaarDB" contact="aalaardb@gmail.com" />
+    <content reference="utility" name="Destroy Ship Gracefully" description="Destroys a ship without the player realizing it"/>
+    <version number="1" status="development" date="14/04/08"/>
+  </documentation>
+  <cues>
+    <cue name="DSG" library="1">
+      <documentation>
+        <content type="utility"/>
+        <version number="0.2" status="development"/>
+        <params>
+          <!-- Make sure you've set capturable flag if you want it one way or another
+          and make sure weird wares are destroyed if you don't want them being captured-->
+          <param name="groupToDestroy" type="groupname" compulsory="1"
+                 description="The actual group to destroy, including scope if needed (eg groupToDestroy = myCue.myGroup)"/>
+          <param name="cancelCue" type="cuename" compulsory="0" description="When the library is done, cancel this cue"/>
+
+          <param name="allowJump" type="boolean" default="1" compulsory="1" description="Is the group allowed to jump out of existance?"/>
+          <param name="allowFly" type="boolean" default="1" compulsory ="1" description="Is the group allowed to fly away until in a sector the player isn't in?"/>
+          <param name="allowDock" type="boolean" default="1" compulsory="1" description="Is the group allowed to dock internally and then destruct?"/>
+          <param name="allowCombat" type="boolean" default="1" compulsory="1" description="Is the group allowed to starting the command kill all enemies, and be destroyed in combat?"/>
+          
+          <param name="preferJump" type="boolean" default="0" compulsory="0" description="If we prefer to do this, we will try this first, but we could still try something else if this fails"/>
+          <param name="preferFly" type="boolean" default="0" compulsory="0" description="If we prefer to do this, we will try this first, but we could still try something else if this fails"/>
+          <param name="preferDock" type="boolean" default="0" compulsory="0" description="If we prefer to do this, we will try this first, but we could still try something else if this fails"/>
+          <param name="preferCombat" type="boolean" default="0" compulsory="0" description="If we prefer to do this, we will try this first, but we could still try something else if this fails"/>
+          
+          <param name="needsJumpDrive" type="boolean" default="0" compulsory="0" description="If the group is allowed to jump, do they need jump drives or can they fake it?"/>
+        </params>
+        <history>
+          <change author="AalaarDB" date="July 16, 08" description="added visible check"/>
+        </history>
+        <todo>
+          <item priority="critical" description="check that followers are destroyed ok when leader docks, changes sector"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_if value="{param.exists@groupToDestroy}" exact="0">
+            <cancel_cue cue="DSG"/>
+          </do_if>
+          <do_if value="{group.object.count@{param@groupToDestroy}}" exact="0">
+            <cancel_cue cue="DSG"/>
+          </do_if>
+
+          <set_value name="this.forceDestroy" exact="0"/>
+          <set_value name="this.destroyByJumping" exact="0"/>
+          <set_value name="this.failedCount" exact="0"/>
+
+          <set_value name="this.allowDock" exact="1"/>
+          <set_value name="this.allowFly" exact="1"/>
+          <set_value name="this.allowJump" exact="1"/>
+          <set_value name="this.allowCombat" exact="1"/>
+
+          <do_if value="{param.exists@allowDock}" exact="1">
+            <set_value name="this.allowDock" exact="{param@allowDock}"/>
+          </do_if>
+          <do_if value="{param.exists@allowFly}" exact="1">
+            <set_value name="this.allowFly" exact="{param@allowFly}"/>
+          </do_if>
+          <do_if value="{param.exists@allowJump}" exact="1">
+            <set_value name="this.allowJump" exact="{param@allowJump}"/>
+          </do_if>
+          <do_if value="{param.exists@allowCombat}" exact="1">
+            <set_value name="this.allowCombat" exact="{param@allowCombat}"/>
+          </do_if>
+          
+          <do_if value="{param.exists@preferDock}" exact="1">
+            <set_value name="this.preferDock" exact="50 * {param@preferDock}"/>
+          </do_if>
+          <do_if value="{param.exists@preferFly}" exact="1">
+            <set_value name="this.preferFly" exact="50 * {param@preferFly}"/>
+          </do_if>
+          <do_if value="{param.exists@preferJump}" exact="1">
+            <set_value name="this.preferJump" exact="50 * {param@preferJump}"/>
+          </do_if>
+          <do_if value="{param.exists@preferCombat}" exact="1">
+            <set_value name="this.preferCombat" exact="50 * {param@preferCombat}"/>
+          </do_if>
+
+          <do_all exact="{group.object.count@{param@groupToDestroy}}" counter="iterations"
+                  comment="We don't know the scope of the original group, and we do not want it disappearing in case the cue it is in disappears!
+                  if that happened, the library would see the group as empty and the ships would never be destroyed
+                  we must therefore copy the group over into this scope, where it is easier handled">
+            <set_object value="{group.object.{counter@iterations}@{param@groupToDestroy}}" group="DSG.groupToDestroy" name="DSG.tempObject{counter@iterations}"/>
+          </do_all>
+        </do_all>
+      </action>
+      <force>
+        <do_all>
+          <set_value name="this.forceDestroy" exact="1"/>
+          <reset_cue cue="DSG Starting Point"/>
+        </do_all>
+      </force>
+      <cues>
+        <cue name="Destruction And Removal Library" library="1"
+             comment="The destruction order goes:
+                 1. remove any player and captured ships, discard
+                 2. remove any OOS and docked ships, keep them for next step
+                 3. destroy the OOS and docked ships
+                 4. force destroy all remaining if necessary">
+          <cues>
+            <cue name="Remove Player And Captured Ships"
+                 comment="whoops! the ship's race changed to player or abandoned, maybe it was captured or scripted
+                     CAPTURE is allowed as a method of getting rid of the ship but is up to the caller to set capturable flag (ie it's not a param)">
+              <cues>
+                <cue ref="ROFG">
+                  <params>
+                    <param name="objectGroup" value="groupToDestroy"/>
+                    <param name="groupCue" value="DSG"/>
+                    <param name="cancelCue" value="Remove Player And Captured Ships"/>
+                    <param name="numberOfChecks" value="2"/>
+
+                    <param name="checkText1" value="race"/>
+                    <param name="checkValue1" value="{lookup.race@player}"
+                           comment="remove any player owned ships, these are not destroyed with this library!"/>
+
+                    <param name="checkText2" value="race"/>
+                    <param name="checkValue2" value="{lookup.race@abandoned}"
+                           comment="remove any abandoned ships, these have bailed pilots but aren't claimed by player yet"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+
+            <cue name="Remove Ships"
+                 comment="destroy if the ship is not in the player's sector, don't even bother with anything like docking this ship,
+                     also destroy if the ship is docked, or if not visible">
+              <condition>
+                <cue_cancelled cue="Remove Player And Captured Ships"/>
+              </condition>
+              <cues>
+                <cue ref="ROFG">
+                  <params>
+                    <param name="objectGroup" value="groupToDestroy"/>
+                    <param name="groupCue" value="DSG"/>
+                    <param name="cancelCue" value="Remove Ships"/>
+                    <param name="removedGroup" value="shipsToDestroy"/>
+                    <param name="numberOfChecks" value="3"/>
+
+                    <param name="checkText1" value="sector"/>
+                    <param name="checkValue1" value="{player.sector}"/>
+                    <param name="negateCheck1" value="1"
+                           comment="remove any ships whose sector is not the same as the player's sector"/>
+
+                    <param name="checkText2" value="dockobject.exists"/>
+                    <param name="checkValue2" value="1"
+                           comment="remove any ships that have a dockobject"/>
+                    
+                    <param name="checkText3" value="visible"/>
+                    <param name="checkValue3" value="0"
+                           comment="remove any ships that aren't visible"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+
+            <cue name="Destroy Removed Ships">
+              <condition>
+                <cue_cancelled cue="Remove Ships"/>
+              </condition>
+              <action>
+                <do_if value="{group.object.count@DSG.shipsToDestroy}" min="1">
+                  <destroy_group group="DSG.shipsToDestroy"/>
+                </do_if>
+              </action>
+            </cue>
+
+            <cue name="Destroy Remaining">
+              <condition>
+                <cue_completed cue="Destroy Removed Ships"/>
+              </condition>
+              <cues>
+                <cue name="Force Destroy" check="complete">
+                  <condition>
+                    <check_any>
+                      <check_value value="{value@DSG.forceDestroy}" exact="1"/>
+                      <check_value value="{value@DSG.failedCount}" exact="4"
+                                   comment="at least one option must be available
+                                   if there is no way to destroy the ship gracefully, just force it
+                                   this can happen if no methods are allowed, or the ship is only allowed to jump but doesn't have jumpdrive, etc"/>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_if value="{group.object.count@DSG.groupToDestroy}" min="1">
+                      <do_choose>
+                        <do_when value="{value@DSG.destroyByJumping}" exact="1">
+                          <destroy_group group="DSG.groupToDestroy" warp="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <destroy_group group="DSG.groupToDestroy" explosion="0"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_if>
+                  </action>
+                </cue>
+
+                <cue name="Destruction And Removal Library Done">
+                  <condition>
+                    <cue_completed cue="Force Destroy"/>
+                  </condition>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="DSG Starting Point" comment="the logic part of this library starts here">
+          <cues>
+            <cue name="End DSG" delay="10s">
+              <condition>
+                <any_object_exists group="DSG.groupToDestroy" negate="1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{group.object.count@DSG.shipsToDestroy}" min="1">
+                    <destroy_group group="DSG.shipsToDestroy"/>
+                  </do_if>
+                  <do_if value="{param.exists@cancelCue}" exact="1">
+                    <cancel_cue cue="{param@cancelCue}"/>
+                  </do_if>
+                  <cancel_cue cue="DSG"/>
+                </do_all>
+              </action>
+            </cue>
+
+            <cue name="Destruction Failsafe" comment="destroy after 1 hour, as a failsafe">
+              <timing>
+                <time exact="3600s"/>
+              </timing>
+              <action>
+                <set_value name="DSG.forceDestroy" exact="1"/>
+              </action>
+              <cues>
+                <cue ref="Destruction And Removal Library"/>
+              </cues>
+            </cue>
+
+            <cue name="Check To Remove Ship" instantiate="static">
+              <condition>
+                <check_any>
+                  <any_object_changed_sector group="DSG.groupToDestroy"/>
+                  <any_object_docked group="DSG.groupToDestroy"/>
+                  <any_object_captured group="DSG.groupToDestroy"
+                                       comment="We want this library to end as soon as the objects are gone from the group
+                                       if a ship is captured (pilot bailed, changed to neutral or abandoned owner),
+                                       it would remain in the group and fool the End DSG cue, so remove it"/>
+                </check_any>
+              </condition>
+              <cues>
+                <cue ref="Destruction And Removal Library"/>
+              </cues>
+            </cue >
+
+            <cue name="Remove Non Ships">
+              <action ref="ROFG">
+                <params>
+                  <param name="objectGroup" value="groupToDestroy"/>
+                  <param name="groupCue" value="DSG"/>
+                  <param name="cancelCue" value="Remove Non Ships"/>
+                  <param name="numberOfChecks" value="1"/>
+
+                  <param name="checkText1" value="isclass.ship"/>
+                  <param name="checkValue1" value="0"/>
+                </params>
+              </action>
+            </cue>
+
+            <cue name="Start Destruction And Removal Cycle"
+                 comment="after removing non ships, we need to run this once before we do anything else">
+              <condition>
+                <cue_cancelled cue="Remove Non Ships"/>
+              </condition>
+              <cues>
+                <cue ref="Destruction And Removal Library"/>
+                
+                <cue name="Pick Method" comment="Once player ships have been removed and OOS/docked ships destroyed for the first time, start trying to destroy ones in this sector">
+                  <condition>
+                    <cue_completed cue="Destruction And Removal Library Done"/>
+                  </condition>
+                  <cues>
+                    <cue name="Method Failed" instantiate="static">
+                      <condition>
+                        <check_any>
+                          <cue_cancelled cue="Try To Jump"/>
+                          <cue_cancelled cue="Try To Dock"/>
+                          <cue_cancelled cue="Try To Fly"/>
+                          <cue_cancelled cue="Try Combat"/>
+                        </check_any>
+                      </condition>
+                      <action>
+                        <set_value name="DSG.failedCount" operation="add" exact="1"/>
+                      </action>
+                      <cues>
+                        <cue name="Call Destruction Library">
+                          <condition>
+                            <check_value value="{value@DSG.failedCount}" exact="4"/>
+                          </condition>
+                          <cues>
+                            <cue ref="Destruction And Removal Library"/>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+
+                    <cue name="Try Combat" check="cancel">
+                      <condition>
+                        <check_value value="{value@DSG.allowCombat}" exact="1"/>
+                      </condition>
+                      <timing>
+                        <time min="50-{value@DSG.preferCombat}" max="100-{value@DSG.preferCombat}"
+                              comment="whichever cue starts and completes first halts the progress of the others!"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <do_if value="{value@DSG.success}" exact="0">
+                            <set_value name="DSG.success" exact="1"/>
+                            <set_group_command group="DSG.groupToDestroy" command="killenemies"/>
+                            <set_group_invincible group="DSG.groupToDestroy" invincible="0"/>
+                          </do_if>
+                        </do_all>
+                      </action>
+                    </cue>
+
+                    <cue name="Try To Jump" check="cancel">
+                      <condition>
+                        <check_value value="{value@DSG.allowJump}" exact="1"/>
+                      </condition>
+                      <timing>
+                        <time min="50-{value@DSG.preferJump}" max="100-{value@DSG.preferJump}"
+                              comment="whichever cue starts and completes first halts the progress of the others!"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <do_if value="{value@DSG.success}" exact="0">
+                            <do_if value="{group.object.count@DSG.groupToDestroy}" exact="0">
+                              <set_value name="DSG.allowJump" exact="0"/>
+                              <cancel_cue cue="Try To Jump"/>
+                            </do_if>
+
+                            <do_if value="{param.needsJumpDrive}*{param.exists@needsJumpDrive}" exact="1">
+                              <do_all exact="{group.object.count@DSG.groupToDestroy}" counter="iterations">
+                                <do_if value="{object.equipment.SS_WARE_WARPING.exists@{group.object.{counter@iterations}@DSG.groupToDestroy}}" exact="0">
+                                  <set_value name="DSG.allowJump" exact="0"/>
+                                  <cancel_cue cue="Try To Jump"/>
+                                </do_if>
+                              </do_all>
+                            </do_if>
+
+                            <do_if value="{value@DSG.allowJump}" exact="1">
+                              <set_value name="DSG.success" exact="1"/>
+                              <set_value name="DSG.forceDestroy" exact="1"/>
+                              <set_value name="DSG.destroyByJumping" exact="1"/>
+                              <reset_cue cue="Destruction And Removal"/>
+                            </do_if>
+                          </do_if>
+                        </do_all>
+                      </action>
+                    </cue>
+
+                    <cue name="Try To Fly" check="cancel">
+                      <condition>
+                        <check_value value="{value@DSG.allowFly}" exact="1"/>
+                      </condition>
+                      <timing>
+                        <time min="50-{value@DSG.preferFly}" max="100-{value@DSG.preferFly}"
+                              comment="whichever cue starts and completes first halts the progress of the others!"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <do_if value="{value@DSG.success}" exact="0">
+                            <do_if value="{group.object.count@DSG.groupToDestroy}" exact="0">
+                              <set_value name="DSG.allowFly" exact="0"/>
+                              <cancel_cue cue="Try To Fly"/>
+                            </do_if>
+
+                            <do_if value="{value@DSG.allowFly}" exact="1">
+                              <find_sector exact="1" name="this.sectorToFlyTo" sector="{object.sector@{group.object.random@DSG.groupToDestroy}}"/>
+                              <do_if value="{sector.exists@this.sectorToFlyTo}" exact="0">
+                                <set_value name="DSG.allowFly" exact="0"/>
+                                <cancel_cue cue="Try To Fly"/>
+                              </do_if>
+                            </do_if>
+
+                            <do_if value="{value@DSG.allowFly}" exact="1">
+                              <set_group_leader object="{group.slowest@DSG.groupToDestroy}" group="DSG.groupToDestroy"/>
+                              <set_value name="DSG.success" exact="1"/>
+                              <set_value name="this.shouldFly" exact="1"/>
+                            </do_if>
+                          </do_if>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="Wait To Fly">
+                          <condition>
+                            <check_all>
+                              <cue_completed cue="Try To Fly"/>
+                              <check_value value="{value@parent.shouldFly}" exact="1"/>
+                            </check_all>
+                          </condition>
+                          <cues>
+                            <cue ref="COM02">
+                              <params>
+                                <param name="GroupName" value="DSG.groupToDestroy"/>
+                                <param name="SectorName" value="Try To Fly.sectorToFlyTo"/>
+                              </params>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+
+                    <cue name="Try To Dock" check="cancel">
+                      <condition>
+                        <check_value value="{value@DSG.allowDock}" exact="1"/>
+                      </condition>
+                      <timing>
+                        <time min="50-{value@DSG.preferDock}" max="100-{value@DSG.preferDock}"
+                              comment="whichever cue starts and completes first halts the progress of the others!"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <do_if value="{value@DSG.success}" exact="0">
+                            <do_if value="{group.object.count@DSG.groupToDestroy}" exact="0">
+                              <set_value name="DSG.allowDock" exact="0"/>
+                              <cancel_cue cue="Try To Dock"/>
+                            </do_if>
+
+                            <do_if value="{value@DSG.allowDock}" exact="1">
+                              <find_station name="this.stationToDockAt" dockingallowed="1" findobject="{group.largest@DSG.groupToDestroy}">
+                                <sector sector="{object.sector@{group.largest@DSG.groupToDestroy}}"/>
+                              </find_station>
+                              <do_if value="{object.exists@this.stationToDockAt}" exact="0">
+                                <set_value name="DSG.allowDock" exact="0"/>
+                                <cancel_cue cue="Try To Dock"/>
+                              </do_if>
+                            </do_if>
+
+                            <do_if value="{value@DSG.allowDock}" exact="1">
+                              <set_group_leader object="{group.largest@DSG.groupToDestroy}" group="DSG.groupToDestroy"/>
+                              <set_value name="DSG.success" exact="1"/>
+                              <set_value name="this.shouldDock" exact="1"/>
+                            </do_if>
+                          </do_if>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="Wait To Dock">
+                          <condition>
+                            <check_all>
+                              <cue_completed cue="Try To Dock"/>
+                              <check_value value="{value@parent.shouldDock}" exact="1"/>
+                            </check_all>
+                          </condition>
+                          <cues>
+                            <cue ref="COM01">
+                              <params>
+                                <param name="GroupName" value="DSG.groupToDestroy"/>
+                                <param name="DestName" value="Try To Dock.stationToDockAt"/>
+                                <param name="Follow Leader" value="1"/>
+                                <param name="Cleanup Individuals" value="1"/>
+                                <param name="Reset Leader" value="1"/>
+                              </params>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>vKpN7wiTkIQLK+HQU4t0HJoLlSItD7GIEtb0ZOS4gxtePmdWTWjjfyhI89LoXnUMkforej9M0cWvOk6PSH17GOQ4rBQ5KRWvGqpPLOrtw1pKSV3vWKtlwwtqtdAbB7orxi++23LySxFMfokgJdadz+6SRCcS+G032SBcTqsKCNXyehAVBtIDi6KiL0qTCYT95pNkQ+e+ne1rmVwMtfV1NOngd+BLUyUYi5PednhAHM8ItXt4FIWwRw4s9F9luNDYnrHWyqL/nJ/qiLqHjvT/wW6jAS9AOnL2EcxyfjnP93r0IMLpjYqMRXdDzz70Bm4364arEtkKUBXoCEr5kTWmiA==</signature>
+</director>

@@ -1,0 +1,1032 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M003" name="Terran Plot Scene 3" description="L2 Terran Plot Scene 3, Rescue Pearle"/>
+    <version number="0.2" date="11/06/2008" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L2M003" library="1">
+      <documentation>
+        <content name="Terran Plot Scene 3" reference="L2M003" type="L2"/>
+        <version date="11/06/2008" number="0.2" status="development"/>
+      </documentation>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_sector name="L2M003.HE" x="13" y="4" exact="0"/>
+          <find_sector name="L2M003.N Voyage" x="15" y="7" exact="0"/>
+          <find_sector name="L2M003.G Exchange" x="19" y="7" exact="0"/>
+          <find_sector name="L2M003.T O Greed" x="20" y="7" exact="0"/>
+          <find_sector name="L2M003.M148" x="14" y="8" exact="0"/>
+          <find_station class="trade" name="L2M003.NV Trade">
+            <sector sector="L2M003.N Voyage"/>
+          </find_station>
+          <do_if value="{object.exists@L2M003.NV Trade}" exact="0">
+            <create_station typename="SS_DOCK_A_TRADE" race="argon" name="L2M003.NV Trade">
+              <position x="5km" y="5km" z="-20km"/>
+              <sector sector="L2M003.N Voyage"/>
+              <equipment loadout="default"/>
+            </create_station>
+          </do_if>
+          <find_station typename="SS_FAC_R256" race="teladi" name="L2M003.G Exchange Station">
+            <sector sector="L2M003.G Exchange"/>
+          </find_station>
+          <do_if value="{object.exists@L2M003.G Exchange Station}" exact="0">
+            <create_station name="L2M003.G Exchange Station" race="teladi" typename="SS_FAC_R256">
+              <position x="-20km" y="10km" z="20km"/>
+              <sector sector="L2M003.G Exchange"/>
+              <equipment loadout="default"/>
+            </create_station>
+          </do_if>
+          <set_invincible object="L2M003.G Exchange Station" invincible="1"/>
+          <find_station class="dock" race="atf|terran" name="L2M003.HE Station">
+            <sector sector="L2M003.HE"/>
+          </find_station>
+          <do_if value="{object.exists@L2M003.HE Station}" exact="0">
+            <create_station name="L2M003.HE Station" race="terran" typename="SS_DOCK_TR_MILITARY_3">
+              <position x="2km"/>
+              <sector sector="L2M003.HE"/>
+              <equipment loadout="default"/>
+            </create_station>
+          </do_if>
+          <set_invincible object="L2M003.HE Station" invincible="1"/>
+          <find_station name="L2M003.Argon Military Station" race="argon" typename="SS_DOCK_A_MILITARY" nearest="1">
+            <position x="5968750" y="-562500" z="6531250"/>
+            <sector sector="L2M003.M148"/>
+          </find_station>
+          <do_if value="{object.exists@L2M003.Argon Military Station}" exact="0">
+            <create_station name="L2M003.Argon Military Station" race="argon" typename="SS_DOCK_A_MILITARY">
+              <position x="2km"/>
+              <sector sector="L2M003.M148"/>
+              <equipment loadout="default"/>
+            </create_station>
+          </do_if>
+          <set_invincible object="L2M003.Argon Military Station" invincible="1"/>
+          <set_value name="L2 Station {object@L2M003.Argon Military Station} No Access" exact="0"/>
+          <create_actor name="L2M003.Jackson" invincible="1" character="{3895,20}" face="1136" voice="3820" race="terran" object="L2M003.HE Station"/>
+          <create_offer actor="L2M003.Jackson" conversation="L2M003 No1" cue="L2M003" discipline="XXXXP"/>
+          <set_value name="L2M003.Step" exact="1"/>
+          <create_briefing cue="L2M003" story="{3200,1}" title="{3201,301}" text="{3201,311}" background="sector_terran_heretics_end.tga">
+            <mission discipline="XXXT" level="easy"/>
+            <objectives>
+              <objective step="{value@L2M003.Step}">
+                <custom action="{35,2012}" text="{actor.name@L2M003.Jackson}" actor="L2M003.Jackson"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <set_objective cue="L2M003" story="{3200,1}" title="{3201,301}" text="{3201,311}" noabort="1">
+            <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+            <mission discipline="XXXT" level="easy"/>
+            <custom action="{35,2012}" text="{actor.name@L2M003.Jackson}" actor="L2M003.Jackson"/>
+          </set_objective>
+          <set_value name="L2M003.Step" operation="add"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M003 Contact Jackson">
+          <condition>
+            <conversation_completed actor="L2M003.Jackson" conversation="L2M003 No1"/>
+          </condition>
+          <action>
+            <remove_offer actor="L2M003.Jackson" conversation="L2M003 No1" discipline="XXXXP"/>
+          </action>
+          <cues>
+            <cue name="L2M003 Fly to N Voyage">
+              <timing>
+                <time exact="15s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <create_briefing cue="L2M003" story="{3200,1}" background="sector_argon_nathans_voyage.tga">
+                    <mission discipline="XXXT" level="easy"/>
+                    <objectives>
+                      <objective step="{value@L2M003.Step}">
+                        <custom action="{35,2005}" text="{object.name@L2M003.NV Trade}" object="L2M003.NV Trade"/>
+                      </objective>
+                      <objective step="{value@L2M003.Step}+1">
+                        <custom action="{35,2012}" text="{3895,21}"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M003" story="{3200,1}" noabort="1">
+                    <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                    <mission discipline="XXXT" level="easy"/>
+                    <dockat object="L2M003.NV Trade"/>
+                  </set_objective>
+                  <set_value name="L2M003.Step" operation="add"/>
+                  <create_ship name="L2M003.HeywoodShip" race="argon" capturable="0" invincible="1" typename="SS_SH_A_M4P" racelogic="0">
+                    <position object="L2M003.NV Trade" min="5km" max="8km"/>
+                    <sector sector="L2M003.N Voyage"/>
+                    <equipment loadout="default"/>
+                  </create_ship>
+                  <create_actor name="L2M003.Heywood" invincible="1" character="{3895,22}" face="1137" voice="3822" race="argon" object="L2M003.HeywoodShip" location="pilot"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M003 Entered N Voyage" delay="5s">
+                  <condition>
+                    <object_position max="10km">
+                      <position object="L2M003.NV Trade"/>
+                    </object_position>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <destroy_actor actor="L2M003.Jackson"/>
+                      <set_invincible object="L2M003.NV Trade" invincible="0"/>
+                      <play_text actor="L2M003.Heywood" pageid="3822" textid="221301" priority="99"/>
+                      <play_cutscene file="Terran Plot S3 C1"/>
+                      <set_object name="L2M003.HeywoodShip" value="{object@L2M003.HeywoodShip}"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M003 Entered N Voyage Wait">
+                      <timing>
+                        <time exact="{text.duration@3822,221301}+1s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <create_briefing cue="L2M003" story="{3200,1}">
+                            <mission discipline="XXXT" level="easy"/>
+                            <thumbnails>
+                              <thumbnail image="SS_SH_A_M4P_ENH.tga" order="1"/>
+                            </thumbnails>
+                            <objectives>
+                              <objective step="{value@L2M003.Step}">
+                                <follow object="L2M003.HeywoodShip"/>
+                              </objective>
+                            </objectives>
+                          </create_briefing>
+                          <set_objective cue="L2M003" story="{3200,1}" noabort="1">
+                            <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                            <mission discipline="XXXT" level="easy"/>
+                            <follow object="L2M003.HeywoodShip"/>
+                          </set_objective>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M003 Heywood Intro" delay="5s">
+                          <condition>
+                            <check_all>
+                              <object_position max="800m">
+                                <position object="L2M003.HeywoodShip"/>
+                              </object_position>
+                              <cue_is_complete cue="L2M003 Entered N Voyage Wait"/>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <set_command object="L2M003.HeywoodShip" command="none"/>
+                              <create_offer actor="L2M003.Heywood" conversation="L2M003 No2" discipline="XXXXP" cue="L2M003"/>
+                              <create_briefing cue="L2M003" story="{3200,1}">
+                                <mission discipline="XXXT" level="easy"/>
+                                <objectives>
+                                  <objective step="{value@L2M003.Step}">
+                                    <custom action="{35,2012}" text="{actor.name@L2M003.Heywood}" actor="L2M003.Heywood"/>
+                                  </objective>
+                                </objectives>
+                              </create_briefing>
+                              <set_objective cue="L2M003" story="{3200,1}" noabort="1">
+                                <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                <mission discipline="XXXT" level="easy"/>
+                                <custom action="{35,2012}" text="{actor.name@L2M003.Heywood}" actor="L2M003.Heywood"/>
+                              </set_objective>
+                              <set_value name="L2M003.Step" operation="add"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M003 Head to Grand Exchange">
+                              <condition>
+                                <conversation_completed actor="L2M003.Heywood" conversation="L2M003 No2" answer="ready"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <remove_offer actor="L2M003.Heywood" conversation="L2M003 No2" discipline="XXXXP"/>
+                                  <set_command object="L2M003.HeywoodShip" command="moveposition" commandobject="L2M003.G Exchange Station"/>
+                                  <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}" title="{3201,302}" text="{3201,312}">
+                                    <mission discipline="XXXT" level="easy"/>
+                                    <objectives>
+                                      <objective step="{value@L2M003.Step}">
+                                        <custom action="{35,2007}" text="{object.name@L2M003.G Exchange Station}" object="L2M003.G Exchange Station"/>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" title="{3201,302}" text="{3201,312}" noabort="1">
+                                    <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                    <mission discipline="XXXT" level="easy"/>
+                                    <custom action="{35,2007}" text="{object.name@L2M003.G Exchange Station}" object="L2M003.G Exchange Station"/>
+                                  </set_objective>
+                                  <set_value name="L2M003.Step" operation="add"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M003 Meet Haleos" delay="2s">
+                                  <condition>
+                                    <check_any>
+                                      <object_position max="2km">
+                                        <position object="L2M003.G Exchange Station"/>
+                                      </object_position>
+                                      <object_is_docked dockobject="L2M003.G Exchange Station"/>
+                                    </check_any>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <set_command object="L2M003.HeywoodShip" command="none"/>
+                                      <do_choose>
+                                        <do_when value="{player.ship.dockobject.exists}" exact="1">
+                                          <warp_object object="L2M003.HeywoodShip">
+                                            <position object="{player.ship.dockobject}" exact="100m"/>
+                                            <sector sector="L2M003.G Exchange"/>
+                                          </warp_object>
+                                        </do_when>
+                                        <do_otherwise>
+                                          <warp_object object="L2M003.HeywoodShip">
+                                            <position object="{player.ship}" exact="100m"/>
+                                            <sector sector="L2M003.G Exchange"/>
+                                          </warp_object>
+                                        </do_otherwise>
+                                      </do_choose>
+                                      <create_actor name="L2M003.Haleos" invincible="1" character="{3895,23}" face="502" voice="3823" race="teladi" object="L2M003.G Exchange Station" location="crew"/>
+                                      <play_text priority="99">
+                                        <line actor="L2M003.Haleos" pageid="3823" textid="231301"/>
+                                        <line actor="L2M003.Heywood" pageid="3822" textid="221305"/>
+                                        <line actor="L2M003.Haleos" pageid="3823" textid="231302"/>
+                                        <line actor="L2M003.Heywood" pageid="3822" textid="221306"/>
+                                        <line actor="L2M003.Haleos" pageid="3823" textid="231303"/>
+                                        <line actor="L2M003.Heywood" pageid="3822" textid="221307"/>
+                                        <line actor="L2M003.Haleos" pageid="3823" textid="231304"/>
+                                      </play_text>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M003 Fly to Tears of Greed">
+                                      <condition>
+                                        <cue_completed cue="L2M003 Meet Haleos"/>
+                                      </condition>
+                                      <timing>
+                                        <time exact="{text.duration@3823,231301}+{text.duration@3823,231302}+{text.duration@3823,231303}+{text.duration@3823,231304}+{text.duration@3822,221305}+{text.duration@3822,221306}+{text.duration@3822,221307}"/>
+                                      </timing>
+                                      <action>
+                                        <do_all>
+                                          <set_command object="L2M003.HeywoodShip" command="protect" commandobject="{player.ship}"/>
+                                          <play_text actor="L2M003.Heywood" pageid="3822" textid="221308" priority="99"/>
+                                          <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}" title="{3201,302}" text="{3201,313}">
+                                            <mission discipline="XXXT" level="easy"/>
+                                            <objectives>
+                                              <objective step="{value@L2M003.Step}">
+                                                <flyto>
+                                                  <sector sector="L2M003.T O Greed"/>
+                                                </flyto>
+                                              </objective>
+                                            </objectives>
+                                          </create_briefing>
+                                          <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" title="{3201,302}" text="{3201,313}" noabort="1">
+                                            <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                            <mission discipline="XXXT" level="easy"/>
+                                            <flyto>
+                                              <sector sector="L2M003.T O Greed"/>
+                                            </flyto>
+                                          </set_objective>
+                                          <set_value name="L2M003.Step" operation="add"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M003 Enter Tears of Greed" delay="5s">
+                                          <condition>
+                                            <check_all>
+                                              <cue_is_complete cue="L2M003 Fly to Tears of Greed"/>
+                                              <check_value value="{player.sector}" exact="{sector@L2M003.T O Greed}"/>
+                                            </check_all>
+                                          </condition>
+                                          <timing>
+                                            <time exact="5s"/>
+                                          </timing>
+                                          <action>
+                                            <do_all>
+                                              <set_command object="L2M003.HeywoodShip" command="none"/>
+                                              <warp_object object="L2M003.HeywoodShip">
+                                                <position object="{player.ship}" exact="100m"/>
+                                                <sector sector="L2M003.T O Greed"/>
+                                              </warp_object>
+                                              <set_command object="L2M003.HeywoodShip" command="protect" commandobject="{player.ship}"/>
+                                              <play_text actor="L2M003.Heywood" pageid="3822" textid="221309" priority="99"/>
+                                              <play_cutscene file="Terran Plot S3 C2"/>
+                                              <create_ship name="L2M003.PirateShip" capturable="0" typename="SS_SH_T_TS_1" race="pirate" racelogic="0">
+                                                <position x="0" y="0" z="0" exact="15km" height="5km"/>
+                                                <sector sector="L2M003.T O Greed"/>
+                                                <equipment loadout="default"/>
+                                                <cargo>
+                                                  <ware typename="SS_WARE_F219" min="20" max="30"/>
+                                                  <ware typename="SS_WARE_F258" min="20" max="30"/>
+                                                </cargo>
+                                                <command command="idle"/>
+                                              </create_ship>
+                                              <do_all exact="3">
+                                                <create_ship group="L2M003.PirateEscorts" typename="{random.type@SS_SH_T_M4|SS_SH_T_M4|SS_SH_T_M4P}" race="pirate" racelogic="0" covered="1">
+                                                  <position object="L2M003.PirateShip"/>
+                                                  <sector sector="L2M003.T O Greed"/>
+                                                  <equipment loadout="default"/>
+                                                  <cargo>
+                                                    <ware typename="SS_WARE_F258" min="20" max="30"/>
+                                                  </cargo>
+                                                  <command command="protect" commandobject="L2M003.PirateShip"/>
+                                                  <pilot race="teladi"/>
+                                                </create_ship>
+                                              </do_all>
+                                              <do_all exact="3">
+                                                <create_ship group="L2M003.Smugglers" typename="{random.type@SS_SH_T_TS|SS_SH_T_TS_1|SS_SH_T_TS_2}" race="pirate" racelogic="0" covered="1">
+                                                  <position exact="10km"/>
+                                                  <sector sector="L2M003.T O Greed"/>
+                                                  <equipment loadout="default"/>
+                                                  <cargo>
+                                                    <ware typename="SS_WARE_F258" min="20" max="30"/>
+                                                  </cargo>
+                                                  <command command="idle"/>
+                                                  <pilot race="teladi"/>
+                                                </create_ship>
+                                              </do_all>
+                                              <create_actor name="L2M003.Pirate" race="pirate" subrace="teladi" object="L2M003.PirateShip" location="pilot"/>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M003 Wait for Pirate Creation">
+                                              <condition>
+                                                <cue_completed cue="L2M003 Enter Tears of Greed"/>
+                                              </condition>
+                                              <cues>
+                                                <cue name="L2M003 Pirate Cutscene Sound">
+                                                  <timing>
+                                                    <time exact="1s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <play_sound soundid="1213" task="1"/>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M003 Kill Pirate Objective">
+                                                      <condition>
+                                                        <cue_completed cue="L2M003 Pirate Cutscene Sound"/>
+                                                      </condition>
+                                                      <timing>
+                                                        <time exact="9s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <do_all>
+                                                          <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}">
+                                                            <mission discipline="XXXT" level="easy"/>
+                                                            <thumbnails>
+                                                              <thumbnail image="SS_SH_T_M4.tga" order="2"/>
+                                                            </thumbnails>
+                                                            <objectives>
+                                                              <objective step="{value@L2M003.Step}">
+                                                                <custom action="{35,2009}" text="{actor.name@L2M003.Pirate}" actor="L2M003.Pirate"/>
+                                                              </objective>
+                                                            </objectives>
+                                                          </create_briefing>
+                                                          <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1">
+                                                            <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                                            <mission discipline="XXXT" level="easy"/>
+                                                            <custom action="{35,2009}" text="{actor.name@L2M003.Pirate}" actor="L2M003.Pirate"/>
+                                                          </set_objective>
+                                                          <set_value name="L2M003.Step" operation="add"/>
+                                                        </do_all>
+                                                      </action>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                                <cue name="L2M003 Pirate Escort Captured" instantiate="static">
+                                                  <condition>
+                                                    <any_object_captured group="L2M003.PirateEscorts"/>
+                                                  </condition>
+                                                  <action>
+                                                    <remove_object object="L2M003.PirateEscorts {event.object}"/>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M003 Pirate Scanned">
+                                                  <condition>
+                                                    <check_any>
+                                                      <object_scanned object="L2M003.PirateShip"/>
+                                                      <object_attacked_by_player object="L2M003.PirateShip"/>
+                                                    </check_any>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <set_covered object="L2M003.PirateShip" covered="0"/>
+                                                      <set_group_covered group="L2M003.PirateEscorts" covered="0"/>
+                                                      <set_group_command group="L2M003.PirateEscorts" command="killenemies"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M003 Smuggler Scanned" instantiate="static">
+                                                  <condition>
+                                                    <check_any>
+                                                      <any_object_scanned group="L2M003.Smugglers"/>
+                                                      <any_object_attacked_by_player group="L2M003.Smugglers"/>
+                                                    </check_any>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <set_covered object="L2M003.Smugglers {event.object}" covered="0"/>
+                                                      <set_object name="L2M003.Scanned Smugglers {event.object}" group="L2M003.Scanned Smugglers" value="{event.object}"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M003 Smuggler Captured" instantiate="static">
+                                                  <condition>
+                                                    <any_object_captured group="L2M003.Smugglers"/>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <set_highlight object="L2M003.Smugglers {event.object}" highlight="0"/>
+                                                      <remove_object_from_group object="{event.object}" group="L2M003.Smugglers"/>
+                                                      <remove_object_from_group object="{event.object}" group="L2M003.Scanned Smugglers"/>
+                                                      <remove_object object="L2M003.Smugglers {event.object}"/>
+                                                      <remove_object object="L2M003.Scanned Smugglers {event.object}"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M003 Pirate Killed" delay="3s">
+                                                  <condition>
+                                                    <check_value value="{actor.exists@L2M003.Pirate}" exact="0"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="5s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <do_all>
+                                                      <cancel_cue cue="L2M003 Kill Pirate Objective"/>
+                                                      <set_group_invincible group="L2M003.Smugglers" invincible="0"/>
+                                                      <play_text actor="L2M003.Heywood" pageid="3822" textid="221310" priority="99"/>
+                                                      <set_value name="L2M003.Freight Scanner Check Delay" exact="{player.age}+{text.duration.s@3822,221310}+1"/>
+                                                      <set_group_highlight group="L2M003.Smugglers" highlight="1"/>
+                                                      <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}">
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <objectives>
+                                                          <objective step="{value@L2M003.Step}">
+                                                            <custom action="{35,2026}" text="{3201,340}"/>
+                                                          </objective>
+                                                          <objective step="{value@L2M003.Step}+1">
+                                                            <custom action="{35,2004}" text="{3201,341}"/>
+                                                          </objective>
+                                                        </objectives>
+                                                      </create_briefing>
+                                                      <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1">
+                                                        <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <custom action="{35,2026}" text="{3201,340}" icon="follow"/>
+                                                      </set_objective>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M003 Freight Scanner Check" delay="1s">
+                                                      <condition>
+                                                        <check_age min="{value@L2M003.Freight Scanner Check Delay}"/>
+                                                      </condition>
+                                                      <action>
+                                                        <do_if value="{player.ship.cargo.SS_WARE_TECH276.exists}" exact="0">
+                                                          <do_choose>
+                                                            <do_when value="{player.ship.cargoclass}" min="{lookup.type.cargoclass@SS_WARE_TECH276}">
+                                                              <play_text actor="L2M003.Heywood" pageid="3822" textid="221311" priority="99"/>
+                                                              <add_equipment>
+                                                                <ware typename="SS_WARE_TECH276" exact="1"/>
+                                                              </add_equipment>
+                                                            </do_when>
+                                                            <do_otherwise>
+                                                              <play_text actor="L2M003.Heywood" pageid="3822" textid="221312" priority="99"/>
+                                                            </do_otherwise>
+                                                          </do_choose>
+                                                        </do_if>
+                                                      </action>
+                                                    </cue>
+                                                    <cue name="L2M003 Update Smuggler Objective" instantiate="static">
+                                                      <condition>
+                                                        <check_all>
+                                                          <check_any>
+                                                            <any_object_scanned group="L2M003.Smugglers"/>
+                                                            <any_object_captured group="L2M003.Smugglers"/>
+                                                            <any_object_destroyed group="L2M003.Smugglers"/>
+                                                            <any_object_destroyed_by_player group="L2M003.Smugglers"/>
+                                                          </check_any>
+                                                          <check_value value="{group.object.count@L2M003.Smugglers}" min="1"/>
+                                                        </check_all>
+                                                      </condition>
+                                                      <timing>
+                                                        <time exact="1s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <do_if value="{group.object.count@L2M003.Smugglers}" min="1">
+                                                          <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}">
+                                                            <mission discipline="XXXT" level="easy"/>
+                                                            <objectives>
+                                                              <objective step="{value@L2M003.Step}">
+                                                                <custom action="{35,2026}" text="{3201,340}"/>
+                                                              </objective>
+                                                              <objective step="{value@L2M003.Step}+1">
+                                                                <custom action="{35,2004}" text="{3201,341}"/>
+                                                              </objective>
+                                                            </objectives>
+                                                          </create_briefing>
+                                                          <do_if value="{group.object.count@L2M003.Smugglers}" exact="{group.object.count@L2M003.Scanned Smugglers}">
+                                                            <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1" silent="1">
+                                                              <briefing cue="L2M003" step="{value@L2M003.Step}+1"/>
+                                                              <mission discipline="XXXT" level="easy"/>
+                                                              <custom action="{35,2004}" text="{3201,341}" icon="destroy"/>
+                                                            </set_objective>
+                                                          </do_if>
+                                                        </do_if>
+                                                      </action>
+                                                    </cue>
+                                                    <cue name="L2M003 All Smugglers Destroyed" delay="2s">
+                                                      <condition>
+                                                        <check_value value="{group.object.count@L2M003.Smugglers}" exact="0"/>
+                                                      </condition>
+                                                      <action>
+                                                        <do_all>
+                                                          <set_value name="L2M003.Step" operation="add"/>
+                                                          <play_text actor="L2M003.Heywood" pageid="3822" textid="221313" priority="99"/>
+                                                          <create_offer actor="L2M003.Haleos" conversation="L2M003 No3" discipline="XXXXP" cue="L2M003"/>
+                                                          <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}">
+                                                            <mission discipline="XXXT" level="easy"/>
+                                                            <thumbnails>
+                                                              <thumbnail image="SS_SH_T_M4.tga" order="2" disabled="1"/>
+                                                            </thumbnails>
+                                                            <objectives>
+                                                              <objective step="{value@L2M003.Step}">
+                                                                <custom action="{35,2012}" text="{actor.name@L2M003.Haleos}" actor="L2M003.Haleos"/>
+                                                              </objective>
+                                                            </objectives>
+                                                          </create_briefing>
+                                                          <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1">
+                                                            <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                                            <mission discipline="XXXT" level="easy"/>
+                                                            <custom action="{35,2012}" text="{actor.name@L2M003.Haleos}" actor="L2M003.Haleos"/>
+                                                          </set_objective>
+                                                          <set_value name="L2M003.Step" operation="add"/>
+                                                        </do_all>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M003 Report to Haleos">
+                                                          <condition>
+                                                            <conversation_completed actor="L2M003.Haleos" conversation="L2M003 No3" answer="ready"/>
+                                                          </condition>
+                                                          <action>
+                                                            <remove_offer actor="L2M003.Haleos" conversation="L2M003 No3" discipline="XXXXP"/>
+                                                          </action>
+                                                          <cues>
+                                                            <cue name="L2M003 Report to Haleos Wait">
+                                                              <timing>
+                                                                <time exact="{text.duration@3823,231305}+1s"/>
+                                                              </timing>
+                                                              <action>
+                                                                <do_all>
+                                                                  <set_value name="L2M003.Needed Teladianium" exact="200"/>
+                                                                  <remove_briefing cue="L2M003"/>
+                                                                  <set_value name="L2M003.Step" exact="1"/>
+                                                                  <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}" title="{3201,302}" text="{3201,314}" background="sector_argon_m148.tga">
+                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                    <thumbnails>
+                                                                      <thumbnail image="SS_SH_A_M4P_ENH.tga" order="1"/>
+                                                                      <thumbnail image="argon.tga" order="2"/>
+                                                                      <thumbnail image="SS_WARE_R255.tga" order="3"/>
+                                                                    </thumbnails>
+                                                                    <objectives>
+                                                                      <objective step="{value@L2M003.Step}">
+                                                                        <custom action="{35,2063}" text="{lookup.notoriety.argon.name@notop3}"/>
+                                                                      </objective>
+                                                                      <objective step="{value@L2M003.Step}+1">
+                                                                        <deliver object="L2M003.Argon Military Station">
+                                                                          <ware typename="SS_WARE_R255" exact="{value@L2M003.Needed Teladianium}"/>
+                                                                        </deliver>
+                                                                      </objective>
+                                                                    </objectives>
+                                                                  </create_briefing>
+                                                                  <set_value name="L2M003.Step" operation="add"/>
+                                                                  <do_choose>
+                                                                    <do_when value="{player.notoriety.argon.rank}" max="2">
+                                                                      <play_text actor="L2M003.Heywood" pageid="3822" textid="221314" priority="99"/>
+                                                                    </do_when>
+                                                                    <do_otherwise>
+                                                                      <play_text actor="L2M003.Heywood" pageid="3822" textid="221319" priority="99"/>
+                                                                      <set_value name="L2M003.Heywood Enough Rep" exact="1"/>
+                                                                    </do_otherwise>
+                                                                  </do_choose>
+                                                                </do_all>
+                                                              </action>
+                                                              <cues>
+                                                                <cue name="L2M003 Report to Haleos Wait Wait">
+                                                                  <condition>
+                                                                    <cue_completed cue="L2M003 Report to Haleos Wait"/>
+                                                                  </condition>
+                                                                  <cues>
+                                                                    <cue name="L2M003 Reset Delivery Objective">
+                                                                      <condition>
+                                                                        <check_value value="{value@L2M003.Reset Delivery}" exact="1"/>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <create_briefing cue="L2M003">
+                                                                            <mission discipline="TXXX" level="average"/>
+                                                                          </create_briefing>
+                                                                          <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1">
+                                                                            <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                                                            <mission discipline="TXXX" level="average"/>
+                                                                            <deliver object="L2M003.Argon Military Station">
+                                                                              <ware typename="SS_WARE_R255" exact="{value@L2M003.Needed Teladianium}"/>
+                                                                            </deliver>
+                                                                          </set_objective>
+                                                                        </do_all>
+                                                                      </action>
+                                                                    </cue>
+                                                                    <cue name="L2M003 Enough Rep" delay="3s">
+                                                                      <condition>
+                                                                        <check_value value="{player.notoriety.argon.rank}" min="3"/>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <do_if value="{value@L2M003.Heywood Enough Rep}" exact="1" negate="1">
+                                                                            <play_text actor="L2M003.Heywood" pageid="3822" textid="221319" priority="99"/>
+                                                                            <set_value name="L2M003.Heywood Enough Rep" exact="1"/>
+                                                                          </do_if>
+                                                                          <set_value name="L2 Sector {sector@L2M003.M148} No Access" exact="0"/>
+                                                                          <set_relation object="L2M003.Argon Military Station">
+                                                                            <relation relation="friend"/>
+                                                                          </set_relation>
+                                                                          <set_value name="L2M003.Reset Delivery" exact="1"/>
+                                                                          <reset_cue cue="L2M003 Reset Delivery Objective"/>
+                                                                          <reset_cue cue="L2M003 Not Enough Rep"/>
+                                                                        </do_all>
+                                                                      </action>
+                                                                    </cue>
+                                                                    <cue name="L2M003 Not Enough Rep" delay="3s">
+                                                                      <condition>
+                                                                        <check_value value="{player.notoriety.argon.rank}" max="2"/>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <create_briefing cue="L2M003">
+                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                          </create_briefing>
+                                                                          <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1">
+                                                                            <briefing cue="L2M003" step="{value@L2M003.Step}-1"/>
+                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                            <custom action="{35,2063}" text="{lookup.notoriety.argon.name@notop3}" icon="buy"/>
+                                                                          </set_objective>
+                                                                          <set_relation object="L2M003.Argon Military Station">
+                                                                            <relation relation="enemy"/>
+                                                                          </set_relation>
+                                                                          <set_value name="L2 Sector {sector@L2M003.M148} No Access" exact="1"/>
+                                                                          <reset_cue cue="L2M003 Enough Rep"/>
+                                                                        </do_all>
+                                                                      </action>
+                                                                    </cue>
+                                                                    <cue name="L2M003 Argon Military Pilot" delay="5s">
+                                                                      <condition>
+                                                                        <check_all>
+                                                                          <check_value value="{player.notoriety.argon.rank}" min="3"/>
+                                                                          <check_value value="{player.sector}" exact="{sector@L2M003.M148}"/>
+                                                                        </check_all>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <create_ship name="L2M003.M148 Ship" communicates="0" race="argon" capturable="0" racelogic="0" typename="SS_SH_A_M3_2">
+                                                                            <position exact="2km"/>
+                                                                            <sector sector="L2M003.M148"/>
+                                                                            <equipment loadout="default"/>
+                                                                            <command command="killenemies"/>
+                                                                          </create_ship>
+                                                                          <create_actor name="L2M003.Military Pilot" race="argon" object="L2M003.M148 Ship" face="102" voice="3824"/>
+                                                                          <play_text actor="L2M003.Military Pilot" pageid="3824" textid="241301" priority="99"/>
+                                                                          <set_value name="L2M003.Station Distance" exact="{object.distance.km@L2M003.Argon Military Station}"/>
+                                                                          <set_value name="L2M003.Distance Check Time" exact="{player.age}+60"/>
+                                                                        </do_all>
+                                                                      </action>
+                                                                      <cues>
+                                                                        <cue name="L2M003 Argon Military Pilot Killed" delay="5s">
+                                                                          <condition>
+                                                                            <check_value value="{actor.exists@L2M003.Military Pilot}" exact="0"/>
+                                                                          </condition>
+                                                                          <action>
+                                                                            <cancel_cue cue="L2M003 Argon Military Pilot"/>
+                                                                          </action>
+                                                                        </cue>
+                                                                        <cue name="L2M003 Argon Military Pilot 241302" delay="5s">
+                                                                          <condition>
+                                                                            <check_all>
+                                                                              <cue_is_complete cue="L2M003 Argon Military Pilot"/>
+                                                                              <check_age min="{value@L2M003.Distance Check Time}"/>
+                                                                              <check_value value="{player.sector}" exact="{sector@L2M003.M148}"/>
+                                                                              <check_value value="{object.distance.km@L2M003.Argon Military Station}" min="{value@L2M003.Station Distance}-2"/>
+                                                                            </check_all>
+                                                                          </condition>
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <play_text actor="L2M003.Military Pilot" pageid="3824" textid="241302" priority="99"/>
+                                                                              <set_value name="L2M003.Station Distance" exact="{object.distance.km@L2M003.Argon Military Station}"/>
+                                                                              <set_value name="L2M003.Distance Check Time" exact="{player.age}+60"/>
+                                                                            </do_all>
+                                                                          </action>
+                                                                          <cues>
+                                                                            <cue name="L2M003 Argon Military Pilot 241303" delay="5s">
+                                                                              <condition>
+                                                                                <check_all>
+                                                                                  <cue_is_complete cue="L2M003 Argon Military Pilot 241302"/>
+                                                                                  <check_value value="{player.sector}" exact="{sector@L2M003.M148}"/>
+                                                                                  <check_value value="{object.distance.km@L2M003.Argon Military Station}" min="{value@L2M003.Station Distance}-2"/>
+                                                                                </check_all>
+                                                                              </condition>
+                                                                              <action>
+                                                                                <play_text actor="L2M003.Military Pilot" pageid="3824" textid="241303" priority="99"/>
+                                                                              </action>
+                                                                            </cue>
+                                                                          </cues>
+                                                                        </cue>
+                                                                      </cues>
+                                                                    </cue>
+                                                                    <cue name="L2M003 Wares Delivered" delay="3s" instantiate="static">
+                                                                      <condition>
+                                                                        <check_all>
+                                                                          <check_value value="{player.notoriety.argon.rank}" min="3"/>
+                                                                          <check_value value="{player.ship.cargo.SS_WARE_R255.exists}" exact="1"/>
+                                                                          <object_is_docked dockobject="L2M003.Argon Military Station"/>
+                                                                        </check_all>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <set_command object="L2M003.M148 Ship" command="idle"/>
+                                                                          <cancel_cue cue="L2M003 Argon Military Pilot"/>
+                                                                          <do_choose>
+                                                                            <do_when value="{player.ship.cargo.SS_WARE_R255.count}" min="{value@L2M003.Needed Teladianium}+1">
+                                                                              <set_value name="this.RemoveCount" exact="{value@L2M003.Needed Teladianium}"/>
+                                                                            </do_when>
+                                                                            <do_otherwise>
+                                                                              <set_value name="this.RemoveCount" exact="{player.ship.cargo.SS_WARE_R255.count}"/>
+                                                                            </do_otherwise>
+                                                                          </do_choose>
+                                                                          <set_value name="L2M003.Needed Teladianium" exact="{value@L2M003.Needed Teladianium}-{value@this.RemoveCount}"/>
+                                                                          <add_cargo>
+                                                                            <ware typename="SS_WARE_R255" exact="-{value@this.RemoveCount}"/>
+                                                                          </add_cargo>
+                                                                          <do_if value="{value@L2M003.Needed Teladianium}" min="1">
+                                                                            <set_value name="L2M003.Reset Delivery" exact="1"/>
+                                                                            <reset_cue cue="L2M003 Reset Delivery Objective"/>
+                                                                          </do_if>
+                                                                        </do_all>
+                                                                      </action>
+                                                                    </cue>
+                                                                    <cue name="L2M003 All Wares Delivered" delay="3s">
+                                                                      <condition>
+                                                                        <check_all>
+                                                                          <check_value value="{value@L2M003.Needed Teladianium}" max="0"/>
+                                                                          <check_value value="{player.notoriety.argon.rank}" min="3"/>
+                                                                          <object_is_docked dockobject="L2M003.Argon Military Station"/>
+                                                                        </check_all>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <destroy_actor actor="L2M003.Haleos"/>
+                                                                          <reward_player>
+                                                                            <money exact="20000"/>
+                                                                          </reward_player>
+                                                                          <play_text priority="99">
+                                                                            <line pageid="110" textid="910"/>
+                                                                            <line pageid="110" textid="842"/>
+                                                                            <line pageid="110" textid="845"/>
+                                                                          </play_text>
+                                                                          <set_command object="L2M003.HeywoodShip" command="none"/>
+                                                                          <warp_object object="L2M003.HeywoodShip">
+                                                                            <position object="L2M003.Argon Military Station" exact="100m"/>
+                                                                            <sector sector="L2M003.M148"/>
+                                                                          </warp_object>
+                                                                          <cancel_cue cue="L2M003 Enough Rep"/>
+                                                                          <cancel_cue cue="L2M003 Wares Delivered"/>
+                                                                          <cancel_cue cue="L2M003 Not Enough Rep"/>
+                                                                          <set_command object="L2M003.HeywoodShip" command="dock" commandobject="L2M003.Argon Military Station"/>
+                                                                          <set_value name="L2M003.Step" operation="add"/>
+                                                                          <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}">
+                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                            <thumbnails>
+                                                                              <thumbnail image="SS_WARE_R255.tga" order="3" disabled="1"/>
+                                                                            </thumbnails>
+                                                                            <objectives>
+                                                                              <objective step="{value@L2M003.Step}">
+                                                                                <custom action="{35,2048}" text="{3201,343}" icon="talkto"/>
+                                                                              </objective>
+                                                                            </objectives>
+                                                                          </create_briefing>
+                                                                          <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1">
+                                                                            <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                            <custom action="{35,2048}" text="{3201,343}" icon="talkto" object="L2M003.HeywoodShip"/>
+                                                                          </set_objective>
+                                                                        </do_all>
+                                                                      </action>
+                                                                      <cues>
+                                                                        <cue name="L2M003 Heywood Docking Cutscene">
+                                                                          <timing>
+                                                                            <time exact="3s"/>
+                                                                          </timing>
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <play_cutscene file="Terran Plot S3 C3"/>
+                                                                              <set_object name="L2M003.HeywoodShip" value="{object@L2M003.HeywoodShip}"/>
+                                                                            </do_all>
+                                                                          </action>
+                                                                        </cue>
+                                                                        <cue name="L2M003 Heywood Docked" delay="5s">
+                                                                          <condition>
+                                                                            <object_is_docked object="L2M003.HeywoodShip" dockobject="L2M003.Argon Military Station"/>
+                                                                          </condition>
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <cancel_cue cue="L2M003 Heywood Docking Cutscene"/>
+                                                                              <create_briefing cue="L2M003" story="{3200,1}" chapter="{3200,103}">
+                                                                                <mission discipline="XXXT" level="easy"/>
+                                                                                <objectives>
+                                                                                  <objective step="{value@L2M003.Step}">
+                                                                                    <custom action="{35,2048}" text="{3201,342}" icon="talkto"/>
+                                                                                  </objective>
+                                                                                </objectives>
+                                                                              </create_briefing>
+                                                                              <set_objective cue="L2M003" story="{3200,1}" chapter="{3200,103}" noabort="1">
+                                                                                <briefing cue="L2M003" step="{value@L2M003.Step}"/>
+                                                                                <mission discipline="XXXT" level="easy"/>
+                                                                                <custom action="{35,2048}" text="{3201,342}" icon="talkto"/>
+                                                                              </set_objective>
+                                                                              <set_value name="L2M003.Step" operation="add"/>
+                                                                              <play_text actor="L2M003.Heywood" pageid="3822" textid="221316" priority="99"/>
+                                                                              <clear_actor_location actor="L2M003.Heywood"/>
+                                                                            </do_all>
+                                                                          </action>
+                                                                          <cues>
+                                                                            <cue name="L2M003 Wait to Escape">
+                                                                              <condition>
+                                                                                <cue_completed cue="L2M003 Heywood Docked"/>
+                                                                              </condition>
+                                                                              <timing>
+                                                                                <time exact="{text.duration@3822,221316}+10s"/>
+                                                                              </timing>
+                                                                              <action>
+                                                                                <play_text actor="L2M003.Heywood" pageid="3822" textid="221317" priority="99"/>
+                                                                              </action>
+                                                                              <cues>
+                                                                                <cue name="L2M003 Pickup Heywood and Pearle">
+                                                                                  <condition>
+                                                                                    <cue_completed cue="L2M003 Wait to Escape"/>
+                                                                                  </condition>
+                                                                                  <timing>
+                                                                                    <time exact="30s"/>
+                                                                                  </timing>
+                                                                                  <action>
+                                                                                    <do_all>
+                                                                                      <set_value name="L2 Sector {sector@L2M003.M148} No Access" exact="1"/>
+                                                                                      <set_value name="L2 Station {object@L2M003.Argon Military Station} No Access" exact="1"/>
+                                                                                      <set_relation object="L2M003.Argon Military Station">
+                                                                                        <relation relation="enemy"/>
+                                                                                      </set_relation>
+                                                                                      <add_cargo object="{player.ship}">
+                                                                                        <ware typename="SS_WARE_LIFESUPPORT" exact="1"/>
+                                                                                      </add_cargo>
+                                                                                      <play_text actor="L2M003.Heywood" textid="221318" priority="99"/>
+                                                                                      <create_astronaut name="L2M003.Heywood Astro" dockobject="L2M003.Argon Military Station" typename="SS_SH_ASTRON" racelogic="0" invincible="1" highlight="1" race="argon"/>
+                                                                                      <destroy_actor actor="L2M003.Heywood"/>
+                                                                                      <create_actor name="L2M003.Heywood" invincible="1" character="{3895,22}" face="1137" voice="3922" race="argon" object="L2M003.Heywood Astro" location="pilot"/>
+                                                                                      <set_object name="L2M003.HeywoodActObj" group="L2M003.AstroActObj" value="{actor@L2M003.Heywood}"/>
+                                                                                      <create_astronaut name="L2M003.Pearle Astro" dockobject="L2M003.Argon Military Station" typename="SS_SH_ASTRON" racelogic="0" invincible="1" highlight="1" race="argon"/>
+                                                                                      <create_actor name="L2M003.Pearle" invincible="1" character="{3895,21}" face="1138" voice="3821" race="argon" object="L2M003.Pearle Astro" location="pilot"/>
+                                                                                      <set_object name="L2M003.PearleActObj" group="L2M003.AstroActObj" value="{actor@L2M003.Pearle}"/>
+                                                                                      <set_command object="L2M003.Heywood Astro" command="follow" commandobject="{player.ship}"/>
+                                                                                      <set_command object="L2M003.Pearle Astro" command="follow" commandobject="{player.ship}"/>
+                                                                                    </do_all>
+                                                                                  </action>
+                                                                                  <cues>
+                                                                                    <cue name="L2M003 Pickup Heywood and Pearle Cutscene">
+                                                                                      <condition>
+                                                                                        <cue_completed cue="L2M003 Pickup Heywood and Pearle"/>
+                                                                                      </condition>
+                                                                                      <timing>
+                                                                                        <time exact="2s"/>
+                                                                                      </timing>
+                                                                                      <action>
+                                                                                        <do_all>
+                                                                                          <play_cutscene file="Terran Plot S3 C4"/>
+                                                                                          <set_object name="L2M003.HeywoodTempAstro" value="{object@L2M003.Heywood Astro}"/>
+                                                                                        </do_all>
+                                                                                      </action>
+                                                                                    </cue>
+                                                                                    <cue name="L2M003 L0M30 Wait">
+                                                                                      <condition>
+                                                                                        <cue_completed cue="L2M003 Pickup Heywood and Pearle"/>
+                                                                                      </condition>
+                                                                                      <cues>
+                                                                                        <cue ref="L0M30">
+                                                                                          <params>
+                                                                                            <param name="Cue" value="L2M003" comment="The cue where the briefing will be localised"/>
+                                                                                            <param name="Step" value="L2M003.Step" comment="The initial objective step"/>
+                                                                                            <param name="ActiveSteps" value="L2M003.M30 Active Steps" comment="Value name to save the current number of active steps"/>
+                                                                                            <param name="PageID" value="3201" comment="The PageID of the text"/>
+                                                                                            <param name="PassengersName" value="L2M003.AstroActObj" comment="The passenger group name"/>
+                                                                                            <param name="DestName" value="L2M003.HE Station" comment="The Address of the destination. Overrides all other criteria."/>
+                                                                                            <param name="Difficulty" value="{lookup.level@hard}" comment="The value address for the difficulty"/>
+                                                                                            <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                                                                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                                                                            <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                                                                            <param name="FeedbackName" value="L2M003.L0M30 Feedback" comment="The address where the step value is stored"/>
+                                                                                          </params>
+                                                                                        </cue>
+                                                                                        <cue name="L2M003 Both Picked Up" delay="5s">
+                                                                                          <condition>
+                                                                                            <check_all>
+                                                                                              <check_value value="{object.dockobject@L2M003.PearleActObj}" exact="{player.ship}"/>
+                                                                                              <check_value value="{object.dockobject@L2M003.HeywoodActObj}" exact="{player.ship}"/>
+                                                                                            </check_all>
+                                                                                          </condition>
+                                                                                          <action>
+                                                                                            <play_text actor="L2M003.Heywood" textid="221320" priority="99"/>
+                                                                                          </action>
+                                                                                        </cue>
+                                                                                        <cue name="L2M003 End Mission" delay="5s">
+                                                                                          <condition>
+                                                                                            <check_value value="{value@L2M003.L0M30 Feedback}" exact="0" negate="1"/>
+                                                                                          </condition>
+                                                                                          <timing>
+                                                                                            <time exact="5s"/>
+                                                                                          </timing>
+                                                                                          <action>
+                                                                                            <do_all>
+                                                                                              <do_if value="{player.notoriety.atf}" max="{lookup.notoriety@notop5}-1">
+                                                                                                <reward_player>
+                                                                                                  <notoriety>
+                                                                                                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop5}"/>
+                                                                                                  </notoriety>
+                                                                                                </reward_player>
+                                                                                                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop5}"/>
+                                                                                              </do_if>
+                                                                                              <remove_briefing cue="L2M003"/>
+                                                                                              <remove_objective cue="L2M003" status="complete"/>
+                                                                                              <destroy_object object="L2M003.HeywoodShip"/>
+                                                                                              <play_text actor="L2M003.Heywood" textid="221320" priority="99"/>
+                                                                                              <destroy_actor actor="L2M003.Heywood"/>
+                                                                                              <destroy_actor actor="L2M003.Pearle"/>
+                                                                                            </do_all>
+                                                                                          </action>
+                                                                                          <cues>
+                                                                                            <cue name="L2M003 Scene 4 Wait">
+                                                                                              <timing>
+                                                                                                <time exact="20m"/>
+                                                                                              </timing>
+                                                                                              <action>
+                                                                                                <do_all>
+                                                                                                  <set_value name="Terran Plot Scene 3 End" exact="1"/>
+                                                                                                  <cancel_cue cue="L2M003"/>
+                                                                                                </do_all>
+                                                                                              </action>
+                                                                                            </cue>
+                                                                                          </cues>
+                                                                                        </cue>
+                                                                                      </cues>
+                                                                                    </cue>
+                                                                                  </cues>
+                                                                                </cue>
+                                                                              </cues>
+                                                                            </cue>
+                                                                          </cues>
+                                                                        </cue>
+                                                                      </cues>
+                                                                    </cue>
+                                                                  </cues>
+                                                                </cue>
+                                                              </cues>
+                                                            </cue>
+                                                          </cues>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>ZaJot/9uz3VRdXGq4oprrSKYPXHneFa0RCEyDVs3P4qtKZjYKxTDewVpEOU/WPwlKGvF/0SvT31IPOrLplhShlPE+4IfFKvZXLGYq4lrLRttYHIe2IuS11ppZlGriUdD6Snz3PTNo53UaSC7y6U9LaKHCay1hPEueeoLmEEtXiZMAjWSjaUjNLBYbx7Pih+8W/ViXDxeaRfr/OB71adjHfeV39cQFCxHhQ6r3en6UHmPbfB4zf/JQP9Ov29ouhimUIeHFcMS1PTLK7kMkpee4vuP8aO8FvRUPgu492qNpt2X22xk0Ce1WL8Guj2yxoecaewK+p8uUMH0e91PcNhybw==</signature>
+</director>

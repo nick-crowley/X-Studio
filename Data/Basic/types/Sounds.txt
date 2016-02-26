@@ -1,0 +1,285 @@
+// Sound data:
+//   priority;
+//   volume;
+//   flags;
+//   pitch variation range min; (percentage of one octave, 100=octave up, -100=octave down)
+//   pitch variation range max;
+//   volume variation; (percentage)
+//   min distance; (at what distance and how fast sound volume falls off)
+
+// Version
+1;
+
+// pool 000
+0;6;
+210;128;NULL;0;0;0;0;
+50;100;NULL;0;0;0;0; // 1 SND_LED
+180;155;NULL;0;0;0;0; // 2 SND_MSGDA
+180;115;NULL;0;0;0;0; // 3 SND_REPAIRED
+180;155;NULL;0;0;0;0; // 4 SND_DAMAGEMADE
+180;100;NULL;0;0;0;0; // 5 SND_WORD
+
+// pool 100
+100;26;
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_100
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_101 M6;Astronaut
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_102 M1;M2;TL
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_103 M3 (Argon;Boron)
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_104 M4
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_105 M5;Fighter drone
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_106 TS;TP
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_107 M3 (other races)
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_108 Dock;Factory Complex
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_109 UFO
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_110 Satellite;Khaak M0
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_111 Khaak bullet
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_112 Standard bullet;missiles
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_113 Flash bullet
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_114 Khaak ships
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_115 Shipyard
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_116 Factory: Tech
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_117 Factory: Food/Bio
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_118 Factory: Power plant/Mine
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_119 Goner Temple
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_120 Pirate base
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_121 Spaceflies
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_122 (unused)
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_123 (unused)
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_124 (unused)
+180;0;SFX_3DCONTROL|SFX_LOOP;0;0;0;0; // S_125 (unused)
+
+// pool 800 custom sounds
+800;20;
+150;225;SFX_AUTOFREE;0;0;0;0; // 800
+150;225;SFX_AUTOFREE;0;0;0;0; // 801
+150;225;SFX_AUTOFREE;0;0;0;0; // 802
+150;225;SFX_AUTOFREE;0;0;0;0; // 803
+150;225;SFX_AUTOFREE;0;0;0;0; // 804
+150;225;SFX_AUTOFREE;0;0;0;0; // 805
+150;225;SFX_AUTOFREE;0;0;0;0; // 806
+150;225;SFX_AUTOFREE;0;0;0;0; // 807
+150;225;SFX_AUTOFREE;0;0;0;0; // 808
+150;225;SFX_AUTOFREE;0;0;0;0; // 809
+150;225;SFX_AUTOFREE;0;0;0;0; // 810
+150;225;SFX_AUTOFREE;0;0;0;0; // 811
+150;225;SFX_AUTOFREE;0;0;0;0; // 812
+150;225;SFX_AUTOFREE;0;0;0;0; // 813
+150;225;SFX_AUTOFREE;0;0;0;0; // 814
+150;225;SFX_AUTOFREE;0;0;0;0; // 815
+150;225;SFX_AUTOFREE;0;0;0;0; // 816
+150;225;SFX_AUTOFREE;0;0;0;0; // 817
+150;225;SFX_AUTOFREE;0;0;0;0; // 818
+150;225;SFX_AUTOFREE;0;0;0;0; // 819
+
+// pool 900
+900;100;
+200;512;NULL;-20;20;0;100000; // 900 Missile explosion (hit): Small
+200;512;NULL;-20;20;0;200000; // 901 Missile explosion (hit): Medium
+200;512;NULL;-20;20;0;400000; // 902 Missile explosion (hit): Large
+180;200;NULL;-50;50;0;500000; // 903 Collision: small vs small
+180;200;NULL;-50;50;0;500000; // 904 Collision: medium/large
+180;200;SFX_AUTOFREE;0;0;0;500000;	// 905 (unused)
+180;160;NULL;-50;50;0;300000; // 906 Laser hit: Mining
+180;160;NULL;-50;50;0;170000; // 907 Laser hit: Small
+180;160;NULL;-50;50;0;170000; // 908 Laser hit: Medium
+180;160;NULL;-50;50;0;170000; // 909 Laser hit: Large
+180;0;NULL;0;0;0;100000; // 910 (unused)
+180;0;NULL;0;0;0;100000; // 911 (unused)
+180;190;NULL;-20;20;5;90000; // 912 Launch laser: Alpha IRE
+180;230;NULL;-20;20;5;90000; // 913 Launch laser: Beta IRE
+180;255;NULL;-20;20;5;90000; // 914 Launch laser: Gamma IRE;Mass Driver
+180;175;NULL;-20;20;5;90000; // 915 Launch missile: small
+180;195;NULL;-20;20;5;90000; // 916 Launch missile: medium
+180;205;NULL;-20;20;5;90000; // 917 Launch missile: large
+200;512;NULL;-20;20;0;200000; // 918 Explosion: small
+200;512;NULL;-20;20;0;500000; // 919 Explosion: medium
+200;205;NULL;-20;20;0;1500000; // 920 Explosion: large
+180;-100;NULL;0;0;0;0; // 921 (unused) Schiff nähert sich der Atmosphäre. Steigerungsfähig (Lautstärke wird mit und mit aufgedreht). Bis das Schiff schließlich explodiert.	YES
+180;-100;NULL;0;0;0;0; // 922 (unused) Auf und wieder abschwellendes BRUMMEN nach einer gewaltigen Explosion	YES
+180;255;NULL;0;0;0;0; // 923 Yellow alert
+180;255;NULL;0;0;0;0; // 924 (unused) Alert
+180;255;NULL;0;0;0;0; // 925 Red alert
+180;-100;NULL;0;0;0;0; // 926 (unused) Auswurf eines Objektes aus einem Schiff (Schott öffnet sich;DING fliegt raus etc.)	NO
+180;-100;NULL;0;0;0;0; // 927 (unused) Mine in Reichweite;nähert sich (Näherungswarnung;wird von Computerstimme eingeleitet). Eventuell mit sich beschleunigendem loop Intervall.	NO
+180;255;NULL;0;0;0;0; // 928 (unused) Eigenes Schiff im "target lock" eines Gegners
+180;255;NULL;0;0;0;0; // 929 (unused) Warnton einer Raumstation bevor ein Schiff startet
+180;255;NULL;0;0;0;0; // 930 Comm crank 1
+180;-100;NULL;0;0;0;0; // 931 Comm crank 2 (beep)
+180;-100;NULL;0;0;0;0; // 932 Comm crank 3
+180;-100;NULL;0;0;0;0; // 933 (unused) Crank fuer funkuebertragung lang
+180;-100;NULL;0;0;0;0; // 934 (unused) Eigenes Schiff beschleunigt mit mittlerem Triebwerk START	NO
+180;155;NULL;0;0;0;0; // 935 (unused) Eigenes Schiff beschleunigt mit mittlerem Triebwerk
+180;-100;NULL;0;0;0;0; // 936 (unused) Eigenes Schiff beschleunigt mit mittlerem Triebwerk STOP	NO
+120;-100;NULL;0;0;0;0; // 937 (unused) Factory ambient 1
+120;-100;NULL;0;0;0;0; // 938 (unused) Factory ambient 2
+120;-100;NULL;0;0;0;0; // 939 (unused)
+180;-100;NULL;0;0;0;0; // 940 (unused) Grollen loop nach hits und kollisionen ein / ausfadend
+180;-100;NULL;0;0;0;0; // 941 (unused) Steuerdüsen des eigenen Schiffs. Ertönen von rechts oder links uns unterschiedlich stark (d.h. laut) je nach stärke des Steuerimpulses. YES
+180;-100;SFX_AUTOFREE;0;0;0;0; // 942 (unused) Steuerdüsen des eigenen Schiffs. Ertönen von rechts oder links uns unterschiedlich stark (d.h. laut) je nach stärke des Steuerimpulses. STOP	NO
+180;155;SFX_AUTOFREE;0;0;0;500000;	// 943 (unused) Großes Schott einer Raumstation wird geöffnet START
+180;140;SFX_AUTOFREE;0;0;0;500000;	// 944 (unused) Großes Schott einer Raumstation wird geöffnet  (WAS LOOOPING!!)
+180;155;SFX_AUTOFREE;0;0;0;500000;	// 945 (unused) Großes Schott einer Raumstation wird geöffnet STOP
+180;150;NULL;0;0;0;0; // 946 (unused) Umgebender Sound bei Flug durch Warp Tunnel	YES
+255;255;SFX_AUTOFREE;0;0;0;0; // 947 (unused) EGOSOFT left
+255;255;SFX_AUTOFREE;0;0;0;0; // 948 (unused) EGOSOFT right
+120;-100;NULL;0;0;0;0; // 949 (unused) Fac. ambient continued
+120;-100;NULL;0;0;0;0; // 950 (unused) Fac. ambient continued
+120;-100;NULL;0;0;0;0; // 951 (unused) Fac. ambient continued
+120;-100;NULL;0;0;0;0; // 952 (unused) Fac. ambient continued
+190;155;NULL;0;0;0;0; // 953 Menu login
+190;155;NULL;0;0;0;0; // 954 Menu logout
+190;155;NULL;0;0;0;0; // 955 Menu success
+200;155;NULL;0;0;0;0; // 956 Menu fail
+190;155;NULL;0;0;0;0; // 957 Menu move selection
+180;125;NULL;-20;20;5;90000; // 958 Launch laser: Alpha PAC;Mining laser
+180;125;NULL;-20;20;5;90000; // 959 Launch laser: Beta/Gamma PAC
+180;125;NULL;-20;20;5;90000; // 960 Launch laser: HEPT;PPC;Lasertower;Repair
+150;200;SFX_AUTOFREE;0;0;0;0; // 961 (unused) The eagle has landed (26 sek)
+150;110;NULL;0;0;0;0; // 962 (unused) Shield on/off
+150;155;NULL;0;0;0;0; // 963 Install missile
+150;110;SFX_AUTOFREE;0;0;0;0; // 964 Cargo bay open
+150;255;SFX_AUTOFREE;0;0;0;0; // 965 Warp tunnel thunder
+150;155;SFX_AUTOFREE;0;0;0;0; // 966 Being scanned
+150;155;SFX_AUTOFREE;0;0;0;0; // 967 (unused) Arm moving down;docking
+150;155;SFX_AUTOFREE;0;0;0;0; // 968 Ecliptic projector on/off
+150;155;SFX_AUTOFREE;0;0;0;0; // 969 Cargo bay closed
+150;155;SFX_AUTOFREE;0;0;0;0; // 970 (unused) Arm moving up;undocking
+150;255;SFX_AUTOFREE;0;0;0;0; // 971 (unused) Lightning
+150;255;SFX_AUTOFREE;0;0;0;0; // 972 OK ping of tutorial rings
+150;255;SFX_AUTOFREE;0;0;0;0; // 973 (unused) Rolling thunder LONG!
+150;80;SFX_AUTOFREE;0;0;0;0; // 974 (unused) Elevator 15sek.
+150;155;SFX_AUTOFREE;0;0;0;0; // 975 (unused) Ship boost fade in / loop 6-7s / fade out
+150;190;SFX_AUTOFREE;0;0;0;0; // 976 (unused) Intro Rocket launch
+150;235;SFX_AUTOFREE;0;0;0;0; // 977 (unused) Intro PADS dropped toward planet
+150;225;SFX_AUTOFREE;0;0;0;0; // 978 (unused) Intro Gate destruction
+150;150;NULL;0;0;0;0; // 979 Zoom goggles
+150;120;NULL;0;0;0;0; // 980 SETA activated
+150;120;NULL;0;0;0;0; // 981 SETA wakeup
+150;110;NULL;0;0;0;0; // 982 SETA 10% click
+250;255;SFX_AUTOFREE;0;0;0;0; // 983 Entering gate
+250;255;SFX_AUTOFREE;0;0;0;0; // 984 (unused)
+250;255;SFX_AUTOFREE;0;0;0;0; // 985 (unused) beep beep
+250;255;SFX_AUTOFREE;0;0;0;0; // 986 (unused) beep
+250;155;NULL;0;0;0;0; // 987 Zoom in
+250;155;NULL;0;0;0;0; // 988 (unused) Menu special
+250;155;NULL;0;0;0;0; // 989 Zoom out
+250;155;NULL;0;0;0;0; // 990 (unused) shot
+250;155;NULL;0;0;0;0; // 991 Beaming
+250;155;NULL;-50;50;0;0; // 992 Collision: Spacefly (splash)
+250;255;SFX_AUTOFREE;0;0;0;0; // 993 rolling demo Breath 1 intro
+250;255;SFX_AUTOFREE;0;0;0;0; // 994 rolling demo Breath 1 intro
+250;205;SFX_AUTOFREE;0;0;0;0; // 995 rolling demo ZOOM in 0.6s
+250;205;SFX_AUTOFREE;0;0;0;0; // 996 rolling demo ZOOM out 1s
+250;225;SFX_AUTOFREE;0;0;0;0; // 997 rolling demo  Door opening
+250;235;SFX_AUTOFREE;0;0;0;0; // 998 rolling demo  WOOSH long
+250;185;SFX_AUTOFREE;0;0;0;0; // 999 rolling demo  WOOSH short
+
+// pool 1000
+1000;15;
+250;225;SFX_AUTOFREE;0;0;0;0; // 1000 rolling demo Glass breaking
+250;255;SFX_AUTOFREE;0;0;0;0; // 1001 rolling demo CLONG metal
+250;225;SFX_AUTOFREE;0;0;0;0; // 1002 rolling demo METALL scrap
+250;225;SFX_AUTOFREE;0;0;0;0; // 1003 rolling demo City wind
+250;225;SFX_AUTOFREE;0;0;0;0; // 1004 rolling demo Underwater atmo
+250;225;SFX_AUTOFREE;0;0;0;0; // 1005 rolling demo TP Atmo (neonlight)
+250;225;SFX_AUTOFREE;0;0;0;0; // 1006 DING DONG station announcement
+250;225;SFX_AUTOFREE;0;0;0;0; // 1007 DING DA DONG station announcement variation 2 -> Mission Update
+250;225;SFX_AUTOFREE;0;0;0;0; // 1008 Incoming message
+250;155;NULL;0;0;0;0; // 1009 Tracker activated
+250;155;NULL;0;0;0;0; // 1010 Install laser
+250;155;NULL;0;0;0;0; // 1011 Install shield
+250;155;NULL;0;0;0;0; // 1012 Install equipment
+250;155;NULL;0;0;0;0; // 1013 Boost activated
+250;155;NULL;0;0;0;0; // 1014 (unused)
+
+// pool 1100
+1100;71;
+250;225;SFX_AUTOFREE;0;0;0;0; // 1100 Promotion of ranking
+250;225;SFX_AUTOFREE;0;0;0;0; // 1101 fade to dark
+250;225;SFX_AUTOFREE;0;0;0;0; // 1102 fade to bright
+250;225;SFX_AUTOFREE;0;0;0;0; // 1103 monitor open/close
+250;225;SFX_AUTOFREE;0;0;0;0; // 1104 Hangar Doors Opening
+250;225;SFX_AUTOFREE;0;0;0;0; // 1105 jumpdrive leaving
+250;225;SFX_AUTOFREE;0;0;0;0; // 1106 jumpdrive entering
+250;225;SFX_AUTOFREE;0;0;0;0; // 1107
+250;225;SFX_AUTOFREE;0;0;0;0; // 1108 breathing in space
+250;225;SFX_AUTOFREE;0;0;0;0; // 1109 Door Exploding
+250;225;SFX_AUTOFREE;0;0;0;0; // 1110 Hangar Closing
+250;225;SFX_AUTOFREE;0;0;0;0; // 1111
+250;225;SFX_AUTOFREE;0;0;0;0; // 1112
+250;225;SFX_AUTOFREE;0;0;0;0; // 1113
+250;225;SFX_AUTOFREE;0;0;0;0; // 1114
+250;225;SFX_AUTOFREE;0;0;0;0; // 1115
+250;225;SFX_AUTOFREE;0;0;0;0; // 1116
+250;225;SFX_AUTOFREE;0;0;0;0; // 1117
+250;225;SFX_AUTOFREE;0;0;0;0; // 1118 Enemy Lock
+250;225;SFX_AUTOFREE;0;0;0;0; // 1119 Target Switch; Stereo Activation
+250;225;SFX_AUTOFREE;0;0;0;0; // 1120 Target Enemy Switch
+250;225;SFX_AUTOFREE;0;0;0;0; // 1121 Bret working on Ship
+250;225;SFX_AUTOFREE;0;0;0;0; // 1122
+250;225;SFX_AUTOFREE;0;0;0;0; // 1123
+250;225;SFX_AUTOFREE;0;0;0;0; // 1124
+250;225;SFX_AUTOFREE;0;0;0;0; // 1125
+250;225;SFX_AUTOFREE;0;0;0;0; // 1126
+250;225;SFX_AUTOFREE;0;0;0;0; // 1127
+250;225;SFX_AUTOFREE;0;0;0;0; // 1128
+250;225;SFX_AUTOFREE;0;0;0;0; // 1129
+250;225;SFX_AUTOFREE;0;0;0;0; // 1130
+250;225;SFX_AUTOFREE;0;0;0;0; // 1131
+250;225;SFX_AUTOFREE;0;0;0;0; // 1132
+250;225;SFX_AUTOFREE;0;0;0;0; // 1133
+250;225;SFX_AUTOFREE;0;0;0;0; // 1134
+250;225;SFX_AUTOFREE;0;0;0;0; // 1135
+250;225;SFX_AUTOFREE;0;0;0;0; // 1136
+250;225;SFX_AUTOFREE;0;0;0;0; // 1137
+250;225;SFX_AUTOFREE;0;0;0;0; // 1138
+250;225;SFX_AUTOFREE;0;0;0;0; // 1139
+250;225;SFX_AUTOFREE;0;0;0;0; // 1140
+250;225;SFX_AUTOFREE;0;0;0;0; // 1141
+250;225;SFX_AUTOFREE;0;0;0;0; // 1142
+250;225;SFX_AUTOFREE;0;0;0;0; // 1143
+250;225;SFX_AUTOFREE;0;0;0;0; // 1144
+250;225;SFX_AUTOFREE;0;0;0;0; // 1145
+250;225;SFX_AUTOFREE;0;0;0;0; // 1146
+250;225;SFX_AUTOFREE;0;0;0;0; // 1147
+250;225;SFX_AUTOFREE;0;0;0;0; // 1148
+250;225;SFX_AUTOFREE;0;0;0;0; // 1149
+250;225;SFX_AUTOFREE;0;0;0;0; // 1150 Explosion #3
+250;225;SFX_AUTOFREE;0;0;0;0; // 1151 Explosion #4
+250;225;SFX_AUTOFREE;0;0;0;0; // 1152 Explosion #5
+250;225;SFX_AUTOFREE;0;0;0;0; // 1153 Explosion #6
+250;225;SFX_AUTOFREE;0;0;0;0; // 1154 Explosion #7
+250;225;SFX_AUTOFREE;0;0;0;0; // 1155 Explosion #8
+250;225;SFX_AUTOFREE;0;0;0;0; // 1156 swoosh - Sign passing in Argon prime
+250;225;SFX_AUTOFREE;0;0;0;0; // 1157
+250;225;SFX_AUTOFREE;0;0;0;0; // 1158 ARHHHHH Saya dies
+250;225;SFX_AUTOFREE;0;0;0;0; // 1159
+250;225;SFX_AUTOFREE;0;0;0;0; // 1160
+250;225;SFX_AUTOFREE;0;0;0;0; // 1161
+250;225;SFX_AUTOFREE;0;0;0;0; // 1162
+250;225;SFX_AUTOFREE;0;0;0;0; // 1163
+250;225;SFX_AUTOFREE;0;0;0;0; // 1164
+250;225;SFX_AUTOFREE;0;0;0;0; // 1165
+250;225;SFX_AUTOFREE;0;0;0;0; // 1166
+250;225;SFX_AUTOFREE;0;0;0;0; // 1167
+250;225;SFX_AUTOFREE;0;0;0;0; // 1168
+250;225;SFX_AUTOFREE;0;0;0;0; // 1169
+250;225;SFX_AUTOFREE;0;0;0;0; // 1170
+
+// pool 1200
+1200;14;
+180;200;NULL;-50;50;0;500000; // 1200 Hullhit 3
+180;200;NULL;-50;50;0;500000; // 1201 Hullhit 4
+180;200;NULL;-50;50;0;500000; // 1202 Hullhit 5
+180;200;NULL;0;0;0;0; // 1203 Missilewarning 1 (short)
+180;200;SFX_AUTOFREE;0;0;0;0; // 1204 Missilewarning 2 (long)
+180;230;NULL;-20;20;5;900000; // 1205  Launch laser: Alpha Pulsed Beam Emitter
+// new in X3TC
+190;155;NULL;0;0;0;0; // 1206 Click 1
+190;155;NULL;0;0;0;0; // 1207 Click 2
+190;155;NULL;0;0;0;0; // 1208 Open
+190;155;NULL;0;0;0;0; // 1209 Close
+250;225;SFX_AUTOFREE;0;0;0;0; // 1210 Epic
+250;225;SFX_AUTOFREE;0;0;0;0; // 1211 Pirate attack
+250;225;SFX_AUTOFREE;0;0;0;0; // 1212 Xenon attack
+250;225;SFX_AUTOFREE;0;0;0;0; // 1213 New territory

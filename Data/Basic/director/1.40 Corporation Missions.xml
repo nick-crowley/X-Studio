@@ -1,0 +1,1337 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" />
+    <content reference="L1M40" name="Corporation Missions" description="Mission to work for Corporation" />
+    <version number="0.1" date="09/07/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L1M40" library="1" delay="1s">
+      <documentation>
+        <content reference="L1M40" name="Corporation Missions" type="L2"/>
+        <version number="0.1" date="09/07/08" status="development"/>
+        <params>
+          <param name="CorpCue" type="cuename" compulsory="1" description="Cue to reset when fired"/>
+          <param name="DoMissions" type="valuename" compulsory="1" description="Param to check to see if missions should be started"/>
+          <param name="CorpRankID" type="text" compulsory="1" description="Corp rank name, eg. L2CorpX"/>
+          <param name="CorpTextID" type="text" compulsory="1" description="Corp text entry, eg. 10000"/>
+          <param name="CorpPageID" type="number" compulsory="1" description="Corp page ID, eg 324X"/>
+          <param name="HQ" type="objectname" compulsory="1" description="HQ"/>
+          <param name="HQType" type="text" compulsory="1" description="HQ Type SS_DOCK_CORP_x"/>
+          <param name="HQSector" type="sectorname" compulsory="1" description="HQ Sector"/>
+          <param name="Actor" type="actorname" compulsory="1" description="Actor"/>
+          <param name="ActorName" type="text" compulsory="1" description="Actor name"/>
+          <param name="ActorRace" type="number" compulsory="1" description="Actor race"/>
+          <param name="Mission1Chance" type="number" compulsory="1" description="% Chance of Mission1"/>
+          <param name="Mission1EnemyRace" type="number" compulsory="1" description="Mission1 EnemyRace"/>
+          <param name="Mission2Chance" type="number" compulsory="1" description="% Chance of Mission2"/>
+          <param name="Mission2EnemyRace" type="number" compulsory="1" description="Mission2 EnemyRace"/>
+          <param name="Mission3Chance" type="number" compulsory="1" description="% Chance of Mission3"/>
+          <param name="Mission3EnemyRace" type="number" compulsory="1" description="Mission3 EnemyRace"/>
+          <param name="Mission4Chance" type="number" compulsory="1" description="% Chance of Mission4"/>
+          <param name="Mission4EnemyRace" type="number" compulsory="1" description="Mission4 EnemyRace"/>
+          <param name="Mission5Chance" type="number" compulsory="1" description="% Chance of Mission5"/>
+          <param name="Mission5EnemyRace" type="number" compulsory="1" description="Mission5 EnemyRace"/>
+          <param name="Mission7Chance" type="number" compulsory="1" description="% Chance of Mission7"/>
+          <param name="Mission7EnemyRace" type="number" compulsory="1" description="Mission7 EnemyRace"/>
+          <param name="Mission9Chance" type="number" compulsory="1" description="% Chance of Mission9"/>
+          <param name="Mission9EnemyRace" type="number" compulsory="1" description="Mission9 EnemyRace"/>
+          <param name="RewardType1" type="number" compulsory="1" description="Typename of reward ship 1"/>
+          <param name="RewardType2" type="number" compulsory="1" description="Typename of reward ship 2"/>
+          <param name="RewardType2" type="number" compulsory="1" description="Typename of reward ship 3"/>
+        </params>
+        <history>
+          <change date="31/08/08" author="al_main" description="Fixed issue with cleanup being reset, fixed issues with nplayer not getting fired when has bad rep"/>
+          <change date="31/08/08" author="al_main" description="Added dockingallowed check to L1M40 Reward and L1M40 Offer Next Mission conditions"/>
+          <change date="31/08/08" author="al_main" description="Fixed actor name param used instead of actor race param"/>
+          <change date="31/08/08" author="al_main" description="Fixed MD params in L1M40 M04 completion message"/>
+          <change date="29/08/08" author="al_main" description="RC6 version"/>
+          <change date="21/08/08" author="al_main" description="Re-balanced mission rank increases"/>
+          <change date="14/07/08" author="al_main" description="Fixed mission 101 completion messages"/>
+          <change date="10/07/08" author="al_main" description="Initial version"/>
+        </history>
+        <todo>
+          <item priority="medium" description="Check missile allocations in L1M40 M02 to make them correct race?"/>
+          <item priority="low" description="Small chance text wont sound good if L1M40 M09 is destination"/>
+        </todo>
+      </documentation>
+      <condition>
+        <check_value value="{value@{param@DoMissions}}" exact="1"/>
+      </condition>
+      <action>
+        <set_value name="L1M40.RunMissionCue" exact="1"/>
+      </action>
+      <cues>
+        <cue name="L1M40 Offers" instantiate="static" delay="5s">
+          <condition>
+            <check_value value="{value@L1M40.RunMissionCue}" exact="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L1M40.RunMissionCue" exact="0"/>
+              <set_value name="L1M40.CurrentMission" exact="0"/>
+              <set_value name="L1M40.Mission 1 Chance" operation="add" exact="{param@Mission1Chance}" comment="L0M01"/>
+              <set_value name="L1M40.Mission 2 Chance" operation="add" exact="{param@Mission2Chance}" comment="L0M04"/>
+              <set_value name="L1M40.Mission 3 Chance" operation="add" exact="{param@Mission3Chance}" comment="L0M03"/>
+              <set_value name="L1M40.Mission 4 Chance" operation="add" exact="{param@Mission4Chance}" comment="L0M35"/>
+              <set_value name="L1M40.Mission 5 Chance" operation="add" exact="{param@Mission5Chance}" comment="L0M13"/>
+              <set_value name="L1M40.Mission 7 Chance" operation="add" exact="{param@Mission7Chance}" comment="L0M03"/>
+              <set_value name="L1M40.Mission 9 Chance" operation="add" exact="{param@Mission9Chance}" comment="L0M01"/>
+              <do_any>
+                <set_value name="L1M40.NextMission" exact="1" chance="{value@L1M40.Mission 1 Chance}"/>
+                <set_value name="L1M40.NextMission" exact="2" chance="{value@L1M40.Mission 2 Chance}"/>
+                <set_value name="L1M40.NextMission" exact="3" chance="{value@L1M40.Mission 3 Chance}"/>
+                <set_value name="L1M40.NextMission" exact="4" chance="{value@L1M40.Mission 4 Chance}"/>
+                <set_value name="L1M40.NextMission" exact="5" chance="{value@L1M40.Mission 5 Chance}"/>
+                <set_value name="L1M40.NextMission" exact="7" chance="{value@L1M40.Mission 7 Chance}"/>
+                <set_value name="L1M40.NextMission" exact="9" chance="{value@L1M40.Mission 9 Chance}"/>
+              </do_any>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L1M40 Reward" check="cancel">
+              <condition>
+                <check_all>
+                  <count_stations typename="{param@HQType}" min="1" dockingallowed="1">
+                    <sector sector="{param@HQSector}"/>
+                    <jumps max="0"/>
+                  </count_stations>
+                  <check_value value="{player.missionrank.{param@CorpRankID}}" min="-10"/>
+                </check_all>
+              </condition>
+              <timing>
+                <time min="30s" max="60s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <!--check rank amount and if a reward is due then message the player to collect-->
+                  <set_value name="L1M40 Reward.Reward" exact="0"/>
+                  <do_choose>
+                    <do_when value="{player.missionrank.{param@CorpRankID}.rank}" min="10">
+                      <do_if value="{value@L1M40.Reward3}" exact="0">
+                        <set_value name="L1M40 Reward.Reward" exact="3"/>
+                      </do_if>
+                    </do_when>
+                    <do_when value="{player.missionrank.{param@CorpRankID}.rank}" min="7" max="9">
+                      <do_if value="{value@L1M40.Reward2}" exact="0">
+                        <set_value name="L1M40 Reward.Reward" exact="2"/>
+                      </do_if>
+                    </do_when>
+                    <do_when value="{player.missionrank.{param@CorpRankID}.rank}" min="4" max="6">
+                      <do_if value="{value@L1M40.Reward1}" exact="0">
+                        <set_value name="L1M40 Reward.Reward" exact="1"/>
+                      </do_if>
+                    </do_when>
+                  </do_choose>
+                  <do_if value="{object.exists@{param@HQ}}" exact="0">
+                    <find_station name="{param@HQ}" typename="{param@HQType}">
+                      <sector sector="{param@HQSector}"/>
+                      <jumps max="0"/>
+                    </find_station>
+                  </do_if>
+                  <do_if value="{object.exists@{param@HQ}}" exact="1">
+                    <do_if value="{actor.exists@{param@Actor}}" exact="0">
+                      <create_actor name="{param@Actor}" character="{param@ActorName}" race="{param@ActorRace}" voiceflags="32" object="{param@HQ}" location="crew"/>
+                    </do_if>
+                    <do_if value="{value@L1M40 Reward.Reward}" min="1">
+                      <set_value name="this.textmessage" exact="1"/>
+                      <do_if value="{player.dockobject.exists}" exact="1">
+                        <do_if value="{player.dockobject}" exact="{object@{param@HQ}}">
+                          <set_value name="this.textmessage" exact="0"/>
+                        </do_if>
+                      </do_if>
+                      <do_if value="{value@this.textmessage}" min="1">
+                        <set_value name="this.textid" list="292|293"/>
+                        <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@this.textid}}"/>
+                      </do_if>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{object.exists@{param@HQ}}" exact="0">
+                    <cancel_cue cue="L1M40 Reward Docked"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L1M40 Reward Docked" delay="5s">
+                  <condition>
+                    <check_all>
+                      <cue_is_complete cue="L1M40 Reward"/>
+                      <check_value value="{player.dockobject.exists}" exact="1"/>
+                      <check_value value="{player.dockobject}" exact="{object@{param@HQ}}"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="this.textid" min="{param@CorpTextID}+3" max="{param@CorpTextID}+4"/>
+                      <play_text actor="{param@Actor}" textid="{value@this.textid}" priority="99"/>
+                      <do_choose>
+                        <do_when value="{value@L1M40 Reward.Reward}" exact="1">
+                          <set_value name="L1M40.Reward1" exact="1"/>
+                          <create_ship typename="{param@RewardType1}" race="player" dockobject="{param@HQ}">
+                            <equipment loadout="minimum"/>
+                          </create_ship>
+                        </do_when>
+                        <do_when value="{value@L1M40 Reward.Reward}" exact="2">
+                          <set_value name="L1M40.Reward2" exact="1"/>
+                          <create_ship typename="{param@RewardType2}" race="player" dockobject="{param@HQ}">
+                            <equipment loadout="minimum"/>
+                          </create_ship>
+                        </do_when>
+                        <do_when value="{value@L1M40 Reward.Reward}" exact="3">
+                          <set_value name="L1M40.Reward3" exact="1"/>
+                          <create_ship typename="{param@RewardType3}" race="player" dockobject="{param@HQ}">
+                            <equipment loadout="minimum"/>
+                          </create_ship>
+                        </do_when>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L1M40 Wait">
+              <timing>
+                <time min="10m" max="30m"/>
+              </timing>
+            </cue>
+            <cue name="L1M40 Offer Next Mission">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="L1M40 Wait"/>
+                  <count_stations typename="{param@HQType}" min="1" dockingallowed="1">
+                    <sector sector="{param@HQSector}"/>
+                    <jumps max="0"/>
+                  </count_stations>
+                  <check_value value="{player.missionrank.{param@CorpRankID}}" min="-10"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{object.exists@{param@HQ}}" exact="0">
+                    <find_station name="{param@HQ}" typename="{param@HQType}">
+                      <sector sector="{param@HQSector}"/>
+                      <jumps max="0"/>
+                    </find_station>
+                  </do_if>
+                  <do_choose>
+                    <do_when value="{object.exists@{param@HQ}}" exact="0">
+                      <!--<set_value name="L1M40.RunMissionCue" exact="1"/>-->
+                      <set_value name="L1M40.RunMissionCue" exact="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <do_if value="{actor.exists@{param@Actor}}" exact="0">
+                        <create_actor name="{param@Actor}" character="{param@ActorName}" race="{param@ActorRace}" voiceflags="32" object="{param@HQ}" location="crew"/>
+                      </do_if>
+                      <set_value name="this.text" min="201" max="200+{{param@CorpPageID},200}"/>
+                      <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@this.text}}"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L1M40 M01" check="cancel">
+                  <!--L0M01 1100,1151-->
+                  <condition>
+                    <check_value value="{value@L1M40.NextMission}" exact="1"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L1M40.Mission 1 Chance" exact="0"/>
+                      <set_value name="L1M40 M01.ID" min="1" max="{{param@CorpPageID},1100}"/>
+                      <do_if value="{player.missionrank.{param@CorpRankID}.rank}" min="4">
+                        <do_if value="{text.exists@{param@CorpPageID},1150}" min="1">
+                          <set_value name="L1M40 M01.ID" min="51" max="{{param@CorpPageID},1150}"/>
+                        </do_if>
+                      </do_if>
+                      <set_value name="L1M40 M01.Description" exact="1100+{value@L1M40 M01.ID}"/>
+                      <set_value name="L1M40 M01.Completed" exact="1120+{value@L1M40 M01.ID}"/>
+                      <!--<set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>-->
+                      <create_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XFXX" cue="L1M40 M01"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L1M40 M01 Briefing">
+                      <condition>
+                        <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M01 B">
+                          <params>
+                            <param name="Cue" value="L1M40 M01"/>
+                            <param name="ID" value="1"/>
+                            <param name="EnemyRace" value="{param@Mission1EnemyRace}"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="Hidden" value="100"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M01.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M01.RewardCr"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L1M40 M01 Accepted">
+                      <condition>
+                        <conversation_completed answer="accept" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XFXX"/>
+                          <cancel_cue cue="L1M40 M01 Check Offer"/>
+                          <create_offer actor="{param@Actor}" conversation="L2ShowBriefing" cue="L1M40 M01"/>
+                          <set_value name="L1M40.CurrentMission" exact="{value@L1M40.NextMission}"/>
+                          <set_value name="L1M40.NextMission" exact="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M01" comment="Mission 0.1">
+                          <params>
+                            <param name="Cue" value="L1M40 M01"/>
+                            <param name="ID" value="1"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M01.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M01.RewardCr"/>
+                          </params>
+                        </cue>
+                        <cue name="L1M40 M01 End" delay="1s">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L1M40 M01.1 L0M01 Progress}" min="1"/>
+                            </check_all>
+                          </condition>
+                          <timing>
+                            <time min="1s" max="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <remove_briefing cue="L1M40 M01"/>
+                              <remove_offer actor="{param@Actor}" conversation="L2ShowBriefing"/>
+                              <do_choose>
+                                <do_when value="{value@L1M40 M01.1 L0M01 Progress}" exact="1">
+                                  <remove_objective cue="L1M40 M01" status="complete"/>
+                                  <reward_player>
+                                    <money exact="{value@L1M40 M01.RewardCr}"/>
+                                  </reward_player>
+                                  <!--increase the players rank points by 20-33% = about 4 or 5 missions per rank level-->
+                                  <set_value name="this.increase" min="{player.missionrank.{param@CorpRankID}}/5" max="{player.missionrank.{param@CorpRankID}}/3"/>
+                                  <do_if value="{value@this.increase}" min="1" negate="1">
+                                    <set_value name="this.increase" min="1" max="3" profile="bell"/>
+                                  </do_if>
+                                  <increment_mission_rank name="{param@CorpRankID}" exact="{value@this.increase}"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M01.1 L0M01 Progress}" exact="2" comment="Time ran out">
+                                  <remove_objective cue="L1M40 M01" status="failed"/>
+                                  <incoming_message author="{actor.name@{param@Actor}}" text="{{actor.voice@{param@Actor}},851} {{actor.voice@{param@Actor}},847}"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M01.1 L0M01 Progress}" exact="3" comment="Destroyed by someone else">
+                                  <remove_objective cue="L1M40 M01" status="failed"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M01.1 L0M01 Progress}" exact="4" comment="Destroyed by someone else">
+                                  <remove_objective cue="L1M40 M01" status="failed"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_when>
+                                <do_otherwise comment="Must be 99, Aborted?">
+                                  <remove_objective cue="L1M40 M01" status="aborted"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L1M40 M01 End Wait">
+                              <condition>
+                                <cue_completed cue="L1M40 M01 End"/>
+                              </condition>
+                              <cues>
+                                <cue ref="L1M40 M01 Final Message">
+                                  <params>
+                                    <param name="Cue" value="L1M40 M01"/>
+                                    <param name="ID" value="1"/>
+                                  </params>
+                                </cue>
+                              </cues>
+                            </cue>
+                            <cue name="L1M40 M01 Final Message" library="1">
+                              <action>
+                                <do_all>
+                                  <do_if value="{value@L1M40 M01.1 L0M01 Progress}" exact="1">
+                                    <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@L1M40 M01.Completed}}"/>
+                                  </do_if>
+                                  <destroy_actor actor="L1M40 M01.1 L0Mark"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <!--
+                        <cue name="L1M40 Check Offer">
+                          <condition>
+                            <cue_completed cue="L1M40 Initial Offer"/>
+                          </condition>
+                          <cues>
+                            <cue name="L1M40 Time Out" delay="30s">
+                              <condition>
+                                <check_age value="{player.age}" min="{value@L1M40 Initial Offer.TimeOut}"/>
+                              </condition>
+                              <cues>
+                                <cue name="L1M40 Check Comms" delay="500">
+                                  <condition>
+                                    <check_all>
+                                      <check_value value="{player.menu.dialog}" exact="0"/>
+                                      <check_value value="{player.menu.briefing}" exact="0"/>
+                                      <cue_is_active cue="L1M40 Accepted" negate="1"/>
+                                    </check_all>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XFXX"/>
+                                      <remove_briefing cue="L1M40 Initial Offer"/>
+                                      <destroy_actor actor="{param@Actor}"/>
+                                      <reset_cue cue="L1M40 Initial Offer"/>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                        -->
+                  </cues>
+                </cue>
+                <cue name="L1M40 M02" check="cancel">
+                  <!--L0M04 1200-->
+                  <condition>
+                    <check_value value="{value@L1M40.NextMission}" exact="2"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L1M40.Mission 2 Chance" exact="0"/>
+                      <set_value name="L1M40 M02.ID" min="1" max="{{param@CorpPageID},1200}"/>
+                      <set_value name="L1M40 M02.Description" exact="1200+{value@L1M40 M02.ID}"/>
+                      <set_value name="L1M40 M02.Completed" exact="1220+{value@L1M40 M02.ID}"/>
+                      <!--<set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>-->
+                      <create_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="TXXX" cue="L1M40 M02"/>
+                      <set_value name="L1M40 M02.Ware1" exact="{random.type@SS_MISSILE_A|SS_MISSILE_D|SS_MISSILE_FF}"/>
+                      <set_value name="L1M40 M02.Ware2" exact="{random.type@SS_MISSILE_B|SS_MISSILE_E|SS_MISSILE_SWRM}"/>
+                      <set_value name="L1M40 M02.Ware3" exact="{random.type@SS_MISSILE_C|SS_MISSILE_F|SS_MISSILE_TORP}"/>
+                      <set_value name="L1M40 M02.Ware1Amount" min="10" max="20"/>
+                      <set_value name="L1M40 M02.Ware2Amount" min="10" max="20"/>
+                      <set_value name="L1M40 M02.Ware3Amount" min="10" max="20"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L1M40 M02 Briefing">
+                      <condition>
+                        <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M04 B">
+                          <params>
+                            <param name="Cue" value="L1M40 M02"/>
+                            <param name="ID" value="1"/>
+                            <param name="EnemyRace" value="{param@Mission2EnemyRace}"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="Buyer" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M02.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M02.RewardCr"/>
+                            <param name="Ware1" value="{value@L1M40 M02.Ware1}"/>
+                            <param name="Ware1Amt" value="{value@L1M40 M02.Ware1Amount}"/>
+                            <param name="Ware2" value="{value@L1M40 M02.Ware2}"/>
+                            <param name="Ware2Amt" value="{value@L1M40 M02.Ware2Amount}"/>
+                            <param name="Ware3" value="{value@L1M40 M02.Ware3}"/>
+                            <param name="Ware3Amt" value="{value@L1M40 M02.Ware3Amount}"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L1M40 M02 Accepted">
+                      <condition>
+                        <conversation_completed answer="accept" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="TXXX"/>
+                          <cancel_cue cue="L1M40 M02 Check Offer"/>
+                          <create_offer actor="{param@Actor}" conversation="L2ShowBriefing" cue="L1M40 M02"/>
+                          <set_value name="L1M40.CurrentMission" exact="{value@L1M40.NextMission}"/>
+                          <set_value name="L1M40.NextMission" exact="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M04">
+                          <params>
+                            <param name="Cue" value="L1M40 M02"/>
+                            <param name="ID" value="1"/>
+                            <param name="EnemyRace" value="{param@Mission2EnemyRace}"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M02.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M02.RewardCr"/>
+                            <param name="AddToStation" value="0"/>
+                          </params>
+                        </cue>
+                        <cue name="L1M40 M02 End" delay="1s">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L1M40 M02.1 L0M04 Progress}" min="1"/>
+                            </check_all>
+                          </condition>
+                          <timing>
+                            <time min="1s" max="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <remove_briefing cue="L1M40 M02"/>
+                              <remove_offer actor="{param@Actor}" conversation="L2ShowBriefing"/>
+                              <do_choose>
+                                <do_when value="{value@L1M40 M02.1 L0M04 Progress}" exact="1">
+                                  <remove_objective cue="L1M40 M02" status="complete"/>
+                                  <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@L1M40 M02.Completed}}"/>
+                                  <reward_player>
+                                    <money exact="{value@L1M40 M02.RewardCr}"/>
+                                  </reward_player>
+                                  <!--increase the players rank points by 20-33% = about 4 or 5 missions per rank level-->
+                                  <set_value name="this.increase" min="{player.missionrank.{param@CorpRankID}}/5" max="{player.missionrank.{param@CorpRankID}}/3"/>
+                                  <do_if value="{value@this.increase}" min="1" negate="1">
+                                    <set_value name="this.increase" min="1" max="3" profile="bell"/>
+                                  </do_if>
+                                  <increment_mission_rank name="{param@CorpRankID}" exact="{value@this.increase}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_when>
+                                <do_otherwise comment="Must be 99, Aborted?">
+                                  <remove_objective cue="L1M40 M02" status="aborted"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L1M40 M03" check="cancel">
+                  <!--L0M03 1300-->
+                  <condition>
+                    <check_value value="{value@L1M40.NextMission}" exact="3"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L1M40.Mission 3 Chance" exact="0"/>
+                      <set_value name="L1M40 M03.ID" min="1" max="{{param@CorpPageID},1300}"/>
+                      <set_value name="L1M40 M03.TPNeeded" exact="0"/>
+                      <do_if value="{player.missionrank.{param@CorpRankID}.rank}" min="2" chance="50+({player.missionrank.{param@CorpRankID}.rank}*5)">
+                        <do_if value="{text.exists@{param@CorpPageID},1350}" min="1">
+                          <set_value name="L1M40 M03.ID" min="51" max="{{param@CorpPageID},1350}"/>
+                          <set_value name="L1M40 M03.TPNeeded" exact="100"/>
+                        </do_if>
+                      </do_if>
+                      <set_value name="L1M40 M03.Description" exact="1300+{value@L1M40 M03.ID}"/>
+                      <set_value name="L1M40 M03.Completed" exact="1320+{value@L1M40 M03.ID}"/>
+                      <!--<set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>-->
+                      <create_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XXXT" cue="L1M40 M03"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L1M40 M03 Briefing">
+                      <condition>
+                        <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M03 B">
+                          <params>
+                            <param name="Cue" value="L1M40 M03"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission3EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M03.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M03.RewardCr"/>
+                            <param name="Passenger" value="{param@Actor}"/>
+                            <param name="HideDest" value="0"/>
+                            <param name="RoundReward" value="1"/>
+                            <param name="TPNeeded" value="{value@L1M40 M03.TPNeeded}"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L1M40 M03 Accepted">
+                      <condition>
+                        <conversation_completed answer="accept" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XXXT"/>
+                          <cancel_cue cue="L1M40 M03 Check Offer"/>
+                          <create_offer actor="{param@Actor}" conversation="L2ShowBriefing" cue="L1M40 M03"/>
+                          <set_value name="L1M40.CurrentMission" exact="{value@L1M40.NextMission}"/>
+                          <set_value name="L1M40.NextMission" exact="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M03">
+                          <params>
+                            <param name="Cue" value="L1M40 M03"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission3EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M03.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M03.RewardCr"/>
+                          </params>
+                        </cue>
+                        <cue name="L1M40 M03 End" delay="1s">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L1M40 M03.1 L0M03 Progress}" min="1"/>
+                            </check_all>
+                          </condition>
+                          <timing>
+                            <time min="1s" max="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <remove_briefing cue="L1M40 M03"/>
+                              <remove_offer actor="{param@Actor}" conversation="L2ShowBriefing"/>
+                              <do_choose>
+                                <do_when value="{value@L1M40 M03.1 L0M03 Progress}" exact="1">
+                                  <remove_objective cue="L1M40 M03" status="complete"/>
+                                  <reward_player>
+                                    <money exact="{value@L1M40 M03.RewardCr}"/>
+                                  </reward_player>
+                                  <!--increase the players rank points by 20-33% = about 4 or 5 missions per rank level-->
+                                  <set_value name="this.increase" min="{player.missionrank.{param@CorpRankID}}/5" max="{player.missionrank.{param@CorpRankID}}/3"/>
+                                  <do_if value="{value@this.increase}" min="1" negate="1">
+                                    <set_value name="this.increase" min="1" max="3" profile="bell"/>
+                                  </do_if>
+                                  <increment_mission_rank name="{param@CorpRankID}" exact="{value@this.increase}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M03.1 L0M03 Progress}" exact="2" comment="Time Out">
+                                  <remove_objective cue="L1M40 M03" status="failed"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M03.1 L0M03 Progress}" exact="3" comment="Killed">
+                                  <remove_objective cue="L1M40 M03" status="failed"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-5" min="-5-2*(1-{player.missionrank.{param@CorpRankID}.rank})"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_when>
+                                <do_otherwise comment="Must be 99, Aborted?">
+                                  <remove_objective cue="L1M40 M03" status="aborted"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-2" min="-2-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L1M40 M04" check="cancel">
+                  <!--L0M35 1400-->
+                  <condition>
+                    <check_value value="{value@L1M40.NextMission}" exact="4"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <find_station name="L1M40 M04.DefendObj" class="factory" race="paranid">
+                        <position object="{param@HQ}"/>
+                        <jumps min="1" max="5"/>
+                      </find_station>
+                      <do_if value="{object.exists@L1M40 M04.DefendObj}" exact="0">
+                        <find_station name="L1M40 M04.DefendObj" class="factory" race="paranid">
+                          <position object="{param@HQ}"/>
+                          <jumps min="1" max="12"/>
+                        </find_station>
+                      </do_if>
+                      <do_choose>
+                        <do_when value="{object.exists@L1M40 M04.DefendObj}" exact="0">
+                          <set_value name="L1M40.RunMissionCue" exact="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <set_value name="L1M40.Mission 4 Chance" exact="0"/>
+                          <set_value name="L1M40 M04.ID" min="1" max="{{param@CorpPageID},1400}"/>
+                          <set_value name="L1M40 M04.Description" exact="1400+{value@L1M40 M04.ID}"/>
+                          <set_value name="L1M40 M04.Completed" exact="1420+{value@L1M40 M04.ID}"/>
+                          <!--<set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>-->
+                          <create_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XFXX" cue="L1M40 M04"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L1M40 M04 Briefing">
+                      <condition>
+                        <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M35 B">
+                          <params>
+                            <param name="Cue" value="L1M40 M04"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission4EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M04.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M04.RewardCr"/>
+                            <param name="Object" value="L1M40 M04.DefendObj"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L1M40 M04 Accepted">
+                      <condition>
+                        <conversation_completed answer="accept" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XFXX"/>
+                          <cancel_cue cue="L1M40 M04 Check Offer"/>
+                          <create_offer actor="{param@Actor}" conversation="L2ShowBriefing" cue="L1M40 M04"/>
+                          <set_value name="L1M40.CurrentMission" exact="{value@L1M40.NextMission}"/>
+                          <set_value name="L1M40.NextMission" exact="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M35">
+                          <params>
+                            <param name="Cue" value="L1M40 M04"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission4EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M04.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M04.RewardCr"/>
+                            <param name="OBSFleetJobTextID" value="60006"/>
+                          </params>
+                        </cue>
+                        <cue name="L1M40 M04 End" delay="1s">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L1M40 M04.1 L0M35 Progress}" min="1"/>
+                            </check_all>
+                          </condition>
+                          <timing>
+                            <time min="1s" max="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <remove_briefing cue="L1M40 M04"/>
+                              <remove_offer actor="{param@Actor}" conversation="L2ShowBriefing"/>
+                              <do_choose>
+                                <do_when value="{value@L1M40 M04.1 L0M35 Progress}" exact="1">
+                                  <remove_objective cue="L1M40 M04" status="complete"/>
+                                  <reward_player>
+                                    <money exact="{value@L1M40 M04.RewardCr}"/>
+                                  </reward_player>
+                                  <!--increase the players rank points by 20-33% = about 4 or 5 missions per rank level-->
+                                  <set_value name="this.increase" min="{player.missionrank.{param@CorpRankID}}/5" max="{player.missionrank.{param@CorpRankID}}/3"/>
+                                  <do_if value="{value@this.increase}" min="1" negate="1">
+                                    <set_value name="this.increase" min="1" max="3" profile="bell"/>
+                                  </do_if>
+                                  <increment_mission_rank name="{param@CorpRankID}" exact="{value@this.increase}"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M04.1 L0M35 Progress}" exact="3" comment="Killed by others">
+                                  <remove_objective cue="L1M40 M04" status="aborted"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M04.1 L0M35 Progress}" exact="99" comment="Aborted">
+                                  <remove_objective cue="L1M40 M04" status="aborted"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-2" min="-2-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_when>
+                                <do_otherwise>
+                                  <remove_objective cue="L1M40 M04" status="failed"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-2" min="-2-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L1M40 M04 End Wait">
+                              <condition>
+                                <cue_completed cue="L1M40 M04 End"/>
+                              </condition>
+                              <cues>
+                                <cue ref="L1M40 M04 Final Message">
+                                  <params>
+                                    <param name="Cue" value="L1M40 M04"/>
+                                    <param name="ID" value="1"/>
+                                  </params>
+                                </cue>
+                              </cues>
+                            </cue>
+                            <cue name="L1M40 M04 Final Message" library="1">
+                              <action>
+                                <do_all>
+                                  <do_if value="{value@L1M40 M04.1 L0M35 Progress}" exact="1">
+                                    <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@L1M40 M04.Completed}}"/>
+                                  </do_if>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L1M40 M05" check="cancel">
+                  <!--L0M13 1500-->
+                  <condition>
+                    <check_value value="{value@L1M40.NextMission}" exact="5"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L1M40.Mission 5 Chance" exact="0"/>
+                      <set_value name="L1M40 M05.ID" min="1" max="{{param@CorpPageID},1500}"/>
+                      <set_value name="L1M40 M05.Description" exact="1500+{value@L1M40 M05.ID}"/>
+                      <set_value name="L1M40 M05.Completed" exact="1520+{value@L1M40 M05.ID}"/>
+                      <!--<set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>-->
+                      <create_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XXXT" cue="L1M40 M05"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L1M40 M05 Briefing">
+                      <condition>
+                        <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M13 B">
+                          <params>
+                            <param name="Cue" value="L1M40 M05"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission5EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M05.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M05.RewardCr"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L1M40 M05 Accepted">
+                      <condition>
+                        <conversation_completed answer="accept" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XXXT"/>
+                          <cancel_cue cue="L1M40 M05 Check Offer"/>
+                          <create_offer actor="{param@Actor}" conversation="L2ShowBriefing" cue="L1M40 M05"/>
+                          <set_value name="L1M40.CurrentMission" exact="{value@L1M40.NextMission}"/>
+                          <set_value name="L1M40.NextMission" exact="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M13">
+                          <params>
+                            <param name="Cue" value="L1M40 M05"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission5EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M05.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M05.RewardCr"/>
+                          </params>
+                        </cue>
+                        <cue name="L1M40 M05 End" delay="1s">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L1M40 M05.1 L0M13 Progress}" min="1"/>
+                            </check_all>
+                          </condition>
+                          <timing>
+                            <time min="1s" max="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <remove_briefing cue="L1M40 M05"/>
+                              <remove_offer actor="{param@Actor}" conversation="L2ShowBriefing"/>
+                              <do_choose>
+                                <do_when value="{value@L1M40 M05.1 L0M13 Progress}" exact="1">
+                                  <remove_objective cue="L1M40 M05" status="complete"/>
+                                  <reward_player>
+                                    <money exact="{value@L1M40 M05.RewardCr}"/>
+                                  </reward_player>
+                                  <!--increase the players rank points by 20-33% = about 4 or 5 missions per rank level-->
+                                  <set_value name="this.increase" min="{player.missionrank.{param@CorpRankID}}/5" max="{player.missionrank.{param@CorpRankID}}/3"/>
+                                  <do_if value="{value@this.increase}" min="1" negate="1">
+                                    <set_value name="this.increase" min="1" max="3" profile="bell"/>
+                                  </do_if>
+                                  <increment_mission_rank name="{param@CorpRankID}" exact="{value@this.increase}"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M05.1 L0M13 Progress}" exact="99" comment="Aborted">
+                                  <remove_objective cue="L1M40 M05" status="aborted"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-2" min="-2-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_when>
+                                <do_otherwise>
+                                  <remove_objective cue="L1M40 M05" status="failed"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L1M40 M05 End Wait">
+                              <condition>
+                                <cue_completed cue="L1M40 M05 End"/>
+                              </condition>
+                              <cues>
+                                <cue ref="L1M40 M05 Final Message">
+                                  <params>
+                                    <param name="Cue" value="L1M40 M05"/>
+                                    <param name="ID" value="1"/>
+                                  </params>
+                                </cue>
+                              </cues>
+                            </cue>
+                            <cue name="L1M40 M05 Final Message" library="1">
+                              <action>
+                                <do_all>
+                                  <do_if value="{value@L1M40 M05.1 L0M13 Progress}" exact="1">
+                                    <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@L1M40 M05.Completed}}"/>
+                                  </do_if>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <!--mission 6 - 1.13 = 0.13 = 0.01 tid 1351-->
+                <cue name="L1M40 M07" check="cancel">
+                  <!--L0M03 1700, 1750-->
+                  <condition>
+                    <check_value value="{value@L1M40.NextMission}" exact="7"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L1M40.Mission 7 Chance" exact="0"/>
+                      <set_value name="L1M40 M07.ID" min="1" max="{{param@CorpPageID},1700}"/>
+                      <set_value name="L1M40 M07.TP" exact="0"/>
+                      <do_if value="{player.missionrank.{param@CorpRankID}.rank}" min="3" chance="50">
+                        <do_if value="{text.exists@{param@CorpPageID},1750}" min="1">
+                          <set_value name="L1M40 M07.ID" min="51" max="{{param@CorpPageID},1750}"/>
+                          <set_value name="L1M40 M07.TP" exact="100"/>
+                        </do_if>
+                      </do_if>
+                      <set_value name="L1M40 M07.Description" exact="1700+{value@L1M40 M07.ID}"/>
+                      <set_value name="L1M40 M07.Completed" exact="1720+{value@L1M40 M07.ID}"/>
+                      <!--<set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>-->
+                      <create_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XXXT" cue="L1M40 M07"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L1M40 M07 Briefing">
+                      <condition>
+                        <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M03 B">
+                          <params>
+                            <param name="Cue" value="L1M40 M07"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission7EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M07.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M07.RewardCr"/>
+                            <param name="RoundReward" value="1"/>
+                            <param name="TPNeeded" value="{value@L1M40 M07.TP}"/>
+                            <param name="Dest" value="{param@HQ}"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L1M40 M07 Accepted">
+                      <condition>
+                        <conversation_completed answer="accept" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XXXT"/>
+                          <cancel_cue cue="L1M40 M07 Check Offer"/>
+                          <create_offer actor="{param@Actor}" conversation="L2ShowBriefing" cue="L1M40 M07"/>
+                          <set_value name="L1M40.CurrentMission" exact="{value@L1M40.NextMission}"/>
+                          <set_value name="L1M40.NextMission" exact="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M03">
+                          <params>
+                            <param name="Cue" value="L1M40 M07"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission7EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M07.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M07.RewardCr"/>
+                          </params>
+                        </cue>
+                        <cue name="L1M40 M07 End" delay="1s">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L1M40 M07.1 L0M03 Progress}" min="1"/>
+                            </check_all>
+                          </condition>
+                          <timing>
+                            <time min="1s" max="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <remove_briefing cue="L1M40 M07"/>
+                              <remove_offer actor="{param@Actor}" conversation="L2ShowBriefing"/>
+                              <do_choose>
+                                <do_when value="{value@L1M40 M07.1 L0M03 Progress}" exact="1">
+                                  <remove_objective cue="L1M40 M07" status="complete"/>
+                                  <reward_player>
+                                    <money exact="{value@L1M40 M07.RewardCr}"/>
+                                  </reward_player>
+                                  <!--increase the players rank points by 20-33% = about 4 or 5 missions per rank level-->
+                                  <set_value name="this.increase" min="{player.missionrank.{param@CorpRankID}}/5" max="{player.missionrank.{param@CorpRankID}}/3"/>
+                                  <do_if value="{value@this.increase}" min="1" negate="1">
+                                    <set_value name="this.increase" min="1" max="3" profile="bell"/>
+                                  </do_if>
+                                  <increment_mission_rank name="{param@CorpRankID}" exact="{value@this.increase}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M07.1 L0M03 Progress}" exact="2" comment="Time Out">
+                                  <remove_objective cue="L1M40 M07" status="failed"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M07.1 L0M03 Progress}" exact="3" comment="Killed">
+                                  <remove_objective cue="L1M40 M07" status="failed"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-5" min="-5-2*(1-{player.missionrank.{param@CorpRankID}.rank})"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_when>
+                                <do_otherwise comment="Must be 99, Aborted?">
+                                  <remove_objective cue="L1M40 M07" status="aborted"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-2" min="-2-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <!--mission 8 - text page 1600, portect convoy-->
+                <cue name="L1M40 M09" check="cancel">
+                  <!--L0M01 1900-->
+                  <condition>
+                    <check_value value="{value@L1M40.NextMission}" exact="9"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L1M40.Mission 9 Chance" exact="0"/>
+                      <set_value name="L1M40 M09.ID" min="1" max="{{param@CorpPageID},1900}"/>
+                      <set_value name="L1M40 M09.Description" exact="1900+{value@L1M40 M09.ID}"/>
+                      <set_value name="L1M40 M09.Completed" exact="1920+{value@L1M40 M09.ID}"/>
+                      <!--<set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>-->
+                      <create_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XFXX" cue="L1M40 M09"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L1M40 M09 Briefing">
+                      <condition>
+                        <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M01 B">
+                          <params>
+                            <param name="Cue" value="L1M40 M09"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission9EnemyRace}"/>
+                            <param name="Hidden" value="100"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M09.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M09.RewardCr"/>
+                            <param name="MarkHasDest" value="100"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L1M40 M09 Accepted">
+                      <condition>
+                        <conversation_completed answer="accept" conversation="L2OfferNormal" actor="{param@Actor}"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="{param@Actor}" conversation="L2OfferNormal" discipline="XFXX"/>
+                          <cancel_cue cue="L1M40 M09 Check Offer"/>
+                          <create_offer actor="{param@Actor}" conversation="L2ShowBriefing" cue="L1M40 M09"/>
+                          <set_value name="L1M40.CurrentMission" exact="{value@L1M40.NextMission}"/>
+                          <set_value name="L1M40.NextMission" exact="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M01" comment="Mission 0.1">
+                          <params>
+                            <param name="Cue" value="L1M40 M09"/>
+                            <param name="ID" value="1"/>
+                            <param name="OfferRace" value="{param@ActorRace}"/>
+                            <param name="EnemyRace" value="{param@Mission9EnemyRace}"/>
+                            <param name="Lv1Guide" value="{param@Actor}"/>
+                            <param name="PageID" value="{param@CorpPageID}"/>
+                            <param name="TextID" value="{value@L1M40 M09.Description}"/>
+                            <param name="AddText" value="1"/>
+                            <param name="Difficulty" value="{lookup.level@average}"/>
+                            <param name="RewardCr" value="L1M40 M09.RewardCr"/>
+                          </params>
+                        </cue>
+                        <cue name="L1M40 M09 End" delay="1s">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L1M40 M09.1 L0M01 Progress}" min="1"/>
+                            </check_all>
+                          </condition>
+                          <timing>
+                            <time min="1s" max="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <remove_briefing cue="L1M40 M09"/>
+                              <remove_offer actor="{param@Actor}" conversation="L2ShowBriefing"/>
+                              <do_choose>
+                                <do_when value="{value@L1M40 M09.1 L0M01 Progress}" exact="1">
+                                  <remove_objective cue="L1M40 M09" status="complete"/>
+                                  <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@L1M40 M09.Completed}}"/>
+                                  <reward_player>
+                                    <money exact="{value@L1M40 M09.RewardCr}"/>
+                                  </reward_player>
+                                  <!--increase the players rank points by 20-33% = about 4 or 5 missions per rank level-->
+                                  <set_value name="this.increase" min="{player.missionrank.{param@CorpRankID}}/5" max="{player.missionrank.{param@CorpRankID}}/3"/>
+                                  <do_if value="{value@this.increase}" min="1" negate="1">
+                                    <set_value name="this.increase" min="1" max="3" profile="bell"/>
+                                  </do_if>
+                                  <increment_mission_rank name="{param@CorpRankID}" exact="{value@this.increase}"/>
+                                  <destroy_actor actor="L1M40 M09.1 L0Mark"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M09.1 L0M01 Progress}" exact="2" comment="Time ran out">
+                                  <remove_objective cue="L1M40 M09" status="failed"/>
+                                  <set_value name="this.TextID" min="1201" exact="1200+{3301,1201}"/>
+                                  <!--SHOULD THIS BE SPOKEN TEXT???-->
+                                  <incoming_message author="{actor.name@{param@Actor}}" text="{3301,{value@this.TextID}}"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <destroy_actor actor="L1M40 M09.1 L0Mark"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M09.1 L0M01 Progress}" exact="3" comment="Destroyed by someone else">
+                                  <remove_objective cue="L1M40 M09" status="failed"/>
+                                  <set_value name="this.TextID" min="1301" exact="1300+{3301,1301}"/>
+                                  <!--SHOULD THIS BE SPOKEN TEXT???-->
+                                  <incoming_message author="{actor.name@{param@Actor}}" text="{3301,{value@this.TextID}}"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <destroy_actor actor="L1M40 M09.1 L0Mark"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M09.1 L0M01 Progress}" exact="4" comment="Target Escaped?">
+                                  <remove_objective cue="L1M40 M09" status="failed"/>
+                                  <set_value name="this.TextID" min="1401" exact="1400+{3301,1401}"/>
+                                  <!--SHOULD THIS BE SPOKEN TEXT???-->
+                                  <incoming_message author="{actor.name@{param@Actor}}" text="{3301,{value@this.TextID}}"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <destroy_actor actor="L1M40 M09.1 L0Mark"/>
+                                </do_when>
+                                <do_when value="{value@L1M40 M09.1 L0M01 Progress}" exact="14" comment="Target Reached Destination">
+                                  <remove_objective cue="L1M40 M09" status="failed"/>
+                                  <set_value name="this.TextID" exact="1940+{value@L1M40 M09.ID}"/>
+                                  <incoming_message author="{actor.name@{param@Actor}}" text="{{param@CorpPageID},{value@this.TextID}}"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-1" min="-1-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <destroy_actor actor="L1M40 M09.1 L0Mark"/>
+                                </do_when>
+                                <do_otherwise comment="Must be 95 or 99, Aborted?">
+                                  <remove_objective cue="L1M40 M09" status="aborted"/>
+                                  <set_value name="L1M40.time" exact="{player.age}+10"/>
+                                  <increment_mission_rank name="{param@CorpRankID}" max="-2" min="-2-{player.missionrank.{param@CorpRankID}.rank}"/>
+                                  <destroy_actor actor="L1M40 M09.1 L0Mark"/>
+                                </do_otherwise>
+                              </do_choose>
+                              <set_value name="L1M40.RunMissionCue" exact="1"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <!--mission 10 - text page 1800, tourbus-->
+                <!--other missions-->
+                <!--check base is destroyed, reset cues?-->
+              </cues>
+            </cue>
+            <cue name="L1M40 Fired" check="cancel">
+              <condition>
+                <check_value value="{player.missionrank.{param@CorpRankID}}" max="-11"/>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{actor.exists@{param@Actor}}" exact="0">
+                    <create_actor name="{param@Actor}" character="{param@ActorName}" race="{param@ActorRace}" voiceflags="32" object="{param@HQ}" location="crew"/>
+                  </do_if>
+                  <incoming_message author="{actor.name@{param@Actor}}" text="{actor.voice@{param@Actor},852} {3334,4}"/>
+                  <destroy_actor actor="{param@Actor}"/>
+                  <remove_mission_rank name="{param@CorpRankID}"/>
+                  <cancel_cue cue="L1M40 Offer Next Mission"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L1M40 Reset Chain">
+                  <condition>
+                    <cue_completed cue="L1M40 Fired"/>
+                  </condition>
+                  <timing>
+                    <time min="3600s" max="9000s"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="{param@CorpCue}"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L1M40 Check Fired">
+          <condition>
+            <check_value value="{player.missionrank.{param@CorpRankID}}" max="-11"/>
+          </condition>
+          <action>
+            <do_all>
+              <!--player has lost rep so abort current mission if exists to reset the offer cue-->
+              <do_choose>
+                <do_when value="{value@L1M40.CurrentMission}" exact="1">
+                  <set_value name="L1M40 M01.1 L0M01 Progress" exact="99"/>
+                </do_when>
+                <do_when value="{value@L1M40.CurrentMission}" exact="2">
+                  <set_value name="L1M40 M02.1 L0M04 Progress" exact="99"/>
+                </do_when>
+                <do_when value="{value@L1M40.CurrentMission}" exact="3">
+                  <set_value name="L1M40 M03.1 L0M03 Progress" exact="99"/>
+                </do_when>
+                <do_when value="{value@L1M40.CurrentMission}" exact="4">
+                  <set_value name="L1M40 M04.1 L0M35 Progress" exact="99"/>
+                </do_when>
+                <do_when value="{value@L1M40.CurrentMission}" exact="5">
+                  <set_value name="L1M40 M05.1 L0M13 Progress" exact="99"/>
+                </do_when>
+                <do_when value="{value@L1M40.CurrentMission}" exact="7">
+                  <set_value name="L1M40 M07.1 L0M03 Progress" exact="99"/>
+                </do_when>
+                <do_when value="{value@L1M40.CurrentMission}" exact="9">
+                  <set_value name="L1M40 M09.1 L0M01 Progress" exact="99"/>
+                </do_when>
+                <!--else no current mission-->
+                <do_otherwise>
+                  <!--set the reset value, so player willbe fired-->
+                  <set_value name="L1M40.RunMissionCue" exact="1"/>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="L1M40 Enemy HQ" delay="60s">
+          <condition>
+            <object_relation object="{param@HQ}">
+              <relation relation="enemy"/>
+            </object_relation>
+          </condition>
+          <action>
+            <do_choose>
+              <do_when value="{player.missionrank.{param@CorpRankID}}" min="11">
+                <increment_mission_rank name="{param@CorpRankID}" exact="-{player.missionrank.{param@CorpRankID}}/2"/>
+              </do_when>
+              <do_otherwise>
+                <increment_mission_rank name="{param@CorpRankID}" exact="-2"/>
+              </do_otherwise>
+            </do_choose>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>G2BQ+QZRGdEkVUyD7Up3RMPFcdKOe4N2CcSJBpWecqSQ1cY3jOWG4AtvaIY4WjVO5C2E60Gap35VFv13EpDOkNjxrJD+rEx7+f4A9JOWztCxCzNZEznQwScf3OASAp+1M8aIPJqHoCXAQEgBgfeNVc7Oe5dOf60bz/0Qm3vXq1ZO8GYaX2PdK08Ynul8OUwtEjJcdCsMaIADKf3eNwT2lesQnhmeE/NNrW0ISp5huc8TkgA6Vj36+vYP5tfGr9FxBVcmAbV2leU4youR0QjZF4K/2k/ekjOi6W7eweqn7mXVyaZUADtr4DOsQiFfUvVxKU8zrVtvQcugRDv2ikFujw==</signature>
+</director>

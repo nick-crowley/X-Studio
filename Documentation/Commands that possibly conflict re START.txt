@@ -1,0 +1,25 @@
+1017
+
+$0 start task $2 with script $1 and prio $3: arg1=$4 arg2=$5 arg3=$6 arg4=$7 arg5=$8
+
+
+514
+START $0 command $1 : arg1=$2, arg2=$3, arg3=$4, arg4=$5
+
+
+1185
+START $0 delayed command $1 : arg1=$2, arg2=$3, arg3=$4, arg4=$5
+
+
+
+
+1404
+START $0 wing command $1 : arg1=$2, arg2=$3, arg3=$4, arg4=$5
+
+
+1426
+$0 start named script: task=$1 scriptname=$2 prio=$3, $4, $5, $6, $7, $8
+
+
+
+

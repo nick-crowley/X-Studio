@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Level 0 Mission 13" name="Follow Ship (Find Base)" description="Mission to follow a ship" />
+    <version number="0.13" date="28/04/08" status="development"/>
+  </documentation>
+
+  <cues>
+    <cue name="L0M13 B" library="1">
+      <documentation>
+        <content name="L0M13 Follow Ship" reference="XXXT" type="briefing" />
+        <version number="0.1" date="28/04/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="PageID" compulsory="1" description="Page ID of mission description"/>
+          <param name="TextID" compulsory="1" description="Text ID of mission description"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Difficulty" compulsory="1" description="The difficulty of the mission" default="trivial"/>
+          <param name="IsPlot" compulsory="0" description="If the mission is a plot mission or not" default="non-plot"/>
+          <param name="Step" compulsory="0" description="Step to begin the briefing on" default="Step 1"/>
+          <param name="Summary" type="boolean" compulsory="0" description="Whether to create full briefing or add a summary objective"/>
+          <param name="Target" type="actorname" compulsory="0" description="Pre-defined target to be followed"/>
+          <param name="Destination" type="objectname" compulsory="0" description="Pre-defined destination for the ship"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.{param@ID} L0M13 Progress" type="number" description="1 - Mission Completed"/>
+          <return name="{param@Cue}.{param@ID} L0M13 Progress" type="number" description="2 - Out of time"/>
+          <return name="{param@Cue}.{param@ID} L0M13 Progress" type="number" description="3 - Target killed"/>
+          <return name="{param@Cue}.{param@ID} L0M13 Progress" type="number" description="4 - Target escaped"/>
+          <return name="{param@Cue}.{param@ID} L0M13 Progress" type="number" description="5 - Target noticed player"/>
+        </returns>
+        <history>
+          <change date="21/05/08" author="al_main" description="Fixed Missing follow objective in briefing"/>
+          <change date="12/05/08" author="al_main" description="Mission ends if ship destroyed"/>
+          <change date="30/04/08" author="al_main" description="Bug fixes, improved objectives"/>
+          <change date="28/04/08" author="al_main" description="Updated to newest standards"/>
+        </history>
+        <todo>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_choose>
+            <do_when value="{param@Summary}" exact="1">
+              <create_briefing cue="{param@Cue}">
+                <objectives>
+                  <objective step="{param@Step}">
+                    <custom icon="find" action="{35,2006}" text="{35,2128}"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <cancel_cue cue="L0M13 B"/>
+            </do_when>
+            <do_otherwise>
+              <!--set actor to follow-->
+              <do_if value="{param.exists@Target}" exact="1">
+                <do_if value="{actor.exists@{param@Target}}" exact="1">
+                  <set_actor name="{param@Cue}.{param@ID} L0Mark" value="{actor@{param@Target}}"/>
+                </do_if>
+              </do_if>
+              <do_if value="{actor.exists@{param@Cue}.{param@ID} L0Mark}" exact="0">
+                <create_actor name="{param@Cue}.{param@ID} L0Mark" race="{param@EnemyRace}" voiceflags="32"/>
+                <set_value name="{param@Cue}.{param@ID} L0Mark Created" exact="1"/>
+              </do_if>
+              <!--set destination to fly to-->
+              <do_if value="{param.exists@Destination}" exact="1">
+                <do_if value="{object.exists@{param@Destination}}" exact="1">
+                  <set_object name="{param@Cue}.{param@ID} L0Dest" value="{object@{param@Destination}}"/>
+                </do_if>
+              </do_if>
+              <!--Setup basic mission parameters-->
+              <set_value name="{param@Cue}.{param@ID} L0OfferRace" exact="{param@OfferRace}"/>
+              <set_value name="{param@Cue}.{param@ID} L0EnemyRace" exact="{param@EnemyRace}"/>
+              <set_value name="{param@Cue}.{param@ID} L0Title" min="1001" max="{3613,1000}" profile="decreasing"/>
+              <set_value name="{param@Cue}.{param@ID} L0Time" min="2700" max="4500"/>
+              <!--Create briefing-->
+              <set_value name="{param@Cue}.{param@ID} L0Step" exact="{param@Step}"/>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Step}" min="1" negate="1">
+                <set_value name="{param@Cue}.{param@ID} L0Step" exact="1"/>
+              </do_if>
+              <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3613,{value@{param@Cue}.{param@ID} L0Title}}">
+                <objectives>
+                  <objective step="{value@{param@Cue}.{param@ID} L0Step}">
+                    <custom icon="find" action="{35,2006}" text="{actor.name@{param@Cue}.{param@ID} L0Mark}"/>
+                  </objective>
+                  <objective step="{value@{param@Cue}.{param@ID} L0Step}+1">
+                    <custom icon="follow" action="{35,2008}" text="{actor.name@{param@Cue}.{param@ID} L0Mark}"/>
+                  </objective>
+                  <objective step="{value@{param@Cue}.{param@ID} L0Step}+2">
+                    <custom icon="find" action="{35,2033}" text="{35,2138}"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="LUM04">
+          <params>
+            <param name="Discipline" value="XXXT"/>
+            <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+          </params>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M13" library="1">
+      <documentation>
+        <content name="L0M13 Assasinate 1" reference="XFXX" type="L0" />
+        <version number="0.1" date="28/04/08" status="development"/>
+        <params>
+          <param name="Cue" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="Lv1Guide" type="actorname" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" compulsory="0" description="Page ID of mission description"/>
+          <param name="TextID" compulsory="0" description="Text ID of mission description"/>
+          <param name="Reward" compulsory="0" description="Reward type"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Difficulty" compulsory="1" description="The difficulty of the mission" default="trivial"/>
+          <param name="IsPlot" compulsory="0" description="If the mission is a plot mission or not" default="non-plot"/>
+        </params>
+        <history>
+          <change date="04/08/08" author="al_main" description="FIXed readtext when plot actor"/>
+          <change date="25/06/08" author="al_main" description="Fixed mutual relation setting"/>
+          <change date="06/06/08" author="al_main" description="Added cleanup cue"/>
+          <change date="05/06/08" author="al_main" description="Change to L0M13 Lost Them to check_value and object.distanc.m@..."/>
+          <change date="25/05/08" author="al_main" description="Added engine tunings, added random enemy encounter"/>
+          <change date="24/05/08" author="al_main" description="Re-structured to function better with more variations"/>
+          <change date="30/04/08" author="al_main" description="Bug fixes, improved objectives"/>
+          <change date="28/04/08" author="al_main" description="Updated to newest standards"/>
+        </history>
+        <todo>
+          <item priority="critical" description="Cleanup - what if the destination was a ship, no docking and created"/>
+          <item priority="critical" description="Check cleanup for created ship and actor"/>
+          <item priority="medium" description="L0M13 Create Helpers - ADD CUE TO CREAE EXTRA SHIPS, OBS?"/>
+          <item priority="medium" description="Use real 'find' objective"/>
+          <item priority="low" description="Add use if MINE_2 if working?"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="0"/>
+          <!--set ship to follow-->
+          <do_if value="{actor.ship.exists@{param@Cue}.{param@ID} L0Mark}" exact="1">
+            <set_object name="{param@Cue}.{param@ID} L0FollowShip" value="{actor.ship@{param@Cue}.{param@ID} L0Mark}"/>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L0M13 Mission">
+          <cues>
+            <cue ref="LUM06">
+              <params>
+                <param name="StartDist" value="1"/>
+                <param name="DestDist" value="3"/>
+                <param name="DestRace" value="{param@EnemyRace}"/>
+                <param name="Dest" value="{param@Cue}.{param@ID} L0Dest" comment="The destination to end at"/>
+                <param name="Military" value="15"/>
+                <param name="NoDest" value="1"/>
+              </params>
+            </cue>
+            <cue name="L0M13 L1Guide Lost" delay="2s">
+              <condition>
+                <check_value value="{actor.exists@{param@Lv1Guide}}" exact="0"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="99"/>
+                  <do_if value="{value@{param@Cue}.{param@ID} L0Mark Created}" exact="1">
+                    <cancel_cue cue="L0M13 Destroyed"/>
+                    <destroy_object object="{param@Cue}.{param@ID} L0FollowShip" warp="1"/>
+                  </do_if>
+                  <cancel_cue cue="L0M13 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M13 Check Ship" delay="200" check="cancel">
+              <condition>
+                <object_exists object="{param@Cue}.{param@ID} L0FollowShip" negate="1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="L0M13 Check Ship.subrace" exact="{actor.voice@{param@Cue}.{param@ID} L0Mark}/100"/>
+                  <set_value name="L0M13 Check Ship.class" list="{lookup.class@freighter}|{lookup.class@fighter}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="SRST">
+                  <params>
+                    <param name="Race ID" value="{param@EnemyRace}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                    <param name="SubRace ID" value="{value@L0M13 Check Ship.subrace}"/>
+                    <param name="Class ID" value="{value@L0M13 Check Ship.class}" comment="The shipclass ID or the strings 'bigship', 'fighter' or 'freighter'"/>
+                    <param name="Cue" value="L0M13 Check Ship" comment="The Cue that the shiptype is saved too"/>
+                    <param name="CancelCue" value="SRST"/>
+                    <param name="Shiptype Address" value="L0M13 Check Ship.ShipType"/>
+                    <param name="Include M3P" value="0" comment="Include the M3Plus ships in the M3 search"/>
+                    <param name="Include M4P" value="0" comment="Include the M4Plus ships in the M4 search"/>
+                    <param name="Include M5P" value="0" comment="Include the M5Plus ships in the M5 search"/>
+                    <param name="Include M6M" value="0" comment="Include the M6M ships in the M6 search"/>
+                    <param name="Include M7M" value="0" comment="Include the M7M ships in the M7 search"/>
+                  </params>
+                </cue>
+                <cue name="L0M13 Create Ship">
+                  <condition>
+                    <check_all>
+                      <cue_is_cancelled cue="SRST"/>
+                      <cue_is_complete cue="LUM06 Finished"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <create_ship name="{param@Cue}.{param@ID} L0FollowShip" race="{param@EnemyRace}" typename="{value@L0M13 Check Ship.ShipType}" covered="1" capturable="0">
+                        <position x="{object.position.x@{param@Cue}.{param@ID} L0Start}" y="{object.position.y@{param@Cue}.{param@ID} L0Start}" z="{object.position.z@{param@Cue}.{param@ID} L0Start}" min="500m" max="1000m"/>
+                        <sector sector="{object.sector@{param@Cue}.{param@ID} L0Start}"/>
+                        <equipment loadout="default"/>
+                        <command command="idle"/>
+                        <relations>
+                          <relation relation="friend" mutual="0"/>
+                        </relations>
+                        <pilot race="{param@EnemyRace}"/>
+                      </create_ship>
+                      <!--if maxspeed less than 100 use full engine tunings-->
+                      <add_equipment object="{param@Cue}.{param@ID} L0FollowShip">
+                        <ware typename="SS_WARE_TECH213" min="{object.equipment.SS_WARE_TECH213.maxcount@{param@Cue}.{param@ID} L0FollowShip}/2" max="{object.equipment.SS_WARE_TECH213.maxcount@{param@Cue}.{param@ID} L0FollowShip}"/>
+                      </add_equipment>
+                      <do_if value="{object.maxspeed@{param@Cue}.{param@ID} L0FollowShip}" max="50000">
+                        <add_equipment object="{param@Cue}.{param@ID} L0FollowShip">
+                          <ware typename="SS_WARE_TECH213" exact="{object.equipment.SS_WARE_TECH213.maxcount@{param@Cue}.{param@ID} L0FollowShip}-{object.equipment.SS_WARE_TECH213.count@{param@Cue}.{param@ID} L0FollowShip}"/>
+                        </add_equipment>
+                      </do_if>
+                      <set_actor_location actor="{param@Cue}.{param@ID} L0Mark" object="{param@Cue}.{param@ID} L0FollowShip" location="pilot"/>
+                      <do_if value="{value@{param@Cue}.{param@ID} L0StartCreated}" exact="1">
+                        <destroy_object object="{param@Cue}.{param@ID} L0Start" explosion="0" warp="0"/>
+                        <set_object name="{param@Cue}.{param@ID} L0Start" value="{object@{param@Cue}.{param@ID} L0FollowShip}"/>
+                        <set_value name="{param@Cue}.{param@ID} L0StartCreated" exact="0"/>
+                      </do_if>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M13 Dest Destroyed">
+              <condition>
+                <check_any>
+                  <object_destroyed object="{param@Cue}.{param@ID} L0Dest"/>
+                  <object_destroyed_by_player object="{param@Cue}.{param@ID} L0Dest"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time exact="1s"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="1">
+                    <do_choose>
+                      <do_when value="{object.isclass.station@{param@Cue}.{param@ID} L0Dest}" exact="1">
+                        <set_command object="{param@Cue}.{param@ID} L0FollowShip" command="dock" commandobject="{param@Cue}.{param@ID} L0Dest"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_command object="{param@Cue}.{param@ID} L0FollowShip" command="follow" commandobject="{param@Cue}.{param@ID} L0Dest" distance="3200m"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <reset_cue cue="L0M13 Dest Destroyed"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="4"/>
+                    <do_if value="{value@{param@Cue}.{param@ID} L0Mark Created}" exact="1">
+                      <cancel_cue cue="L0M13 Destroyed"/>
+                      <destroy_object object="{param@Cue}.{param@ID} L0FollowShip" warp="1"/>
+                    </do_if>
+                    <cancel_cue cue="L0M13 Mission"/>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L0M13 Find Ship" delay="150">
+              <condition>
+                <object_exists object="{param@Cue}.{param@ID} L0FollowShip"/>
+              </condition>
+              <action>
+                <do_all>
+                  <!--add 'what do I do' conversation-->
+                  <create_offer actor="{param@Lv1Guide}" conversation="L2ShowBriefing" cue="{param@Cue}"/>
+                  <add_object_to_group object="{param@Cue}.{param@ID} L0FollowShip" group="{param@Cue}.{param@ID} Distance Check"/>
+                  <add_equipment object="{param@Cue}.{param@ID} L0FollowShip">
+                    <ware typename="SS_WARE_WARPING" exact="1" critical="1"/>
+                  </add_equipment>
+                  <add_cargo object="{param@Cue}.{param@ID} L0FollowShip">
+                    <ware typename="SS_WARE_ENERGY" min="50" max="64"/>
+                  </add_cargo>
+                  <add_cargo object="{param@Cue}.{param@ID} L0FollowShip" chance="10">
+                    <ware typename="SS_WARE_FIGHTDRONE" min="5" max="25"/>
+                  </add_cargo>
+                  <add_cargo object="{param@Cue}.{param@ID} L0FollowShip" chance="10">
+                    <ware typename="SS_WARE_MINE_1" min="5" max="10"/>
+                  </add_cargo>
+                  <!--
+                  <add_cargo object="{param@Cue}.{param@ID} L0FollowShip" chance="10">
+                    <ware typename="SS_WARE_MINE_2" min="5" max="10"/>
+                  </add_cargo>
+                  -->
+                  <set_value name="L0M13.MinDistance" exact="11000"/>
+                  <set_objective cue="{param@Cue}" title="{3613,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                    <mission level="{param@Difficulty}" discipline="XXXT"/>
+                    <custom icon="find" action="{35,2006}" text="{actor.name@{param@Cue}.{param@ID} L0Mark}" guidance="{param@Cue}.{param@ID} L0FollowShip"/>
+                  </set_objective>
+                  <do_choose>
+                    <do_when value="L0M01.AddText" min="1">
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{{param@PageID},{param@TextID}}\n\n{3613,11}"/>
+                    </do_when>
+                    <do_otherwise>
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3613,11}"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Discipline" value="XXXT"/>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+                <cue ref="LUM06">
+                  <params>
+                    <param name="Start" value="{param@Cue}.{param@ID} L0Start"/>
+                    <param name="DestDist" value="3"/>
+                    <param name="DestRace" value="{param@EnemyRace}"/>
+                    <param name="Dest" value="{param@Cue}.{param@ID} L0Dest" comment="The destination to end at"/>
+                    <param name="Military" value="15"/>
+                    <param name="TransportShip" value="{param@Cue}.{param@ID} L0FollowShip"/>
+                  </params>
+                </cue>
+                <cue name="L0M13 Ship Not Found" check="cancel">
+                  <condition>
+                    <check_all>
+                      <check_value value="{value@{param@Cue}.{param@ID} L0Time}" min="1"/>
+                      <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <timing>
+                    <time exact="{value@{param@Cue}.{param@ID} L0Time}s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="4"/>
+                      <do_if value="{value@{param@Cue}.{param@ID} L0Mark Created}" exact="1">
+                        <cancel_cue cue="L0M13 Destroyed"/>
+                        <destroy_object object="{param@Cue}.{param@ID} L0FollowShip" warp="1"/>
+                      </do_if>
+                      <cancel_cue cue="L0M13 Mission"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M13 Found Ship" delay="2500">
+                  <condition>
+                    <check_all>
+                      <check_value value="{object.sector@{param@Cue}.{param@ID} L0FollowShip}" exact="{player.sector}"/>
+                      <check_distance value="{object.distance@{param@Cue}.{param@ID} L0FollowShip}" max="15000m"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L0M13 Ship Not Found"/>
+                      <!--set up variables-->
+                      <set_sector name="L0M13.NewSector" value="{player.sector}"/>
+                      <set_value name="L0M13.CheckTime" exact="0"/>
+                      <do_choose>
+                        <do_when value="{object.isclass.station@{param@Cue}.{param@ID} L0Dest}" exact="1">
+                          <set_command object="{param@Cue}.{param@ID} L0FollowShip" command="dock" commandobject="{param@Cue}.{param@ID} L0Dest"/>
+                        </do_when>
+                        <do_otherwise>
+                          <set_command object="{param@Cue}.{param@ID} L0FollowShip" command="follow" commandobject="{param@Cue}.{param@ID} L0Dest" distance="3200m"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <!--set objective-->
+                      <set_objective cue="{param@Cue}" title="{3613,{value@{param@Cue}.{param@ID} L0Title}}">
+                        <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}+1"/>
+                        <mission level="{param@Difficulty}" discipline="XXXT"/>
+                        <timer duration="0"/>
+                        <follow object="{param@Cue}.{param@ID} L0FollowShip"/>
+                      </set_objective>
+                      <create_briefing cue="{param@Cue}">
+                        <timer duration="0"/>
+                      </create_briefing>
+                      <add_object_to_group object="{param@Cue}.{param@ID} L0FollowShip" group="{param@Cue}.{param@ID} L0M13 Dist Check"/>
+                      <!--OOS so use incoming-->
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3613,101}"/>
+                      <!--player may try to talk to his mission ship but will fail!-->
+                      <create_offer actor="{param@Cue}.{param@ID} L0Mark" conversation="L0M13WhereYouGoing"/>
+                      <!--player is failing if he comes looking for this conversation now so remove-->
+                      <remove_offer actor="{param@Lv1Guide}" conversation="L2ShowBriefing"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L0M13 Too Close" delay="5s" instantiate="static">
+                      <condition>
+                        <check_all>
+                          <check_distance value="{object.distance@{param@Cue}.{param@ID} L0FollowShip}" max="{value@L0M13.MinDistance}m"/>
+                          <object_sector exact="0">
+                            <sector sector="{object.sector@{param@Cue}.{param@ID} L0FollowShip}"/>
+                          </object_sector>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <!-- using target ship broken?
+                          <set_object name="{param@Cue}.{param@ID} L0 Next Gate" group="{param@Cue}.{param@ID} L0M13 Dist Check" value="{object.destinationroute@{param@Cue}.{param@ID} L0FollowShip}"/>
+                          -->
+                          <set_object name="{param@Cue}.{param@ID} L0 Next Gate" group="{param@Cue}.{param@ID} L0M13 Dist Check" value="{object.route@{param@Cue}.{param@ID} L0Dest}"/>
+                          <do_if value="{group.distance.m@{param@Cue}.{param@ID} L0M13 Dist Check}" min="5000">
+                            <set_value name="L0M13.Anxiety" operation="add"/>
+                          </do_if>
+                          <remove_object_from_group object="{param@Cue}.{param@ID} L0 Next Gate" group="{param@Cue}.{param@ID} L0M13 Dist Check"/>
+                          <remove_object object="{param@Cue}.{param@ID} L0 Next Gate"/>
+                          <do_if value="{value@L0M13.Anxiety}" exact="1">
+                            <do_if value="{value@L0M13.Anxiety 1 Done}" exact="1" negate="1">
+                              <set_value name="L0M13.Anxiety 1 Done" exact="1"/>
+                              <set_value name="L0M13.MinDistance" exact="7500"/>
+                              <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3613,201}" popup="1"/>
+                            </do_if>
+                          </do_if>
+                          <do_if value="{value@L0M13.Anxiety}" exact="4">
+                            <do_if value="{value@L0M13.Anxiety 4 Done}" exact="1" negate="1">
+                              <set_value name="L0M13.Anxiety 4 Done" exact="1"/>
+                              <set_value name="L0M13.MinDistance" exact="10000"/>
+                              <play_text actor="{param@Cue}.{param@ID} L0Mark" textid="957"/>
+                            </do_if>
+                          </do_if>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L0M13 Contacted">
+                      <condition>
+                        <conversation_completed answer="enemy" conversation="L0M13WhereYouGoing" actor="{param@Cue}.{param@ID} L0Mark"/>
+                      </condition>
+                      <timing>
+                        <time min="250" max="350"/>
+                      </timing>
+                      <action>
+                        <set_value name="L0M13.Anxiety" exact="8"/>
+                      </action>
+                    </cue>
+                    <cue name="L0M13 Failed Anxiety" delay="1s">
+                      <condition>
+                        <check_value value="{value@L0M13.Anxiety}" exact="8"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <cancel_cue cue="L0M13 Contacted"/>
+                          <cancel_cue cue="L0M13 Too Close"/>
+                          <do_choose>
+                            <do_when value="{object.isclass.fighter@{param@Cue}.{param@ID} L0FollowShip}">
+                              <do_if value="{object.equipment.SS_WARE_WARPING.exists@{param@Cue}.{param@ID} L0FollowShip}" exact="1">
+                                <set_value name="this.JDChance" min="1" max="40"/>
+                              </do_if>
+                              <set_value name="this.AttChance" min="1" max="99"/>
+                              <set_value name="this.HelpChance" min="({param@Difficulty}*5)" max="({param@Difficulty}*5)+65"/>
+                            </do_when>
+                            <do_when value="{object.isclass.freighter@{param@Cue}.{param@ID} L0FollowShip}">
+                              <do_if value="{object.equipment.SS_WARE_WARPING.exists@{param@Cue}.{param@ID} L0FollowShip}" exact="1">
+                                <set_value name="this.JDChance" min="1" max="99"/>
+                              </do_if>
+                              <set_value name="this.HelpChance" min="({param@Difficulty}*5)" max="({param@Difficulty}*8)+95"/>
+                            </do_when>
+                            <do_otherwise>
+                              <set_value name="this.AttChance" min="1" max="600"/>
+                              <set_value name="this.HelpChance" min="({param@Difficulty}*5)" max="({param@Difficulty}*10)+35"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <do_choose>
+                            <!--object jumps away-->
+                            <do_when value="{value@this.JDChance}" min="30">
+                              <set_value name="this.textid" list="2002|2003"/>
+                              <play_text actor="{param@Cue}.{param@ID} L0Mark" textid="{value@this.textid}"/>
+                              <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="5"/>
+                              <cancel_cue cue="L0M13 Destroyed"/>
+                              <destroy_object object="{param@Cue}.{param@ID} L0FollowShip" warp="1"/>
+                              <cancel_cue cue="L0M13 Mission"/>
+                            </do_when>
+                            <!--object attacks player-->
+                            <do_when value="{value@this.AttChance}" min="35">
+                              <set_relation object="{param@Cue}.{param@ID} L0FollowShip">
+                                <relation object="{player.ship}" relation="enemy" mutual="0"/>
+                              </set_relation>
+                              <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="5"/>
+                              <set_command object="{param@Cue}.{param@ID} L0FollowShip" command="attack"/>
+                              <set_value name="this.textid" list="2002|2003"/>
+                              <play_text actor="{param@Cue}.{param@ID} L0Mark" textid="{value@this.textid}"/>
+                              <cancel_cue cue="L0M13 Mission"/>
+                            </do_when>
+                            <do_otherwise>
+                              <set_value name="this.textid" list="2002|2003"/>
+                              <play_text actor="{param@Cue}.{param@ID} L0Mark" textid="{value@this.textid}"/>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L0M13 Create Helpers" check="cancel">
+                          <condition>
+                            <check_value value="{value@this.HelpChance}" min="60"/>
+                          </condition>
+                          <!--ADD OTHER SHIPS TO COME HELP SHIP BEING FOLLOWED-->
+                        </cue>
+                        <cue name="L0M13 Has Drones" check="cancel">
+                          <condition>
+                            <object_has_cargo object="{param@Cue}.{param@ID} L0FollowShip">
+                              <ware typename="SS_WARE_FIGHTDRONE" min="1"/>
+                            </object_has_cargo>
+                          </condition>
+                          <cues>
+                            <cue name="L0M13 Deploy Drones" instantiate="static" delay="5s">
+                              <condition>
+                                <check_all>
+                                  <object_sector exact="0">
+                                    <sector sector="{object.sector@{param@Cue}.{param@ID} L0FollowShip}"/>
+                                  </object_sector>
+                                  <check_distance value="{object.distance.m@{param@Cue}.{param@ID} L0FollowShip}" max="8000"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_choose chance="10">
+                                  <do_when value="{object.cargo.SS_WARE_FIGHTDRONE.exists@{param@Cue}.{param@ID} L0FollowShip}" exact="1">
+                                    <do_all min="4" max="{object.cargo.SS_WARE_FIGHTDRONE.count@{param@Cue}.{param@ID} L0FollowShip}" profile="decreasing">
+                                      <create_drone name="this.temp" class="fightdrone" typename="SS_SH_FIGHTDRONE" race="enemy">
+                                        <position object="{param@Cue}.{param@ID} L0FollowShip"/>
+                                      </create_drone>
+                                      <add_equipment object="this.temp">
+                                        <ware typename="SS_SHIELD_A" exact="1"/>
+                                      </add_equipment>
+                                      <set_command object="this.temp" command="attack"/>
+                                      <remove_object object="this.temp"/>
+                                      <add_cargo object="{param@Cue}.{param@ID} L0FollowShip">
+                                        <ware typename="SS_WARE_FIGHTDRONE" exact="-1"/>
+                                      </add_cargo>
+                                    </do_all>
+                                  </do_when>
+                                  <do_otherwise>
+                                    <cancel_cue cue="L0M13 Has Drones"/>
+                                  </do_otherwise>
+                                </do_choose>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L0M13 Has Mines" check="cancel">
+                          <condition>
+                            <object_has_cargo object="{param@Cue}.{param@ID} L0FollowShip">
+                              <ware typename="SS_WARE_MINE_1" min="1"/>
+                            </object_has_cargo>
+                          </condition>
+                          <cues>
+                            <cue name="L0M13 Deploy Mines" instantiate="static" delay="5s">
+                              <condition>
+                                <check_all>
+                                  <object_sector exact="0">
+                                    <sector sector="{object.sector@{param@Cue}.{param@ID} L0FollowShip}"/>
+                                  </object_sector>
+                                  <check_distance value="{object.distance.m@{param@Cue}.{param@ID} L0FollowShip}" max="5000"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_choose chance="10">
+                                  <do_when value="{object.cargo.SS_WARE_MINE_1.exists@{param@Cue}.{param@ID} L0FollowShip}" exact="1">
+                                    <do_all min="4" max="{object.cargo.SS_WARE_MINE_1.count@{param@Cue}.{param@ID} L0FollowShip}" profile="decreasing">
+                                      <create_stationary class="mine" typename="SS_SH_MINE_1" race="enemy">
+                                        <position object="{param@Cue}.{param@ID} L0FollowShip" min="50" max="500m"/>
+                                      </create_stationary>
+                                      <add_cargo object="{param@Cue}.{param@ID} L0FollowShip">
+                                        <ware typename="SS_WARE_MINE_1" exact="-1"/>
+                                      </add_cargo>
+                                    </do_all>
+                                  </do_when>
+                                  <do_otherwise>
+                                    <cancel_cue cue="L0M13 Has Mines"/>
+                                  </do_otherwise>
+                                </do_choose>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L0M13 Enemies" delay="5s">
+                      <condition>
+                        <check_all>
+                          <check_value value="{sector.exists@L0M13.NextSector}" exact="1"/>
+                          <object_sector exact="0">
+                            <sector sector="L0M13.NextSector"/>
+                          </object_sector>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="this.CreateChance" min="1" max="99"/>
+                          <do_choose>
+                            <do_when value="{value@this.CreateChance}" min="40">
+                              <do_any>
+                                <set_value name="this.EnemyRace" exact="{lookup.race@pirate}" chance="80"/>
+                                <set_value name="this.EnemyRace" exact="{lookup.race@xenon}" chance="20"/>
+                              </do_any>
+                              <set_value name="this.EnemyAmt" exact="{player.fightrank.rank}"/>
+                              <!--keep a random encounter sensible-->
+                              <do_if value="{value@this.EnemyAmt}" min="6">
+                                <set_value name="this.EnemyAmt" exact="6"/>
+                              </do_if>
+                              <set_sector name="L0M13.NextSector" value="0"/>
+                              <set_object name="L0M13 Enemies.Create Gate" value="{object.route.destination@{param@Cue}.{param@ID} L0Dest}"/>
+                            </do_when>
+                            <do_otherwise>
+                              <set_sector name="L0M13.NextSector" value="0"/>
+                              <cancel_cue cue="L0M13 Create Enemies"/>
+                              <reset_cue cue="L0M13 Enemies"/>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L0M13 Create Enemies" delay="2s">
+                          <condition>
+                            <object_position max="11000m">
+                              <position object="{object.route@{param@Cue}.{param@ID} L0Dest}"/>
+                            </object_position>
+                          </condition>
+                          <cues>
+                            <cue name="L0M13 OBS Finished"/>
+                            <cue ref="OBS">
+                              <params>
+                                <param name="OBS Cue" value="L0M13 Create Enemies"/>
+                                <param name="OBS Cancel Cue" value="L0M13 OBS Finished"/>
+                                <param name="OBS Fleet Group Name" value="EnemyShips"/>
+                                <param name="OBSFleetRace" value="{value@L0M13 Enemies.EnemyRace}"/>
+                                <param name="OBSFleetPilotsRace" value="{value@L0M13 Enemies.EnemyRace}"/>
+                                <param name="OBSMissionRank" value="{value@this.EnemyAmt}"/>
+                                <param name="OBSDifficultyRank" value="3"/>
+                                <param name="OBSPosition" value="500"/>
+                                <param name="OBSFleetPositionObject" value="L0M13 Enemies.Create Gate"/>
+                                <param name="OBSFleetCapturable" value="0"/>
+                                <param name="OBSFleetCommunicates" value="1"/>
+                                <param name="OBSFleetCovered" value="0"/>
+                                <param name="OBS Dock Support" value="1"/>
+                                <param name="OBS Support Overflow" value="0"/>
+                              </params>
+                            </cue>
+                            <cue name="L0M13 Enemies Orders">
+                              <condition>
+                                <cue_cancelled cue="L0M13 OBS Finished"/>
+                              </condition>
+                              <action>
+                                <set_group_command group="L0M13 Create Enemies.EnemyShips"  command="attack"/>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L0M13 Changed Sector" instantiate="static">
+                      <condition>
+                        <object_changed_sector object="{param@Cue}.{param@ID} L0FollowShip"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_sector name="L0M13.NewSector" value="{event.param}"/>
+                          <set_sector name="L0M13.NextSector" value="{event.param}"/>
+                          <set_sector name="L0M13.OldSector" value="{event.param2}"/>
+                          <set_value name="L0M13.CheckTime" exact="{player.age}+((9000*500)/{object.maxspeed@{param@Cue}.{param@ID} L0FollowShip})"/>
+                          <do_if value="{value@L0M13.CheckTime}" max="{player.age}+44">
+                            <set_value name="L0M13.CheckTime" exact="{player.age}+45"/>
+                          </do_if>
+                          <do_if value="{value@L0M13.CheckTime}" min="{player.age}+241">
+                            <set_value name="L0M13.CheckTime" exact="{player.age}+240"/>
+                          </do_if>
+                          <do_if value="{value@L0M13.Anxiety}" min="5">
+                            <set_value name="L0M13.Anxiety" exact="4"/>
+                          </do_if>
+                          <set_value name="L0M13.Escaping" exact="0"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L0M13 Lost Them" delay="5s" instantiate="static">
+                      <condition>
+                        <check_all>
+                          <check_value value="{object.distance.m@{param@Cue}.{param@ID} L0FollowShip}" min="18000"/>
+                          <check_age min="{value@L0M13.CheckTime}"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="L0M13.Escaping" operation="add"/>
+                          <do_if value="{value@L0M13.CheckTime}" max="{player.age}+29">
+                            <set_value name="L0M13.CheckTime" exact="{player.age}+30"/>
+                          </do_if>
+                          <do_if value="{value@L0M13.Escaping}" min="4">
+                            <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="4"/>
+                            <do_if value="{value@{param@Cue}.{param@ID} L0Mark Created}" exact="1">
+                              <cancel_cue cue="L0M13 Destroyed"/>
+                              <destroy_object object="{param@Cue}.{param@ID} L0FollowShip" warp="1"/>
+                            </do_if>
+                            <cancel_cue cue="L0M13 Mission"/>
+                          </do_if>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L0M13 Given Up" delay="1s">
+                      <condition>
+                        <check_all>
+                          <object_sector exact="0" negate="1">
+                            <sector sector="L0M13.NewSector"/>
+                          </object_sector>
+                          <object_sector exact="0" negate="1">
+                            <sector sector="L0M13.OldSector"/>
+                          </object_sector>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="4"/>
+                          <do_if value="{text.exists@{actor.voice@{param@Lv1Guide}},846}" exact="1">
+                            <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3613,401} {{actor.voice@{param@Lv1Guide}},846}"/>
+                          </do_if>
+                          <destroy_object object="{param@Cue}.{param@ID} L0FollowShip" warp="1"/>
+                          <cancel_cue cue="L0M13 Mission"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L0M13 Check Won">
+                      <action>
+                        <do_all>
+                          <add_object_to_group group="{param@Cue}.{param@ID} Check Won" object="{param@Cue}.{param@ID} L0FollowShip"/>
+                          <add_object_to_group group="{param@Cue}.{param@ID} Check Won" object="{param@Cue}.{param@ID} L0Dest"/>
+                          <set_sector name="L0M13.Dest Sector" value="{object.sector@{param@Cue}.{param@ID} L0Dest}"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L0M13 Won" delay="3s">
+                          <condition>
+                            <check_all>
+                              <object_exists object="{param@Cue}.{param@ID} L0Dest"/>
+                              <object_sector exact="0" object="{param@Cue}.{param@ID} L0FollowShip">
+                                <sector sector="L0M13.Dest Sector"/>
+                              </object_sector>
+                              <check_value value="{group.distance.m@{param@Cue}.{param@ID} Check Won}" max="4000"/>
+                              <object_sector exact="0">
+                                <sector sector="L0M13.Dest Sector"/>
+                              </object_sector>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <!--remove conversations-->
+                              <remove_offer actor="{param@Cue}.{param@ID} L0Mark" conversation="L0M13WhereYouGoing"/>
+                              <!--TESTING CODE
+                              <incoming_message author="TESTING CODE" text="Destination: {object.name@{param@Cue}.{param@ID} L0Dest} in {object.sector.name@{param@Cue}.{param@ID} L0Dest}\nShip: {object.name@{param@Cue}.{param@ID} L0FollowShip} in {object.sector.name@{param@Cue}.{param@ID} L0FollowShip}\nDistance: {group.distance.m@{param@Cue}.{param@ID} Check Won}m"/>-->
+                              <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="1"/>
+                              <cancel_cue cue="L0M13 Mission"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M13 Destroyed">
+              <condition>
+                <check_any>
+                  <object_destroyed object="{param@Cue}.{param@ID} L0FollowShip"/>
+                  <object_destroyed_by_player object="{param@Cue}.{param@ID} L0FollowShip"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{value@{param@Cue}.{param@ID} L0M13 Progress}" min="1" negate="1">
+                    <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="3"/>
+                    <cancel_cue cue="L0M13 Mission"/>
+                  </do_if>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M13 Aborted">
+              <condition>
+                <objective_cancelled cue="{param@Cue}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@Cue}.{param@ID} L0M13 Progress" exact="99"/>
+                  <cancel_cue cue="L0M13 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L0M13 Cleanup">
+          <condition>
+            <check_value value="{value@{param@Cue}.{param@ID} L0M13 Progress}" min="1"/>
+          </condition>
+          <cues>
+            <!--what if the destination was a ship, no docking and created-->
+            <cue name="L0M13 Remove Cleanup Ship" delay="20s">
+              <condition>
+                <check_any>
+                  <object_exists object="{param@Cue}.{param@ID} L0FollowShip" negate="1"/>
+                  <check_value value="{object.race@{param@Cue}.{param@ID} L0FollowShip}" exact="{lookup.race@player}"/>
+                </check_any>
+              </condition>
+              <action>
+                <cancel_cue cue="L0M13 Cleanup"/>
+              </action>
+            </cue>
+            <cue name="L0M13 Cleanup Docked" delay="5s">
+              <condition>
+                <object_is_docked object="{param@Cue}.{param@ID} L0FollowShip"/>
+              </condition>
+              <timing>
+                <time min="2m" max="4m"/>
+              </timing>
+              <action>
+                <do_all>
+                  <add_equipment object="{param@Cue}.{param@ID} L0FollowShip">
+                    <ware typename="SS_WARE_WARPING" exact="1" critical="1"/>
+                  </add_equipment>
+                  <add_cargo object="{param@Cue}.{param@ID} L0FollowShip">
+                    <ware typename="SS_WARE_ENERGY" min="15" max="30" critical="1"/>
+                  </add_cargo>
+                  <do_choose>
+                    <do_when value="{object.cargo.SS_WARE_WARPING.count@{param@Cue}.{param@ID} L0FollowShip}" exact="0">
+                      <destroy_object object="{param@Cue}.{param@ID} L0FollowShip"/>
+                      <cancel_cue cue="L0M13 Cleanup"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_command object="{param@Cue}.{param@ID} L0FollowShip" command="idle"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L0M13 Cleanup Jump" delay="20s">
+                  <condition>
+                    <object_is_docked object="{param@Cue}.{param@ID} L0FollowShip" negate="1"/>
+                  </condition>
+                  <timing>
+                    <time exact="5s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <do_if value="{object.race@{param@Cue}.{param@ID} L0FollowShip}" exact="{lookup.race@player}" negate="1">
+                        <destroy_object object="{param@Cue}.{param@ID} L0FollowShip" warp="1"/>
+                      </do_if>
+                      <cancel_cue cue="L0M13 Cleanup"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>lIFLCuWXPFEujBhVmN9XNzQOoRYsbTLtZh3DvgVYkhJAwqYeH68IRKcYPyyjVSEXIjpSvMuXu94UIZAGk8r5XP+MhqpSQGKFwmGbMSIVqeRD6XWOO9YXH/+EeamK+q6eMliqz+sgIviV0oslUfkYfCNfWKwmAcQMgWqhK/6Iqec590/bqfxnr3D8kVC0gzho/7U/1mDv0x2IgiUq3r0ktSuGZtM0X/5PD51gEaJC7N66xuZntb4HQJqvq7ABdEKG2T8JWo7Wz9aS1OfnxapFnlSILRXjDHBWMiIyVOu7Y7poklRHdFnZNjO2+A1F8WqCaVfd2Rsx6vORMNGYQgIAtQ==</signature>
+</director>

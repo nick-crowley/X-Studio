@@ -1,0 +1,108 @@
+Each grouping of commands has it's own rules.
+Rules within a group are run top-to-bottom
+
+******************************
+******** COMMENT/NOP *********
+******************************
+
+COMMENT/NOP
+COMMENT/NOP
+
+ 	 --------
+
+IF/WHILE/SKIP-IF/ELSE/ELSE-IF
+	COMMENT/NOP
+
+	 --------
+
+SKIP-IF
+	[COMMENT/NOP]
+	COMMAND
+COMMENT/NOP
+
+ 	 --------
+
+COMMAND/END
+COMMENT/NOP
+
+******************************
+****** IF/WHILE/SKIP-IF ******
+******************************
+
+SKIP-IF
+IF/WHILE/SKIP-IF
+
+	  -------
+
+SKIP-IF
+	[COMMENT/NOP]
+	COMMAND/COMMENT/NOP
+IF/WHILE/SKIP-IF
+
+	  -------
+
+END/COMMAND/COMMENT/NOP
+IF/WHILE/SKIP-IF
+
+	  -------
+
+IF/WHILE/ELSE/ELSE-IF
+	IF/WHILE/SKIP-IF
+
+*******************************
+****** ELSE/ELSE-IF/END *******
+*******************************
+
+IF/WHILE/SKIP-IF/ELSE/ELSE-IF
+ELSE/ELSE-IF/END
+
+          -------
+
+IF/WHILE/SKIP-IF/ELSE/ELSE-IF
+	[COMMENT/NOP]
+	COMMENT/NOP
+ELSE/ELSE-IF/END
+
+          -------
+
+	SKIP-IF
+		[COMMENT/NOP]
+		COMMAND
+ELSE/ELSE-IF/END
+
+	  -------
+
+	END/COMMAND/COMMENT/NOP
+ELSE/ELSE-IF/END
+
+******************************
+********** COMMAND ***********
+******************************
+
+IF/WHILE/SKIP-IF/ELSE/ELSE-IF
+	COMMAND
+
+	 -------
+
+COMMENT/NOP/END
+COMMAND
+
+	 -------
+
+SKIP-IF
+	[COMMENT/NOP]
+	COMMAND
+COMMAND
+
+	 -------
+
+COMMAND
+COMMAND
+
+
+
+
+
+
+
+

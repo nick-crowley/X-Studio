@@ -1,0 +1,1418 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M008" name="HUB Plot Scene 1" description="L2 HUB Plot Scene 1, Lost in Hell"/>
+    <version number="0.1" date="30/06/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M008" library="1">
+      <documentation>
+        <content name="HUB Plot" reference="L2M008" type="L2"/>
+        <version date="30/06/2008" number="0.1" status="release"/>
+      </documentation>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_sector name="L2M008.KE" x="0" y="0" exact="0"/>
+          <find_sector name="L2M008.CBSW" x="0" y="5" exact="0"/>
+          <find_sector name="L2M008.Spur" x="0" y="7" exact="0"/>
+          <find_sector name="L2M008.O Storm" x="0" y="8" exact="0"/>
+          <find_sector name="L2M008.A Clouds" x="3" y="2" exact="0"/>
+          <find_sector name="L2M008.O Treaty" x="4" y="4" exact="0"/>
+          <find_sector name="L2M008.L Water" x="5" y="8" exact="0"/>
+          <find_sector name="L2M008.Shore of I" x="5" y="9" exact="0"/>
+          <find_sector name="L2M008.M Paradise" x="18" y="1" exact="0"/>
+          <find_sector name="L2M008.O of F" x="18" y="3" exact="0"/>
+          
+          <create_ship boardable="0" capturable="0" name="L2M008.HumiShip" invincible="1" race="boron" racelogic="0" typename="SS_SH_B_M2">
+            <position x="0" y="0" z="0" max="8km"/>
+            <sector sector="L2M008.O of F"/>
+            <equipment loadout="default"/>
+            <command command="idle"/>
+          </create_ship>
+          <create_actor name="L2M008.Humi" face="202" character="{3895,36}" voice="3836" object="L2M008.HumiShip" location="crew" race="boron"/>
+          <ask_question author="{3895,36}" name="Humi Wi Question" text="{3895,365101}" popup="1"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M008 HQ Scene 1">
+          <condition>
+            <question_answered question="Humi Wi Question" answer="ok"/>
+          </condition>
+          <action>
+            <do_all>
+              <!--TODO<play_text priority="99" pageid="35" textid="44" comment="New Mission Recieved"/>-->
+              <create_offer actor="L2M008.Humi" conversation="L2M008 No1" cue="L2M008" discipline="XXXXP"/>
+              <set_value name="L2M008.Step" operation="set"/>
+              <create_briefing cue="L2M008" story="{3200,5}" chapter="{3200,501}" title="{3205,801}" text="{3205,811}" background="station_argon_space_fuel_distillery.tga">
+                <mission discipline="XXXT" level="easy"/>
+                <objectives>
+                  <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                    <talkto actor="L2M008.Humi"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="L2M008" story="{3200,5}" chapter="{3200,501}" title="{3205,801}" text="{3205,811}" noabort="1">
+                <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                <mission discipline="XXXT" level="easy"/>
+                <talkto actor="L2M008.Humi"/>
+              </set_objective>
+              <set_value name="L2M008.Step" operation="add"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M008 Conversation No1 started">
+              <condition>
+                <conversation_completed actor="L2M008.Humi" answer="start1" conversation="L2M008 No1"/>
+              </condition>
+              <cues>
+                <cue name="L2M008 Change Conversation No1">
+                  <condition>
+                    <check_value value="{player.menu.dialog}" exact="0"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <remove_offer actor="L2M008.Humi" conversation="L2M008 No1" discipline="XXXXP"/>
+                      <create_offer actor="L2M008.Humi" conversation="L2M008 No2" cue="L2M008" discipline="XXXXP"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M008 Accept Mission 2">
+                      <condition>
+                        <conversation_completed actor="L2M008.Humi" answer="ready1" conversation="L2M008 No2"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="L2M008.Humi" conversation="L2M008 No2" discipline="XXXXP"/>
+                          <set_value name="L2M008.Start Mission" exact="1"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M008 Accept Mission">
+              <condition>
+                <conversation_completed actor="L2M008.Humi" answer="ready1" conversation="L2M008 No1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="L2M008 Change Conversation No1"/>
+                  <remove_offer actor="L2M008.Humi" conversation="L2M008 No1" discipline="XXXXP"/>
+                  <set_value name="L2M008.Start Mission" exact="1"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L2M008 Start Mission" delay="2s">
+              <condition>
+                <check_value value="{value@L2M008.Start Mission}" exact="1"/>
+              </condition>
+              <timing>
+                <time exact="{text.duration@3836,365103}"/>
+              </timing>
+              <action>
+                <do_all>
+                  <create_briefing cue="L2M008" title="{3205,802}" text="{3205,812}" background="station_argon_space_fuel_distillery.tga">
+                    <mission discipline="XXXT" level="easy"/>
+                    <objectives>
+                      <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                        <flyto>
+                          <sector sector="L2M008.M Paradise"/>
+                        </flyto>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M008" title="{3205,801}" text="{3205,812}" noabort="1">
+                    <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                    <mission discipline="XXXT" level="easy"/>
+                    <flyto>
+                      <sector sector="L2M008.M Paradise"/>
+                    </flyto>
+                  </set_objective>
+                  <set_value name="L2M008.Step" operation="add"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M008 Player Enters M Paradise">
+                  <condition>
+                    <check_all>
+                      <cue_is_complete cue="L2M008 Start Mission"/>
+                      <check_value value="{player.sector}" exact="{sector@L2M008.M Paradise}"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <create_station name="L2M008.Lab" race="boron" typename="SS_FAC_B_PPC" invincible="1" highlight="1">
+                        <position exact="5km"/>
+                        <sector sector="L2M008.M Paradise"/>
+                        <equipment loadout="default"/>
+                      </create_station>
+                      <do_all exact="10">
+                        <create_ship group="L2M008.M P Yaki" typename="{random.type@SS_SH_Y_M3|SS_SH_Y_M4}" race="enemy">
+                          <position object="L2M008.Lab" exact="1km"/>
+                          <sector sector="L2M008.M Paradise"/>
+                          <equipment loadout="maximum"/>
+                          <command command="killenemies"/>
+                          <pilot race="{random.race@yaki}" jobtextid="119"/>
+                        </create_ship>
+                      </do_all>
+                      <do_all exact="2">
+                        <create_ship group="L2M008.M P Yaki" typename="{random.type@SS_SH_Y_M3|SS_SH_Y_M4}" dockobject="L2M008.Lab" race="enemy">
+                          <equipment loadout="maximum"/>
+                          <command command="killenemies"/>
+                          <pilot race="{random.race@yaki}" jobtextid="119"/>
+                        </create_ship>
+                      </do_all>
+                      <do_all exact="4">
+                        <create_ship typename="{random.type@SS_SH_B_M3|SS_SH_B_M4}" race="boron">
+                          <position object="L2M008.Lab" exact="3km"/>
+                          <sector sector="L2M008.M Paradise"/>
+                          <equipment loadout="default"/>
+                          <command command="killenemies"/>
+                        </create_ship>
+                      </do_all>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M008 M Paradise Cutscene">
+                      <timing>
+                        <time exact="4s"/>
+                      </timing>
+                      <action>
+                        <!--TODO PLAY CUTSCENE-->
+                        <set_value name="this.temp" exact="1"/>
+                      </action>
+                      <cues>
+                        <cue name="L2M008 Destroy Lab">
+                          <condition>
+                            <cue_completed cue="L2M008 M Paradise Cutscene"/>
+                          </condition>
+                          <timing>
+                            <time exact="8s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <create_crate group="L2M008.Debris">
+                                <position object="L2M008.Lab"/>
+                                <sector sector="L2M008.M Paradise"/>
+                                <ware typename="SS_LASER_ESR" exact="1"/>
+                              </create_crate>
+                              <create_crate group="L2M008.Debris">
+                                <position object="L2M008.Lab"/>
+                                <sector sector="L2M008.M Paradise"/>
+                                <ware typename="SS_WARE_DEBRIS" exact="2"/>
+                              </create_crate>
+                              <create_crate group="L2M008.Debris">
+                                <position object="L2M008.Lab"/>
+                                <sector sector="L2M008.M Paradise"/>
+                                <ware typename="SS_WARE_DEBRIS" exact="2"/>
+                              </create_crate>
+                              <create_crate group="L2M008.Debris">
+                                <position object="L2M008.Lab"/>
+                                <sector sector="L2M008.M Paradise"/>
+                                <ware typename="SS_WARE_TECH208" min="20" max="30"/>
+                              </create_crate>
+                              <destroy_object object="L2M008.Lab" explosion="1"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M008 Crate Picked Up" instantiate="static">
+                              <condition>
+                                <any_object_destroyed_by_player group="L2M008.Debris"/>
+                              </condition>
+                              <action>
+                                <set_value name="L2M008.DebrisCount" operation="add"/>
+                              </action>
+                            </cue>
+                            <cue name="L2M008 S1 Attack Yaki">
+                              <condition>
+                                <cue_completed cue="L2M008 Destroy Lab"/>
+                              </condition>
+                              <timing>
+                                <time exact="4s"/>
+                              </timing>
+                              <action>
+                                <do_all>
+                                  <create_briefing cue="L2M008" background="station_argon_space_fuel_distillery.tga">
+                                    <mission discipline="XFXX" level="hard"/>
+                                    <objectives>
+                                      <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                        <custom action="{35,2004}" text="{1266,19} {35,2110}" comment="Destroy: Yaki Ships"/>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <set_objective cue="L2M008" noabort="1">
+                                    <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                    <mission discipline="XFXX" level="hard"/>
+                                    <custom action="{35,2004}" text="{1266,19} {35,2110}" comment="Destroy: Yaki Ships"/>
+                                  </set_objective>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M008 S1 Set M Paradise OOS Guidance" delay="5s">
+                                  <condition>
+                                    <check_value value="{player.sector}" exact="{sector@L2M008.M Paradise}" negate="1"/>
+                                  </condition>
+                                  <action>
+                                    <set_objective cue="L2M008" noabort="1" silent="1">
+                                      <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                      <mission discipline="XFXX" level="hard"/>
+                                      <custom>
+                                        <sector sector="L2M008.M Paradise"/>
+                                      </custom>
+                                    </set_objective>
+                                  </action>
+                                </cue>
+                                <cue name="L2M008 S1 Yaki Guidance Update" delay="5s" instantiate="static">
+                                  <condition>
+                                    <check_all>
+                                      <check_value value="{player.sector}" exact="{sector@L2M008.M Paradise}"/>
+                                      <check_any>
+                                        <object_exists object="L2M008.LastYaki" negate="1"/>
+                                        <check_value value="{group.nearest@L2M008.M P Yaki}" exact="{object@L2M008.LastYaki}" negate="1"/>
+                                      </check_any>
+                                    </check_all>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <reset_cue cue="L2M008 S1 Set M Paradise OOS Guidance"/>
+                                      <set_object name="L2M008.LastYaki" value="{group.nearest@L2M008.M P Yaki}"/>
+                                      <set_objective cue="L2M008" noabort="1" silent="1">
+                                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                        <mission discipline="XFXX" level="hard"/>
+                                        <custom object="L2M008.LastYaki"/>
+                                      </set_objective>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                                <cue name="L2M008 S1 Yaki Captured" instantiate="static">
+                                  <condition>
+                                    <any_object_captured group="L2M008.M P Yaki"/>
+                                  </condition>
+                                  <action>
+                                    <remove_object object="L2M008.M P Yaki {event.object}"/>
+                                  </action>
+                                </cue>
+                                <cue name="L2M008 S1 Yaki Jump" delay="2s">
+                                  <condition>
+                                    <check_all>
+                                      <check_age min="{value@L2M008.Yaki Jump Delay}"/>
+                                      <check_value value="{group.object.count@L2M008.M P Yaki}" min="1"/>
+                                    </check_all>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <destroy_object object="{group.object.random@L2M008.M P Yaki}" warp="1"/>
+                                      <set_value name="L2M008.Yaki Jump Delay" min="{player.age}+50" max="{player.age}+180"/>
+                                      <reset_cue cue="L2M008 S1 Yaki Jump"/>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                                <cue name="L2M008 S1 Yaki Gone" delay="1s">
+                                  <condition>
+                                    <check_value value="{group.object.count@L2M008.M P Yaki}" exact="0"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <cancel_cue cue="L2M008 S1 Set M Paradise OOS Guidance"/>
+                                      <cancel_cue cue="L2M008 S1 Yaki Guidance Update"/>
+                                      <cancel_cue cue="L2M008 S1 Yaki Jump"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M008 S1 Speak to Humi">
+                                      <timing>
+                                        <time exact="5s"/>
+                                      </timing>
+                                      <action>
+                                        <do_all>
+                                          <set_value name="L2M008.Step" operation="add"/>
+                                          <create_briefing cue="L2M008" background="station_argon_space_fuel_distillery.tga">
+                                            <mission discipline="XXXT" level="easy"/>
+                                            <objectives>
+                                              <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                <flyto object="L2M008.HumiShip"/>
+                                              </objective>
+                                            </objectives>
+                                          </create_briefing>
+                                          <set_objective cue="L2M008" noabort="1">
+                                            <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                            <mission discipline="XXXT" level="easy"/>
+                                            <flyto object="L2M008.HumiShip"/>
+                                          </set_objective>
+                                          <set_value name="L2M008.Step" operation="add"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M008 S1 Fly to Humi" delay="5s">
+                                          <condition>
+                                            <object_position max="5km">
+                                              <position object="L2M008.HumiShip"/>
+                                            </object_position>
+                                          </condition>
+                                          <action>
+                                            <do_all>
+                                              <do_choose>
+                                                <do_when value="{value@L2M008.DebrisCount}" min="1">
+                                                  <play_text priority="99">
+                                                    <line actor="L2M008.Humi" pageid="3836" textid="365104"/>
+                                                    <line actor="L2M008.Humi" pageid="3836" textid="365105"/>
+                                                    <line actor="L2M008.Humi" pageid="3836" textid="365106"/>
+                                                  </play_text>
+                                                  <set_value name="L2M008.Start Scene 2 Wait" exact="{player.age}+{text.duration.s@3836,365104}+{text.duration.s@3836,365105}+{text.duration.s@3836,365106}+2"/>
+                                                </do_when>
+                                                <do_otherwise>
+                                                  <play_text priority="99">
+                                                    <line actor="L2M008.Humi" pageid="3836" textid="365104"/>
+                                                    <line actor="L2M008.Humi" pageid="3836" textid="365106"/>
+                                                  </play_text>
+                                                  <set_value name="L2M008.Start Scene 2 Wait" exact="{player.age}+{text.duration.s@3836,365104}+{text.duration.s@3836,365106}+2"/>
+                                                </do_otherwise>
+                                              </do_choose>
+                                              <set_value name="L2M008.HQ Scene 1 End" exact="1"/>
+                                              <cancel_cue cue="L2M008 HQ Scene 1"/>
+                                            </do_all>
+                                          </action>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M008 HQ Scene 2" delay="3s">
+          <condition>
+            <check_all>
+              <check_value value="{value@L2M008.HQ Scene 1 End}" exact="1"/>
+              <check_age min="{value@L2M008.Start Scene 2 Wait}"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <create_ship name="L2M008.BranoShip" group="L2M008.Allies" race="argon" boardable="0" racelogic="0" typename="SS_SH_A_M7" invincible="1">
+                <position x="0" y="0" z="0" max="8km"/>
+                <sector sector="L2M008.CBSW"/>
+                <equipment loadout="maximum"/>
+                <command command="idle"/>
+              </create_ship>
+              <create_actor name="L2M008.Brano" character="{3895,37}" object="L2M008.BranoShip" location="crew" face="107" voice="110" race="argon"/>
+              <create_briefing cue="L2M008" story="{3200,5}" chapter="{3200,502}" title="{3205,803}" text="{3205,813}" background="station_argon_space_fuel_distillery.tga">
+                <mission discipline="XXXT" level="easy"/>
+                <objectives>
+                  <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                    <talkto actor="L2M008.Brano"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="L2M008" story="{3200,5}" chapter="{3200,502}" title="{3205,803}" text="{3205,813}" noabort="1">
+                <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                <mission discipline="XXXT" level="easy"/>
+                <talkto actor="L2M008.Brano"/>
+              </set_objective>
+              <set_value name="L2M008.Step" operation="add"/>
+              <create_offer actor="L2M008.Brano" conversation="L2M008 No3" cue="L2M008" discipline="XXXXP"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M008 Meet Brano">
+              <condition>
+                <conversation_completed actor="L2M008.Brano" conversation="L2M008 No3" answer="ready"/>
+              </condition>
+              <action>
+                <remove_offer actor="L2M008.Brano" conversation="L2M008 No3" discipline="XXXXP"/>
+              </action>
+              <cues>
+                <cue name="L2M008 Meet Brano Wait">
+                  <timing>
+                    <time exact="{text.duration@3837,375201}+2s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <create_briefing cue="L2M008" title="{3205,804}" text="{3205,814}" background="station_argon_space_fuel_distillery.tga">
+                        <mission discipline="XXXT" level="easy"/>
+                        <objectives>
+                          <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                            <custom action="{35,2075}" text="{sector.name@L2M008.O Storm}">
+                              <sector sector="L2M008.O Storm"/>
+                            </custom>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <set_objective cue="L2M008" title="{3205,804}" text="{3205,814}" noabort="1">
+                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                        <mission discipline="XXXT" level="easy"/>
+                        <custom action="{35,2075}" text="{sector.name@L2M008.O Storm}">
+                          <sector sector="L2M008.O Storm"/>
+                        </custom>
+                      </set_objective>
+                      <set_value name="L2M008.Step" operation="add"/>
+                      <do_all min="1" max="3">
+                        <create_ship race="yaki" typename="{random.type@SS_SH_A_M4P_ENH|SS_SH_Y_M3_PROTO|SS_SH_A_TS_ENH|SS_SH_S_M3_ADV}">
+                          <position x="0" y="0" z="0" max="20km"/>
+                          <sector sector="L2M008.O Storm"/>
+                          <equipment loadout="default"/>
+                          <command command="killenemies"/>
+                        </create_ship>
+                      </do_all>
+                      <do_all min="1" max="3">
+                        <create_ship race="yaki" typename="{random.type@SS_SH_A_M4P_ENH|SS_SH_Y_M3_PROTO|SS_SH_A_TS_ENH|SS_SH_S_M3_ADV}">
+                          <position x="0" y="0" z="0" max="20km"/>
+                          <sector sector="L2M008.Spur"/>
+                          <equipment loadout="default"/>
+                          <command command="killenemies"/>
+                        </create_ship>
+                      </do_all>
+                      <find_gate name="L2M008.O Storm S Gate" gate="south">
+                        <sector sector="L2M008.O Storm"/>
+                      </find_gate>
+                      <find_gate name="L2M008.O Storm N Gate" gate="north">
+                        <sector sector="L2M008.O Storm"/>
+                      </find_gate>
+                      <create_station name="L2M008.Yaki Lab" invincible="1" typename="SS_DOCK_A_MILITARY" safety="0" race="yaki">
+                        <position object="L2M008.O Storm S Gate" min="6km" max="11km"/>
+                        <sector sector="L2M008.O Storm"/>
+                        <equipment>
+                          <ware typename="SS_SHIELD_E" exact="1"/>
+                        </equipment>
+                        <relations>
+                          <relation relation="enemy"/>
+                        </relations>
+                      </create_station>
+                      <do_all exact="20">
+                        <create_stationary group="L2M008.Mines" typename="{random.type@SS_SH_MINE_1|SS_SH_MINE_3}" race="yaki" active="1">
+                          <position object="L2M008.Yaki Lab" exact="15km"/>
+                          <sector sector="L2M008.O Storm"/>
+                        </create_stationary>
+                      </do_all>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M008 S2 Lab Found" delay="3s">
+                      <condition>
+                        <check_all>
+                          <check_any>
+                            <any_object_is_known group="L2M008.Mines"/>
+                            <object_position max="10km">
+                              <position object="L2M008.Yaki Lab"/>
+                            </object_position>
+                          </check_any>
+                          <cue_is_complete cue="L2M008 Meet Brano Wait"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <!--TODO Cutscene showing mines-->
+                          <set_group_known group="L2M008.Mines" known="1"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M008 Report Lab">
+                          <timing>
+                            <time exact="10s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <create_offer actor="L2M008.Brano" conversation="L2M008 No4" discipline="XXXXP"/>
+                              <create_briefing cue="L2M008" background="station_argon_space_fuel_distillery.tga">
+                                <mission discipline="XXXT" level="easy"/>
+                                <objectives>
+                                  <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                    <talkto actor="L2M008.Brano"/>
+                                  </objective>
+                                </objectives>
+                              </create_briefing>
+                              <set_objective cue="L2M008" noabort="1">
+                                <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                <mission discipline="XXXT" level="easy"/>
+                                <talkto actor="L2M008.Brano"/>
+                              </set_objective>
+                              <set_value name="L2M008.Step" operation="add"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M008 Lab Reported">
+                              <condition>
+                                <conversation_completed actor="L2M008.Brano" conversation="L2M008 No4" answer="ready"/>
+                              </condition>
+                              <action>
+                                <remove_offer actor="L2M008.Brano" conversation="L2M008 No4" discipline="XXXXP"/>
+                              </action>
+                              <cues>
+                                <cue name="L2M008 Lab Reported Wait">
+                                  <timing>
+                                    <time exact="{text.duration@3837,375202}+2s"/>
+                                  </timing>
+                                  <action>
+                                    <do_all>
+                                      <do_all exact="10">
+                                        <create_stationary group="L2M008.Mines" typename="SS_SH_MINE_1" known="1" race="yaki" active="1">
+                                          <position object="L2M008.Yaki Lab" exact="15km"/>
+                                          <sector sector="L2M008.O Storm"/>
+                                        </create_stationary>
+                                      </do_all>
+                                      <create_briefing cue="L2M008" title="{3205,805}" text="{3205,815}" background="station_argon_space_fuel_distillery.tga">
+                                        <mission discipline="XXXT" level="easy"/>
+                                        <objectives>
+                                          <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                            <custom action="{35,2004}" text="{1266,19} {35,2140}" object="{group.nearest@L2M008.Mines}" comment="Destroy: Yaki Minefield"/>
+                                          </objective>
+                                        </objectives>
+                                      </create_briefing>
+                                      <set_objective cue="L2M008" title="{3205,805}" text="{3205,815}" noabort="1">
+                                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                        <mission discipline="XXXT" level="easy"/>
+                                        <custom action="{35,2004}" text="{1266,19} {35,2140}" object="{group.nearest@L2M008.Mines}" comment="Destroy: Yaki Minefield"/>
+                                      </set_objective>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M008 Lab Reported Wait Wait">
+                                      <condition>
+                                        <cue_completed cue="L2M008 Lab Reported Wait"/>
+                                      </condition>
+                                      <cues>
+                                        <cue name="L2M008 S2 Set O Storm OOS Guidance" delay="5s">
+                                          <condition>
+                                            <check_value value="{player.sector}" exact="{sector@L2M008.O Storm}" negate="1"/>
+                                          </condition>
+                                          <action>
+                                            <set_objective cue="L2M008" noabort="1" silent="1">
+                                              <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                              <mission discipline="XXXT" level="easy"/>
+                                              <custom>
+                                                <sector sector="L2M008.O Storm"/>
+                                              </custom>
+                                            </set_objective>
+                                          </action>
+                                        </cue>
+                                        <cue name="L2M008 S2 Mine Guidance Update" delay="5s" instantiate="static">
+                                          <condition>
+                                            <check_all>
+                                              <check_value value="{player.sector}" exact="{sector@L2M008.O Storm}"/>
+                                              <check_any>
+                                                <object_exists object="L2M008.LastMine" negate="1"/>
+                                                <check_value value="{group.nearest@L2M008.Mines}" exact="{object@L2M008.LastMine}" negate="1"/>
+                                              </check_any>
+                                            </check_all>
+                                          </condition>
+                                          <action>
+                                            <do_all>
+                                              <reset_cue cue="L2M008 S2 Set O Storm OOS Guidance"/>
+                                              <set_object name="L2M008.LastMine" value="{group.nearest@L2M008.Mines}"/>
+                                              <set_objective cue="L2M008" noabort="1" silent="1">
+                                                <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                <mission discipline="XXXT" level="easy"/>
+                                                <custom object="L2M008.LastMine"/>
+                                              </set_objective>
+                                            </do_all>
+                                          </action>
+                                        </cue>
+                                        <cue name="L2M008 Minefield Destroyed" delay="2s">
+                                          <condition>
+                                            <check_value value="{group.object.count@L2M008.Mines}" max="7"/>
+                                          </condition>
+                                          <action>
+                                            <do_all>
+                                              <cancel_cue cue="L2M008 S2 Mine Guidance Update"/>
+                                              <cancel_cue cue="L2M008 S2 Set O Storm OOS Guidance"/>
+                                              <set_invincible object="L2M008.Yaki Lab" invincible="0"/>
+                                              <set_command object="L2M008.BranoShip" command="none"/>
+                                              <warp_object object="L2M008.BranoShip">
+                                                <position object="{object.destination@L2M008.O Storm S Gate}"/>
+                                              </warp_object>
+                                              <set_command object="L2M008.BranoShip" command="attack" commandobject="L2M008.Yaki Lab"/>
+                                              <create_ship group="L2M008.Allies" boardable="0" invincible="1" typename="SS_SH_B_M7M" racelogic="0" race="boron">
+                                                <position object="{object.destination@L2M008.O Storm S Gate}"/>
+                                                <sector sector="{object.destination.sector@L2M008.O Storm S Gate}"/>
+                                                <equipment loadout="maximum"/>
+                                                <command command="attack" commandobject="L2M008.Yaki Lab"/>
+                                              </create_ship>
+                                              <create_ship group="L2M008.Allies" boardable="0" invincible="1" typename="SS_SH_T_M7" racelogic="0" race="teladi">
+                                                <position object="{object.destination@L2M008.O Storm N Gate}"/>
+                                                <sector sector="{object.destination.sector@L2M008.O Storm S Gate}"/>
+                                                <equipment loadout="default"/>
+                                                <command command="attack" commandobject="L2M008.Yaki Lab"/>
+                                              </create_ship>
+                                              <create_ship group="L2M008.Allies" boardable="0" invincible="1" typename="SS_SH_T_M7" racelogic="0" race="teladi">
+                                                <position object="{object.destination@L2M008.O Storm S Gate}"/>
+                                                <sector sector="{object.destination.sector@L2M008.O Storm S Gate}"/>
+                                                <equipment loadout="default"/>
+                                                <command command="attack" commandobject="L2M008.Yaki Lab"/>
+                                              </create_ship>
+                                              <do_all exact="2">
+                                                <create_ship group="L2M008.M P Yaki" typename="{random.type@SS_SH_Y_M7_1|SS_SH_Y_M7_2}" race="enemy">
+                                                  <position object="L2M008.Yaki Lab" exact="20km"/>
+                                                  <sector sector="L2M008.O Storm"/>
+                                                  <equipment loadout="maximum"/>
+                                                  <command command="killenemies"/>
+                                                  <pilot race="yaki" jobtextid="119"/>
+                                                </create_ship>
+                                              </do_all>
+                                              <do_all exact="8">
+                                                <create_ship group="L2M008.M P Yaki" typename="{random.type@SS_SH_Y_M3|SS_SH_Y_M4}" race="enemy">
+                                                  <position object="L2M008.Yaki Lab" exact="20km"/>
+                                                  <sector sector="L2M008.O Storm"/>
+                                                  <equipment loadout="maximum"/>
+                                                  <command command="killenemies"/>
+                                                  <pilot race="yaki" jobtextid="119"/>
+                                                </create_ship>
+                                              </do_all>
+                                              <create_briefing cue="L2M008" background="station_argon_space_fuel_distillery.tga">
+                                                <mission discipline="XFXX" level="hard"/>
+                                                <objectives>
+                                                  <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                    <custom action="{35,2004}" text="{object.name@L2M008.Yaki Lab}" object="L2M008.Yaki Lab" comment="Destroy: Yaki Lab"/>
+                                                  </objective>
+                                                </objectives>
+                                              </create_briefing>
+                                              <set_objective cue="L2M008" noabort="1">
+                                                <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                <mission discipline="XFXX" level="hard"/>
+                                                <custom action="{35,2004}" text="{object.name@L2M008.Yaki Lab}" object="L2M008.Yaki Lab" comment="Destroy: Yaki Lab"/>
+                                              </set_objective>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M008 Yaki Lab Destroyed">
+                                              <condition>
+                                                <check_any>
+                                                  <object_destroyed object="L2M008.Yaki Lab"/>
+                                                  <object_destroyed_by_player object="L2M008.Yaki Lab"/>
+                                                </check_any>
+                                              </condition>
+                                              <timing>
+                                                <time exact="5s"/>
+                                              </timing>
+                                              <action>
+                                                <play_text priority="99" actor="L2M008.Brano" pageid="3837" textid="375203"/>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M008 S2 Talk to Humi">
+                                                  <condition>
+                                                    <cue_completed cue="L2M008 Yaki Lab Destroyed"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="{text.duration@3837,375203}+2s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <do_all>
+                                                      <set_value name="L2M008.Step" operation="add"/>
+                                                      <set_command object="L2M008.HumiShip" command="none"/>
+                                                      <warp_object object="L2M008.HumiShip">
+                                                        <sector sector="L2M008.KE"/>
+                                                      </warp_object>
+                                                      <create_briefing cue="L2M008" background="station_argon_space_fuel_distillery.tga">
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <objectives>
+                                                          <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                            <talkto actor="L2M008.Humi"/>
+                                                          </objective>
+                                                        </objectives>
+                                                      </create_briefing>
+                                                      <set_objective cue="L2M008" noabort="1">
+                                                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <talkto actor="L2M008.Humi"/>
+                                                      </set_objective>
+                                                      <set_value name="L2M008.Step" operation="add"/>
+                                                      <set_value name="L2M008.HQ Scene 2 End" exact="1"/>
+                                                      <cancel_cue cue="L2M008 HQ Scene 2"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M008 HQ Scene 3" delay="3s">
+          <condition>
+            <check_value value="{value@L2M008.HQ Scene 2 End}" exact="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{object.exists@L2M008.HumiShip}" exact="0">
+                <create_ship boardable="0" capturable="0" name="L2M008.HumiShip" invincible="1" race="boron" racelogic="0" typename="SS_SH_B_M2">
+                  <position x="0" y="0" z="0" min="0km" max="8km"/>
+                  <sector sector="L2M008.KE"/>
+                  <equipment loadout="default"/>
+                  <command command="killenemies"/>
+                </create_ship>
+                <create_actor name="L2M008.Humi" character="{3895,36}" face="202" voice="3836" object="L2M008.HumiShip" location="crew" race="boron"/>
+              </do_if>
+              <create_offer actor="L2M008.Humi" conversation="L2M008 No5" cue="L2M008" discipline="XXXXP"/>
+              <set_command object="L2M008.HumiShip" command="idle"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M008 S3 Accept Mission">
+              <condition>
+                <conversation_completed actor="L2M008.Humi" answer="ready3" conversation="L2M008 No5"/>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="L2M008 Change Conversation No5"/>
+                  <remove_offer actor="L2M008.Humi" conversation="L2M008 No5" discipline="XXXXP"/>
+                  <set_value name="L2M008.Start Mission S3" exact="1"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M008 S3 Start Mission">
+                  <timing>
+                    <time exact="{text.duration@3836,365302}+2s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <find_station race="boron" name="L2M008.B Station">
+                        <sector sector="L2M008.A Clouds"/>
+                      </find_station>
+                      <do_if value="{object.exists@L2M008.B Station}" exact="0">
+                        <create_station name="L2M008.B Station" typename="SS_FAC_F228" race="boron">
+                          <position x="0" y="0" z="0" min="2km" max="20km" height="5km"/>
+                          <sector sector="L2M008.A Clouds"/>
+                          <equipment loadout="default"/>
+                        </create_station>
+                      </do_if>
+                      <set_invincible object="L2M008.B Station" invincible="1"/>
+                      <set_value name="L2M008.Step" exact="1"/>
+                      <remove_briefing cue="L2M008"/>
+                      <create_briefing cue="L2M008" story="{3200,5}" chapter="{3200,503}" title="{3205,806}" text="{3205,816}" background="station_argon_space_fuel_distillery.tga">
+                        <mission discipline="XXXT" level="easy"/>
+                        <objectives>
+                          <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                            <dockat object="L2M008.B Station"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <set_objective cue="L2M008" story="{3200,5}" chapter="{3200,503}" title="{3205,806}" text="{3205,816}" noabort="1">
+                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                        <mission discipline="XXXT" level="easy"/>
+                        <dockat object="L2M008.B Station"/>
+                      </set_objective>
+                      <set_value name="L2M008.Step" operation="add"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M008 Meet Mahi Ma" delay="1s">
+                      <condition>
+                        <object_is_docked dockobject="L2M008.B Station"/>
+                      </condition>
+                      <timing>
+                        <time exact="10s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <create_actor name="L2M008.Ma" character="{3895,30}" face="201" voice="3830" object="L2M008.B Station" location="pilot" race="boron"/>
+                          <play_text priority="99">
+                            <line actor="L2M008.Ma" pageid="3830" textid="305301"/>
+                            <line actor="L2M008.Ma" pageid="3830" textid="305302"/>
+                          </play_text>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M008 Meet Mahi Ma Wait">
+                          <condition>
+                            <cue_completed cue="L2M008 Meet Mahi Ma"/>
+                          </condition>
+                          <timing>
+                            <time exact="{text.duration@3830,305301}+{text.duration@3830,305302}+2s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <find_gate name="L2M008.O Treaty Gate">
+                                <sector sector="L2M008.O Treaty"/>
+                              </find_gate>
+                              <create_station name="L2M008.Pirate Station" typename="SS_DOCK_PIRATES" race="pirate" invincible="1">
+                                <position object="L2M008.O Treaty Gate" min="10km" max="15km"/>
+                                <sector sector="L2M008.O Treaty"/>
+                                <equipment loadout="default"/>
+                                <relations>
+                                  <relation object="{player.ship}" mutual="1" relation="enemy"/>
+                                </relations>
+                              </create_station>
+                              <do_all exact="8">
+                                <create_ship dockobject="L2M008.Pirate Station" race="yaki" communicates="0" capturable="0" group="L2M008.BoronYaki" racelogic="0" typename="{random.type@SS_SH_Y_M3|SS_SH_Y_M4|SS_SH_Y_M4_1|SS_SH_Y_M4_2|SS_SH_Y_M5}">
+                                  <equipment loadout="maximum"/>
+                                  <pilot name="{35,21}" comment="No Pilot (yet)"/>
+                                </create_ship>
+                              </do_all>
+                              <do_all exact="5">
+                                <create_ship dockobject="L2M008.Pirate Station" race="enemy" communicates="0" capturable="0" group="L2M008.OT Yaki" racelogic="0" typename="{random.type@SS_SH_Y_M3|SS_SH_Y_M4|SS_SH_Y_M4_1|SS_SH_Y_M4_2|SS_SH_Y_M5}">
+                                  <equipment loadout="maximum"/>
+                                  <pilot jobtextid="119"/>
+                                </create_ship>
+                              </do_all>
+                              <create_briefing cue="L2M008" title="{3205,806}" text="{3205,817}" background="station_argon_space_fuel_distillery.tga">
+                                <mission discipline="XXXT" level="easy"/>
+                                <objectives>
+                                  <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                    <flyto object="L2M008.Pirate Station"/>
+                                  </objective>
+                                </objectives>
+                              </create_briefing>
+                              <set_objective cue="L2M008" title="{3205,806}" text="{3205,817}" noabort="1">
+                                <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                <mission discipline="XXXT" level="easy"/>
+                                <flyto object="L2M008.Pirate Station"/>
+                              </set_objective>
+                              <set_value name="L2M008.Step" operation="add"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M008 Enter O Treaty" delay="5s">
+                              <condition>
+                                <check_value value="{player.sector}" exact="{sector@L2M008.O Treaty}"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <find_gate name="L2M008.O Treaty Near Gate" nearest="1"/>
+                                  <do_choose>
+                                    <do_when value="{object.destination.exists@L2M008.O Treaty Near Gate}" exact="1">
+                                      <create_ship capturable="0" name="L2M008.MaShip" race="boron" racelogic="0" typename="SS_SH_B_M3P" invincible="1">
+                                        <position object="{object.destination@L2M008.O Treaty Near Gate}"/>
+                                        <equipment loadout="maximum"/>
+                                        <command command="follow"/>
+                                      </create_ship>
+                                    </do_when>
+                                    <do_otherwise>
+                                      <create_ship capturable="0" name="L2M008.MaShip" race="boron" racelogic="0" typename="SS_SH_B_M3P" warp="1" invincible="1">
+                                        <equipment loadout="maximum"/>
+                                        <command command="movesector">
+                                          <sector sector="L2M008.O Treaty"/>
+                                        </command>
+                                      </create_ship>
+                                    </do_otherwise>
+                                  </do_choose>
+                                  <set_actor_location actor="L2M008.Ma" object="L2M008.MaShip" location="pilot"/>
+                                  <set_invincible object="L2M008.B Station" invincible="0"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M008 Ma In O Treaty" delay="3s">
+                                  <condition>
+                                    <check_value value="{object.sector@L2M008.MaShip}" exact="{sector@L2M008.O Treaty}"/>
+                                  </condition>
+                                  <action>
+                                    <set_command object="L2M008.MaShip" command="none"/>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M008 Create Boron Actors">
+                                      <condition>
+                                        <check_all>
+                                          <check_value value="{player.sector}" exact="{sector@L2M008.O Treaty}"/>
+                                          <check_value value="{object.sector@L2M008.MaShip}" exact="{sector@L2M008.O Treaty}"/>
+                                        </check_all>
+                                      </condition>
+                                      <action>
+                                        <do_all>
+                                          <play_text priority="99">
+                                            <line actor="L2M008.Ma" textid="305303"/>
+                                          </play_text>
+                                          <set_command object="L2M008.MaShip" command="killenemies"/>
+                                          <do_all exact="{group.object.count@L2M008.BoronYaki}" counter="count">
+                                            <create_actor name="L2M008.Boron Act {group.object.{counter@count}@L2M008.BoronYaki}" object="{group.object.{counter@count}@L2M008.BoronYaki}" location="pilot" race="boron"/>
+                                            <set_object name="L2M008.Boron ActObj {actor@L2M008.Boron Act {group.object.{counter@count}@L2M008.BoronYaki}}" value="{actor@L2M008.Boron Act {group.object.{counter@count}@L2M008.BoronYaki}}" group="L2M008.Boron ActObjects"/>
+                                          </do_all>
+                                          <set_group_communicates group="L2M008.BoronYaki" communicates="1"/>
+                                          <set_group_command group="L2M008.BoronYaki" command="movesector">
+                                            <sector sector="L2M008.KE"/>
+                                          </set_group_command>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M008 Launch Yaki">
+                                          <timing>
+                                            <time min="20s" max="30s"/>
+                                          </timing>
+                                          <action>
+                                            <do_all>
+                                              <play_text priority="99">
+                                                <line actor="L2M008.Ma" textid="305304"/>
+                                              </play_text>
+                                              <set_group_command group="L2M008.OT Yaki" command="killenemies"/>
+                                              <set_command object="L2M008.HumiShip" command="none"/>
+                                              <do_choose>
+                                                <do_when value="{object.destination.exists@L2M008.O Treaty Near Gate}" exact="1">
+                                                  <warp_object object="L2M008.HumiShip">
+                                                    <position object="{object.destination@L2M008.O Treaty Near Gate}"/>
+                                                  </warp_object>
+                                                  <create_ship capturable="0" boardable="0" name="L2M008.OT Boron M7" race="boron" racelogic="0" typename="SS_SH_B_M7" invincible="1">
+                                                    <position object="{object.destination@L2M008.O Treaty Near Gate}"/>
+                                                    <equipment loadout="maximum"/>
+                                                    <command command="movesector">
+                                                      <sector sector="L2M008.O Treaty"/>
+                                                    </command>
+                                                  </create_ship>
+                                                </do_when>
+                                                <do_otherwise>
+                                                  <warp_object object="L2M008.HumiShip">
+                                                    <position min="10km" max="20km"/>
+                                                  </warp_object>
+                                                  <create_ship capturable="0" boardable="0" name="L2M008.OT Boron M7" race="boron" racelogic="0" typename="SS_SH_B_M7" warp="1" invincible="1">
+                                                    <equipment loadout="maximum"/>
+                                                    <command command="killenemies"/>
+                                                  </create_ship>
+                                                </do_otherwise>
+                                              </do_choose>
+                                              <do_all exact="10">
+                                                <create_ship group="L2M008.Humi Guard" race="boron" racelogic="0" typename="SS_SH_B_M3" homebase="L2M008.HumiShip">
+                                                  <position object="L2M008.HumiShip"/>
+                                                  <sector sector="{object.sector@L2M008.HumiShip}"/>
+                                                  <equipment loadout="maximum"/>
+                                                  <command command="protect" commandobject="L2M008.HumiShip"/>
+                                                </create_ship>
+                                              </do_all>
+                                              <do_all exact="10">
+                                                <create_ship group="L2M008.M7 Guard" race="boron" racelogic="0" typename="SS_SH_B_M3" homebase="L2M008.OT Boron M7">
+                                                  <position object="L2M008.OT Boron M7"/>
+                                                  <sector sector="{object.sector@L2M008.OT Boron M7}"/>
+                                                  <equipment loadout="maximum"/>
+                                                  <command command="protect" commandobject="L2M008.OT Boron M7"/>
+                                                </create_ship>
+                                              </do_all>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M008 Humi In OT" delay="3s">
+                                              <condition>
+                                                <check_value value="{object.sector@L2M008.HumiShip}" exact="{sector@L2M008.O Treaty}"/>
+                                              </condition>
+                                              <action>
+                                                <set_command object="L2M008.HumiShip" command="killenemies"/>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M008 M7 In OT" delay="3s">
+                                              <condition>
+                                                <check_all>
+                                                  <cue_is_complete cue="L2M008 Launch Yaki"/>
+                                                  <check_value value="{object.sector@L2M008.OT Boron M7}" exact="{sector@L2M008.O Treaty}"/>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <set_command object="L2M008.OT Boron M7" command="killenemies"/>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M008 M7 Guard In OT">
+                                              <condition>
+                                                <check_all>
+                                                  <any_object_changed_sector group="L2M008.M7 Guard"/>
+                                                  <all_objects_sector group="L2M008.M7 Guard" exact="0">
+                                                    <sector sector="L2M008.O Treaty"/>
+                                                  </all_objects_sector>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <set_group_command group="L2M008.M7 Guard" command="killenemies"/>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M008 Humi Guard In OT">
+                                              <condition>
+                                                <check_all>
+                                                  <any_object_changed_sector group="L2M008.Humi Guard"/>
+                                                  <all_objects_sector group="L2M008.Humi Guard" exact="0">
+                                                    <sector sector="L2M008.O Treaty"/>
+                                                  </all_objects_sector>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <set_group_command group="L2M008.Humi Guard" command="killenemies"/>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M008 Any Boron Changes Sector" instantiate="static">
+                                              <condition>
+                                                <any_object_changed_sector group="L2M008.BoronYaki"/>
+                                              </condition>
+                                              <action>
+                                                <do_all>
+                                                  <destroy_object object="L2M008.BoronYaki {event.object}"/>
+                                                  <set_value name="L2M008.SavedBoron" operation="add"/>
+                                                </do_all>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M008 Launch Yaki Wait">
+                                              <condition>
+                                                <cue_completed cue="L2M008 Launch Yaki"/>
+                                              </condition>
+                                              <!--TODO Remove M28-->
+                                              <cues>
+                                                <cue name="L2M008 Protect Boron Scientists">
+                                                  <action>
+                                                    <do_all>
+                                                      <create_briefing cue="L2M008" title="{3205,806}" text="{3205,817}" background="station_argon_space_fuel_distillery.tga">
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <objectives>
+                                                          <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                            <custom action="{35,2010}" text="{3205,841}" icon="protect"/>
+                                                          </objective>
+                                                        </objectives>
+                                                      </create_briefing>
+                                                      <set_objective cue="L2M008" title="{3205,806}" text="{3205,817}" noabort="1">
+                                                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <custom action="{35,2010}" text="{3205,841}" icon="protect"/>
+                                                      </set_objective>
+                                                      <set_value name="L2M008.Step" operation="add"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M008 L0M28 Ended" delay="5s">
+                                                  <condition>
+                                                    <check_any>
+                                                      <check_value value="{group.object.count@L2M008.Boron ActObjects}" exact="0"/>
+                                                      <check_all exact="{group.object.count@L2M008.Boron ActObjects}" counter="count">
+                                                        <check_all>
+                                                          <check_value value="{group.object.{counter@count}.dockobject.dockobject.exists@L2M008.Boron ActObjects}" exact="1"/>
+                                                          <check_value value="{group.object.{counter@count}.dockobject.dockobject.race@L2M008.Boron ActObjects}" exact="{lookup.race@player}"/>
+                                                        </check_all>
+                                                      </check_all>
+                                                    </check_any>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <play_text priority="99">
+                                                        <line actor="L2M008.Ma" pageid="3830" textid="305305"/>
+                                                      </play_text>
+                                                      <destroy_object object="L2M008.OT Boron M7" warp="1"/>
+                                                      <destroy_group group="L2M008.M7 Guard" warp="1" task="1"/>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M008 Go To KE">
+                                                      <timing>
+                                                        <time exact="{text.duration@3830,305305}+2s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <do_all>
+                                                          <warp_object object="L2M008.HumiShip">
+                                                            <sector sector="L2M008.KE"/>
+                                                          </warp_object>
+                                                          <warp_object object="L2M008.MaShip">
+                                                            <sector sector="L2M008.KE"/>
+                                                          </warp_object>
+                                                          <cancel_cue cue="L2M008 Humi In OT"/>
+                                                          <destroy_group group="L2M008.Humi Guard" warp="1" task="1"/>
+                                                          <create_briefing cue="L2M008" title="{3205,803}" text="{3205,818}" background="station_argon_space_fuel_distillery.tga">
+                                                            <mission discipline="XXXT" level="easy"/>
+                                                            <objectives>
+                                                              <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                                <flyto>
+                                                                  <sector sector="L2M008.KE"/>
+                                                                </flyto>
+                                                              </objective>
+                                                            </objectives>
+                                                          </create_briefing>
+                                                          <set_objective cue="L2M008" title="{3205,803}" text="{3205,818}" noabort="1">
+                                                            <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                            <mission discipline="XXXT" level="easy"/>
+                                                            <flyto>
+                                                              <sector sector="L2M008.KE"/>
+                                                            </flyto>
+                                                          </set_objective>
+                                                          <set_value name="L2M008.Step" operation="add"/>
+                                                        </do_all>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M008 In KE" delay="5s">
+                                                          <condition>
+                                                            <check_all>
+                                                              <check_value value="{player.sector}" exact="{sector@L2M008.KE}"/>
+                                                              <cue_is_complete cue="L2M008 Go To KE"/>
+                                                            </check_all>
+                                                          </condition>
+                                                          <action>
+                                                            <do_all>
+                                                              <do_all exact="{group.object.count@L2M008.Boron ActObjects}" counter="count">
+                                                                <do_if value="{group.object.{counter@count}.dockobject.race@L2M008.Boron ActObjects}" exact="{lookup.race@player}">
+                                                                  <set_value name="L2M008.SavedBoron" operation="add"/>
+                                                                </do_if>
+                                                              </do_all>
+                                                              <destroy_group group="L2M008.Boron ActObjects"/>
+                                                            </do_all>
+                                                          </action>
+                                                          <cues>
+                                                            <cue name="L2M008 Find TL">
+                                                              <timing>
+                                                                <time exact="10s"/>
+                                                              </timing>
+                                                              <action>
+                                                                <play_text priority="99">
+                                                                  <line actor="L2M008.Ma" pageid="3830" textid="305306"/>
+                                                                </play_text>
+                                                              </action>
+                                                              <cues>
+                                                                <cue name="L2M008 Find TL Wait">
+                                                                  <condition>
+                                                                    <cue_completed cue="L2M008 Find TL"/>
+                                                                  </condition>
+                                                                  <timing>
+                                                                    <time exact="{text.duration@3830,305306}"/>
+                                                                  </timing>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <do_any>
+                                                                        <set_sector name="L2M008.TL Sector" value="{sector@L2M008.L Water}"/>
+                                                                        <set_sector name="L2M008.TL Sector" value="{sector@L2M008.Shore Of I}"/>
+                                                                      </do_any>
+                                                                      <create_ship boardable="1" name="L2M008.TL" communicates="0" race="none" racelogic="0" typename="SS_SH_B_TL" invincible="1">
+                                                                        <position x="0" y="0" z="0" min="20km" max="30km" height="10km"/>
+                                                                        <sector sector="L2M008.TL Sector"/>
+                                                                        <equipment loadout="maximum"/>
+                                                                        <cargo>
+                                                                          <ware typename="SS_DOCK_P_HQ" exact="1" critical="1"/>
+                                                                        </cargo>
+                                                                        <command command="idle"/>
+                                                                      </create_ship>
+                                                                      <create_briefing cue="L2M008" title="{3205,807}" text="{3205,818}" background="station_argon_space_fuel_distillery.tga">
+                                                                        <mission discipline="XXXT" level="hard"/>
+                                                                        <objectives>
+                                                                          <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                                            <custom action="{35,2006}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}">
+                                                                              <sector sector="L2M008.TL Sector"/>
+                                                                            </custom>
+                                                                          </objective>
+                                                                        </objectives>
+                                                                      </create_briefing>
+                                                                      <set_objective cue="L2M008" title="{3205,807}" text="{3205,818}" noabort="1">
+                                                                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                                        <mission discipline="XXXT" level="hard"/>
+                                                                        <custom action="{35,2006}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}">
+                                                                          <sector sector="L2M008.TL Sector"/>
+                                                                        </custom>
+                                                                      </set_objective>
+                                                                    </do_all>
+                                                                  </action>
+                                                                  <cues>
+                                                                    <cue name="L2M008 Player Starts Hunt" delay="5s">
+                                                                      <condition>
+                                                                        <check_any>
+                                                                          <check_value value="{player.sector}" exact="{sector@L2M008.L Water}"/>
+                                                                          <check_value value="{player.sector}" exact="{sector@L2M008.Shore of I}"/>
+                                                                        </check_any>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <set_objective cue="L2M008" noabort="1">
+                                                                          <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                                          <mission discipline="XXXT" level="hard"/>
+                                                                          <custom action="{35,2006}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}">
+                                                                            <sector sector="{player.sector}"/>
+                                                                          </custom>
+                                                                          <!--TODO Remove Guidance-->
+                                                                        </set_objective>
+                                                                      </action>
+                                                                      <cues>
+                                                                        <cue name="L2M008 Hunt TL">
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <create_briefing cue="L2M008" title="{3205,807}" text="{3205,818}" background="station_argon_space_fuel_distillery.tga">
+                                                                                <mission discipline="XXXT" level="hard"/>
+                                                                                <objectives>
+                                                                                  <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                                                    <custom action="{35,2006}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}"/>
+                                                                                  </objective>
+                                                                                </objectives>
+                                                                              </create_briefing>
+                                                                              <set_objective cue="L2M008" title="{3205,807}" text="{3205,818}" noabort="1">
+                                                                                <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                                                <mission discipline="XXXT" level="hard"/>
+                                                                                <custom action="{35,2006}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}"/>
+                                                                              </set_objective>
+                                                                            </do_all>
+                                                                          </action>
+                                                                          <cues>
+                                                                            <cue name="L2M008 TL Hint">
+                                                                              <timing>
+                                                                                <time min="800s" max="1000s"/>
+                                                                              </timing>
+                                                                              <action>
+                                                                                <do_all>
+                                                                                  <play_text priority="99">
+                                                                                    <line actor="L2M008.Ma" pageid="3830" textid="305307"/>
+                                                                                  </play_text>
+                                                                                  <incoming_message text="{3830,305307} [b]{sector.name@L2M008.TL Sector}[/b]"/>
+                                                                                  <set_objective cue="L2M008" noabort="1">
+                                                                                    <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                                                    <mission discipline="XXXT" level="hard"/>
+                                                                                    <custom action="{35,2006}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}">
+                                                                                      <sector sector="L2M008.TL Sector"/>
+                                                                                    </custom>
+                                                                                  </set_objective>
+                                                                                </do_all>
+                                                                              </action>
+                                                                            </cue>
+                                                                            <cue name="L2M008 TL Found" delay="10s">
+                                                                              <condition>
+                                                                                <count_ships race="player" min="1">
+                                                                                  <position object="L2M008.TL"/>
+                                                                                  <sector sector="L2M008.TL Sector"/>
+                                                                                  <distance max="30km"/>
+                                                                                </count_ships>
+                                                                              </condition>
+                                                                              <action>
+                                                                                <do_all>
+                                                                                  <do_if value="{value@L2M008.NowYaki}" exact="0">
+                                                                                    <set_owner object="L2M008.TL" race="yaki"/>
+                                                                                    <set_value name="L2M008.NowYaki" exact="1"/>
+                                                                                  </do_if>
+                                                                                  <cancel_cue cue="L2M008 TL Hint"/>
+                                                                                  <create_briefing cue="L2M008" title="{3205,807}" text="{3205,818}" background="station_argon_space_fuel_distillery.tga">
+                                                                                    <mission discipline="XXXT" level="veryhard"/>
+                                                                                    <objectives>
+                                                                                      <objective step="{value@L2M008.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                                                        <custom action="{35,2071}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}" object="L2M008.TL"/>
+                                                                                      </objective>
+                                                                                    </objectives>
+                                                                                  </create_briefing>
+                                                                                  <set_objective cue="L2M008" noabort="1">
+                                                                                    <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                                                    <mission discipline="XXXT" level="veryhard"/>
+                                                                                    <custom action="{35,2071}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}" object="L2M008.TL"/>
+                                                                                  </set_objective>
+                                                                                  <set_value name="L2M008.TL Jump Wait" min="{player.age}+1800" max="{player.age}+2000"/>
+                                                                                </do_all>
+                                                                              </action>
+                                                                              <cues>
+                                                                                <cue name="L2M008 TL Lost" delay="2s">
+                                                                                  <condition>
+                                                                                    <check_all>
+                                                                                      <cue_is_complete cue="L2M008 TL Found"/>
+                                                                                      <check_age min="{value@L2M008.TL Jump Wait}"/>
+                                                                                    </check_all>
+                                                                                  </condition>
+                                                                                  <action>
+                                                                                    <do_all>
+                                                                                      <find_sector name="L2M008.TL Sector" border="1" race="default|yaki|pirate" max="5"/>
+                                                                                      <set_command object="L2M008.TL" command="none"/>
+                                                                                      <warp_object object="L2M008.TL">
+                                                                                        <position x="0" y="0" z="0" max="15km"/>
+                                                                                        <sector sector="L2M008.TL Sector"/>
+                                                                                      </warp_object>
+                                                                                      <create_crate name="this.Crate">
+                                                                                        <position exact="40km"/>
+                                                                                        <ware typename="SS_WARE_ENERGY" exact="1"/>
+                                                                                      </create_crate>
+                                                                                      <set_objective cue="L2M008" noabort="1" silent="1">
+                                                                                        <briefing cue="L2M008" step="{value@L2M008.Step}"/>
+                                                                                        <mission discipline="XXXT" level="veryhard"/>
+                                                                                        <custom action="{35,2071}" text="{object.name@L2M008.TL} - {object.code@L2M008.TL}" object="this.Crate"/>
+                                                                                      </set_objective>
+                                                                                      <destroy_object object="this.Crate"/>
+                                                                                    </do_all>
+                                                                                  </action>
+                                                                                  <cues>
+                                                                                    <cue name="L2M008 Reset TL">
+                                                                                      <timing>
+                                                                                        <time exact="5s"/>
+                                                                                      </timing>
+                                                                                      <action>
+                                                                                        <do_all>
+                                                                                          <set_command object="L2M008.TL" command="idle"/>
+                                                                                          <reset_cue cue="L2M008 Hunt TL"/>
+                                                                                        </do_all>
+                                                                                      </action>
+                                                                                    </cue>
+                                                                                  </cues>
+                                                                                </cue>
+                                                                              </cues>
+                                                                            </cue>
+                                                                          </cues>
+                                                                        </cue>
+                                                                        <cue name="L2M008 TL Caught" delay="2431">
+                                                                          <condition>
+                                                                            <check_value value="{object.race@L2M008.TL}" exact="{lookup.race@player}"/>
+                                                                          </condition>
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <cancel_cue cue="L2M008 Hunt TL"/>
+                                                                              <set_invincible object="L2M008.TL" invincible="0"/>
+                                                                              <destroy_object object="L2M008.HumiShip"/>
+                                                                              <remove_object object="L2M008.TL"/>
+                                                                            </do_all>
+                                                                          </action>
+                                                                          <cues>
+                                                                            <cue name="L2M008 Boron Thanks">
+                                                                              <timing>
+                                                                                <time exact="11s"/>
+                                                                              </timing>
+                                                                              <action>
+                                                                                <do_all>
+                                                                                  <play_text priority="99">
+                                                                                    <line actor="L2M008.Ma" pageid="3830" textid="305308"/>
+                                                                                  </play_text>
+                                                                                  <destroy_actor actor="L2M008.Ma"/>
+                                                                                  <destroy_object object="L2M008.MaShip"/>
+                                                                                  <remove_briefing cue="L2M008"/>
+                                                                                  <remove_objective cue="L2M008" status="complete"/>
+                                                                                  <set_value name="HQ Done" exact="1"/>
+                                                                                  <cancel_cue cue="L2M008"/>
+                                                                                </do_all>
+                                                                              </action>
+                                                                            </cue>
+                                                                          </cues>
+                                                                        </cue>
+                                                                      </cues>
+                                                                    </cue>
+                                                                  </cues>
+                                                                </cue>
+                                                              </cues>
+                                                            </cue>
+                                                          </cues>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>aGuNGt2C9dlBkao/v7mz4UQki+DjvuWjIE5F2RlKkex/1jsP7fr8U9tMScuGV2znL1p+BHrESwiugekevfQDk29eEXd9K6b8Ai7aiZUlhgkMFnVu8MdgYatUZqFcqCIZ8AXtbun1tyVRpJ50yquXawH5LUsFe0DHCAFeKJ8OguW4xFEh4zG21amjed4qZem7Tks+6urokDhQXGyKu6CWkZAt7jRpY7/Aph3H2rmY6olZZqiI9+DVgEcJVx6u91My+cPajRaxlwv1Cb0oHAmhLWElYrTM3wLdBZGmlASxTw6PNF+WSIFXfGbkZL1nkF7EquN68zQMSXfNI5Lrl6aftg==</signature>
+</director>

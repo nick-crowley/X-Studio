@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen_Lake@eogsoft.com Skype: Owen Lake" />
+    <content reference="LUM13" name="Get Rival Races Utility" description="Return a rival race mask"/>
+    <version number="0.1" date="03/07/2008" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="LUM13" library="1">
+      <documentation>
+        <content name="Get Rival Races" reference="LUM13" type="utility"/>
+        <version number="0.1" date="03/07/08" status="development"/>
+        <params>
+          <param name="Race" type="number" compulsory="1" description="The race to find the rivals to"/>
+          <param name="ReturnName" type="valuename" compulsory="1" description="Where to save the rival race mask to"/>
+          <param name="FeedbackName" type="valuename" compulsory="1" description="Where to save the feedback value to"/>
+          <param name="Foe" type="boolean" description="Return Foe" default="1"/>
+          <param name="Hostile" type="boolean" description="Return Hostile" default="1"/>
+          <param name="IncludeAlien" type="boolean" description="Excluded Xenon and Kha'ak" default="1"/>
+          <param name="ATF Is Terran" type="boolean" description="Will ATF become Terran" default="0"/>
+        </params>
+        <history>
+          <change date="03/07/2008" author="Owen Lake" description="Initial Version"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="this.Foe" exact="{param@Foe}"/>
+          <set_value name="this.Hostile" exact="{param@Hostile}"/>
+          <set_value name="this.IncludeAlien" exact="{param@IncludeAlien}"/>
+          <set_value name="this.ATF Is Terran" exact="{param@ATF Is Terran}"/>
+          <do_if value="{param.exists@Foe}" exact="0">
+            <set_value name="this.Foe" exact="1"/>
+          </do_if>
+          <do_if value="{param.exists@Hostile}" exact="0">
+            <set_value name="this.Hostile" exact="1"/>
+          </do_if>
+          <do_if value="{param.exists@IncludeAlien}" exact="0">
+            <set_value name="this.IncludeAlien" exact="1"/>
+          </do_if>
+          <do_if value="{param.exists@ATF Is Terran}" exact="0">
+            <set_value name="this.ATF Is Terran" exact="0"/>
+          </do_if>
+          <do_choose>
+            <do_when value="{param@Race}" exact="{lookup.race@argon}">
+              <do_if value="{value@this.Foe}" exact="1">
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@paranid}"/>
+              </do_if>
+              <do_if value="{value@this.Hostile}" exact="1">
+                <do_if value="{value@this.IncludeAlien}" exact="1">
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@xenon}"/>
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@khaak}"/>
+                </do_if>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@pirate}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@yaki}"/>
+              </do_if>
+            </do_when>
+            <do_when value="{param@Race}" exact="{lookup.race@boron}">
+              <do_if value="{value@this.Foe}" exact="1">
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@split}"/>
+              </do_if>
+              <do_if value="{value@this.Hostile}" exact="1">
+                <do_if value="{value@this.IncludeAlien}" exact="1">
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@xenon}"/>
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@khaak}"/>
+                </do_if>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@pirate}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@yaki}"/>
+              </do_if>
+            </do_when>
+            <do_when value="{param@Race}" exact="{lookup.race@split}">
+              <do_if value="{value@this.Foe}" exact="1">
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@boron}"/>
+              </do_if>
+              <do_if value="{value@this.Hostile}" exact="1">
+                <do_if value="{value@this.IncludeAlien}" exact="1">
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@xenon}"/>
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@khaak}"/>
+                </do_if>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@pirate}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@yaki}"/>
+                <do_choose>
+                  <do_when value="{value@this.ATF Is Terran}" exact="1">
+                    <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@terran}"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@terran}"/>
+                    <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@atf}"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+            </do_when>
+            <do_when value="{param@Race}" exact="{lookup.race@paranid}">
+              <do_if value="{value@this.Foe}" exact="0" negate="1">
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@argon}"/>
+              </do_if>
+              <do_if value="{value@this.Hostile}" exact="1">
+                <do_if value="{value@this.IncludeAlien}" exact="1">
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@xenon}"/>
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@khaak}"/>
+                </do_if>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@pirate}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@yaki}"/>
+                <do_choose>
+                  <do_when value="{value@this.ATF Is Terran}" exact="1">
+                    <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@terran}"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@terran}"/>
+                    <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@atf}"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+            </do_when>
+            <do_when value="{param@Race}" exact="{lookup.race@teladi}" comment="Teladi are FOE to no one">
+              <do_if value="{value@this.Hostile}" exact="1">
+                <do_if value="{value@this.IncludeAlien}" exact="1">
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@xenon}"/>
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@khaak}"/>
+                </do_if>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@yaki}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@pirate}"/>
+              </do_if>
+            </do_when>
+            <do_when value="{param@Race}" exact="{lookup.race@atf}">
+              <do_if value="{value@this.Foe}" exact="0" negate="1">
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@argon}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@split}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@paranid}"/>
+              </do_if>
+              <do_if value="{value@this.Hostile}" exact="1">
+                <do_if value="{value@this.IncludeAlien}" exact="1">
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@xenon}"/>
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@khaak}"/>
+                </do_if>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@pirate}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@yaki}"/>
+              </do_if>
+            </do_when>
+            <do_when value="{param@Race}" exact="{lookup.race@terran}">
+              <do_if value="{value@this.Foe}" exact="0" negate="1">
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@argon}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@split}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@paranid}"/>
+              </do_if>
+              <do_if value="{value@this.Hostile}" exact="1">
+                <do_if value="{value@this.IncludeAlien}" exact="1">
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@xenon}"/>
+                  <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@khaak}"/>
+                </do_if>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@pirate}"/>
+                <set_value name="this.Rivals" operation="add" exact="{lookup.race.mask@yaki}"/>
+              </do_if>
+            </do_when>
+          </do_choose>
+          <set_value name="{param@ReturnName}" exact="{value@this.Rivals}"/>
+          <set_value name="{param@FeedbackName}" exact="1"/>
+          <cancel_cue cue="LUM13"/>
+        </do_all>
+      </action>
+    </cue>
+  </cues>
+  <signature>Y2Oj645JzCOh3bC/6xkNgJA0e6okvnRyCLLoUr/edkU/0eDL6beOlSYvBDKBrwCFBSaQKjb/EQ0+TbL4SOLZj/kl1kC7PJEJE/hvAxtr1ci5uW74HoTWb1QJw4Gxw3NnlJ9Tq8VSY07A1KdEHTXxBodCRR+aBmLTWaaS9wrURYrz9Pd5IVMSP8SlM+goVjm3Jez3WxcukqL48BRQrsaw2PDy6DhW56sLFGyX46T/t2bbsLdNEFK93BEJgdOXliIdtBMhiVDqe1eeiK9K9atAtvJ8j0M7vr90dmef0/gCqWFyju9z9BcKRPzkcu7llpn8USzS2n2+WWjlG50uTwbojQ==</signature>
+</director>

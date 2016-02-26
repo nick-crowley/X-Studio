@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+  <xs:simpleType name="action">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="briefing">
+        <xs:annotation>
+          <xs:documentation>
+            Briefing action
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:attribute name="action" type="action">
+    <xs:annotation>
+      <xs:documentation>
+        Action type
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="outcome" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Outcome name to be passed with outcome event
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="text" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Text of line
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="comment" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Comment (ignored by the game)
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="chance" type="xs:integer">
+    <xs:annotation>
+      <xs:documentation>
+        Chance weighting
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attributeGroup name="line">
+    <xs:attribute ref="text" />
+    <xs:attribute ref="comment" />
+    <xs:attribute ref="outcome" />
+    <xs:attribute ref="action" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="select">
+    <xs:attribute ref="comment" />
+  </xs:attributeGroup>
+
+  <xs:complexType name="player">
+    <xs:sequence>
+      <xs:group ref="npc" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="line" />
+  </xs:complexType>
+
+  <xs:complexType name="player_chance">
+    <xs:complexContent>
+      <xs:extension base="player">
+        <xs:attribute ref="chance" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="player_any">
+    <xs:sequence>
+      <xs:group ref="player_chance" minOccurs="1" maxOccurs="unbounded" />
+      <xs:group ref="npc" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="select" />
+  </xs:complexType>
+
+  <xs:complexType name="player_any_chance">
+    <xs:complexContent>
+      <xs:extension base="player_any">
+        <xs:attribute ref="chance" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="player_all">
+    <xs:sequence>
+      <xs:group ref="player" minOccurs="1" maxOccurs="unbounded" />
+      <xs:group ref="npc" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="select" />
+  </xs:complexType>
+
+  <xs:complexType name="player_all_chance">
+    <xs:complexContent>
+      <xs:extension base="player_all">
+        <xs:attribute ref="chance" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:group name="player">
+    <xs:choice>
+      <xs:element name="player" type="player" />
+      <xs:element name="player_any" type="player_any" />
+      <xs:element name="player_all" type="player_all" />
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="player_chance">
+    <xs:choice>
+      <xs:element name="player" type="player_chance" />
+      <xs:element name="player_any" type="player_any_chance" />
+      <xs:element name="player_all" type="player_all_chance" />
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="npc">
+    <xs:sequence>
+      <xs:group ref="player" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attributeGroup ref="line" />
+  </xs:complexType>
+
+  <xs:complexType name="npc_chance">
+    <xs:complexContent>
+      <xs:extension base="npc">
+        <xs:attribute ref="chance" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="npc_any">
+    <xs:sequence>
+      <xs:group ref="npc_chance" minOccurs="1" maxOccurs="unbounded" />
+      <xs:group ref="player" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attributeGroup ref="select" />
+  </xs:complexType>
+
+  <xs:complexType name="npc_any_chance">
+    <xs:complexContent>
+      <xs:extension base="npc_any">
+        <xs:attribute ref="chance" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:group name="npc">
+    <xs:choice>
+      <xs:element name="npc" type="npc" />
+      <xs:element name="npc_any" type="npc_any" />
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="npc_chance">
+    <xs:choice>
+      <xs:element name="npc" type="npc_chance" />
+      <xs:element name="npc_any" type="npc_any_chance" />
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="conversation">
+    <xs:sequence>
+      <xs:element name="conversation">
+        <xs:complexType>
+          <xs:choice>
+            <xs:group ref="npc" minOccurs="1" maxOccurs="unbounded" />
+            <xs:group ref="player" minOccurs="1" maxOccurs="unbounded" />
+          </xs:choice>
+          <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                Unique conversation name
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="description" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                Description of conversation (ignored by the game)
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:element name="conversations">
+    <xs:complexType>
+      <xs:group ref="conversation" minOccurs="0" maxOccurs="unbounded" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

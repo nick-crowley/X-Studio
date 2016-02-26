@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" />
+    <content reference="L2M46" name="Terracorp Missions" description="Mission to work for Terracorp" />
+    <version number="0.1" date="28/05/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L2M46" library="1">
+      <documentation>
+        <content reference="L2M46" name="Corporation Missions" type="L2"/>
+        <version number="0.1" date="28/05/08" status="concept"/>
+        <history>
+          <change date="30/08/08" author="al_main" description="Added 'L0M46 Final Message' to fix completed message"/>
+          <change date="29/08/08" author="al_main" description="RC6 version"/>
+        </history>
+        <todo>
+          <item priority="medium" description="Check missile allocations in L2M46 M02 to make them paranid?"/>
+          <item priority="low" description="Small chance text wont sound good if L2M46 M09 is destination"/>
+        </todo>
+      </documentation>
+      <condition>
+        <check_age value="{player.age}" min="10s"/>
+      </condition>
+      <timing>
+        <time min="10" max="1000"/>
+      </timing>
+      <action>
+        <set_value name="L2M46.time" exact="0"/>
+      </action>
+      <cues>
+        <cue name="L2M46 Setup" delay="5s">
+          <condition>
+            <check_all>
+              <cue_is_complete cue="L2M46"/>
+              <check_age value="{player.age}" min="{value@L2M46.time}"/>
+              <count_stations typename="SS_DOCK_CORP_6" min="1">
+                <sector x="10" y="16"/>
+                <jumps max="0"/>
+              </count_stations>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M46.DoMissions" exact="0"/>
+              <find_sector name="L2M46.HQSector" x="10" y="16"/>
+              <!--Set HQ-->
+              <find_station name="L2M46.HQ" typename="SS_DOCK_CORP_6">
+                <sector sector="L2M46.HQSector"/>
+                <jumps max="0"/>
+              </find_station>
+              <do_choose>
+                <do_when value="{object.exists@L2M46.HQ}" exact="0">
+                  <set_value name="L2M46.time" exact="{player.age}+300"/>
+                  <reset_cue cue="L2M46 Setup"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L2M46.OfferRace" exact="{object.race@L2M46.HQ}"/>
+                  <!--the rest of the setup goes in here-->
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M46 Initial Offer" delay="300s">
+              <condition>
+                <check_all>
+                  <check_age value="{player.age}" min="{value@L2M46.time}s"/>
+                  <object_sector exact="0">
+                    <sector sector="L2M46.HQSector"/>
+                  </object_sector>
+                  <match_object maker="paranid" class="fighter"/>
+                  <check_value value="{value@L2M46.DoMissions}" exact="0"/>
+                  <!-->
+                  <check_value value="{player.fightrank}" min="3333"/>
+                  -->
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>
+                  <create_actor name="L2M46.Guide"  character="{random.pilot.paranid}, {13,9063}" race="paranid" voiceflags="32" object="L2M46.HQ" location="crew"/>
+                  <create_offer actor="L2M46.Guide" conversation="L2OfferNormal" discipline="XFXX" cue="L2M46 Initial Offer"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M46 Briefing">
+                  <condition>
+                    <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="L2M46.Guide"/>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M01 B">
+                      <params>
+                        <param name="Cue" value="L2M46 Initial Offer"/>
+                        <param name="ID" value="1"/>
+                        <param name="EnemyRace" value="{lookup.race@paranid}"/>
+                        <param name="OfferRace" value="{lookup.race@paranid}"/>
+                        <param name="Hidden" value="100"/>
+                        <param name="Lv1Guide" value="L2M46.Guide"/>
+                        <param name="PageID" value="3246"/>
+                        <param name="TextID" value="1001"/>
+                        <param name="AddText" value="1"/>
+                        <param name="Difficulty" value="{lookup.level@average}"/>
+                        <param name="RewardCr" value="L2M46 Initial Offer.RewardCr"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M46 Accepted">
+                  <condition>
+                    <conversation_completed answer="accept" conversation="L2OfferNormal" actor="L2M46.Guide"/>
+                  </condition>
+                  <timing>
+                    <time min="250" max="350"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <remove_offer actor="L2M46.Guide" conversation="L2OfferNormal" discipline="XFXX"/>
+                      <cancel_cue cue="L2M46 Check Offer"/>
+                      <create_offer actor="L2M46.Guide" conversation="L2ShowBriefing" cue="L2M46 Initial Offer"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue ref="L0M01" comment="Mission 0.1">
+                      <params>
+                        <param name="Cue" value="L2M46 Initial Offer"/>
+                        <param name="ID" value="1"/>
+                        <param name="EnemyRace" value="{lookup.race@paranid}"/>
+                        <param name="OfferRace" value="{lookup.race@paranid}"/>
+                        <param name="Lv1Guide" value="L2M46.Guide"/>
+                        <param name="PageID" value="3246"/>
+                        <param name="TextID" value="1001"/>
+                        <param name="AddText" value="1"/>
+                        <param name="Difficulty" value="{lookup.level@average}"/>
+                        <param name="RewardCr" value="L2M46 Initial Offer.RewardCr"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M46 End" delay="1s">
+                      <condition>
+                        <check_all>
+                          <check_value value="{value@L2M46 Initial Offer.1 L0M01 Progress}" min="1"/>
+                        </check_all>
+                      </condition>
+                      <timing>
+                        <time min="1s" max="3s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_briefing cue="L2M46 Initial Offer"/>
+                          <remove_offer actor="L2M46.Guide" conversation="L2ShowBriefing"/>
+                          <do_choose>
+                            <do_when value="{value@L2M46 Initial Offer.1 L0M01 Progress}" exact="1">
+                              <remove_objective cue="L2M46 Initial Offer" status="complete"/>
+                              <reward_player>
+                                <money exact="{value@L2M46 Initial Offer.RewardCr}"/>
+                              </reward_player>
+                              <set_value name="L2M46.DoMissions" exact="1"/>
+                              <set_mission_rank name="L2Corp6" titleid="600" textid="610" exact="1"/>
+                            </do_when>
+                            <do_when value="{value@L2M46 Initial Offer.1 L0M01 Progress}" exact="2" comment="Time ran out">
+                              <remove_objective cue="L2M46 Initial Offer" status="failed"/>
+                              <incoming_message author="{actor.name@L2M46.Guide}" text="{{actor.voice@L2M46.Guide},851}"/>
+                              <set_value name="L2M46.time" exact="{player.age}+10"/>
+                              <destroy_actor actor="L2M46.Guide"/>
+                              <reset_cue cue="L2M46 Initial Offer"/>
+                            </do_when>
+                            <do_when value="{value@L2M46 Initial Offer.1 L0M01 Progress}" exact="3" comment="Destroyed by someone else">
+                              <remove_objective cue="L2M46 Initial Offer" status="failed"/>
+                              <incoming_message author="{actor.name@L2M46.Guide}" text="{{actor.voice@L2M46.Guide},847}"/>
+                              <set_value name="L2M46.time" exact="{player.age}+10"/>
+                              <destroy_actor actor="L2M46.Guide"/>
+                              <reset_cue cue="L2M46 Initial Offer"/>
+                            </do_when>
+                            <do_when value="{value@L2M46 Initial Offer.1 L0M01 Progress}" exact="4" comment="Escaped?">
+                              <remove_objective cue="L2M46 Initial Offer" status="failed"/>
+                              <set_value name="this.TextID" min="1401" exact="1400+{3301,1}"/>
+                              <incoming_message author="{actor.name@L2M46.Guide}" text="{3301,{value@this.TextID}}"/>
+                              <set_value name="L2M46.time" exact="{player.age}+10"/>
+                              <destroy_actor actor="L2M46.Guide"/>
+                              <reset_cue cue="L2M46 Initial Offer"/>
+                            </do_when>
+                            <do_otherwise comment="Must be 99, Aborted?">
+                              <remove_objective cue="L2M46 Initial Offer" status="aborted"/>
+                              <set_value name="L2M46.time" exact="{player.age}+10"/>
+                              <destroy_actor actor="L2M46.Guide"/>
+                              <reset_cue cue="L2M46 Initial Offer"/>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M46 End Wait">
+                          <condition>
+                            <cue_completed cue="L2M46 End"/>
+                          </condition>
+                          <cues>
+                            <cue ref="L0M46 Final Message">
+                              <params>
+                                <param name="Cue" value="L2M46 Initial Offer"/>
+                                <param name="ID" value="1"/>
+                              </params>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L0M46 Final Message" library="1">
+                          <action>
+                            <do_all>
+                              <do_if value="{value@L2M46 Initial Offer.1 L0M01 Progress}" exact="1">
+                                <incoming_message author="{actor.name@L2M46.Guide}" text="{3246,1002}"/>
+                              </do_if>
+                              <destroy_actor actor="L2M46 Initial Offer.1 L0Mark"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M46 Check Offer">
+                  <condition>
+                    <cue_completed cue="L2M46 Initial Offer"/>
+                  </condition>
+                  <cues>
+                    <cue name="L2M46 Time Out" delay="30s">
+                      <condition>
+                        <check_age value="{player.age}" min="{value@L2M46 Initial Offer.TimeOut}"/>
+                      </condition>
+                      <cues>
+                        <cue name="L2M46 Check Comms" delay="500">
+                          <condition>
+                            <check_all>
+                              <check_value value="{player.menu.dialog}" exact="0"/>
+                              <check_value value="{player.menu.briefing}" exact="0"/>
+                              <cue_is_active cue="L2M46 Accepted" negate="1"/>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <remove_offer actor="L2M46.Guide" conversation="L2OfferNormal" discipline="XFXX"/>
+                              <remove_briefing cue="L2M46 Initial Offer"/>
+                              <destroy_actor actor="L2M46.Guide"/>
+                              <reset_cue cue="L2M46 Initial Offer"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue ref="L1M40" comment="Corporation Missions">
+              <params>
+                <param name="DoMissions" value="L2M46.DoMissions"/>
+                <param name="CorpRankID" value="L2Corp6"/>
+                <param name="CorpTextID" value="10000"/>
+                <param name="CorpPageID" value="3246"/>
+                <param name="HQ" value="L2M46.HQ"/>
+                <param name="HQType" value="SS_DOCK_CORP_6"/>
+                <param name="HQSector" value="L2M46.HQSector"/>
+                <param name="Actor" value="L2M46.Guide"/>
+                <param name="ActorName" value="{random.pilot.paranid}, {13,9063}"/>
+                <param name="ActorRace" value="{lookup.race@paranid}"/>
+                <param name="Mission1Chance" value="100"/>
+                <param name="Mission1EnemyRace" value="{lookup.race@paranid}"/>
+                <param name="Mission2Chance" value="40"/>
+                <param name="Mission2EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission3Chance" value="30"/>
+                <param name="Mission3EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission4Chance" value="100"/>
+                <param name="Mission4EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission5Chance" value="40"/>
+                <param name="Mission5EnemyRace" value="{lookup.race@paranid}"/>
+                <param name="Mission7Chance" value="30"/>
+                <param name="Mission7EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission9Chance" value="65"/>
+                <param name="Mission9EnemyRace" value="{lookup.race@paranid}"/>
+                <param name="RewardType1" value="SS_SH_P_M4_ENH" comment="Enhanced Pericles"/>
+                <param name="RewardType2" value="SS_SH_P_M3_ADV" comment="Advanced Perseus"/>
+                <param name="RewardType3" value="SS_SH_P_M3P_PROTO" comment="Medusa Prototype"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>lsrz0wZcaWaIMG5gEUCxMMEUhmiX7SdieGOM7AiH+5kvJFcS8/5+KhG3a//bBXFqdpV9eAuBIfvRKBpKjCqv+iN/twZxUIMHXl1ezVWycaQyduNSLe3ckHzW4L+Pg/3zBy6m0lvyaZD/kdshlDlV8ua/L93HcQlmFC0Oam7CslrME/+RhAJlR84s6wwuLUrwBRJR1IJWsW6rNCwzpXpDJGRk48F6ATnFkIu2fmok6ruyaytoBWMATkfWs2x3Zxu1ChJmjdPyc8lUoG6ZZLxRTfnq7DubCDhtneYmmZ77z3KbNIA6JHqDgipLXdY4Xa036osFJNF3vJTATx1VOZUmoA==</signature>
+</director>

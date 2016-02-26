@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="al_main" alias="Al Main" contact="Skype: al_main"/>
+    <content reference="L3M06" name="Level 3 Corporation Missions Director" description="The Corporation Missions are triggered and managed here"/>
+    <version date="09/07/08" number="1.0" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="L3M06" map="default">
+      <documentation>
+        <content name="Corporation Missions" reference="L3M06" type="L3"/>
+        <version date="09/07/08" number="1.0" status="testing"/>
+        <history>
+          <change date="09/07/08" author="al_main" description="All corporations added"/>
+          <change date="04/06/08" author="al_main" description="Initial Version"/>
+        </history>
+        <todo>
+        </todo>
+      </documentation>
+      <condition>
+        <check_age min="20s"/>
+      </condition>
+      <cues>
+        <cue ref="L2M41" comment="Terracorp"/>
+        <cue ref="L2M42" comment="OTAS"/>
+        <cue ref="L2M43" comment="Jonferco"/>
+        <cue ref="L2M44" comment="Plutarch"/>
+        <cue ref="L2M45" comment="PTNI"/>
+        <cue ref="L2M46" comment="Duke's Buccaneers"/>
+        <cue ref="L2M47" comment="Atreus Shipbuilding"/>
+        <cue ref="L2M48" comment="Strong Arms"/>
+      </cues>
+    </cue>
+  </cues>
+  <signature>9Fd++EO3CE9YHLzsnr61yDtZPuMVVeA8lRhpXisX8C0m/KY5r+ketPQBgUe4vQwIDsCIuwc8YxyvK7mnHMNvmwgLhU9e9U9VJ/zTlUYPHnbTElkf3WVemKdBMj5N9JCmwpT2w5wihOxMvxdj6F3Bf6OdiU+BZyAxK80io3xpcrkgGFXIqys5Y9ZWswvHVwjRGjVJha7IcL4RDYie42gwtGRUA3rV7lCsilsWjEuy4KLyxHiMTcuJ4IFm0tc+JN73cWex3TIFsHC3qIg8TebLt8fliAuTVqx7BK7iqpkxMoCBAlV8Vwv7mzKruymSnvsUbUcnchYOvRFwSvVSgzZ4kA==</signature>
+</director>

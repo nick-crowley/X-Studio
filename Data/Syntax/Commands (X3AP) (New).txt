@@ -1,0 +1,80 @@
+<page id="382003" title="Script Command Names" descr="0" voice="no">
+ <t id="1540">%0get billions of credits in player account</t>
+ <t id="1541">%0get amount of credits under a billion in player account</t>
+ <t id="1542">%0get full amount of credits in player account formatted as string: include separators %1, use millions suffix for very large numbers %2</t>
+ <t id="1543">show graph using graph data array %0</t>
+ <t id="1544">%0format large number pair as string: billions %1, units %2, include separators %3, use millions suffix for very large numbers %4</t>
+ <t id="1545">add info line section to menu: %0</t>
+ <t id="1546">add info line heading to menu: %0, heading=%1</t>
+ <t id="1547">%0create menu return value: open menu, menu script=%1, script args=%2</t>
+ <t id="1548">%0create menu return value: run script %1, script args=%2</t>
+ <t id="1549">add trade bar to menu: %0, text=%1, min=%2, max=%3, current=%4, return value=%5, left text=%6, right text=%7</t>
+ <t id="1550">add new grouping to menu: %0, text=%1, open=%2</t>
+ <t id="1551">add end grouping to menu: %0</t>
+ <t id="1552">set menu option: %0, maximum infolines=%1</t>
+ <t id="1553">set menu option: %0, page up/down keys for info=%1</t>
+ <t id="1554">%0create menu return value: command 'Open All Groups'</t>
+ <t id="1555">%0create menu return value: command 'Close All Groups'</t>
+ <t id="1556">add non selectable menu item: %0, text=%1</t>
+ <t id="1557">%0 set stock exchange unlock state: %1</t>
+ <t id="1558">%1%0 get stock exchange unlock state</t>
+ <t id="1559">%0 get all unlocked stock exchanges</t>
+ <t id="1560">add trade rank based on profit: race=%0 profit=%1</t>
+ <t id="1561">%1%0 get owned share count</t>
+ <t id="1562">%0 set owned share count: %1</t>
+ <t id="1563">set stock exchange corporate reports menu item: Enabled=%0</t>
+ <t id="1564">set stock exchange Company reports menu item: Enabled=%0</t>
+ <t id="1565">set stock exchange commodity reports menu item: Enabled=%0</t>
+ <t id="1566">set menu option: %0, use hover line=%1</t>
+ <t id="1567">%1%0 is sector visible</t>
+ <t id="1568">%1%0 get fleet ships: only currently with fleet: %2</t>
+ <t id="1569">%0 set fleet leader: %1</t>
+ <t id="1570">%0 remove from fleet</t>
+ <t id="1571">%0 switch fleet leader to: %1</t>
+ <t id="1572">%1%0 is in fleet</t>
+ <t id="1573">%1%0 get fleet leader</t>
+ <t id="1574">%1%0 is fleet leader</t>
+ <t id="1575">%1%0 is currently with fleet</t>
+ <t id="1576">%0 set with fleet: %1</t>
+ <t id="1577">%1%0 get player object count in sector: class=%2</t>
+ <t id="1578">%1%0 is stock exchange accessible</t>
+ <t id="1579">%1%0 get WarObject ID</t>
+ <t id="1580">%0get name of current War State</t>
+ <t id="1581">%0 set job override name: %1</t>
+ <t id="1582">%0get trade stats for sectors: %1, only include these wares: %2, treat docks as producers: %3, include player docks: %4</t>
+ <t id="1583">%1%0 fire all turrets on target: %2, next target filter=%3</t>
+ <t id="1584">%0get trade stats for sector: %1, only include these wares: %2, treat docks as producers: %3, include player docks: %4</t>
+ <t id="1585">%0get cluster sectors for race %1, startsector: %2, threshold: %3, only include known: %4</t>
+ <t id="1586">%0find gate: flags=%1, refobj=%2, max dist=%3, refpos=%4 object check=%5</t>
+ <t id="1587">%1%0 is gate/beacon: %2 jumpable</t>
+ <t id="1588">%0get name of next expected War State \(final choice may differ!\)</t>
+ <t id="1589">%0is player currently observing War State</t>
+ <t id="1590">%0get progress of current War State</t>
+ <t id="1591">%0get start time of current War State</t>
+ <t id="1592">%0get end time of current War State \(may change!\)</t>
+ <t id="1593">%0did player observe currently active War State</t>
+ <t id="1594">%0get duration of War State %1</t>
+ <t id="1596">set menu option: %0, maximum menu height=%1 lines</t>
+ <t id="1597">%0get minimum, %1, %2, %3, %4, %5</t>
+ <t id="1598">add script options: script=%0 pageid=%1 textid=%2</t>
+ <t id="1599">remove script options: script=%0</t>
+ <t id="1600">%0does script exist: %1</t>
+ <t id="1601">%0register hotkey: page=%1 id=%2, to call script %3</t>
+ <t id="1602">%0get hotkey index, script: %1</t>
+ <t id="1603">%0register hotkey: page=%1 id=%2, to call script name %3</t>
+ <t id="1604">%0get hotkey index, script name: %1</t>
+ <t id="1605">%0does script name exist: %1</t>
+ <t id="1606">%0get bullet flags of laser %1 </t>
+ <t id="1607">%0get colour code: red=%1 green=%2 blue=%3 transparency=%4</t>
+ <t id="1608">add player graph: script=%0 pageid=%1 textid=%2 group pageid=%3 group textid=%4 subgroup=%5 \(0-7\)</t>
+ <t id="1609">remove player graph: script=%0 group pageid=%1 group textid=%2</t>
+ <t id="1610">add class graph: class=%0 script=%1 pageid=%2 textid=%3 group pageid=%4 group textid=%5 subgroup=%6 \(0-7\)</t>
+ <t id="1611">remove class graph: class=%0 script=%1 group pageid=%2 group textid=%3</t>
+ <t id="1612">%0 add object graph: script=%1 pageid=%2 textid=%3 group pageid=%4 group textid=%5 subgroup=%6 \(0-7\)</t>
+ <t id="1613">%0 remove object graph: script=%1 group pageid=%2 group textid=%3</t>
+ <t id="1614">%0get global parameter value: parameter=%1 default=%2</t>
+ <t id="1615">%0get ship class from subtype: %1</t>
+ <t id="1616">%0get race id for race: %1</t>
+ <t id="1617">%1%0 mine is armed</t>
+ <t id="1618">%0set mine armed state to %1</t>
+</page>

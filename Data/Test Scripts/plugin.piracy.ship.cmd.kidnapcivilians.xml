@@ -1,0 +1,236 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.ship.cmd.kidnapcivilians</name>
+   <version>130</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Ship Command: Kidnap Civilians</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* KIDNAP CIVILIANS COMMAND LAUNCHER   -by-   MISTER BEAR   v1.00</comment></line>
+      <line linenr="002" indent=""><comment>* </comment></line>
+      <line linenr="003" indent=""><comment>* Uses a mutex to save the task ID of currently executing instance. [playership]:local  -  piracy.kidnapcivilians.iTaskID</comment></line>
+      <line linenr="004" indent=""> </line>
+      <line linenr="005" indent=""><comment>* Get saved task number</comment></line>
+      <line linenr="006" indent=""><text></text><var>$iTaskID =</var><text> </text><var>[PLAYERSHIP]</var><text>  ->  get local variable: name=</text><var>'piracy.kidnapcivilians.iTaskID'</var><text></text></line>
+      <line linenr="007" indent=""> </line>
+      <line linenr="008" indent=""><var>if </var><text></text><var>$iTaskID </var><text></text></line>
+      <line linenr="009" indent="&#160;"><comment>* Abort if there's another instance running</comment></line>
+      <line linenr="010" indent="&#160;"><text></text><var>skip if not</var><text> </text><var>[PLAYERSHIP]</var><text>  ->  is script </text><var></var><call>plugin.piracy.kidnapcivilians</call><var></var><text> on stack of task=</text><var>$iTaskID</var><text></text></line>
+      <line linenr="011" indent="&#160;&#160;"><text>return </text><var>null</var><text></text></line>
+      <line linenr="012" indent="&#160;"> </line>
+      <line linenr="013" indent="&#160;"><comment>* Report if task number is present but script is no longer running</comment></line>
+      <line linenr="014" indent="&#160;"><text></text><var>$szOutput =</var><text> = sprintf: fmt=</text><var>'Kidnap Civlians: ERROR: iTaskID=%s but no script running.'</var><text>, </text><var>$iTaskID</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="015" indent="&#160;"><text>send incoming message </text><var>$szOutput</var><text> to player: display it=</text><var>[FALSE]</var><text></text></line>
+      <line linenr="016" indent=""><text>end</text></line>
+      <line linenr="017" indent=""> </line>
+      <line linenr="018" indent=""><comment>* Create and save TaskID</comment></line>
+      <line linenr="019" indent=""><text></text><var>$iTaskID =</var><text> = </text><var>[PLAYERSHIP]</var><text>  ->  get next available task: starting=</text><var>50</var><text></text></line>
+      <line linenr="020" indent=""><text></text><var>[PLAYERSHIP]</var><text>  ->  set local variable: name=</text><var>'piracy.kidnapcivilians.iTaskID'</var><text> value=</text><var>$iTaskID</var><text></text></line>
+      <line linenr="021" indent=""> </line>
+      <line linenr="022" indent=""><comment>* Execute as background task</comment></line>
+      <line linenr="023" indent=""><text></text><var>[PLAYERSHIP]</var><text>  ->  start named script: task=</text><var>$iTaskID</var><text> scriptname=</text><var>'plugin.piracy.kidnapcivilians'</var><text> prio=</text><var>10</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="024" indent=""> </line>
+      <line linenr="025" indent=""><text>return </text><var>null</var><text></text></line>
+      <line linenr="026" indent=""> </line>
+      <line linenr="027" indent=""> </line>
+      <line linenr="028" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.ship.cmd.kidnapcivilians" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Ship Command: Kidnap Civilians" />
+         <sval type="int" val="130" />
+         <sval type="int" val="0" />
+         <sval type="array" size="2">
+            <sval type="string" val="iTaskID" />
+            <sval type="string" val="szOutput" />
+         </sval>
+         <sval type="array" size="10">
+            <sval type="array" size="6">
+               <sval type="int" val="156" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="3" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.kidnapcivilians.iTaskID" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610611197" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1072" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1610611704" />
+               <sval type="string" val="plugin.piracy.kidnapcivilians" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="14">
+               <sval type="int" val="149" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnap Civlians: ERROR: iTaskID=%s but no script running." />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="203" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="9" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="1462" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="3" />
+               <sval type="int" val="0" />
+               <sval type="int" val="4" />
+               <sval type="int" val="50" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="155" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="3" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.kidnapcivilians.iTaskID" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="19">
+               <sval type="int" val="1426" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.kidnapcivilians" />
+               <sval type="int" val="4" />
+               <sval type="int" val="10" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="18">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="KIDNAP CIVILIANS COMMAND LAUNCHER   -by-   MISTER BEAR   v1.00" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Uses a mutex to save the task ID of currently executing instance. [playership]:local  -  piracy.kidnapcivilians.iTaskID" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Get saved task number" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="2" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Abort if there's another instance running" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Report if task number is present but script is no longer running" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Create and save TaskID" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="8" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="8" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Execute as background task" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="9" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="10" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="10" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="10" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="string" val="COMMAND_KIDNAP_CIVILIAN" />
+      </sval>
+   </codearray>
+</script>

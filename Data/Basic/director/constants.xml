@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="E-Mail: al_main@hotmail.com"/>
+    <content reference="constants" name="constants" description="Sets global constants"/>
+    <version number="0.1" date="27/06/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="constants">
+      <documentation>
+        <content name="constants" reference="constants" type="utility"/>
+        <version number="0.1" date="27/06/08" status="development"/>
+        <history>
+          <change date="27/06/08" author="al_main" description="Removed delay before running"/>
+          <change date="27/06/08" author="al_main" description="Replaces U.13"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <!--class strength constants-->
+          <set_value name="Constant {lookup.class@m5} Points" exact="1"/>
+          <set_value name="Constant {lookup.class@m4} Points" exact="7"/>
+          <set_value name="Constant {lookup.class@m3} Points" exact="20"/>
+          <set_value name="Constant {lookup.class@m8} Points" exact="70"/>
+          <set_value name="Constant {lookup.class@m6} Points" exact="100"/>
+          <set_value name="Constant {lookup.class@m7} Points" exact="220"/>
+          <set_value name="Constant {lookup.class@m2} Points" exact="600"/>
+          <set_value name="Constant {lookup.class@m1} Points" exact="500"/>
+          <set_value name="Constant {lookup.class@m1} Support Points" exact="500"/>
+          <set_value name="Constant {lookup.class@ts} Points" exact="4"/>
+          <set_value name="Constant {lookup.class@tp} Points" exact="3"/>
+          <set_value name="Constant {lookup.class@tm} Points" exact="5"/>
+          <set_value name="Constant {lookup.class@tm} Support Points" exact="20"/>
+          <set_value name="Constant {lookup.class@tl} Points" exact="125"/>
+          <set_value name="Constant {lookup.class@tm} Support Points" exact="75"/>
+
+          <!--OBS point pool constants-->
+          <set_value name="Constant OBS PP Rank0" exact="2"/>
+          <set_value name="Constant OBS PP Rank1" exact="2"/>
+          <set_value name="Constant OBS PP Rank2" exact="3"/>
+          <set_value name="Constant OBS PP Rank3" exact="3"/>
+          <set_value name="Constant OBS PP Rank4" exact="4"/>
+          <set_value name="Constant OBS PP Rank5" exact="6"/>
+          <set_value name="Constant OBS PP Rank6" exact="7"/>
+          <set_value name="Constant OBS PP Rank7" exact="10"/>
+          <set_value name="Constant OBS PP Rank8" exact="13"/>
+          <set_value name="Constant OBS PP Rank9" exact="17"/>
+          <set_value name="Constant OBS PP Rank10" exact="22"/>
+          <set_value name="Constant OBS PP Rank11" exact="29"/>
+          <set_value name="Constant OBS PP Rank12" exact="38"/>
+          <set_value name="Constant OBS PP Rank13" exact="49"/>
+          <set_value name="Constant OBS PP Rank14" exact="64"/>
+          <set_value name="Constant OBS PP Rank15" exact="84"/>
+          <set_value name="Constant OBS PP Rank16" exact="109"/>
+          <set_value name="Constant OBS PP Rank17" exact="143"/>
+          <set_value name="Constant OBS PP Rank18" exact="186"/>
+          <set_value name="Constant OBS PP Rank19" exact="243"/>
+          <set_value name="Constant OBS PP Rank20" exact="318"/>
+          <set_value name="Constant OBS PP Rank21" exact="416"/>
+          <set_value name="Constant OBS PP Rank22" exact="544"/>
+          <set_value name="Constant OBS PP Rank23" exact="711"/>
+          <set_value name="Constant OBS PP Rank24" exact="930"/>
+          <set_value name="Constant OBS PP Rank25" exact="1216"/>
+          <set_value name="Constant OBS PP Rank26" exact="1589"/>
+          <set_value name="Constant OBS PP Rank27" exact="2078"/>
+          <set_value name="Constant OBS PP Rank28" exact="2718"/>
+          <set_value name="Constant OBS PP Rank29" exact="3554"/>
+          <set_value name="Constant OBS PP Rank30" exact="4647"/>
+          
+          <!--Mask For Races With Mission Affecting Notoriety-->
+          <set_value name="Notoriety Races Mask" exact="{lookup.race.mask@argon}+{lookup.race.mask@boron}+{lookup.race.mask@paranid}+{lookup.race.mask@split}+{lookup.race.mask@teladi}+{lookup.race.mask@goner}+{lookup.race.mask@terran}"/>
+          <set_value name="Mission Races Mask" exact="{lookup.race.mask@argon}+{lookup.race.mask@boron}+{lookup.race.mask@paranid}+{lookup.race.mask@split}+{lookup.race.mask@teladi}+{lookup.race.mask@goner}+{lookup.race.mask@terran}+{lookup.race.mask@pirate}+{lookup.race.mask@yaki}"/>
+        </do_all>
+      </action>
+    </cue>
+  </cues>
+  <signature>tTrgmq+sqc7etfSMPb26k2+dJ0xJgzShunXbtZnDOfCejxrLkWvRSLItRs9mud5E+Hoo5Hxsq7ltbYQ2MeJZa71gi+ZgU/fNIVy41bRygT1eMNxbAXpAJ/rsw0x3q1Fo6Kb7POsA9LH1dNva6SNfGZOScTwQ16YlpjPObuXw36UeZ4OhKgw37EPSetjO36kj9peNKsVsw6rofDsRn9dIw4ww+BBkOBkk01JwdTsbFclegY52yNcvrQmjL/WflNRTjcbgL90avsLxl5cCOU77cPomyaGubKPYpfVFLRMTi+tw6secEs6TLP73o3VJdQigmWAwo/9jh4HvP3DZshw8RQ==</signature>
+</director>

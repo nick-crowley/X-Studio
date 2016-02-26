@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al Main" alias="al_main" contact="E-Mail: al_main@hotmail.com"/>
+    <content reference="LUM15" name="Remove Ship"
+             description="Removes unneeded ships
+             - if docked wait around then try to equip JD and undock and jump or just dissapear if no JD
+             - if undocked jump if has JD, else try to find a station to dock at and then as above
+             - else idle around
+             - ships are removed straight away if player isnt 'looking' at them (out of sat range and 2+ sectors away)"/>
+    <version number="0.1" date="02/07/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="LUM15" library="1" check="cancel">
+      <documentation>
+        <content name="LUM15 Remove Ship" reference="LUM15" type="utility"/>
+        <version number="0.1" date="02/07/08" status="development"/>
+        <params>
+          <param name="RemoveShip" type="objectname" compulsory="1" description="Ship to remove"/>
+          <param name="NoJump" type="boolean" compulsory="0" description="If param.exists ship does not jump unless already carrying JD"/>
+          <param name="NoOrders" type="boolean" compulsory="0" description="If param.exists ship comtinues and just waits till player not looking"/>
+        </params>
+        <history>
+          <change date="09/07/08" author="Al Main" description="Fixed incorrect param.exists check"/>
+          <change date="16/07/08" author="Al Main" description="exact='0' fixed, job.preach used instead of idle, improved checks for orders and jumping away"/>
+          <change date="09/07/08" author="Al Main" description="RC1 Version"/>
+          <change date="07/07/08" author="Al Main" description="Added NoOrders param"/>
+          <change date="03/07/08" author="Al Main" description="Added extra player race check for safety"/>
+          <change date="01/07/08" author="Al Main" description="Initial Version"/>
+        </history>
+        <todo>
+          <item priority="medium" description="Add killenemiesrangeland command to LUM15 Find Station"/>
+        </todo>
+      </documentation>
+      <condition>
+        <check_all>
+          <check_value value="{param.exists@RemoveShip}" exact="1"/>
+          <check_value value="{object.exists@{param@RemoveShip}}" exact="1"/>
+          <check_value value="{object.race@{param@RemoveShip}}" exact="{lookup.race@player}" negate="1"/>
+        </check_all>
+      </condition>
+      <cues>
+        <cue name="LUM15 Dealt With">
+          <condition>
+            <check_any>
+              <object_destroyed object="{param@RemoveShip}"/>
+              <object_destroyed_by_player object="{param@RemoveShip}"/>
+              <object_captured object="{param@RemoveShip}"/>
+              <object_claimed object="{param@RemoveShip}"/>
+            </check_any>
+          </condition>
+          <action>
+            <cancel_cue cue="LUM15"/>
+          </action>
+        </cue>
+        <cue name="LUM15 Ship Lost Backup" delay="5s">
+          <condition>
+            <object_exists object="{param@RemoveShip}" negate="1"/>
+          </condition>
+          <action>
+            <cancel_cue cue="LUM15"/>
+          </action>
+        </cue>
+        <cue name="LUM15 Player Not Looking Wait">
+          <timing>
+            <time min="60s" max="80s"/>
+          </timing>
+          <cues>
+            <cue name="LUM15 Player Not Looking" delay="30s">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="LUM15 Player Not Looking Wait"/>
+                  <object_sector object="{param@RemoveShip}" min="2">
+                    <sector sector="{player.sector}"/>
+                  </object_sector>
+                  <check_any comment="Object isnt on player map or player not looking at map and no nearby ships">
+                    <check_value value="{object.visible@{param@RemoveShip}}" exact="0"/>
+                    <check_all>
+                      <check_value value="{player.menu.sector}" exact="0"/>
+                      <check_value value="{player.menu.galaxy}" exact="0"/>
+                      <!--ship is visible but there are other ships around that may have interacted with it (and map is closed)-->
+                      <!--The below condition WAS broken. Changed but commented out to increase likely hood of being triggered.-->
+                      <!--<count_ships race="default|xenon|khaak|terrangroup|goner|pirategroup" min="1">
+                        <position object="{param@RemoveShip}"/>
+                        <sector sector="{object.sector@{param@RemoveShip}}"/>
+                        <distance max="10km"/>
+                      </count_ships>-->
+                      <!--<count_ships findobject="{param@RemoveShip}" race="player" max="0" includedocked="1">
+                        <sector sector="{object.sector@{param@RemoveShip}}"/>
+                        <jumps exact="0"/>
+                        <distance max="15km"/>
+                      </count_ships>
+                      <count_stations findobject="{param@RemoveShip}" race="player" max="0">
+                        <sector sector="{object.sector@{param@RemoveShip}}"/>
+                        <jumps exact="0"/>
+                        <distance max="15km"/>
+                      </count_stations>-->
+                    </check_all>
+                  </check_any>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <destroy_object object="{param@RemoveShip}"/>
+                  <cancel_cue cue="LUM15"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="LUM15 Is Docked">
+          <condition>
+            <object_is_docked object="{param@RemoveShip}"/>
+          </condition>
+          <timing>
+            <time min="30s" max="70s"/>
+          </timing>
+          <action>
+            <do_choose>
+              <do_when value="{object.dockobject.exists@{param@RemoveShip}}" exact="1">
+                <do_if value="{object.exists@{param@RemoveShip}}" exact="1">
+                  <do_if value="{object.cargoclass@{param@RemoveShip}}" min="{lookup.type.cargoclass@SS_WARE_WARPING}">
+                    <add_equipment object="{param@RemoveShip}">
+                      <ware typename="SS_WARE_WARPING" exact="1" critical="1"/>
+                    </add_equipment>
+                    <add_cargo object="{param@RemoveShip}">
+                      <ware typename="SS_WARE_ENERGY" min="15" max="30" critical="1"/>
+                    </add_cargo>
+                  </do_if>
+                </do_if>
+                <do_choose>
+                  <do_when value="{object.exists@{param@RemoveShip}}" exact="0">
+                    <cancel_cue cue="LUM15"/>
+                  </do_when>
+                  <do_when value="{param.exists@NoJump}" exact="1">
+                    <!--NoJump so undock and let LUM15 Not Docked allocate orders-->
+                    <set_command object="{param@RemoveShip}" command="movesector">
+                      <sector sector="{object.sector@{param@RemoveShip}}"/>
+                    </set_command>
+                    <cancel_cue cue="LUM15 Docked Jump"/>
+                  </do_when>
+                  <do_when value="{object.cargo.SS_WARE_WARPING.count@{param@RemoveShip}}" exact="1">
+                    <!--JD so undock and let LUM15 Docked Jump make ship jump away-->
+                    <set_command object="{param@RemoveShip}" command="movesector">
+                      <sector sector="{object.sector@{param@RemoveShip}}"/>
+                    </set_command>
+                    <cancel_cue cue="LUM15 Not Docked"/>
+                  </do_when>
+                  <do_otherwise>
+                    <!--No JD aboard so undock and let LUM15 Not Docked allocate orders-->
+                    <set_command object="{param@RemoveShip}" command="movesector">
+                      <sector sector="{object.sector@{param@RemoveShip}}"/>
+                    </set_command>
+                    <cancel_cue cue="LUM15 Docked Jump"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_when>
+              <do_otherwise>
+                <cancel_cue cue="LUM15 Is Docked"/>
+              </do_otherwise>
+            </do_choose>
+          </action>
+          <cues>
+            <cue name="LUM15 Docked Jump">
+              <condition>
+                <check_all>
+                  <object_finished object="{param@RemoveShip}"/>
+                  <cue_is_complete cue="LUM15 Is Docked"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{object.exists@{param@RemoveShip}}" exact="1">
+                    <destroy_object object="{param@RemoveShip}" warp="1"/>
+                  </do_if>
+                  <cancel_cue cue="LUM15"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="LUM15 Not Docked">
+          <condition>
+            <object_is_docked object="{param@RemoveShip}" negate="1"/>
+          </condition>
+          <action>
+            <do_choose>
+              <!--if has JD then jump away-->
+              <do_when value="{object.cargo.SS_WARE_WARPING.count@{param@RemoveShip}}" min="1">
+                <destroy_object object="{param@RemoveShip}" warp="1"/>
+                <cancel_cue cue="L0M15"/>
+              </do_when>
+              <do_otherwise>
+                <do_choose>
+                  <do_when value="{param.exists@NoOrders}" exact="1">
+                    <cancel_cue cue="LUM15 Not Docked"/>
+                  </do_when>
+                  <do_otherwise>
+                    <do_choose>
+                      <!--else give some basic orders-->
+                      <do_when value="{object.isclass.freighter@{param@RemoveShip}}" exact="1">
+                        <set_command object="{param@RemoveShip}" command="idle"/>
+                      </do_when>
+                      <do_when value="{object.isclass.tm@{param@RemoveShip}}" exact="1">
+                        <set_command object="{param@RemoveShip}" command="idle"/>
+                      </do_when>
+                      <do_when value="{object.isclass.bigship@{param@RemoveShip}}" exact="1">
+                        <set_command object="{param@RemoveShip}" command="killenemies"/>
+                      </do_when>
+                      <do_when value="{object.isclass.m5@{param@RemoveShip}}" exact="1">
+                        <!--'scout' around aimlessly till out of sight!-->
+                        <run_script script="!job.special.preach" object="{param@RemoveShip}" task="1"/>
+                        <!--m5 very unlikely to mount a JD so cancel that part-->
+                        <cancel_cue cue="LUM15 Find Station"/>
+                        <cancel_cue cue="LUM15 Is Docked"/>
+                      </do_when>
+                      <do_when value="{object.isclass.fighter@{param@RemoveShip}}" exact="1">
+                        <set_command object="{param@RemoveShip}" command="killenemies"/>
+                      </do_when>
+                      <do_otherwise>
+                        <!--fly around aimlessly till out of sight!-->
+                        <run_script script="!job.special.preach" object="{param@RemoveShip}" task="1"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_otherwise>
+                </do_choose>
+              </do_otherwise>
+            </do_choose>
+          </action>
+          <cues>
+            <cue name="LUM15 Find Station" check="cancel">
+              <condition>
+                <check_all>
+                  <count_stations class="station" dockingallowed="1" findobject="{param@RemoveShip}">
+                    <sector sector="{object.sector@{param@RemoveShip}}"/>
+                    <jumps min="1" max="9"/>
+                  </count_stations>
+                  <check_value value="{param.exists@NoJump}" exact="0"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <find_station name="this.station" class="station" dockingallowed="1" findobject="{param@RemoveShip}">
+                    <sector sector="{object.sector@{param@RemoveShip}}"/>
+                    <jumps min="1" max="9"/>
+                  </find_station>
+                  <do_choose>
+                    <!--if station found then dock there-->
+                    <do_when value="{object.exists@this.station}*{object.isclass.freighter@{param@RemoveShip}}" exact="1">
+                      <set_command object="{param@RemoveShip}" command="dock" commandobject="this.station"/>
+                    </do_when>
+                    <do_when value="{object.exists@this.station}*{object.isclass.tm@{param@RemoveShip}}" exact="1">
+                      <set_command object="{param@RemoveShip}" command="dock" commandobject="this.station"/>
+                    </do_when>
+                    <do_when value="{object.exists@this.station}*({object.isclass.m5@{param@RemoveShip}}+{object.isclass.m4@{param@RemoveShip}})" exact="1">
+                      <set_command object="{param@RemoveShip}" command="dock" commandobject="this.station"/>
+                    </do_when>
+                    <!--else use fight command if combat ship-->
+                    <!--NEEDS KILL ENEMIES RANGE LAND-->
+                    <do_when value="{object.exists@this.station}*{object.isclass.bigship@{param@RemoveShip}}" exact="1">
+                      <set_command object="{param@RemoveShip}" command="killenemiesland" commandobject="this.station" distance="20km"/>
+                    </do_when>
+                    <do_when value="{object.exists@this.station}*{object.isclass.fighter@{param@RemoveShip}}" exact="1">
+                      <set_command object="{param@RemoveShip}" command="killenemiesland" commandobject="this.station" distance="20km"/>
+                    </do_when>
+                    <do_when value="{object.exists@this.station}" exact="1">
+                      <set_command object="{param@RemoveShip}" command="dock" commandobject="this.station"/>
+                    </do_when>
+                  </do_choose>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>vexRg1129fK7WP8RAZlCg5swqylnucwxP9OaWMKf46jIynycqyec42XeViC4bW5gwmavh89WcOIxYPY26lA4HpIq8dzhGOAhzfT2/tHl7f9bUKxo38qoxHPDxpU9RN6XfM+HVfwG+dw17X1X0d4k5Xg+frBYQ7W+zG7t+LJiM6FfCSOIDkDO4qRkC17dFkRtqhMVqC37u3s1+BEu+20XZqMz4aki92AyZc1dCDJJa/7d3eY2WxL7LLEFEv31Fsm9YD9oyjQPN5XLDHZ2o+llnh6Aobp2JiimmpdfqSWoZkOIoOAcoKVZbJNSQIteToAq9P3YQfdjzBK3x5RuY1O1nw==</signature>
+</director>

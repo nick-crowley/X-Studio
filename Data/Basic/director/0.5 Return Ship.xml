@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L0M05" name="Return Ship" description="Claim and Return a specific ship"/>
+    <version number="0.3" date="11/04/08" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="L0M05 B" library="1">
+      <documentation>
+        <content name="Return Ship Briefing Dummy" reference="L0M05 B" type="utility"/>
+        <version date="11/04/2008" number="0.3" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="OfferRace" type="number" description="Offer Race ID"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="DestName" type="objectname" description="The Address of the destination. Overrides all other criteria."/>
+          <param name="Difficulty" type="valuename" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text" type="number" description="The briefing text ID"/>
+          <param name="TextID Claim" type="number" description="The text ID for the claim objective text"/>
+          <param name="TextID Return" type="number" description="The text ID for the return objective text"/>
+          <param name="Preview" type="boolean" description="Is the briefing a preview"/>
+          <param name="SetObjective" type="boolean" description="Set the objectives and run the Objective library"/>
+          <param name="Complete Briefing" type="boolean" description="Run the briefing completion library"/>
+          <param name="ShipClaimed" type="boolean" description="Has the ship already been claimed"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="NoReward" type="boolean" compulsory="0" description="Do not add a reward"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <param name="RewardFree" type="boolean" compulsory="0" description="Reward - use free text"/>
+          <param name="RewardText" type="text" compulsory="0" description="Free text for reward" />
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+        </params>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M05 B.Step" exact="{value@{param@Step}}"/>
+          <do_if value="{param.exists@Duration}" exact="1">
+            <do_if value="{value@{param@Duration}}" exact="0">
+              <set_value name="{param@Duration}" min="11000" max="12000"/>
+              <do_if value="{param@Difficulty}" min="1">
+                <set_value name="{param@Duration}" exact="{value@{param@Duration}}/{param@Difficulty}"/>
+              </do_if>
+            </do_if>
+          </do_if>
+          <do_choose>
+            <do_when value="{param.exists@StartTime}" exact="1">
+              <set_value name="L0M05 B.StartTime" exact="{param@StartTime}"/>
+            </do_when>
+            <do_otherwise>
+              <do_if value="{value@{param@Duration}}" min="1">
+                <do_choose>
+                  <do_when value="{param@Preview}" exact="1">
+                    <set_value name="L0M05 B.StartTime" exact="100000+{player.age}+{value@{param@Duration}}"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="L0M05 B.StartTime" exact="{player.age}"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+
+          <do_if value="{param.exists@RewardCr}" exact="1">
+            <do_choose>
+              <do_when value="{param@Difficulty}" exact="0">
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money.{param@OfferRace}@{param@Difficulty}.XXXT}"/>
+                </do_if>
+              </do_when>
+              <do_otherwise>
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money}"/>
+                </do_if>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+
+          <set_value name="L0M05 B.Claim PageID" exact="{param@PageID}"/>
+          <set_value name="L0M05 B.Claim TextID" exact="{param@TextID Claim}"/>
+          <do_if value="{text.exists@{value@L0M05 B.Claim PageID},{value@L0M05 B.Claim TextID}}" exact="0">
+            <set_value name="L0M05 B.Claim TextID" exact="1007"/>
+            <set_value name="L0M05 B.Claim PageID" exact="3605"/>
+            <do_if value="{param@Preview}" exact="1">
+              <set_value name="L0M05 B.Claim TextID" exact="1005"/>
+            </do_if>
+          </do_if>
+
+          <set_value name="L0M05 B.Return PageID" exact="{param@PageID}"/>
+          <set_value name="L0M05 B.Return TextID" exact="{param@TextID Return}"/>
+          <do_if value="{text.exists@{value@L0M05 B.Return PageID},{value@L0M05 B.Return TextID}}" exact="0">
+            <set_value name="L0M05 B.Return TextID" exact="1008"/>
+            <set_value name="L0M05 B.Return PageID" exact="3605"/>
+            <do_if value="{param@Preview}" exact="1">
+              <set_value name="L0M05 B.Return TextID" exact="1006"/>
+            </do_if>
+          </do_if>
+
+          <set_value name="L0M05 B.B Title PageID" exact="{param@PageID}"/>
+          <set_value name="L0M05 B.B Title TextID" exact="{param@TextID Title}"/>
+          <do_if value="{text.exists@{value@L0M05 B.B Title PageID},{value@L0M05 B.B Title TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M05 B.B Title PageID" exact="3605"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <set_value name="L0M05 B.B Title TextID" exact="1001"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L0M05 B.B Title TextID" exact="1003"/>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+
+          <set_value name="L0M05 B.B Text PageID" exact="{param@PageID}"/>
+          <set_value name="L0M05 B.B Text TextID" exact="{param@TextID Text}"/>
+          <do_if value="{text.exists@{value@L0M05 B.B Text PageID},{value@L0M05 B.B Text TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M05 B.B Text PageID" exact="3605"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <set_value name="L0M05 B.B Text TextID" exact="1002"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L0M05 B.B Text TextID" exact="1004"/>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+
+          <create_briefing cue="{param@Cue}">
+            <objectives>
+              <objective step="{value@L0M05 B.Step}">
+                <custom action="{35,2032}" text="{{value@this.Claim PageID},{value@this.Claim TextID}}" icon="protect"/>
+              </objective>
+              <objective step="{value@L0M05 B.Step}+1">
+                <custom action="{35,2003}" text="{{value@this.Return PageID},{value@this.Return TextID}}" icon="deliver"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <do_if value="{text.exists@{value@L0M05 B.B Title PageID},{value@L0M05 B.B Title TextID}}" exact="1">
+            <do_if value="{text.exists@{value@L0M05 B.B Text PageID},{value@L0M05 B.B Text TextID}}" exact="1">
+              <create_briefing cue="{param@Cue}" title="{{value@L0M05 B.B Title PageID},{value@L0M05 B.B Title TextID}}" text="{{value@L0M05 B.B Text PageID},{value@L0M05 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+          <do_if value="{param@SetObjective}" exact="1">
+            <do_if value="{text.exists@{value@L0M05 B.B Title PageID},{value@L0M05 B.B Title TextID}}" exact="1">
+              <do_if value="{text.exists@{value@L0M05 B.B Text PageID},{value@L0M05 B.B Text TextID}}" exact="1">
+                <set_value name="this.ObjectiveTitle" exact="1"/>
+              </do_if>
+            </do_if>
+            <do_choose>
+              <do_when value="{param@ShipClaimed}" exact="1" negate="1">
+                <set_objective cue="{param@Cue}">
+                  <briefing cue="{param@Cue}" step="{value@L0M05 B.Step}"/>
+                  <custom action="{35,2032}" text="{{value@this.Claim PageID},{value@this.Claim TextID}}" icon="protect" guidance="{param@ShipName}"/>
+                </set_objective>
+              </do_when>
+              <do_otherwise>
+                <set_objective cue="{param@Cue}">
+                  <briefing cue="{param@Cue}" step="{value@L0M05 B.Step}+1"/>
+                  <custom action="{35,2003}" text="{{value@this.Return PageID},{value@this.Return TextID}}" icon="deliver" guidance="{param@DestName}"/>
+                </set_objective>
+              </do_otherwise>
+            </do_choose>
+            <do_if value="{value@this.ObjectiveTitle}" exact="1">
+              <set_objective cue="{param@Cue}" title="{{value@L0M05 B.B Title PageID},{value@L0M05 B.B Title TextID}}" text="{{value@L0M05 B.B Text PageID},{value@L0M05 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L0M05 B Complete Briefing" check="cancel">
+          <condition>
+            <check_all>
+              <cue_completed cue="L0M05 B"/>
+              <check_value value="{param@Complete Briefing}" exact="1"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="LUM04">
+              <params>
+                <param name="Discipline" value="XXXT" comment="The mission discipline"/>
+                <param name="StartTime" value="L0M05 B.StartTime"/>
+              </params>
+            </cue>
+            <cue name="L0M05 Set Objectives" check="cancel">
+              <condition>
+                <check_value value="{param@SetObjective}" exact="1"/>
+              </condition>
+              <cues>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Discipline" value="XXXT" comment="The mission discipline"/>
+                    <param name="StartTime" value="L0M05 B.StartTime"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+    <cue name="L0M05" library="1">
+      <documentation>
+        <content name="Return Ship Mission" reference="L0M05" type="L0"/>
+        <version date="04/05/2008" number="0.4" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="OfferRace" type="number" description="Offer Race ID"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="DestName" type="objectname" description="The Address of the destination. Overrides all other criteria."/>
+          <param name="Difficulty" type="valuename" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text" type="number" description="The briefing text ID"/>
+          <param name="TextID Claim" type="number" description="The text ID for the claim objective text"/>
+          <param name="TextID Return" type="number" description="The text ID for the return objective text"/>
+          <param name="Preview" type="boolean" description="Is the briefing a preview"/>
+          <param name="SetObjective" type="boolean" description="Set the objectives and run the Objective library"/>
+          <param name="Complete Briefing" type="boolean" description="Run the briefing completion library"/>
+          <param name="ShipClaimed" type="boolean" description="Has the ship already been claimed"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="NoReward" type="boolean" compulsory="0" description="Do not add a reward"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <param name="RewardFree" type="boolean" compulsory="0" description="Reward - use free text"/>
+          <param name="RewardText" type="text" compulsory="0" description="Free text for reward" />
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+        </params>
+        <history>
+          <change date="04/05/2008" author="Owen Lake" description="Added add operations. Minor changes"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M05.Initial Step" exact="{value@{param@Step}}"/>
+          <do_if value="{value@{param@Duration}}" exact="0" negate="1">
+            <set_value name="L0M05.Duration" exact="{value@{param@Duration}}+{player.age}"/>
+          </do_if>
+          <set_value name="L0M05.EndTime" exact="{value@{param@EndTime}}"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="L0M05 B"/>
+        <cue name="L0M05 Check Time" delay="1s">
+          <condition>
+            <check_all>
+              <check_any>
+                <check_all>
+                  <check_value value="{value@L0M05.Duration}" min="1"/>
+                  <check_time value="{player.age}" min="{value@L0M05.Duration}"/>
+                </check_all>
+                <check_all>
+                  <check_value value="{value@L0M05.EndTime}" min="1"/>
+                  <check_time value="{player.age}" min="{value@L0M05.EndTime}"/>
+                </check_all>
+              </check_any>
+              <check_any>
+                <check_all>
+                  <check_value value="{param@IsPlot}" exact="1"/>
+                  <check_value value="{param@UseTimer}" exact="1"/>
+                </check_all>
+                <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+              </check_any>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="2"/>
+              <set_value name="{param@Step}" operation="add"/>
+              <cancel_cue cue="L0M05"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="L0M05 Destination Destroyed" instantiate="static">
+          <condition>
+            <check_any>
+              <object_destroyed object="{param@DestName}"/>
+              <object_destroyed_by_player object="{param@DestName}"/>
+            </check_any>
+          </condition>
+          <timing>
+            <time exact="1s"/>
+          </timing>
+          <action>
+            <do_if value="{object.exists@{param@DestName}}" exact="0">
+              <set_value name="{param@FeedbackName}" exact="5"/>
+              <set_value name="{param@Step}" operation="add"/>
+              <cancel_cue cue="L0M05"/>
+            </do_if>
+          </action>
+          <cues>
+            <cue name="L0M05 Destination Destroyed Wait">
+              <condition>
+                <cue_completed cue="L0M05 Destination Destroyed"/>
+              </condition>
+              <cues>
+                <cue ref="L0M05 B">
+                  <params>
+                    <param name="CompleteBriefing" value="0"/>
+                    <param name="SetObjective" value="0"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="L0M05 Reset Briefing" delay="1s" instantiate="static">
+          <condition>
+            <check_value value="{value@{param@Step}}" exact="{value@L0M05.Initial Step}" negate="1"/>
+          </condition>
+          <action>
+            <set_value name="L0M05.Initial Step" exact="{value@{param@Step}}"/>
+          </action>
+          <cues>
+            <cue ref="L0M05 B">
+              <params>
+                <param name="CompleteBriefing" value="0"/>
+                <param name="SetObjective" value="0"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="L0M05 Ship Destroyed">
+          <condition>
+            <object_destroyed object="{param@ShipName}"/>
+          </condition>
+          <action>
+            <do_choose>
+              <do_when value="{event.param}" exact="18" comment="Ship Sold">
+                <set_value name="{param@FeedbackName}" exact="6"/>
+                <cancel_cue cue="L0M05"/>
+              </do_when>
+              <do_otherwise>
+                <set_value name="{param@FeedbackName}" exact="3"/>
+                <cancel_cue cue="L0M05"/>
+              </do_otherwise>
+            </do_choose>
+          </action>
+        </cue>
+        
+        <cue name="L0M05 Ship Destroyed By Player">
+          <condition>
+            <object_destroyed_by_player object="{param@ShipName}"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="4"/>
+              <cancel_cue cue="L0M05"/>
+            </do_all>
+          </action>
+        </cue>
+
+        <cue name="L0M05 Mission Aborted">
+          <condition>
+            <objective_cancelled cue="{param@Cue}"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="99"/>
+              <cancel_cue cue="L0M05"/>
+            </do_all>
+          </action>
+        </cue>
+        
+        <cue name="L0M05 Claim Ship" delay="1s">
+          <condition>
+            <check_value value="{object.race@{param@ShipName}}" exact="{lookup.race@player}"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L0M05.TempDuration" min="2300" max="3000"/>
+              <set_value name="L0M05.Duration" exact="{value@L0M05.TempDuration}+{player.age}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue ref="L0M05 B">
+              <params>
+                <param name="Complete Briefing" value="0"/>
+                <param name="SetObjective" value="1"/>
+                <param name="ShipClaimed" value="1"/>
+              </params>
+            </cue>
+            
+            <cue name="L0M05 Player Docks" delay="2s">
+              <condition>
+                <check_all>
+                  <object_is_docked object="{param@ShipName}" dockobject="{param@DestName}"/>
+                  <check_value value="{object@{param@ShipName}}" exact="{player.ship}"/>
+                </check_all>
+              </condition>
+              <action>
+                <show_help text="{3605,1010}"/>
+              </action>
+            </cue>
+            <cue name="L0M05 Ship Docks" delay="2s">
+              <condition>
+                <check_all>
+                  <object_is_docked object="{param@ShipName}" dockobject="{param@DestName}"/>
+                  <match_object object="{param@ShipName}" race="player"/>
+                  <check_value value="{object@{param@ShipName}}" exact="{player.ship}" negate="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <ask_question author="{actor.name@{param@OfferActor}}" name="Give Ship" text="{3605,1009}"/>
+              </action>
+              <cues>
+                <cue name="L0M05 Give Ship Answer">
+                  <condition>
+                    <question_answered question="Give Ship"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <reset_cue cue="L0M05 Player Docks"/>
+                      <do_if value="{question.answer@Give Ship}" exact="Yes">
+                        <do_if value="{object.exists@{param@DestName}}" exact="1">
+                          <do_if value="{object.dockobject@{param@ShipName}}" exact="{object@{param@DestName}}">
+                            <do_if value="{object@{param@ShipName}}" exact="{player.ship}" negate="1">
+                              <set_value name="{param@FeedbackName}" exact="1"/>
+                              <cancel_cue cue="L0M05"/>
+                            </do_if>
+                          </do_if>
+                        </do_if>
+                      </do_if>
+                      <reset_cue cue="L0M05 Ship Docks"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>+ZXWSuzXouQOuILOo+t3ezS//vm6PRiKf1V+o9nFheSHT86yWJJIwoqU8zE3TdkzWjp1ytUVh1EsfzLu+B/vnym0u7td2tYumYNaGVgYH6lUkWnJ4B9VVf815jNlrEFdDhNI5fzVibmzY3IwyvCn6O8DeAjLv4OAe8zIwEnUggEwh6MIqNWIpSiIFTYNe8/MzJZ4l8p7OdZZL3DQzLyWyh2fa7F85ajwGt9Ae/RPKYnyhUxeSem+SnkP1dkw8Nrm4G7J3fFB6q/43szNTJdj6IpWSLLqReUSgfmyXAYyZ/r0suO2s4RrqloU3iCY0m0x1FZYXyez8SS+PXd24bbLgg==</signature>
+</director>
+
+
+

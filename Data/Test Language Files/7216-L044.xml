@@ -1,0 +1,1048 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language id="44">
+<!-- X-Tended - Terran Conflict Mod Textfile 7216, containing the following page ids
+3350: L2 Buy Used Ship
+7216: XTC-->
+
+  <page id="353305" title="L2M105 Return Ship" descr="0" voice="no">
+    <t id="3000">Salvage Bonus</t>
+    <t id="3050">{{1000,{value@L2M105.ShipText}} {lookup.type.name@{value@OBS.ShipType}}}</t>
+    <t id="10000">Unfortunately the local authorities are too busy to handle this matter at present, so I have transmitted the ships self destruct code.\nI suggest if your in the ship you find the nearest airlock, becase in about 10 Sezuras...\n\n[center][select value='Accept']OK[/select][/center]</t>
+  </page>
+
+  <page id="353605" title="L0M19 Return Ship" descr="0" voice="no">
+    <t id="1100">Relinquish control of {object.name@{param@ShipName}}\n[center][select value='Yes']Yes[/select]\n\n[select value='No']No[/select][/center]</t>
+  </page>
+  
+  <page id="353350" title="L2 Buy Used Ship" descr="0" voice="no">
+    <t id="110">I have a used ship for sale. It's in good condition. It's priced at {value.formatted@L2M150.ShipPrice} Credits.</t>
+    <t id="111">I no longer need my {object.type.name@L2M150.UsedShip} as I have purchased a newer model. I am willing to sell it for {value.formatted@L2M150.ShipPrice} Credits.</t>
+    <t id="112">I would like to upgrade to a new ship, but I need more Credits. I am willing to part with my reliable {object.type.name@L2M150.UsedShip} for {value.formatted@L2M150.ShipPrice} Credits.</t>
+  </page>
+
+<page id="7216" title="XTC" descr="XTC ==TextID==">
+
+
+  <!-- ********************************************************************************** -->
+  <!--                            Station Menu System                                     -->
+  <!-- ********************************************************************************** -->
+  <!--kevso101@thexuniverse.com-->
+
+  <t id="50000">Log me into the Interactive Onboard System!</t>
+  <t id="50001">Welcome to the Onboard Interaction system, please select from the options below.</t>
+  <t id="50002">Connect to Galactic News Service - GNS</t>
+  <t id="50003">Open Mission Logbook</t>
+  <t id="50004">Interactive Onboard System</t>
+
+  <!--Temp for Pre-Release-->
+
+  <t id="60000">XTC Team</t>
+  <t id="60001">**Coming Soon - Alone in the Dark**\n\nThis start will feature a new mission set, event controllers, generic mission controller and more. For now this start does nothing but dump you in the Plots starting sector, you can play from here just don't expect any additional content over the quick start.\n\nThanks.</t>
+  <t id="60003">**Coming Soon - The XTC Plot Start**\n\nThis start will feature a brand new plot and mission set. For now however this start does nothing but dump you in the Plots starting sector, you can play from here just don't expect to be able to do or find the plot.\n\nThanks. </t>
+
+  <!-- ****************************************************************************************************** -->
+  <!--                L2M600   Generic Mission 2.505 - File 2.505 Generic TOW mission XTC 1.0                 -->
+  <!-- ****************************************************************************************************** -->
+  <!--Badman76-->
+
+  <t id="250500">Are you requesting help?</t>
+  <t id="250501">Do you require assistance?</t>
+  <t id="250502">Could you give us a helping hand?</t>
+  <t id="250503">It is a delicate matter... our vessel is damaged. Can you help?</t>
+  <t id="250504">What do you need me to do?</t>
+  <t id="250505">What do you need doing?</t>
+  <t id="250506">Okay, I'll do it.</t>
+  <t id="250507">Sure. No problem.</t>
+  <t id="250508">No chance, I have more important things to do!</t>
+  <t id="250509">Generic Tow Mission Briefing</t>
+  <t id="250510">Sure, why not?</t>
+  <t id="250511">Yep!</t>
+  <t id="250512">Hey pilot! Don't you think you forgot something here...?</t>
+  <t id="250521">Return Immobile Ship</t>
+  <t id="250522">We were returning from an undercover intelligence mission when we were attacked by an unknown enemy. We managed to defeat them but we barely survived with our life-support failing and our engines down. We need someone to tow us back to the {object.name@{param@DestName}} in {object.sector.name@{param@DestName}} before we are attacked again. The data we collected must be protected at all costs.</t>
+  <t id="250523">Recover Damaged Ship</t>
+  <t id="250524">Our ship has been seriously damaged whilst engaging hostile ships. Recover {object.name@{param@ShipName}}, {object.code@{param@ShipName}} in sector {object.sector.name@{param@ShipName}} and tow it to the {object.name@{param@DestName}}. Haste is required as we expect the attackers to return soon.</t>
+  <t id="250525">{object.name@{param@ShipName}}, {object.code@{param@ShipName}}</t>
+  <t id="250526">{object.name@{param@ShipName}}, to {object.name@{param@DestName}} in sector {object.sector.name@{param@DestName}}</t>
+  <t id="250527">{object.name@{param@ShipName}}, in {object.sector.name@{param@ShipName}}</t>
+  <t id="250528">{object.name@{param@ShipName}}, to {object.name@{param@DestName}}, {object.sector.name@{param@DestName}}</t>
+  <t id="250531">Recover Heavily Damaged Ship!</t>
+  <t id="250532">Our ship has been seriously damaged whilst engaging hostile ships. Life support and engines are failing. Recover our {object.name@{param@ShipName}}, {object.code@{param@ShipName}} and tow it back to the {object.name@{param@DestName}} in {object.sector.name@{param@DestName}}. I am willing to pay a significant amount of credits for our rescue. Please hurry! </t>
+  <t id="250533">Return Damaged Ship to Homebase</t>
+  <t id="250534">This ship was heavily damaged during an unprovoked attack. Recover {object.name@{param@ShipName}}, {object.code@{param@ShipName}} in sector {object.sector.name@{param@ShipName}} and tow it to the {object.name@{param@DestName}}. We fear the attackers will return soon, so immediate action is required.</t>
+  <t id="250535">{object.name@{param@ShipName}}, {object.code@{param@ShipName}} </t>
+  <t id="250536">{object.name@{param@ShipName}}, to {object.name@{param@DestName}} in sector {object.sector.name@{param@DestName}}</t>
+  <t id="250537">{object.name@{param@ShipName}}, in {object.sector.name@{param@ShipName}}</t>
+  <t id="250538">{object.name@{param@ShipName}}, to {object.name@{param@DestName}}, {object.sector.name@{param@DestName}}</t>
+  <t id="250540">Thank you for your help. Please release us, we can make it from here. A team of technicians has beamed on board and they managed to get minimum shields and engines back online. If you need a helping hand anytime in the future, please don't hesitate to ask us. Good bye my friend!</t>
+  <t id="250541">Emergency Broadcast\n\n    You have failed us... life-support gone...\n    The inner reactor core is overloading... going critical...\n\n    Nooooo...!\n\n> Message stream corrupted</t>
+  <t id="250542">This is terrible! The ship you had to protect was destroyed. Keep away from any of our ships in the future... even if they are in desperate need of some help!</t>
+  <t id="250543">You bastu! You destroyed the ship you promised to protect. Our revenge will be swift and merciless!</t>
+  <t id="250544">The destination has been destroyed. Mission aborted.</t>
+  <t id="250545">You failed!</t>
+  <t id="250546">Emergency Broadcast\n\n    To all police forces in this sector. We are being attacked!\n     Please help! We are taking damage to our primary thrusters.\n    They are over-heating and an explosion is imminent!\n\n Repeat. To all police forces in this sector.\n    Our assailant is a pilot named {player.name}. Please help!\n    We are experiencing a feedback loop in our primary thrusters.\n    They are going to explode any sezura...\n\n> Message end</t>
+  <t id="250547">We told you before - We can make it from here. You may leave us alone now!</t>
+  <t id="250548">This is your final warning - Leave us alone or you will regret!</t>
+  <t id="250549">That's it! We will now open fire. </t>
+  
+  <!--GNS tow mission id's-->
+  <t id="250600">Fatal incident in {sector.name@L2M505.OfferSector}</t>
+  <t id="250601">Recently a heavily damaged {object.race.name@L2M505.Station} ship was safely brought home by a merchant named \033W{player.name}\033X during a heroic rescue mission. By risking his own ship and his life, this pilot saved a great deal more than just one of our most important vessels. The {object.race.name@L2M505.Station} are very grateful and wish to thank the noble pilot who showed us the true meaning of honour.</t>
+  <t id="250602">During a hapless attempt to rescue a {object.race.name@L2M505.Station} vessel, the pilot \033W{player.name}\033X failed as it took him too long to reach the {object.name@L2M505.Station} in \033W{sector.name@L2M505.DestSector}\033X. Before he reached them, the stricken ship's reactor containment field breached and caused an immense explosion from which no one survived. We mourn the loss of so many innocent lives.</t>
+  <t id="250603">During an ill-fated attempt to rescue a {object.race.name@L2M505.Station} vessel, the pilot {player.name} failed in his efforts to do so as the ship he had promised to protect was destroyed during the mission. We mourn the loss of many innocent lives.</t>
+  <t id="250604">We can now confirm the reports that a ruthless pilot going by the name of \033W{player.name}\033X recently attacked a heavily damaged {object.race.name@L2M505.Station} vessel in sector \033W{sector.name@L2M505.OfferSector}\033X. They showed no mercy and destroyed the ship without reason killing the entire crew onboard. The {object.race.name@L2M505.Station} will never forget this crime. If you see this bloody bastu out there in space, do what you have to and protect yourself!\n</t>
+  <t id="250605">During an attempt to rescue a heavily damaged {object.name@{param@ShipName}} in sector \033W{sector.name@L2M505.OfferSector}\033X, the pilot \033W{player.name}\033X failed in his mission because his final destination {object.name@L2M505.Station} had been destroyed. The {object.race.name@L2M505.Station} tragically could not manage to get to a repair facility before its reactor exploded. We mourn the loss of so many innocent lives.</t>
+  <t id="250606">The pilot \033W{player.name}\033X failed in an attempt to rescue a {object.race.name@L2M505.Station} vessel. At this very moment we have no further information but we will let you know when we have more news. Our thoughts are with the survivors of the tragedy.</t>
+  <t id="250607">As you might have heard already, an incompetent pilot going by the name of \033W{player.name}\033X has destroyed a heavily damaged {object.name@L2M505.OfferShip} with all hands in sector \033W{object.name@L2M505.OfferSector}\033X during an ill-fated towing attempt with a tractor beam. It appears that there had been insufficient communication between the pilot and the crew of the stranded ship and so the gravity stabilizers had not been fully engaged before \033W{player.name}\033X started his engines and tore the ship apart. All he had to do was talk, nothing more! If you see this bloody bastu out there in space, don't communicate with him... it seems he doesn't believe in it either.</t>
+  <t id="250608">We call pilot \033W{player.name}\033X a worthless chicken! It seems this individual does not have the capacity to show respect for neither life nor property. He rejected all calls for help from the crew aboard a stricken {object.race.name@L2M505.Station} vessel in sector \033W{sector.name@L2M505.OfferSector}\033X. All he had to do was tow the stranded ship back home, but he couldn't be bothered!\n\nAttention! If {player.name} asks for your help at any time, you know what not to do...\n\n</t>
+  <t id="250699">The mission to rescue the immobile ship was not completed. For confidential reasons the contract has been aborted, thank you for your assistance.</t>
+  
+  
+  <!-- ********************************************************************************** -->
+    <!--   Generic Mission 2.500 - File 2.500 Generic Deploy Satellite Mission - Standard   -->
+    <!-- ********************************************************************************** -->
+                                   <!--scorch@internode.on.net-->
+
+    <t id="2500000">Deploy Spy Satellites</t>
+    <t id="2500001">Offer me my Spy Satellite mission already!</t>
+    <t id="2500002">Are you ready for the ultimate challenge? lol</t>
+    <t id="2500003">Of course, why else would I be here stupid?</t>
+    <t id="2500004">I don't wanna!</t>
+    <t id="2500005">Show me!!</t>
+    <t id="2500006">Ok mission briefing text goes here</t>
+    <t id="2500101">Hello Pilot. Recently we have been losing a large amount of spy satellites in {value@L2500.EnemySector}</t>
+    <t id="2500102">Pliot, we are in need of someone with special covert skills. Recently we have been losing an abnormal amount of spy satellites in {value@L2500.EnemySector}</t>
+
+    <!-- ********************************************************************************** -->
+    <!--  Generic Mission 2.501 - File 2.501 Generic Emergency Supplies Mission - Standard  -->
+    <!-- ********************************************************************************** -->
+                                 <!--kevso101@thexuniverse.com-->
+
+    <t id="2501001">4</t>
+    <t id="2501002">Void Runner</t>
+    <t id="2501003">Decision Maker</t>
+    <t id="2501004">Needle of Inquiry</t>
+    <t id="2501005">Dreamweaver</t>
+    <t id="2501006">Pok Claassen</t>
+    <t id="2501007">Jako Kult</t>
+    <t id="2501008">Calon Marval</t>
+    <t id="2501009">Hanes Nedley</t>
+    <t id="2501010">Hello Pilot, I have work for you should you be interested, please contact me on the {7216,{value@L2M501.ShipName}}...\n\n{actor.name@L2M501.MissionGuide} Out.</t>
+    <t id="2501011">Emergency Supplies?</t>
+    <t id="2501012">Chapter 1</t>
+    <t id="2501013">Find the Lady</t>
+    <t id="2501014">The Duchess of Amoria has gone missing, most likely attacked or destroyed by Pirates. Find either the ship or its wreckage and determine what has happened. If the ship is still intact, render whatever aid is required to get the ship safely back the nearest shipyard. The ship was last seen 2 sectors from here, unfortunately we do not know in which direction... damn Teladi information brokers.</t>
+    <t id="2501015">The Chance earn greater rewards</t>
+    <t id="2501016">{35,2006} (: Find)</t>
+    <t id="2501017">{35,2012} (: Talk To)</t>
+    <t id="2501018">{35,2030} (: Obtain)</t>
+    <t id="2501019">{35,2003} (: Deliver)</t>
+    <t id="2501020">{35,2010} (: Protect)</t>
+    <t id="2501021">TL The Duchess of Amoria</t>
+    <t id="2501022">Dasinos Tzessosis Kokalis VIII (: custom action text}</t>
+    <t id="2501023">Data Module (: custom action text}</t>
+    <t id="2501024">(: custom action text}</t>
+    <t id="2501025">Teladi Trade Station (: custom action text}</t>
+    <t id="2501026">Ok, so what can I do for you? (: looking for a job)</t>
+    <t id="2501027">You said you have work? What's the deal? (: looking for a job)</t>
+    <t id="2501028">Show me... (: briefing trigger)</t>
+    <t id="2501029">Lets have the information. (: briefing trigger)</t>
+    <t id="2501030">Sounds like this could be interesting, I'll take the Job. (: accept mission)</t>
+    <t id="2501031">What!! No chance, I'm out of here. (: reject mission)</t>
+    <t id="2501032">Sihoban Kellar</t>
+    <t id="2501033">Duchess of Amoria</t>
+    <t id="2501034">This is {param@PlayerName}, calling the (param@StrikenShip}.............</t>
+    <t id="2501035">What further aid do you need?</t>
+    <t id="2501036">Very well, I will get what you need... don't go anywhere, ha ha ha ha!</t>
+    <t id="2501037">No thanks, I'll just take my credits and go.</t>
+    <t id="2501038">Greetings, I was sent to find you.</t>
+    <t id="2501039">Thank you, we need parts for our drive systems can you help?</t>
+    <t id="2501040">Oh great, now I'm a delivery service.... what about my 1000 credits?</t>
+    <t id="2501041">Of course your reward... a thousand, yes...? Or perhaps you would rather have 5 Wasps?</t>
+    <t id="2501042">I'll just take the cash and be on my way to get your engine parts!</t>
+    <t id="2501043">Hmmm... 5 Wasps could come in handy, I'll take 'em and your engine parts are coming right up.</t>
+    <t id="2501044">Ok pilot, the cash is yours. Don't forget we need those drive parts\n{actor.name@L2M501.DOAContact} Out.</t>
+    <t id="2501045">The equipment it is then, thanks. Please hurry back with the engine parts my friend.\n{actor.name@L2M501.DOAContact} Out.</t>
+    <t id="2501046">The parts you are looking for might be rather hard to come by around here, however we know that a Teladi by the name of {7216,2501022} has just such the parts we are looking for. I suspect this is not a coincidence and he had something to do with our current situation.</t>
+    <t id="2501047">Parts Aplenty?</t>
+    <t id="2501048">I understand that you have some engine parts.</t>
+    <t id="2501049">Yesss you would like such partssss? Hmmm... they are not for ssssale however I might trade you for them.</t>
+    <t id="2501050">Alright, so what do you want for them?</t>
+    <t id="2501051">I wisssh for a certain object, a data module from a ssship that wasss desstroyed in a sssector not far from here.</t>
+    <t id="2501052">Hmmm... I get it. I go and fetch it and you give me the engine parts... yes? What's the catch?</t>
+    <t id="2501053">That issss correct pink ssskin, the engine parts for the module. No catch.</t>
+    <t id="2501054">Ok, I guess I have little choice, the module for the parts it is.</t>
+    <t id="2501055">You Teladi are all two-faced! Not a chance, get the damn module yourself.</t>
+    <t id="2501056">Data Retrieval</t>
+    <t id="2501057">Retrieve the data module from sector {sector.name@L2M501.sector2} and return it to {7216,2501022}. Warning:{7216,2501022} is known to be a tricky bastu and it is unlikely that this is a simple as it seems, keep your wits about you.</t>
+    <t id="2501058">Pirate Attack Wing</t>
+    <t id="2501059">Warning: Pirates have discovered the data module and seem intent in capturing it at all costs... Destroy incoming pirate attack ships.</t>
+    <t id="2501060">{35,2004} (: Destroy)</t>
+    <t id="2501061">Return Data Module to {7216,2501022}.</t>
+    <t id="2501062">I've got the Data Module, so where's the engine parts?</t>
+    <t id="2501063">You have the module good, however it appearssss to be damaged...</t>
+    <t id="2501064">And...?</t>
+    <t id="2501065">I cannot leave thisss sssstation, you will take it to a colleague for it to be fixed.</t>
+    <t id="2501066">I see and if I don't I don't get the engine parts?</t>
+    <t id="2501067">Well the module issss no ussssse to me asss it issss. If you are in agreement I will sssend you further inssstructionsss.</t>
+    <t id="2501068">Ok, like I have any choice... again! Where is this colleague of yours?</t>
+    <t id="2501069">Get lost you trickster. I'm out of here!!</t>
+    <t id="2501070">My colleague sssshe issss on the xx ssstation and will be able to fix the data module. Pleassse contact her asss quickly asss posssssible.</t>
+    <t id="2501071">Tumulis Holigis Ganatos XVIII</t>
+    <t id="2501072">{7216,2501071}, I have a data module that needs repair from {7216,2501022}</t>
+    <t id="2501073">What! Oh you come from Dasinossss, I will ssspeak to you...</t>
+    <t id="2501074">Right... can you fix this data module?</t>
+    <t id="2501075">Yesss, Yessss... but I am expecting "guests". They intend to attack me on this station.</t>
+    <t id="2501076">Oh... Ok! I get it! You want me to protect you and this piece of space junk and you'll fix the module... Yes?</t>
+    <t id="2501077">The pink sssskin is ssssmart... yessss protect usss and I will fix the module.</t>
+    <t id="2501078">Ok here's the module. Intercepting hostiles...</t>
+    <t id="2501079">You Teladi are all a pain in the Bastu... go to hell!!</t>
+    <t id="2501080">Contact the {7216,{value@L2M501.ShipName}}</t>
+    <t id="2501081">Missing TL Located... Targeting</t>
+    <t id="2501082">Pirate Wing Destroyed</t>
+    <t id="2501083">Data Module Secure... Targeting {7216,2501022} for Delivery</t>
+    <t id="2501084">Protect and Serve</t>
+    <t id="2501085">{7216,2501071} will repair the data module so long as you protect the Trade Station on which he resides.</t>
+    <t id="2501086">{7216,2501020}:{7216,2501025}</t>
+
+
+  <!--
+****************************************************************************
+**** -->
+  <!--              L2M600   Generic Mission 2.600 - File 2.600
+        -->
+  <!--
+****************************************************************************
+**** -->
+  <!--kevso101@thexuniverse.com-->
+
+  <t id="2600000">Raiders</t>
+  <t id="2600001">Pirates Liar</t>
+  <t id="2600002">The Start of Something?</t>
+  <t id="2600003">Pilot, we need you to fly to a nearby sector and land at a Pirate base. This should present few problems as the pirates are routinely operating from there under the guise of a legitimate business. After docking, you should contact our agent on the base and get the access codes we require.</t>
+  <t id="2600004">Dock at</t>
+  <t id="2600005">Pirate Station</t>
+  <t id="2600006">I see, we will remember this disservice Pilot.\n**{actor.name@L2M600 Create Offer.Guide} - Out**</t>
+  <t id="2600007">Pirate Pleasure complex. This complex is masquerading as a legitimate Solar Corp Trade station; trading e-cells.\nIn reality, the base is an outpost for the notorious {7216,{value@L2M600.PirateName}} group, trading in death, abduction and everything illegal.</t>
+  <t id="2600008">A friend tells me you are looking for a pilot.</t>
+  <t id="2600009">I am just confirming your security status... Ok pilot, you check out.</t>
+  <t id="2600010">Great, so what's the job?</t>
+  <t id="2600011">It'll be easy... are you interested?</t>
+  <t id="2600012">Ok, so what's the catch?</t>
+  <t id="2600013">A pirate clan is using a mining outpost as a secret base for their criminal activities. We need you to dock at the station, talk to our agent and then return here without being discovered.</t>
+  <t id="2600014">Ok sure, what does the job pay?</t>
+  <t id="2600015">The job does not pay that much, only 3000 credits. However, if you are successful, we can offer you much more profitable work. Do you want the job?</t>
+  <t id="2600016">Hmmm... that's not much, but I'll take it.</t>
+  <t id="2600017">Not a chance, I'm not risking my neck for that!!</t>
+  <t id="2600018">Somebody says you are looking for pilot.</t>
+  <t id="2600019">Perhaps you'll do... just a mizura... Ok, you check out.</t>
+  <t id="2600020">Fine so what needs doing?</t>
+  <t id="2600021">We simply need someone to dock at a station in a certain sector.</t>
+  <t id="2600022">Sure I can do that, what's the deal?</t>
+  <t id="2600023">The station is a secret pirate base in the guise of a factory. We will need you to dock at the station and talk to our 'friend'; and then return here with the information he will give you.</t>
+  <t id="2600024">Right... and the job pays what?</t>
+  <t id="2600025">The job is easy and pays 3000 credits, if you are successful we can offer you much more profitable work.</t>
+  <t id="2600026">Ok I'll take it.</t>
+  <t id="2600027">You've got to be kidding!!</t>
+  <t id="2600028">You are looking for pilot I understand?</t>
+  <t id="2600029">Just a mizura... Ok you check out pilot!</t>
+  <t id="2600030">Really! So what needs doing?</t>
+  <t id="2600031">You will have to dock at a station a few sectors away from here.</t>
+  <t id="2600032">Sounds too easy for words, what's the catch?</t>
+  <t id="2600033">The station is a secret pirate base in the guise of a factory. We will need you to dock at the station, talk to our contact and then return here with the information quickly.</t>
+  <t id="2600034">Hmm.... and the job pays what?</t>
+  <t id="2600035">The job pays 3000 credits, if you return here quickly we can offer you some much more profitable work.</t>
+  <t id="2600036">Well Ok, I'll do it.</t>
+  <t id="2600037">Not a chance I'm out of here!!</t>
+  <t id="2600038">Talk to</t>
+  <t id="2600039">The Chance to earn Greater Rewards</t>
+  <t id="2600040">Talk to {actor.name@L2M600 Create Offer.Guide} on {object.name@L2M600.station}, as a friend tells you that he may have some interesting work and you could earn a few easy credits.</t>
+  <t id="2600041">[yellow]Dasinos Yosulis Monisessas VI[/yellow]</t>
+  <t id="2600042">Automated Forwarding Service\n\nMessage content reads...\n\n    Hello Pilot, if you are reading this message it means that I have had to go into hiding as the {7216,{value@L2M600.PirateName}} Pirate clan now suspects me. This message contains the coded information that you were asked to obtain from me by {actor.name@L2M600 Create Offer.Guide}. To avoid suspicion please do not leave the station until you receive another automated message from me.\n\nCode: 20.8.5 24.20.3 20.5.1.13\n\n> Message ends</t>
+  <t id="2600043">Automated Forwarding Service\n\nMessage content reads...\n\n    Pilot, it should now be safe to depart. Please keep a low profile whilst in this sector, you must not draw attention to yourself in anyway. Please give the code to {actor.name@L2M600 Create Offer.Guide}. Good Luck!\n\n> Message ends</t>
+  <t id="2600044">[yellow]Dasinos Yosulis Monisessas VI[/yellow]</t>
+  <t id="2600045">Avoid attacking any ships whilst in this sector, you do not need to draw attention to yourself. Please give the code to {actor.name@L2M600 Create Offer.Guide} on {object.name@L2M600.station}.</t>
+  <t id="2600046">[red]Evil Clowns[/red]</t>
+  <t id="2600047">[red]Crimson Claws[/red]</t>
+  <t id="2600048">[red]Dark Raiders[/red]</t>
+  <t id="2600049">[red]Craven Corsairs[/red]</t>
+  <t id="2600050">Thanks for returning with the codes... Please wait whilst we verify them.</t>
+  <t id="2600051">I have the codes...</t>
+  <t id="2600052">Trosulis Gobanis Ganatos VI</t>
+  <t id="2600053">[yellow]Trosulis Gobanis Ganatos VI[/yellow]</t>
+  <t id="2600054">Please standby whilst we check the code data.</t>
+  <t id="2600055">I was asked to contact you by our mutual friend.</t>
+  <t id="2600056">Ah yes, she said you might be do us a small favour, for a price of course, but first what we owe you...</t>
+  <t id="2600057">Sure, what's the deal... what do you need done?</t>
+  <t id="2600058">We would like some passengers collected, you will obviously need life support and enough space, comfort will not be a priority.</t>
+  <t id="2600059">Ok, sure it may take a little time, what's the pay?</t>
+  <t id="2600060">Hmmm... we can pay you 10,000 credits and a bonus if you get them here quickly. Interested?</t>
+  <t id="2600061">Ok, that works for me.</t>
+  <t id="2600062">I'm not playing taxi, call a cab!</t>
+  <t id="2600063">Here are the codes...</t>
+  <t id="2600064">Pick up</t>
+  <t id="2600065">Passengers</t>
+  <t id="2600066">Standing by!</t>
+  <t id="2600067">You are to pick up several passengers from a ship. Once you have them safely on board you are to drop them off where instructed. The captain will not communicate until you are within 5km of the ship.\n\033GYou will need a suitable ship, capable of carrying 36 M class units and have Life Support.\033X</t>
+  <t id="2600068">Hello again Pilot, these codes make very interesting reading... a colleague will contact you momentarily, please standby, and he will of course pay you. Thanks again Pilot.\n\n [green]**{actor.name@L2M600 Create Offer.Guide} - Out**[/green]</t>
+  <t id="2600069">[yellow]{actor.name@L2M600 Create Offer.Guide}[/yellow]</t>
+  <t id="2600070">Talk to {actor.name@L2M600 Passengers Offer.Guide2}</t>
+  <t id="2600071">Hello Pilot, [yellow]{actor.name@L2M600 Create Offer.Guide}[/yellow] says that I should speak to you about a payment, and perhaps you may do us another service. Please contact me on the {object.name@L2M600 Passengers Offer.station2}\n\n[green]**Message Ends**[/green]</t>
+  <t id="2600072">Juggernaut</t>
+  <t id="2600073">Ellenis</t>
+  <t id="2600074">Southern Cross</t>
+  <t id="2600075">Patris</t>
+  <t id="2600076">What is it you want Pilot, I'm very busy...</t>
+  <t id="2600077">I understand you have some passengers for me?</t>
+  <t id="2600078">Please transmit your authorisation codes...</t>
+  <t id="2600079">Transmitting codes now</t>
+  <t id="2600080">Hmmm... these seem ok, teleporting passengers to your ship.</t>
+  <t id="2600081">Thanks Captain, out!</t>
+  <t id="2600082">Drop off</t>
+  <t id="2600083">Transfer complete, safe journey Pilot\n\n\n[green]**{actor.name@L2M600 Passenger Collect accept.Guide3} - Out**[/green]</t>
+  <t id="2600084">I'm sorry Pilot, your ship is not suitable, we can talk again once your ship is capable of transporting these men.</t>
+  <t id="2600085">\033GOk Pilot we are safely on-board, please take us to {actor.name@L2M600 Create Offer.Guide}.\033X</t>
+  <t id="2600086">Ok Pilot, thanks for the ride. No doubt {actor.name@L2M600 Create Offer.Guide} will be in touch with your money. Ok boys lets go...</t>
+  <t id="2600087">Hello again Pilot, here's your money. If you are interested in a little adventure and a lot more money don't leave this system, I'll contact you shortly.</t>
+  <t id="2600088">Pilot, if you want to earn yourself some more credits contact me on {object.name@L2M600.station}.</t>
+  <t id="2600089">Ok, so what's the job?</t>
+  <t id="2600090">I have something a little more tricky this time, if you're interested?</t>
+  <t id="2600091">I'm listening.....</t>
+  <t id="2600092">We need a scout mission to the sector that contains the Pirate base you docked at earlier, we can pay you 10,000 credits.</t>
+  <t id="2600093">and...</t>
+  <t id="2600094">and that's it.</t>
+  <t id="2600095">You will scout the sector containing the Pirate Base and look for anything out of the ordinary. Once you have finished scouting the sector return here to report.</t>
+  <t id="2600096">Scout</t>
+  <t id="2600097">Sector {object.sector.name@L2M600.PirateBase}</t>
+  <t id="2600098">\033RAttention!!\033X - \033GAdrift ship detected - bearing x={value@L2M600 Adrift Ship.X}m, y={value@L2M600 Adrift Ship.Y}m, z={value@L2M600 Adrift Ship.Z}m\033X</t>
+  <t id="2600099">\033RWarning!!\033X - \033GShip unstable, approach with extreme caution!! Data signal weak - approach to within 2km\033X</t>
+  <t id="2600100">\033RWarning!!\033X - \033GShip breaking up, locking onto Data source, Data signal weak  - approach to within 2km\033X</t>
+  <t id="2600101">No Pilot</t>
+  <t id="2600102">Magellen</t>
+  <t id="2600103">Hallifax</t>
+  <t id="2600104">Angre</t>
+  <t id="2600105">Pilot, we have received update information on your ship's status and note you have recovered a data module from the {{value@L2M600.Pid},{value@L2M600.ShipName}}. This is of much interest to us, please dock at {object.name@L2M600.station} in sector {object.sector.name@L2M600.station} as quickly as possible... and be careful remember there are pirate ships in that sector maybe using ID cloaks.\n\n[green]**Message Ends**[/green]</t>
+  <t id="2600106">You have destroyed the Pirates. Please Return the data module quickly!</t>
+  <t id="2600107">Welcome back Pilot, I see you have the module... thanks, here's your money.\n\nHmm... this data is very odd... hang around Pilot, we may have more work for you to profit from.\n\n[green]**{actor.name@L2M600 Create Offer.Guide} - Out**[/green]</t>
+  <t id="2600108">[yellow]{actor.name@L2M600 Create Offer.Guide}[/yellow]</t>
+  <t id="2600109">Flyto</t>
+  <t id="2600110">Abandoned TP</t>
+  <t id="2600111">Reporting, what can I do for you?</t>
+  <t id="2600112">Pilot, you have served us well up to now, perhaps you would like another chance to earn some credits?</t>
+  <t id="2600113">Credits are always good, what's the deal?</t>
+  <t id="2600114">Excellent, we need a TP class ship. One from our own race for reasons I will not bother you with just now</t>
+  <t id="2600115">Ok, so where do I get this TP?</t>
+  <t id="2600116">One of our pilots, the coward, abandoned his ship when it mis-jumped to a sector near here...</t>
+  <t id="2600117">...and you'd like me to collect it, yes?</t>
+  <t id="2600118">You are a quick one... yes we'd like you to collect the ship.</t>
+  <t id="2600119">Hmmm what's the pay?</t>
+  <t id="2600120">We can pay you 10000 credits.</t>
+  <t id="2600121">Ok, give me the coordinates and I'll go get your ship.</t>
+  <t id="2600122">No way not for all the space weed in... well... everywhere!</t>
+  <t id="2600123">One of our pilots, the coward, abandoned his ship went it mis-jumped to a sector near here. We would like you to go and collect it.</t>
+  <t id="2600124">{7216,2600123}\n\033GThe ship is located in sector {sector.name@{player.sector}}.\033X</t>
+  <t id="2600125">Coward! Get out of our sight.</t>
+  <t id="2600126">Star of Destiny</t>
+  <t id="2600127">The Dreamweaver</t>
+  <t id="2600128">The Pelenum</t>
+  <t id="2600129">Go away! This prize is ours if you come any closer we will destroy you!!</t>
+  <t id="2600130">You'd better try and reason with these Scavengers first, we don't know how many ships they have in this area and we can't risk the TP being damaged.\n\nContact the lead Pirate and try and bluff him.</t>
+  <t id="2600131">This is...</t>
+  <t id="2600132">We do not care who you are! This ship is ours, go away.</t>
+  <t id="2600133">Ok, I was just going to say that the ship is contaminated with... oh well, you don't care...</t>
+  <t id="2600134">What!! What do you mean?</t>
+  <t id="2600135">Well the ship is a medical transport and was off to be sterilised after all the patients died horribly of {param@L2M600Backdown.Disease}.</t>
+  <t id="2600136">What!? Are you serious?</t>
+  <t id="2600137">Yep, I was just coming to see how bad it was, and I can see from my bio-scanners it really is BAD!</t>
+  <t id="2600138">Show us the readings... NOW!!</t>
+  <t id="2600139">Ok, transmitting readings [Transmit Dummy Readings]</t>
+  <t id="2600140">Fin Fungus (Boron)</t>
+  <t id="2600141">Argon Flu (Argon)</t>
+  <t id="2600142">Rmancklt aka "Jelly Bones" (Paranid)</t>
+  <t id="2600143">Irrational Space Fear (Teladi)</t>
+  <t id="2600144">Thramatack aka "Brown Death" (Split)</t>
+  <t id="2600145">Space Lung (Generic for all other Races)</t>
+  <t id="2600146">Take the plague ridden hulk, just get it out of our space.</t>
+  <t id="2600147">Idiot, these readings are as fake a teladi pyramid scheme. Now you die!</t>
+  <t id="2600148">[red]{actor.name@L2M600.PirateLeader}[/red]</t>
+  <t id="2600149">\033GQuickly get the TP and bring it back before their friends arrive.\033X</t>
+  <t id="2600150">Huritis Ganatos Dasinos VI (teladi)</t>
+  <t id="2600151">Yusmaeos Lalundas Hirussusis III (teladi)</t>
+  <t id="2600152">Foologos Yalamandis Hohindras XV (teladi)</t>
+  <t id="2600153">Brent Silsarna (argon)</t>
+  <t id="2600154">Mayenne Nedley (argon)</t>
+  <t id="2600155">Pael Sillarn (argon)</t>
+  <t id="2600156">Toto Fi (boron)</t>
+  <t id="2600157">Mumi Pu (boron)</t>
+  <t id="2600158">Trali Wo (boron)</t>
+  <t id="2600159">Mo't Nnt (split)</t>
+  <t id="2600160">Cio't Sht (split)</t>
+  <t id="2600161">Lo't Knt (split)</t>
+  <t id="2600162">Tammanckagtek (paranid)</t>
+  <t id="2600163">Abmanckussut (paranid)</t>
+  <t id="2600164">Imanckettiks (paranid)</t>
+  <t id="2600165">Help, I'm over here... oh praise the great maker, when those scavengers turned up I thought I was a dead man. I am hiding in one of the crates floating near the TP, please if you can take me back to the {object.name@L2M600.station} in {object.sector.name@L2M600.station}. I can pay you.\n\nI can also give you some information of value, and perhaps fix the shields and weapons on that TP.\n\nPlease pick me up once you have claimed the TP.</t>
+  <t id="2600166">Thank you, you won't regret your decision to pick me up.\n\nI have fixed your engines and shields and managed to restore some power to the weapons, however the jumpdrive is unstable and I have taken it off-line.\n\nBy the way my name is {{value@L2M600.Pid},{value@L2M600 return TP.rescuepilot}}.</t>
+  <t id="2600167">Fly the TP back to the {object.name@L2M600.station} in sector {object.sector.name@L2M600.station} for {actor.name@L2M600 Create Offer.Guide} as quickly as possible and dock. </t>
+  <t id="2600168">Welcome back Pilot you're just in time; we need you to fly us to the Pirate station masquerading as the {object.name@L2M600.PirateBase}. You will be transporting myself and these men you picked up earlier, as you have probably gathered by now we aren't exactly tourists. Myself and my men are on a rescue mission, you may have read on GNS that {value@L2M600.kidnap} has been kidnapped.\n\nWe are an elite covert {lookup.race.name@{value@L2M600.OfferRace}} assault squad sent to rescue them. You are to fly us to the Pirate Station, once in range you will be challenged and you will give them these landing codes, we are listed as a medical transport. Once we've boarded we'll take out the communications and rescue {value@L2M600.kidnap} and return to the ship where you will fly us safely back here.\n\nOk then let's go.\n\nWe will need to arrive unescorted else they will smell a rat, so leave any of your fighters here.</t>
+  <t id="2600169">This is Station control, please be advised this station is closed to all but medical personnel, if you have a medical registration please contact us.</t>
+  <t id="2600170">[yellow]{object.name@L2M600.PirateBase} control[/yellow]</t>
+  <t id="2600171">Psst... Pilot it's me {{value@L2M600.Pid},{value@L2M600 return TP.rescuepilot}}, thanks for bringing me here, as I promised here's your money... oh and a piece of advice don't trust {actor.name@L2M600 Create Offer.Guide} too far, he's not all he seems.</t>
+  <t id="2600172">This is medical transporter {param@L2M600.HospShipName} requesting permission to land.</t>
+  <t id="2600173">Hand of Mercy</t>
+  <t id="2600174">Hospital Ship #512</t>
+  <t id="2600175">Plague Runner</t>
+  <t id="2600176">Standby, reading code information...</t>
+  <t id="2600177">Holding at outer markers...</t>
+  <t id="2600178">Your codes check out, please approach and dock at the first available bay.</t>
+  <t id="2600179">Affirmative Control</t>
+  <t id="2600180">{object.name@L2M600.PirateBase} control</t>
+  <t id="2600181">Ok Pilot, you stay here while we get this situation under control. Wait here until we contact you again shortly. We'll leave the comm channel open so you can hear what's going on.</t>
+  <t id="2600182">You are to fly us to the Pirate Station, once in range you will be challenged and you will give them these landing codes, we are listed as a medical transport. Once on board we'll take out the communications and rescue {value@L2M600.kidnap} and return to the ship where you will fly us safely back here.</t>
+  <t id="2600183">Damn, we've been rumbled and their control room managed to get off a message to their raiders. Pilot, we've hacked the controls on a couple of their fighters docked here, quickly get over to one of them and intercept those raiders, whilst we continue the operation. We'll fly the transport out... now get going or we'll all be dead.</t>
+  <t id="2600184">\033RWARNING\033X: Incoming hostiles detected</t>
+  <t id="2600185">Destroy</t>
+  <t id="2600186">Raiders</t>
+  <t id="2600187">The station control room managed to get off a transmission to some of its Raiders, destroy them before they can call in reinforcements.</t>
+  <t id="2600188">Coward! We wondered if this would be too much for you and so we have taken the necessary precautions... as soon as you left the station in the TP a timer controlled explosive device activated.... yes that's right a bomb was triggered... See you in hell Pilot!</t>
+  <t id="2600189">\033RWARNING\033X: Second hostile wave incoming</t>
+  <t id="2600190">\033GPilot, we have the captives... Launching TP, be on the lookout for more incoming hostile vessels.\033X</t>
+  <t id="2600191">Well done Pilot!! Nice work we have got the captives back safely and dealt the pirates a deadly blow. Our main forces will sort out the station and any remaining pirate ships. You have earned your reward and you may also keep the pirate fighter you are now flying in.\n\nA pleasure working with you Pilot, perhaps we will meet again... Good Luck.\n\nOh by the way, you might want to check out the GNS.</t>
+  <t id="2600192">Destroy all Fighters, be careful there may be more of them on the way.</t>
+  <t id="2600193">Escort</t>
+  <t id="2600194">\033GEscort TP back to Station\033X</t>
+  <t id="2600195">Pilot, we have had word that the Pirates suspect you of carrying information to us. They have called back their nearest raiding group to intercept you. You must destroy these fighters. If they track you back to me, the codes will be useless.</t>
+  <t id="2600196">\033RWARNING\033X: Hostile vessels detected\033X</t>
+  <t id="2600197">\033GIncoming Message\033X: Well done Pilot, now quickly return the codes - {actor.name@L2M600 Create Offer.Guide}</t>
+  <t id="2600198">[yellow]{actor.name@L2M600 Create Offer.Guide}[/yellow]</t>
+  <t id="2600199">[yellow]{actor.name@L2M600 Got Passengers.Guide4}[/yellow]</t>
+  <t id="2600200">Hiding Crewman with TP</t>
+  <t id="2600201">Pilot you were contracted to collect our TP, where is it? Please return bringing the TP with you, and remember you must be flying it yourself!</t>
+  <t id="2600202">Talk to {actor.name@L2M600 Create Offer.Guide}</t>
+  <t id="2600203">Return TP to {object.name@L2M600.station}</t>
+  <t id="2600204">{7216,2600064} {7216,2600200}</t>
+  <t id="2600205">Ocean Runner</t>
+  <t id="2600206">Depth of Water</t>
+  <t id="2600207">Flower of the Sea</t>
+  <t id="2600208">Captive Coral</t>
+  <t id="2600209">Emperors Grace</t>
+  <t id="2600210">Holy Light</t>
+  <t id="2600211">Spires of the Empire</t>
+  <t id="2600212">Xerxes Halo</t>
+  <t id="2600213">Place of Rock</t>
+  <t id="2600214">Deamons</t>
+  <t id="2600215">Finger of Doom</t>
+  <t id="2600216">Flail of the Patriarch</t>
+  <t id="2600217">Profits of Passion</t>
+  <t id="2600218">Credit Cahoona</t>
+  <t id="2600219">Golden Profits</t>
+  <t id="2600220">Investment Trader</t>
+  <t id="2600221">Light of Brenna</t>
+  <t id="2600222">Voice of word</t>
+  <t id="2600223">Priest of the True Light</t>
+  <t id="2600224">Grace in Favour</t>
+  <t id="2600225">Aquatic Lies</t>
+  <t id="2600226">Tidal Drift</t>
+  <t id="2600227">White Water</t>
+  <t id="2600228">Ritual Carrier</t>
+  <t id="2600229">Empires Pride</t>
+  <t id="2600230">Prayer of Xerxes</t>
+  <t id="2600231">Nail of Thuruk</t>
+  <t id="2600232">Scct's Promise</t>
+  <t id="2600233">Power of Zrt</t>
+  <t id="2600234">Frequent Trader</t>
+  <t id="2600235">Line of Credit</t>
+  <t id="2600236">Window of Opportunity</t>
+  <t id="2600237">Light Trade</t>
+  <t id="2600238">Brenna</t>
+  <t id="2600239">Word of Truth</t>
+  <t id="2600240">Tranquil Seas</t>
+  <t id="2600241">Anemone of the Queen</t>
+  <t id="2600242">Queen's Reef</t>
+  <t id="2600243">Xerxes</t>
+  <t id="2600244">Pride of the Empire</t>
+  <t id="2600245">Arm of the Righteous</t>
+  <t id="2600246">Land of the Patriarch</t>
+  <t id="2600247">Dominion</t>
+  <t id="2600248">Arms of War</t>
+  <t id="2600249">Investment of Dreams</t>
+  <t id="2600250">Stock Exchange</t>
+  <t id="2600251">Almighty Credit</t>
+  <t id="2600252">You useless Bastu... we have lost our window of opportunity, thanks to you. Get out of my sight, and don't expect to be paid!!</t>
+  <t id="2600253">Careful if you damage that ship further it will explode!!</t>
+  <t id="2600254">You idiot!! You've destroyed the ship... Get lost!</t>
+  <t id="2600255">Data Recovered..... </t>
+  <t id="2600256">Pirate Station in {object.sector.name@L2M600.PirateBase}</t>
+  <t id="2600257">Wait for Instructions from Dasinos Yosulis Monisessas VI</t>
+  <t id="2600258">Wait for</t>
+  <t id="2600259">Dasinos Yosulis Monisessas VI to contact you.</t>
+  <t id="2600260">Fool... you will pay for this outrage.........</t>
+  <t id="2600261">Ships Detected.........</t>
+  <t id="2600262">Where are you going? You must fly the TP back to the station yourself, I can't fly this ship!</t>
+  <t id="2600263">Kerol Selek</t>
+  <t id="2600264">Loli Fi</t>
+  <t id="2600265">Etmanckabssit</t>
+  <t id="2600266">Fui't Plp</t>
+  <t id="2600267">Hohindras Joranas Deridos XV</t>
+  <t id="2600268"></t>
+  <t id="2600269"></t>
+  <t id="2600270"></t>
+  <t id="2600271"></t>
+  <t id="2600272"></t>
+	
+
+    <!-- ****************************************************************************************************** -->
+    <!--                  Generic Mission 004                 -->
+    <!-- ****************************************************************************************************** -->
+                                                 <!--u24j7x5-->
+
+    <t id="3001000">Lt. {actor.name@{XTC GM004 Offer Actor}}</t>
+    <t id="3001001">&quot;Hello pilot. A group of pirate ships of the {7216,{value@XTM Generic Mission 004.Clanname}} clan has been stirring up a lot\nof trouble lately. We finally got the clearance to do something about them.\nSadly neither the sector security forces nor the military can deal with them anytime soon.\nThat's why we decided to hire freelancers. You will be provided with a flight route which will take\nyou to the area in {sector.name@XTM Generic Mission 004.ActionSector} where the pirate ships have been sighted lately.\nYour mission is simple. Go there and kill them and don't let anyone escape.\nInterested?\n</t>
+    <t id="3001002">Mission Command: &quot;Uploading your first waypoint. There you go. Check that area first.&quot;</t>
+    <t id="3001003">Mission Command: &quot;They are nowhere to be seen. Uploading the next waypoint now.&quot;</t>
+    <t id="3001004">Mission Command: &quot;Bandits entering scanner range. There they are. Do your job pilot, and good luck.&quot;</t>
+    <t id="3001005">Mission Command: &quot;Good work pilot. Now report back to base for debriefing.&quot;</t>
+    <t id="3001006">&quot;Great work, pilot. That will teach the pirate clan not to mess with us. Looking forward to working with you again!\nTransferring your reward now.&quot;\n</t>
+    <t id="3001007">Mission</t>
+    <t id="3001008">Pilot, the mission recording shows us that you decided not to fight against the enemies. A coward such as you, will receive no money.</t>
+    <t id="3001009">Ok, I understand. You do right, because this job would need a hero and no coward.</t>
+    <t id="3001010">Destroy Enemy Ships</t>
+    <t id="3001011">Find Fleet</t>
+    <t id="3001012">Check Waypoint</t>
+    <t id="3001013">Destroy</t>
+    <t id="3001014">Enemy Fleet</t>
+    <t id="3001015">Yeah, what can I do for you?</t>
+    <t id="3001016">I need a job, what should I do?</t>
+    <t id="3001017">Nope, I am a coward. That is too dangerous for me.</t>
+    <t id="3001018">Looks good!</t>
+    <t id="3001020">&quot;Brotherhood of Blood&quot;</t>
+    <t id="3001021">&quot;Space Junkies&quot;</t>
+    <t id="3001022">&quot;Freelancer Guild&quot;</t>
+    <t id="3001023">&quot;Guild of Smugglers&quot;</t>
+    <t id="3001030">&quot;Yagosake&quot;</t>
+    <t id="3001031">&quot;Shingen&quot;</t>
+    <t id="3001032">&quot;Yurasawa&quot;</t>
+    <t id="3001033">&quot;Hanzo&quot;</t>
+    <t id="3001040">Operation &quot;Clean Sweep&quot;</t>
+    <t id="3001041">The freelancer pilot {player.name} has solved the pirate problem in sector {sector.name@XTM Generic Mission 004.ActionSector}. He did excellent work during Operation &quot;Clean Sweep&quot; clearing the sector from the danger of any pirate attacks.\nIf anyone needs a worthy pilot for combat missions, {player.name} would be a good choice!\n\n</t>
+    <t id="3001042">The freelancer pilot {player.name} got the contract for the mission Operation &quot;Clean Sweep&quot; in sector {sector.name@XTM Generic Mission 004.ActionSector}. His job was to destroy all pirate vessels, but instead he cowardly ran away.\nWarning! Do not hire {player.name} for any combat jobs in the future!\n</t>
+    <t id="3001043">The freelancer pilot {player.name} accepted the contract for the &quot;Clean Sweep&quot; mission in sector {sector.name@XTM Generic Mission 004.ActionSector}. His job was to fight against any pirate vessels, but instead of doing so, other mercenaries engaged and destroyed the pirates while {player.name} watched the fight from a safe distance.\n{player.name}, do not come to us for work ever again!\n</t>
+  
+  
+  <!-- ********************************************************************************** -->
+  <!--           Generic Mission 2.003 - File 2.003 Defend Sector from Pirates            -->
+  <!-- ********************************************************************************** -->
+                                       <!--Jens Ka-->
+  <!--Briefing titel-->
+  <t id="3500000">Defend Sector from Pirates</t>
+  <!--Briefing texts-->
+  <t id="3500001">Our scanners show that the pirates are on their way. Try to keep as many of them busy as you can. Don't lose control over the sector!</t>
+  <t id="3500002">Here they come! Bandits inbound... Pilot, show them what you've got! Remember that you not only have to kill as many as possible but also protect the freighters and prevent the pirate ships from escaping. You have to help hold the sector until the military arrives!</t>
+  <t id="3500003">Intercept the fleeing pirates!</t>
+  <t id="3500004">Good work, pilot. Those pirates have taken quite a beating! Report back to the {object.name@L2M003XTC.OfferStation} for a debriefing.</t>
+  <!-- Mission end messages-->
+  <t id="3500100">Great work, pilot. The {lookup.race.name@pirate} clan will think twice about trying to raid this sector next time! The military will take care of all the rest. Transferring your reward now.</t>
+  <t id="3500101">What the hell are you doing, pilot? You're on a mission, remember? You can't simply leave the area! Forget your payment, this mission was a failure. No, in fact, you are the failure here!</t>
+  <t id="3500102">I've never seen a failure like this! This is a catastrophe! You let way too many of them escape. This will encourage them to raid us again! Forget the payment! You can feel lucky that we don't make you pay up for the damage you've done!</t>
+  <t id="3500103">Hey, what gives? We had a pretty basic deal, you and I! You were supposed to go where I told you to go, right now, and you said you would, but I am not seeing you there! Forget the deal, if you can't sort out basic navigation, then turn to planetside farming, kid!</t>
+  <t id="3500104">We should have known that you would be in league with the pirates. Your attack on our station led to the demise of your former employer, and now we know where your allegiance stands! You have been reported to the authorities, and rest assured, when we get hold of the bounty hunters, you will be top of the list... you treacherous worm!</t>
+  <!--Briefing custom step texts-->
+  <t id="3501002">Defend freighters in the sector {sector.name@L2M003XTC.MissionSector}.</t>
+  <t id="3501003">{lookup.race.name@pirate} {35,2110}.</t>
+  <!--Conversation texts-->
+  <!--NPC text-->
+  <t id="3505000">Mercenaries wanted for sector defence duty, apply here!</t>
+  <t id="3505001">So, are you interested or not?</t>
+  <t id="3505010">Yes, I have received the report on the mission.</t>
+  <!--Player text-->
+  <t id="3506001">Hello. I heard you may be in need of a mercenary?</t>
+  <t id="3506002">Right, understood. So, will you give me any information on the job or not?</t> 
+  <t id="3506003">Sounds like we have a deal... I'll try to do the mission, but you better pay me well.</t>
+  <t id="3506004">Oh dear, will you look at the time... Sorry, but I don't wish to partake in such activities.</t>
+  <t id="3506010">Register me for the report!</t>
+  <!--GNS in pirate sectors title-->
+  <t id="3510001">Pirate raid repulsed.</t>
+  <t id="3510002">Piracy operation successful.</t>
+  <!--GNS in pirate sectors article-->
+  <t id="3510011">The latest raid against our targets in {sector.name@L2M003XTC.MissionSector} was an utter failure! Based on their performance, we are ashamed to call the family involved in the assault a clan, they would seem to be no better than mere slaves!\n\nThanks to their stellar defeat, we are now left with a ruined reputation. How can we extort station owners when they think we're such pushovers? But rest assured brethren, for our end is not nigh. The responsible clan has been dealt with, and the names of mercenaries who aided in defending the sector from our little operation have been noted and distributed amongst the bounty hunters. They will be tracked down and vengeance shall be ours.\n\nPirate Rhb t'Nkkst</t>
+  <t id="3510012">The latest operation against our enemies in {sector.name@L2M003XTC.MissionSector} was a complete success! We are more than proud to call the pirate clan involved in the raid a true family with proud piracy traditions running deep in their blood! For their efforts, they have gained great renown among our brethren.\n\nThe final result was greater than we could have anticipated, more than 17 new station owners have accepted our protection services, and they will now provide much needed financial aid for our cause. Of course, some lives were lost in the assault, and no true pirate will allow the death of his brothers to stay unpunished. Our spies in the area have noted the names of all non-military combat ships involved, as well as their deeds and number of our folk slain. Our greater collective will issue a bounty on their heads, ensuring a swift vengeance.\n\nPirate Rhb t'Nkkst</t>
+  <!--GNS in offer race sectors title-->
+  <t id="3510003">Sector is protected from pirate raiders!</t>
+  <t id="3510004">Pirates successfully assault a whole sector!</t>
+  <!--GNS in offer race sectors article-->
+  <t id="3510013">A long planned pirate raid was successfully neutralised in {sector.name@L2M003XTC.MissionSector}. It seems that the pirates of a well-known clan had chosen the sector as a place for both warning and punishment. They warned the station owners what would happen if they didn't pay for so-called 'protection', and then punished those that refused to pay.\n\nThat was the plan at least, but luckily the invasion was dealt with in a swift and decisive manner. A local station manager realising that military ships calling for defence of the sector would not be able to arrive in time, issued a call for help on the regular communication channel. By chance, several mercenaries picked up the signal and agreed to hold off the pirate raiders until the arrival of the military forces. The defence was successful, and although there were heavy casualties on both sides, the captain of the defending military fleet reported that all of the mercenaries had acted as real professionals, and that everyone should be proud to fly in the same space that these brave men traverse.\n\nRity Fist - GalNet News</t>
+  <t id="3510014">Unfortunately, we have to bring bad news to our readers. A pirate fleet recently entered {sector.name@L2M003XTC.MissionSector} and devastated everything there simply to show their might and influence over the area. The local military force commander said that he was aware of the impending raid, but there was no chance whatsoever for him to make it to the combat zone in time to prevent civilian casualties.\n\nThe most unfortunate part of this is that the death of hundreds of civilians could have been prevented, if only more mercenaries had responded to the emergency call for help issued just before the assault. Analysts claim that the pirates gained the upper hand by pure chance, and if there had even been just one more mercenary willing to defend, the whole invasion could have been prevented and the pirates would never have had the chance to escape with their lives. Now, we are left with only one question. Are there really no more heroes in the space lanes? What has happened to the fabled freelancers, pilots of exceptional skill and combat prowess? Are they now just mere illusions of past times? This event appears to give us only one glaringly painful answer... yes.\n\nRity Fist - GalNet News</t>
+  <t id="3599999">place holder</t>
+
+
+
+
+  <!--********************************************************************************** -->
+  <!--           Generic Mission 2.515 - File 2.515 Last Man Standing                    -->
+  <!--********************************************************************************** -->
+  <!--Badman76-->
+
+  <!--Offer converstaion-->
+  <t id="4100500">Have you got a mission for me?</t>
+  <t id="4100501">Do you have any problem?</t>
+  <t id="4100502">Are you interested in some... easy credits?</t>
+  <t id="4100503">Hey, you! Need some credits?</t>
+  <t id="4100504">Why not? Tell me about it.</t>
+  <t id="4100505">What do you want me to do?</t>
+  <t id="4100506">Okay I'll do it.</t>
+  <t id="4100507">That'S my thing.</t>
+  <t id="4100508">Get lost. I'm not interested!</t>
+  <t id="4100509">Generic Raiding Pirate Base Mission Briefing</t>
+  <t id="4100510">Sure, why not!</t>
+  <t id="4100511">Yep!</t>
+  <t id="4100512">Nope.</t>
+  <t id="4100513">Silly!</t>
+  <t id="4100514">Get out of my sight, astro-chicken!</t>
+  <t id="4100515">Fight Club</t>
+  <t id="4100516">-</t>
+  <t id="4100517">-</t>
+  <t id="4100518">-</t>
+  <t id="4100519">-</t>
+  <t id="4100520">Thank you so much pilot. With your support we managed to rescue [yellow]{value@L2M535.RescuedSlaves}[/yellow] slaves. Please accept our eternal gratitude and the sincerest thanks of the escapees and their families. In order to reward you for your kind help, the rescued hostages are paying you an additional fee of [yellow]{value@L2M535.BonusCr}[/yellow] credits. This makes a total of [yellow]{value@L2M535.RewardCr}[/yellow] credits.</t>
+  <t id="4100521">We safely arrived at {object.name@L2M535.OfferStation}. Thank you for bringing us home. A raiding party will soon jump in and finish off the job at the pirate station</t>
+  <t id="4100522">Test</t>
+
+  <!--Briefing-->
+  <t id="4101000">Fight Club</t>
+  <t id="4101001">Last Man Standing</t>
+  <t id="4101002">Fightclub</t>
+  <t id="4101003">Hey you! Wanna make some easy credits? Some guys are looking for an oppertunity to get rich or die tryin'. Wanna play with them? Meanwhile leave your \033Y{object.name@{player.ship}}\033X docked at \033Y{object.name@L2M515.OfferStation}\033X as a kind of... reinsurance.</t>
+  <t id="4101004">-</t>
+  <t id="4101005">-</t>
+  <t id="4101006">Yep!</t>
+  <t id="4101007">Negative.</t>
+  <t id="4101008">Positive.</t>
+  <t id="4101009">-</t>
+  <t id="4101010">Enter ship</t>
+  <t id="4101011">\033Y a special M5\033X and leave your ship at \033Y{object.name@L2M515.OfferStation}\033X</t>
+  <t id="4101012">Flight to</t>
+  <t id="4101013">\033Y{object.name@L2M515.Beacon}\033X</t>
+  <t id="4101014">Kill</t>
+  <t id="4101015">\033YAll other contestants\033X</t>
+  <t id="4101016">\033Y{object.name@L2M515.OfferStation}\033X</t>
+  <t id="4101017">\033Y {object.name@L2M515.PlayerM5}\033X and leave your ship at \033Y{object.name@L2M515.OfferStation}\033X</t>
+  <t id="4101018">\033Y{object.name@L2M515.PlayerM5}\033X</t>
+  <t id="4101019">For stealing equipment from our ship we charge you a fee of [yellow]{value@L2M515.CreditPenalty}[/yellow] credits. No need to put it back onboard. It's now yours. Have a nice day!</t>
+  <t id="4101020">You've been told to get on board the \033YM5033X, not to fool around with it. We don't need people like you. Mission aboarted.</t>
+
+
+  <!--Subtitles-->
+  <t id="4101500">Get on board the \033Y{object.name@L2M515.PlayerM5}\033X. You must NOT leave the ship while on your assignment.</t>
+  <t id="4101501">You've been told to get on board the \033Y{object.name@L2M515.PlayerM5}\033X, not to fool around with it. We don't need people like you. Mission aboarted.</t>
+  <t id="4101502">Move your property out of range of the Arena immediately. We don't tolerate any disturbance. Obey or your assignment will be terminated.</t>
+  <t id="4101503">That's it! Your assignment has been terminated. Bring back \033Y{object.name@L2M515.PlayerM5}\033X to \033Y{object.name@L2M515.OfferStation}\033X.</t>
+  <t id="4101504">Leave \033Y{object.name@L2M515.PlayerM5}\033X and re-enter your 033Y{object.name@L2M515.TempHostageShip}\033X.</t>
+
+  <!--RPB GNS articles-->
+  <t id="4102000">Secret Fightclub discovered</t>
+  <t id="4102010">We wloud like to tell you anything about the Fightclub  - but reffering to the first rule of the fightclub... no one talks about the Fightclub, so... that's it.</t>
+
+
+
+  <!--********************************************************************************** -->
+  <!--           Generic Mission 2.535 - File 2.535 Pirate Base                          -->
+  <!--********************************************************************************** -->
+  <!--Badman76-->
+
+  <!--Offer converstaion-->
+  <t id="4000500">Have you got a mission for me?</t>
+  <t id="4000501">Do you have any problem?</t>
+  <t id="4000502">Could you give us a helping hand?</t>
+  <t id="4000503">Would you please help us?</t>
+  <t id="4000504">How can I be of assistance?</t>
+  <t id="4000505">What do you want me to do?</t>
+  <t id="4000506">Okay I'll do it.</t>
+  <t id="4000507">Sure. No problem.</t>
+  <t id="4000508">Get lost. I'm not your servant!</t>
+  <t id="4000509">Generic Raiding Pirate Base Mission Briefing</t>
+  <t id="4000510">Sure, why not!</t>
+  <t id="4000511">Yep!</t>
+  <t id="4000512">Nope.</t>
+  <t id="4000513">Silly!</t>
+  <t id="4000514">Get out of our sight, astro-chicken!</t>
+  <t id="4000515">-</t>
+  <t id="4000516">-</t>
+  <t id="4000517">-</t>
+  <t id="4000518">-</t>
+  <t id="4000519">-</t>
+  <t id="4000520">Thank you so much pilot. With your support we managed to rescue [yellow]{value@L2M535.RescuedSlaves}[/yellow] slaves. Please accept our eternal gratitude and the sincerest thanks of the escapees and their families. In order to reward you for your kind help, the rescued hostages are paying you an additional fee of [yellow]{value@L2M535.BonusCr}[/yellow] credits. This makes a total of [yellow]{value@L2M535.RewardCr}[/yellow] credits.</t>
+  <t id="4000521">We safely arrived at {object.name@L2M535.OfferStation}. Thank you for bringing us home. A raiding party will soon jump in and finish off the job at the pirate station</t>
+  <t id="4000522">Test</t>
+
+  <!--Briefing-->
+  <t id="4001000">Raiding Pirate Station</t>
+  <t id="4001001">The Guardian</t>
+  <t id="4001002">Defender of the Innocent</t>
+  <t id="4001003">We found out that the pirates have built a \033Y{object.name@L2M535.PirateStation}\033X in the area of \033Y{player.sector.name}\033X that must be destroyed. Unfortunately there are number of slaves on that station, held as hostages to prevent a police raid. This is why we want you to escort the transporter \033Y{object.name@L2M535.DefendShip}\033X with some marines to that base so that the commandos can free the slaves. You are needed to cover the transporters retreat and destroy all attacking pirates. Then our bombers will pile in and finish the job.</t>
+  <t id="4001004">Escort and defend</t>
+  <t id="4001005">The {object.name@L2M535.DefendShip} on its way to {object.name@L2M535.PirateStation} and back home.</t>
+  <t id="4001006">Yep!</t>
+  <t id="4001007">Negative.</t>
+  <t id="4001008">Positive.</t>
+  <t id="4001009">and maybe more...</t>
+
+  <!--Mission in progress COM lines-->
+  <t id="4001041">Okay, pilot! We have docked at the pirate station. As soon as the marines override the security protocols on the airlock they will break into the station brick where the slaves were kept.\n\nWhen they return with the slaves we will have a hell of a ride getting back home. I don't think the pirates will let us get away with this. Please watch our backs while we try and escape. Keep in mind that our marines are also trying to steal some berthed pirate vessels. Don't shoot them. We're counting on you!\n\nThis is weird, looks like there are a large number of fighters docked here in hangar bay two. That didn't show up on our scanners but we can confirm they are docked right in there. Maybe there is some sort of dampening field that tricks our sensors... I have a bad feeling about this!</t>
+  <t id="4001042">Great work... those bastards didn’t notice anything. Okay team, check your weapons and proceed with caution.</t>
+  <t id="4001043">Airlock security protocols off-line... proceed!</t>
+  <t id="4001044">This is \033RRed\033X two. Encountering minor resistance. Proceeding.</t>
+  <t id="4001045">We reached the brick. Heavy fire coming from the second floor. Taking cover.</t>
+  <t id="4001046">\033RRed 3\033X, \033RRed 4\033X... suppressive fire. \033RRed 5\033X place the explosives to gain access to the brick. Go-go-go!</t>
+  <t id="4001047">We got them. We secured \033R{value@L2M535.RescuedSlaves}\033X slaves from the brick. Returning with them back to the transporter now.</t>
+  <t id="4001048">\033RRed\033X team is moving to hangar bay one to 'borrow' some fighter craft. We are trying to disable the dampening field.</t>
+  <t id="4001049">The pirate dampening field is failing. A large number of pirate vessels are suddenly appearing on our scanners. Defend the transporter!</t>
+  <t id="4001054">This is \033GGreen 2\033X. Encountering minor resistance. Proceeding.</t>
+  <t id="4001055">We reached the brick. Heavy fire coming from the second floor. Taking cover.</t>
+  <t id="4001056">\033GGreen 3\033X, \033GGreen 4\033X... suppressive fire. \033GGreen 5\033X place the explosives to gain access to the brick... Go-go-go!</t>
+  <t id="4001057">We got them. We secured \033R{value@L2M535.RescuedSlaves}\033X slaves from the brick. Bringing them back to the transporter now.</t>
+  <t id="4001058">\033GGreen\033X team is moving to hangar bay one to 'borrow' some fighter craft. We are trying to disable the dampening field.</t>
+  <t id="4001064">This is \033YGold 2\033X. Encountering minor resistance. Proceeding.</t>
+  <t id="4001065">We reached the brick. Heavy fire coming from the second floor. Taking cover.</t>
+  <t id="4001066">\033YGold 3\033X, \033GGreen 4\033X... suppressive fire. \033YGold 5\033X place the explosives to gain access to the brick. Go-go-go!</t>
+  <t id="4001067">We got them. We secured \033R{value@L2M535.RescuedSlaves}\033X slaves from the brick. Returning with them back to the transporter now.</t>
+  <t id="4001068">\033YGold\033X team is moving to hangar bay one to 'borrow' some fighter craft. We are trying to disable the dampening field.</t>
+  <t id="4001074">This is \033RAlpha 2\033X. Encountering minor resistance. Proceeding.</t>
+  <t id="4001075">We reached the brick. Heavy fire coming from the second floor. Taking cover.</t>
+  <t id="4001076">\033RAlpha 3\033X, \033RAlpha 4\033X... suppressive fire. \033RAlpha 5\033X place the explosives to gain access to the brick. Go-go-go!</t>
+  <t id="4001077">We got them. We secured \033R{value@L2M535.RescuedSlaves}\033X slaves from the brick. Bringing them back to the transporter now.</t>
+  <t id="4001078">\033RAlpha\033X team is moving to hangar bay one to 'borrow' some fighter craft. We are trying to disable the dampening field.</t>
+  <t id="4001084">This is \033RDelta 2\033X. Encountering minor resistance. Proceeding.</t>
+  <t id="4001085">We reached the brick. Heavy fire coming from the second floor. Taking cover.</t>
+  <t id="4001086">\033RDelta 3\033X, \033RDelta 4\033X - suppressive fire. \033RDelta 5\033X place the explosives to gain access to the brick. Go-go-go!</t>
+  <t id="4001087">We got them. We secured \033R{value@L2M535.RescuedSlaves}\033X slaves from the brick. Returning with them back to the transporter now.</t>
+  <t id="4001088">\033RDelta\033X team is moving to hangar bay one to 'borrow' some fighter craft. We are trying to disable the dampening field.</t>
+
+  <t id="4001150">You pathetic excuse for a pilot! What have you done? The transporter you were assigned to protect has been destroyed. We will never forget your incompetence!</t>
+  <t id="4001151">While you were on your mission, the home base of the {object.name@L2M535.DefendShip} has been destroyed. Unfortunately you cannot now complete your contract with us. The {object.name@L2M535.PirateStation} was destroyed too. Therefore we are going to pay you a smaller number of credits.</t>
+  <t id="4001152">The {object.name@L2M535.PirateStation} has been destroyed before the {object.name@L2M535.DefendShip} was able to take the slaves onboard. You failed to save them.</t>
+  <t id="4001153">You Bastu! You destroyed the transporter you were assigned to protect! We will never forget and forgive your dishonourable behaviour. Get out of our sight!</t>
+  <t id="4001156">You cowardly chicken! You abandoned us. We will never forget this. Consider yourself relieved of duty.</t>
+
+  <!--RPB GNS articles-->
+  <t id="4002000">Test1Reject</t>
+  <t id="4002010">Test2Reject</t>
+
+
+  <!-- ****************************************************************************************************** -->
+  <!--              L2M900   Generic Mission 2.900 - File 2.900 Generic Emergency Supply Mission              -->
+  <!-- ****************************************************************************************************** -->
+                                                      <!--kevso101-->
+
+  <t id="2900001">(Boron Offer Actor Name) Gaga Pi</t>
+  <t id="2900002">(Opening Incoming Message)This is [yellow]Gaga Pi[/yellow] of the Boron ship [yellow]Sea of Tears[/yellow], we have come under attack by Pirates and are in need of assistance.... \nplease respond\n\n[center][select value="yes"][Green]Accept Call for Help[/Green][/select][/center]\n\n[center][select value="no"][Red]Too Busy Ignore Call[/Red][/select][/center]</t>
+  <t id="2900003">(Incoming Message: don&#39;t want mission)Damn you.... I hope pirates eat your cowardly heart!</t>
+  <t id="2900004">(Incoming Message: accept mission)Oh... Thank you. We are in this sector, we will send you the co-ordinates... please hurry.</t>
+  <t id="2900005">(Boron Ship Name)\033GSea of Tears\033X</t>
+  <t id="2900006">(Briefing: Story)\033YEmergency Supply!\033X</t>
+  <t id="2900007">(Briefing: Chapter)Chapter 1 - Adrift in Space</t>
+  <t id="2900008">(Briefing: Title)Boron Rendezvous</t>
+  <t id="2900009">(Briefing: Text - Meet Stricken Ship)The Sea of Tears has been attacked by Pirates and is in need of urgent assistance. You are to rendezvous with the stricken ship in the Conrad sector. You will have to get to within 8km to communicate with them as their comms transmitter is failing.</t>
+  <t id="2900010">(Custom Action) Rendezvous with:</t>
+  <t id="2900011">(conversation: L2M900GagaPi01)Calling the Sea of Tears........</t>
+  <t id="2900012">(conversation: L2M900GagaPi01)Thank the Queen! We have been attacked by pirates and our engines damaged, we desperately need some engine components that were fried in the attack....</t>
+  <t id="2900013">(conversation: L2M900GagaPi01)...and you would like me to fetch these for you?</t>
+  <t id="2900014">(conversation: L2M900GagaPi01)Yes, but it may not be that easy. The only place you will be able to obtain these around here is from a Teladi by the name of Tzessosis Hirussusis Yoyunis XIII.</t>
+  <t id="2900015">(conversation: L2M900GagaPi01)Oh... and he will be difficult I assume.....?</t>
+  <t id="2900016">(conversation: L2M900GagaPi01)He? No, No... she, no male Teladi in space... however yes &#39;she&#39; will no doubt be difficult, but you must procure these parts at all cost.</t>
+  <t id="2900017">(conversation: L2M900GagaPi01)I see, so what&#39;s in it for me?</t>
+  <t id="2900018">(conversation: L2M900GagaPi01)Apart from our gratitude, we can make certain pieces of equipment available to you and pay you 10,000 credits.</t>
+  <t id="2900019">(conversation: L2M900GagaPi01)What sort of equipment?</t>
+  <t id="2900020">(conversation: L2M900GagaPi01)Bring back the computer components we need and we can discuss that, so will you help us?</t>
+  <t id="2900021">(conversation: L2M900GagaPi01)Hmm... where do I find this Teladi?</t>
+  <t id="2900022">(conversation: L2M900GagaPi01)You can find her in sector Atropos II on the Teladi Trade Dock.</t>
+  <t id="2900023">(conversation: L2M900GagaPi01 - accept mission)Ok sure for 10,000 and some new equipment, I&#39;ll help.... be back as soon as I have the components.</t>
+  <t id="2900024">(conversation: L2M900GagaPi01 - reject mission)Not a chance I&#39;m not hauling my carcass all the way over to Atropos II for a piddling 10,000 credits.</t>
+  <t id="2900025">(Rescue ship Name)\033OReef Runner\033X</t>
+  <t id="2900026">(Goodbye if Player reject mission)It seems we don&#39;t need you help after all, your loss dry skin!</t>
+  <t id="2900027">(Opening Reward text)The Opportunity for Profit</t>
+  <t id="2900028">(Atropos II contact)Tzessosis Hirussusis Yoyunis XIII</t>
+  <t id="2900029">(Briefing: Text - Tzessosis Hirussusis Yoyunis XIII)You are to meet with \033YTzessosis Hirussusis Yoyunis XIII\033X on the Teladi Trading Station and convince her to give you the parts the {7216,2900005} needs to get underway.</t>
+  <t id="2900030">(Subtitle)\033GSea of Tears\033X : We are now shutting down our comms transmitter until you come back to conserve power... Good Luck!</t>
+  <t id="2900031">(conversation: L2M900Tzessosis01)Hello I wish to speak to Tzessosis Hirussusis Yoyunis XIII...</t>
+  <t id="2900032">(conversation: L2M900Tzessosis01)This is Tzessosis Hirussusis Yoyunis XIII, what do you want pink skin?</t>
+  <t id="2900033">(conversation: L2M900Tzessosis01)Just the chance to make profit with the Teladi.</t>
+  <t id="2900034">(conversation: L2M900Tzessosis01)Ah you know how to speak to a Teladi properly I see, so what can the Teladi do for you?</t>
+  <t id="2900035">(conversation: L2M900Tzessosis01)I am in need of some specialist engine components, the type used on a Boron Orca.</t>
+  <t id="2900036">(conversation: L2M900Tzessosis01)Hmmm I see, not common in this part of space, very expensive..... 500,000 credits.</t>
+  <t id="2900037">(conversation: L2M900Tzessosis01)Are you mad....sorry I mean too much for me to make a profit on.</t>
+  <t id="2900038">(conversation: L2M900Tzessosis01)*Laugh* I see you have dealt with the Teladi before, well perhaps we could come to another arrangement?</t>
+  <t id="2900039">(conversation: L2M900Tzessosis01)What sort of arrangement?</t>
+  <t id="2900040">(conversation: L2M900Tzessosis01)I need a parcel collected, a simple matter, from a Split from whom I will not speak to directly for reasons that do not matter.</t>
+  <t id="2900041">(conversation: L2M900Tzessosis01)And I get to pick it up from him...</t>
+  <t id="2900042">(conversation: L2M900Tzessosis01)You learn quickly for a pink skin.</t>
+  <t id="2900043">(conversation: L2M900Tzessosis01 - briefing action)Ok! Who is this Split and where do I find him?</t>
+  <t id="2900044">(conversation: L2M900Tzessosis01)His name is Cai&#39;t Plp, as to where you can find him, that&#39;s another matter, I can tell you where he was last seen.</t>
+  <t id="2900045">(conversation: L2M900Tzessosis01)I don&#39;t understand...</t>
+  <t id="2900046">(conversation: L2M900Tzessosis01)Cai&#39;t Plp, is on the run for the authorities, you will have to track him down... you can get details from the GNS of his last known position.</t>
+  <t id="2900047">(conversation: L2M900Tzessosis01)Ok, let me see what I can do.</t>
+  <t id="2900048">(GNS Mission Article - Title)\033OKnown Criminal Escapes Authorities\033X</t>
+  <t id="2900049">(GNS Mission Article - Text)Cai&#39;t Plp has once again evaded capture by the Teladi Authorities, he was last seen in sector &#39;Unforeseen Expenses&#39; on the Trade Station and was thought to be in the company of Cio&#39;t Hnk for much of his time there.\n\nTeladi Authorities have classified this Split as a \033R&#39;Danger to Profit&#39;\033X and should be detained at all costs; if you have any information on this insidious criminal then you should contact the Teladi Military at once.\n\nThe Profiteer - GNS Teladi News</t>
+  <t id="2900050">(Briefing: Title)Atropos II</t>
+  <t id="2900051">(Briefing: Chapter)Chapter 1 - Hunt For Cai&#39;t Plp</t>
+  <t id="2900052">(Briefing: Title)Unforessen Expenses</t>
+  <t id="2900053">(Unforeseen Expenses contact)Cio&#39;t Hnk</t>
+  <t id="2900054">(Briefing: Text - Find Cio't Hnk)Meet with Cio&#39;t Hnk in Unforeseen Expenses and convince him to give you the location of Cai&#39;t Plp.</t>
+  <t id="2900055">(conversation: L2M900CiotHnk01)Hello I&#39;m a friend of a friend of Cai&#39;t Plp...</t>
+  <t id="2900056">(conversation: L2M900CiotHnk01)Go away, I&#39;ll tell you the same as I told the Police... I don’t know any Cai&#39;t Plp....</t>
+  <t id="2900057">(conversation: L2M900CiotHnk01)Oh right... well that&#39;s a shame, I have a large amount of credits to transfer into his account, but need his retinal scan...</t>
+  <t id="2900058">(conversation: L2M900CiotHnk01)What?....</t>
+  <t id="2900059">(conversation: L2M900CiotHnk01)Yeah he&#39;s won on the lotto &#174;, I&#39;m sure if you tell where he is...I&#39;m sure he&#39;d be very grateful...</t>
+  <t id="2900060">(conversation: L2M900CiotHnk01)Hmm... yeah, he would... Well don&#39;t tell the police, but he was heading to the sector &#39;Chins Demise&#39; and don’t forget to tell him I sent you.</t>
+  <t id="2900061">(conversation: L2M900CiotHnk01)Will do...*Smile*</t>
+  <t id="2900062">(Custom Action)Hunt For:</t>
+  <t id="2900063">(Hunted Name)Cai&#39;t Plp</t>
+  <t id="2900064">Chin&#39;s Demise</t>
+  <t id="2900065">(Briefing: Text - Find Cai't Plp)Cio&#39;t Hnk has given you valuable information on where to start looking for Cai&#39;t Plp. Fly to Chin&#39;s Demise and resume your search.</t>
+  <t id="2900066">(Teladi Warship)\033GSnake Skin\033X</t>
+  <t id="2900067">(Teladi Warship communication)This is the Teladi Warship {7216,2900066}, you will comms us now.... or we will open fire on your ship. You have 60 sezuras to comply.</t>
+  <t id="2900068">(Briefing: Text - Talk to Teladi Warship)You have been hailed by the Teladi Warship {7216,2900066}, best talk to them quickly before they open fire.</t>
+  <t id="2900069">(Teladi on warship)Hoaeos Yahondras Gantelios II</t>
+  <t id="2900070">(conversation: L2M900Hoaeos01)Hello, how can I help the Teladi Government?</t>
+  <t id="2900071">(conversation: L2M900Hoaeos01)Don&#39;t play games with us pink skin, we are not some little trader...</t>
+  <t id="2900072">(conversation: L2M900Hoaeos01)My apologies....</t>
+  <t id="2900073">(conversation: L2M900Hoaeos01)Stuff that as well, where is Cai&#39;t Plp?</t>
+  <t id="2900074">(conversation: L2M900Hoaeos01)Cai&#39;t Who?</t>
+  <t id="2900075">(conversation: L2M900Hoaeos01)I&#39;ve warned you once, don&#39;t make me do it again, Cai&#39;t Plp, we know that Cio&#39;t Hnk told you where he was heading</t>
+  <t id="2900076">(conversation: L2M900Hoaeos01)Oh right that Cai&#39;t Plp, I have business with him which won&#39;t be helped if you kill him.</t>
+  <t id="2900077">(conversation: L2M900Hoaeos01)Spoken like a true Teladi, Ok how&#39;s this... you meet him, do your business and then set him up for us... well what do you say, alternatively we can just shoot you now for withholding information.</t>
+  <t id="2900078">(conversation: L2M900Hoaeos01)Well put like that I don’t have a choice, I&#39;ll be in contact.</t>
+  <t id="2900079">(Incoming message Blip-Vert)**Advertisement**\n\nDo you need to sell something? Have you lost your little kitty? Well advertise on the GNS &#174;, with over 50 million readers universe wide we are just what you are looking for, place an article this tazura. See our local representative on the nearby Trading Station in this sector.</t>
+  <t id="2900080">(Incoming message author)GNS Blip-Vert &#174; Editor</t>
+  <t id="2900081">(Custom Action)Talk To:</t>
+  <t id="2900082">(Subtitle)\033GScanning for Target -\033X \033OCai&#39;t Plp\033X, Comms Channels activated.....</t>
+  <t id="2900083">(Subtitle)\033OCai&#39;t Plp\033X, not found, closing Comms Channels.</t>
+  <t id="2900084">(mission reward)&#162; 10,000 + Some Equipment</t>
+  <t id="2900085">(Dock At)Dock At:</t>
+  <t id="2900086">(Station Name){object.name@L2M900.TargetChin}</t>
+  <t id="2900087">(Briefing: Text - Place ad)Dock at the Trading Station in this sector and speak to the GNS Agent about placing an ad to locate Cai't Plp</t>
+  <t id="2900088">(GNS Agent)\033YGNS Agent - Nil Nedley\033X</t>
+  <t id="2900089">(conversation: L2M900GNSAgent01)Hi there, I&#39;d like to place an ad.</t>
+  <t id="2900090">(conversation: L2M900GNSAgent01)Of course they cost 6 credits and run for 1 wozura.</t>
+  <t id="2900091">(conversation: L2M900GNSAgent01)No worries, long enough...</t>
+  <t id="2900092">(conversation: L2M900GNSAgent01)Ok so want do you want it to say?</t>
+  <t id="2900093">(conversation: L2M900GNSAgent01)Here, I&#39;ll transmit it across...</t>
+  <t id="2900094">(conversation: L2M900GNSAgent01)Aha... right lost and found then?</t>
+  <t id="2900095">(conversation: L2M900GNSAgent01)You might say that...</t>
+  <t id="2900096">(conversation: L2M900GNSAgent01)Ok... that&#39;ll in the system, right about... now! Check the GNS once you&#39;re back in flight.</t>
+  <t id="2900097">(conversation: L2M900GNSAgent01)Thanks.</t>
+  <t id="2900098">(GNS Mission Article - Title)\033OTo Hear Something To Their Advantage\033X</t>
+  <t id="2900099">(GNS Mission Article - Text)Following an unclaimed win on the lotto &#174; agents for the Inter-Sector lottery are currently seeking the whereabouts of Cai&#39;t Plp, who is thought to benefit. Anyone knowing the whereabouts of Cai&#39;t Plp should contact Transmitter ID #101564AL12 in sector Chin's Demise.\n\n{7216,2900088} - GNS Lost and Found</t>
+  <t id="2900100">(Incoming Message)I understand you are looking for me... if you are who you say you are we can do business.... if you don&#39;t turn up... I&#39;m sending you co-ordinates, go there and wait until I contact you.</t>
+  <t id="2900101">Cai&#39;t has contacted you following your GNS Blip-Vert &#174; and has asked you to meet him at the following co-ordinates x=-64km, y=41km, z=70.4km in Chin's Demise.</t>
+  <t id="2900102">(Custom Action)Wait For:</t>
+  <t id="2900103">\033GYou Have arrived at the co-ordinates - wait for Cai&#39;t to contact you.\033X</t>
+  <t id="2900104">\033RWARNING - INCOMING PIRATE SHIPS!!! - you must destroy these at once\033X</t>
+  <t id="2900105">(Pirate Clan Name)Crimson Hands</t>
+  <t id="2900106">(Pirate Message)\033RYou will pay for this outrage...\033X</t>
+  <t id="2900107">(Custom Action)Destroy:</t>
+  <t id="2900108">Destroy incoming pirate ships. If they are here when Cai&#39;t Plp arrives he will think he has been betrayed and leave immediately</t>
+  <t id="2900109">(Custom Action)Talk to:</t>
+  <t id="2900110">(Briefing: Text - Talk to Cai't)Cai&#39;t Plp&#39;s ship the &#39;{7216,2099111}&#39; has arrived, you should speak to him about the parcel quickly before he leaves.</t>
+  <t id="2900111">(Cai't Plp's Ship)Breath of Death</t>
+  <t id="2900112">(conversation: L2M900CaitPlp01)Calling Cai&#39;t Plp....</t>
+  <t id="2900113">(conversation: L2M900CaitPlp01)I am Cai&#39;t, you said something about having won on the lotto...</t>
+  <t id="2900114">(conversation: L2M900CaitPlp01)Yes, sorry that was a ruse to speak to you.</t>
+  <t id="2900115">(conversation: L2M900CaitPlp01)What, I should kill you now... still I might as well listen to what you have to say... First!!</t>
+  <t id="2900116">(conversation: L2M900CaitPlp01)Tzessosis Hirussusis Yoyunis XIII, says that you have a parcel for him.</t>
+  <t id="2900117">(conversation: L2M900CaitPlp01)What! You risked your life for that!! Frankly I will be glad to be rid of it... Here take it, and remember you have not seen me!</t>
+  <t id="2900118">(conversation: L2M900CaitPlp01)Of course not! Goodbye...</t>
+  <t id="2900119">(Briefing: Chapter)Chapter 1 -Deliveries</t>
+  <t id="2900120">(ask question)This is the [green]Snake Skin[/green] of the Teladi Military, we understand that you have met an unknown ship deep in the sector Chin&#39;s Demise\n\nAre we correct in assuming that this was Cai&#39;t Plp, if so I assume you are ready to turn him over to us, you have 30 sezuras to respond\n\n[center][select value="yes"][Green]Of course, a deals a deal, sending his tracer ID[/Green][/select][/center]\n\n[center][select value="no"][Red]Sorry, you must be mistaken, that wasn't Cai&#39;t Plp[/Red][/select][/center]</t>
+  <t id="2900121">(incoming message - yes)Thank you, your honesty is much appreciated with the Teladi, we have transferred 5,000 credits for your trouble.</t>
+  <t id="2900122">(incoming message - no)Hmm... I see we are not totally sure of your sincerity... you reputation has been adjusted accordingly.</t>
+  <t id="2900123">(conversation: L2M900Tzessosis02)Ok Tzessosis, I have your parcel.</t>
+  <t id="2900124">(conversation: L2M900Tzessosis02)You have!? You mean Cai&#39;t just gave it up?</t>
+  <t id="2900125">(conversation: L2M900Tzessosis02)Yep, why the surprise... you said it was yours?</t>
+  <t id="2900126">(conversation: L2M900Tzessosis02)Well yes it is, but still... I trust you have not opened it.</t>
+  <t id="2900127">(conversation: L2M900Tzessosis02)Nope, here it is, just as Cai&#39;t Plp, gave it to me.</t>
+  <t id="2900128">(conversation: L2M900Tzessosis02)Excellent, let me just look... Hmm... yep this is it, I suppose you will be wanting the engine parts and be on your way now?</t>
+  <t id="2900129">(conversation: L2M900Tzessosis02)That&#39;s the general idea...</t>
+  <t id="2900130">(conversation: L2M900Tzessosis02)Of course, however they are no longer here...</t>
+  <t id="2900131">(conversation: L2M900Tzessosis02)What!! If you have been messing with me, you can be sure not to profit by it</t>
+  <t id="2900132">(conversation: L2M900Tzessosis02)No, No.... I still know where they are, however they you will have to collect them that&#39;s all.</t>
+  <t id="2900133">(conversation: L2M900Tzessosis02)I see, so where are they?</t>
+  <t id="2900134">(conversation: L2M900Tzessosis02)They are onboard a freighter that was abandoned in sector Mutual Benefits, I will send you the last known co-ordinates.</t>
+  <t id="2900135">(conversation: L2M900Tzessosis02)Trust me Teladi, if they are not there... I will come back and kill you; I trust we are clear.</t>
+  <t id="2900136">(conversation: L2M900Tzessosis02)Of course pink skin...</t>
+  <t id="2900137">(conversation: L2M900Tzessosis02)...Out!</t>
+  <t id="2900138">(ask question - author)Teladi Ship - Snake Skin</t>
+  <t id="2900139">(Briefing: Chapter)Chapter 1 - Lost in Space</t>
+  <t id="2900140">(Briefing: Text - Find TS){7216,2900028} has told you that the parts you seek are on a TS in Mutual Benefits. This sector has been the target of several pirate attacks and caution should be taken.\n\033YLast known co-ordinates of the {7216,2900143}: \033Rx=\033X  minus 54km \033Ry=\033X minus 40km \033Rz=\033X minus 69km\033X.</t>
+  <t id="2900141">(Briefing: Title)The Parcel</t>
+  <t id="2900142">(Briefing: Title)Abandoned Goods</t>
+  <t id="2900143">(Teladi ship name lost in Mutual Benefits)Profit Runner</t>
+  <t id="2900144">(Briefing: Text - Deliver parcel)You have obtained the parcel you need to gain the ship parts. Deliver it to {7216,2900028} as quickly as possible.</t>
+  <t id="2900145">(Custom Action)Find:</t>
+  <t id="2900146">(teladi ship)the {7216,2900143}</t>
+  <t id="2900147">\033RWARNING!!\033X Mines detected! Teladi vessel on collision course........</t>
+  <t id="2900148">(subtitle)Crates Scanned.... Engine Parts found.</t>
+  <t id="2900149">(ask question - pirate question)Stay where you are Pilot.... you have destroyed our valuable prize and we expect to be compensated. You will transfer &#162; 200,000 immediately or face the consequences.\n\n[center][select value="yes"]Of Course, my mistake[/select][/center]\n\n[center][select value="no"]Not a Chance[/select][/center]</t>
+  <t id="2900150">(ask question - yes)A wise decision, we must be on our way... we have credits to spend *Laugh*</t>
+  <t id="2900151">(ask question - No)Not cool you Bastu... prepare to die!!</t>
+  <t id="2900152">(not enough cash)What is this! Your transfer has been refused; due to lack of funds... prepare to die!!</t>
+  <t id="2900153">(subtitle - got engine parts)You have the required engine parts, please deliver them to the {7216,2900005}.</t>
+  <t id="2900154">(Briefing: Text - Deliver Parts)You have found the required engine parts for the Boron Orca, Sea of Tears. Please deliver them as quickly as possible.</t>
+  <t id="2900155">(Custom Action)Deliver:</t>
+  <t id="2900156">(delivery)Engine Parts</t>
+  <t id="2900157">\033RWARNING!! Incoming Enemy Ships......\033X</t>
+  <t id="2900158">(Incoming message - fail to answer Teladi question in time)We will take your silence as your answer pink skin, your reputation has been adjusted!</t>
+  <t id="2900159">(conversation: L2M900GagaPi02)Hello. This is Val Rana calling the &#39;Sea of Tears&#39;</t>
+  <t id="2900160">(conversation: L2M900GagaPi02)Ah, you have returned. You have the parts?</t>
+  <t id="2900161">(conversation: L2M900GagaPi02)Yep, here you go......</t>
+  <t id="2900162">(conversation: L2M900GagaPi02)Hmm... they are a little scorched what happened?</t>
+  <t id="2900163">(conversation: L2M900GagaPi02)They were on a ship that went &#39;BOOM&#39;....!”</t>
+  <t id="2900164">(conversation: L2M900GagaPi02)You mean that you... destroyed a.......</t>
+  <t id="2900165">(conversation: L2M900GagaPi02)No... the ship that the Teladi had them on was damaged by pirates...</t>
+  <t id="2900166">(conversation: L2M900GagaPi02)Oh I see, good these appear to still be operational.</t>
+  <t id="2900167">(conversation: L2M900GagaPi02)Great! So I believe there was some talk of cash and some equipment.</t>
+  <t id="2900168">(conversation: L2M900GagaPi02)Of course here are the credits, we can offer you one of the following as well, which would you like?</t>
+  <t id="2900169">(conversation: L2M900GagaPi02)I&#39;ll take the 10,000 credits and 1 x 5MJ Shield.</t>
+  <t id="2900170">(conversation: L2M900GagaPi02)I&#39;ll take the 10,000 credits and Fight Software II.</t>
+  <t id="2900171">(conversation: L2M900GagaPi02)I&#39;ll take the 10,000 credits and 4 x IRE.</t>
+  <t id="2900172">(Custom Action)Pick up:</t>
+  <t id="2900173">(Name of GNS Action Button)GNS - Action</t>
+  <t id="2900174">(GNS Action)\033YClick here to Mark as read\033X</t>
+  <t id="2900175">(teladi author)Teladi Government</t>
+  <t id="2900176">(destroy teladi warship message)You have destroyed a Teladi vessel, be advised you are now considered a danger to Teladi profit and are an enemy of the Teladi.</t>
+  <t id="2900177">(player sector outs)You coward, fortunately for us some of our people have found us. The Boron curse your name...</t>
+  <t id="2900178">(don't talk to Cai't Plp)I see that all you want to do is waste my time, well I&#39;m out of here before the police arrive...</t>
+  <t id="2900179">(goodbye subtitle)Our engines are fine now and we will be underway shortly... Thanks.</t>
+  <t id="2900180"></t>
+  <t id="2900181"></t>
+  <t id="2900182"></t>
+  <t id="2900183"></t>
+  <t id="2900184"></t>
+  <t id="2900185"></t>
+  <t id="2900186"></t>
+  <t id="2900187"></t>
+  <t id="2900188"></t>
+  <t id="2900189"></t>
+  <t id="2900190"></t>
+  <t id="2900191"></t>
+  <t id="2900192"></t>
+  <t id="2900193"></t>
+  <t id="2900194"></t>
+  <t id="2900195"></t>
+  <t id="2900196"></t>
+  <t id="2900197"></t>
+  <t id="2900198"></t>
+  <t id="2900199"></t>
+  <t id="2900200"></t>
+  <t id="2900201"></t>
+
+
+  <!-- ********************************************************************************** -->
+  <!-- *                           L2M186.Fleet Support                                 * -->
+  <!-- ********************************************************************************** -->
+  <!-- * Dillpickle  -  phil@piroyle.co.uk                                              *-->
+  <!-- **********************************************************************************-->
+
+  <t id="186000">Fleet Support Required.</t>
+  <t id="186100">Fleet Support</t>
+  <t id="186101">{1000,{value@L2M186.ShipText}} {lookup.type.name@{value@L2M186.shipType}}</t>
+  <t id="186102">{1000,{value@LUM187.ShipID}} {lookup.type.name@{value@LUM187 Build.ShipType}}</t>
+  <t id="186103">Deliver Fighters to the front line.</t>
+  <t id="186104">{1000,{value@L2M186.PirateText}} {lookup.type.name@{value@OBS.ShipType}}</t>
+  <t id="186105">{1000,{value@L2M186.ShipText}} {lookup.type.name@{value@OBS.ShipType}}</t>
+  <t id="186201">(variation index Offer A - Deliver Jump Drive)7</t>
+  <t id="186202">One of our ships has suffered a major malfunction.\nWithout an urgent delivery of a {lookup.type.name@{value@{param@Cue}.{param@ID} L0M04Ware1}} the ship may be lost.</t>
+  <t id="186203">{7216,186202}</t>
+  <t id="186204">{7216,186202}</t>
+  <t id="186205">{7216,186202}</t>
+  <t id="186206">{7216,186202}</t>
+  <t id="186207">{7216,186202}</t>
+  <t id="186208">{7216,186202}</t>
+  <t id="186251">Excellent! Transferring your {value@L2M186 Offer A.RewardCr} Credits now.</t>
+  <t id="186252">{7216,186251}</t>
+  <t id="186253">{7216,186251}</t>
+  <t id="186254">{7216,186251}</t>
+  <t id="186255">{7216,186251}</t>
+  <t id="186256">{7216,186251}</t>
+  <t id="186257">{7216,186251}</t>
+
+  <t id="186301">(variation index Offer B - Deliver Missiles)7</t>
+  <t id="186302">Our pilots exploring new sectors, and defending us against enemy attacks are running low on missiles.\nA freighter pilot is needed to resupply these brave {lookup.race.name@{value@L2M186.OfferRace}} pilots.</t>
+  <t id="186303">{7216,186302}</t>
+  <t id="186304">{7216,186302}</t>
+  <t id="186305">{7216,186302}</t>
+  <t id="186306">{7216,186302}</t>
+  <t id="186307">{7216,186302}</t>
+  <t id="186308">{7216,186302}</t>
+  <t id="186351">Excellent! Transferring your {value@L2M186 Offer B.RewardCr} Credits now.</t>
+  <t id="186352">{7216,186351}</t>
+  <t id="186353">{7216,186351}</t>
+  <t id="186354">{7216,186351}</t>
+  <t id="186355">{7216,186351}</t>
+  <t id="186356">{7216,186351}</t>
+  <t id="186357">{7216,186351}</t>
+
+  <t id="186401">(variation index Offer C - Deliver Fighters)7</t>
+  <t id="186402">Fighter support is getting thin on the front lines.\nNew fighters are ready for deployment, we need someone to collect and deliver them.\n\033YYou will need a ship capable of carrying {value@L0M86 FleetSize} fighters to complete the mission.\033X</t>
+  <t id="186403">{7216,186402}</t>
+  <t id="186404">{7216,186402}</t>
+  <t id="186405">{7216,186402}</t>
+  <t id="186406">{7216,186402}</t>
+  <t id="186407">{7216,186402}</t>
+  <t id="186408">{7216,186402}</t>
+  <t id="186410">{actor.name@{param@FleetActor}} at the {object.name@{param@FleetStation}} in {object.sector.name@{param@FleetStation}}.</t>
+  <t id="186411">{param@FleetSize} Fighters to dock.</t>
+  <t id="186412">{7216,186101} in {sector.name@{param@MissionSector}}</t>
+  <t id="186413">{actor.name@{param@CarrierActor}} aboard {7216,186101} in {sector.name@{param@MissionSector}} for fleet transfer.</t>
+  <t id="186414">I'm here to collect some fighters</t>
+  <t id="186415">Sending them over to you now.</t>
+  <t id="186416">Thanks.</t>
+  <t id="186417">We've looked over your ship, and have found it inadequate for this mission.\nPlease find a ship capable of carrying [red]{value@L0M86 FleetSize}[/red] fighters, and return when ready.</t>
+  <t id="186418">Your ship cannot carry {value@L0M86 FleetSize} fighters.  Come back when you have a bigger ship.</t>
+  <t id="186419">You will need to free up space for another [red]{value@L0M86 Hanger Space}[/red] fighters on the hanger deck before we can continue.</t>
+  <t id="186420">OK.</t>
+  <t id="186421">I have a delivery of fighters for you.</t>
+  <t id="186422">Excellant, just in time, ready when you are.</t>
+  <t id="186423">Sending them over now.</t>
+
+  <t id="186430">Wing Commander {random.pilot.{value@L2M186.OfferRace}}</t>
+  <t id="186431">Fleet Manager, {random.pilot.{value@L2M186.OfferRace}}</t>
+  <t id="186440">for every ship safely delivered.</t>
+  <t id="186441">per ship delivered.</t>
+  <t id="186451">It appears that all the ships have been destroyed!!  However it has been decided to give you {value.formatted@L2M186.Fleet Reward} Credits for your efforts.</t>
+  <t id="186452">{7216,186451}</t>
+  <t id="186453">{7216,186451}</t>
+  <t id="186454">{7216,186451}</t>
+  <t id="186455">{7216,186451}</t>
+  <t id="186456">{7216,186451}</t>
+  <t id="186457">{7216,186451}</t>
+  <t id="186461">Excellent! You have safely delivered all the fighters.  Transferring your {value.formatted@L2M186.Fleet Reward} Credits now.</t>
+  <t id="186462">{7216,186461}</t>
+  <t id="186463">{7216,186461}</t>
+  <t id="186464">{7216,186461}</t>
+  <t id="186465">{7216,186461}</t>
+  <t id="186466">{7216,186461}</t>
+  <t id="186467">{7216,186461}</t>
+  <t id="186471">Not bad. You managed to get {group.object.count@L0M86.Fleet Group} out of {value@L2M186.FleetSize} fighters safely delivered.  Transferring your {value.formatted@L2M186.Fleet Reward} Credits now.</t>
+  <t id="186472">{7216,186471}</t>
+  <t id="186473">{7216,186471}</t>
+  <t id="186474">{7216,186471}</t>
+  <t id="186475">{7216,186471}</t>
+  <t id="186476">{7216,186471}</t>
+  <t id="186477">{7216,186471}</t>
+  <t id="186481">{group.object.count@L0M86.Fleet Group} out of {value@L2M186.FleetSize} fighters delivered, that's less than half of them.  Transferring {value.formatted@L2M186.Fleet Reward} Credits, though I'm not sure you deserve it.</t>
+  <t id="186482">{7216,186481}</t>
+  <t id="186483">{7216,186481}</t>
+  <t id="186484">{7216,186481}</t>
+  <t id="186485">{7216,186481}</t>
+  <t id="186486">{7216,186481}</t>
+  <t id="186487">{7216,186481}</t>
+  <t id="186500">It appears time ran out on you my friend.  Only {value@L2M186 Offer C.1 L0M86 Fail Progress} ships arrived before the time expired, we will pay the agreed reward for these.\nA further payment of 50% of the reward value will be made for the other {value@L2M186.TimeOutShips} ships that arrived after time ran out.\n\nYour account has been credited with {value.formatted@L2M186.Fleet Reward} Credits.</t>
+
+
+</page>
+
+	<page id="7212" title="XTC" descr="XTC Framework Texts">
+		<!-- XTC Version Data (7210-7220) -->
+		<t id="7216">01020301</t>
+	</page>	
+</language>

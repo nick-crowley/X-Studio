@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language id="44">
+  <!-- X-Tended - Terran Conflict Mod Textfile 7217, containing the following page ids
+7217: XTC
+-->
+    <page id="17" title="XTC Plot Missions and Character Lines" descr="All the text lines for the XTC's plot missions and all the character lines.">
+
+      <t id="5725">Fuji Station</t>
+    
+    </page>
+    
+  <page id="7217" voice="yes" title="XTC Plot Missions and Character Lines" descr="All the text lines for the XTC's plot missions and all the character lines.">
+    
+    <!--Some stuff for the Interactive Onboard System to prevent ReadTexts-->
+
+    <t id="20">Welcome, how may we help you?</t>
+    <t id="26">Please visit this station's medical bay for a sanity check.</t>
+    <t id="40">Our deepest apologies.</t>
+    <t id="45">This system is not able to provide you with the requested information.</t>
+
+    <!-- *********************************************************************** -->
+    <!-- *********************************************************************** -->
+    <!--                X-Tended - Terran Conflict Plot Missions                 -->
+    <!-- *********************************************************************** -->
+    <!-- *********************************************************************** -->
+
+    <!-- **************************************************************************** -->
+    <!--                  X-Tended - Actor Timings - Do Not Remove!!!!!               -->
+    <!-- **************************************************************************** -->
+
+    <t id="721701">(1000ms) </t>
+    <t id="721702">(1500ms) </t>
+    <t id="721703">(2000ms) </t>
+    <t id="721704">(2500ms) </t>
+    <t id="721705">(3000ms) </t>
+    <t id="721706">(3500ms) </t>
+    <t id="721707">(4000ms) </t>
+    <t id="721708">(4500ms) </t>
+    <t id="721709">(5000ms) </t>
+    <t id="721710">(5500ms) </t>
+    <t id="721711">(6000ms) </t>
+    <t id="721712">(6500ms) </t>
+    <t id="721713">(7000ms) </t>
+    <t id="721714">(7500ms) </t>
+    <t id="721715">(8000ms) </t>
+    <t id="721716">(8500ms) </t>
+    <t id="721717">(9000ms) </t>
+    <t id="721718">(9500ms) </t>
+    <t id="721719">(10000ms) </t>
+
+    <!-- **************************************************************************** -->
+    <!--                  X-Tended - Actor Timings - Do Not Remove!!!!!               -->
+    <!-- **************************************************************************** -->
+
+	<!-- *********************************************************************** -->
+    <!--                     X-Tended - XTC Leviathan Plot                       -->
+    <!-- *********************************************************************** -->
+    <!--Jens Ka-->
+    <t id="30000000">Unfortunate Leviathan</t>
+    <!--Chapter-->
+    <t id="30000001">Medical aid</t>
+    <t id="30000002">Leviathan repair</t>
+    <t id="30000003">Strange events</t>
+    <!--Title-->
+    <t id="30000011">Rescue injured crew</t>
+    <t id="30000012">Deliver medical supplies</t>
+    <t id="30000021">Meeting Request</t>
+    <t id="30000022">Salvage Mission</t>
+    <t id="30000023">Towing the Leviathan</t>
+    <t id="30000024">Special crystal shipment</t>
+    <t id="30000031">Counter Intelligence</t>
+    <t id="30000032">Argon Secret Service</t>
+    <t id="30000033">Patrol Mission</t>
+    <t id="30000034">Busted Flush</t>
+    <!--Briefing texts-->
+    <t id="30000101">Transfer the injured crew members from the Leviathan to medical facilities using a passenger transporter ship.</t>
+    <t id="30000102">Transport medical equipment to the Leviathan. You will need at least {value@XTCLevi_Capter1_MedicalGoods.WareCagoSpace} units of free cargo space for that.</t>
+	<t id="30000103">Injured crew members</t>
+    <t id="30000111">33 injured crew members to {object.name@XTCLevi_toplevel.C1destinationHS}</t>
+    <t id="30000201">Talk to {7217,30001000} to get new instructions.</t>
+    <t id="30000202">Equip a corvette with a tractor beam and return to the Leviathan.</t>
+    <t id="30000203">Take {object.name@XTCLevi_toplevel.Leviathan} to {object.name@XTCLevi_toplevel.SonoraSY} in {sector.name@XTCLevi_toplevel.Sonora}</t>
+	<t id="30000204">Transport special crystals to the shipyard in {sector.name@XTCLevi_toplevel.Sonora} using a freighter with at least {value@XTCLevi_Capter2_Crystals_accept.MinPlayerCagoSpace} units of free cargo space.</t>
+    <t id="30000212">M6 vessel and tractor beam</t>
+    <t id="30000213">{object.name@XTCLevi_toplevel.Leviathan}</t>
+    <t id="30000214">10 {lookup.type.name@SS_WARE_REDCRYSTAL}s, 10 {lookup.type.name@SS_WARE_BLUECRYSTAL}s, 10 {lookup.type.name@SS_WARE_YELLOWCRYSTAL}s</t>
+    <t id="30000301">Patrol the {object.sector.name@XTCLevi_toplevel.Leviathan} sector and scan all ships to locate the suspect vessel.</t>
+    <t id="30000302">Courier the sector scan data to {7217,30001001} for analysis.</t>
+    <t id="30000303">Patrol the sector containing the Leviathan with a corvette or larger vessel.</t>
+    <t id="30000304">Having successfully uncovered the Paranid spy operating in {sector.name@XTCLevi_toplevel.Sonora} there is much to be done, report to {7217,30001001}.\nThis Agent will be your point of contact with us and you will receive your next instructions from them.</t>
+    <t id="30000311">Suspicious ships</t>
+    <t id="30000313">{object.sector.name@XTCLevi_toplevel.Leviathan}</t>
+    <t id="30000314">Update to {7217,30001002} in {object.sector.name@XTCLevi_toplevel.ParanidHS}</t>
+    <t id="30000500">Urgent request</t>
+    <!--New-->
+    <t id="30000520">Wait</t>
+    <t id="30000521">1 Mizura</t>
+    <!--New end-->
+    <!--Character name-->
+    <t id="30001000">Cpt. Gil Salsarna</t>
+    <t id="30001001">Agent Neol Sillarn</t>
+    <t id="30001002">Agent Pael Kayean</t>
+    <t id="30001003">Abmanckarsatt</t>
+    <t id="30001004">Ulmanckulott</t>
+    <t id="30001005">Lt. Nyota Poler</t>
+    <t id="30001006">Ensign Kriss Springer</t>
+    <!--(Cpt. Gil Salsarna)-->
+    <t id="30010000">(conversation 1)Welcome, pilot. Glad to see a volunteer, we could use any help we can get. I have something for you already.</t>
+    <t id="30010001">(conversation 1)We need help with the injured crew. I will inform the Lieutenant to expect a passenger transporter.</t>
+    <t id="30010002">(conversation 3)We have a shortage of good pilots with high levels of navigation experience. Most of our pilots are trained for combat only, so they are obviously not ideal. Are you interested?</t>
+    <t id="30010003">(conversation 3)The Leviathan is currently unable to move, so it will have to be towed to the nearest shipyard. You will need specific equipment for this, ideally an M6 class vessel fitted with a tractor beam. Please return to the Leviathan when you are ready.</t>
+    <t id="30010004">(conversation 3)I do not have the authority to discuss that issue directly with you. Rest assured, you will be paid and I will contact headquarters to confirm the details.</t>
+    <t id="30010005">(conversation 3)OK, you have plenty of time so don't worry. We have to repair several critical systems aboard the Leviathan first.</t>
+    <t id="30010006">(conversation 4)Yes, it appears we don't have any trustworthy freighters available, so we will need external help again. You'll need a transport ship with almost 600 XL free units of cargo space.</t>
+    <t id="30010007">(conversation 4)The cargo will be special conductor crystals for the Leviathan...three different types of them, to be exact. Please obtain the crystals from the specified facility and get them to the Leviathan. That's it!</t>
+    <t id="30011001">(IM)We have a new mission for you. Please come to the shipyard.</t>
+    <t id="30011002">(IM)Freight received. Good work, pilot.</t>
+    <t id="30011003">Thank you, the Leviathan is now close enough to the shipyard. We will contact you shortly about a new mission.</t>
+    <t id="30011004">(IM)Please obtain a freighter and return to the {sector.name@XTCLevi_toplevel.Sonora} shipyard as soon as possible. We need your help for a certain task.</t>
+    <t id="30011005">(IM)You've been a great help pilot! Without your invaluable assistance we wouldn't have been able to get all the necessary materials to repair the Leviathan. The {7217,32000001} will be back on duty soon.\n\nIn recognition of all the support you've given us, we are going to reward you with {value@XTCLevi_toplevel.WareAmount1} {lookup.type.name@{value@XTCLevi_toplevel.WareTyp1}}s.\n\n{7217,30001000}</t>
+    <t id="30011006">(IM)Hello, pilot. We've just had another accident involving the {7217,32000001} and this time it looks more like deliberate sabotage. Our intelligence leads us to believe that someone nearby is monitoring the Leviathan to coordinate these attacks. Please help us to scan all the ships in {sector.name@XTCLevi_toplevel.Sonora} before they depart.</t> 
+    <t id="30011007">(IM)Pilot! We have just experienced a major incident on the Leviathan's shield generator deck. We are not completely certain of what's happening here and why, but we obviously have a bad apple in the barrel...and it's starting to smell!\n\nPlease make contact with {7217,30001001} and hand over a copy of the sector scan data for further analysis. I have transmitted an encrypted copy of this to your ship's computer.</t>
+    <t id="30011008">(IM)Pilot! The ship which is drifting nearby almost motionless, appears to be the enemy vessel we are looking for.\nDestroy it immediately!</t>
+    <t id="30011009">(IM)Good work, I think that'll be the last time we ever see him again!\nReport to {7217,30001001} at the {object.name@XTCLevi_toplevel.MAstation} to receive further instructions.</t>
+    <t id="30011010">(IM)Good work pilot! I think we have found our spy. That ship was already under surveillance as it had been behaving suspiciously for quite some time. Every time we altered our course, it changed its flight path too.\n\nReport to {7217,30001001} at the outpost. There you will get further instructions.</t>
+    <t id="30011011">(IM)As you have done a such a great job for the Argon military and the Argon Secret Service, the Senate has decided to reward you with something very special.\n\nYou have been granted a license for unlimited production of the Leviathan class ships. You will find a copy of the plans in your Shipyard Control Centre, fully usable should you have a shipyard of your own.</t>
+    <t id="30011012">(IM)Whatever you did with the missing crystals scoundrel, I do hope it wasn't too profitable for you.\nI have informed the authorities and so I suggest you leave immediately!</t>
+    <!--(Agent Neol Sillarn)-->
+    <t id="30020000">(conversation IM)</t>
+    <t id="30021001">Pilot, dock at the {object.name@XTCLevi_toplevel.MAstation}. Then we can talk.</t>
+    <t id="30021002">Thanks pilot, I am downloading the scan data...\n\nWe have already studied the last incident and I agree with {7217,30001000}, these cannot simply be random occurrences! Unfortunately, your scan doesn't reveal anything extraordinary, but that's not really surprising. We are still somewhat unsure on this matter, however I have a small mission for you.\n\nYou might need to change to another ship and starting from a position close to the {7217,32000001}, patrol the sector and visit various stations. Use a corvette or something even bigger and more flash, just to attract some attention, if you know what I mean!</t>
+    <t id="30021003">Ah, pilot. The {7217,32000001} has now finally left {sector.name@XTCLevi_toplevel.Sonora} space and we are thinking of rotating the crew for some shore leave. For us that's usually the best opportunity to uncover any saboteurs...\n\nI have some sensitive documents containing an update about recent events that need to be taken to {7217,30001002} in Paranid space. Hand them over only to him and to nobody else. {7217,30001002} is at the {object.name@XTCLevi_toplevel.ParanidHS} in the sector {object.sector.name@XTCLevi_toplevel.ParanidHS}.</t>
+    <t id="30021004">Did you notice that you have been followed here all the way back here from Paranid space?!\n\nI have an idea but we must act quickly. Fly away from here and visit several sectors pretending as if you're on another mission; hopefully your tail will take the bait. Your ship's computer has been sent a suggested flight plan. If you haven't managed to lose him after crossing a few sectors, find somewhere quiet, and... well, you know what to do don't you?\nI am convinced that this will work... if not, we can always get a new volunteer, so no big deal.\n\nGood luck!</t>
+    <t id="30021005">Excellent, this has worked out better than expected. You have managed to expose a second spy, who will be terminated very soon if you haven't already done it for us of course...\n\nDuring the Leviathan crew rotation we found one or two traitors amongst them and they have now been taken in for questioning. One of them was even an officer, what a disgrace! I'm unable to give you any further instructions at this time but no doubt you will be contacted by the military soon.</t>
+    <!--(Agent Pael Kayean)-->
+    <t id="30030000">(conversation 5)Who are you and what do you want?</t>
+    <t id="30030001">(conversation 5)Oh... a courier, then it's true! You must leave me now and fly away or we might both be detected.</t>
+    <!--(Abmanckarsatt)-->
+    <t id="30040000">(conversation 6)The Holy Three-Dimensionality has a glorious task for you! The Holy Three-Dimensionality knows that you care not about fame, but much about credits and there will be many, if you fulfill our bidding.\n\nDo you agree to help us?</t>
+    <t id="30040001">(conversation 6)Scan the Leviathan, before towing it to the shipyard.</t>
+    <t id="30040010">(conversation 7)The Holy Three-Dimensionality has a job for you! Just dock at the station we will specify and wait there for one mizura.\n\nWill you fulfill this task?</t>
+    <t id="30040011">(IM)The Holy Three-Dimensionality thanks you.</t>
+    <t id="30040012">(IM)You must wait for one mizura! The Holy Three-Dimensionality is not yet ready.</t>
+    <t id="30040020">(conversation 8a)This devout servant of the Holy Three-Dimensionality urgently requires 20 energy cells. May be you have sufficient onboard? Begging from infidels is strictly forbidden, but I have much need.\n\nWill you transfer what I need as a humble offering to the Holy Light?</t>
+    <t id="30040021">(IM)The Holy Three-Dimensionality thanks you.</t>
+    <t id="30040025">(conversation 8b)The Holy Three-Dimensionality will not be pleased if you kill this holy servant. Your reward will be increased if you show mercy and let me return to them.\n\nWill you let me retreat unharmed?</t>
+    <t id="30040026">(IM)The Holy Three-Dimensionality thanks you and withdraws.</t>
+    <t id="30040027">(IM)Encrypted Transmission\n\nMessage content reads...\n\n   I need you to contact me urgently before you start towing the Leviathan.\n   It may be possible for you to help me with a small request.\n\n > Message end</t>
+    <t id="30040028">(IM)Encrypted Transmission\n\nMessage content reads...\n\n   Before you transport the crystals to the Leviathan, please contact me urgently.\n   I have an interesting proposition for you!\n\n > Message end</t>
+    <t id="30040029">(IM)Encrypted Transmission\n\nMessage content reads...\n\n   I have been monitoring your communications, please contact me.\n   Please show mercy and let me live, I require your assistance!\n\n > Message end</t>
+    <!--(Ulmanckulott)-->
+    <t id="30050000">(conversation 9)Before you fulfill your task, the Holy Three-Dimensionality requests time for contemplation.\n\nDo you give us this time?</t>
+    <t id="30050001">(IM)The Holy Three-Dimensionality thanks you again. Fulfill your task and destroy my ship.</t>
+    <t id="30050002">(IM)Encrypted Transmission\n\nMessage content reads...\n\n   I have become aware of your intentions and pray otherwise.\n\n   Before destroying my ship, please contact me on board.\n   Perhaps we can find a mutual solution to our problem!\n\n > Message end</t>
+    <!--(Lt. Nyota Poler)-->
+    <t id="30060000">(conversation IM)</t>
+    <t id="30060001">(IM)Pilot! We were expecting a passenger transporter as we have many casualties. Please return when you have one.</t>
+    <t id="30060002">(IM)Pilot, please hold your position. We are starting to transport the injured people.</t>
+    <t id="30060003">(IM)When did you last have a look in your cargo bay pilot!? You will notice that you cannot carry much else. Please return when you have more cargo space.</t>
+    <t id="30060004">(IM)The medical wares are onboard, thanks pilot. We've heard that {7217,30001000} has something new for you...</t>
+    <!--(Ensign Kriss Springer)-->
+    <t id="30070001">(Conversation)Good work so far, pilot. We have another mission for you.\nI have sent you the data...</t>
+    <t id="30071001">(IM)You have brought disgrace to the reputation of pilots everywhere! You volunteered to help but injured crew members entrusted to you are now missing. We have taken note of your shameful actions and will think twice about accepting your assistance in the future!</t>
+    <!--Player lines-->
+    <t id="30080000">(conversation 1)Signing up for the rescue.</t>
+    <t id="30080001">(conversation 1)OK. What needs to be done?</t>
+    <t id="30080002">(conversation 1)I have no time for this.</t>
+    <t id="30080003">(conversation 2)I am reporting in.</t>
+    <t id="30080004">(conversation 2)OK.</t>
+    <t id="30080005">(conversation 3)You have something for me?</t>
+    <t id="30080006">(conversation 3)What do you need doing?</t>
+    <t id="30080007">(conversation 3)Alright, but what about my payment?</t>
+    <t id="30080008">(conversation 3)OK, I will return when I am ready.</t>
+    <t id="30080009">(conversation 4)You wanted to talk with me?</t>
+    <t id="30080010">(conversation 4)What will I be carrying?</t>
+    <t id="30080011">(conversation 4)That seems OK.</t>
+    <t id="30080012">(conversation 5)I was sent to find you.</t>
+    <t id="30080013">(conversation 5)I was ordered to hand these documents over to you.</t>
+    <t id="30080014">(conversation 1 and 5)OK!</t>
+    <t id="30080015">Yes</t>
+    <t id="30080016">No</t>
+    <t id="30080017">How can I help?</t>
+    <t id="30090000">(IM)The Holy Three-Dimensionality thanks you. We will hand your promised reward over to you at the {object.name@XTCLevi_toplevel.ParanidHS} in the sector {object.sector.name@XTCLevi_toplevel.ParanidHS}. There you will receive {value@XTCLevi_toplevel.ParandSpy} cargo boxes each containing a {lookup.type.name@{value@XTCLevi_toplevel.WareTyp2}} as your reward.</t>
+    <t id="30090001">(IM)We are very disappointed in you pilot! The Argon Federation does not tolerate either traitors or spies amongst us.\n\nWe will be watching you!</t>
+    <!--GNS article-->
+    <t id="31000000">Accident in Blade's Edge</t>
+    <t id="31000001">A rapidly approaching comet concealed by the local sun has collided with a Leviathan class ship. The shields have collapsed and the ship is heavily damaged. An unknown number of crew have been killed or injured. All pilots are urgently requested to save the remaining crew members, so please, if you can help, contact me.\n\n{7217,30001000}, Leviathan '{7217,32000001}'</t>
+    <t id="31000010">Severe setback for the Argon military</t>
+    <t id="31000011">Although officially denied, it is being reported by various sources that a Leviathan class ship has been retired from active duty due to recent heavy damage. Our informants claim that the reactor on the ship was sabotaged by terrorists who then went on to damage other secondary systems leaving the ship almost beyond repair. The \033WArgon\033X \033WSecret\033X \033WService\033X refuses to give any further information, except that there were no survivors among the crew and that the ship shall be scrapped after an internal investigation has been concluded.\n\nJack Forster - Interstellar Broadcast Company</t>
+    <!--Mission Journal-->
+    <!--New-->
+	<t id="31000501">Having volunteered for rescue duty, I was instructed by {7217,30001000} to make my way to the stricken vessel, a Leviathan class ship named '{7217,32000001}'. Upon arriving there, the casualties were soon transferred to my personal transporter. I then made it fast to the Argon Trading Station in Sonora, where the rescued crew members were transferred and treated for their injuries.</t>
+
+
+    <t id="31000502">At the Argon Trading Station I received new instructions from {7217,30001006} and with a load of medical supplies onboard I returned to the '{7217,32000001}'. After transferring the cargo, I received a brief message from {7217,30001005} informing me that I should talk again with {7217,30001000}.</t>
+    <t id="31000503">After an interesting video conference with {7217,30001000}, I was requested to find and pilot a corvette class vessel fitted out with a tractor beam. Once I had managed to obtain this, I then returned once again to the '{7217,32000001}'.</t>
+    <t id="31000504">After my arrival alongside the '{7217,32000001}', I locked onto the vessel with a tractor beam and then towed it all the way to the shipyard in Sonora. Upon arriving at the shipyard, {7217,30001000} took command of the stricken ship and then let me know that further missions might soon be coming my way.</t>
+    <t id="31000505">I received a surprise message requesting that I should contact {7217,30001000}. He asked me to transport some crystals to repair teams working on the '{7217,32000001}'. Eventually arriving with my freighter at the crystal fab, the station people quickly transferred some unusual types of crystal aboard. I then headed back to the shipyard in Sonora, where this cargo was unloaded and I finally received some compensation for all my troubles.</t>
+    <t id="31000506">Another call from {7217,30001000}! This time he asked me to help the local security forces scan all shipping in the vicinity of the '{7217,32000001}', I accepted. Returning to Sonora as quickly as I could, I immediately began scanning any ships that looked suspicious. Not long after I got started, I was informed by the Captain that I should courier all the scanning data that we had collected to an {7217,30001001}.</t>
+    <t id="31000507">I docked at the station where {7217,30001001} was based and I handed over the scanning data to him. From this agent I then got my next mission, to patrol the area of space near the '{7217,32000001}' with a corvette or a larger ship.</t>
+    <t id="31000508">During my sector patrol, the '{7217,32000001}' was attacked by a massive group of pirates. In the heat of the battle {7217,30001000} instructed me to destroy what he believed to be a small command ship coordinating the enemy action. Once the fight had ended I was ordered to contact {7217,30001001} again to bring him up to speed on recent events.</t>
+
+    <t id="31000509">I arrived to speak with {7217,30001001} and I was informed that due to a suspicion that the crew had become infiltrated, the '{7217,32000001}' had been withdrawn from active duty. They then asked me to courier some sensitive documents to an {7217,30001002} working covertly in Paranid space, which I did as quickly as possible. {7217,30001002} didn't seem too pleased to see me, and he immediately ordered me away and I returned to {7217,30001001}. Upon arriving I was shocked to find out that I'd been followed the whole way, I just hadn't noticed the tail! {7217,30001001} asked me to 'handle' the delicate situation I'd created, which I did of course in my own distinctive style - ending the whole affair, terminally.</t>
+
+    <t id="31000510">A great tazura! {7217,30001000} has been in contact to give thanks personally from both the Argon Secret Service and the military. The Argon Senate has decided to provide me with the license for unlimited production of the Leviathan-class at my own shipyards. All I need now are the credits...!</t>
+    <t id="31000511">After a short while I got two messages. One from the Argon authorities, who had unmasked me as spy, which seriously reduced my reputation.\nThe second message was from the Paranids, who sent me to a station to get my reward.</t>
+    <!--New end-->
+    <t id="31001000">{7217,31000000}\n\n{7217,31000001}</t>
+    <t id="31001001">{7217,31000000}\n\n{7217,31000001}\n\n\033W{7217,30000011}\033X\n> {7217,31000501}</t>
+    <t id="31001002">{7217,31000000}\n\n{7217,31000001}\n\n\033W{7217,30000011}\033X\n> {7217,31000501}\n\n\033W{7217,30000012}\033X\n> {7217,31000502}</t>
+
+    <t id="31001003">\033W{7217,30000022}\033X\n> {7217,31000503}</t>
+    <t id="31001004">\033W{7217,30000022}\033X\n> {7217,31000503}\n\n\033W{7217,30000023}\033X\n> {7217,31000504}</t>
+    <t id="31001005">\033W{7217,30000022}\033X\n> {7217,31000503}\n\n\033W{7217,30000023}\033X\n> {7217,31000504}\n\n\033W{7217,30000024}\033X\n> {7217,31000505}</t>
+
+    <t id="31001006">\033W{7217,30000031}\033X\n> {7217,31000506}</t>
+    <t id="31001007">\033W{7217,30000031}\033X\n> {7217,31000506}\n\n\033W{7217,30000032}\033X\n> {7217,31000507}</t>
+    <t id="31001008">\033W{7217,30000031}\033X\n> {7217,31000506}\n\n\033W{7217,30000032}\033X\n> {7217,31000507}\n\n\033W{7217,30000033}\033X\n> {7217,31000508}</t>
+    <t id="31001009">\033W{7217,30000031}\033X\n> {7217,31000506}\n\n\033W{7217,30000032}\033X\n> {7217,31000507}\n\n\033W{7217,30000033}\033X\n>  {7217,31000508}\n\n\033W{7217,30000034}\033X\n> {7217,31000509}</t>
+    <t id="31001010">\033W{7217,30000031}\033X\n> {7217,31000506}\n\n\033W{7217,30000032}\033X\n> {7217,31000507}\n\n\033W{7217,30000033}\033X\n> {7217,31000508}\n\n\033W{7217,30000034}\033X\n> {7217,31000509}\n\n\033WPay Day\033X\n> {7217,31000510}</t>
+    <t id="31001011">\033W{7217,30000031}\033X\n> {7217,31000506}\n\n\033W{7217,30000032}\033X\n> {7217,31000507}\n\n\033W{7217,30000033}\033X\n> {7217,31000508}\n\n\033W{7217,30000034}\033X\n> {7217,31000509}\n\n\033WMixed Blessings\033X\n> {7217,31000511}</t>
+    <!--Object names-->
+    <t id="32000001">AP Moonrat</t>
+    <!--New end-->
+    <t id="39999999">space holder</t>
+
+	
+	
+
+    <!-- *********************************************************************** -->
+    <!--                     X-Tended - XTC Lifeforms Plot                       -->
+    <!-- *********************************************************************** -->
+    <!-- Xelonir -->
+
+    <!-- Story -->
+    <t id="45000000">The Seekers</t>
+
+    <!-- TEXTS REMOVED FOR PREVIEW -->
+
+    <!-- End of DH texts -->
+    <t id="49999999">End of Dragonhunter texts</t>
+
+  </page>
+	<page id="7212" title="XTC" descr="XTC Framework Texts">
+		<!-- XTC Version Data (7210-7220) -->
+		<t id="7217">01020301</t>
+	</page>	
+</language>

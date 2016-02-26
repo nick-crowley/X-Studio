@@ -1,0 +1,963 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="CBJ" alias="CBJ" contact="CBJ"/>
+    <content reference="start" name="start" description="Initial actions for different gamestarts"/>
+    <version number="1.2" date="09/07/08" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="start">
+      <documentation>
+        <content name="start" reference="Startup" type="L3"/>
+        <version number="1.2" date="09/07/08" status="testing"/>
+        <history>
+          <change date="11/08/08" author="al_main" description="Fixed engine tunings in Poisoned Paranid and added 4 FDs"/>
+          <change date="09/07/08" author="al_main" description="Fixed and added the start unlocks"/>
+          <change date="12/05/08" author="al_main" description="Relations added to teladi start, ATF corrected to 0%"/>
+          <change date="09/05/08" author="Owen Lake" description="Added player age check"/>
+          <change date="07/05/08" author="al_main" description="Initial version of X3TC starts"/>
+          <change date="18/04/08" author="CBJ" description="Example version of X3R starts"/>
+        </history>
+        <todo>
+          <item priority="medium" description="Remove testing {player.age} check before release"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_choose>
+          <do_when value="{player.age}" min="20">
+            <do_choose>
+              <do_when value="{player.gamestart}" exact="101" comment="Terran Defender">
+                <set_value name="Terran Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="102" comment="USC Commander">
+                <set_value name="Terran Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="104" comment="Argon Patriot">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="105" comment="Humble Merchant">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="106" comment="Bankrupt Assassin">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="110" comment="Tormented Teladi">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="111" comment="Poisoned Paranid">
+
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="112" comment="Aldran Adventurer">
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="113" comment="Goner Witness">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="114" comment="Unholy Traitor">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="116" comment="Teladi Trafficker">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="117" comment="Yaki Insurgent">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="118" comment="Lost Lar">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="119" comment="Savage Split">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+
+              <do_when value="{player.gamestart}" exact="141" comment="Anonymous Argon">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="142" comment="Boring Boron">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="143" comment="Pious Paranid">
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_otherwise>
+                <set_value name="this.temp" exact="1"/>
+              </do_otherwise>
+            </do_choose>
+          </do_when>
+          <do_otherwise>
+            <do_choose>
+              <do_when value="{player.gamestart}" exact="101" comment="Terran Defender">
+                <reward_player>
+                  <money exact="1000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral-8"/>
+                    <relation race="boron" operation="set" exact="neutral-11"/>
+                    <relation race="paranid" operation="set" exact="foe-2"/>
+                    <relation race="split" operation="set" exact="foe-5"/>
+                    <relation race="teladi" operation="set" exact="neutral-5"/>
+                    <relation race="goner" operation="set" exact="neutral+5"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop2}"/>
+                    <relation race="terran" operation="set" exact="neutral" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="enemy" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_B" exact="4"/>
+                    <ware typename="SS_LASER_EMP" exact="2"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1"/>
+                    <ware typename="SS_MISSILE_POLTERGEIST" exact="3"/>
+                    <ware typename="SS_WARE_TECH213" exact="({player.ship.equipment.SS_WARE_TECH213.maxcount}/5)*4" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH242" exact="1" comment="Video Enhancement Goggles"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/4+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}/3+1" comment="Cargo Bay Extension"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop2}"/>
+                <set_value name="Terran Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="102" comment="USC Commander">
+                <reward_player>
+                  <money exact="1000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral"/>
+                    <relation race="boron" operation="set" exact="neutral-6"/>
+                    <relation race="paranid" operation="set" exact="foe-11"/>
+                    <relation race="split" operation="set" exact="foe-23"/>
+                    <relation race="teladi" operation="set" exact="neutral+2"/>
+                    <relation race="goner" operation="set" exact="neutral+7"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop7}"/>
+                    <relation race="terran" operation="set" exact="friend" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="neutral-13" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_C" exact="2"/>
+                    <ware typename="SS_LASER_EMP" exact="6"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/2+1" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH242" exact="1" comment="Video Enhancement Goggles"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/2+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}" comment="Cargo Bay Extension"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop7}"/>
+                <set_value name="Terran Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="104" comment="Argon Patriot">
+                <reward_player>
+                  <money min="1800" max="2000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="friend"/>
+                    <relation race="boron" operation="set" exact="friend-2"/>
+                    <relation race="paranid" operation="set" exact="shunned"/>
+                    <relation race="split" operation="set" exact="nodock"/>
+                    <relation race="teladi" operation="set" exact="neutral"/>
+                    <relation race="goner" operation="set" exact="friend"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@noton1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_B" exact="2"/>
+                    <ware typename="SS_LASER_PAC" exact="4"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_L_A" exact="1"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="({player.ship.equipment.SS_WARE_TECH213.maxcount}/4)*3" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH242" exact="1" comment="Video Enhancement Goggles"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/4+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}/3+1" comment="Cargo Bay Extension"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="105" comment="Humble Merchant">
+                <reward_player>
+                  <money min="9000" max="9900"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral"/>
+                    <relation race="boron" operation="set" exact="friend"/>
+                    <relation race="paranid" operation="set" exact="foe-25"/>
+                    <relation race="split" operation="set" exact="foe-36"/>
+                    <relation race="teladi" operation="set" exact="neutral"/>
+                    <relation race="goner" operation="set" exact="friend"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@noton1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_B" exact="1"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/2"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/2"/>
+                  </equipment>
+                  <property>
+                    <ship typename="SS_SH_A_M5">
+                      <equipment>
+                        <ware typename="SS_SHIELD_A" exact="2"/>
+                        <ware typename="SS_WARE_TECH231" exact="1"/>
+                        <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/4"/>
+                      </equipment>
+                    </ship>
+                  </property>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="106" comment="Bankrupt Assassin">
+                <reward_player>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral+9"/>
+                    <relation race="boron" operation="set" exact="enemy-35"/>
+                    <relation race="paranid" operation="set" exact="enemy-46"/>
+                    <relation race="split" operation="set" exact="neutral-1"/>
+                    <relation race="teladi" operation="set" exact="neutral-5"/>
+                    <relation race="goner" operation="set" exact="friend"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@noton2}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="neutral" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_C" exact="1"/>
+                    <ware typename="SS_LASER_HEPT" exact="2"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                    <ware typename="SS_WARE_TECH242" exact="1"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/2"/>
+                    <ware typename="SS_WARE_SW_NAV_1" exact="1"/>
+                    <ware typename="SS_WARE_SW_FIGHT_1" exact="1"/>
+                    <ware typename="SS_WARE_SW_FIGHT_2" exact="1"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop2}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="110" comment="Tormented Teladi">
+                <reward_player>
+                  <money min="1750" max="2000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral-2"/>
+                    <relation race="boron" operation="set" exact="neutral+7"/>
+                    <relation race="paranid" operation="set" exact="neutral-2"/>
+                    <relation race="split" operation="set" exact="neutral-17"/>
+                    <relation race="teladi" operation="set" exact="neutral-8"/>
+                    <relation race="goner" operation="set" exact="neutral"/>
+                    <relation race="pirate" operation="set" exact="foe"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@noton1}"/>
+                    <relation race="terran" operation="set" exact="shunned+18" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_A" exact="1"/>
+                    <ware typename="SS_LASER_IRE" exact="2"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="4" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/3+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="({player.ship.equipment.SS_WARE_TECH251.maxcount}*3)/4+1" comment="Cargo Bay Extension"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="111" comment="Poisoned Paranid">
+                <reward_player>
+                  <money min="7750" max="11000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="noton2"/>
+                    <relation race="boron" operation="set" exact="noton1"/>
+                    <relation race="paranid" operation="set" exact="enemy"/>
+                    <relation race="split" operation="set" exact="neutral"/>
+                    <relation race="teladi" operation="set" exact="neutral+3"/>
+                    <relation race="goner" operation="set" exact="neutral-6"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@noton2}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_C" exact="2"/>
+                    <ware typename="SS_LASER_IRE" exact="1"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_SW_FIGHT_1" exact="1" comment="Fight Command Software MkI"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_FIGHTDRONE" exact="4" comment="Fighter drones"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="({player.ship.equipment.SS_WARE_TECH213.maxcount}*3)/4" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/2+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="({player.ship.equipment.SS_WARE_TECH251.maxcount}*3)/4+1" comment="Cargo Bay Extension"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop2}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="112" comment="Aldran Adventurer">
+                <reward_player>
+                  <money min="4000" max="4150"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral+5"/>
+                    <relation race="boron" operation="set" exact="neutral-9"/>
+                    <relation race="paranid" operation="set" exact="enemy+112"/>
+                    <relation race="split" operation="set" exact="foe-21"/>
+                    <relation race="teladi" operation="set" exact="neutral+3"/>
+                    <relation race="goner" operation="set" exact="27"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop7}"/>
+                    <relation race="terran" operation="set" exact="friend-32"/>
+                    <relation race="yaki" operation="set" exact="shunned"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_C" exact="2"/>
+                    <ware typename="SS_LASER_EMP_1" exact="5"/>
+                    <ware typename="SS_WARE_BOOST" exact="1" comment="Boost Extension"/>
+                    <ware typename="SS_WARE_WARPING" exact="1" comment="Jumpdrive"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/2+1" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/3+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="({player.ship.equipment.SS_WARE_TECH251.maxcount}*3)/4+1" comment="Cargo Bay Extension"/>
+                  </equipment>
+                  <map>
+                    <sector x="11" y="3"/>
+                    <sector x="13" y="4"/>
+                    <sector x="1" y="3"/>
+                    <sector x="13" y="6"/>
+                  </map>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop7}"/>
+                <find_gate name="this.tempgate" gate="south">
+                  <sector x="11" y="3"/>
+                </find_gate>
+                <set_known object="this.tempgate" known="1"/>
+                <find_gate group="this.gates" multiple="1" max="6">
+                  <sector x="1" y="3"/>
+                </find_gate>
+                <find_station group="this.gates" multiple="1" max="6" class="dock">
+                  <sector x="1" y="3"/>
+                </find_station>
+                <find_gate group="this.gates" multiple="1" max="6">
+                  <sector x="13" y="6"/>
+                </find_gate>
+                <find_station group="this.gates" multiple="1" max="6" class="dock">
+                  <sector x="13" y="6"/>
+                </find_station>
+                <find_gate group="this.gates" multiple="1" max="6">
+                  <sector x="13" y="4"/>
+                </find_gate>
+                <set_group_known group="this.gates" known="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="113" comment="Goner Witness">
+                <reward_player>
+                  <money exact="350"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="friend-3"/>
+                    <relation race="boron" operation="set" exact="neutral-5"/>
+                    <relation race="paranid" operation="set" exact="foe-26"/>
+                    <relation race="split" operation="set" exact="foe-45"/>
+                    <relation race="teladi" operation="set" exact="neutral+1"/>
+                    <relation race="goner" operation="set" exact="friend+2"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop2}"/>
+                    <relation race="terran" operation="set" exact="friend-12" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe+2" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_C" exact="1"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH213" exact="(3*{player.ship.equipment.SS_WARE_TECH213.maxcount})/4+1" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH242" exact="1" comment="Video Enhancement Goggles"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/3+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_BEAMING" exact="1" comment="Transporter Device"/>
+                  </equipment>
+                  <cargo>
+                    <ware typename="SS_WARE_ENERGY" exact="23"/>
+                  </cargo>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop2}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="114" comment="Unholy Traitor">
+                <reward_player>
+                  <money min="20000" max="24000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral-5"/>
+                    <relation race="boron" operation="set" exact="foe"/>
+                    <relation race="paranid" operation="set" exact="min+42"/>
+                    <relation race="split" operation="set" exact="min+112"/>
+                    <relation race="teladi" operation="set" exact="neutral+6"/>
+                    <relation race="goner" operation="set" exact="neutral-3"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="neutral" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_B" exact="1"/>
+                    <ware typename="SS_LASER_PBE" exact="6"/>
+                    <ware typename="SS_LASER_PAC" exact="2"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/4+1" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH242" exact="1" comment="Video Enhancement Goggles"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/4+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}/2+1" comment="Cargo Bay Extension"/>
+                  </equipment>
+                  <map>
+                    <sector x="15" y="15"/>
+                    <sector x="15" y="3"/>
+                    <sector x="18" y="5"/>
+                    <sector x="7" y="2"/>
+                    <sector x="8" y="3"/>
+                    <sector x="6" y="4"/>
+                    <sector x="1" y="6"/>
+                    <sector x="9" y="13"/>
+                    <sector x="11" y="14"/>
+                  </map>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="116" comment="Teladi Trafficker">
+                <reward_player>
+                  <money exact="12693" comment="Nice little tie-in with Farnham's Legend"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral-5"/>
+                    <relation race="boron" operation="set" exact="friend-28"/>
+                    <relation race="paranid" operation="set" exact="foe+2"/>
+                    <relation race="split" operation="set" exact="foe+1"/>
+                    <relation race="teladi" operation="set" exact="neutral+7"/>
+                    <relation race="goner" operation="set" exact="neutral+2"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe-8" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe-12" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_B" exact="1"/>
+                    <ware typename="SS_WARE_TECH251" exact="20"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_hull exact="71"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="117" comment="Yaki Insurgent">
+                <reward_player>
+                  <money min="2000" max="4000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="hunted"/>
+                    <relation race="boron" operation="set" exact="shunned"/>
+                    <relation race="paranid" operation="set" exact="enemy"/>
+                    <relation race="split" operation="set" exact="foe"/>
+                    <relation race="teladi" operation="set" exact="neutral+6"/>
+                    <relation race="goner" operation="set" exact="foe+2"/>
+                    <relation race="pirate" operation="set" exact="neutral"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="friend" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_C" exact="2"/>
+                    <ware typename="SS_LASER_PBE" exact="6"/>
+                    <ware typename="SS_LASER_PAC" exact="2"/>
+                    <ware typename="SS_WARE_BOOST" exact="1" comment="Boost Extension"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/4+1" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH242" exact="1" comment="Video Enhancement Goggles"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/4+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}/2+1" comment="Cargo Bay Extension"/>
+                  </equipment>
+                  <map>
+                    <sector x="0" y="7"/>
+                    <sector x="0" y="8"/>
+                    <sector x="0" y="9"/>
+                    <sector x="0" y="10"/>
+                    <sector x="1" y="3"/>
+                    <sector x="1" y="6"/>
+                    <sector x="1" y="7"/>
+                  </map>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="118" comment="Lost Lar">
+                <reward_player>
+                  <money min="12000" max="14000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="hunted"/>
+                    <relation race="boron" operation="set" exact="shunned"/>
+                    <relation race="paranid" operation="set" exact="enemy"/>
+                    <relation race="split" operation="set" exact="foe"/>
+                    <relation race="teladi" operation="set" exact="neutral+6"/>
+                    <relation race="goner" operation="set" exact="foe+2"/>
+                    <relation race="pirate" operation="set" exact="foe"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_C" exact="2"/>
+                    <ware typename="SS_LASER_PBE" exact="6"/>
+                    <ware typename="SS_LASER_PAC" exact="2"/>
+                    <ware typename="SS_WARE_BOOST" exact="1" comment="Boost Extension"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1" comment="Duplex Scanner"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/2+1" comment="Engine Tunings"/>
+                    <ware typename="SS_WARE_TECH231" exact="1" comment="SETA"/>
+                    <ware typename="SS_WARE_TECH242" exact="1" comment="Video Enhancement Goggles"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/2+1" comment="Rudder Optomisation"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}" comment="Cargo Bay Extension"/>
+                  </equipment>
+                  <map>
+                    <sector x="18" y="3"/>
+                  </map>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="119" comment="Savage Split">
+                <reward_player>
+                  <money exact="1400"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="enemy-415"/>
+                    <relation race="boron" operation="set" exact="enemy-936"/>
+                    <relation race="paranid" operation="set" exact="neutral"/>
+                    <relation race="split" operation="set" exact="neutral"/>
+                    <relation race="teladi" operation="set" exact="neutral-2"/>
+                    <relation race="goner" operation="set" exact="enemy"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="enemy" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_A" exact="2"/>
+                    <ware typename="SS_LASER_PAC" exact="2"/>
+                    <ware typename="SS_MISSILE_2" min="2" max="5"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                    <ware typename="SS_WARE_TECH246" exact="3"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+
+              <do_when value="{player.gamestart}" exact="141" comment="Anonymous Argon">
+                <reward_player>
+                  <money exact="2500"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral"/>
+                    <relation race="boron" operation="set" exact="friend"/>
+                    <relation race="paranid" operation="set" exact="foe-15"/>
+                    <relation race="split" operation="set" exact="foe-13"/>
+                    <relation race="teladi" operation="set" exact="neutral"/>
+                    <relation race="goner" operation="set" exact="friend"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_A" exact="1"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/4"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="142" comment="Boring Boron">
+                <reward_player>
+                  <money exact="2000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral"/>
+                    <relation race="boron" operation="set" exact="friend"/>
+                    <relation race="paranid" operation="set" exact="enemy-15"/>
+                    <relation race="split" operation="set" exact="enemy-363"/>
+                    <relation race="teladi" operation="set" exact="neutral"/>
+                    <relation race="goner" operation="set" exact="neutral"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_A" exact="1"/>
+                    <ware typename="SS_WARE_TECH213" exact="2"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="143" comment="Pious Paranid">
+                <reward_player>
+                  <money exact="3633"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="foe-36"/>
+                    <relation race="boron" operation="set" exact="foe-33"/>
+                    <relation race="paranid" operation="set" exact="neutral"/>
+                    <relation race="split" operation="set" exact="neutral"/>
+                    <relation race="teladi" operation="set" exact="foe-2"/>
+                    <relation race="goner" operation="set" exact="foe-3"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min" mutual="1"/>
+                    <relation race="xenon" operation="set" exact="min" mutual="1"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_A" exact="2"/>
+                    <ware typename="SS_WARE_TECH213" exact="2"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                  </equipment>
+                </reward_player>
+                <set_hull exact="76"/>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                <set_value name="Terran Link Plot" exact="1"/>
+                <set_value name="HUB Plot" exact="1"/>
+                <set_value name="HQ Plot" exact="1"/>
+              </do_when>
+
+              <do_when value="{player.gamestart}" exact="-1" comment="Custom">
+                <do_choose>
+                  <do_when value="{player.gamestart.map}" exact="aempty">
+                    <reward_player>
+                      <money exact="100000"/>
+                      <notoriety>
+                        <relation race="argon" operation="set" exact="neutral"/>
+                        <relation race="boron" operation="set" exact="friend"/>
+                        <relation race="paranid" operation="set" exact="foe-5"/>
+                        <relation race="split" operation="set" exact="foe-3"/>
+                        <relation race="teladi" operation="set" exact="neutral"/>
+                        <relation race="goner" operation="set" exact="friend"/>
+                        <relation race="pirate" operation="set" exact="enemy"/>
+                        <relation race="khaak" operation="set" exact="min"/>
+                        <relation race="xenon" operation="set" exact="min"/>
+                        <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                        <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                        <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                      </notoriety>
+                      <equipment>
+                        <ware typename="SS_SHIELD_B" exact="1"/>
+                        <ware typename="SS_LASER_PAC" exact="2"/>
+                        <ware typename="SS_WARE_BOOST" exact="1"/>
+                        <ware typename="SS_WARE_SCANNER2" exact="1"/>
+                        <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/2+1"/>
+                        <ware typename="SS_WARE_TECH231" exact="1"/>
+                        <ware typename="SS_WARE_TECH242" exact="1"/>
+                        <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/3"/>
+                        <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}"/>
+                      </equipment>
+                    </reward_player>
+                    <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                  </do_when>
+
+                  <do_otherwise>
+                    <reward_player>
+                      <money exact="1000"/>
+                      <notoriety>
+                        <relation race="argon" operation="set" exact="neutral"/>
+                        <relation race="boron" operation="set" exact="friend"/>
+                        <relation race="paranid" operation="set" exact="foe-5"/>
+                        <relation race="split" operation="set" exact="foe-3"/>
+                        <relation race="teladi" operation="set" exact="neutral"/>
+                        <relation race="goner" operation="set" exact="friend"/>
+                        <relation race="pirate" operation="set" exact="enemy"/>
+                        <relation race="khaak" operation="set" exact="min"/>
+                        <relation race="xenon" operation="set" exact="min"/>
+                        <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                        <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                        <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                      </notoriety>
+                      <equipment>
+                        <ware typename="SS_SHIELD_A" exact="1"/>
+                        <ware typename="SS_LASER_IRE" exact="2"/>
+                        <ware typename="SS_WARE_BOOST" exact="1"/>
+                        <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/5"/>
+                        <ware typename="SS_WARE_TECH231" exact="1"/>
+                        <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/2"/>
+                        <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}/2"/>
+                      </equipment>
+                    </reward_player>
+                    <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_when>
+
+              <do_otherwise>
+                <reward_player>
+                  <money exact="5000"/>
+                  <notoriety>
+                    <relation race="argon" operation="set" exact="neutral"/>
+                    <relation race="boron" operation="set" exact="friend"/>
+                    <relation race="paranid" operation="set" exact="foe-5"/>
+                    <relation race="split" operation="set" exact="foe-3"/>
+                    <relation race="teladi" operation="set" exact="neutral"/>
+                    <relation race="goner" operation="set" exact="friend"/>
+                    <relation race="pirate" operation="set" exact="enemy"/>
+                    <relation race="khaak" operation="set" exact="min"/>
+                    <relation race="xenon" operation="set" exact="min"/>
+                    <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                    <relation race="terran" operation="set" exact="foe" mutual="1"/>
+                    <relation race="yaki" operation="set" exact="foe" mutual="1"/>
+                  </notoriety>
+                  <equipment>
+                    <ware typename="SS_SHIELD_B" exact="1"/>
+                    <ware typename="SS_LASER_PAC" exact="2"/>
+                    <ware typename="SS_WARE_BOOST" exact="1"/>
+                    <ware typename="SS_WARE_SCANNER2" exact="1"/>
+                    <ware typename="SS_WARE_TECH213" exact="{player.ship.equipment.SS_WARE_TECH213.maxcount}/2+1"/>
+                    <ware typename="SS_WARE_TECH231" exact="1"/>
+                    <ware typename="SS_WARE_TECH242" exact="1"/>
+                    <ware typename="SS_WARE_TECH246" exact="{player.ship.equipment.SS_WARE_TECH246.maxcount}/3"/>
+                    <ware typename="SS_WARE_TECH251" exact="{player.ship.equipment.SS_WARE_TECH251.maxcount}"/>
+                  </equipment>
+                </reward_player>
+                <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+              </do_otherwise>
+            </do_choose>
+          </do_otherwise>
+        </do_choose>
+      </action>
+
+      <cues>
+        <cue name="Unlock 4" delay="10001">
+          <condition>
+            <check_value value="{player.fightrank}" min="3334"/>
+          </condition>
+          <action>
+            <enable_gamestart requirements="4"/>
+          </action>
+          <cues>
+            <cue name="Unlock 16" delay="10000">
+              <condition>
+                <check_value value="{player.fightrank}" min="100001"/>
+              </condition>
+              <action>
+                <enable_gamestart requirements="16"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="Unlock 8" delay="9957">
+          <condition>
+            <check_value value="{player.traderank}" min="3334"/>
+          </condition>
+          <action>
+            <enable_gamestart requirements="8"/>
+          </action>
+          <cues>
+            <cue name="Unlock 32" delay="9997">
+              <condition>
+                <check_value value="{player.traderank}" min="100001"/>
+              </condition>
+              <action>
+                <enable_gamestart requirements="32"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="Unlock 16384" delay="9913">
+          <condition>
+            <check_value value="{player.notoriety.argon}" min="334"/>
+          </condition>
+          <action>
+            <enable_gamestart requirements="16384"/>
+          </action>
+          <cues>
+            <cue name="Unlock 512" delay="9916">
+              <condition>
+                <check_value value="{player.notoriety.argon}" min="10001"/>
+              </condition>
+              <action>
+                <enable_gamestart requirements="512"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="Unlock 1024" delay="10041">
+          <condition>
+            <check_value value="{player.notoriety.boron}" min="10001"/>
+          </condition>
+          <action>
+            <enable_gamestart requirements="1024"/>
+          </action>
+        </cue>
+        <cue name="Unlock 2048" delay="9891">
+          <condition>
+            <check_value value="{player.notoriety.split}" min="10001"/>
+          </condition>
+          <action>
+            <enable_gamestart requirements="2048"/>
+          </action>
+        </cue>
+        <cue name="Unlock 4096" delay="10029">
+          <condition>
+            <check_value value="{player.notoriety.paranid}" min="10001"/>
+          </condition>
+          <action>
+            <enable_gamestart requirements="4096"/>
+          </action>
+        </cue>
+        <cue name="Unlock 8192" delay="9923">
+          <condition>
+            <check_value value="{player.notoriety.teladi}" min="10001"/>
+          </condition>
+          <action>
+            <enable_gamestart requirements="8192"/>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>LSmutZ3QX005BW6kb/26Q35XZneCz9oGraQnT6VUjqWAEnUEjJMKsmJogRTjdvar78VblvJnl2k1An1WvpXg3Ju553Mudu53ehThO57lMLS0r64hKNCT9/A7xES4kdJ0zbvKJwxmUh47748BF8EizOH/H34qtAcDshHIlNXoculqkdgebrUtN57SZx2+lBSUTx/uCuKZ0ac9rfz7cfXB+CeUjxnn0eHhk15juLNhkbz8HQT/Icd8Sp25+z8CddjSHS25+2sHSDhPCEQaVT9lNgYAF7NWGSeWjT80OlAPRqMo7S/LycWmrSSzi+PTGaru4veJcN0UjUSQH0oFhimaqg==</signature>
+</director>

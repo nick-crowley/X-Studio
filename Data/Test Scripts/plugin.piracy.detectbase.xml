@@ -1,0 +1,722 @@
+<?xml version="1.0" standalone="yes" ?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl" ?>
+<script>
+<name>plugin.piracy.detectbase</name>
+<version>140</version>
+<engineversion>44</engineversion>
+<description>Piracy: Detect Pirate Base: Search sector for a pirate base</description>
+<arguments>
+</arguments>
+<sourcetext>
+<line linenr="001" indent=""><comment><text>*&#160;</text><var>-----------------&#160;DETECT&#160;PIRATE&#160;BASE&#160;&#160;by&#160;&#160;MISTER&#160;BEAR&#160;&#160;v1.40&#160;-----------------</var></comment></line>
+<line linenr="002" indent=""><comment><text>*&#160;</text><var></var></comment></line>
+<line linenr="003" indent=""><comment><text>*&#160;</text><var>Detects&#160;if&#160;there&#160;is&#160;a&#160;pirate&#160;base&#160;in&#160;the&#160;system&#160;and&#160;displays&#160;player's&#160;distance&#160;using&#160;custom&#160;UI.</var></comment></line>
+<line linenr="004" indent=""></line>
+<line linenr="005" indent=""><comment><text>*&#160;</text><var>You&#160;should&#160;set&#160;a&#160;global&#160;variable&#160;here&#160;to&#160;prevent&#160;user&#160;running&#160;two&#160;instances&#160;of&#160;the&#160;script</var></comment></line>
+<line linenr="006" indent=""><comment>*<text>display&#160;subtitle&#160;text:&#160;text=</text>'Decrypting&#160;hidden&#160;transponder&#160;signal...Please&#160;wait...'<text>&#160;duration=</text>2500<text>&#160;ms</text></comment></line>
+<line linenr="007" indent=""><comment>*=&#160;<text>wait&#160;</text>2500<text>&#160;ms</text></comment></line>
+<line linenr="008" indent=""><var>$aMenu&#160;=&#160;</var><text>&#160;create&#160;custom&#160;menu&#160;array:&#160;heading=</text><var>'Actions&#160;available'</var></line>
+<line linenr="009" indent=""></line>
+<line linenr="010" indent=""><comment><text>*&#160;</text><var>------------------&#160;SEARCH&#160;FOR&#160;PIRATE&#160;BASE&#160;/&#160;ANARCHY&#160;PORT&#160;------------------</var></comment></line>
+<line linenr="011" indent=""></line>
+<line linenr="012" indent=""><var>$oCurrentSector&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;sector</text></line>
+<line linenr="013" indent=""><var>$oBase&#160;=&#160;</var><text>&#160;find&#160;station:&#160;sector=</text><var>$oCurrentSector</var><text>&#160;class&#160;or&#160;type=</text><var>Pirate&#160;Dock</var><text>&#160;race=</text><var>Pirates</var><text>&#160;flags=</text><var>[Find.Nearest]</var><text>&#160;refobj=</text><var>[PLAYERSHIP]</var><text>&#160;maxdist=</text><var>250000</var><text>&#160;maxnum=</text><var>1</var><text>&#160;refpos=</text><var>null</var></line>
+<line linenr="014" indent=""><var>skip&#160;if&#160;</var><var>$oBase</var></line>
+<line linenr="015" indent="&#160;"><var>$oBase&#160;=&#160;</var><text>&#160;find&#160;station:&#160;sector=</text><var>$oCurrentSector</var><text>&#160;class&#160;or&#160;type=</text><var>Trading&#160;Dock</var><text>&#160;race=</text><var>Pirates</var><text>&#160;flags=</text><var>[Find.Nearest]</var><text>&#160;refobj=</text><var>[PLAYERSHIP]</var><text>&#160;maxdist=</text><var>250000</var><text>&#160;maxnum=</text><var>1</var><text>&#160;refpos=</text><var>null</var></line>
+<line linenr="016" indent=""></line>
+<line linenr="017" indent=""><comment><text>*&#160;</text><var>1ST&#160;LINE&#160;:&#160;CONNECTING...</var></comment></line>
+<line linenr="018" indent=""><var>$szTemp&#160;=&#160;</var><text>&#160;read&#160;text:&#160;page=</text><var>7540</var><text>&#160;id=</text><var>100</var></line>
+<line linenr="019" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>$szTemp</var></line>
+<line linenr="020" indent=""></line>
+<line linenr="021" indent=""><comment><text>*&#160;</text><var>-------------------------&#160;NOT&#160;FOUND&#160;-------------------------</var></comment></line>
+<line linenr="022" indent=""><var>if&#160;</var><var>$oBase</var><text>&#160;</text><var>==</var><text>&#160;</text><var>null</var></line>
+<line linenr="023" indent=""><comment><text>*&#160;</text><var>2ND&#160;LINE&#160;:&#160;SIGNAL&#160;STRENGTH</var></comment></line>
+<line linenr="024" indent="&#160;"><var>$szProgressBar&#160;=&#160;</var><var>[THIS]&#160;-&gt;</var><text>&#160;call&#160;named&#160;script:&#160;script=</text><var>'plugin.piracy.lib.controls'</var><text>,&#160;</text><var>'CreateProgressBar'</var><text>,&#160;</text><var>0</var><text>,&#160;</text><var>40</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="025" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>&#160;read&#160;text:&#160;page=</text><var>7540</var><text>&#160;id=</text><var>101</var></line>
+<line linenr="026" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;&#160;%s'</var><text>,&#160;</text><var>$szTemp</var><text>,&#160;</text><var>$szProgressBar</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="027" indent=""><comment><text>*&#160;</text><var>CENTRE&#160;TEXT</var></comment></line>
+<line linenr="028" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>&#160;create&#160;new&#160;array,&#160;arguments=</text><var>30</var><text>,&#160;</text><var>$szTemp</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="029" indent="&#160;"><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>$szTemp</var></line>
+<line linenr="030" indent="&#160;"><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>'&#160;'</var></line>
+<line linenr="031" indent="&#160;"></line>
+<line linenr="032" indent=""><comment><text>*&#160;</text><var>3RD&#160;LINE&#160;:&#160;EXPLANATION</var></comment></line>
+<line linenr="033" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>&#160;read&#160;text:&#160;page=</text><var>7540</var><text>&#160;id=</text><var>102</var></line>
+<line linenr="034" indent="&#160;"><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>$szTemp</var></line>
+<line linenr="035" indent="&#160;"></line>
+<line linenr="036" indent=""><comment><text>*&#160;</text><var>PLAY&#160;PHRASE&#160;:&#160;'Scan&#160;negative'</var></comment></line>
+<line linenr="037" indent="&#160;"><var>START&#160;</var><text>speak&#160;text:&#160;page=</text><var>1901</var><text>&#160;id=</text><var>231920</var><text>&#160;priority=</text><var>2</var></line>
+<line linenr="038" indent="&#160;"></line>
+<line linenr="039" indent=""><comment><text>*&#160;</text><var>-------------------------&#160;FOUND&#160;-------------------------</var></comment></line>
+<line linenr="040" indent=""><text>else</text></line>
+<line linenr="041" indent=""><comment><text>*&#160;</text><var>GET&#160;DISTANCE&#160;TO&#160;PIRATE&#160;BASE</var></comment></line>
+<line linenr="042" indent="&#160;"><var>$iDistance&#160;=&#160;</var><text>get&#160;distance&#160;between&#160;</text><var>[PLAYERSHIP]</var><text>&#160;and&#160;</text><var>$oBase</var></line>
+<line linenr="043" indent="&#160;"><var>$i&#160;=&#160;</var><var>$iDistance</var><text>&#160;</text><var>-</var><text>&#160;</text><var>16000</var></line>
+<line linenr="044" indent="&#160;"></line>
+<line linenr="045" indent=""><comment><text>*&#160;</text><var>CONVERT&#160;DISTANCE&#160;TO&#160;PERCENTAGE&#160;(Where&#160;100%&#160;=&#160;16km&#160;or&#160;less,&#160;0%&#160;=&#160;100km&#160;or&#160;more)</var></comment></line>
+<line linenr="046" indent="&#160;"><var>$i&#160;=&#160;</var><var>$i</var><text>&#160;</text><var>/</var><text>&#160;</text><var>840</var></line>
+<line linenr="047" indent="&#160;"><var>$iSignalStrength&#160;=&#160;</var><var>100</var><text>&#160;</text><var>-</var><text>&#160;</text><var>$i</var></line>
+<line linenr="048" indent="&#160;"><var>$iSignalStrength&#160;=&#160;</var><text>&#160;get&#160;maximum,&#160;</text><var>0</var><text>,&#160;</text><var>$iSignalStrength</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="049" indent="&#160;"><var>skip&#160;if&#160;</var><var>$iSignalStrength</var><text>&#160;</text><var>&lt;=</var><text>&#160;</text><var>100</var></line>
+<line linenr="050" indent="&#160;&#160;"><var>$iSignalStrength&#160;=&#160;</var><var>100</var></line>
+<line linenr="051" indent="&#160;"></line>
+<line linenr="052" indent=""><comment><text>*&#160;</text><var>2ND&#160;LINE&#160;:&#160;SIGNAL&#160;STRENGTH</var></comment></line>
+<line linenr="053" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;km'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="054" indent="&#160;"><var>$szProgressBar&#160;=&#160;</var><var>[THIS]&#160;-&gt;</var><text>&#160;call&#160;named&#160;script:&#160;script=</text><var>'plugin.piracy.lib.controls'</var><text>,&#160;</text><var>'CreateProgressBar'</var><text>,&#160;</text><var>$iSignalStrength</var><text>,&#160;</text><var>40</var><text>,&#160;</text><var>$szTemp</var><text>,&#160;</text><var>null</var></line>
+<line linenr="055" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>&#160;read&#160;text:&#160;page=</text><var>7540</var><text>&#160;id=</text><var>101</var></line>
+<line linenr="056" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;&#160;%s'</var><text>,&#160;</text><var>$szTemp</var><text>,&#160;</text><var>$szProgressBar</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="057" indent=""><comment><text>*&#160;</text><var>CENTRE&#160;TEXT</var></comment></line>
+<line linenr="058" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>&#160;create&#160;new&#160;array,&#160;arguments=</text><var>30</var><text>,&#160;</text><var>$szTemp</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="059" indent="&#160;"><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>$szTemp</var></line>
+<line linenr="060" indent="&#160;"><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>'&#160;'</var></line>
+<line linenr="061" indent="&#160;"></line>
+<line linenr="062" indent=""><comment><text>*&#160;</text><var>3RD&#160;LINE&#160;:&#160;EXPLANATION</var></comment></line>
+<line linenr="063" indent="&#160;"><var>$szTemp&#160;=&#160;</var><text>&#160;read&#160;text:&#160;page=</text><var>7540</var><text>&#160;id=</text><var>103</var></line>
+<line linenr="064" indent="&#160;"><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>$szTemp</var></line>
+<line linenr="065" indent="&#160;"></line>
+<line linenr="066" indent=""><comment><text>*&#160;</text><var>PLAY&#160;PHRASE&#160;:&#160;'Scan&#160;positive..&#160;tracing&#160;location...'</var></comment></line>
+<line linenr="067" indent="&#160;"><var>START&#160;</var><text>speak&#160;text:&#160;page=</text><var>1901</var><text>&#160;id=</text><var>231930</var><text>&#160;priority=</text><var>2</var></line>
+<line linenr="068" indent=""><text>end</text></line>
+<line linenr="069" indent=""></line>
+<line linenr="070" indent=""><comment><text>*&#160;</text><var>-------------------------&#160;DISPLAY&#160;RESULTS&#160;MENU&#160;-------------------------</var></comment></line>
+<line linenr="071" indent=""></line>
+<line linenr="072" indent=""><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$aMenu</var><text>:&#160;text=</text><var>'OK'</var><text>&#160;returnvalue=</text><var>'Option.Cancel'</var></line>
+<line linenr="073" indent=""><var>=&#160;</var><text>&#160;open&#160;custom&#160;menu:&#160;title=</text><var>'Locate&#160;Pirate&#160;Base'</var><text>&#160;description=</text><var>'Transceiver&#160;status'</var><text>&#160;option&#160;array=</text><var>$aMenu</var></line>
+<line linenr="074" indent=""></line>
+<line linenr="075" indent=""><comment><text>*&#160;</text><var>-------------------------&#160;SCRIPT&#160;ENDS&#160;-------------------------</var></comment></line>
+<line linenr="076" indent=""><comment><text>*&#160;</text><var>-------------------------&#160;SCRIPT&#160;ENDS&#160;-------------------------</var></comment></line>
+<line linenr="077" indent=""><text>return&#160;</text><var>null</var></line>
+</sourcetext>
+<codearray>
+
+<sval type="array" size="10">
+  <sval type="string" val="plugin.piracy.detectbase"/>
+  <sval type="int" val="44"/>
+  <sval type="string" val="Piracy: Detect Pirate Base: Search sector for a pirate base"/>
+  <sval type="int" val="140"/>
+  <sval type="int" val="0"/>
+  <sval type="array" size="8">
+    <sval type="string" val="aMenu"/>
+    <sval type="string" val="oCurrentSector"/>
+    <sval type="string" val="oBase"/>
+    <sval type="string" val="szTemp"/>
+    <sval type="string" val="szProgressBar"/>
+    <sval type="string" val="iDistance"/>
+    <sval type="string" val="i"/>
+    <sval type="string" val="iSignalStrength"/>
+  </sval>
+  <sval type="array" size="38">
+    <sval type="array" size="4">
+      <sval type="int" val="1416"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Actions available"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="703"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="1"/>
+    </sval>
+    <sval type="array" size="18">
+      <sval type="int" val="794"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="2076"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="106"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="250000"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-536869625"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="-1"/>
+    </sval>
+    <sval type="array" size="18">
+      <sval type="int" val="794"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="2074"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="106"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="250000"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="126"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="7540"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="100"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610608125"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="16">
+      <sval type="int" val="1425"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="plugin.piracy.lib.controls"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="CreateProgressBar"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="40"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="126"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="7540"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="101"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s  %s"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1415"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="30"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val=" "/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="126"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="7540"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="102"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="1042"/>
+      <sval type="int" val="-2147483646"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="1901"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="231920"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="35"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="738"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="16000"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="840"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="14"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="14"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="100"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1457"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-536864505"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="100"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="104"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="100"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="-1"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s km"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="16">
+      <sval type="int" val="1425"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="plugin.piracy.lib.controls"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="CreateProgressBar"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="40"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="126"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="7540"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="101"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s  %s"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1415"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="30"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val=" "/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="126"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="7540"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="103"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="1042"/>
+      <sval type="int" val="-2147483646"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="1901"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="231930"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="OK"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Option.Cancel"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="1230"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Locate Pirate Base"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Transceiver status"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="103"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+  </sval>
+  <sval type="int" val="0"/>
+  <sval type="array" size="40">
+    <sval type="array" size="3">
+      <sval type="int" val="0"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="----------------- DETECT PIRATE BASE  by  MISTER BEAR  v1.40 -----------------"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="0"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val=""/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="0"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="Detects if there is a pirate base in the system and displays player's distance using custom UI."/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="0"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="0"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="You should set a global variable here to prevent user running two instances of the script"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="1418"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Decrypting hidden transponder signal...Please wait..."/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="2500"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="105"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="2500"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="1"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="1"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="------------------ SEARCH FOR PIRATE BASE / ANARCHY PORT ------------------"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="1"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="5"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="5"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="1ST LINE : CONNECTING..."/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="7"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="7"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="------------------------- NOT FOUND -------------------------"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="8"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="2ND LINE : SIGNAL STRENGTH"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="11"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="CENTRE TEXT"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="14"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="14"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="3RD LINE : EXPLANATION"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="16"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="16"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="PLAY PHRASE : 'Scan negative'"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="17"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="17"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="------------------------- FOUND -------------------------"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="18"/>
+      <sval type="int" val="5"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="18"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="GET DISTANCE TO PIRATE BASE"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="20"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="20"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="CONVERT DISTANCE TO PERCENTAGE (Where 100% = 16km or less, 0% = 100km or more)"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="25"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="25"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="2ND LINE : SIGNAL STRENGTH"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="29"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="CENTRE TEXT"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="32"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="32"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="3RD LINE : EXPLANATION"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="34"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="34"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="PLAY PHRASE : 'Scan positive.. tracing location...'"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="35"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="35"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="35"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="------------------------- DISPLAY RESULTS MENU -------------------------"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="35"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="37"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="37"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="------------------------- SCRIPT ENDS -------------------------"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="37"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="------------------------- SCRIPT ENDS -------------------------"/>
+    </sval>
+  </sval>
+  <sval type="string" val="COMMAND_DETECT_PIRATEBASE"/>
+</sval>
+
+</codearray>
+</script>

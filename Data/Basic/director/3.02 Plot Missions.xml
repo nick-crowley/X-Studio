@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="al_main" alias="Al Main" contact="Skype: al_main"/>
+    <content reference="L3M02" name="Level 3 Plot Missons Director" description="The Plot Missions are triggered and managed here"/>
+    <version number="0.2" date="15/05/2008" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L3M02" map="default" game="plot">
+      <documentation>
+        <content name="Plot Missions" reference="L3M02" type="L3"/>
+        <version date="15/05/08" number="0.2" status="development"/>
+        <history>
+          <change date="04/08/2008" author="al_main" description="reduced check_age, altered delays to be different to each other"/>
+          <change date="15/05/2008" author="Owen Lake" description="Added the Terran Plot Scene 2"/>
+          <change date="07/05/2008" author="Owen Lake" description="Added the Terran Plot Scene 1"/>
+          <change date="15/04/2008" author="al_main" description="Initial Version"/>
+        </history>
+      </documentation>
+      <condition>
+        <check_all>
+          <check_age min="3s"/>
+          <cue_is_complete cue="start"/>
+        </check_all>
+      </condition>
+      <cues>
+        <cue name="L3M02 ATF Rank Reset" instantiate="static" delay="60s">
+          <condition>
+            <check_value value="{player.notoriety.atf}" max="{value@ATF Notoriety}-1"/>
+          </condition>
+          <action>
+            <reward_player>
+              <notoriety>
+                <relation race="atf" operation="set" exact="{value@ATF Notoriety}"/>
+              </notoriety>
+            </reward_player>
+          </action>
+        </cue>
+
+        <cue name="L3M02 Terran Link Check" check="cancel">
+          <condition>
+            <check_value value="{value@Terran Link Plot}" exact="1"/>
+          </condition>
+          <timing>
+            <time min="17s" max="22s"/>
+          </timing>
+          <cues>
+            <cue name="L3M02 Terran Link Start" delay="5s">
+              <condition>
+                <check_all>
+                  <check_value value="{player.notoriety.argon.rank}" min="1"/>
+                  <check_value value="{player.notoriety.terran.rank}" min="0"/>
+                  <object_sector exact="0">
+                    <sector x="13" y="6"/>
+                  </object_sector>
+                  <cue_is_complete cue="L3M02 Terran Link Check"/>
+                </check_all>
+              </condition>
+              <action>
+                <set_value name="L3M02.Reset Link" exact="1"/>
+              </action>
+              <cues>
+                <cue ref="L2M006"/>
+                <cue name="L3M02 Terran Link Reset Wait">
+                  <timing>
+                    <time exact="5s"/>
+                  </timing>
+                  <cues>
+                    <cue name="L3M02 Reset Link" delay="5s">
+                      <condition>
+                        <check_all>
+                          <cue_is_complete cue="L3M02 Terran Link Reset Wait"/>
+                          <check_value value="{value@L3M02.Reset Link}" exact="1"/>
+                        </check_all>
+                      </condition>
+                      <timing>
+                        <time min="40m" max="60m"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <set_value name="L3M02.Reset Link" exact="0"/>
+                          <reset_cue cue="L3M02 Terran Link Start"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L3M02 Terran Plot Link Scene 1" delay="1s">
+          <condition>
+            <check_all>
+              <check_value value="{value@L3M02.Start Link Scene 1}" exact="1"/>
+              <check_value value="{player.notoriety.terran.rank}" min="0"/>
+            </check_all>
+          </condition>
+          <timing>
+            <time exact="5s"/>
+          </timing>
+          <action>
+            <do_all>
+              <create_actor name="this.PlinterAct" face="1131" character="{3895,16}" voice="3816" race="terran"/>
+              <play_text actor="this.PlinterAct" pageid="3816" textid="161101" priority="99"/>
+              <destroy_actor actor="this.PlinterAct"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L3M02 Terran Plot Link Scene 1 Wait">
+              <condition>
+                <cue_completed cue="L3M02 Terran Plot Link Scene 1"/>
+              </condition>
+              <cues>
+                <cue ref="L2M001">
+                  <params>
+                    <param name="LinkMission" value="1" comment="Does this follow the Terran link mission"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L3M02 Terran Plot Scene 1" check="cancel">
+          <condition>
+            <check_value value="{value@Terran Plot}" exact="1"/>
+          </condition>
+          <cues>
+            <cue name="L3M02 Terran Plot Scene 1 Check" delay="1s">
+              <condition>
+                <check_all>
+                  <check_value value="{player.notoriety.terran.rank}" min="0"/>
+                  <check_value value="{value@Terran Plot}" exact="1"/>
+                  <check_any>
+                    <object_exists object="TutorialShip" negate="1"/>
+                    <check_value value="{player.target}" exact="{object@TutorialShip}" negate="1"/>
+                  </check_any>
+                  <check_value value="{player.menu.dialog}" exact="0"/>
+                </check_all>
+              </condition>
+              <timing>
+                <time exact="5s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <create_actor name="this.PlinterAct" face="1131" character="{3895,16}" voice="3816" race="terran"/>
+                  <play_text actor="this.PlinterAct" pageid="3816" textid="161101" priority="99"/>
+                  <destroy_actor actor="this.PlinterAct"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L3M02 Terran Plot Scene 1 Wait">
+                  <condition>
+                    <cue_completed cue="L3M02 Terran Plot Scene 1 Check"/>
+                  </condition>
+                  <cues>
+                    <cue ref="L2M001"/>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L3M02 Terran Plot Scene 2" delay="5s">
+          <condition>
+            <check_all>
+              <check_value value="{value@Terran Plot Scene 1 End}" exact="1"/>
+              <check_value value="{player.notoriety.terran.rank}" min="0"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="L2M002"/>
+          </cues>
+        </cue>
+        <cue name="L3M02 Terran Plot Scene 3" delay="5s">
+          <condition>
+            <check_all>
+              <check_value value="{value@Terran Plot Scene 2 End}" exact="1"/>
+              <check_value value="{player.notoriety.terran.rank}" min="0"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="L2M003"/>
+          </cues>
+        </cue>
+        <cue name="L3M02 Terran Plot Scene 4" delay="5s">
+          <condition>
+            <check_all>
+              <check_value value="{value@Terran Plot Scene 3 End}" exact="1"/>
+              <check_value value="{player.notoriety.terran.rank}" min="0"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="L2M004"/>
+          </cues>
+        </cue>
+        <cue name="L3M02 Terran Plot Scene 5" delay="5s">
+          <condition>
+            <check_all>
+              <check_value value="{value@Terran Plot Scene 4 End}" exact="1"/>
+              <check_value value="{player.notoriety.terran.rank}" min="0"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="L2M005"/>
+          </cues>
+        </cue>
+        
+        <cue name="L3M02 Khaak">
+          <cues>
+            <cue ref="L2M02"/>
+          </cues>
+        </cue>
+
+        <cue name="L3M02 Goner" delay="10s">
+          <condition>
+            <check_age min="60s"/>
+          </condition>
+          <cues>
+            <cue ref="L2M03"/>
+          </cues>
+        </cue>
+
+        <cue name="L3M02 HUB Start" delay="5001">
+          <condition>
+            <check_all>
+              <check_value value="{value@HUB Plot}" exact="1"/>
+              <check_value value="{player.traderank.rank}" min="6"/>
+              <!--<check_age min="144000"/>-->
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="L2M007"/>
+          </cues>
+        </cue>
+
+        <cue name="L3M02 HQ Start" delay="4887">
+          <condition>
+            <check_value value="{value@HQ Start}" exact="1"/>
+          </condition>
+          <cues>
+            <cue ref="L2M008"/>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>g0LuNGgDtBJwbQBXquv174xPr1h+hCrSTgJVSrfIe1+bM95jPm0aIXZC69NIOPF/HHPe8Q7Tk0Q/fq90s9RUTvP+YFn3DaUFx7zDv0yY/xVxlkNfqWytwTnnh0hvlkahvKg7EPyc1H0MwCPCkVQZ5/ffHjYyVLUJC5Thfdx7mC0NBC1mT8OwbuKkRMTfYhn2KY8Bpjex1JHB1Eci/zK7eJ4Sllq42kNWCylE64RLNboNtRufUo02XvnlLqPfkiqLOTbE5PfGrOB8YrP5bQ3iVkKiGJdgSdnqhdiGxBtHkZzKa0OLi+25MX6vPxfpZuzXBenjvkXcBhzGOF69/5PXVw==</signature>
+</director>

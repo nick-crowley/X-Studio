@@ -1,0 +1,1108 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M001" name="Terran Plot Scene 1" description="L2 Terran Plot Scene 1, The Sol Incident"/>
+    <version number="0.5" date="14/06/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="L2M001" library="1">
+      <documentation>
+        <content name="Terran Plot Scene 1" reference="L2M001" type="L2"/>
+        <version date="14/06/2008" number="0.5" status="testing"/>
+        <params>
+          <param name="LinkMission" type="boolean" default="0" description="Does this follow the Terran link mission"/>
+        </params>
+        <history>
+          <change date="14/06/2008" author="Owen Lake" description="Added patrol mission after Oort Cloud"/>
+        </history>
+      </documentation>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_sector name="L2M001.Mars" x="12" y="3" exact="0"/>
+          <find_sector name="L2M001.Belt" x="11" y="3" exact="0"/>
+          <find_sector name="L2M001.Saturn" x="11" y="1" exact="0"/>
+          <find_sector name="L2M001.Uranus" x="10" y="1" exact="0"/>
+          <find_sector name="L2M001.Neptune" x="9" y="1" exact="0"/>
+          <find_sector name="L2M001.Pluto" x="8" y="1" exact="0"/>
+          <find_sector name="L2M001.Oort Cloud" x="7" y="1" exact="0"/>
+          <reward_player>
+            <map>
+              <sector sector="L2M001.Uranus"/>
+            </map>
+          </reward_player>
+          <find_station name="L2M001.SRS" typename="SS_DOCK_TR_RESEARCH" race="terrangroup">
+            <sector sector="L2M001.Saturn"/>
+          </find_station>
+          <do_if value="{object.exists@L2M001.SRS}" exact="0">
+            <create_station name="L2M001.SRS" safety="0" race="terran" typename="SS_DOCK_TR_RESEARCH">
+              <position x="-45km" z="-45km"/>
+              <sector sector="L2M001.Saturn"/>
+              <equipment loadout="default"/>
+            </create_station>
+          </do_if>
+          <set_invincible object="L2M001.SRS" invincible="1"/>
+          <create_actor name="L2M001.BenthamiAct" character="{3895,18}" face="1132" race="terran" voice="3818"/>
+          <create_ship name="L2M001.PlinterShip" typename="SS_SH_USC_M3" group="L2M001.TerranPatrol" leader="1" invincible="1" race="terran" capturable="0">
+            <position exact="3km"/>
+            <sector sector="L2M001.Uranus"/>
+            <equipment loadout="maximum">
+              <ware typename="SS_WARE_TECH213" exact="3"/>
+            </equipment>
+            <command command="idle"/>
+          </create_ship>
+          <create_actor name="L2M001.PlinterAct" character="{3895,16}" face="1131" voice="3816" race="terran" object="L2M001.PlinterShip"/>
+          <create_ship name="L2M001.BerghmanShip" typename="SS_SH_USC_M4" group="L2M001.TerranPatrol" invincible="1" race="terran" capturable="0">
+            <position object="L2M001.PlinterShip" exact="1km"/>
+            <sector sector="L2M001.Uranus"/>
+            <equipment loadout="default"/>
+            <command command="protect" commandobject="L2M001.PlinterShip"/>
+          </create_ship>
+          <create_actor name="L2M001.BerghmanAct" character="{3895,15}" face="1133" voice="3815" race="terran" object="L2M001.BerghmanShip"/>
+          <create_ship name="L2M001.UtashiShip" typename="SS_SH_USC_M4" group="L2M001.TerranPatrol" invincible="1" race="terran" capturable="0">
+            <position object="L2M001.PlinterShip" exact="1km"/>
+            <sector sector="L2M001.Uranus"/>
+            <equipment loadout="default"/>
+            <command command="protect" commandobject="L2M001.PlinterShip"/>
+          </create_ship>
+          <create_actor name="L2M001.UtashiAct" character="{3895,17}" face="1134" voice="3817" race="terran" object="L2M001.UtashiShip"/>
+          <create_offer actor="L2M001.PlinterAct" conversation="L2M001 No1" cue="L2M001" discipline="XXXXP"/>
+          <set_value name="L2M001.Step" exact="1"/>
+          <create_briefing cue="L2M001" story="{3200,1}" title="{3201,101}" text="{3201,111}" background="sector_terran_uranus.tga">
+            <mission discipline="XXXT" level="easy"/>
+            <thumbnails>
+              <thumbnail image="SS_SH_USC_M3.tga" order="1"/>
+            </thumbnails>
+            <objectives>
+              <objective step="{value@L2M001.Step}">
+                <talkto actor="L2M001.PlinterAct"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <set_objective cue="L2M001" story="{3200,1}" title="{3201,101}" text="{3201,111}" noabort="1">
+            <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+            <mission discipline="XXXT" level="easy"/>
+            <talkto actor="L2M001.PlinterAct"/>
+          </set_objective>
+          <set_value name="L2M001.Step" operation="add"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M001 Set Neutral" delay="5s">
+          <condition>
+            <check_value value="{player.notoriety.terran.rank}" min="0"/>
+          </condition>
+          <action>
+            <do_all>
+              <do_all exact="{group.object.count@L2M001.TerranPatrol}" counter="Count">
+                <set_relation object="{group.object.{counter@Count}@L2M001.TerranPatrol}">
+                  <relation object="{player.ship}" relation="neutral"/>
+                </set_relation>
+              </do_all>
+              <reset_cue cue="L2M001 Player Is Enemy"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="L2M001 Player Is Enemy" delay="5s">
+          <condition>
+            <check_value value="{player.notoriety.terran.rank}" max="-1"/>
+          </condition>
+          <timing>
+            <time exact="10m"/>
+          </timing>
+          <action>
+            <reset_cue cue="L2M001 Set Neutral"/>
+          </action>
+        </cue>
+        <cue name="L2M001 Perform Patrol">
+          <condition>
+            <conversation_completed actor="L2M001.PlinterAct" answer="ready" conversation="L2M001 No1"/>
+          </condition>
+          <timing>
+            <time exact="1s"/>
+          </timing>
+          <action>
+            <do_all>
+              <remove_offer actor="L2M001.PlinterAct" conversation="L2M001 No1" discipline="XXXXP"/>
+              <do_choose>
+                <do_when value="{param@LinkMission}" exact="1">
+                  <play_text priority="99" actor="L2M001.PlinterAct" pageid="3816" textid="161001"/>
+                </do_when>
+                <do_otherwise>
+                  <play_text priority="99" actor="L2M001.PlinterAct" pageid="3816" textid="161102"/>
+                </do_otherwise>
+              </do_choose>
+              <set_command object="L2M001.PlinterShip" command="killenemies"/>
+              <create_briefing cue="L2M001" story="{3200,1}" title="{3201,101}" text="{3201,112}">
+                <mission discipline="XFXX" level="easy"/>
+                <objectives>
+                  <objective step="{value@L2M001.Step}">
+                    <follow object="L2M001.PlinterShip"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="L2M001" story="{3200,1}" title="{3201,101}" text="{3201,112}" noabort="1">
+                <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                <mission discipline="XFXX" level="easy"/>
+                <follow object="L2M001.PlinterShip"/>
+              </set_objective>
+              <set_value name="L2M001.Step" operation="add"/>
+              <set_value name="L2M001.Berghman 151101 Time" exact="{player.age}+30"/>
+              <show_help textid="20"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M001 Berghman 151101" delay="10s">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="L2M001 Perform Patrol"/>
+                  <check_age min="{value@L2M001.Berghman 151101 Time}"/>
+                  <object_position max="5km">
+                    <position object="L2M001.PlinterShip"/>
+                  </object_position>
+                </check_all>
+              </condition>
+              <action>
+                <play_text priority="99" actor="L2M001.BerghmanAct" pageid="3815" textid="151101"/>
+              </action>
+              <cues>
+                <cue name="L2M001 Plinter 161103">
+                  <condition>
+                    <cue_completed cue="L2M001 Berghman 151101"/>
+                  </condition>
+                  <timing>
+                    <time exact="{text.duration@3815,151101}+2s"/>
+                  </timing>
+                  <action>
+                    <play_text priority="99" actor="L2M001.PlinterAct" pageid="3816" textid="161103"/>
+                  </action>
+                  <cues>
+                    <cue name="L2M001 Utashi 171101">
+                      <condition>
+                        <cue_completed cue="L2M001 Plinter 161103"/>
+                      </condition>
+                      <timing>
+                        <time exact="{text.duration@3816,161103}+4s"/>
+                      </timing>
+                      <action>
+                        <play_text priority="99" actor="L2M001.UtashiAct" pageid="3817" textid="171101"/>
+                      </action>
+                      <cues>
+                        <cue name="L2M001 Xenon Notification">
+                          <condition>
+                            <cue_completed cue="L2M001 Utashi 171101"/>
+                          </condition>
+                          <timing>
+                            <time exact="{text.duration@3817,171101}+2s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <play_text priority="99">
+                                <line actor="L2M001.PlinterAct" pageid="3816" textid="161104"/>
+                                <line actor="L2M001.BenthamiAct" pageid="3818" textid="181101"/>
+                                <line actor="L2M001.PlinterAct" pageid="3816" textid="161105"/>
+                              </play_text>
+                              <create_object typename="SS_SH_JUMP_BEACON" name="L2M001.NeptuneBeacon">
+                                <position x="25km" y="2km" z="3km"/>
+                                <sector sector="L2M001.Neptune"/>
+                              </create_object>
+                              <set_invincible object="L2M001.NeptuneBeacon" invincible="1"/>
+                              <set_value name="L2M001.Protect Neptune Time" exact="{player.age}+(({text.duration@3816,161104}+{text.duration@3818,181101}+{text.duration@3816,161105})/1000)"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M001 Create Xenon" instantiate="static" delay="30s">
+                              <condition>
+                                <check_all>
+                                  <check_value value="{group.object.count@L2M001.Xenon}" max="10"/>
+                                  <object_exists object="L2M001.NeptuneBeacon"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_all exact="10-{group.object.count@L2M001.Xenon}">
+                                  <create_ship group="L2M001.Xenon" typename="SS_SH_X_M5" race="xenon" warp="1">
+                                    <position object="L2M001.NeptuneBeacon" exact="1500m"/>
+                                    <sector sector="L2M001.Neptune"/>
+                                    <equipment loadout="minimum" loadoutmask="shields|lasers|equipment"/>
+                                    <command command="killenemies"/>
+                                  </create_ship>
+                                </do_all>
+                              </action>
+                            </cue>
+                            <cue name="L2M001 Xenon Destroyed" instantiate="static">
+                              <condition>
+                                <any_object_destroyed group="L2M001.Xenon"/>
+                              </condition>
+                              <action>
+                                <do_choose>
+                                  <do_when value="{object.race@{event.param2}}" exact="{lookup.race@player}">
+                                    <set_value name="L2M001.PlayerDestroyXenonCount" operation="add"/>
+                                  </do_when>
+                                  <do_otherwise>
+                                    <do_if value="{player.sector}" exact="{sector@L2M001.Neptune}">
+                                      <set_value name="L2M001.NPCDestroyXenonCount" operation="add"/>
+                                    </do_if>
+                                  </do_otherwise>
+                                </do_choose>
+                              </action>
+                            </cue>
+                            <cue name="L2M001 Xenon Destroyed By Player" instantiate="static">
+                              <condition>
+                                <any_object_destroyed_by_player group="L2M001.Xenon"/>
+                              </condition>
+                              <action>
+                                <set_value name="L2M001.PlayerDestroyXenonCount" operation="add"/>
+                              </action>
+                            </cue>
+                            <cue name="L2M001 Xenon Captured By Player" instantiate="static">
+                              <condition>
+                                <any_object_captured group="L2M001.Xenon"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <set_value name="L2M001.PlayerDestroyXenonCount" operation="add"/>
+                                  <remove_object object="L2M001.Xenon {event.object}"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                            <cue name="L2M001 Protect Neptune" delay="2s">
+                              <condition>
+                                <check_all>
+                                  <cue_is_complete cue="L2M001 Xenon Notification"/>
+                                  <check_age value="{player.age}" min="{value@L2M001.Protect Neptune Time}"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <show_help textid="14"/>
+                                  <create_briefing cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,113}">
+                                    <mission discipline="XXXT" level="easy"/>
+                                    <thumbnails>
+                                      <thumbnail image="SS_SH_USC_M3.tga" order="1"/>
+                                      <thumbnail image="SS_SH_X_M5.tga" order="2"/>
+                                    </thumbnails>
+                                    <objectives>
+                                      <objective step="{value@L2M001.Step}">
+                                        <flyto>
+                                          <sector sector="L2M001.Neptune"/>
+                                        </flyto>
+                                      </objective>
+                                      <objective step="{value@L2M001.Step}+1">
+                                        <custom action="{35,2004}" icon="destroy" text="{1000,106} {35,2110}"/>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <do_if value="{player.sector}" exact="{sector@L2M001.Neptune}" negate="1">
+                                    <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,113}" noabort="1">
+                                      <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                                      <mission discipline="XXXT" level="easy"/>
+                                      <flyto>
+                                        <sector sector="L2M001.Neptune"/>
+                                      </flyto>
+                                    </set_objective>
+                                  </do_if>
+                                  <set_command object="L2M001.PlinterShip" command="movesector">
+                                    <sector sector="L2M001.Neptune"/>
+                                  </set_command>
+                                  <set_value name="L2M001.Step" operation="add"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                            <cue name="L2M001 Patrol Enters Neptune" delay="5s">
+                              <condition>
+                                <check_all>
+                                  <cue_is_complete cue="L2M001 Protect Neptune"/>
+                                  <check_value value="{object.sector@L2M001.PlinterShip}" exact="{sector@L2M001.Neptune}"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <set_command object="L2M001.PlinterShip" command="killenemies"/>
+                              </action>
+                            </cue>
+                            <cue name="L2M001 Enter Neptune" delay="5s">
+                              <condition>
+                                <check_all>
+                                  <cue_is_complete cue="L2M001 Protect Neptune"/>
+                                  <check_value value="{player.sector}" exact="{sector@L2M001.Neptune}"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <do_all exact="3">
+                                    <create_ship group="L2M001.Xenon" typename="SS_SH_X_M5" race="xenon" warp="1">
+                                      <position min="2km" max="3km"/>
+                                      <sector sector="L2M001.Neptune"/>
+                                      <equipment loadout="minimum" loadoutmask="shields|lasers|equipment"/>
+                                      <command command="killenemies"/>
+                                    </create_ship>
+                                  </do_all>
+                                  <set_invincible object="L2M001.NeptuneBeacon" invincible="0"/>
+                                  <remove_group group="L2M001.Terran"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M001 Terran Plot S1 C1">
+                                  <timing>
+                                    <time exact="5s"/>
+                                  </timing>
+                                  <action>
+                                    <do_all>
+                                      <play_cutscene file="Terran Plot S1 C1"/>
+                                      <create_ship name="L2M001.CutsceneTerran" group="L2M001.Terran" typename="SS_SH_USC_M3" race="terran">
+                                        <position object="L2M001.NeptuneBeacon" exact="5km"/>
+                                        <sector sector="L2M001.Neptune"/>
+                                        <equipment loadout="default" loadoutmask="shields|lasers|equipment"/>
+                                        <command command="killenemies"/>
+                                      </create_ship>
+                                      <create_ship name="L2M001.CutsceneXenon" group="L2M001.Xenon" typename="SS_SH_X_M4" race="xenon" warp="1">
+                                        <position object="L2M001.CutsceneTerran" exact="500m"/>
+                                        <sector sector="L2M001.Neptune"/>
+                                        <equipment loadout="minimum" loadoutmask="shields|lasers|equipment"/>
+                                        <command command="killenemies"/>
+                                      </create_ship>
+                                      <do_all exact="4">
+                                        <create_ship group="L2M001.Terran" typename="SS_SH_USC_M3" race="terran">
+                                          <position object="L2M001.CutsceneTerran" exact="2km"/>
+                                          <sector sector="L2M001.Neptune"/>
+                                          <equipment loadout="default"/>
+                                          <command command="killenemies"/>
+                                        </create_ship>
+                                      </do_all>
+                                      <do_all exact="5">
+                                        <create_ship group="L2M001.Terran" typename="SS_SH_USC_M4" race="terran">
+                                          <position object="L2M001.CutsceneTerran" exact="2km"/>
+                                          <sector sector="L2M001.Neptune"/>
+                                          <equipment loadout="default"/>
+                                          <command command="killenemies"/>
+                                        </create_ship>
+                                      </do_all>
+                                      <do_all exact="6">
+                                        <create_ship group="L2M001.Terran" typename="SS_SH_USC_M5" race="terran">
+                                          <position object="L2M001.CutsceneTerran" exact="2km"/>
+                                          <sector sector="L2M001.Neptune"/>
+                                          <equipment loadout="default"/>
+                                          <command command="killenemies"/>
+                                        </create_ship>
+                                      </do_all>
+                                      <do_all exact="2">
+                                        <create_ship group="L2M001.Terran" typename="SS_SH_USC_M6" race="terran">
+                                          <position object="L2M001.CutsceneTerran" exact="2km"/>
+                                          <sector sector="L2M001.Neptune"/>
+                                          <equipment loadout="default"/>
+                                          <command command="killenemies"/>
+                                        </create_ship>
+                                      </do_all>
+                                      <do_all exact="3">
+                                        <create_ship group="L2M001.Xenon" typename="SS_SH_X_M5" race="xenon" warp="1">
+                                          <position object="L2M001.CutsceneXenon" exact="500m"/>
+                                          <sector sector="L2M001.Neptune"/>
+                                          <equipment loadout="minimum" loadoutmask="shields|lasers|equipment"/>
+                                          <command command="killenemies"/>
+                                        </create_ship>
+                                      </do_all>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M001 Terran Plot S1 C1 2">
+                                      <condition>
+                                        <cue_completed cue="L2M001 Terran Plot S1 C1"/>
+                                      </condition>
+                                      <timing>
+                                        <time exact="2s"/>
+                                      </timing>
+                                      <action>
+                                        <play_sound soundid="1212" task="1"/>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M001 Terran Plot S1 C1 3">
+                                          <condition>
+                                            <cue_completed cue="L2M001 Terran Plot S1 C1 2"/>
+                                          </condition>
+                                          <timing>
+                                            <time exact="5s"/>
+                                          </timing>
+                                          <action>
+                                            <play_text pageid="111" textid="530"/>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M001 Set Destroy Xenon Objective">
+                                              <condition>
+                                                <cue_completed cue="L2M001 Terran Plot S1 C1 3"/>
+                                              </condition>
+                                              <timing>
+                                                <time exact="4s"/>
+                                              </timing>
+                                              <action>
+                                                <do_all>
+                                                  <create_briefing cue="L2M001">
+                                                    <mission discipline="XFXX" level="average"/>
+                                                  </create_briefing>
+                                                  <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,113}" noabort="1">
+                                                    <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                                                    <mission discipline="XFXX" level="average"/>
+                                                    <custom action="{35,2004}" icon="destroy" text="{1000,106} {35,2110}"/>
+                                                  </set_objective>
+                                                </do_all>
+                                              </action>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                                <cue name="L2M001 Enough Xenon Destroyed" delay="5s">
+                                  <condition>
+                                    <check_all>
+                                      <check_value value="{player.sector}" exact="{sector@L2M001.Neptune}"/>
+                                      <check_any>
+                                        <check_value value="{value@L2M001.PlayerDestroyXenonCount}" min="5"/>
+                                        <check_value value="{value@L2M001.NPCDestroyXenonCount}" min="35"/>
+                                        <check_all>
+                                          <object_exists object="L2M001.NeptuneBeacon" negate="1"/>
+                                          <check_value value="{group.object.count@L2M001.Xenon}" max="2"/>
+                                        </check_all>
+                                      </check_any>
+                                    </check_all>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <cancel_cue cue="L2M001 Xenon Destroyed By Player"/>
+                                      <cancel_cue cue="L2M001 Xenon Destroyed"/>
+                                      <cancel_cue cue="L2M001 Create Xenon"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M001 Scan Beacon" check="cancel">
+                                      <condition>
+                                        <object_exists object="L2M001.NeptuneBeacon"/>
+                                      </condition>
+                                      <action>
+                                        <do_all>
+                                          <play_text priority="99">
+                                            <line actor="L2M001.BenthamiAct" pageid="3818" textid="181102"/>
+                                            <line actor="L2M001.PlinterAct" pageid="3816" textid="161106"/>
+                                          </play_text>
+                                          <create_briefing cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,114}">
+                                            <mission discipline="XXXT" level="average"/>
+                                            <objectives>
+                                              <objective step="{value@L2M001.Step}">
+                                                <custom action="{35,2026}" object="L2M001.NeptuneBeacon" text="{object.name@L2M001.NeptuneBeacon}" icon="find"/>
+                                              </objective>
+                                              <objective step="{value@L2M001.Step}+1">
+                                                <custom action="{35,2004}" object="L2M001.NeptuneBeacon" text="{object.name@L2M001.NeptuneBeacon}" icon="destroy"/>
+                                              </objective>
+                                            </objectives>
+                                          </create_briefing>
+                                          <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,114}" noabort="1">
+                                            <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                                            <mission discipline="XXXT" level="average"/>
+                                            <custom action="{35,2026}" object="L2M001.NeptuneBeacon" text="{object.name@L2M001.NeptuneBeacon}" icon="find"/>
+                                          </set_objective>
+                                          <set_value name="L2M001.Step" operation="add"/>
+                                          <set_value name="L2M001.Drone Step" exact="{value@L2M001.Step}+1"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M001 Beacon Destroyed By Player">
+                                          <condition>
+                                            <object_destroyed_by_player object="L2M001.NeptuneBeacon"/>
+                                          </condition>
+                                          <action>
+                                            <do_all>
+                                              <set_value name="L2M001.PlayerDestroyedBeacon" exact="1"/>
+                                              <cancel_cue cue="L2M001 Scan Beacon"/>
+                                            </do_all>
+                                          </action>
+                                        </cue>
+                                        <cue name="L2M001 Beacon Destroyed">
+                                          <condition>
+                                            <object_destroyed object="L2M001.NeptuneBeacon"/>
+                                          </condition>
+                                          <action>
+                                            <cancel_cue cue="L2M001 Scan Beacon"/>
+                                          </action>
+                                        </cue>
+                                        <cue ref="OBJ02">
+                                          <params>
+                                            <param name="Cue" value="L2M001" comment="The cue"/>
+                                            <param name="Object" value="L2M001.NeptuneBeacon" comment="The object to be scanned"/>
+                                            <param name="Text" value="{3300,1201}"/>
+                                          </params>
+                                        </cue>
+                                        <cue name="L2M001 Destroy Beacon" delay="2s">
+                                          <condition>
+                                            <check_value value="{value@L2M001.OBJ02 Progress}" exact="1"/>
+                                          </condition>
+                                          <action>
+                                            <do_all>
+                                              <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,114}" noabort="1">
+                                                <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                                                <mission discipline="XXXT" level="average"/>
+                                                <custom action="{35,2004}" object="L2M001.NeptuneBeacon" text="{object.name@L2M001.NeptuneBeacon}" icon="destroy"/>
+                                              </set_objective>
+                                              <set_value name="Terran Plot Scene 1 Beacon Scanned" exact="1"/>
+                                              <set_owner object="L2M001.NeptuneBeacon" race="xenon"/>
+                                              <set_value name="L2M001.Step" operation="add"/>
+                                            </do_all>
+                                          </action>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                    <cue name="L2M001 Move to Oort Cloud" delay="5s">
+                                      <condition>
+                                        <object_exists object="L2M001.NeptuneBeacon" negate="1"/>
+                                      </condition>
+                                      <timing>
+                                        <time exact="10s"/>
+                                      </timing>
+                                      <action>
+                                        <do_all>
+                                          <set_group_command group="L2M001.Xenon" command="killenemies"/>
+                                          <remove_group group="L2M001.Xenon"/>
+                                          <play_text priority="99">
+                                            <line actor="L2M001.BenthamiAct" pageid="3818" textid="181103"/>
+                                            <line actor="L2M001.BenthamiAct" pageid="3818" textid="181104"/>
+                                            <line actor="L2M001.PlinterAct" pageid="3816" textid="161107"/>
+                                          </play_text>
+                                          <do_if value="{value@L2M001.Drone Step}" min="1">
+                                            <set_value name="L2M001.Step" exact="{value@L2M001.Drone Step}"/>
+                                          </do_if>
+                                          <create_briefing cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,115}">
+                                            <mission discipline="XXXT" level="average"/>
+                                            <objectives>
+                                              <objective step="{value@L2M001.Step}">
+                                                <flyto>
+                                                  <sector sector="L2M001.Oort Cloud"/>
+                                                </flyto>
+                                              </objective>
+                                              <objective step="{value@L2M001.Step}+1">
+                                                <custom action="{35,2048}" text="{17,16261}" icon="find" comment="Wait For"/>
+                                              </objective>
+                                              <objective step="{value@L2M001.Step}+2">
+                                                <custom action="{35,2008}" text="{17,16261}" icon="find" comment="Follow"/>
+                                              </objective>
+                                            </objectives>
+                                          </create_briefing>
+                                          <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,115}" noabort="1">
+                                            <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                                            <mission discipline="XXXT" level="average"/>
+                                            <flyto>
+                                              <sector sector="L2M001.Oort Cloud"/>
+                                            </flyto>
+                                          </set_objective>
+                                          <create_stationary typename="SS_SH_JUMP_BEACON" name="L2M001.OortBeacon" invincible="1">
+                                            <position x="2km" y="10km" z="-30km"/>
+                                            <sector sector="L2M001.Oort Cloud"/>
+                                          </create_stationary>
+                                          <set_value name="L2M001.OortBeaconX" exact="{object.position.x.m@L2M001.OortBeacon}"/>
+                                          <set_value name="L2M001.OortBeaconY" exact="{object.position.y.m@L2M001.OortBeacon}"/>
+                                          <set_value name="L2M001.OortBeaconZ" exact="{object.position.z.m@L2M001.OortBeacon}"/>
+                                          <create_ship name="L2M001.Winters" typename="SS_SH_A_M3" race="neutral" invincible="1" racelogic="0" capturable="0" communicates="0" warp="1">
+                                            <position object="L2M001.OortBeacon" exact="1000m"/>
+                                            <sector sector="L2M001.Oort Cloud"/>
+                                            <equipment loadout="default">
+                                              <ware typename="SS_MISSILE_D" exact="2"/>
+                                            </equipment>
+                                            <command command="none"/>
+                                            <pilot name="{3895,50}" race="argon"/>
+                                          </create_ship>
+                                          <create_ship name="L2M001.Drone" group="L2M001.Drones" race="neutral" invincible="1" capturable="0" communicates="0" typename="SS_SH_MESSAGEDRONE" racelogic="0">
+                                            <!--Change to Mars in final version-->
+                                            <sector sector="L2M001.Saturn"/>
+                                            <command command="follow" commandobject="L2M001.Winters"/>
+                                            <pilot shipname="{17,16261}"/>
+                                          </create_ship>
+                                          <set_value name="L2M001.Drone Count" operation="add"/>
+                                          <set_value name="L2M001.Step" operation="add"/>
+                                          <set_value name="L2M001.Wait Step" exact="{value@L2M001.Step}"/>
+                                          <set_value name="L2M001.Follow Step" exact="{value@L2M001.Step}+1"/>
+                                          <set_value name="L2M001.Plinter Drone Line" exact="161108"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M001 Go to Oort Delay">
+                                          <condition>
+                                            <cue_completed cue="L2M001 Move to Oort Cloud"/>
+                                          </condition>
+                                          <cues>
+                                            <cue name="L2M001 Enter Oort" delay="5s" comment="To check if the player has ever entered the Oort Cloud">
+                                              <condition>
+                                                <check_value value="{player.sector}" exact="{sector@L2M001.Oort Cloud}"/>
+                                              </condition>
+                                            </cue>
+                                            <cue name="L2M001 Wait For Drone" delay="3s">
+                                              <condition>
+                                                <check_all>
+                                                  <object_exists object="L2M001.Drone"/>
+                                                  <cue_is_complete cue="L2M001 Enter Oort"/>
+                                                  <check_value value="{object.sector@L2M001.Drone}" exact="{sector@L2M001.Oort Cloud}" negate="1"/>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,115}" noabort="1">
+                                                  <briefing cue="L2M001" step="{value@L2M001.Wait Step}"/>
+                                                  <mission discipline="XXXT" level="average"/>
+                                                  <custom action="{35,2048}" text="{17,16261}" icon="find" comment="Wait For"/>
+                                                </set_objective>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M001 Follow Drone" delay="3s">
+                                              <condition>
+                                                <check_all>
+                                                  <object_exists object="L2M001.Drone"/>
+                                                  <check_value value="{object.sector@L2M001.Drone}" exact="{sector@L2M001.Oort Cloud}"/>
+                                                  <check_value value="{player.sector}" exact="{sector@L2M001.Oort Cloud}"/>
+                                                </check_all>
+                                              </condition>
+                                              <timing>
+                                                <time exact="2s"/>
+                                              </timing>
+                                              <action>
+                                                <do_all>
+                                                  <do_choose>
+                                                    <do_when value="{value@L2M001.Follow Drone}" exact="0">
+                                                      <remove_object object="L2M001.TempDrone"/>
+                                                      <set_value name="L2M001.Follow Drone" exact="1"/>
+                                                      <play_cutscene file="Terran Plot S1 C3"/>
+                                                      <play_sound soundid="1212" task="1"/>
+                                                      <set_object name="L2M001.TempDrone" value="{object@L2M001.Drone}"/>
+                                                    </do_when>
+                                                    <do_otherwise>
+                                                      <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,115}" noabort="1">
+                                                        <briefing cue="L2M001" step="{value@L2M001.Follow Step}"/>
+                                                        <mission discipline="XXXT" level="average"/>
+                                                        <custom action="{35,2008}" object="L2M001.Drone" text="{17,16261}" icon="find"/>
+                                                      </set_objective>
+                                                      <cancel_cue cue="L2M001 Follow Drone Set Objective"/>
+                                                    </do_otherwise>
+                                                  </do_choose>
+                                                </do_all>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M001 Follow Drone Set Objective">
+                                                  <timing>
+                                                    <time exact="10s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,102}" text="{3201,115}" noabort="1">
+                                                      <briefing cue="L2M001" step="{value@L2M001.Follow Step}"/>
+                                                      <mission discipline="XXXT" level="average"/>
+                                                      <custom action="{35,2008}" object="L2M001.Drone" text="{17,16261}" icon="find"/>
+                                                    </set_objective>
+                                                  </action>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                            <cue name="L2M001 Winters Found" delay="3s">
+                                              <condition>
+                                                <object_position max="8000m">
+                                                  <position object="L2M001.Winters"/>
+                                                </object_position>
+                                              </condition>
+                                              <action>
+                                                <do_all>
+                                                  <set_value name="L2M001.Step" operation="add"/>
+                                                  <set_value name="Terran Plot Scene 1 Winters Found" operation="set"/>
+                                                  <cancel_cue cue="L2M001 Wait For Drone"/>
+                                                  <cancel_cue cue="L2M001 Follow Drone"/>
+                                                  <set_invincible object="L2M001.OortBeacon" invincible="0"/>
+                                                  <play_cutscene file="Terran Plot S1 C2"/>
+                                                  <set_command object="L2M001.Winters" command="follow" commandobject="L2M001.OortBeacon"/>
+                                                  <set_object name="L2M001.Winters" value="{object@L2M001.Winters}"/>
+                                                  <set_object name="L2M001.OortBeacon" value="{object@L2M001.OortBeacon}"/>
+                                                  <set_target object="L2M001.OortBeacon"/>
+                                                </do_all>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M001 Winter Fire Missiles">
+                                                  <timing>
+                                                    <time exact="3s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <do_all>
+                                                      <fire_missile object="L2M001.Winters" group="L2M001.Missiles" commandobject="L2M001.OortBeacon" typename="SS_MISSILE_D"/>
+                                                      <fire_missile object="L2M001.Winters" group="L2M001.Missiles" commandobject="L2M001.OortBeacon" typename="SS_MISSILE_D"/>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M001 Create Beacon Debris" delay="200">
+                                                      <condition>
+                                                        <check_all>
+                                                          <cue_is_complete cue="L2M001 Winter Fire Missiles"/>
+                                                          <check_any>
+                                                            <any_object_position group="L2M001.Missiles" max="10m">
+                                                              <position object="L2M001.OortBeacon"/>
+                                                            </any_object_position>
+                                                            <check_value value="{group.object.count@L2M001.Missiles}" exact="0"/>
+                                                            <object_exists object="L2M001.OortBeacon" negate="1"/>
+                                                          </check_any>
+                                                        </check_all>
+                                                      </condition>
+                                                      <action>
+                                                        <do_all>
+                                                          <destroy_object object="L2M001.OortBeacon" explosion="1"/>
+                                                          <destroy_group group="L2M001.Missiles" explosion="0"/>
+                                                          <do_all exact="3">
+                                                            <create_crate group="L2M001.Scrap" secret="1">
+                                                              <position x="{value@L2M001.OortBeaconX}m" y="{value@L2M001.OortBeaconY}m" z="{value@L2M001.OortBeaconZ}m"/>
+                                                              <sector sector="L2M001.Oort Cloud"/>
+                                                              <ware exact="1" typename="SS_WARE_DEBRIS"/>
+                                                            </create_crate>
+                                                          </do_all>
+                                                        </do_all>
+                                                      </action>
+                                                    </cue>
+                                                    <cue name="L2M001 Remove Winters">
+                                                      <condition>
+                                                        <cue_completed cue="L2M001 Winter Fire Missiles"/>
+                                                      </condition>
+                                                      <timing>
+                                                        <time exact="3s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <do_all>
+                                                          <set_value name="L2M001.Goto SRS" exact="1"/>
+                                                          <destroy_object object="L2M001.Winters" warp="1"/>
+                                                          <destroy_object object="L2M001.Drone"/>
+                                                          <cancel_cue cue="L2M001 Drone Collected"/>
+                                                        </do_all>
+                                                      </action>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                            <cue name="L2M001 Drone Collected" delay="3s" instantiate="static">
+                                              <condition>
+                                                <check_all>
+                                                  <object_exists object="L2M001.Drone"/>
+                                                  <object_position object="L2M001.Drone" max="1000m">
+                                                    <position object="L2M001.Winters"/>
+                                                  </object_position>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <destroy_object object="L2M001.Drone"/>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M001 Next Drone Wait" check="cancel">
+                                                  <condition>
+                                                    <check_value value="{value@L2M001.Drone Count}" max="3"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="1m"/>
+                                                  </timing>
+                                                  <cues>
+                                                    <cue name="L2M001 Create Next Drone">
+                                                      <condition>
+                                                        <check_all>
+                                                          <cue_completed cue="L2M001 Next Drone Wait"/>
+                                                          <check_value value="{value@L2M001.Goto SRS}" exact="0"/>
+                                                        </check_all>
+                                                      </condition>
+                                                      <action>
+                                                        <do_all>
+                                                          <play_text priority="99" actor="L2M001.PlinterAct" pageid="3816" textid="{value@L2M001.Plinter Drone Line}"/>
+                                                          <set_value name="L2M001.Plinter Drone Line" operation="add"/>
+                                                          <create_ship name="L2M001.Drone" group="L2M001.Drones" race="neutral" invincible="1" capturable="0" communicates="0" typename="SS_SH_MESSAGEDRONE" racelogic="0">
+                                                            <sector sector="L2M001.Neptune"/>
+                                                            <command command="follow" commandobject="L2M001.Winters"/>
+                                                            <pilot shipname="{17,16261}"/>
+                                                          </create_ship>
+                                                          <set_value name="L2M001.Drone Count" operation="add"/>
+                                                          <reset_cue cue="L2M001 Wait For Drone"/>
+                                                          <reset_cue cue="L2M001 Follow Drone"/>
+                                                        </do_all>
+                                                      </action>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                                <cue name="L2M001 No More Drones" check="cancel">
+                                                  <condition>
+                                                    <check_value value="{value@L2M001.Drone Count}" min="4"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="2s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <do_all>
+                                                      <destroy_object object="L2M001.Winters" warp="1"/>
+                                                      <destroy_object object="L2M001.OortBeacon" explosion="1"/>
+                                                      <do_all exact="3">
+                                                        <create_crate group="L2M001.Scrap" secret="1">
+                                                          <position x="{value@L2M001.OortBeaconX}" y="{value@L2M001.OortBeaconY}" z="{value@L2M001.OortBeaconZ}"/>
+                                                          <sector sector="L2M001.Oort Cloud"/>
+                                                          <ware exact="1" typename="SS_WARE_DEBRIS"/>
+                                                        </create_crate>
+                                                      </do_all>
+                                                      <set_value name="L2M001.Goto SRS" exact="1"/>
+                                                      <cancel_cue cue="L2M001 Wait For Drone"/>
+                                                      <cancel_cue cue="L2M001 Follow Drone"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                            <cue name="L2M001 Update Beacon Location" delay="5s" instantiate="static">
+                                              <condition>
+                                                <check_all>
+                                                  <object_exists object="L2M001.OortBeacon"/>
+                                                  <check_any>
+                                                    <check_value value="{value@L2M001.OortBeaconX}" min="{object.position.x.m@L2M001.OortBeacon}-50" max="{object.position.x.m@L2M001.OortBeacon}+50" negate="1"/>
+                                                    <check_value value="{value@L2M001.OortBeaconY}" min="{object.position.y.m@L2M001.OortBeacon}-50" max="{object.position.y.m@L2M001.OortBeacon}+50" negate="1"/>
+                                                    <check_value value="{value@L2M001.OortBeaconZ}" min="{object.position.z.m@L2M001.OortBeacon}-50" max="{object.position.z.m@L2M001.OortBeacon}+50" negate="1"/>
+                                                  </check_any>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <do_all>
+                                                  <set_value name="L2M001.OortBeaconX" exact="{object.position.x.m@L2M001.OortBeacon}"/>
+                                                  <set_value name="L2M001.OortBeaconY" exact="{object.position.y.m@L2M001.OortBeacon}"/>
+                                                  <set_value name="L2M001.OortBeaconZ" exact="{object.position.z.m@L2M001.OortBeacon}"/>
+                                                </do_all>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M001 Follow Plinter Oort" delay="5s">
+                                              <condition>
+                                                <check_value value="{value@L2M001.Goto SRS}" exact="1"/>
+                                              </condition>
+                                              <timing>
+                                                <time exact="10s"/>
+                                              </timing>
+                                              <action>
+                                                <do_all>
+                                                  <cancel_cue cue="L2M001 Wait For Drone"/>
+                                                  <cancel_cue cue="L2M001 Winters Found"/>
+                                                  <cancel_cue cue="L2M001 Follow Drone"/>
+                                                  <cancel_cue cue="L2M001 Drone Collected"/>
+                                                  <cancel_cue cue="L2M001 Patrol Enters Neptune"/>
+                                                  <destroy_group group="L2M001.Drones"/>
+                                                  <destroy_object object="L2M001.OortBeacon" explosion="1"/>
+                                                  <set_group_command group="L2M001.TerranPatrol" command="none"/>
+                                                  <find_gate name="L2M001.Oort East Gate" gate="east">
+                                                    <sector sector="L2M001.Oort Cloud"/>
+                                                  </find_gate>
+                                                  <warp_group group="L2M001.TerranPatrol">
+                                                    <position object="L2M001.Oort East Gate" exact="2km"/>
+                                                    <sector sector="L2M001.Oort Cloud"/>
+                                                  </warp_group>
+                                                  <set_group_command group="L2M001.TerranPatrol" command="follow" commandobject="L2M001.PlinterShip"/>
+                                                  <set_command object="L2M001.PlinterShip" command="follow" commandobject="{player.ship}"/>
+                                                  <do_if value="{value@L2M001.Follow Drone}" exact="1">
+                                                    <set_value name="L2M001.Step" operation="add"/>
+                                                  </do_if>
+                                                  <play_text priority="99" actor="L2M001.PlinterAct" pageid="3816" textid="161111"/>
+                                                  <create_briefing cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,104}" text="{3201,116}">
+                                                    <mission discipline="XXXT" level="easy"/>
+                                                    <objectives>
+                                                      <objective step="{value@L2M001.Step}">
+                                                        <flyto object="L2M001.PlinterShip"/>
+                                                      </objective>
+                                                    </objectives>
+                                                  </create_briefing>
+                                                  <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,104}" text="{3201,116}" noabort="1">
+                                                    <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                                                    <mission discipline="XXXT" level="easy"/>
+                                                    <flyto object="L2M001.PlinterShip"/>
+                                                  </set_objective>
+                                                  <set_sector name="L2M001.Patrol Sector" value="{sector@L2M001.Pluto}"/>
+                                                </do_all>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M001 Stop Plinter">
+                                                  <condition>
+                                                    <cue_completed cue="L2M001 Follow Plinter Oort"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="20s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <set_command object="L2M001.PlinterShip" command="stay"/>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M001 Follow Plinter Oort Wait" delay="5s">
+                                                  <condition>
+                                                    <check_all>
+                                                      <cue_is_complete cue="L2M001 Follow Plinter Oort"/>
+                                                      <object_position max="5km">
+                                                        <position object="L2M001.PlinterShip"/>
+                                                      </object_position>
+                                                    </check_all>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <cancel_cue cue="L2M001 Stop Plinter"/>
+                                                      <play_text priority="99">
+                                                        <line actor="L2M001.PlinterAct" textid="929"/>
+                                                        <line actor="L2M001.PlinterAct" textid="931"/>
+                                                      </play_text>
+                                                      <set_group_command group="L2M001.TerranPatrol" command="protect" commandobject="L2M001.PlinterShip"/>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue ref="L0M34">
+                                                      <params>
+                                                        <param name="Cue" value="L2M001" comment="The cue where values will be localized"/>
+                                                        <param name="Step" value="L2M001.Step" comment="The initial objective step"/>
+                                                        <param name="FinalSector" value="L2M001.Saturn" comment="The Address of the destination. Overrides all other criteria."/>
+                                                        <param name="PatrolSector" value="L2M001.Patrol Sector" comment="The next sector on the way to the destination"/>
+                                                        <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                                                        <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                                        <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                                        <param name="OfferRace" value="{lookup.race@terran}" comment="Name of the offer race"/>
+                                                        <param name="EnemyRace" value="{lookup.race@xenon}" comment="Race id or mask"/>
+                                                        <param name="Clear Enemies" value="1" comment="Only move on when there are no enemies around the player"/>
+                                                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                                        <param name="UseTimer" value="0" comment="Override the plot signal and use a timer"/>
+                                                        <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                                                        <param name="FeedbackName" value="L2M001.L0M34 Feedback" comment="The address where the step value is stored"/>
+                                                        <param name="PatrolDest" value="0" comment="Patrol the destination sector"/>
+                                                        <param name="PatrolTime" value="400" comment="Duration of patrol per sector in seconds"/>
+                                                        <param name="KillScore Name" value="L2M001.KillScore"/>
+                                                        <param name="KillCount Name" value="L2M001.TotalShips"/>
+                                                        <param name="RewardCr" value="L2M001.L0M34 Reward" comment="Reward - credits"/>
+                                                        <param name="Bonus" value="L2M001.L0M34 Bonus"/>
+
+                                                        <param name="OBS" value="1" comment="Activate the OBS"/>
+                                                        <param name="Max OBS Instances" value="10" comment="The maximum OBS spawns. 0=Infinate"/>
+                                                        <param name="MaxOBSPerSector" value="2" comment="Max OBS spawns per sector"/>
+                                                        <param name="OBS Counter" value="L2M001.OBS Count" comment="The name of the OBS counter"/>
+                                                        <param name="OBS Cue" value="L2M001" comment="The cue name where the ship groups are saved too"/>
+                                                        <param name="OBSFleetRace" value="{lookup.race@xenon}" comment="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+                                                        <param name="OBSFleetPilotsRace" value="{lookup.race@xenon}" comment="The race ID of the pilots"/>
+                                                        <param name="OBSMissionRank" value="{player.fightrank.rank}" comment="A 0-30 scale preferably based on the players fight rank"/>
+                                                        <param name="OBSDifficultyRank" value="{lookup.level@easy}" comment="A 1-8 scale of difficulty"/>
+                                                        <param name="OBS Dock Support" value="1" comment="0/1 Sets if the created support ships are docked with their homebase"/>
+                                                        <param name="OBS Support Overflow" value="0" comment="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+                                                      </params>
+                                                    </cue>
+                                                    <cue name="L2M001 Plinter Move to Patrol Sector" delay="5s" instantiate="static">
+                                                      <condition>
+                                                        <check_value value="{sector@L2M001.Patrol Sector}" exact="{sector@L2M001.LastPatrolSector}" negate="1"/>
+                                                      </condition>
+                                                      <action>
+                                                        <do_all>
+                                                          <set_command object="L2M001.PlinterShip" command="movesector">
+                                                            <sector sector="L2M001.Patrol Sector"/>
+                                                          </set_command>
+                                                          <set_sector name="L2M001.LastPatrolSector" value="{sector@L2M001.Patrol Sector}"/>
+                                                          <reset_cue cue="L2M001 Plinter Patrol Sector"/>
+                                                        </do_all>
+                                                      </action>
+                                                    </cue>
+                                                    <cue name="L2M001 Plinter Patrol Sector" delay="5s">
+                                                      <condition>
+                                                        <check_value value="{object.sector@L2M001.PlinterShip}" exact="{sector@L2M001.Patrol Sector}"/>
+                                                      </condition>
+                                                      <action>
+                                                        <set_command object="L2M001.PlinterShip" command="killenemies"/>
+                                                      </action>
+                                                    </cue>
+                                                    <cue name="L2M001 L0M34 Patrol Completed" delay="5s">
+                                                      <condition>
+                                                        <check_value value="{value@L2M001.L0M34 Feedback}" exact="0" negate="1"/>
+                                                      </condition>
+                                                      <timing>
+                                                        <time exact="2s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <do_all>
+                                                          <play_cutscene file="Terran Plot S1 C4"/>
+                                                          <set_object name="L2M001.SRSTemp" value="{object@L2M001.SRS}"/>
+                                                          <play_text priority="99" actor="L2M001.PlinterAct" pageid="3816" textid="161112"/>
+                                                        </do_all>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M001 Terran Plot S1 C4 2">
+                                                          <condition>
+                                                            <cue_completed cue="L2M001 L0M34 Patrol Completed"/>
+                                                          </condition>
+                                                          <timing>
+                                                            <time exact="2s"/>
+                                                          </timing>
+                                                          <action>
+                                                            <play_sound soundid="1213" task="1"/>
+                                                          </action>
+                                                          <cues>
+                                                            <cue name="L2M001 Set Objective Dock at SRS">
+                                                              <timing>
+                                                                <time exact="10s"/>
+                                                              </timing>
+                                                              <action>
+                                                                <do_all>
+                                                                  <reward_player>
+                                                                    <money exact="{value@L2M001.L0M34 Reward}+{value@L2M001.L0M34 Bonus}"/>
+                                                                  </reward_player>
+                                                                  <create_briefing cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,104}" text="{3201,117}" background="sector_terran_saturn.tga">
+                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                    <objectives>
+                                                                      <objective step="{value@L2M001.Step}">
+                                                                        <dockat object="L2M001.SRS"/>
+                                                                      </objective>
+                                                                    </objectives>
+                                                                  </create_briefing>
+                                                                  <set_objective cue="L2M001" story="{3200,1}" chapter="{3200,101}" title="{3201,104}" text="{3201,117}" noabort="1">
+                                                                    <briefing cue="L2M001" step="{value@L2M001.Step}"/>
+                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                    <dockat object="L2M001.SRS"/>
+                                                                  </set_objective>
+                                                                </do_all>
+                                                              </action>
+                                                            </cue>
+                                                          </cues>
+                                                        </cue>
+                                                        <cue name="L2M001 Docked at SRS">
+                                                          <condition>
+                                                            <object_docked param="{object@L2M001.SRS}"/>
+                                                          </condition>
+                                                          <action>
+                                                            <do_all>
+                                                              <cancel_cue cue="L2M001 Terran Plot S1 C4 2"/>
+                                                              <set_value name="Terran S1 Debris Count" exact="{player.ship.cargo.SS_WARE_DEBRIS.count}"/>
+                                                              <add_cargo object="{player.ship}">
+                                                                <ware typename="SS_WARE_DEBRIS" exact="-{value@Terran S1 Debris Count}"/>
+                                                              </add_cargo>
+                                                              <set_value name="Terran Plot Scene 1 End" operation="set"/>
+                                                              <set_invincible object="L2M001.SRS" invincible="0"/>
+                                                              <destroy_group group="L2M001.Scrap"/>
+                                                              <destroy_group group="L2M001.TerranPatrol"/>
+                                                              <remove_briefing cue="L2M001"/>
+                                                              <remove_objective cue="L2M001" status="complete"/>
+                                                              <cancel_cue cue="L2M001"/>
+                                                            </do_all>
+                                                          </action>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>FG6AsSfA3NKl1Q6XZTMIWWqJXvHWoxxxR9nW3tir5bZOJDJckPvVL7UFczNBzG+SQvLs978NS2xa20ZwSDsF2Hto2zCJJC/xx31SNz7fFOgF8QbZNCfaiOSlfbz0ry9oRt7hDLN8NXlSdZE6qkJEjyG0oKRP0hx/18OhcmfGimt+N8tZFEEQYEY+uCSMyt66L0Lcv8aAS8jeAomQJObKQLfjJkDu+ynU/X3reuVjDiTi2I3KUpFUjFn5RWLrTs4OWJEiUmnh0Kjvln4zoN+vnBvwBMb5kZ9At840dWMBqu2UdtxQ+MFsubrWMVAiCoLkt5s8hPqyw7Gh14Jk3DRuPA==</signature>
+</director>

@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Library" name="Finish Briefing" description="Add common factors to briefing" />
+    <version number="0.6" date="30/05/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="LUM04" library="1">
+      <documentation>
+        <content name="LUM04 Finish Briefing" type="utility"/>
+        <version number="0.6" date="30/05/08" status="development"/>
+        <params>
+          <param name="Discipline" type="text" compulsory="1" description="the mission discipline"/>
+          <param name="Difficulty" type="number" compulsory="1" description="the mission discipline"/>
+          <param name="MissionCount" type="number" compulsory="0" description="Number of missions to average difficulty over"/>
+          <param name="StoryID" type="number" description="The textID for the Story title"/>
+          <param name="ChapterID" type="number" description="The textID for the Chapter title"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <param name="RewardMult" type="number" compulsory="0" description="If using default reward, a value to multiply by"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RewardFree" type="text" compulsory="0" description="Reward - free text"/>
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+          <param name="BriefingBackground" type="text" compulsory="0" description="Image filename for a custom background in the briefing"/>
+        </params>
+        <history>
+          <change date="22/08/08" author="al_main" description="Added extra briefings to background selection"/>
+          <change date="19/08/08" author="al_main" description="Added extra briefings to background selection"/>
+          <change date="18/08/08" author="al_main" description="Added briefings background selection"/>
+          <change date="21/07/08" author="al_main" description="Fixed missing value@ in RewardMult handling"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="07/07/08" author="al_main" description="Improved timer code with param.exists"/>
+          <change date="30/05/08" author="al_main" description="Added reward multiplier parameter"/>
+          <change date="15/04/08" author="al_main" description="Text page set to 3200"/>
+          <change date="03/03/08" author="al_main" description="Fix to mission count code causing trivial difficulty"/>
+          <change date="23/02/08" author="al_main" description="Fixes with param.exists"/>
+          <change date="19/02/08" author="al_main" description="Fix to combine rewards, checks added to difficulty averageing"/>
+          <change date="19/02/08" author="Owen Lake" description="difficulty averageing added"/>
+          <change date="18/02/08" author="al_main" description="Timer params now names instead of values"/>
+          <change date="15/02/08" author="al_main" description="Structure improved for better performance, fix to NoReward setting 0 credits"/>
+          <change date="15/02/08" author="Owen Lake" description="Rounding now only checked if reward is required"/>
+          <change date="15/02/08" author="Owen Lake" description="RewardObj check changed to check object.exists, rewards changed to use param.exists"/>
+          <change date="14/02/08" author="al_main" description="Ability to automatically round rewards to nice numbers added"/>
+          <change date="14/02/08" author="al_main" description="Reward and time parameter system changed"/>
+          <change date="08/02/08" author="al_main" description="Removed 'Unknown' option and added 'Free Text' options"/>
+          <change date="08/02/08" author="al_main" description="Documentation added"/>
+        </history>
+        <todo>
+          <item priority="low" description="Set values so that Finish Objective uses the set values rather than needing all the params also passed to it"/>
+          <item priority="low" description="Add checks to handle the rounding of the (default) reward amount to make it neater?"/>
+          <item priority="low" description="Add race to (default) reward amount when previously set?"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <!--set mission type and difficulty-->
+          <set_value name="this.MissionCount" exact="{param@MissionCount}"/>
+          <do_if value="{param@Difficulty}" min="1">
+            <do_choose>
+              <do_when value="{value@this.MissionCount}" min="1">
+                <set_value name="LUM04.Temp Difficulty" exact="{param@Difficulty}/{param@MissionCount}"/>
+                <do_if value="{value@LUM04.Temp Difficulty}" max="{lookup.level@trivial}-1">
+                  <set_value name="LUM04.Temp Difficulty" exact="{lookup.level@trivial}"/>
+                </do_if>
+                <do_if value="{value@LUM04.Temp Difficulty}" min="{lookup.level@impossible}+1">
+                  <set_value name="LUM04.Temp Difficulty" exact="{lookup.level@impossible}"/>
+                </do_if>
+                <create_briefing cue="{param@Cue}">
+                  <mission level="{value@LUM04.Temp Difficulty}" discipline="{param@Discipline}"/>
+                </create_briefing>
+              </do_when>
+              <do_otherwise>
+                <create_briefing cue="{param@Cue}">
+                  <mission level="{param@Difficulty}" discipline="{param@Discipline}"/>
+                </create_briefing>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+
+          <!--set reward type-->
+          <do_if value="{value@{param@RewardCr}}" exact="0">
+            <do_choose>
+              <do_when value="{param.exists@RewardFree}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <reward other="{param@RewardFree}"/>
+                </create_briefing>
+              </do_when>
+              <do_when value="{object.exists@{param@RewardObj}}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <reward other="{object.name@{param@RewardObj}}"/>
+                </create_briefing>
+              </do_when>
+              <do_when value="{param.exists@RewardWare}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <reward other="{lookup.type.name@{param@RewardWare}}"/>
+                </create_briefing>
+                <do_if value="{param.exists@RewardAmt}" exact="1">
+                  <create_briefing cue="{param@Cue}">
+                    <reward other="{value@{param@RewardAmt}} x {lookup.type.name@{param@RewardWare}}"/>
+                  </create_briefing>
+                </do_if>
+              </do_when>
+              <do_when value="{param.exists@RewardCr}" exact="1">
+                <set_value name="{param@RewardCr}" exact="{reward.money@{param@Difficulty}.{param@Discipline}}"/>
+                <do_if value="{param.exists@RewardMult}" exact="1">
+                  <set_value name="{param@RewardCr}" exact="{value@{param@RewardCr}}*{param@RewardMult}"/>
+                </do_if>
+              </do_when>
+            </do_choose>
+          </do_if>
+
+          <do_if value="{value@{param@RewardCr}}" min="1">
+            <do_if value="{param.exists@RoundReward}" exact="1">
+              <do_if value="{param@RoundReward}" min="1" max="100" negate="1">
+                <do_choose>
+                  <do_when value="{value@{param@RewardCr}}" min="10000000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(25000*{param@RoundReward}))*(25000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="5000000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(10000*{param@RoundReward}))*(10000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="2500000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(5000*{param@RoundReward}))*(5000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="1000000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(2500*{param@RoundReward}))*(2500*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="500000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(1000*{param@RoundReward}))*(1000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="250000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(500*{param@RoundReward}))*(500*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="100000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(250*{param@RoundReward}))*(250*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="25000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(100*{param@RoundReward}))*(100*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="10000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(50*{param@RoundReward}))*(50*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="5000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(25*{param@RoundReward}))*(25*{param@RoundReward})"/>
+                  </do_when>
+                </do_choose>
+              </do_if>
+            </do_if>
+            <do_choose>
+              <do_when value="{param.exists@RewardFree}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <reward money="{value@{param@RewardCr}}" other="{param@RewardFree}"/>
+                </create_briefing>
+              </do_when>
+              <do_when value="{object.exists@{param@RewardObj}}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <reward money="{value@{param@RewardCr}}" other="{object.name@{param@RewardObj}}"/>
+                </create_briefing>
+              </do_when>
+              <do_when value="{param.exists@RewardWare}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <reward money="{value@{param@RewardCr}}" other="{lookup.type.name@{param@RewardWare}}"/>
+                </create_briefing>
+                <do_if value="{param.exists@RewardAmt}" exact="1">
+                  <create_briefing cue="{param@Cue}">
+                    <reward money="{value@{param@RewardCr}}" other="{value@{param@RewardAmt}} x {lookup.type.name@{param@RewardWare}}"/>
+                  </create_briefing>
+                </do_if>
+              </do_when>
+              <do_otherwise>
+                <create_briefing cue="{param@Cue}">
+                  <reward money="{value@{param@RewardCr}}"/>
+                </create_briefing>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+
+          <!--set story and chapter ID's-->
+          <do_if value="{param.exists@StoryID}" exact="1">
+            <create_briefing cue="{param@Cue}" story="{3200,{param@StoryID}}"/>
+            <do_if value="{param.exists@ChapterID}" exact="1">
+              <create_briefing cue="{param@Cue}" story="{3200,{param@StoryID}}" chapter="{3200,{param@ChapterID}}"/>
+            </do_if>
+          </do_if>
+
+          <!--check timer needed-->
+          <set_value name="this.setTimer" exact="1"/>
+          <do_if value="{param.exists@IsPlot}" exact="1">
+            <do_if value="{param@IsPlot}" exact="1">
+              <set_value name="this.setTimer" exact="0"/>
+              <do_if value="{param.exists@UseTimer}" exact="1">
+                <do_if value="{param@UseTimer}" exact="1">
+                  <set_value name="this.setTimer" exact="1"/>
+                </do_if>
+              </do_if>
+            </do_if>
+          </do_if>
+          <!--set timer-->
+          <do_if value="{value@this.setTimer}" exact="1">
+            <do_if value="{param.exists@StartTime}" exact="1">
+              <do_if value="{value@{param@StartTime}}" min="1">
+                <create_briefing cue="{param@Cue}">
+                  <timer start="{value@{param@StartTime}}"/>
+                </create_briefing>
+              </do_if>
+            </do_if>
+            <do_if value="{param.exists@Duration}" exact="1">
+              <do_if value="{value@{param@Duration}}" min="1">
+                <create_briefing cue="{param@Cue}">
+                  <timer duration="{value@{param@Duration}}"/>
+                </create_briefing>
+              </do_if>
+            </do_if>
+            <do_if value="{param.exists@EndTime}" exact="1">
+              <do_if value="{value@{param@EndTime}}" min="1">
+                <create_briefing cue="{param@Cue}">
+                  <timer end="{value@{param@EndTime}}"/>
+                </create_briefing>
+              </do_if>
+            </do_if>
+          </do_if>
+
+          <!--Add briefing background-->
+          <do_choose>
+            <!--if custom background supplied, for plot etc, use that-->
+            <do_when value="{param.exists@BriefingBackground}" exact="1">
+              <create_briefing cue="{param@Cue}" background="{param@BriefingBackground}"/>
+              <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+            </do_when>
+            <!--else if no background set choose one-->
+            <do_when value="{value@{param@Cue}.Briefing Background Set}" exact="1" negate="1">
+              <!--50% chance of using one from the offerrace-->
+              <do_choose chance="50">
+                <do_when value="{param@OfferRace}" exact="{lookup.race@argon}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="sector_argon.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_argon_prime_sy.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_eq.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_gunnes_crusade.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_interworlds.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_montalaar.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_nathans_voyage.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_omicron_lyrae.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_argon_trade.tga"/>
+                    <create_briefing cue="{param@Cue}" background="ship_argon_nova.tga"/>
+                    <create_briefing cue="{param@Cue}" background="station_argon_space_fuel_distillery.tga"/>
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                </do_when>
+                <do_when value="{param@OfferRace}" exact="{lookup.race@boron}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="sector_boron_hilas_joy.tga"/>
+                    <create_briefing cue="{param@Cue}" background="ship_boron_mako.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_boron_shore_of_infinity.tga"/>
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                </do_when>
+                <do_when value="{param@OfferRace}" exact="{lookup.race@split}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="sector_split.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_split_contorted_dominion.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_split_rhonkars_fire.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_split_thyns_excavation.tga"/>
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                </do_when>
+                <do_when value="{param@OfferRace}" exact="{lookup.race@paranid}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="sector_boron_mists_of_elysium.tga" comment="Paranid capital ship in pic"/>
+                    <create_briefing cue="{param@Cue}" background="sector_paranid.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_paranid_patriarchs_collusion.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_paranid_trinity_sanctum.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_paranid_unholy_descent.tga"/>
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                </do_when>
+                <do_when value="{param@OfferRace}" exact="{lookup.race@terran}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="sector_terran_earth.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_terran_heretics_end.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_terran_jupiter.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_terran_saturn.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_terran_titan.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_terran_uranus.tga"/>
+                    <create_briefing cue="{param@Cue}" background="ship_terran_scimitar.tga"/>
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                </do_when>
+                <do_when value="{param@OfferRace}" exact="{lookup.race@yaki}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="sector_yaki_weavers_tempest.tga"/>
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1" chance="20" comment="low chance else same pic used too much, not very yaki"/>
+                </do_when>
+              </do_choose>
+              <!--20% chance of using one from the enemy race if khaak / xenon-->
+              <do_choose chance="20">
+                <do_when value="{param@EnemyRace}" exact="{lookup.race@khaak}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="sector_khaak_931.tga"/>
+                    <create_briefing cue="{param@Cue}" background="ship_khaak_corvette.tga"/>
+                    <create_briefing cue="{param@Cue}" background="ship_khaak_fighter.tga"/>
+                    <create_briefing cue="{param@Cue}" background="station_khaak.tga"/>
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                </do_when>
+                <do_when value="{param@OfferRace}" exact="{lookup.race@xenon}">
+                  <do_any>
+                    <create_briefing cue="{param@Cue}" background="ship_xenon_n.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_xenon_sector_347.tga"/>
+                    <create_briefing cue="{param@Cue}" background="sector_xenon_sector_597.tga"/>
+                    <!--other current xenon sector pics dont look vey xenon-->
+                  </do_any>
+                  <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                </do_when>
+              </do_choose>
+              <!--if no background set yet then use the discipline to assign one-->
+              <do_if value="{value@{param@Cue}.Briefing Background Set}" exact="1" negate="1">
+                <do_choose>
+                  <do_when value="{param@Discipline}" exact="TXXX">
+                    <do_any>
+                      <create_briefing cue="{param@Cue}" background="ship_argon_mercury.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_argon.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_argon_nathans_voyage.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_argon_trade.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_unknown_16_0.tga"/>
+                      <create_briefing cue="{param@Cue}" background="space_asteroids.tga"/>
+                    </do_any>
+                    <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                  </do_when>
+                  <do_when value="{param@Discipline}" exact="XFXX">
+                    <do_any>
+                      <create_briefing cue="{param@Cue}" background="combat_buster.tga"/>
+                      <create_briefing cue="{param@Cue}" background="combat_missiles.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_boron_hilas_joy.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_boron_mists_of_elysium.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_xenon_sector_598.tga"/>
+                      <create_briefing cue="{param@Cue}" background="ship_argon_centaur.tga"/>
+                      <create_briefing cue="{param@Cue}" background="ship_argon_gladiator.tga"/>
+                      <create_briefing cue="{param@Cue}" background="space_blueish.tga"/>
+                    </do_any>
+                    <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                  </do_when>
+                  <do_when value="{param@Discipline}" exact="XXBX">
+                    <do_any>
+                      <create_briefing cue="{param@Cue}" background="sector_argon_eq.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_argon_montalaar.tga"/>
+                      <create_briefing cue="{param@Cue}" background="space_asteroids.tga"/>
+                      <create_briefing cue="{param@Cue}" background="station_argon_space_fuel_distillery.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_teladi_ptni_headquarters.tga"/>
+                    </do_any>
+                    <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                  </do_when>
+                  <do_when value="{param@Discipline}" exact="XXXT">
+                    <do_any>
+                      <create_briefing cue="{param@Cue}" background="sector_argon_eq.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_unknown_16_0.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_xenon_sector_534.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_xenon_sector_596.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_xenon_sector_597.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_xenon_sector_598.tga"/>
+                      <create_briefing cue="{param@Cue}" background="sector_yaki_weavers_tempest.tga"/>
+                      <create_briefing cue="{param@Cue}" background="space_blueish.tga"/>
+                    </do_any>
+                    <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+                  </do_when>
+                </do_choose>
+              </do_if>
+              <!--still no background so randomly choose one-->
+              <do_if value="{value@{param@Cue}.Briefing Background Set}" exact="1" negate="1">
+                <do_any>
+                  <create_briefing cue="{param@Cue}" background="space_blueish.tga"/>
+                  <create_briefing cue="{param@Cue}" background="space_asteroids.tga"/>
+                  <create_briefing cue="{param@Cue}" background="sector_black_hole_sun.tga"/>
+                  <create_briefing cue="{param@Cue}" background="sector_unknown_14_7.tga"/>
+                  <create_briefing cue="{param@Cue}" background="ship_argon_centaur.tga"/>
+                  <create_briefing cue="{param@Cue}" background="ship_argon_mercury.tga"/>
+                  <create_briefing cue="{param@Cue}" background="station_argon_space_fuel_distillery.tga"/>
+                </do_any>
+                <set_value name="{param@Cue}.Briefing Background Set" exact="1"/>
+              </do_if>
+            </do_when>
+          </do_choose>
+        </do_all>
+      </action>
+    </cue>
+  </cues>
+  <signature>H8BgZixLe1eYtcgjwxgxIVxGo9SrmoafnsIHIvBzugwn6mfT64FVLZB4JwK2U69+X+GpOb1d8U+4S7ma1fuNKFG5qhHb/WhPh4ldDCp+fuJXBcUm1q8RrD0gI1YXq1FnzBxzqgCvZKN1N3nXLtkMe7JDeQjcETew9KRZaGPIRfFitAtA7feYmEp4D7Sjnx81jVOpIP1fh68uQeDPu5UagyrIlJIGvj/wB2xV3BiML2kmqOMzanLhh8ig5ZkowE9uEQH7soOmWcU/Su9dxmmLMJQZqegxN3gB1nYwBGTXMgoicqxu0GClVAGtEKdsemLrdOzd31S06RuHtt8Dbt+Hfw==</signature>
+</director>

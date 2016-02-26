@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Library" name="Wingman" description="Adds wingmen voice and reactions" />
+    <version number="0.5" date="05/02/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="LUM02" library="1">
+      <documentation>
+        <content name="LUM02 Wingman Plugin" type="utility"/>
+        <version date="05/02/08" number="0.5" status="development"/>
+        <params>
+          <param name="Wingman" compulsory="1" description="The actor who is the player's wingman"/>
+        </params>
+        <history>
+          <change date="05/02/08" author="al_main" description="play_dialog removed for play_text"/>
+          <change date="05/02/08" author="al_main" description="Documentation nodes added"/>
+          <change date="06/12/07" author="al_main" description="delay attribute addded to improve performance"/>
+          <change date="06/12/07" author="al_main" description="Wingman now reacts to incoming missiles"/>
+          <change date="01/12/07" author="al_main" description="Wingman reactions now cancelled if attacked by player"/>
+          <change date="01/12/07" author="al_main" description="Fixed issue with bailing out chance"/>
+          <change date="30/11/07" author="al_main" description="Initial version"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <!--TESTING VALUES FOR DEBUG-->
+          <set_value name="this.Wingman" exact="{param@Wingman}" comment="Wingman Actor"/>
+
+          <!--SETUP-->
+          <set_object name="this.WingShip" value="{actor.ship@{param@Wingman}}"/>
+          <set_value name="this.Frequency" exact="45000" comment="This value determines how often wingmen will speak (ms), Keep as multiples of 1000 for cues that divide into this number"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="LUM02 Ship Events">
+          <cues>
+            <cue name="LUM02 01 Attacked">
+              <condition>
+                <object_attacked object="{object@LUM02.WingShip}"/>
+              </condition>
+              <cues>
+                <cue name="LUM02 01 Speak01">
+                  <condition>
+                    <check_all>
+                      <object_attacked object="{object@LUM02.WingShip}"/>
+                      <object_shields object="{object@LUM02.WingShip}" min="40" max="80"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_any>
+                      <do_all>
+                        <play_text actor="{param@Wingman}" textid="361" />
+                        <play_text actor="{param@Wingman}" textid="506" />
+                      </do_all>
+                      <play_text actor="{param@Wingman}" textid="505" />
+                    </do_any>
+                  </action>
+                </cue>
+                <cue name="LUM02 01 Speak02">
+                  <condition>
+                    <check_all>
+                      <object_attacked object="{object@LUM02.WingShip}"/>
+                      <object_shields object="{object@LUM02.WingShip}" max="2"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="this.temp" list="510|515|520|525|530"/>
+                      <play_text actor="{param@Wingman}" textid="{value@this.temp}"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="LUM02 01 Reset">
+                  <timing>
+                    <time exact="{value@LUM02.Frequency}*2"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="LUM02 01 Attacked"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="LUM02 02 Targetted" delay="1s">
+              <condition>
+                <object_exists object="{object.attacker@LUM02.WingShip}"/>
+              </condition>
+              <action>
+                <play_text actor="{param@Wingman}" textid="556" priority="100"/>
+              </action>
+              <cues>
+                <cue name="LUM02 02 Reset">
+                  <timing>
+                    <time exact="{value@LUM02.Frequency}*4"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="LUM02 02 Targetted"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="LUM02 03 Helping">
+              <condition>
+                <object_attacked/>
+              </condition>
+              <cues>
+                <cue name="LUM02 03 Do">
+                  <condition comment="If wingman already fighting, players shields must be less than 30%">
+                    <check_any>
+                      <object_exists negate="1" object="{object.attacker@LUM02.WingShip}"/>
+                      <object_shields max="30"/>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_command object="LUM02.WingShip" command="attack" commandobject="{object.attacker@{player.ship}}"/>
+                      <set_value name="this.temp" exact="375|376"/>
+                      <play_text actor="{param@Wingman}" textid="{value@this.temp}"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="LUM02 03 Reset">
+                  <timing>
+                    <time exact="{value@LUM02.Frequency}"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="LUM02 03 Helping"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <!--03 possibly could use more intelligent behaviour for deciding if still the same ship attacking player
+            or when the previous attacker has been killed, etc same as missiles maybe?-->
+            <cue name="LUM02 04 Behind" delay="500">
+              <condition comment="Wingman lagging behind, and not fighting">
+                <check_all>
+                  <object_exists object="LUM02.WingShip"/>
+                  <check_distance value="{object.distance@LUM02.WingShip}" min="20000m"/>
+                  <object_exists negate="1" object="{object.attacker@LUM02.WingShip}"/>
+                </check_all>
+              </condition>
+              <action>
+                <!--NOT VERY GOOD SPEECH FOR THIS, NEEDS A PROPER "wait for me" RECORDING?-->
+                <play_text actor="{param@Wingman}" textid="376"/>
+              </action>
+              <cues>
+                <cue name="LUM02 04 Reset">
+                  <timing>
+                    <time exact="{value@LUM02.Frequency}*3"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="LUM02 04 Behind"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <!--05 Running away, small chance if wingman damaged? (parameter controlled)
+            speech at 550 for I'm running away-->
+            <!--MAY NEED TO INTERRUPT RATHER THAN USE SET_COMMAND THO???-->
+            <cue name="LUM02 06 Missile" delay="3s" comment="3s delay, as hopefully some close, fast missiles might not be bothered reported">
+              <condition>
+                <object_exists object="{object.incomingmissile@LUM02.WingShip}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <play_text actor="{param@Wingman}" textid="555" priority="100"/>
+                  <set_object name="this.Current" value="{object.incomingmissile@LUM02.WingShip}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="LUM02 06 Reset">
+                  <condition>
+                    <object_destroyed object="LUM02 06 Missile.Current"/>
+                  </condition>
+                  <timing>
+                    <time exact="{value@LUM02.Frequency}*2"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="LUM02 06 Missile"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+
+            <!--TESTING CODE BELOW - WINGMAN REACTS TO BEING TARGETTED BY PLAYER-->
+            <cue name="LUM02 TEST01 Targetted">
+              <condition>
+                <object_targeted object="{object@LUM02.WingShip}"/>
+              </condition>
+              <action>
+                <play_text actor="{param@Wingman}" textid="722"/>
+              </action>
+              <cues>
+                <cue name="LUM02 TEST01 Reset">
+                  <timing>
+                    <time exact="{value@LUM02.Frequency}/10"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="LUM02 TEST01 Targetted"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+
+          </cues>
+        </cue>
+        <cue name="LUM02 101 Destroyed">
+          <condition comment="5% chance when destroyed that he will manage to bail out and need rescuing, should trigger 102 automatically">
+            <object_destroyed object="LUM02.WingShip"/>
+          </condition>
+          <action>
+            <do_all>
+              <abandon_ship object="{object@LUM02.WingShip}" chance="5"/>
+              <cancel_cue cue="LUM02 Ship Events"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="LUM02 102 Bailed">
+          <condition>
+            <object_captured object="{object@LUM02.WingShip}"/>
+          </condition>
+          <timing>
+            <time min="10" max="20"/>
+          </timing>
+          <action>
+            <do_all>
+              <set_object name="LUM02.WingShip" value="{actor.ship@{param@Wingman}}"/>
+              <incoming_message author="{actor.name@{param@Wingman}}" text="I bailed out, come get me!"/>
+              <cancel_cue cue="LUM02 Ship Events"/>
+              <!--set this as objective and cancel when collected and delivered, poss re-use 0.3 Transport when collected?-->
+            </do_all>
+          </action>
+          <cues>
+            <cue name="LUM02 102a Targetted" delay="250">
+              <condition>
+                <object_exists object="{object.attacker@LUM02.WingShip}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <play_text actor="{param@Wingman}" textid="556"/>
+                  <play_text actor="{param@Wingman}" textid="731"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="LUM02 103 Destroyed Pl">
+          <condition>
+            <object_destroyed_by_player object="LUM02.WingShip"/>
+          </condition>
+          <action>
+            <do_all>
+              <cancel_cue cue="LUM02 Ship Events"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="LUM02 104 Attacked Pl">
+          <condition>
+            <object_attacked_by_player object="LUM02.WingShip"/>
+          </condition>
+          <cues>
+            <cue name="LUM02 104a Check">
+              <condition>
+                <object_relation object="LUM02.WingShip">
+                  <relation relation="enemy"/>
+                </object_relation>
+              </condition>
+              <action>
+                <cancel_cue cue="LUM02"/>
+              </action>
+            </cue>
+            <cue name="LUM02 104b Reset">
+              <timing>
+                <time exact="1000"/>
+              </timing>
+              <action>
+                <reset_cue cue="LUM02 104 Attacked Pl"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+    <!--TO CLEANUP USE CANCEL CUE IN THE MISSION?-->
+    <!--tho wingman will be stuck with last command?-->
+  </cues>
+  <signature>Of7CcyU7ArrUbVGT0J5f0Uplucc1dDvciJa7uFtTuqtcclETwhmzrKscHBRvYlxE0lKokpuLelCFybu43JYL/6j0G2BNbdEi5GzwMxSuW8r0wGByV3Ye4FwgSzAbb/6r/lAWlzxJ5dO9lAoQQNlVg5zsnX0KJoUVltEde4QHdE6c9tMH9+uaiDJDbKGOUT1OeDMonoWgllo2TgnStPb0zIggcOgRA0DwCM0GYrWZG+0ew0bi0kEXfoRewjHMQurR5WiJ6RAPxdAzsu/Y3TPmI7p/pi8HbK41aV9MMDAnQuu8a8pg3IOT9t1teErdgMMQteoF0seJRDukayoUuYBFRA==</signature>
+</director>

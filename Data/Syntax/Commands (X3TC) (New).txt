@@ -1,0 +1,243 @@
+<page id="352003" title="Script Command Names" descr="0" voice="no">
+ <t id="606">%0find station: product %1 with best price:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="607">%0find station: product %1 with min. jumps:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="608">%0find station: resource %1 with best price: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="609">%0find station: resource %1 with min. jumps: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="663">%0find station sells: resource %1 with best price: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="664">%0find station sells: resource %1 with min. jumps: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="761">%1%0 is in active sector</t>
+ <t id="1002">%1%0 find station: product %2 with best price:  max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7, exclude array=%8</t>
+ <t id="1003">%1%0 find station: product %2 with min. jumps:  max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7, exclude array=%8</t>
+ <t id="1004">%1%0 find station: resource %2 with best price: min.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7, exclude array=%8</t>
+ <t id="1005">%1%0 find station: resource %2 with min. jumps: min.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7, exclude array=%8</t>
+ <t id="1006">%1%0 find station sells: resource %2 with best price: max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7, exclude array=%8</t>
+ <t id="1007">%1%0 find station sells: resource %2 with min. jumps: max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7, exclude array=%8</t>
+
+ <t id="1169">%0find station: product %1 with best price depend on jumps:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+
+ <t id="1170">%0find station: resource %1 with best price depend on jumps: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="1171">%0find station sells: resource %1 with best price depend on jumps: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="1176">%0find station: product %1 with best price random:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="1177">%0find station: resource %1 with best price random: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="1178">%0find station sells: resource %1 with best price random: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6, exclude array=%7</t>
+ <t id="1233">%1%0 move passenger to ship %2: set passenger as pilot=%3</t>
+ <t id="1235">%1%0 enslave passenger</t>
+ <t id="1236">%1%0 eject passenger</t>
+ <t id="1237">%1%0 destroy passenger</t>
+ <t id="1238">%1%0 add pilot of ship %2 as passenger: disable ship=%3</t>
+
+ <t id="1246">%1%0 move pilot to ship %2: disable=%3</t>
+ <t id="1327">%1%0 fire missile %4 from turret %2 on %3</t>
+ <t id="1328">%1%0 find nearest enemy ship in range: class=%2</t>
+ <t id="1329">%1%0 get user input: type=%2, title=%3</t>
+ <t id="1330">%1%0 select best lasers for target %2 in turret %3: scan for friends %4</t>
+ <t id="1331">%1%0 is core sector</t>
+ <t id="1332">%0set ship speed to %1</t>
+ <t id="1333">%0set laser energy to %1</t>
+ <t id="1334">%1%0 find all sectors within %2 jumps: Only known sectors=%3</t>
+ <t id="1335">%0move player to ship %1: Teleport=%2</t>
+ <t id="1336">%0find gate: flags=%1, refobj=%2, max dist=%3, refpos=%4</t>
+ <t id="1337">%0read text: page id=%1, from %2 to %3 to array, include empty=%4</t>
+ <t id="1338">%0read text: page id=%1, id=%2 exists</t>
+ <t id="1339">%0add secondary signal: signal=%1, script=%2, prio=%3, name=%4</t>
+ <t id="1340">%0remove secondary signal: signal=%1, name=%2</t>
+ <t id="1341">%0destroy object: killer=%1, show no explosion=%2</t>
+ <t id="1342">%0get freight scanner range</t>
+ <t id="1343">%0get transporter range</t>
+ <t id="1344">%0get mineral scanner range</t>
+ <t id="1345">%1%0 is in freight scanning range: ship=%2</t>
+ <t id="1346">%1%0 is in transporter range: ship=%2</t>
+ <t id="1347">%1%0 is in mineral scanner range: asteroid=%2</t>
+ <t id="1348">%0create a new flight wing: name=%1 race=%2</t>
+ <t id="1349">%0get maker race: shiptype=%1</t>
+ <t id="1350">%1%0 get maker race</t>
+ <t id="1351">%0add to flight wing: wing=%1</t>
+ <t id="1352">%1%0 get ware storage percentage: ware=%2</t>
+ <t id="1353">%1%0 is civilian ship</t>
+ <t id="1354">disband flight wing: wing=%0</t>
+ <t id="1355">%0find flight wing: name=%1 race=%2</t>
+ <t id="1356">%0get flight wing ship array: wing=%1</t>
+ <t id="1357">%0remove from flight wing</t>
+ <t id="1358">remove ship from flight wing: wing=%0 ship=%1</t>
+ <t id="1359">add ship to flight wing: wing=%0 ship=%1</t>
+ <t id="1360">%0get flight wing array</t>
+ <t id="1361">%0get predefined wing: wing=%1</t>
+ <t id="1362">%1%0 is autojump activated</t>
+ <t id="1363">%0set autojump active: %1</t>
+ <t id="1364">%1%0 get autojump minimum jumps</t>
+ <t id="1365">%0autojump minimum jumps= %1</t>
+ <t id="1366">%1%0 is emergency jump activated</t>
+ <t id="1367">%0set emergency jump active: %1</t>
+ <t id="1368">%1%0 get emergency jump minimum shield threshold</t>
+ <t id="1369">%0autojump emergency jump shield threshold= %1\%</t>
+ <t id="1370">%0jump out of existence</t>
+ <t id="1371">%0add default wares to station/dock</t>
+ <t id="1372">%0get ship type array: maker race=%1 class=%2</t>
+ <t id="1373">%1%0 get missile resupply: missile=%2</t>
+ <t id="1374">%0set missile resupply: missile=%1 amount=%2</t>
+ <t id="1375">%0sort array %1</t>
+ <t id="1376">%1%0 get jumpdrive fuel resupply</t>
+ <t id="1377">%1%0 get ammo resupply: ammo=%2</t>
+ <t id="1378">%0set jumpdrive fuel resupply: amount=%1</t>
+ <t id="1379">%0set ammo resupply: ammo=%1 amount=%2</t>
+ <t id="1380">set script command upgrade: wing command=%0 upgrade=%1</t>
+ <t id="1381">set script command upgrade: wing command=%0 upgrade=%1 script=%2</t>
+ <t id="1382">global script map for wings: key=%0 race=%1 script=%2 prio=%3</t>
+ <t id="1383">%0set wing command: %1</t>
+ <t id="1384">%0set wing command: %1  target=%2 target2=%3</t>
+ <t id="1385">%1%0 get flight wing</t>
+ <t id="1386">%1%0 get wing natural formation</t>
+ <t id="1387">%0set max trade jumps: %1</t>
+ <t id="1388">%0get default launch time difference for missile type: %1</t>
+ <t id="1389">%0set wing natural formation: formation=%1</t>
+ <t id="1390">%1%0 is temporarily removed from wing</t>
+ <t id="1391">%0temporarily remove from wing</t>
+ <t id="1392">%0return to wing</t>
+ <t id="1393">%0add wing additional ship command: id=%1 script=%2 pageid=%3 textid=%4</t>
+ <t id="1394">%0remove wing additional ship command: id=%1</t>
+ <t id="1395">%1%0 does wing additional ship command exists: id=%2</t>
+ <t id="1396">%0get wing command upgrade: command=%1</t>
+ <t id="1397">%1%0 ship has wing command upgrade: command=%2</t>
+ <t id="1398">%0add wing additional ship command: id=%1 script=%2 pageid=%3 textid=%4 checkscript=%5</t>
+ <t id="1399">%1%0 get ship array for wing command upgrade: command=%2</t>
+ <t id="1400">%0get bullet speed of laser %1</t>
+ <t id="1401">add wing custom command: id=%0</t>
+ <t id="1402">remove wing custom command: id=%0</t>
+ <t id="1403">%0wing custom command exists: id=%1</t>
+ <t id="1404">START %0 wing command %1 : arg1=%2, arg2=%3, arg3=%4, arg4=%5</t>
+ <t id="1405">%1%0 is in same wing as %2</t>
+ <t id="1406">%0find %1 in array: %2</t>
+ <t id="1407">global secondary signal map: add signal=%0 race=%1 class=%2 script=%3 prio=%4 name=%5</t>
+ <t id="1408">global secondary signal map: remove signal=%0 race=%1 class=%2 name=%3</t>
+ <t id="1409">%1%0 get wing formation leaders</t>
+ <t id="1410">%0set passenger transport, destination=%1, payment=%2</t>
+ <t id="1411">%1%0 is passenger to be transported</t>
+ <t id="1412">%1%0 get passenger transport destiantion</t>
+ <t id="1413">%1%0 get passenger transport payment</t>
+ <t id="1414">%1%0 get all local variable keys, starting with=%2</t>
+ <t id="1415">%0create new array, arguments=%1, %2, %3, %4, %5</t>
+ <t id="1416">%0create custom menu array: heading=%1</t>
+ <t id="1417">%0sort array: data=%1 sort values=%2</t>
+ <t id="1418">display subtitle text: text=%0 duration=%1 ms</t>
+ <t id="1419">%0train passenger to marine</t>
+ <t id="1420">%0create marine from passenger: fighting=%1 hacking=%2 mechanical=%3 engineering=%4</t>
+ <t id="1421">%0set marine skill: fighting=%1</t>
+ <t id="1422">%0set marine skill: mechanical=%1</t>
+ <t id="1423">%0set marine skill: hacking=%1</t>
+ <t id="1424">%0set marine skill: engineering=%1</t>
+ <t id="1425">%1%0 call named script: script=%2, %3, %4, %5, %6, %7</t>
+ <t id="1426">%0start named script: task=%1 scriptname=%2 prio=%3, %4, %5, %6, %7, %8</t>
+ <t id="1427">%1%0 get maximum number of marines</t>
+ <t id="1428">%0is marine: passenger/astronaut=%1</t>
+ <t id="1429">%1%0 can transport passenger: %2</t>
+ <t id="1430">%1%0 send marines to board ship: %2 marines=%3</t>
+ <t id="1431">%1%0 can launch marines</t>
+ <t id="1432">%1%0 is ship boardable</t>
+ <t id="1433">%1%0 get marines array</t>
+ <t id="1434">%1%0 free space for marines</t>
+ <t id="1435">%1%0 get temporarily removed ship array from wing</t>
+ <t id="1436">%0get all global variable keys, starting with=%1</t>
+ <t id="1437">%1%0 get number of decks on ship</t>
+ <t id="1438">%1%0 get ship boarding defence level</t>
+ <t id="1439">%1%0 get hacking security level</t>
+ <t id="1440">%1%0 get number of marines can board</t>
+ <t id="1441">%1%0 get number of marines attacking</t>
+ <t id="1442">%1%0 add marine %2 to attack group on ship</t>
+ <t id="1443">%0reverse array %1</t>
+ <t id="1444">%0create custom menu array, info lines=%1, %2, %3, %4, %5</t>
+ <t id="1445">%0create custom menu array</t>
+ <t id="1446">add custom menu info line to array %0: text=%1</t>
+ <t id="1447">add custom menu item to array %0: text=%1 returnvalue=%2</t>
+ <t id="1448">add custom menu heading to array %0: title=%1</t>
+ <t id="1449">%1%0 get marine buy price</t>
+ <t id="1450">%1%0 get local variables: regular expression=%2</t>
+ <t id="1451">%0get global variables: regular expression=%1</t>
+ <t id="1452">%1%0 get compatible laser array: turret=%2</t>
+ <t id="1453">%1%0 realign gate: gatenum=%2 gate to link=%3 force=%4</t>
+ <t id="1454">%1%0 can buy ware %2 at station %3</t>
+ <t id="1455">%1%0 can buy ware %2 from race %3</t>
+ <t id="1456">%0get notority require to buy ware: %1</t>
+ <t id="1457">%0get maximum, %1, %2, %3, %4, %5</t>
+ <t id="1458">%0change destination gate to %1</t>
+ <t id="1459">%0get station array: product=%1 include empty=%2</t>
+ <t id="1460">%0get station array: resource=%1 include empty=%2</t>
+ <t id="1461">%0set sector to core security %1</t>
+ <t id="1462">%1%0 get next available task: starting=%2</t>
+ <t id="1463">add ship custom command: id=%0</t>
+ <t id="1464">remove ship custom command: id=%0</t>
+ <t id="1465">%0ship custom command exists: id=%1</t>
+ <t id="1466">set ship command preload script: command=%0 script=%1</t>
+ <t id="1467">set wing command preload script: wing command=%0 script=%1</t>
+ <t id="1468">%0get trade rank title: text=%1</t>
+ <t id="1469">%0get fight rank title: text=%1</t>
+ <t id="1470">%0get trade rank percentage</t>
+ <t id="1471">%0get fight rank precentage</t>
+ <t id="1472">%1%0 get notoriety title to race %2: text=%3</t>
+ <t id="1473">%1%0 get notority percentage to race %2</t>
+ <t id="1474">%0convert number %1 to string</t>
+ <t id="1475">%1%0 get ship variation</t>
+ <t id="1476">%0get ship variation: subtype=%1</t>
+ <t id="1477">%0format time: %1</t>
+ <t id="1478">%0match regular expession: %1 to string %2</t>
+ <t id="1479">%0is equipment: ware=%1</t>
+ <t id="1480">%0is upgrade: ware=%1</t>
+ <t id="1481">%1%0 launch boarding pod at target: victim=%2 marines=%3</t>
+ <t id="1482">%1%0 is missile boat</t>
+ <t id="1483">%1%0 can turret %2 fire missiles</t>
+ <t id="1484">%1%0 is military outpost</t>
+ <t id="1485">%1%0 get planet array</t>
+ <t id="1486">%1%0 get debris count</t>
+ <t id="1487">set discovered status: type=%0 status=%1</t>
+ <t id="1488">%0has %1 been discovered</t>
+ <t id="1489">%0open custom info menu: title=%1 description=%2 option array=%3 maxoptions=%4</t>
+ <t id="1490">capture screen</t>
+ <t id="1491">set monitor mode and viewpoint: monitor=%0 cockpit=%1 mode=%2 alpha=%3 beta=%4 gamma=%5 range=%6</t>
+ <t id="1492">%0get mission rank: name=%1</t>
+ <t id="1493">set mission rank: name=%0 rank=%1</t>
+ <t id="1494">%1%0 get incoming marines</t>
+ <t id="1495">%0stop incoming marines</t>
+ <t id="1496">%1%0 get object name array</t>
+ <t id="1497">%0get text id: ware=%1</t>
+ <t id="1498">%1%0 is invincible</t>
+ <t id="1499">%1%0 get compatible missile array</t>
+ <t id="1500">%1%0 get resupply fuel required</t>
+ <t id="1501">%0arrays %1 and %2 are equal</t>
+ <t id="1502">%1%0 get all formation followers</t>
+ <t id="1503">%1%0 get highest formation leader</t>
+ <t id="1504">%1%0 get all stationary objects: include asteroids=%2</t>
+ <t id="1505">%1%0 find nearest military outpost</t>
+ <t id="1506">%0is inventory: ware=%1</t>
+ <t id="1507">%1%0 get boarding shield threshold</t>
+ <t id="1508">%1%0 get maximum laser range: turret=%2</t>
+ <t id="1509">%1%0 get minimum laser range: turret=%2</t>
+ <t id="1510">%0speak array: %1 prio=%2</t>
+ <t id="1511">%0register hotkey %1 to call script name %2</t>
+ <t id="1512">%1%0 get marine fighting skill</t>
+ <t id="1513">%1%0 get marine mechanical skill</t>
+ <t id="1514">%1%0 get marine hacking skill</t>
+ <t id="1515">%1%0 get marine engineering skill</t>
+ <t id="1516">%1%0 get marine overall skill</t>
+ <t id="1517">%1%0 get number of wing formation leaders</t>
+ <t id="1518">%1%0 get max number of ships per wing formation</t>
+ <t id="1519">%0is player warping</t>
+ <t id="1520">%1%0 get compatible missile array from cargobay</t>
+ <t id="1521">%1%0 get buyable wares in sector: include playerfacs=%2 include shipyards=%3 include docks=%4</t>
+ <t id="1522">add section to custom menu: %0</t>
+ <t id="1523">%0create text for custom menu, left=%1, right=%2</t>
+ <t id="1524">%0get string font length: %1</t>
+ <t id="1525">%1%0 get desired speed</t>
+ <t id="1526">%0set desired speed: %1</t>
+ <t id="1527">add value selection to menu: %0, text=%1, value array=%2, default=%3, return id=%4</t>
+ <t id="1528">%1%0 move marine to board: %2, timeout=%3</t>
+ <t id="1529">%0get subtype integer of data [ %1 ]</t>
+ <t id="1530">%1%0 get user input without sector: type=%2, title=%3</t>
+ <t id="1531">add encyclopedia custom article: News, id=%0, title page=%1, title id=%2, text page=%3, text id=%4, timeout=%5</t>
+ <t id="1532">add encyclopedia custom article: Information, id=%0, title page=%1, title id=%2, text page=%3, text id=%4, timeout=%5</t>
+ <t id="1533">add encyclopedia custom article: History, id=%0, title page=%1, title id=%2, text page=%3, text id=%4, timeout=%5</t>
+ <t id="1534">add encyclopedia custom article: Stories, id=%0, title page=%1, title id=%2, text page=%3, text id=%4, timeout=%5</t>
+ <t id="1535">remove encyclopedia custom article: id=%0</t>
+ <t id="1536">set encyclopedia custom article sectors: id=%0, sector array=%1</t>
+ <t id="1537">%1%0 get user input type=%2, title=%3, sector=%4</t>
+ <t id="1538">%0get OOS shield damage of laser %1</t>
+ <t id="1539">%0get OOS hull damage of laser %1</t>
+</page>

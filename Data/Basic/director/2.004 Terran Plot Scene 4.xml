@@ -1,0 +1,1515 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M004" name="Terran Plot Scene 4" description="L2 Terran Plot Scene 4, Split Espionage and Sabotage"/>
+    <version number="0.2" date="11/06/2008" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L2M004" library="1">
+      <documentation>
+        <content name="Terran Plot Scene 4" reference="L2M004" type="L2"/>
+        <version date="11/06/2008" number="0.1" status="development"/>
+        <todo>
+          <item author="Owen Lake" priority="critical" date="28/07/2008" description="Final cleanup"/>
+        </todo>
+      </documentation>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_sector name="L2M004.Belt" x="11" y="3" exact="0"/>
+          <find_sector name="L2M004.Moon" x="13" y="2" exact="0"/>
+          <find_sector name="L2M004.HE" x="13" y="4" exact="0"/>
+          <find_sector name="L2M004.F Ryk" x="18" y="4" exact="0"/>
+          <find_sector name="L2M004.Family Z" x="18" y="5" exact="0"/>
+          <find_sector name="L2M004.Z Dominion" x="19" y="5" exact="0"/>
+          <find_sector name="L2M004.Unknown" x="20" y="5" exact="0"/>
+          <find_sector name="L2M004.O of F" x="18" y="3" exact="0"/>
+          <find_station name="L2M004.ATF Belt Outpost" class="dock" race="terran|atf">
+            <sector sector="L2M004.Belt"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@L2M004.ATF Belt Outpost}" exact="0">
+              <create_station name="L2M004.ATF Belt Outpost" race="terran" typename="SS_DOCK_TR_MILITARY_3" invincible="1">
+                <position x="20km" y="10km" z="20km"/>
+                <sector sector="L2M004.Belt"/>
+                <equipment loadout="default"/>
+              </create_station>
+            </do_when>
+            <do_otherwise>
+              <set_invincible object="L2M004.ATF Belt Outpost" invincible="1"/>
+            </do_otherwise>
+          </do_choose>
+          <find_station name="L2M004.MoonBase" class="dock" race="terran|atf">
+            <sector sector="L2M004.Moon"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@L2M004.MoonBase}" exact="0">
+              <create_station name="L2M004.MoonBase" race="terran" typename="SS_DOCK_TR_MILITARY_3" invincible="1">
+                <position x="20km" y="10km" z="20km"/>
+                <sector sector="L2M004.Moon"/>
+                <equipment loadout="default"/>
+              </create_station>
+            </do_when>
+            <do_otherwise>
+              <set_invincible object="L2M004.MoonBase" invincible="1"/>
+            </do_otherwise>
+          </do_choose>
+          <create_actor name="L2M004.Ishiyama" character="{3895,19}" face="1135" voice="3819" race="terran" object="L2M004.ATF Belt Outpost" location="crew"/>
+          <play_text actor="L2M004.Ishiyama" pageid="3819" textid="191000" priority="99"/>
+          <set_value name="L2M004.Step" exact="1"/>
+          <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,401}" text="{3201,411}">
+            <mission discipline="XXXT" level="easy"/>
+            <objectives>
+              <objective step="{value@L2M004.Step}">
+                <dockat object="L2M004.ATF Belt Outpost"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <set_objective cue="L2M004" story="{3200,1}" title="{3201,401}" text="{3201,411}" noabort="1">
+            <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+            <mission discipline="XXXT" level="easy"/>
+            <dockat object="L2M004.ATF Belt Outpost"/>
+          </set_objective>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M004 Contact Ishiyama">
+          <condition>
+            <object_docked param="{object@L2M004.ATF Belt Outpost}"/>
+          </condition>
+          <timing>
+            <time exact="10s"/>
+          </timing>
+          <action>
+            <do_all>
+              <create_actor name="L2M004.Pearle" character="{3895,21}" face="1138" voice="3921" race="terran"/>
+              <play_text priority="99">
+                <line actor="L2M004.Ishiyama" pageid="3819" textid="191401"/>
+                <line actor="L2M004.Pearle" pageid="3921" textid="211401"/>
+                <line actor="L2M004.Ishiyama" pageid="3819" textid="191402"/>
+                <line actor="L2M004.Pearle" pageid="3921" textid="211402"/>
+                <line actor="L2M004.Ishiyama" pageid="3819" textid="191403"/>
+                <line actor="L2M004.Pearle" pageid="3921" textid="211404"/>
+              </play_text>
+              <set_value name="L2M004.Contact Ishiyama Wait" exact="{text.duration.s@3819,191401}+{text.duration.s@3819,191402}+{text.duration.s@3819,191403}+{text.duration.s@3921,211401}+{text.duration.s@3921,211402}+{text.duration.s@3921,211404}+{player.age}+2"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M004 Pickup Pearle" delay="5s">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="L2M004 Contact Ishiyama"/>
+                  <check_age min="{value@L2M004.Contact Ishiyama Wait}"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <destroy_actor actor="L2M004.Pearle"/>
+                  <create_actor name="L2M004.Pearle" character="{3895,21}" face="1138" voice="3821" race="terran"/>
+                  <do_choose>
+                    <do_when value="{player.ship.dockobject.exists}" exact="0">
+                      <set_value name="this.Notification" exact="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <do_if value="{player.ship.dockobject}" exact="{object@L2M004.ATF Belt Outpost}" negate="1">
+                        <set_value name="this.Notification" exact="1"/>
+                      </do_if>
+                    </do_otherwise>
+                  </do_choose>
+                  <do_choose>
+                    <do_when value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="0">
+                      <play_text actor="L2M004.Pearle" pageid="3821" textid="906" priority="99"/>
+                      <set_value name="this.Notification" exact="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <do_if value="{player.ship.cargospace}" max="{lookup.type.cargospace@SS_WARE_PASSENGER}-1">
+                        <play_text actor="L2M004.Pearle" pageid="3821" textid="905" priority="99"/>
+                        <set_value name="this.Notification" exact="1"/>
+                      </do_if>
+                    </do_otherwise>
+                  </do_choose>
+                  <do_if value="{value@this.Notification}" exact="1">
+                    <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,4}" title="{3201,401}" text="{3201,412}">
+                      <mission discipline="XXXT" level="easy"/>
+                      <objectives>
+                        <objective step="{value@L2M004.Step}">
+                          <custom action="{35,2043}" text="{actor.name@L2M004.Pearle}, {object.name@L2M004.ATF Belt Outpost}" actor="L2M004.Pearle"/>
+                        </objective>
+                      </objectives>
+                    </create_briefing>
+                    <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,4}" title="{3201,401}" text="{3201,412}" noabort="1">
+                      <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                      <mission discipline="XXXT" level="easy"/>
+                      <custom action="{35,2043}" text="{actor.name@L2M004.Pearle}, {object.name@L2M004.ATF Belt Outpost}" actor="L2M004.Pearle"/>
+                    </set_objective>
+                  </do_if>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L2M004 Pearle Picked Up" delay="5s">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="L2M004 Pickup Pearle"/>
+                  <object_is_docked dockobject="L2M004.ATF Belt Outpost"/>
+                  <check_value value="{player.ship.cargospace}" min="{lookup.type.cargospace@SS_WARE_PASSENGER}"/>
+                  <check_value value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="1"/>
+                  <check_age min="{value@L2M004.Contact Ishiyama Wait}"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="L2M004 Pickup Pearle"/>
+                  <destroy_actor actor="L2M004.Pearle"/>
+                  <create_actor name="L2M004.Pearle" character="{3895,21}" face="1138" voice="3921" race="terran" object="{player.ship}" location="passenger"/>
+                  <play_text actor="L2M004.Pearle" pageid="3921" textid="211403" priority="99"/>
+                  <set_sector name="L2M004.SatSector" value="{sector@L2M004.Family Z}"/>
+                  <set_value name="L2M004.Deploying Sat" exact="1"/>
+                  <set_value name="L2M004.GotoStep" exact="{value@L2M004.Step}+1"/>
+                  <set_value name="L2M004.DeployStep" exact="{value@L2M004.Step}+2"/>
+                  <set_value name="L2M004.Step" exact="{value@L2M004.Step}+3"/>
+                  <destroy_actor actor="L2M004.Ishiyama"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M004 Goto Sat Sector">
+                  <action>
+                    <do_all>
+                      <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,401}" text="{3201,412}">
+                        <mission discipline="XXXT" level="easy"/>
+                        <objectives>
+                          <objective step="{value@L2M004.GotoStep}">
+                            <flyto>
+                              <sector sector="{sector@L2M004.SatSector}"/>
+                            </flyto>
+                          </objective>
+                          <objective step="{value@L2M004.DeployStep}">
+                            <custom action="{35,2001}" text="{3201,440}" icon="build"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,401}" text="{3201,412}" noabort="1">
+                        <briefing cue="L2M004" step="{value@L2M004.GotoStep}"/>
+                        <mission discipline="XXXT" level="easy"/>
+                        <flyto>
+                          <sector sector="{sector@L2M004.SatSector}"/>
+                        </flyto>
+                      </set_objective>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M004 Enter Sat Sector" delay="2s">
+                      <condition>
+                        <check_all>
+                          <check_value value="{player.sector}" exact="{sector@L2M004.SatSector}"/>
+                          <check_value value="{actor.ship.exists@L2M004.Pearle}" exact="1"/>
+                          <check_value value="{actor.ship@L2M004.Pearle}" exact="{player.ship}"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                            <briefing cue="L2M004" step="{value@L2M004.DeployStep}"/>
+                            <mission discipline="XXXT" level="easy"/>
+                            <custom action="{35,2001}" text="{3201,440}" icon="build"/>
+                          </set_objective>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M004 Sat Dropped" instantiate="static">
+                          <condition>
+                            <check_all>
+                              <object_ejected/>
+                              <check_value value="{sector.exists@L2M004.SatSector}" exact="1"/>
+                              <check_value value="{value@L2M004.Deploying Sat}" exact="1"/>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_if value="{object.type@{event.param}}" list="{lookup.type@SS_SH_SAT}|{lookup.type@SS_SH_SAT2}">
+                              <do_if value="{object.sector@{event.param}}" exact="{sector@L2M004.SatSector}">
+                                <set_value name="L2M004.Deploying Sat" exact="0"/>
+                                <do_if value="{value@L2M004.Sat Done {sector@L2M004.SatSector}}" exact="0">
+                                  <set_value name="L2M004.SectorsDone" operation="add"/>
+                                  <set_value name="L2M004.Sat Done {sector@L2M004.SatSector}" exact="1"/>
+                                </do_if>
+                                <do_choose>
+                                  <do_when value="{value@L2M004.Sat Done {sector@L2M004.Family Z}}" exact="0">
+                                    <set_sector name="L2M004.SatSector" value="{sector@L2M004.Family Z}"/>
+                                    <set_value name="L2M004.Deploying Sat" exact="1"/>
+                                  </do_when>
+                                  <do_when value="{value@L2M004.Sat Done {sector@L2M004.F Ryk}}" exact="0">
+                                    <set_sector name="L2M004.SatSector" value="{sector@L2M004.F Ryk}"/>
+                                    <set_value name="L2M004.Deploying Sat" exact="1"/>
+                                  </do_when>
+                                  <do_when value="{value@L2M004.Sat Done {sector@L2M004.Z Dominion}}" exact="0">
+                                    <set_sector name="L2M004.SatSector" value="{sector@L2M004.Z Dominion}"/>
+                                    <set_value name="L2M004.Deploying Sat" exact="1"/>
+                                  </do_when>
+                                  <do_otherwise>
+                                    <set_value name="L2M004.All Sats Deployed" exact="1"/>
+                                  </do_otherwise>
+                                </do_choose>
+                                <do_if value="{value@L2M004.Deploying Sat}" exact="1">
+                                  <reset_cue cue="L2M004 Goto Sat Sector"/>
+                                </do_if>
+                              </do_if>
+                            </do_if>
+                          </action>
+                          <cues>
+                            <cue name="L2M004 Sat Lost" delay="5s" instantiate="static">
+                              <condition>
+                                <check_all>
+                                  <check_value value="{value@L2M004.Deploying Sat}" exact="0"/>
+                                  <check_any>
+                                    <count_objects exact="0" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                      <sector sector="L2M004.Family Z"/>
+                                    </count_objects>
+                                    <count_objects exact="0" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                      <sector sector="L2M004.F Ryk"/>
+                                    </count_objects>
+                                    <count_objects exact="0" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                      <sector sector="L2M004.Z Dominion"/>
+                                    </count_objects>
+                                  </check_any>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <find_object name="this.Family Z Sat" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                    <sector sector="L2M004.Family Z"/>
+                                  </find_object>
+                                  <find_object name="this.F Ryk Sat" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                    <sector sector="L2M004.F Ryk"/>
+                                  </find_object>
+                                  <find_object name="this.Z Dominion Sat" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                    <sector sector="L2M004.Z Dominion"/>
+                                  </find_object>
+                                  <do_if value="{object.exists@this.Z Dominion Sat}" exact="0">
+                                    <set_sector name="L2M004.SatSector" value="{sector@L2M004.Z Dominion}"/>
+                                    <play_text actor="L2M004.Pearle" pageid="3921" textid="211411" priority="99"/>
+                                    <set_value name="L2M004.Deploying Sat" exact="1"/>
+                                  </do_if>
+                                  <do_if value="{object.exists@this.F Ryk Sat}" exact="0">
+                                    <set_sector name="L2M004.SatSector" value="{sector@L2M004.F Ryk}"/>
+                                    <play_text actor="L2M004.Pearle" pageid="3921" textid="211409" priority="99"/>
+                                    <set_value name="L2M004.Deploying Sat" exact="1"/>
+                                  </do_if>
+                                  <do_if value="{object.exists@this.Family Z Sat}" exact="0">
+                                    <set_sector name="L2M004.SatSector" value="{sector@L2M004.Family Z}"/>
+                                    <play_text actor="L2M004.Pearle" pageid="3921" textid="211410" priority="99"/>
+                                    <set_value name="L2M004.Deploying Sat" exact="1"/>
+                                  </do_if>
+                                  <do_if value="{value@L2M004.Deploying Sat}" exact="1">
+                                    <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                      <mission discipline="XXXT" level="easy"/>
+                                      <objectives>
+                                        <objective step="{value@L2M004.Step}">
+                                          <custom action="{35,2001}" text="{3201,440}" icon="build"/>
+                                        </objective>
+                                      </objectives>
+                                    </create_briefing>
+                                    <reset_cue cue="L2M004 Goto Sat Sector"/>
+                                  </do_if>
+                                </do_all>
+                              </action>
+                            </cue>
+                            <cue name="L2M004 All Sats Built" delay="5s">
+                              <condition>
+                                <check_all>
+                                  <check_value value="{value@L2M004.All Sats Deployed}" exact="1"/>
+                                  <check_value value="{value@L2M004.Deploying Sat}" exact="0"/>
+                                  <count_objects min="1" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                    <sector sector="L2M004.Family Z"/>
+                                  </count_objects>
+                                  <count_objects min="1" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                    <sector sector="L2M004.F Ryk"/>
+                                  </count_objects>
+                                  <count_objects min="1" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                    <sector sector="L2M004.Z Dominion"/>
+                                  </count_objects>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <play_text actor="L2M004.Pearle" pageid="3921" textid="211423" priority="99"/>
+                                  <set_value name="L2M004.Sat Time" min="{player.age}+60" max="{player.age}+120"/>
+                                  <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                    <mission discipline="XXXT" level="easy"/>
+                                    <objectives>
+                                      <objective step="{value@L2M004.Step}">
+                                        <custom action="{35,2048}" text="{3201,441}" icon="build"/>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                    <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                    <mission discipline="XXXT" level="easy"/>
+                                    <custom action="{35,2048}" text="{3201,441}" icon="build"/>
+                                  </set_objective>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M004 Terraformers Detected" delay="5s" comment="TODO Create Terraformers">
+                                  <condition>
+                                    <check_age min="{value@L2M004.Sat Time}"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <cancel_cue cue="L2M004 Sat Lost"/>
+                                      <do_choose>
+                                        <do_when value="{player.sector}" exact="{sector@L2M004.Family Z}">
+                                          <play_text actor="L2M004.Pearle" pageid="3921" textid="211426" priority="99"/>
+                                          <set_sector name="L2M004.TerraformerSector" value="{sector@L2M004.Z Dominion}"/>
+                                          <set_value name="this.WaitTime" exact="{text.duration@3921,211426}"/>
+                                        </do_when>
+                                        <do_otherwise>
+                                          <play_text actor="L2M004.Pearle" pageid="3921" textid="211412" priority="99"/>
+                                          <set_sector name="L2M004.TerraformerSector" value="{sector@L2M004.Family Z}"/>
+                                          <set_value name="this.WaitTime" exact="{text.duration@3921,211412}"/>
+                                        </do_otherwise>
+                                      </do_choose>
+                                      <find_object name="this.Sat" typename="SS_SH_SAT|SS_SH_SAT2" race="player">
+                                        <sector sector="this.Sat"/>
+                                      </find_object>
+                                      <create_ship group="L2M004.TempTerraformers" typename="SS_SH_TERRAFORMER3" race="xenon" racelogic="0">
+                                        <position object="this.Sat" min="10km" max="15km"/>
+                                        <sector sector="L2M004.TerraformerSector"/>
+                                        <equipment loadout="default"/>
+                                        <command command="idle"/>
+                                      </create_ship>
+                                      <do_all exact="4">
+                                        <create_ship group="L2M004.TempTerraformers" typename="SS_SH_TERRAFORMER3" race="xenon" racelogic="0">
+                                          <position object="{group.object.random@L2M004.TempTerraformers}"/>
+                                          <sector sector="L2M004.TerraformerSector"/>
+                                          <equipment loadout="default"/>
+                                          <command command="idle"/>
+                                        </create_ship>
+                                      </do_all>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M004 Terraformers Jump Out">
+                                      <timing>
+                                        <time exact="{value@L2M004 Terraformers Detected.WaitTime}+2s"/>
+                                      </timing>
+                                      <action>
+                                        <do_all>
+                                          <destroy_group group="L2M004.TempTerraformers"/>
+                                          <play_text actor="L2M004.Pearle" pageid="3921" textid="211413" priority="99"/>
+                                          <set_value name="L2M004.Goto Terraformer Sector Delay" exact="{player.age}+({text.duration@3921,211413}/1000)+1"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M004 Goto Terraformer Sector" delay="1s">
+                                          <condition>
+                                            <check_all>
+                                              <cue_is_complete cue="L2M004 Terraformers Jump Out"/>
+                                              <check_age min="{value@L2M004.Goto Terraformer Sector Delay}"/>
+                                            </check_all>
+                                          </condition>
+                                          <action>
+                                            <do_all>
+                                              <do_choose>
+                                                <do_when value="{sector@L2M004.TerraformerSector}" exact="{sector@L2M004.Family Z}">
+                                                  <play_text actor="L2M004.Pearle" pageid="3921" textid="211414" priority="99"/>
+                                                </do_when>
+                                                <do_otherwise>
+                                                  <play_text actor="L2M004.Pearle" pageid="3921" textid="211427" priority="99"/>
+                                                </do_otherwise>
+                                              </do_choose>
+                                              <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,401}" text="{3201,413}">
+                                                <mission discipline="XXXT" level="easy"/>
+                                                <objectives>
+                                                  <objective step="{value@L2M004.Step}">
+                                                    <flyto>
+                                                      <sector sector="L2M004.TerraformerSector"/>
+                                                    </flyto>
+                                                  </objective>
+                                                </objectives>
+                                              </create_briefing>
+                                              <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,401}" text="{3201,413}" noabort="1">
+                                                <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                <mission discipline="XXXT" level="easy"/>
+                                                <flyto>
+                                                  <sector sector="L2M004.TerraformerSector"/>
+                                                </flyto>
+                                              </set_objective>
+                                              <set_value name="L2M004.Step" operation="add"/>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M004 Enter Terraformer Sector" delay="5s">
+                                              <condition>
+                                                <check_all>
+                                                  <cue_is_complete cue="L2M004 Goto Terraformer Sector"/>
+                                                  <check_value value="{player.sector}" exact="{sector@L2M004.TerraformerSector}"/>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <do_all>
+                                                  <reset_cue cue="L2M004 JD Ship Scanned"/>
+                                                  <do_choose>
+                                                    <do_when value="{value@L2M004.Enter Terraformer Sector Run}" exact="0">
+                                                      <play_text actor="L2M004.Pearle" pageid="3921" textid="211415" priority="99"/>
+                                                    </do_when>
+                                                    <do_otherwise>
+                                                      <play_text actor="L2M004.Pearle" pageid="3921" textid="211417" priority="99"/>
+                                                    </do_otherwise>
+                                                  </do_choose>
+                                                  <set_value name="L2M004.Enter Terraformer Sector Run" exact="1"/>
+                                                  <do_if value="4-{group.object.count@L2M004.FalseTS}" min="1">
+                                                    <set_value name="L2M004.JumpShipMax" exact="4-{group.object.count@L2M004.FalseTS}"/>
+                                                  </do_if>
+                                                  <set_value name="L2M004.JumpShipCount" min="1" max="{value@L2M004.JumpShipMax}"/>
+                                                  <do_all exact="{value@L2M004.JumpShipMax}" counter="count">
+                                                    <do_choose>
+                                                      <do_when value="{value@L2M004.JumpShipCount}" exact="{counter@count}">
+                                                        <create_ship name="L2M004.RealTS" race="split" typename="{random.type@SS_SH_S_TS|SS_SH_S_TS_2|SS_SH_S_TS_3}" highlight="1" capturable="0" racelogic="0">
+                                                          <position x="0" y="0" z="0" max="30km"/>
+                                                          <sector sector="L2M004.TerraformerSector"/>
+                                                          <equipment loadout="minimum"/>
+                                                          <cargo>
+                                                            <ware typename="SS_WARE_JD_COMPONENTS" min="20" max="25"/>
+                                                          </cargo>
+                                                          <command command="idle"/>
+                                                          <pilot morale="10"/>
+                                                        </create_ship>
+                                                      </do_when>
+                                                      <do_otherwise>
+                                                        <create_ship group="L2M004.FalseTS" race="split" capturable="0" typename="{random.type@SS_SH_S_TS|SS_SH_S_TS_2|SS_SH_S_TS_3}" highlight="1" racelogic="0">
+                                                          <position x="0" y="0" z="0" max="30km"/>
+                                                          <sector sector="L2M004.TerraformerSector"/>
+                                                          <equipment loadout="default"/>
+                                                          <command command="idle"/>
+                                                        </create_ship>
+                                                      </do_otherwise>
+                                                    </do_choose>
+                                                  </do_all>
+                                                  <set_value name="L2M004.Step" exact="2"/>
+                                                  <remove_briefing cue="L2M004"/>
+                                                  <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,402}" text="{3201,413}" background="sector_split.tga">
+                                                    <mission discipline="XXXT" level="easy"/>
+                                                    <objectives>
+                                                      <objective step="{value@L2M004.Step}-1">
+                                                        <custom action="{35,2006}" text="{3201,446}"/>
+                                                      </objective>
+                                                      <objective step="{value@L2M004.Step}">
+                                                        <custom action="{35,2006}" text="{3201,442}"/>
+                                                      </objective>
+                                                    </objectives>
+                                                  </create_briefing>
+                                                  <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,402}" text="{3201,413}" noabort="1">
+                                                    <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                    <mission discipline="XXXT" level="easy"/>
+                                                    <custom action="{35,2006}" text="{3201,442}"/>
+                                                  </set_objective>
+                                                </do_all>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M004 FalseTS Scanned">
+                                              <condition>
+                                                <any_object_scanned group="L2M004.FalseTS"/>
+                                              </condition>
+                                              <action>
+                                                <set_highlight object="{event.object}" highlight="0"/>
+                                              </action>
+                                            </cue>
+                                            <cue name="L2M004 JD Ship Destroyed" instantiate="static">
+                                              <condition>
+                                                <check_any>
+                                                  <object_destroyed_by_player object="L2M004.RealTS"/>
+                                                  <object_destroyed object="L2M004.RealTS"/>
+                                                </check_any>
+                                              </condition>
+                                              <action>
+                                                <do_all>
+                                                  <cancel_cue cue="L2M004 JD Ship Scanned"/>
+                                                  <destroy_group group="L2M004.FalseTS" warp="1"/>
+                                                </do_all>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M004 JD Ship Destroyed Reset">
+                                                  <timing>
+                                                    <time exact="5s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <reset_cue cue="L2M004 Enter Terraformer Sector"/>
+                                                  </action>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                            <cue name="L2M004 JD Ship Scanned" instantiate="static">
+                                              <condition>
+                                                <object_scanned object="L2M004.RealTS"/>
+                                              </condition>
+                                              <action>
+                                                <do_all>
+                                                  <play_text actor="L2M004.Pearle" pageid="3921" textid="211416" priority="99"/>
+                                                  <set_capturable object="L2M004.RealTS" capturable="1"/>
+                                                  <set_group_highlight group="L2M004.FalseTS" highlight="0"/>
+                                                  <set_highlight object="L2M004.RealTS" highlight="0"/>
+                                                  <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                    <mission discipline="XXXT" level="easy"/>
+                                                    <objectives>
+                                                      <objective step="{value@L2M004.Step}">
+                                                        <custom action="{35,2023}" text="{object.name@L2M004.RealTS}" object="L2M004.RealTS"/>
+                                                      </objective>
+                                                    </objectives>
+                                                  </create_briefing>
+                                                  <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                    <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                    <mission discipline="XXXT" level="easy"/>
+                                                    <custom action="{35,2023}" text="{object.name@L2M004.RealTS}" object="L2M004.RealTS"/>
+                                                  </set_objective>
+                                                </do_all>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M004 JD Ship Escaping">
+                                                  <timing>
+                                                    <time min="40s" max="140s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <play_text actor="L2M004.Pearle" pageid="3921" textid="211428" priority="99"/>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M004 JD Ship Jumps">
+                                                      <condition>
+                                                        <cue_completed cue="L2M004 JD Ship Escaping"/>
+                                                      </condition>
+                                                      <timing>
+                                                        <time exact="20s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <do_all>
+                                                          <cancel_cue cue="L2M004 JD Ship Destroyed"/>
+                                                          <destroy_object object="L2M004.RealTS" warp="1"/>
+                                                          <destroy_group group="L2M004.FalseTS" warp="1"/>
+                                                        </do_all>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M004 Reset TS After Jump">
+                                                          <condition>
+                                                            <cue_completed cue="L2M004 JD Ship Jumps"/>
+                                                          </condition>
+                                                          <timing>
+                                                            <time exact="3s"/>
+                                                          </timing>
+                                                          <action>
+                                                            <do_all>
+                                                              <play_text actor="L2M004.Pearle" pageid="3921" textid="211417" priority="99"/>
+                                                              <reset_cue cue="L2M004 Enter Terraformer Sector"/>
+                                                              <cancel_cue cue="L2M004 JD Ship Scanned"/>
+                                                            </do_all>
+                                                          </action>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                                <cue name="L2M004 Force JD Ship Bail" delay="3s">
+                                                  <condition>
+                                                    <check_all>
+                                                      <check_value value="{object.hull@L2M004.RealTS}" max="20"/>
+                                                      <object_exists object="L2M004.RealTS"/>
+                                                    </check_all>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <cancel_cue cue="L2M004 JD Ship Escaping"/>
+                                                      <abandon_ship object="L2M004.RealTS"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M004 JD Ship Captured">
+                                                  <condition>
+                                                    <object_captured object="L2M004.RealTS"/>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <cancel_cue cue="L2M004 Force JD Ship Bail"/>
+                                                      <cancel_cue cue="L2M004 JD Ship Escaping"/>
+                                                      <play_text actor="L2M004.Pearle" pageid="3921" textid="211418" priority="99"/>
+                                                      <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <objectives>
+                                                          <objective step="{value@L2M004.Step}">
+                                                            <custom action="{35,2062}" text="{object.name@L2M004.RealTS}" object="L2M004.RealTS"/>
+                                                          </objective>
+                                                        </objectives>
+                                                      </create_briefing>
+                                                      <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                        <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <custom action="{35,2062}" text="{object.name@L2M004.RealTS}" object="L2M004.RealTS"/>
+                                                      </set_objective>
+                                                      <set_value name="L2M004.Step" operation="add"/>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M004 JD Ship Claimed">
+                                                      <condition>
+                                                        <object_claimed object="L2M004.RealTS"/>
+                                                      </condition>
+                                                      <timing>
+                                                        <time exact="5s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <play_text actor="L2M004.Pearle" pageid="3921" textid="211419" priority="99"/>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M004 Find Base" delay="3s">
+                                                          <condition>
+                                                            <cue_is_complete cue="L2M004 JD Ship Claimed"/>
+                                                          </condition>
+                                                          <action>
+                                                            <do_all>
+                                                              <do_if value="{object.exists@L2M004.SplitTL}" exact="0">
+                                                                <create_ship boardable="0" typename="SS_SH_S_TL" race="split" capturable="0" name="L2M004.SplitTL" racelogic="0" invincible="1">
+                                                                  <position x="0" y="0" z="0" min="25km" max="32km" height="5km"/>
+                                                                  <sector sector="L2M004.TerraformerSector"/>
+                                                                  <equipment loadout="default"/>
+                                                                </create_ship>
+                                                              </do_if>
+                                                              <do_all exact="5-{group.object.count@L2M004.Terraformers}">
+                                                                <create_ship race="enemy" capturable="0" communicates="0" typename="{random.type@SS_SH_TERRAFORMER2|SS_SH_TERRAFORMER3}" racelogic="0" dockobject="L2M004.SplitTL" group="L2M004.Terraformers" homebase="L2M004.SplitTL">
+                                                                  <equipment loadout="default"/>
+                                                                  <command command="protect" commandobject="L2M004.SplitTL"/>
+                                                                  <relations>
+                                                                    <relation object="L2M004.SplitTL" relation="friend" mutual="1"/>
+                                                                  </relations>
+                                                                  <pilot jobtextid="103"/>
+                                                                </create_ship>
+                                                              </do_all>
+                                                            </do_all>
+                                                          </action>
+                                                          <cues>
+                                                            <cue name="L2M004 Find Base Wait">
+                                                              <condition>
+                                                                <cue_completed cue="L2M004 Find Base"/>
+                                                              </condition>
+                                                              <cues>
+                                                                <cue name="L2M004 Set Enter JD Ship Objective" delay="3s">
+                                                                  <condition>
+                                                                    <check_value value="{player.ship}" exact="{object@L2M004.RealTS}" negate="1"/>
+                                                                  </condition>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <objectives>
+                                                                          <objective step="{value@L2M004.Step}">
+                                                                            <custom action="{35,2067}" text="{object.name@L2M004.RealTS}" object="L2M004.RealTS"/>
+                                                                          </objective>
+                                                                        </objectives>
+                                                                      </create_briefing>
+                                                                      <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                                        <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <custom action="{35,2067}" text="{object.name@L2M004.RealTS}" object="L2M004.RealTS"/>
+                                                                      </set_objective>
+                                                                      <reset_cue cue="L2M004 Set Base Guidance"/>
+                                                                      <reset_cue cue="L2M004 Lose Base Guidance"/>
+                                                                    </do_all>
+                                                                  </action>
+                                                                </cue>
+                                                                <cue name="L2M004 Set Base Guidance" delay="6s">
+                                                                  <condition>
+                                                                    <check_all>
+                                                                      <check_value value="{player.ship}" exact="{object@L2M004.RealTS}"/>
+                                                                      <count_ships min="1" race="player">
+                                                                        <position object="L2M004.SplitTL"/>
+                                                                        <sector sector="{object.sector@L2M004.SplitTL}"/>
+                                                                        <distance max="30km"/>
+                                                                      </count_ships>
+                                                                    </check_all>
+                                                                  </condition>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <objectives>
+                                                                          <objective step="{value@L2M004.Step}">
+                                                                            <custom action="{35,2006}" text="{3201,443}" object="L2M004.SplitTL"/>
+                                                                          </objective>
+                                                                        </objectives>
+                                                                      </create_briefing>
+                                                                      <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1" silent="1">
+                                                                        <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <custom action="{35,2006}" text="{3201,443}" object="L2M004.SplitTL"/>
+                                                                      </set_objective>
+                                                                      <reset_cue cue="L2M004 Lose Base Guidance"/>
+                                                                      <reset_cue cue="L2M004 Set Enter JD Ship Objective"/>
+                                                                    </do_all>
+                                                                  </action>
+                                                                </cue>
+                                                                <cue name="L2M004 Lose Base Guidance" delay="7s">
+                                                                  <condition>
+                                                                    <check_all>
+                                                                      <check_value value="{player.ship}" exact="{object@L2M004.RealTS}"/>
+                                                                      <count_ships exact="0" race="player">
+                                                                        <position object="L2M004.SplitTL"/>
+                                                                        <sector sector="{object.sector@L2M004.SplitTL}"/>
+                                                                        <distance max="30km"/>
+                                                                      </count_ships>
+                                                                    </check_all>
+                                                                  </condition>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <objectives>
+                                                                          <objective step="{value@L2M004.Step}">
+                                                                            <custom action="{35,2006}" text="{3201,443}">
+                                                                              <sector sector="L2M004.TerraformerSector"/>
+                                                                            </custom>
+                                                                          </objective>
+                                                                        </objectives>
+                                                                      </create_briefing>
+                                                                      <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1" silent="1">
+                                                                        <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <custom action="{35,2006}" text="{3201,443}">
+                                                                          <sector sector="L2M004.TerraformerSector"/>
+                                                                        </custom>
+                                                                      </set_objective>
+                                                                      <reset_cue cue="L2M004 Set Base Guidance"/>
+                                                                      <reset_cue cue="L2M004 Set Enter JD Ship Objective"/>
+                                                                    </do_all>
+                                                                  </action>
+                                                                </cue>
+                                                                <!--TODO Terraformer defenders-->
+                                                                <cue name="L2M004 Other Ship Approaches" delay="5s">
+                                                                  <condition>
+                                                                    <check_all>
+                                                                      <count_ships race="player" min="1">
+                                                                        <position object="L2M004.SplitTL"/>
+                                                                        <sector sector="{object.sector@L2M004.SplitTL}"/>
+                                                                        <distance max="5km"/>
+                                                                      </count_ships>
+                                                                      <object_position object="L2M004.RealTS" max="5km" negate="1">
+                                                                        <position object="L2M004.SplitTL"/>
+                                                                        <sector sector="{object.sector@L2M004.SplitTL}"/>
+                                                                      </object_position>
+                                                                    </check_all>
+                                                                  </condition>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <do_if value="{player.target}" exact="{object@L2M004.SplitTL}">
+                                                                        <set_target/>
+                                                                      </do_if>
+                                                                      <warp_object object="L2M004.SplitTL">
+                                                                        <position x="0" y="0" z="0" min="20km" max="32km" height="5km"/>
+                                                                        <sector sector="L2M004.TerraformerSector"/>
+                                                                      </warp_object>
+                                                                      <reset_cue cue="L2M004 Find Base"/>
+                                                                    </do_all>
+                                                                  </action>
+                                                                </cue>
+                                                                <cue name="L2M004 Frighter Approaches" delay="5s">
+                                                                  <condition>
+                                                                    <check_all>
+                                                                      <object_position object="L2M004.RealTS" max="5km">
+                                                                        <position object="L2M004.SplitTL"/>
+                                                                        <sector sector="{object.sector@L2M004.SplitTL}"/>
+                                                                      </object_position>
+                                                                      <check_value value="{player.ship}" exact="{object@L2M004.RealTS}"/>
+                                                                    </check_all>
+                                                                  </condition>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <destroy_group group="L2M004.FalseTS" warp="1"/>
+                                                                      <cancel_cue cue="L2M004 Set Enter JD Ship Objective"/>
+                                                                      <cancel_cue cue="L2M004 Lose Base Guidance"/>
+                                                                      <cancel_cue cue="L2M004 Set Base Guidance"/>
+                                                                      <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1" silent="1">
+                                                                        <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <custom action="{35,2024}" text="{object.name@L2M004.SplitTL}" object="L2M004.SplitTL"/>
+                                                                      </set_objective>
+                                                                      <play_cutscene file="Terran Plot S4 C1"/>
+                                                                      <set_object name="L2M004.TempSplitTL" value="{object@L2M004.SplitTL}"/>
+                                                                    </do_all>
+                                                                  </action>
+                                                                  <cues>
+                                                                    <cue name="L2M004 Frighter Approaches Cutscene">
+                                                                      <condition>
+                                                                        <cue_completed cue="L2M004 Frighter Approaches"/>
+                                                                      </condition>
+                                                                      <timing>
+                                                                        <time exact="1s"/>
+                                                                      </timing>
+                                                                      <action>
+                                                                        <play_sound soundid="1212" task="1"/>
+                                                                      </action>
+                                                                    </cue>
+                                                                    <cue name="L2M004 Plant Tracker" delay="3s">
+                                                                      <condition>
+                                                                        <check_all>
+                                                                          <object_position object="L2M004.RealTS" max="2km">
+                                                                            <position object="L2M004.SplitTL"/>
+                                                                          </object_position>
+                                                                          <check_value value="{player.ship}" exact="{object@L2M004.RealTS}"/>
+                                                                        </check_all>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <play_text actor="L2M004.Pearle" pageid="3921" textid="211421" priority="99"/>
+                                                                          <set_value name="L2M004.Step" operation="add"/>
+                                                                          <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                            <objectives>
+                                                                              <objective step="{value@L2M004.Step}">
+                                                                                <custom action="{35,2066}" text="{35,2158}"/>
+                                                                              </objective>
+                                                                            </objectives>
+                                                                          </create_briefing>
+                                                                          <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                                            <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                            <custom action="{35,2066}" text="{35,2158}"/>
+                                                                          </set_objective>
+                                                                        </do_all>
+                                                                      </action>
+                                                                      <cues>
+                                                                        <cue ref="OBJ02">
+                                                                          <params>
+                                                                            <param name="Cue" value="L2M004" comment="The cue"/>
+                                                                            <param name="Object" value="L2M004.SplitTL" comment="The object to be scanned"/>
+                                                                            <param name="Range" value="400"/>
+                                                                            <param name="Text" value="{3300,1202}"/>
+                                                                            <param name="NoVoice" value="1"/>
+                                                                            <param name="ResetWhenInterrupted" value="1" comment="Reset the scan percentage when interrupted?"/>
+                                                                          </params>
+                                                                        </cue>
+                                                                        <cue name="L2M004 Tracker Planted" delay="1s">
+                                                                          <condition>
+                                                                            <check_value value="{value@L2M004.OBJ02 Progress}" exact="1"/>
+                                                                          </condition>
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <cancel_cue cue="L2M004 Lose Base Guidance"/>
+                                                                              <cancel_cue cue="L2M004 Other Ship Approaches"/>
+                                                                              <cancel_cue cue="L2M004 Set Base Guidance"/>
+                                                                              <cancel_cue cue="L2M004 Set Enter JD Ship Objective"/>
+                                                                              <set_value name="L2M004.Step" operation="add"/>
+                                                                              <set_group_command group="L2M004.Terraformers" command="killenemies"/>
+                                                                              <play_text actor="L2M004.Pearle" pageid="3921" textid="211422" priority="99"/>
+                                                                              <create_ship boardable="0" name="L2M004.Odin" race="terran" invincible="1" racelogic="0" typename="SS_SH_TR_M1">
+                                                                                <position x="0" y="0" z="0" min="5km" max="10km"/>
+                                                                                <sector sector="L2M004.O of F"/>
+                                                                                <equipment loadout="default"/>
+                                                                              </create_ship>
+                                                                              <create_actor name="L2M004.Ishiyama" character="{3895,19}" face="1135" voice="3819" race="terran" object="L2M004.Odin" location="crew"/>
+                                                                              <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                                <mission discipline="XXXT" level="easy"/>
+                                                                                <objectives>
+                                                                                  <objective step="{value@L2M004.Step}">
+                                                                                    <custom action="{35,2044}" text="{sector.name@L2M004.TerraformerSector}">
+                                                                                      <sector sector="L2M004.O of F"/>
+                                                                                    </custom>
+                                                                                  </objective>
+                                                                                </objectives>
+                                                                              </create_briefing>
+                                                                              <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                                                <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                                <mission discipline="XXXT" level="easy"/>
+                                                                                <custom action="{35,2044}" text="{sector.name@L2M004.TerraformerSector}">
+                                                                                  <sector sector="L2M004.O of F"/>
+                                                                                </custom>
+                                                                              </set_objective>
+                                                                              <set_value name="L2M004.Step" operation="add"/>
+                                                                            </do_all>
+                                                                          </action>
+                                                                          <cues>
+                                                                            <cue name="L2M004 Jump TL away">
+                                                                              <timing>
+                                                                                <time exact="10s"/>
+                                                                              </timing>
+                                                                              <action>
+                                                                                <destroy_object object="L2M004.SplitTL" warp="1"/>
+                                                                              </action>
+                                                                            </cue>
+                                                                            <cue name="L2M004 Exited Sector" delay="10s">
+                                                                              <condition>
+                                                                                <check_value value="{player.sector}" exact="{sector@L2M004.TerraformerSector}" negate="1"/>
+                                                                              </condition>
+                                                                              <action>
+                                                                                <do_all>
+                                                                                  <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                    <objectives>
+                                                                                      <objective step="{value@L2M004.Step}">
+                                                                                        <flyto object="L2M004.Odin"/>
+                                                                                      </objective>
+                                                                                    </objectives>
+                                                                                  </create_briefing>
+                                                                                  <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                                                    <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                    <flyto object="L2M004.Odin"/>
+                                                                                  </set_objective>
+                                                                                  <set_value name="L2M004.Step" operation="add"/>
+                                                                                </do_all>
+                                                                              </action>
+                                                                              <cues>
+                                                                                <cue name="L2M004 Flown to Tokyo" delay="3s">
+                                                                                  <condition>
+                                                                                    <object_position max="5km">
+                                                                                      <position object="L2M004.Odin"/>
+                                                                                    </object_position>
+                                                                                  </condition>
+                                                                                  <action>
+                                                                                    <do_all>
+                                                                                      <destroy_actor actor="L2M004.Pearle"/>
+                                                                                      <create_actor name="L2M004.Pearle" character="{3895,21}" face="1138" voice="3821" race="terran" object="L2M004.Odin" location="crew"/>
+                                                                                      <play_text priority="99">
+                                                                                        <line actor="L2M004.Ishiyama" pageid="3819" textid="191404"/>
+                                                                                        <line actor="L2M004.Pearle" pageid="3821" textid="211423"/>
+                                                                                        <line actor="L2M004.Ishiyama" pageid="3819" textid="191405"/>
+                                                                                      </play_text>
+                                                                                      <set_value name="this.WaitTime" exact="{text.duration@3819,191404}+{text.duration@3821,211423}+{text.duration@3819,191405}"/>
+                                                                                      <reward_player>
+                                                                                        <map>
+                                                                                          <sector sector="L2M004.Unknown"/>
+                                                                                        </map>
+                                                                                      </reward_player>
+                                                                                    </do_all>
+                                                                                  </action>
+                                                                                  <cues>
+                                                                                    <cue name="L2M004 Head to Unknown Sector">
+                                                                                      <condition>
+                                                                                        <cue_completed cue="L2M004 Flown to Tokyo"/>
+                                                                                      </condition>
+                                                                                      <timing>
+                                                                                        <time exact="{value@L2M004 Flown to Tokyo.WaitTime}+2s"/>
+                                                                                      </timing>
+                                                                                      <action>
+                                                                                        <do_all>
+                                                                                          <create_ship race="player" typename="SS_SH_USC_M3P" warp="1">
+                                                                                            <position object="L2M004.Odin"/>
+                                                                                            <sector sector="L2M004.O of F"/>
+                                                                                            <equipment loadout="maximum"/>
+                                                                                          </create_ship>
+                                                                                          <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,402}" text="{3201,414}" background="combat_missiles.tga">
+                                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                                            <objectives>
+                                                                                              <objective step="{value@L2M004.Step}">
+                                                                                                <flyto>
+                                                                                                  <sector sector="L2M004.Unknown"/>
+                                                                                                </flyto>
+                                                                                              </objective>
+                                                                                            </objectives>
+                                                                                          </create_briefing>
+                                                                                          <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" title="{3201,402}" text="{3201,414}" noabort="1">
+                                                                                            <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                                            <mission discipline="XXXT" level="easy"/>
+                                                                                            <flyto>
+                                                                                              <sector sector="L2M004.Unknown"/>
+                                                                                            </flyto>
+                                                                                          </set_objective>
+                                                                                          <set_value name="L2M004.Step" operation="add"/>
+                                                                                        </do_all>
+                                                                                      </action>
+                                                                                      <cues>
+                                                                                        <cue name="L2M004 Enter Unknown Sector" delay="5s">
+                                                                                          <condition>
+                                                                                            <check_all>
+                                                                                              <cue_is_complete cue="L2M004 Head to Unknown Sector"/>
+                                                                                              <check_value value="{player.sector}" exact="{sector@L2M004.Unknown}"/>
+                                                                                            </check_all>
+                                                                                          </condition>
+                                                                                          <action>
+                                                                                            <do_all>
+                                                                                              <destroy_actor actor="L2M004.Ishiyama"/>
+                                                                                              <find_gate gate="west" name="L2M004.Unknown Sector Gate">
+                                                                                                <sector sector="L2M004.Unknown"/>
+                                                                                              </find_gate>
+                                                                                              <warp_object object="L2M004.Odin">
+                                                                                                <position object="L2M004.Unknown Sector Gate" exact="2km"/>
+                                                                                                <sector sector="L2M004.Unknown"/>
+                                                                                              </warp_object>
+                                                                                              <do_all exact="20">
+                                                                                                <create_ship group="L2M004.Terran Fighters" race="terran" typename="{random.type@SS_SH_TR_M3|SS_SH_USC_M3|SS_SH_USC_M4|SS_SH_TR_M4}">
+                                                                                                  <position object="L2M004.Unknown Sector Gate" x="10km" max="8km"/>
+                                                                                                  <sector sector="L2M004.Unknown"/>
+                                                                                                  <equipment loadout="default"/>
+                                                                                                  <command command="killenemies"/>
+                                                                                                </create_ship>
+                                                                                              </do_all>
+                                                                                              <create_ship boardable="0" typename="SS_SH_S_TL" race="enemy" capturable="0" name="L2M004.SplitTL" racelogic="0" invincible="1">
+                                                                                                <position x="-10km" y="0" z="0" max="5km"/>
+                                                                                                <sector sector="L2M004.Unknown"/>
+                                                                                                <equipment loadout="default"/>
+                                                                                                <pilot race="split" jobtextid="103"/>
+                                                                                              </create_ship>
+                                                                                              <do_all exact="30">
+                                                                                                <create_ship group="L2M004.Split Fighters" race="enemy" typename="{random.type@SS_SH_S_M3|SS_SH_S_M4|SS_SH_S_M4}">
+                                                                                                  <position object="L2M004.SplitTL" x="-10km" max="8km"/>
+                                                                                                  <sector sector="L2M004.Unknown"/>
+                                                                                                  <equipment loadout="default"/>
+                                                                                                  <command command="killenemies"/>
+                                                                                                  <pilot race="split" jobtextid="103"/>
+                                                                                                </create_ship>
+                                                                                              </do_all>
+                                                                                            </do_all>
+                                                                                          </action>
+                                                                                          <cues>
+                                                                                            <cue name="L2M004 Unknown Sector Cutscene" delay="1s">
+                                                                                              <condition>
+                                                                                                <check_value value="{object.sector@L2M004.Odin}" exact="{sector@L2M004.Unknown}"/>
+                                                                                              </condition>
+                                                                                              <timing>
+                                                                                                <time exact="4s"/>
+                                                                                              </timing>
+                                                                                              <action>
+                                                                                                <do_if value="{player.sector}" exact="{sector@L2M004.Unknown}">
+                                                                                                  <play_sound soundid="1210" task="1"/>
+                                                                                                  <play_cutscene file="Terran Plot S4 C2"/>
+                                                                                                  <set_object name="L2M004.TempSplitTL" value="{object@L2M004.SplitTL}"/>
+                                                                                                  <set_object name="L2M004.TempOdin" value="{object@L2M004.Odin}"/>
+                                                                                                </do_if>
+                                                                                              </action>
+                                                                                            </cue>
+                                                                                            <cue name="L2M004 Protect Boarding Crews">
+                                                                                              <condition>
+                                                                                                <cue_completed cue="L2M004 Enter Unknown Sector"/>
+                                                                                              </condition>
+                                                                                              <timing>
+                                                                                                <time exact="10s"/>
+                                                                                              </timing>
+                                                                                              <action>
+                                                                                                <do_all>
+                                                                                                  <set_command object="L2M004.Odin" command="killenemies"/>
+                                                                                                  <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                                    <objectives>
+                                                                                                      <objective step="{value@L2M004.Step}">
+                                                                                                        <custom action="{35,2010}" text="{35,2155}"/>
+                                                                                                      </objective>
+                                                                                                    </objectives>
+                                                                                                  </create_briefing>
+                                                                                                  <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                                                                    <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                                    <custom action="{35,2010}" text="{35,2155}"/>
+                                                                                                  </set_objective>
+                                                                                                  <play_text actor="L2M004.Pearle" pageid="3821" textid="211424" priority="99"/>
+                                                                                                  <set_value name="L2M004.Step" operation="add"/>
+                                                                                                  <do_all exact="3">
+                                                                                                    <create_ship typename="SS_SH_USC_TP" group="L2M004.BoardingShips" race="terran" racelogic="0" capturable="0">
+                                                                                                      <position object="L2M004.Odin"/>
+                                                                                                      <sector sector="L2M004.Unknown"/>
+                                                                                                      <equipment loadout="maximum">
+                                                                                                        <ware typename="SS_WARE_SOLDIER_2" exact="5"/>
+                                                                                                        <ware typename="SS_WARE_TECH213" exact="4"/>
+                                                                                                      </equipment>
+                                                                                                      <command command="follow" commandobject="L2M004.SplitTL"/>
+                                                                                                    </create_ship>
+                                                                                                  </do_all>
+                                                                                                  <do_all exact="{group.object.count@L2M004.BoardingShips}" counter="count">
+                                                                                                    <set_object name="L2M004.Boardingship {group.object.{counter@count}@L2M004.BoardingShips}"
+                                                                                                               group="L2M004.Boardingship {group.object.{counter@count}@L2M004.BoardingShips} Group" value="{group.object.{counter@count}@L2M004.BoardingShips}"/>
+                                                                                                    <add_object_to_group object="L2M004.SplitTL" group="L2M004.Boardingship {group.object.{counter@count}@L2M004.BoardingShips} Group"/>
+                                                                                                  </do_all>
+                                                                                                </do_all>
+                                                                                              </action>
+                                                                                              <cues>
+                                                                                                <cue name="L2M004 Create Boardingships" delay="5s" instantiate="static">
+                                                                                                  <condition>
+                                                                                                    <check_all>
+                                                                                                      <cue_is_complete cue="L2M004 Protect Boarding Crews"/>
+                                                                                                      <check_value value="{group.object.count@L2M004.BoardingShips}" max="2"/>
+                                                                                                    </check_all>
+                                                                                                  </condition>
+                                                                                                  <action>
+                                                                                                    <do_all>
+                                                                                                      <create_ship typename="SS_SH_USC_TP" name="L2M004.BoardingShip Temp" race="terran" racelogic="0" capturable="0">
+                                                                                                        <position object="L2M004.Odin"/>
+                                                                                                        <sector sector="L2M004.Unknown"/>
+                                                                                                        <equipment loadout="maximum">
+                                                                                                          <ware typename="SS_WARE_SOLDIER_2" exact="5"/>
+                                                                                                          <ware typename="SS_WARE_TECH213" exact="4"/>
+                                                                                                        </equipment>
+                                                                                                        <command command="moveposition" commandobject="L2M004.SplitTL"/>
+                                                                                                      </create_ship>
+                                                                                                      <set_object name="L2M004.BoardingShip {object@L2M004.BoardingShip Temp}"
+                                                                                                               group="L2M004.Boardingship {object@L2M004.BoardingShip Temp} Group" value="{object@L2M004.BoardingShip Temp}"/>
+                                                                                                      <add_object_to_group object="L2M004.SplitTL" group="L2M004.Boardingship {object@L2M004.BoardingShip Temp} Group"/>
+                                                                                                      <add_object_to_group object="L2M004.BoardingShip {object@L2M004.BoardingShip Temp}" group="L2M004.BoardingShips"/>
+                                                                                                    </do_all>
+                                                                                                  </action>
+                                                                                                </cue>
+                                                                                                <cue name="L2M004 Check Boardingship Location" delay="2s">
+                                                                                                  <condition>
+                                                                                                    <any_object_position group="L2M004.BoardingShips" max="4km">
+                                                                                                      <position object="L2M004.SplitTL"/>
+                                                                                                    </any_object_position>
+                                                                                                  </condition>
+                                                                                                  <action>
+                                                                                                    <do_all>
+                                                                                                      <do_all exact="{group.object.count@L2M004.BoardingShips}" counter="count">
+                                                                                                        <do_if value="{group.distance.km@L2M004.Boardingship {group.object.{counter@count}@L2M004.BoardingShips} Group}" max="4">
+                                                                                                          <set_object name="L2M004.End BoardingShip" value="{group.object.{counter@count}@L2M004.BoardingShips}"/>
+                                                                                                        </do_if>
+                                                                                                      </do_all>
+                                                                                                      <do_if value="{object.exists@L2M004.End BoardingShip}" exact="0">
+                                                                                                        <reset_cue cue="L2M004 Check Boardingship Location"/>
+                                                                                                      </do_if>
+                                                                                                    </do_all>
+                                                                                                  </action>
+                                                                                                  <cues>
+                                                                                                    <cue name="L2M004 Marine Update 1">
+                                                                                                      <condition>
+                                                                                                        <check_all>
+                                                                                                          <cue_completed cue="L2M004 Check Boardingship Location"/>
+                                                                                                          <object_exists object="L2M004.End BoardingShip"/>
+                                                                                                        </check_all>
+                                                                                                      </condition>
+                                                                                                      <action>
+                                                                                                        <do_all>
+                                                                                                          <cancel_cue cue="L2M004 Create Boardingships"/>
+                                                                                                          <create_actor name="L2M004.Ban Marine" character="{3895,26}" face="1139" race="terran" voice="3826"/>
+                                                                                                          <play_text actor="L2M004.Ban Marine" pageid="3826" textid="261401" priority="99"/>
+                                                                                                        </do_all>
+                                                                                                      </action>
+                                                                                                      <cues>
+                                                                                                        <cue name="L2M004 Marine Update 2">
+                                                                                                          <condition>
+                                                                                                            <cue_completed cue="L2M004 Marine Update 1"/>
+                                                                                                          </condition>
+                                                                                                          <timing>
+                                                                                                            <time exact="{text.duration@3826,261401}+3s"/>
+                                                                                                          </timing>
+                                                                                                          <action>
+                                                                                                            <play_text actor="L2M004.Ban Marine" pageid="3826" textid="261402" priority="99"/>
+                                                                                                          </action>
+                                                                                                          <cues>
+                                                                                                            <cue name="L2M004 Marine Update 3">
+                                                                                                              <condition>
+                                                                                                                <cue_completed cue="L2M004 Marine Update 2"/>
+                                                                                                              </condition>
+                                                                                                              <timing>
+                                                                                                                <time exact="10s"/>
+                                                                                                              </timing>
+                                                                                                              <action>
+                                                                                                                <do_all>
+                                                                                                                  <set_owner object="L2M004.SplitTL" race="terran"/>
+                                                                                                                  <set_relation object="L2M004.SplitTL">
+                                                                                                                    <relation relation="friend"/>
+                                                                                                                  </set_relation>
+                                                                                                                  <create_ship name="L2M004.Escaping Ship" invincible="1" race="split" racelogic="0" communicates="0" dockobject="L2M004.SplitTL" typename="SS_SH_S_M5_ENH">
+                                                                                                                    <equipment loadout="default"/>
+                                                                                                                    <command command="idle"/>
+                                                                                                                    <hull min="60" max="90"/>
+                                                                                                                  </create_ship>
+                                                                                                                  <do_if value="{player.notoriety.atf}" max="{lookup.notoriety@notop6}-1">
+                                                                                                                    <reward_player>
+                                                                                                                      <notoriety>
+                                                                                                                        <relation race="atf" operation="set" exact="{lookup.notoriety@notop6}"/>
+                                                                                                                      </notoriety>
+                                                                                                                    </reward_player>
+                                                                                                                    <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop6}"/>
+                                                                                                                  </do_if>
+                                                                                                                </do_all>
+                                                                                                              </action>
+                                                                                                              <cues>
+                                                                                                                <cue name="L2M004 Bail Split Scientist">
+                                                                                                                  <condition>
+                                                                                                                    <cue_completed cue="L2M004 Marine Update 3"/>
+                                                                                                                  </condition>
+                                                                                                                  <timing>
+                                                                                                                    <time exact="10s"/>
+                                                                                                                  </timing>
+                                                                                                                  <action>
+                                                                                                                    <do_all>
+                                                                                                                      <destroy_actor actor="L2M004.Ban Marine"/>
+                                                                                                                      <play_text actor="L2M004.Pearle" pageid="3821" textid="211425" priority="99"/>
+                                                                                                                      <abandon_ship object="L2M004.Escaping Ship" name="L2M004.SplitAstro" group="L2M004.Astronauts"/>
+                                                                                                                      <set_invincible object="L2M004.Escaping Ship" invincible="0"/>
+                                                                                                                      <remove_object object="L2M004.Escaping Ship"/>
+                                                                                                                      <create_actor name="L2M004.SplitActor" object="L2M004.SplitAstro" location="pilot" race="split"/>
+                                                                                                                      <set_object name="L2M004.SplitActors {actor@L2M004.SplitActor}" group="L2M004.SplitActors" value="{actor@L2M004.SplitActor}"/>
+                                                                                                                      <set_invincible object="L2M004.SplitAstro" invincible="1"/>
+                                                                                                                      <set_value name="L2M004.Find Split Step" exact="{value@L2M004.Step}"/>
+                                                                                                                      <set_value name="L2M004.Flyto Moon Step" exact="{value@L2M004.Step}+1"/>
+                                                                                                                    </do_all>
+                                                                                                                  </action>
+                                                                                                                  <cues>
+                                                                                                                    <cue name="L2M004 Catch Split Scientist" delay="2s">
+                                                                                                                      <condition>
+                                                                                                                        <cue_is_complete cue="L2M004 Bail Split Scientist"/>
+                                                                                                                      </condition>
+                                                                                                                      <action>
+                                                                                                                        <do_all>
+                                                                                                                          <set_value name="L2M004.Find Split Step" exact="{value@L2M004.Step}"/>
+                                                                                                                          <set_value name="L2M004.Flyto Moon Step" exact="{value@L2M004.Step}+1"/>
+                                                                                                                          <set_value name="L2M004.L0M30 Feedback" exact="0"/>
+                                                                                                                          <set_value name="L2M004.L0M28 Feedback" exact="0"/>
+                                                                                                                        </do_all>
+                                                                                                                      </action>
+                                                                                                                      <cues>
+                                                                                                                        <cue ref="L0M28">
+                                                                                                                          <params>
+                                                                                                                            <param name="Cue" value="L2M004" comment="The cue where values will be localized"/>
+                                                                                                                            <param name="PageID" value="3201" comment="The PageID of the text"/>
+                                                                                                                            <param name="Step" value="L2M004.Find Split Step" comment="The initial objective step"/>
+                                                                                                                            <param name="TextID Act Multi" value="445" comment="The text ID for the name of multiple actors"/>
+                                                                                                                            <param name="TextID Act Singular" value="444" comment="The text ID for the name of a single actor"/>
+                                                                                                                            <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                                                                                                                            <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                                                                                                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                                                                                                            <param name="Actors" value="L2M004.SplitActors" comment="The group of actors to capture"/>
+                                                                                                                            <param name="Locations" value="L2M004.SplitLocations" comment="The locations of the astronauts"/>
+                                                                                                                            <param name="Astronauts" value="L2M004.Astronauts"/>
+                                                                                                                            <param name="Astro Failsafe" value="1" comment="Create astronauts on location destruction?"/>
+                                                                                                                            <param name="Invincible Astro" value="1" comment="Create invincible astronauts"/>
+                                                                                                                            <param name="Catch Guidance" value="1" comment="Point to nearest actor during catch actor"/>
+                                                                                                                            <param name="Pickup Guidance" value="1"  comment="Point to nearest actor during pickup actor"/>
+                                                                                                                            <param name="Allow Loss" value="0" comment="A person can be killed, not by player."/>
+                                                                                                                            <param name="Allow Loss By Player" value="0" comment="A person can be killed by player"/>
+                                                                                                                            <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                                                                                                            <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                                                                                                                            <param name="FeedbackName" value="L2M004.L0M28 Feedback" comment="The address where the step value is stored"/>
+                                                                                                                          </params>
+                                                                                                                        </cue>
+                                                                                                                        <cue name="L2M004 Jump Ship">
+                                                                                                                          <condition>
+                                                                                                                            <object_changed_sector object="L2M004.Escaping Ship"/>
+                                                                                                                          </condition>
+                                                                                                                          <action>
+                                                                                                                            <destroy_object object="L2M004.Escaping Ship"/>
+                                                                                                                          </action>
+                                                                                                                        </cue>
+                                                                                                                        <cue name="L2M004 Remove Ship">
+                                                                                                                          <condition>
+                                                                                                                            <object_captured object="L2M004.Escaping Ship"/>
+                                                                                                                          </condition>
+                                                                                                                          <action>
+                                                                                                                            <remove_object object="L2M004.Escaping Ship"/>
+                                                                                                                          </action>
+                                                                                                                        </cue>
+                                                                                                                        <cue name="L2M004 Reset Split" delay="3s">
+                                                                                                                          <condition>
+                                                                                                                            <check_value value="{value@L2M004.L0M28 Feedback}" list="0|1" negate="1"/>
+                                                                                                                          </condition>
+                                                                                                                          <action>
+                                                                                                                            <do_all>
+                                                                                                                              <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                                                                                <mission discipline="XXXT" level="easy"/>
+                                                                                                                                <objectives>
+                                                                                                                                  <objective step="{value@L2M004.Step}">
+                                                                                                                                    <custom action="{35,2006}" text="{3201,445}">
+                                                                                                                                      <sector sector="L2M004.Unknown"/>
+                                                                                                                                    </custom>
+                                                                                                                                  </objective>
+                                                                                                                                </objectives>
+                                                                                                                              </create_briefing>
+                                                                                                                              <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                                                                                                <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                                                                                <mission discipline="XXXT" level="easy"/>
+                                                                                                                                <custom action="{35,2006}" text="{3201,445}">
+                                                                                                                                  <sector sector="L2M004.Unknown"/>
+                                                                                                                                </custom>
+                                                                                                                              </set_objective>
+                                                                                                                            </do_all>
+                                                                                                                          </action>
+                                                                                                                          <cues>
+                                                                                                                            <cue name="L2M004 Create New Split">
+                                                                                                                              <timing>
+                                                                                                                                <time min="30s" max="60s"/>
+                                                                                                                              </timing>
+                                                                                                                              <action>
+                                                                                                                                <do_all>
+                                                                                                                                  <create_ship name="L2M004.Escaping Ship" group="L2M004.SplitLocations" typename="{random.type@SS_SH_S_M5|SS_SH_S_M5_1|SS_SH_S_M5_2}" race="split" racelogic="0">
+                                                                                                                                    <position object="L2M004.SplitTL" min="20km" max="30km"/>
+                                                                                                                                    <sector sector="L2M004.Unknown"/>
+                                                                                                                                    <equipment loadout="default"/>
+                                                                                                                                    <command command="movesector">
+                                                                                                                                      <sector sector="L2M004.Family Z"/>
+                                                                                                                                    </command>
+                                                                                                                                    <pilot morale="10"/>
+                                                                                                                                    <hull min="30" max="50"/>
+                                                                                                                                  </create_ship>
+                                                                                                                                  <create_actor name="L2M004.SplitActor" object="L2M004.Escaping Ship" location="pilot" race="split"/>
+                                                                                                                                  <set_object group="L2M004.SplitActors" name="L2M004.SplitActors {actor@L2M004.SplitActor}" value="{actor@L2M004.SplitActor}"/>
+                                                                                                                                  <reset_cue cue="L2M004 Catch Split Scientist"/>
+                                                                                                                                </do_all>
+                                                                                                                              </action>
+                                                                                                                            </cue>
+                                                                                                                          </cues>
+                                                                                                                        </cue>
+                                                                                                                        <cue name="L2M004 Fly to Moon" delay="3s">
+                                                                                                                          <condition>
+                                                                                                                            <check_value value="{value@L2M004.L0M28 Feedback}" exact="1"/>
+                                                                                                                          </condition>
+                                                                                                                          <cues>
+                                                                                                                            <cue ref="L0M30">
+                                                                                                                              <params>
+                                                                                                                                <param name="Cue" value="L2M004" comment="The cue where values will be localized"/>
+                                                                                                                                <param name="Step" value="L2M004.Flyto Moon Step" comment="The initial objective step"/>
+                                                                                                                                <param name="PageID" value="3201" comment="The PageID of the text"/>
+                                                                                                                                <param name="TextID MultiPassengers" value="445" comment="The text ID for the multiple passengers objective"/>
+                                                                                                                                <param name="TextID SinglePassenger" value="444" comment="The text ID for a single passenger objective"/>
+                                                                                                                                <param name="AllowLoss" value="1"/>
+                                                                                                                                <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                                                                                                                                <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                                                                                                                <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                                                                                                                <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                                                                                                                <param name="DestName" value="L2M004.MoonBase" comment="The Address of the destination. Overrides all other criteria."/>
+                                                                                                                                <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                                                                                                                                <!--reward parameters (in priority order)-->
+                                                                                                                                <param name="PassengersName" value="L2M004.SplitActors" comment="The Address of the Passenger Object Group"/>
+                                                                                                                                <param name="InitPassengerCnt" value="{group.object.count@L2M004.SplitActors}" comment="The initial number of passengers at the start of the mission"/>
+                                                                                                                                <param name="FeedbackName" value="L2M004.L0M30 Feedback" comment="The address where the step value is stored"/>
+                                                                                                                                <param name="EndPassengers" value="L2M004.End Passengers"/>
+                                                                                                                              </params>
+                                                                                                                            </cue>
+                                                                                                                            <cue name="L2M004 Transport Split Failed" delay="3s">
+                                                                                                                              <condition>
+                                                                                                                                <check_value value="{value@L2M004.L0M30 Feedback}" list="0|1" negate="1"/>
+                                                                                                                              </condition>
+                                                                                                                              <action>
+                                                                                                                                <do_all>
+                                                                                                                                  <create_briefing cue="L2M004" story="{3200,1}" chapter="{3200,104}">
+                                                                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                                                                    <objectives>
+                                                                                                                                      <objective step="{value@L2M004.Step}">
+                                                                                                                                        <custom action="{35,2006}" text="{3201,445}"/>
+                                                                                                                                      </objective>
+                                                                                                                                    </objectives>
+                                                                                                                                  </create_briefing>
+                                                                                                                                  <set_objective cue="L2M004" story="{3200,1}" chapter="{3200,104}" noabort="1">
+                                                                                                                                    <briefing cue="L2M004" step="{value@L2M004.Step}"/>
+                                                                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                                                                    <custom action="{35,2006}" text="{3201,445}"/>
+                                                                                                                                  </set_objective>
+                                                                                                                                </do_all>
+                                                                                                                              </action>
+                                                                                                                              <cues>
+                                                                                                                                <cue name="L2M004 Create New Split 2">
+                                                                                                                                  <timing>
+                                                                                                                                    <time min="30s" max="60s"/>
+                                                                                                                                  </timing>
+                                                                                                                                  <action>
+                                                                                                                                    <do_all>
+                                                                                                                                      <create_ship name="L2M004.Escaping Ship" group="L2M004.SplitLocations" typename="{random.type@SS_SH_S_M5|SS_SH_S_M5_1|SS_SH_S_M5_2}" race="split" racelogic="0">
+                                                                                                                                        <position object="L2M004.SplitTL" min="20km" max="30km"/>
+                                                                                                                                        <sector sector="L2M004.Unknown"/>
+                                                                                                                                        <equipment loadout="default"/>
+                                                                                                                                        <command command="movesector">
+                                                                                                                                          <sector sector="L2M004.Family Z"/>
+                                                                                                                                        </command>
+                                                                                                                                        <pilot morale="10"/>
+                                                                                                                                        <hull min="30" max="50"/>
+                                                                                                                                      </create_ship>
+                                                                                                                                      <create_actor name="L2M004.SplitActor" object="L2M004.Escaping Ship" location="pilot" race="split"/>
+                                                                                                                                      <set_object group="L2M004.SplitActors" name="L2M004.SplitActors {actor@L2M004.SplitActor}" value="{actor@L2M004.SplitActor}"/>
+                                                                                                                                      <reset_cue cue="L2M004 Catch Split Scientist"/>
+                                                                                                                                    </do_all>
+                                                                                                                                  </action>
+                                                                                                                                </cue>
+                                                                                                                              </cues>
+                                                                                                                            </cue>
+                                                                                                                            <cue name="L2M004 Transport Split Ended" delay="3s">
+                                                                                                                              <condition>
+                                                                                                                                <check_value value="{value@L2M004.L0M30 Feedback}" exact="1"/>
+                                                                                                                              </condition>
+                                                                                                                              <timing>
+                                                                                                                                <time exact="10s"/>
+                                                                                                                              </timing>
+                                                                                                                              <action>
+                                                                                                                                <do_all>
+                                                                                                                                  <destroy_actor actor="L2M004.SplitActor"/>
+                                                                                                                                  <create_actor name="L2M004.Ishiyama" character="{3895,19}" face="1135" voice="3819" race="terran"/>
+                                                                                                                                  <play_text actor="L2M004.Ishiyama" pageid="3819" textid="191406" priority="99"/>
+                                                                                                                                  <destroy_actor actor="L2M004.Ishiyama"/>
+                                                                                                                                  <set_invincible object="L2M004.ATF Belt Outpost" invincible="0"/>
+                                                                                                                                  <set_invincible object="L2M004.MoonBase" invincible="0"/>
+                                                                                                                                  <remove_briefing cue="L2M004"/>
+                                                                                                                                  <remove_objective cue="L2M004" status="complete"/>
+                                                                                                                                </do_all>
+                                                                                                                              </action>
+                                                                                                                              <cues>
+                                                                                                                                <cue name="L2M004 Transport Split Ended Wait">
+                                                                                                                                  <condition>
+                                                                                                                                    <cue_completed cue="L2M004 Transport Split Ended"/>
+                                                                                                                                  </condition>
+                                                                                                                                  <timing>
+                                                                                                                                    <time exact="15m"/>
+                                                                                                                                  </timing>
+                                                                                                                                  <action>
+                                                                                                                                    <do_all>
+                                                                                                                                      <set_value name="Terran Plot Scene 4 End" exact="1"/>
+                                                                                                                                      <cancel_cue cue="L2M004"/>
+                                                                                                                                    </do_all>
+                                                                                                                                  </action>
+                                                                                                                                </cue>
+                                                                                                                              </cues>
+                                                                                                                            </cue>
+                                                                                                                          </cues>
+                                                                                                                        </cue>
+                                                                                                                      </cues>
+                                                                                                                    </cue>
+                                                                                                                  </cues>
+                                                                                                                </cue>
+                                                                                                              </cues>
+                                                                                                            </cue>
+                                                                                                          </cues>
+                                                                                                        </cue>
+                                                                                                      </cues>
+                                                                                                    </cue>
+                                                                                                  </cues>
+                                                                                                </cue>
+                                                                                              </cues>
+                                                                                            </cue>
+                                                                                          </cues>
+                                                                                        </cue>
+                                                                                      </cues>
+                                                                                    </cue>
+                                                                                  </cues>
+                                                                                </cue>
+                                                                              </cues>
+                                                                            </cue>
+                                                                          </cues>
+                                                                        </cue>
+                                                                      </cues>
+                                                                    </cue>
+                                                                  </cues>
+                                                                </cue>
+                                                              </cues>
+                                                            </cue>
+                                                          </cues>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>v6fa82gxZIwWe6eXXhOPjM6DPD2scRjvaPXSUV2JVGc1NsNdSZPCNCxVQkoQy251dv+IKKy8wdN2nsFka8L7t6J//69qV1hbXBgijjQWQhOeZi9F1EBf1hTxF6OgcdexjmeNSOsS/xT0EABsgRI7158IfLDhHGTl8UQlKSmWsJjso86/vLI+N76dGtYhCdgcAlUv/BKzHgPh5fGmBBCO+vApqAZ4x3k5c8soy5da4ib577WFdDrdt2mHJPeqXuVIMzYxge0LF7QvtK8Mjfg5j/DeBFUUlDJJiig6vYt29mmAJmWNgpBogzmorElvYEd0i6K7EyePrmcoLnbBqUTbcw==</signature>
+</director>

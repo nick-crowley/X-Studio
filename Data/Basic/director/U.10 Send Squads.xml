@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="LUM10" name="Send Squads" description="Send hit squads after the player"/>
+    <version number="1.0" date="22/07/08" status="testing"/>
+  </documentation>
+
+  <cues>
+    <cue name="LUM10" delay="500" library="1">
+      <documentation>
+        <content reference="LUM10" name="Send Squads" type="utility"/>
+        <version number="1.0" date="22/07/08" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="Cue name"/>
+          <param name="Race" type="number" compulsory="1" description="Race of squad race"/>
+          <param name="Name" type="number" compulsory="0" description="Name ID from jobs page of ships"/>
+          <param name="Delay" type="number" compulsory="0" description="Delay factor Between Attacks" default="60"/>
+          <param name="Amount" type="number" compulsory="0" description="Number of Attacks" default="10"/>
+          <param name="Difficulty" type="number" compulsory="0" description="Difficuly" default="average"/>
+          <param name="RealRaceOwned" type="boolean" compulsory="0" description="param.exists = 1 - bounty hunters owned by the real race"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.LUM10 Progress" type="number" description="1 - Utility completed"/>
+        </returns>
+        <history>
+          <change date="05/08/08" author="al_main" description="Added chance to jump to reduce effectiveness"/>
+          <change date="22/07/08" author="al_main" description="Added wait when resetting LUM10 Check"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="20/06/08" author="al_main" description="Fixed captured ships bug"/>
+          <change date="09/05/08" author="al_main" description="Code optimisation for changing sectors"/>
+          <change date="09/05/08" author="al_main" description="Ships have chance to finish off old ship when player changing ship if hull damage"/>
+          <change date="08/05/08" author="al_main" description="Initial version"/>
+        </history>
+        <todo>
+          <item priority="high" description="Issue with pirate cover states"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="LUM10.Race" exact="{param@Race}"/>
+          <do_if value="{value@LUM10.Race}" min="1" max="21" negate="1">
+            <set_value name="LUM10.Race" exact="{lookup.race@pirate}"/>
+          </do_if>
+          <set_value name="LUM10.Delay" exact="{param@Delay}"/>
+          <do_if value="{value@LUM10.Delay}" exact="0">
+            <set_value name="LUM10.Delay" exact="60"/>
+          </do_if>
+          <set_value name="LUM10.Amount" exact="{param@Amount}"/>
+          <do_if value="{value@LUM10.Amount}" exact="0">
+            <set_value name="LUM10.Amount" exact="10"/>
+          </do_if>
+          <set_value name="LUM10.Difficulty" exact="{param@Difficulty}"/>
+          <do_if value="{value@LUM10.Difficulty}" exact="0">
+            <set_value name="LUM10.Difficulty" exact="4"/>
+          </do_if>
+            <set_value name="LUM10.RaceSetup" exact="0"/>
+            <set_value name="LUM10.ShipRace" exact="{param@Race}"/>
+          <do_if value="{value@LUM10.ShipRace}" min="1" max="21" negate="1">
+            <set_value name="LUM10.RaceSetup" exact="1"/>
+            <set_value name="LUM10.ShipRace" exact="{lookup.race@neutral}"/>
+          </do_if>
+          <set_value name="LUM10.Level" exact="0"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="LUM10 Send Squad">
+          <action>
+            <do_all>
+              <set_value operation="add" name="LUM10.Level"/>
+              <set_value name="LUM10.NextTime" exact="{value@LUM10.Delay}+{player.age}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="LUM10 Sector Check" instantiate="static">
+              <condition>
+                <object_changed_sector/>
+              </condition>
+              <action>
+                <do_if value="{player.age}" min="{value@LUM10.NextTime}-8">
+                  <set_value name="LUM10.NextTime" min="{player.age}+8" max="{player.age}+13"/>
+                </do_if>
+              </action>
+            </cue>
+            <cue name="LUM10 Check" delay="15s">
+              <condition>
+                <check_all>
+                  <check_value value="{player.age}" min="{value@LUM10.NextTime}"/>
+                  <match_sector border="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="LUM10 Sector Check"/>
+                  <find_gate name="LUM10 Check.Gate" nearest="1">
+                    <jumps exact="0"/>
+                  </find_gate>
+                  <set_object name="LUM10 Check.SpawnGate" value="{object.destination@LUM10 Check.Gate}"/>
+                  <do_if value="{object.exists@LUM10 Check.SpawnGate}" exact="0">
+                    <set_value name="LUM10.NextTime" exact="{player.age}+300"/>
+                    <reset_cue cue="LUM10 Check"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="OBS Complete"/>
+                <cue ref="OBS">
+                  <params>
+                    <param name="OBS Cue" value="LUM10 Check"/>
+                    <param name="OBS Cancel Cue" value="OBS Complete"/>
+                    <param name="OBS Fleet Group Name" value="Attackers" comment="The group name where all main ships are saved too"/>
+                    <param name="OBSFleetRace" value="{value@LUM10.Race}"/>
+                    <param name="OBSFleetPilotsRace" value="{value@LUM10.ShipRace}"/>
+                    <param name="OBSRaceSetup" value="{value@LUM10.RaceSetup}"/>
+                    <param name="OBSFleetRelation" value="-1"/>
+                    <param name="OBSFleetJobTextID" value="{param@Name}"/>
+                    <param name="OBSMissionRank" value="{player.fightrank.rank}" comment="A 0-30 scale preferably based on the players fight rank"/>
+                    <param name="OBSDifficultyRank" value="{value@LUM10.Difficulty}"/>
+                    <param name="OBSPosition" value="50" comment="how far away should the OBS ships be from FleetPositionObject"/>
+                    <param name="OBSFleetPositionObject" value="LUM10 Check.SpawnGate" comment="The object which will provide the location information"/>
+                    <param name="OBSFleetCovered" value="1" comment="0/1 Sets if created pirate ships are covered"/>
+                    <param name="OBSFleetRaceLogic" value="1" comment="0/1 Sets if the created ships will have default race logic"/>
+                  </params>
+                </cue>
+                <cue name="LUM10 Orders">
+                  <condition>
+                    <cue_cancelled cue="OBS Complete"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_if value="{param.exists@Name}" exact="1">
+                        <do_all exact="{group.object.count@LUM10 Check.Attackers}" counter="ShipNum">
+                          <set_value name="this.morale" min="50" max="100"/>
+                          <set_value name="this.fight" min="85" max="100"/>
+                          <set_pilot_data object="{group.object.{counter@ShipNum}@LUM10 Check.Attackers}" morale="{value@this.morale}" fightskill="{value@this.fight}" aggression="100"/>
+                          <add_cargo object="{group.object.{counter@ShipNum}@LUM10 Check.Attackers}">
+                            <ware typename="SS_WARE_WARPING" exact="1" critical="1"/>
+                            <ware typename="SS_WARE_ENERGY" min="25" max="50" critical="1"/>
+                          </add_cargo>
+                        </do_all>
+                      </do_if>
+                      <set_group_command group="LUM10 Check.Attackers" command="attack" commandobject="{player.ship}"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <!-- NEDD TO DEAL WITH UNCOVERING PIRATES BEFORE ATTACK
+                    <cue name="LUM10 Uncover">
+                     <condition>
+                    <any_object_position group="LUM10 Check.Attackers">
+                      <position max=""/>
+                      <sector sector="{player.sector}"/>
+                    </any_object_position>
+                   </condition>
+                   </cue>
+                    -->
+                    <cue name="LUM10 Captured">
+                      <condition>
+                        <any_object_captured group="LUM10 Check.Attackers"/>
+                      </condition>
+                      <action>
+                        <remove_object object="LUM10 Check.Attackers {event.object}"/>
+                      </action>
+                    </cue>
+                    <cue name="LUM10 Destroyed">
+                      <condition>
+                        <all_objects_destroyed group="LUM10 Check.Attackers"/>
+                      </condition>
+                      <timing>
+                        <time exact="250"/>
+                      </timing>
+                      <action>
+                        <do_choose>
+                          <do_when value="{value@LUM10.Level}" min="{value@LUM10.Amount}">
+                            <do_choose>
+                              <do_when value="{value@LUM10.Amount}" min="1">
+                                <set_value name="{param@Cue}.LUM10 Progress" exact="1"/>
+                                <cancel_cue cue="LUM10 Send Squad"/>
+                              </do_when>
+                              <do_otherwise>
+                                <reset_cue cue="LUM10 Send Squad"/>
+                              </do_otherwise>
+                            </do_choose>
+                          </do_when>
+                          <do_otherwise>
+                            <reset_cue cue="LUM10 Send Squad"/>
+                          </do_otherwise>
+                        </do_choose>
+                      </action>
+                    </cue>
+                    <cue name="LUM10 Escaping" instantiate="static">
+                      <condition>
+                        <object_changed_sector/>
+                      </condition>
+                      <timing>
+                        <time min="10s" max="20s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <find_gate name="this.gate" nearest="1">
+                            <jumps exact="0"/>
+                          </find_gate>
+                          <set_object name="LUM10 Check.destination" value="{object.destination@this.gate}"/>
+                          <do_if value="{object.exists@LUM10 Check.destination}" exact="1">
+                            <do_all exact="{group.object.count@LUM10 Check.Attackers}" counter="ShipNum">
+                              <do_if value="{object.sector@{group.object.{counter@ShipNum}@LUM10 Check.Attackers}}" exact="{player.sector}" negate="1">
+                                <do_if value="{object.equipment.SS_WARE_WARPING.count@{group.object.{counter@ShipNum}@LUM10 Check.Attackers}}" min="1" chance="20+(20*{group.object.{counter@ShipNum}.jumps@LUM10 Check.Attackers})">
+                                  <warp_object object="{group.object.{counter@ShipNum}@LUM10 Check.Attackers}">
+                                    <position x="{object.position.x@LUM10 Check.destination}" y="{object.position.y@LUM10 Check.destination}" z="{object.position.z@LUM10 Check.destination}"/>
+                                    <sector sector="{object.sector@LUM10 Check.destination}"/>
+                                  </warp_object>
+                                  <add_cargo object="{group.object.{counter@ShipNum}@LUM10 Check.Attackers}">
+                                    <ware typename="SS_WARE_ENERGY" min="-({object.cargo.SS_WARE_ENERGY.count@{group.object.{counter@ShipNum}@LUM10 Check.Attackers}}-20)" max="20" profile="bell"/>
+                                  </add_cargo>
+                                  <set_command object="{group.object.{counter@ShipNum}@LUM10 Check.Attackers}" command="attack"/>
+                                </do_if>
+                              </do_if>
+                            </do_all>
+                          </do_if>
+                          <!--
+                          <remove_object object="LUM10 Check.destination"/>
+                          -->
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="LUM10 Change Ship" instantiate="static">
+                      <condition>
+                        <player_changed_ship/>
+                      </condition>
+                      <timing>
+                        <time exact="500"/>
+                      </timing>
+                      <action>
+                        <do_all exact="{group.object.count@LUM10 Check.Attackers}" counter="ShipNum">
+                          <set_value name="this.hull" min="40" max="90"/>
+                          <do_if value="{object.target.shields@{group.object.{counter@ShipNum}@LUM10 Check.Attackers}}" min="15">
+                            <do_if value="{object.target.hull@{group.object.{counter@ShipNum}@LUM10 Check.Attackers}}" min="{value@this.hull}">
+                              <set_command object="{group.object.{counter@ShipNum}@LUM10 Check.Attackers}" command="attack"/>
+                            </do_if>
+                          </do_if>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="LUM10 Finished" instantiate="static">
+                      <condition>
+                        <any_object_finished/>
+                      </condition>
+                      <timing>
+                        <time exact="100"/>
+                      </timing>
+                      <action>
+                        <set_command object="{event.object}" command="attack"/>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>z1jq2qYZPU+JNYgYfCFCYeYjS+9GdE2RjaeGHQ1o7PQGGScnAD3jImtKLnlqYGCQl/Z+Y8mn6fyCqHIHzVi/kZe4g+GUsJhCwEE+axxMbXjEgZtT+hBzavdArLU7YOPAUZB+iXdjsG4o0fFkQSlZu4Ve4mYNnqZ/JG4uiojwIlduKCXzuo3ootqe1fwQRra1VrwoTgbc+vkKblUfeqmZDhbxySEYWcvTdowzl0J6n+WG50lOOZjpA6/mkXaXDViPC012QULeih1ak/d3/rn272mVqvgOrXcQT0AN/zfF21g0t4aF6avhmgngtPo3WbkazcvmhIOXssFgVTdcG9bjCg==</signature>
+</director>

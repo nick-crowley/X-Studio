@@ -1,0 +1,193 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!-- Built using X-Studio Beta II -->
+
+<script>
+	<name>plugin.piracy.ship.chk.enslavepassengers</name>
+	<version>110</version>
+	<engineversion>44</engineversion>
+	<description>Piracy: Command Check: Enslave Passengers</description>
+	<arguments>
+		<argument index="0" name="oShip" type="Var/Ship owned by Player" desc="Player's ship" />
+	</arguments>
+	<sourcetext>
+		<line linenr="1" indent="">* ENSLAVE PASSENGERS - by MISTER BEAR  v1.10  12/2010</line>
+		<line linenr="2" indent="">* COMMAND AVAILABILITY CHECKER</line>
+		<line linenr="3" indent="">* </line>
+		<line linenr="4" indent="">* There are two types of passengers - the `real` ones that have individual names</line>
+		<line linenr="5" indent="">* and races that are displayed in the `personnel` section of the freight dialog,</line>
+		<line linenr="6" indent="">* and the `fake` ones added as part of various missions - these show up as cargo</line>
+		<line linenr="7" indent="">* can`t be enslaved at pirate bases, they also dont have names or races.</line>
+		<line linenr="8" indent=""></line>
+		<line linenr="9" indent="">* Check for `real` passengers</line>
+		<line linenr="10" indent="">$oPassengers = [PLAYERSHIP]-&gt; get passenger array</line>
+		<line linenr="11" indent="">if size of array $oPassengers</line>
+		<line linenr="12" indent="">$i = [THIS]-&gt; call named script: script=`plugin.piracy.ship.chk.enabled`, null, null, null, null, null</line>
+		<line linenr="13" indent="">return $i</line>
+		<line linenr="14" indent="">end</line>
+		<line linenr="15" indent=""></line>
+		<line linenr="16" indent="">return [CmdConCheck.Disabled]</line>
+		<line linenr="17" indent=""></line>
+		<line linenr="18" indent=""></line>
+		<line linenr="19" indent=""></line>
+		<line linenr="20" indent=""></line>
+		<line linenr="21" indent=""></line>
+		<line linenr="22" indent=""></line>
+		<line linenr="23" indent=""></line>
+		<line linenr="24" indent=""></line>
+		<line linenr="25" indent=""></line>
+	</sourcetext>
+	<codearray>
+		<sval type="array" size="10">
+			<sval type="string" val="plugin.piracy.ship.chk.enslavepassengers" />
+			<sval type="int" val="44" />
+			<sval type="string" val="Piracy: Command Check: Enslave Passengers" />
+			<sval type="int" val="110" />
+			<sval type="int" val="0" />
+			<sval type="array" size="3">
+				<sval type="string" val="oShip" />
+				<sval type="string" val="oPassengers" />
+				<sval type="string" val="i" />
+			</sval>
+			<sval type="array" size="5">
+				<sval type="array" size="4">
+					<sval type="int" val="1234" />
+					<sval type="int" val="131075" />
+					<sval type="int" val="3" />
+					<sval type="int" val="0" />
+				</sval>
+				<sval type="array" size="4">
+					<sval type="int" val="131" />
+					<sval type="int" val="-1610611709" />
+					<sval type="int" val="131074" />
+					<sval type="int" val="0" />
+				</sval>
+				<sval type="array" size="16">
+					<sval type="int" val="1425" />
+					<sval type="int" val="131075" />
+					<sval type="int" val="1" />
+					<sval type="int" val="0" />
+					<sval type="int" val="5" />
+					<sval type="string" val="plugin.piracy.ship.chk.enabled`" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+					<sval type="int" val="0" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="103" />
+					<sval type="int" val="131074" />
+					<sval type="int" val="0" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="103" />
+					<sval type="int" val="131075" />
+					<sval type="int" val="118" />
+				</sval>
+			</sval>
+			<sval type="array" size="1">
+				<sval type="array" size="2">
+					<sval type="int" val="35" />
+					<sval type="string" val="Player's ship" />
+				</sval>
+			</sval>
+			<sval type="array" size="20">
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="ENSLAVE PASSENGERS - by MISTER BEAR  v1.10  12/2010" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="COMMAND AVAILABILITY CHECKER" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="There are two types of passengers - the `real` ones that have individual names" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="and races that are displayed in the `personnel` section of the freight dialog," />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="and the `fake` ones added as part of various missions - these show up as cargo" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="can`t be enslaved at pirate bases, they also dont have names or races." />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="0" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="3">
+					<sval type="int" val="0" />
+					<sval type="int" val="1" />
+					<sval type="string" val="Check for `real` passengers" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="4" />
+					<sval type="int" val="4" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="4" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+				<sval type="array" size="2">
+					<sval type="int" val="5" />
+					<sval type="int" val="2" />
+				</sval>
+			</sval>
+			<sval type="string" val="COMMAND_ENSLAVE_PASSENGERS" />
+		</sval>
+	</codearray>
+</script>

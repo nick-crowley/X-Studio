@@ -1,0 +1,282 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang2057{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;}{\f1\fswiss\fcharset0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green0\blue0;\red0\green0\blue255;\red0\green128\blue0;\red255\green0\blue255;}
+{\*\generator Msftedit 5.41.15.1515;}\viewkind4\uc1\pard\cf1\f0\fs20 Notes:\par
+\par
+<New entry>\par
+\par
+\ul\b\fs32 Global and Local Variables\ulnone\b0\fs20\par
+\par
+Global variables are shared between scripts whereas local variables are stored on an object.  Ships and Stations can\par
+hold local variables, special items like Jump gates and Debris cannot.  I am unsure about flying wares and astronauts but\par
+I would guess not.\par
+\par
+\cf2\ul\b Global Variable\cf1\ulnone\b0\par
+\par
+\b set global variable: name=\cf3 <Variable Name>\cf1  value=\cf3 <Variable Value>\cf1\par
+\cf3 <Variable Value>\cf1  = get global variable: name=\cf3 <Variable Name>\cf1\par
+\b0 Notice no object is required\par
+\par
+\cf2\ul\b Local Variable\cf1\ulnone\b0\par
+\par
+\cf3\b <Game Object>\cf1 ->set local varaible: name=\cf3 <Variable Name>\cf1  value=\cf3 <Variable Value>\cf1\par
+\cf3 <Variable Value>\cf1  = \cf3 <Game Object>\cf1 ->get local variable: name=\cf3 <Variable Name>\cf1\b0\par
+Notice a game object is required\par
+\par
+\ul\b\fs32 Notoriety Rank Limit Values\ulnone\b0\fs20\par
+\par
+\b Hero of the F\b0  ...........333,333 _ 1,000,000\par
+\b Protector F\b0  ...............100,000 _ 333,332\par
+\b F Overwatch\b0 ...............33,333 _ 99,999\par
+\b F Marshal\b0 ....................10,000 _ 33,332...\b Friend at 10,001\b0\par
+\b F Guardian\b0  ..................3,333 _ 9,999......\b Neutral at 10,000\par
+Trusted Ally\b0  .................1,000 _ 3,332\par
+\b Accepted Advisor\b0  ............333 _ 999\par
+\b Confirmed Friend\b0  ............100 _ 332\par
+\b F Associate\b0  ......................33 _ 99\par
+\b F Member\b0  .........................10 _ 32\par
+\b Citizen\b0  ............................-10 _ 9\par
+\b Suspected Foe\b0  .................-11 _ -100\par
+\b Known Antagonist\b0  ...........-101 _ -1,000\par
+\b Confirmed Insurgent\b0  ....-1,001 _ -10,000....\b Neutral\par
+Confirmed Enemy\b0  ......-10,001 _ -100,000...\b Foe\par
+Enemy of the F\b0  .........-100,001 _ -1,000,000 \par
+\par
+\par
+\ul\b\fs32 PAGE IDs\ulnone\b0\par
+\fs20\par
+Are only 4 digits long, if they're 6 digits then only the last 4 digits are valid.\par
+\ul\b\par
+\fs32 Playing Video and Audio\fs20\par
+\par
+\lang1033\ulnone\b0 Video is not played directly, instead a video file is associated with an audio file and the audio file is played directly.\par
+Since this is used to create the illusion of another pilot speaking to you, the functions involved reflect that.\par
+\par
+\cf2\ul\b Associate Video with your Audio Message\cf1\ulnone\b0\par
+\par
+\cf3\b <Calling Object>\cf1  -> set pilot speaker: voice=\cf3 <Audio Page ID>\cf1 , face=\cf3 <Video ID>\cf1 , Pirate subrace=[FALSE], Argon female=[FALSE]\b0\par
+\par
+\cf3\b Calling Object\cf1\b0  : You can't play videos outright, instead they come from a pilot (of various appearances). Choose the pilot to alter here.\par
+\cf3\b Video ID\cf1\b0  : The video ID in Videos.pck that defines the video (pilot's appearance) that will be displayed\par
+\cf3\b Audio Page ID\cf1\b0  : The page in the game's string tables defining which group your audio message will be specified from\par
+\par
+\cf2\ul\b Play an Audio Message, Automatically Invoke Associated Video\cf1\ulnone\b0\par
+\par
+\cf3\b <Calling Object> \cf1 ->send audio message \cf3 <Audio Text ID>\cf1  to player\b0\par
+\par
+\cf3\b Calling Object\cf1  \b0 : The same as before\par
+\cf3\b Audio Text ID\cf1\b0  : The ID into the page selected above defining the exact audio message played\par
+\par
+\cf2\ul\b Example:\cf1\ulnone\b0\par
+\par
+\i\tab $oTargetShip->set pilot speaker: voice=204, face=201, Pirate subrace=[FALSE], Argon female=[FALSE]\par
+\i0\par
+Set \cf3\b Audio Page ID\cf1\b0  to \b 204 (Boron Variation 2\b0 )\par
+Set \cf3\b Video ID\cf1\b0  to \b 201 (Boron video #1)\par
+\b0\par
+\i\tab $oTargetShip->send audio message 6 to player\i0\par
+\par
+Set \cf3\b Audio Text ID\cf1\b0  to \b 6 ("For the Queen!")\b0\par
+\lang2057\par
+\ul\b\fs32 Playing Just Audio\ulnone\b0\fs20\par
+\par
+To play audio with no video you just have to specify the ID of the sound file.\par
+\par
+\b = speak text: page=\cf3 <Audio Page ID>\cf1  id=\cf3 <Audio Text ID>\cf1  priority=\cf3 <Priority>\par
+\cf1\b0\par
+\cf3\lang1033\b Audio Page ID\cf1\b0  : The page in the game's string tables defining which group your audio message will be specified from\par
+\cf3\b Audio Text ID\cf1\b0  : The ID into the page selected above defining the exact audio message played\par
+\cf3\b Priority \cf1\b0 : Presumably if two sounds are playing at the same time, the one with the highest priority is played. eg. speech interrupting other speech\lang2057\par
+\par
+\cf2\ul\b Example:\par
+\cf1\ulnone\b0\par
+\tab\i = speak text: page=13 id=57 priority=2\par
+\i0\par
+\cf3\b Audio Page ID\cf1\b0  == 13 : Miscellaneous computer phrases\par
+\cf3\b Audio Text ID\cf1\b0  == 57 : 'Your notoriety is too low'\par
+\par
+\ul\b\fs28 Useful Audio Pages\ulnone\b0\fs20\par
+\par
+\b 0013\b0  : General game phrases\par
+\b 30-0013\b0  : More general game phrases\par
+\b 35-0013\b0  : \ul Boarding\ulnone  phrases.  \ul Companies\ulnone  (Names and descriptions)\par
+\b 1901\b0  : Small group of computer phrases\par
+\b 30-1951\b0  : Large group of computer phrases\par
+\par
+\b 0017\b0  : \ul Wares\ulnone  and \ul Factories\ulnone  (names and descriptions)\par
+\b 35-0017\b0  : \ul Weapons\ulnone , \ul Stations\ulnone  and \ul Ship Upgrades\ulnone  (Names and descriptions)\par
+\b 30-2017\b0  : List of wares with no speech associated with them\par
+\par
+\b 35-1271\b0  : Welcome phrases for stations. Thankyou / Warning phrases for races\par
+\b 101\b0  to \b 505\b0  : Standard speech \ul Variations\ulnone\par
+\b 35-0110\b0  to \b 35-0516\b0  : \ul Border patrol\ulnone  and extra \ul variations\ulnone\par
+\par
+\ul\b\fs32 Creating an Associated String Table File\ulnone\fs24\tab\cf3 Filename :  \i\fs22 <String Table ID>\i0\fs24 -L0\i\fs22 <Language ID>\i0\fs24 .xml\b0\fs20\par
+\cf1\par
+\cf2\ul\b Specify the language\par
+\cf1\ulnone\b0\par
+\b The Language ID for English is 44\b0\par
+\par
+<language id="\b 44\b0 ">\par
+\par
+\cf4\ul\b NOTE:\cf1\ulnone\b0\par
+Each script has a \b NAME\b0 , \b DESCRIPTION\b0 , \b VERSION\b0  and \b COMMAND ID\b0 .\par
+When writing a script for a command you must specify the proper ID of the command you are overriding, eg. COMMAND_TYPE_PIRACY_16\ul\b\fs24\par
+\ulnone\b0\fs20\par
+\cf2\ul\b Choose the Command ID Number:\cf1\ulnone\par
+\par
+\tab There are 11 blocks of 64 commands numbered 0 to 63.  The first 16 of each block are reserved by the game.\par
+\b0\par
+\tab\tab\b Navigation  \tab\tab :\tab 216  to  263\tab : COMMAND_TYPE_NAV_16 \tab       to COMMAND_TYPE_NAV_63\par
+\tab\tab Combat\tab\tab :\tab 316  to  363\tab : COMMAND_TYPE_FIGHT_16 \tab       to COMMAND_TYPE_FIGHT_63\par
+\tab\tab Trade\tab\tab\tab :\tab 416  to  463\tab : COMMAND_TYPE_TRADE_16 \tab       to COMMAND_TYPE_TRADE_63\par
+\tab\tab Special\tab\tab :\tab 516  to  563\tab : COMMAND_TYPE_SPECIAL_16    to COMMAND_TYPE_SPECIAL_63\par
+\tab\tab Piracy\tab\tab\tab :\tab 616  to  663\tab : COMMAND_TYPE_PIRACY_16      to COMMAND_TYPE_PIRACY_63\par
+\tab\tab Custom\tab\tab\tab :\tab 716  to  763\tab : COMMAND_TYPE_CUSTOM_16    to COMMAND_TYPE_CUSTOM_63\par
+\tab\tab General\tab\tab :\tab 816  to  863\tab : COMMAND_TYPE_GENERAL_16   to COMMAND_TYPE_GENERAL_63\par
+\tab\tab Turret\tab\tab\tab :\tab 916  to  963\tab : COMMAND_TYPE_TURRET_16     to COMMAND_TYPE_TURRET_63\par
+\tab\tab Station\tab\tab\tab :\tab 1116  to  1163\tab : COMMAND_TYPE_STATION_16    to COMMAND_TYPE_STATION_63\par
+\tab\tab Ship Additional \tab :\tab 1216  to  1263\tab : COMMAND_TYPE_SHIP_16          to COMMAND_TYPE_SHIP_63\par
+\tab\tab Custom\tab\tab\tab :\tab 1316  to  1263\tab : ???\tab\tab\tab\tab       to  ???\par
+\par
+\tab See \cf3\ul http://forum.egosoft.com/viewtopic.php?t=216690\cf1\ulnone  for the list of allocated and remaining Command IDs\par
+\b0\par
+\cf2\ul\b Define [Page ID 2008] \tab =>  the Command ID Number and Command ID Name\cf1\ulnone\par
+\b0\par
+<page id="\b 2008\b0 " title="\b not sure\b0 " descr="0">\par
+\tab <t id="\cf3\b Command ID Number\cf1\b0 ">\cf3\b Command ID Name\cf1\b0 </t>\par
+</page>\par
+\par
+\cf2\ul\b Define [Page ID 2010]  =>  the Command  Long Text \par
+\cf1\ulnone\b0\par
+<page id="\b 2010\b0 " title="\b not sure\b0 " descr="Long version">\par
+\tab <t id="\cf3\b Command ID Number\cf1\b0 ">\cf3\b Long Command Text\cf1\b0 </t>\par
+</page>\par
+\par
+\cf2\ul\b Define [Page ID 2011]  =>  the Command  Short Text\par
+\cf1\ulnone\b0\par
+<page id="\b 2011\b0 " title="\b not sure\b0 " descr="Short version">\par
+\tab <t id="\cf3\b Command ID Number\cf1\b0 ">\cf3\b Shrt Cmd Txt\cf1\b0 </t>\par
+</page>\par
+\par
+\cf2\ul\b Choose an ID for your String Table\cf1\ulnone\b0\par
+\par
+\b\tab These are numbered between 0 and 9999, with IDs below 7000 reserved by the game.\par
+\b0\par
+\b\tab\tab See \cf3\ul http://forum.egosoft.com/viewtopic.php?t=216690\cf1\ulnone  for the list of allocated and remaining String Table IDs\b0\par
+\par
+\cf2\ul\b Define the String Table\ulnone\b0\par
+\cf1\par
+<page descr="" id="\cf3\b String Table ID\cf1\b0 " title="\b not sure\b0 ">\par
+\tab <t id="\b 1\b0 ">\b This would be your first string, it may contain great secrets of the universe\b0 </t>\par
+\tab <t id="\b 2\b0 ">\b Naturally your second string would be a disapointment after the amazement of the first\b0 </t>\par
+\tab <t id="\b 3\b0 ">\b By the third you're on your last chance to impress\b0 </t>\par
+</page>\par
+\par
+\cf2\ul\b Close the language file\ulnone\b0\par
+\cf1\par
+</language> \par
+\par
+\ul\b\fs32\par
+Adding your Command to the Game\ulnone\b0\fs20\par
+\par
+Typically done in a setup.commandname.xml file, i'm not sure if it has to start with 'setup' or not.\par
+\par
+\cf2\ul\b Load the string table\cf1\ulnone\b0\par
+\par
+load text: id=<String table ID>\par
+\par
+\cf2\ul\b (Unsure about this)  Create a new console Command\cf1\ulnone\b0\par
+\par
+add ship custom command: id=<Command ID>\par
+\par
+\cf2\ul\b Set the conditions under which the command is available\par
+\cf1\ulnone\b0\par
+set script command upgrade: command=\cf3\b <Command ID Name>\cf1\b0   upgrade=\cf3\b [TRUE | Defined Ware]\cf1\b0\par
+set script command upgrade: command=\cf3\b <Command ID Name>\cf1\b0   upgrade=\cf3\b [TRUE | Defined Ware]\cf1\b0   script='\cf3\b <Script Filename>\cf1\b0 '\par
+\par
+\cf2\ul\b Creating a script to determine command availability\cf1\ulnone\b0\par
+\par
+\tab\i if  [some condition]\par
+\tab\tab return \b [CmdConCheck.Available]\b0\par
+\tab else \par
+\tab\tab return \b [CmdConCheck.Disabled]\par
+\b0\tab end\i0\par
+\par
+\cf2\ul\b Associate a script to be run by the command when activated\cf1\ulnone\par
+\b0\par
+global script map: set: key=\cf3\b <Command ID Name>\cf1\b0 , class=Moveable Ship, race=Player, script='\cf3\b <Script name>\cf1\b0 ', prio=0\par
+\par
+Prio mean priority and if two scripts are registered to the same id, the highest id wins.\par
+\par
+\par
+\par
+\ul\b\fs32 Creating a Custom Menu\cf3\ulnone\fs20\par
+\par
+\cf2\ul Create an array of menu options, specifying the menu heading\cf3\ulnone\par
+\par
+[Array Varible]\cf0  = create custom menu array: heading=\cf3 [String literal | String variable]\par
+\b0\par
+\cf0\tab\i $aMenu = create custom menu array: heading=$szHeading\par
+\par
+\cf2\ul\b\i0 Specify the text and menu ID for each option.  ['returnvalue' is the ID]\cf0\ulnone\b0\par
+\par
+\b add custom menu item to array \cf3 [Array Variable]\cf0 : text=\cf3 [String literal | String variable]\cf0  returnvalue=\cf3 [String literal | String variable]\par
+\cf0\b0\par
+\i\tab add custom menu item to array $aMenu: text='Holy shit this is a menu item' returnvalue=$szItem1_ID\i0\par
+\par
+If you use \b 0 or null\b0  for the \b returnvalue\b0  the user won't be able to select the item, useful for displaying information only.\par
+\par
+\cf2\ul\b Launch the menu\cf0\ulnone\b0\par
+\par
+\cf3\b [<Chosen Menu ID>]\cf0  = open custom menu: title=\cf3 [<Menu Title>]\cf0  description=\cf3 [<Description>]\cf0  option array=\cf3 [Menu Array Variable]\b0\par
+\cf0\par
+\cf3\b <Chosen Menu ID>\b0 , \b <Menu Title>\cf1\b0  and\cf3  \b <Description>\b0  \cf1 are all \cf3\b [String literal | String variable]\par
+\cf5\line\cf0\b0\tab\i $szMenuID = open custom menu: title='Random dialog' description='im a description baby' option array=$aMenu\line\line\cf2\ul\b\i0 Branch on the chosen menu ID\ulnone\b0\par
+\par
+\cf1\b if \cf3 <Chosen Menu ID> \cf1 == \cf3 <First Menu ID>\par
+\cf1   \i statement 1\i0\par
+else if\cf3  <Chosen Menu ID> \cf1 == \cf3 <Second Menu ID>\cf1\par
+  \i statement 2\par
+\i0 else if \cf3 <Chosen Menu ID>\cf1  == -1\tab\b0 // -1 indicates user cancelled the menu\b\par
+  \i abort\i0\par
+else if \cf3 <Chosen Menu ID>\cf1  == null\tab\b0 // I think this indicates the user hit escape, closing the menu\b\par
+  \i abort\i0\par
+end\cf0\b0\par
+\f1\par
+\cf3\b\f0 <Chosen Menu ID>\b0 , \b <First Menu ID>\cf1\b0  and\cf3  \b <Second Menu ID>\b0  \cf1 are all \cf3\b [String literal | String variable]\b0\par
+\par
+\cf1\tab\i "if  $szChosenItem  ==  'BuyBears'\par
+\tab\tab display subtitle text: text='You have bought bears!!' duration=3000 ms\par
+\tab else if $szChosenItem ==  'SellBears'\par
+\tab\tab display subtitle text: text='You have sold bears...' duration=3000 ms\par
+\tab end"\i0\par
+\par
+\ul\b\fs32 Message and Logbook Text Formatting Codes:\ulnone\b0\fs20\par
+\par
+\b Bold:\b0\tab\tab\tab\tab [b]  [/b]\par
+\b Underline:\b0\tab\tab\tab [u]  [/u]\par
+\b Italics: \tab\b0\tab\tab\tab [i]  [/i]\par
+\b Center:\tab\b0\tab\tab\tab [center]  [/center]\par
+\b Title:\b0\tab\tab\tab\tab [title]  [/title]\par
+\b Justify:\tab\b0\tab\tab\tab [justify]  [/justify]\par
+\b Author:\b0\tab\tab\tab\tab [author]  [/author]\par
+\b Text:\tab\b0\tab\tab\tab [text]  [/text]\par
+\b 2 Column Text:\tab\tab\b0 [text cols='2']  [/text]\par
+\b Button (for questions):\b0\tab\tab [select value="ID"]   [/select]\par
+\par
+\b Yellow:\b0\tab\tab\tab\tab [yellow]  [/yellow]\par
+\b Blue:\b0\tab\tab\tab\tab [blue]  [/blue]\par
+\b Red:\b0\tab\tab\tab\tab [red]  [/red]\par
+\b Green:\tab\b0\tab\tab\tab [green]  [/green]\par
+\par
+\ul\b\fs32 Global Colour Commands\ulnone\b0\fs20\par
+\par
+\b\\033\cf3 <Code>\cf1\b0\i Coloured Text\b\i0\\033X\b0\par
+ \par
+\b Green\b0 :  G\tab\tab\b Cyan\b0 :  C\tab\b Yellow\b0 :  Y\tab\b Orange\b0 :  O\tab\tab\b Red\b0 :  R\par
+\b Magenta\b0 :  M\tab\tab\b Blue\b0 :  B\tab\b White\b0 :  W\tab\b Grey\b0 :  Z\tab\tab\b Black\b0 :  K\par
+\b Possibly Normal\b0 :  A\par
+\par
+\cf0\i\f1\par
+}
+ 

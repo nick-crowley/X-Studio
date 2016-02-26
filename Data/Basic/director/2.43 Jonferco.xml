@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" />
+    <content reference="L2M43" name="Jonferco Missions" description="Mission to work for Jonferco" />
+    <version number="0.1" date="09/07/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L2M43" library="1">
+      <documentation>
+        <content reference="L2M43" name="Corporation Missions" type="L2"/>
+        <version number="0.1" date="09/07/08" status="development"/>
+        <history>
+           <change date="09/07/08" author="al_main" description="Initial version"/>
+        </history>
+        <todo>
+          <item priority="medium" description="Check missile allocations in L2M43 M02 to make them correct race?"/>
+          <item priority="low" description="Small chance text wont sound good if L2M43 M09 is destination"/>
+        </todo>
+      </documentation>
+      <condition>
+        <check_age value="{player.age}" min="10s"/>
+      </condition>
+      <timing>
+        <time min="10" max="1000"/>
+      </timing>
+      <action>
+        <set_value name="L2M43.time" exact="0"/>
+      </action>
+      <cues>
+        <cue name="L2M43 Setup" delay="5s">
+          <condition>
+            <check_all>
+              <cue_is_complete cue="L2M43"/>
+              <check_age value="{player.age}" min="{value@L2M43.time}"/>
+              <count_sectors min="1" x="18" y="7"/>
+              <count_stations typename="SS_DOCK_CORP_3" min="1">
+                <sector x="18" y="7"/>
+                <jumps max="0"/>
+              </count_stations>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M43.DoMissions" exact="0"/>
+              <find_sector name="L2M43.HQSector" x="18" y="7"/>
+              <!--Set HQ-->
+              <find_station name="L2M43.HQ" typename="SS_DOCK_CORP_3">
+                <sector sector="L2M43.HQSector"/>
+                <jumps max="0"/>
+              </find_station>
+              <do_choose>
+                <do_when value="{object.exists@L2M43.HQ}" exact="0">
+                  <set_value name="L2M43.time" exact="{player.age}+300"/>
+                  <reset_cue cue="L2M43 Setup"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L2M43.OfferRace" exact="{object.race@L2M43.HQ}"/>
+                  <!--the rest of the setup goes in here-->
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M43 Initial Offer" delay="300s">
+              <condition>
+                <check_all>
+                  <check_age value="{player.age}" min="{value@L2M43.time}s"/>
+                  <object_sector exact="0">
+                    <sector sector="L2M43.HQSector"/>
+                  </object_sector>
+                  <check_value value="{value@L2M43.DoMissions}" exact="0"/>
+                  <!-->
+                  <match_object maker="paranid" class="fighter"/>
+                  <check_value value="{player.fightrank}" min="3333"/>
+                  -->
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="this.TimeOut" min="{player.age}+1200" max="{player.age}+1600"/>
+                  <create_actor name="L2M43.Guide"  character="{random.pilot.argon}, {13,9033}" race="argon" voiceflags="32" object="L2M43.HQ" location="crew"/>
+                  <create_offer actor="L2M43.Guide" conversation="L2OfferNormal" discipline="XFXX" cue="L2M43 Initial Offer"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M43 Briefing">
+                  <condition>
+                    <conversation_completed answer="briefing" conversation="L2OfferNormal" actor="L2M43.Guide"/>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M03 B">
+                      <params>
+                        <param name="Cue" value="L2M43 Initial Offer"/>
+                        <param name="ID" value="1"/>
+                        <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                        <param name="OfferRace" value="{lookup.race@argon}"/>
+                        <param name="Lv1Guide" value="L2M43.Guide"/>
+                        <param name="PageID" value="3243"/>
+                        <param name="TextID" value="1001"/>
+                        <param name="AddText" value="1"/>
+                        <param name="Difficulty" value="{lookup.level@average}"/>
+                        <param name="RewardCr" value="L2M43 Initial Offer.RewardCr"/>
+                        <param name="RoundReward" value="1"/>
+                        <param name="TPNeeded" value="100"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M43 Accepted">
+                  <condition>
+                    <conversation_completed answer="accept" conversation="L2OfferNormal" actor="L2M43.Guide"/>
+                  </condition>
+                  <timing>
+                    <time min="250" max="350"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <remove_offer actor="L2M43.Guide" conversation="L2OfferNormal" discipline="XFXX"/>
+                      <cancel_cue cue="L2M43 Check Offer"/>
+                      <create_offer actor="L2M43.Guide" conversation="L2ShowBriefing" cue="L2M43 Initial Offer"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue ref="L0M03">
+                      <params>
+                        <param name="Cue" value="L2M43 Initial Offer"/>
+                        <param name="ID" value="1"/>
+                        <param name="EnemyRace" value="{lookup.race@pirate}"/>
+                        <param name="OfferRace" value="{lookup.race@argon}"/>
+                        <param name="Lv1Guide" value="L2M43.Guide"/>
+                        <param name="PageID" value="3243"/>
+                        <param name="TextID" value="1001"/>
+                        <param name="AddText" value="1"/>
+                        <param name="Difficulty" value="{lookup.level@average}"/>
+                        <param name="RewardCr" value="L2M43 Initial Offer.RewardCr"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M43 End" delay="1s">
+                      <condition>
+                        <check_all>
+                          <check_value value="{value@L2M43 Initial Offer.1 L0M03 Progress}" min="1"/>
+                        </check_all>
+                      </condition>
+                      <timing>
+                        <time min="1s" max="3s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <remove_briefing cue="L2M43 Initial Offer"/>
+                          <remove_offer actor="L2M43.Guide" conversation="L2ShowBriefing"/>
+                          <do_choose>
+                            <do_when value="{value@L2M43 Initial Offer.1 L0M03 Progress}" exact="1">
+                              <remove_objective cue="L2M43 Initial Offer" status="complete"/>
+                              <incoming_message author="{actor.name@L2M43.Guide}" text="{3243,1002}"/>
+                              <reward_player>
+                                <money exact="{value@L2M43 Initial Offer.RewardCr}"/>
+                              </reward_player>
+                              <set_value name="L2M43.DoMissions" exact="1"/>
+                              <set_mission_rank name="L2Corp3" titleid="300" textid="310" exact="1"/>
+                              <destroy_actor actor="L2M43 Initial Offer.1 L0Mark"/>
+                            </do_when>
+                            <do_when value="{value@L2M43 Initial Offer.1 L0M03 Progress}" list="2|3|5|92" comment="Failed!">
+                              <remove_objective cue="L2M43 Initial Offer" status="failed"/>
+                              <incoming_message author="{actor.name@L2M43.Guide}" text="{{actor.voice@L2M43.Guide},846}"/>
+                              <set_value name="L2M43.time" exact="{player.age}+10"/>
+                              <destroy_actor actor="L2M43.Guide"/>
+                              <reset_cue cue="L2M43 Initial Offer"/>
+                            </do_when>
+                            <do_otherwise comment="Must be 99, Aborted?">
+                              <remove_objective cue="L2M43 Initial Offer" status="aborted"/>
+                              <set_value name="L2M43.time" exact="{player.age}+10"/>
+                              <destroy_actor actor="L2M43.Guide"/>
+                              <reset_cue cue="L2M43 Initial Offer"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <destroy_actor actor="L2M43.Guide"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M43 Check Offer">
+                  <condition>
+                    <cue_completed cue="L2M43 Initial Offer"/>
+                  </condition>
+                  <cues>
+                    <cue name="L2M43 Time Out" delay="30s">
+                      <condition>
+                        <check_age value="{player.age}" min="{value@L2M43 Initial Offer.TimeOut}"/>
+                      </condition>
+                      <cues>
+                        <cue name="L2M43 Check Comms" delay="500">
+                          <condition>
+                            <check_all>
+                              <check_value value="{player.menu.dialog}" exact="0"/>
+                              <check_value value="{player.menu.briefing}" exact="0"/>
+                              <cue_is_active cue="L2M43 Accepted" negate="1"/>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <remove_offer actor="L2M43.Guide" conversation="L2OfferNormal" discipline="XFXX"/>
+                              <remove_briefing cue="L2M43 Initial Offer"/>
+                              <destroy_actor actor="L2M43.Guide"/>
+                              <reset_cue cue="L2M43 Initial Offer"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue ref="L1M40" comment="Corporation Missions">
+              <params>
+                <param name="DoMissions" value="L2M43.DoMissions"/>
+                <param name="CorpRankID" value="L2Corp3"/>
+                <param name="CorpTextID" value="10010"/>
+                <param name="CorpPageID" value="3243"/>
+                <param name="HQ" value="L2M43.HQ"/>
+                <param name="HQType" value="SS_DOCK_CORP_3"/>
+                <param name="HQSector" value="L2M43.HQSector"/>
+                <param name="Actor" value="L2M43.Guide"/>
+                <param name="ActorName" value="{random.pilot.argon}, {13,9033}"/>
+                <param name="ActorRace" value="{lookup.race@argon}"/>
+                <param name="Mission1Chance" value="30"/>
+                <param name="Mission1EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission2Chance" value="100"/>
+                <param name="Mission2EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission3Chance" value="70"/>
+                <param name="Mission3EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission4Chance" value="100"/>
+                <param name="Mission4EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission5Chance" value="40"/>
+                <param name="Mission5EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission7Chance" value="75"/>
+                <param name="Mission7EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="Mission9Chance" value="45"/>
+                <param name="Mission9EnemyRace" value="{lookup.race@pirate}"/>
+                <param name="RewardType1" value="SS_SH_A_TS_ENH"/>
+                <param name="RewardType2" value="SS_SH_A_M4P_ENH"/>
+                <param name="RewardType3" value="SS_SH_A_M6M_PROTO"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>dc2Zm/x46EQBnEJHlH2cVEcOzCDOHrcLZHWjSgpehCL7r2qdSLf00eU+FHS5lr2cysow9JGQIpF1iEThIoBS8v7vq7atmu4Lm9pFp79NlLZg9+2AwVNnzVH9XYd0WgtEznsKjjtvUnjeZqY/3MJiqQzbiaFI9yFMZHoyxe0mItE+MZUnyfetqarjyC6pBTkldzW0UVqAlMzPr4ckFQSjwsp26RUtjMB7oCQzWX1Yr4DGeCe6MT3HMm3ChTvNL1zMzmlnGruWdPHZEa4Foyo/oOG9HvaeWJ/+KLnyJl5zqEBEleIzAqTEI1vLVEBSr9sV3HHjdy6EXLwrQxGKzLLEAw==</signature>
+</director>

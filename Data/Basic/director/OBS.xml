@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Lukas Stefanski, Owen Lake" alias="stefanski, Xenon_Slayer" contact="MSN, ICQ, skype, foren pm" />
+    <content reference="OBS" name="Mission Director Opponent Balancing System" description="The OBS is a system to balance how many enemy ships will be created in a mission"/>
+    <version number="0.5" date="18/05/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="OBS" library="1" comment="start of the balancing system">
+      <documentation>
+        <content name="Oponent Balancing System" reference="OBS" type="utility"/>
+        <version date="18/05/2008" number="0.5" status="testing"/>
+        <params>
+          <param name="OBS Cue" description="The cue name where the ship groups are saved too"/>
+          <param name="OBS Cancel Cue" description="The cue which is canceled after the OBS finishes"/>
+          <param name="OBS Points" type="number" compulsory="0" description="A fixed amount to use"/>
+          <param name="OBS PointsMin" type="number" compulsory="0" description="A minimum amount to use"/>
+          <param name="OBS PointsMax" type="number" compulsory="0" description="A maximum amount to use"/>
+          <param name="OBS Fleet Group Name" description="The group name where all main ships are saved too"/>
+          <param name="OBS Support Fleet Group Name" description="The group name where all support ships are saved too"/>
+          <param name="OBS Mother Ship Group Name" description="The group name where all ships with owned ships are saved too"/>
+          <param name="OBSFleetRace" description="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+          <param name="OBSFleetPilotsRace" description="The race ID of the pilots"/>
+          <param name="OBSRaceSetup" type="boolean" description="If pilot race is neutral/friend/enemy then add pilots and race names to ships when set"/>
+          <param name="OBSFleetRelation" type="number" description="-1,0,1 OBS fleet relation to the player"/>
+          <param name="OBSFleetJobTextID" type="number" description="Job text id of shipname"/>
+          <param name="OBSMissionRank" description="A 0-30 scale preferably based on the players fight rank"/>
+          <param name="OBSDifficultyRank" description="A 1-8 scale of difficulty"/>
+          <param name="OBSPosition" description="how far away should the OBS ships be from FleetPositionObject"/>
+          <param name="OBSFleetPositionObject" description="The object which will provide the location information"/>
+          <param name="OBSSector" description="The sector where the ships will spawn if OBSFleetPositionObject not set"/>
+          <param name="OBS X" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBS Y" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBS Z" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBSFleetCapturable" description="0/1 Sets if the created ships are capturable"/>
+          <param name="OBSFleetCommunicates" description="0/1 Sets if the created ships can be communicated with"/>
+          <param name="OBSFleetCovered" description="0/1 Sets if created pirate ships are covered"/>
+          <param name="OBSFleetHomebaseID" description="Object ID for the fleets homebase"/>
+          <param name="OBSFleetScanned"  description="0/1 Sets if the created ships have their freight on display"/>
+          <param name="OBSFleetHighlight" description="0/1 Sets if the created ships will be highlighted"/>
+          <param name="OBSFleetRaceLogic" description="0/1 Sets if the created ships will have default race logic"/>
+          <param name="OBS Dock Support" description="0/1 Sets if the created support ships are docked with their homebase"/>
+          <param name="OBS Support Overflow" description="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+        </params>
+        <history>
+          <change date="20/08/2008" author="al_main" description="Tweaked engine tunings added"/>
+          <change date="16/08/2008" author="al_main" description="Added object.exists check before adding equipment"/>
+          <change date="14/08/2008" author="al_main" description="Balanced engine tunings to difficulty, fixed OBS points difficulties to lookup.level@..."/>
+          <change date="10/08/2008" author="al_main" description="Added scanner and fight sw to OBS created ships"/>
+          <change date="27/06/2008" author="al_main" description="Added warp='1' to created ships"/>
+          <change date="27/06/2008" author="al_main" description="Split claculation into seperate library OBS Points, altered to use constants"/>
+          <change date="06/06/2008" author="al_main" description="Added param.exists checks, Race setup, fleet job name and fleet relation to OBS End"/>
+          <change date="03/06/2008" author="al_main" description="Fixed breaking if Sector param not supplied when using an object as the position"/>
+          <change date="18/05/2008" author="Owen Lake" description="Changed the value generation. Fixed some things"/>
+          <change date="11/02/2008" author="Owen Lake" description="Added the documentation Tags. Changed some SRST stuff"/>
+        </history>
+        <todo>
+          <item date="23/06/2008" author="Owen Lake" description="Add param failsafes" priority="medium"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <!--set points if supplied-->
+          <do_if value="{param.exists@OBS Points}" exact="1">
+            <do_choose>
+              <do_when value="{param@OBS Points}" min="1">
+                <set_value name="OBS.TotalPointPool" exact="{param@OBS Points}"/>
+              </do_when>
+              <do_otherwise>
+                <set_value name="OBS.TotalPointPool" exact="0"/>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+          <!--Creates the position beacon where the ships will be created near.-->
+          <do_choose>
+            <do_when value="{object.exists@{param@OBSFleetPositionObject}}" exact="0">
+              <create_spacefly name="OBS.PositionBeacon">
+                <position x="{param@OBS X}km" y="{param@OBS Y}km" z="{param@OBS Z}km"/>
+                <sector sector="{param@OBSSector}"/>
+              </create_spacefly>
+              <set_command object="OBS.PositionBeacon" command="default"/>
+            </do_when>
+            <do_otherwise>
+              <create_spacefly name="OBS.PositionBeacon">
+                <position object="{param@OBSFleetPositionObject}" exact="{param@OBSPosition}"/>
+                <sector sector="{object.sector@{param@OBSFleetPositionObject}}"/>
+              </create_spacefly>
+              <set_command object="OBS.PositionBeacon" command="default"/>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{random.race@{param@OBSFleetPilotsRace}}" list="{lookup.race@pirate}|{lookup.race@yaki}" negate="1">
+            <set_value name="OBS.Pilot Race" exact="{param@OBSFleetPilotsRace}"/>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="OBS Get Points" check="cancel">
+          <condition>
+            <check_value value="{value@OBS.TotalPointPool}" exact="0"/>
+          </condition>
+          <cues>
+            <cue ref="OBS Points">
+              <params>
+                <param name="ValueName" value="OBS.TotalPointPool"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="OBS Check Points">
+          <condition>
+            <check_value value="{value@OBS.TotalPointPool}" min="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{param.exists@OBS PointsMax}" exact="1">
+                <do_if value="{param@OBS PointsMax}" min="1">
+                  <do_if value="{value@OBS.TotalPointPool}" max="{param@OBS PointsMax}" negate="1">
+                    <set_value name="OBS.TotalPointPool" exact="{param@OBS PointsMax}"/>
+                  </do_if>
+                </do_if>
+              </do_if>
+              <do_if value="{param.exists@OBS PointsMin}" exact="1">
+                <do_if value="{param@OBS PointsMin}" min="1">
+                  <do_if value="{value@OBS.TotalPointPool}" min="{param@OBS PointsMin}" negate="1">
+                    <set_value name="OBS.TotalPointPool" exact="{param@OBS PointsMin}"/>
+                  </do_if>
+                </do_if>
+              </do_if>
+              <set_value name="OBS.TempPointPool" exact="{value@OBS.TotalPointPool}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="OBS Choose Ships" comment="Chooses what ship class is to be created">
+              <condition>
+                <cue_is_complete cue="OBS Check Points"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="OBS.SupportPointPool" exact="0" comment="Resets the SupportPointPool"/>
+                  <!--Chooses the class based on the the TempPointPool value. Some randomization is included.-->
+                  <do_choose>
+                    <do_when value="{value@OBS.TempPointPool}" min="{value@Constant {lookup.class@m1} Points}+{value@Constant {lookup.class@m1} Support Points}" comment="M1 or M2">
+                      <do_any>
+                        <do_all chance="40">
+                          <set_value name="OBS.ShipClass" exact="{lookup.class@m1}"/>
+                          <set_value name="OBS.SupportPointPool" exact="{value@Constant {lookup.class@m1} Support Points}" comment="Sets the Carriers Support Point Pool"/>
+                        </do_all>
+                        <set_value chance="35" name="OBS.ShipClass" exact="{lookup.class@m2}"/>
+                      </do_any>
+                    </do_when>
+                    <do_when value="{value@OBS.TempPointPool}" min="{value@Constant {lookup.class@m2} Points}" max="{value@Constant {lookup.class@m1} Points}+{value@Constant {lookup.class@m1} Support Points}-1" comment="M2 or M6">
+                      <do_any>
+                        <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m2}"/>
+                        <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m6}"/>
+                      </do_any>
+                    </do_when>
+                    <do_when value="{value@OBS.TempPointPool}" min="{value@Constant {lookup.class@m7} Points}" max="{value@Constant {lookup.class@m2} Points}-1" comment="M7 or M6">
+                      <do_any>
+                        <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m6}"/>
+                        <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m3}"/>
+                      </do_any>
+                    </do_when>
+                    <do_when value="{value@OBS.TempPointPool}" min="{value@Constant {lookup.class@m6} Points}" max="{value@Constant {lookup.class@m7} Points}-1" comment="M6 or M8">
+                      <do_any>
+                        <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m6}"/>
+                        <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m3}"/>
+                      </do_any>
+                    </do_when>
+                    <do_when value="{value@OBS.TempPointPool}" min="{value@Constant {lookup.class@m8} Points}" max="{value@Constant {lookup.class@m6} Points}-1" comment="M8 or M3">
+                      <do_any>
+                        <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m6}"/>
+                        <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m3}"/>
+                      </do_any>
+                    </do_when>
+                    <do_when value="{value@OBS.TempPointPool}" min="{value@Constant {lookup.class@m3} Points}" max="{value@Constant {lookup.class@m8} Points}-1" comment="M3 or M4">
+                      <do_any>
+                        <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m3}"/>
+                        <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m4}"/>
+                      </do_any>
+                    </do_when>
+                    <do_when value="{value@OBS.TempPointPool}" min="{value@Constant {lookup.class@m4} Points}" max="{value@Constant {lookup.class@m3} Points}-1" comment="M4 or M5">
+                      <do_any>
+                        <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m4}"/>
+                        <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m5}"/>
+                      </do_any>
+                    </do_when>
+                    <do_otherwise comment="M5">
+                      <set_value name="OBS.ShipClass" exact="{lookup.class@m5}"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <set_value name="OBS.TempPointPool" exact="{value@OBS.TempPointPool}-{value@Constant {value@OBS.ShipClass} Points}" comment="Reduces the Temp Point Pool by the class value"/>
+                  <set_value name="OBS.TempSupportPointPool" exact="{value@OBS.SupportPointPool}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="OBS ref SRST" ref="SRST" comment="Selects a Typename based on the class and maker race supplied.">
+                  <params>
+                    <param name="Race ID" value="{param@OBSFleetRace}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                    <param name="Class ID" value="{value@OBS.ShipClass}" comment="The shipclass ID or the strings 'bigship', 'fighter' or 'freighter'"/>
+                    <param name="Cue" value="OBS" comment="The Cue that the shiptype is saved too"/>
+                    <param name="CancelCue" value="SRST"/>
+                    <param name="Shiptype Address" value="OBS.ShipType"/>
+                  </params>
+                </cue>
+                <cue name="OBS Create Ship">
+                  <condition>
+                    <cue_cancelled cue="SRST"/>
+                  </condition>
+                  <action>
+                    <do_choose>
+                      <do_when value="{value@OBS.ShipType}" exact="0" comment="If no shiptype was found do not create a ship">
+                        <do_if value="{value@OBS.TempPointPool}" max="0">
+                          <set_value name="OBS.TempPointPool" exact="{value@OBS.TotalPointPool}"/>
+                        </do_if>
+                        <set_value name="OBS.FailCount" operation="add"/>
+                        <do_if value="{value@OBS.FailCount}" min="100">
+                          <set_value name="OBS.TotalPointPool"/>
+                          <cancel_cue cue="OBS Choose Ships"/>
+                        </do_if>
+                        <reset_cue cue="OBS Choose Ships"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_value name="OBS.FailCount" operation="set"/>
+                        <set_value name="OBS.ShipRace" exact="{random.race@{param@OBSFleetPilotsRace}}"/>
+                        <do_if value="{value@OBS.ShipRace}" list="{lookup.race@pirate}|{lookup.race@yaki}" comment="Sets a race for pirates and yaki">
+                          <set_value name="OBS.Pilot Race" exact="{random.race@default}"/>
+                        </do_if>
+                        <create_ship name="{param@OBS Cue}.Temp Ship" homebase="{param@OBSFleetHomebaseID}" typename="{value@OBS.ShipType}" race="{value@OBS.ShipRace}" warp="1">
+                          <position object="OBS.PositionBeacon"/>
+                          <sector sector="{object.sector@OBS.PositionBeacon}"/>
+                          <equipment loadout="default"/>
+                          <pilot race="{value@OBS.Pilot Race}"/>
+                        </create_ship>
+                        <!--check ship exists to make sure we never add equipment to player ship-->
+                        <do_if value="{object.exists@{param@OBS Cue}.Temp Ship}" exact="1">
+                          <!--add basic equipment like scanner-->
+                          <do_choose>
+                            <do_when value="{object.cargoclass@{param@OBS Cue}.Temp Ship}" min="{lookup.type.cargoclass@SS_WARE_SCANNER3}">
+                              <add_equipment object="{param@OBS Cue}.Temp Ship">
+                                <ware typename="SS_WARE_SCANNER3" exact="1"/>
+                              </add_equipment>
+                            </do_when>
+                            <do_otherwise>
+                              <add_equipment object="{param@OBS Cue}.Temp Ship">
+                                <ware typename="SS_WARE_SCANNER2" exact="1"/>
+                              </add_equipment>
+                            </do_otherwise>
+                          </do_choose>
+                          <!--add some engine tunings-->
+                          <add_equipment object="{param@OBS Cue}.Temp Ship">
+                            <ware typename="SS_WARE_TECH213" min="( ({object.equipment.SS_WARE_TECH213.maxcount@{param@OBS Cue}.Temp Ship}-{object.equipment.SS_WARE_TECH213.count@{param@OBS Cue}.Temp Ship}) * (1+{param@OBSDifficultyRank}) ) /12" max="{object.equipment.SS_WARE_TECH213.maxcount@{param@OBS Cue}.Temp Ship}-{object.equipment.SS_WARE_TECH213.count@{param@OBS Cue}.Temp Ship}"/>
+                          </add_equipment>
+                          <!--add some fight command software to make the ship look full-->
+                          <add_equipment object="{param@OBS Cue}.Temp Ship" chance="70">
+                            <ware typename="SS_WARE_SW_FIGHT_1" exact="1"/>
+                          </add_equipment>
+                          <add_equipment object="{param@OBS Cue}.Temp Ship" chance="40">
+                            <ware typename="SS_WARE_SW_FIGHT_2" exact="1"/>
+                          </add_equipment>
+                        </do_if>
+                        <!--set object name-->
+                        <set_object name="{param@OBS Cue}.{param@OBS Fleet Group Name} {object@{param@OBS Cue}.Temp Ship}" value="{object@{param@OBS Cue}.Temp Ship}" group="{param@OBS Cue}.{param@OBS Fleet Group Name}"/>
+                        <do_if value="{value@OBS.SupportPointPool}" min="1" comment="If the created ship will have owned ships">
+                          <do_if value="{param.exists@OBS Mother Ship Group Name}" exact="1">
+                            <add_object_to_group object="{param@OBS Cue}.{param@OBS Mother Ship Group Name} {object@{param@OBS Cue}.Temp Ship}" group="{param@OBS Cue}.{param@OBS Mother Ship Group Name}"/>
+                          </do_if>
+                        </do_if>
+                        <!--Updates the TotalPointPool when the ship is created. Reset the TempPointPool-->
+                        <set_value name="OBS.TotalPointPool" exact="{value@OBS.TotalPointPool}-{value@Constant {object.class@{param@OBS Cue}.Temp Ship} Points}"/>
+                        <set_value name="OBS.TempPointPool" exact="{value@OBS.TotalPointPool}"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </action>
+                  <cues>
+                    <cue name="OBS Create Ship Reset" comment="If there are no support ships to create">
+                      <condition>
+                        <check_any>
+                          <check_value value="{value@OBS.SupportPointPool}" max="0"/>
+                          <check_value value="{value@OBS.TempSupportPointPool}" max="0"/>
+                        </check_any>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <remove_object object="{param@OBS Cue}.Temp Ship"/>
+                          <reset_cue cue="OBS Choose Ships"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="OBS Support Ships" check="cancel">
+                      <condition>
+                        <check_value value="{value@OBS.SupportPointPool}" min="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <do_choose>
+                            <do_when value="{value@OBS.TempSupportPointPool}" min="{value@Constant {lookup.class@m3} Points}" comment="M3 or M4">
+                              <do_any>
+                                <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m3}"/>
+                                <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m4}"/>
+                              </do_any>
+                            </do_when>
+                            <do_when value="{value@OBS.TempSupportPointPool}" min="{value@Constant {lookup.class@m4} Points}" max="{value@Constant {lookup.class@m3} Points}-1" comment="M4 or M5">
+                              <do_any>
+                                <set_value chance="66" name="OBS.ShipClass" exact="{lookup.class@m4}"/>
+                                <set_value chance="34" name="OBS.ShipClass" exact="{lookup.class@m5}"/>
+                              </do_any>
+                            </do_when>
+                            <do_when value="{value@OBS.TempSupportPointPool}" min="{value@Constant {lookup.class@m5} Points}" max="{value@Constant {lookup.class@m4} Points}-1" comment="M5">
+                              <set_value name="OBS.ShipClass" exact="{lookup.class@m5}"/>
+                            </do_when>
+                          </do_choose>
+                          <set_value name="OBS.TempSupportPointPool" exact="{value@OBS.TempSupportPointPool}-{value@Constant {value@OBS.ShipClass} Points}"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="OBS Support Ship Typename Check" ref="SRST">
+                          <params>
+                            <param name="Race ID" value="{param@OBSFleetRace}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                            <param name="Class ID" value="{value@OBS.ShipClass}" comment="The shipclass ID or the strings 'bigship', 'fighter' or 'freighter'"/>
+                            <param name="Cue" value="OBS" comment="The Cue that the shiptype is saved too"/>
+                            <param name="CancelCue" value="SRST"/>
+                            <param name="Shiptype Address" value="OBS.ShipType"/>
+                          </params>
+                        </cue>
+                        <cue name="OBS Create Support Ship">
+                          <condition>
+                            <cue_cancelled cue="SRST"/>
+                          </condition>
+                          <action>
+                            <do_choose>
+                              <do_when value="{value@OBS.ShipType}" exact="0" comment="If no shiptype was found do not create a ship">
+                                <do_if value="{value@OBS.TempSupportPointPool}" max="0">
+                                  <set_value name="OBS.TempSupportPointPool" exact="{value@OBS.SupportPointPool}"/>
+                                </do_if>
+                                <set_value name="OBS.FailCount" operation="add"/>
+                                <do_if value="{value@OBS.FailCount}" min="20">
+                                  <set_value name="OBS.TotalPointPool"/>
+                                  <cancel_cue cue="OBS Choose Ships"/>
+                                </do_if>
+                                <reset_cue cue="OBS Support Ships"/>
+                              </do_when>
+                              <do_otherwise>
+                                <set_value name="OBS.FailCount" operation="set"/>
+                                <set_value name="OBS.Support Placement" exact="0" comment="Reset the placement"/>
+                                <set_value name="OBS.ShipRace" exact="{random.race@{param@OBSFleetPilotsRace}}"/>
+                                <do_if value="{param@OBSFleetPilotsRace}" list="{lookup.race@pirate}|{lookup.race@yaki}">
+                                  <set_value name="OBS.Pilot Race" exact="{random.race@default}"/>
+                                </do_if>
+                                <do_choose>
+                                  <do_when value="{param@OBS Dock Support}" exact="1" comment="If the OBS is set to dock the support ships at their homebase">
+                                    <do_choose>
+                                      <do_when value="{object.dockedships.maxcount@{param@OBS Cue}.Temp Ship}-{object.dockedships.count@{param@OBS Cue}.Temp Ship}" min="1" comment="Check if there is enough docking space">
+                                        <set_value name="OBS.Support Placement" exact="1" comment="Docked"/>
+                                      </do_when>
+                                      <do_otherwise>
+                                        <do_if value="{param@OBS Support Overflow}" exact="1" comment="There is not enough docking slots. Can they spawn in space">
+                                          <set_value name="OBS.Support Placement" exact="2" comment="Space"/>
+                                        </do_if>
+                                      </do_otherwise>
+                                    </do_choose>
+                                  </do_when>
+                                  <do_otherwise>
+                                    <set_value name="OBS.Support Placement" exact="2" comment="Space"/>
+                                  </do_otherwise>
+                                </do_choose>
+                                <do_choose>
+                                  <do_when value="{value@OBS.Support Placement}" exact="1" comment="Docked">
+                                    <create_ship dockobject="{param@OBS Cue}.Temp Ship" name="{param@OBS Cue}.Temp Support Ship" homebase="{param@OBS Cue}.Temp Ship" typename="{value@OBS.ShipType}" race="{value@OBS.ShipRace}">
+                                      <equipment loadout="default"/>
+                                      <pilot race="{value@OBS.Pilot Race}"/>
+                                    </create_ship>
+                                  </do_when>
+                                  <do_when value="{value@OBS.Support Placement}" exact="2" comment="Space">
+                                    <create_ship name="{param@OBS Cue}.Temp Support Ship" homebase="{param@OBS Cue}.Temp Ship" typename="{value@OBS.ShipType}" race="{value@OBS.ShipRace}" warp="1">
+                                      <position object="{object@{param@OBS Cue}.Temp Ship}"/>
+                                      <sector sector="{object.sector@{param@OBS Cue}.Temp Ship}"/>
+                                      <equipment loadout="default"/>
+                                      <pilot race="{value@OBS.Pilot Race}"/>
+                                    </create_ship>
+                                  </do_when>
+                                </do_choose>
+                                <do_if value="{param.exists@OBS Support Fleet Group Name}" exact="1">
+                                  <set_object name="{param@OBS Cue}.{param@OBS Support Fleet Group Name} {object@{param@OBS Cue}.Temp Support Ship}" value="{object@{param@OBS Cue}.Temp Support Ship}" group="{param@OBS Cue}.{param@OBS Support Fleet Group Name}"/>
+                                </do_if>
+                                <set_value name="OBS.SupportPointPool" exact="{value@OBS.SupportPointPool}-{value@Constant {object.class@{param@OBS Cue}.Temp Support Ship} Points}"/>
+                                <set_value name="OBS.TotalPointPool" exact="{value@OBS.TotalPointPool}-{value@Constant {object.class@{param@OBS Cue}.Temp Support Ship} Points}"/>
+                                <remove_object object="{param@OBS Cue}.Temp Support Ship"/>
+                              </do_otherwise>
+                            </do_choose>
+                          </action>
+                          <cues>
+                            <cue name="OBS Support Ship Reset">
+                              <condition>
+                                <cue_completed cue="OBS Create Support Ship"/>
+                              </condition>
+                              <action>
+                                <reset_cue cue="OBS Support Ships"/>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="OBS End">
+              <condition>
+                <check_value value="{value@OBS.TotalPointPool}" max="0"/>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{param.exists@OBSFleetCapturable}" exact="1">
+                    <do_if value="{param@OBSFleetCapturable}" exact="0">
+                      <set_group_capturable group="{param@OBS Cue}.{param@OBS Fleet Group Name}" capturable="0"/>
+                    </do_if>
+                    <do_if value="{param@OBSFleetCapturable}" exact="1">
+                      <set_group_capturable group="{param@OBS Cue}.{param@OBS Fleet Group Name}" capturable="1"/>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{param.exists@OBSFleetScanned}" exact="1">
+                    <do_if value="{param@OBSFleetScanned}" exact="0">
+                      <set_group_scanned group="{param@OBS Cue}.{param@OBS Fleet Group Name}" scanned="0"/>
+                    </do_if>
+                    <do_if value="{param@OBSFleetScanned}" exact="1">
+                      <set_group_scanned group="{param@OBS Cue}.{param@OBS Fleet Group Name}" scanned="1"/>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{param.exists@OBSFleetHighlight}" exact="1">
+                    <do_if value="{param@OBSFleetHighlight}" exact="0">
+                      <set_group_highlight group="{param@OBS Cue}.{param@OBS Fleet Group Name}" highlight="0"/>
+                    </do_if>
+                    <do_if value="{param@OBSFleetHighlight}" exact="1">
+                      <set_group_highlight group="{param@OBS Cue}.{param@OBS Fleet Group Name}" highlight="1"/>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{param.exists@OBSFleetCovered}" exact="1">
+                    <do_if value="{param@OBSFleetCovered}" exact="0">
+                      <set_group_covered group="{param@OBS Cue}.{param@OBS Fleet Group Name}" covered="0"/>
+                    </do_if>
+                    <do_if value="{param@OBSFleetCovered}" exact="1">
+                      <set_group_covered group="{param@OBS Cue}.{param@OBS Fleet Group Name}" covered="1"/>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{param.exists@OBSFleetCommunicates}" exact="1">
+                    <do_if value="{param@OBSFleetCommunicates}" exact="0">
+                      <set_group_communicates group="{param@OBS Cue}.{param@OBS Fleet Group Name}" communicates="0"/>
+                    </do_if>
+                    <do_if value="{param@OBSFleetCommunicates}" exact="1">
+                      <set_group_communicates group="{param@OBS Cue}.{param@OBS Fleet Group Name}" communicates="1"/>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{param.exists@OBSRaceSetup}" exact="1">
+                    <do_if value="{param@OBSRaceSetup}" exact="1">
+                      <do_if value="{param@OBSFleetPilotsRace}" list="{lookup.race@friend}|{lookup.race@neutral}|{lookup.race@enemy}">
+                        <do_if value="{param.exists@OBSFleetJobTextID}" exact="1">
+                          <set_value name="this.FleetJobTextID" exact="{param@OBSFleetRace}{param@OBSFleetJobTextID}"/>
+                          <do_if value="{param@OBSFleetJobTextID}" min="9000000">
+                            <set_value name="this.FleetJobTextID" exact="{param@OBSFleetJobTextID}"/>
+                          </do_if>
+                        </do_if>
+                        <do_if value="{value@this.FleetJobTextID}" min="1000" negate="1">
+                          <set_value name="this.FleetJobTextID" exact="100+{param@OBSFleetRace}"/>
+                        </do_if>
+                        <set_value name="this.jobtextset" exact="1"/>
+                        <do_all exact="{group.object.count@{param@OBS Cue}.{param@OBS Fleet Group Name}}" counter="shipnum">
+                          <set_pilot_data object="{group.object.{counter@shipnum}@{param@OBS Cue}.{param@OBS Fleet Group Name}}" jobtextid="{value@this.FleetJobTextID}"/>
+                          <create_actor name="{param@OBS Cue}.{param@OBS Fleet Group Name} Actor {counter@shipnum}" race="{param@OBSFleetRace}" object="{group.object.{counter@shipnum}@{param@OBS Cue}.{param@OBS Fleet Group Name}}"/>
+                        </do_all>
+                        <set_group_owner group="{param@OBS Cue}.{param@OBS Fleet Group Name}" race="{param@OBSFleetPilotsRace}"/>
+                      </do_if>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{param.exists@OBSFleetJobTextID}" exact="1">
+                    <do_if value="{value@this.jobtextset}" exact="1" negate="1">
+                      <set_value name="this.FleetJobTextID" exact="{param@OBSFleetJobTextID}"/>
+                      <do_all exact="{group.object.count@{param@OBS Cue}.{param@OBS Fleet Group Name}}" counter="shipnum">
+                        <set_pilot_data object="{group.object.{counter@shipnum}@{param@OBS Cue}.{param@OBS Fleet Group Name}}" jobtextid="{value@this.FleetJobTextID}"/>
+                      </do_all>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{param.exists@OBSFleetRelation}" exact="1">
+                    <do_choose>
+                      <do_when value="{param@OBSFleetRelation}" exact="-1">
+                        <set_group_relation group="{param@OBS Cue}.{param@OBS Fleet Group Name}">
+                          <relation object="{player.ship}" mutual="0" relation="enemy"/>
+                        </set_group_relation>
+                      </do_when>
+                      <do_when value="{param@OBSFleetRelation}" exact="1">
+                        <set_group_relation group="{param@OBS Cue}.{param@OBS Fleet Group Name}">
+                          <relation object="{player.ship}" mutual="0" relation="friend"/>
+                        </set_group_relation>
+                      </do_when>
+                      <do_otherwise>
+                        <set_group_relation group="{param@OBS Cue}.{param@OBS Fleet Group Name}">
+                          <relation object="{player.ship}" mutual="0" relation="neutral"/>
+                        </set_group_relation>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_if>
+                  <destroy_object object="OBS.PositionBeacon"/>
+                  <cancel_cue cue="{param@OBS Cancel Cue}"/>
+                  <cancel_cue cue="OBS" instantiate="static"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="OBS Points" library="1">
+      <documentation>
+        <params>
+          <param name="ValueName" type="cuename" compulsory="1" description="Where to save the points value to"/>
+          <param name="OBSMissionRank" description="A 0-30 scale preferably based on the players fight rank"/>
+          <param name="OBSDifficultyRank" description="A 1-8 scale of difficulty"/>
+        </params>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="this.PS PointPool" exact="{value@Constant {player.ship.class} Points}"/>
+          <!--Set the players close fleet points-->
+          <find_ship includedocked="1" multiple="1" race="player" group="this.PlayerCloseShips">
+            <distance max="15km"/>
+          </find_ship>
+          <do_all exact="{group.object.count@this.PlayerCloseShip}" counter="CloseCount">
+            <set_value name="this.PlayerClosePoints" exact="{value@this.PlayerClosePoints}+{value@Constant {group.object.{counter@CloseCount}.class@this.PlayerCloseShips} Points}"/>
+          </do_all>
+          <!--Set the players sector fleet points-->
+          <find_ship includedocked="1" multiple="1" race="player" group="this.PlayerSectorShips"/>
+          <do_all exact="{group.object.count@this.PlayerSectorShips}" counter="SectorCount">
+            <set_value name="this.PlayerTotalPoints" operation="add" exact="{value@Constant {group.object.{counter@SectorCount}.class@this.PlayerSectorShips} Points}"/>
+          </do_all>
+          <set_value name="this.PlayerTotalPoints" operation="add"/>
+          <set_value name="this.PointPool" exact="{value@Constant OBS PP Rank{param@OBSMissionRank}}"/>
+          <do_choose>
+            <do_when value="{param@OBSDifficultyRank}" exact="{lookup.level@trivial}" comment="1">
+              <set_value name="this.RandomNumber1" min="10" max="16"/>
+              <set_value name="this.PointPoolModification" exact="{value@this.PointPool}*{value@this.RandomNumber1}"/>
+            </do_when>
+            <do_when value="{param@OBSDifficultyRank}" exact="{lookup.level@veryeasy}" comment="2">
+              <set_value name="this.RandomNumber2" min="25" max="33"/>
+              <set_value name="this.PointPoolModification" exact="{value@this.PointPool}*{value@this.RandomNumber2}"/>
+            </do_when>
+            <do_when value="{param@OBSDifficultyRank}" exact="{lookup.level@easy}" comment="3">
+              <set_value name="this.RandomNumber3" min="50" max="66"/>
+              <set_value name="this.PointPoolModification" exact="{value@this.PointPool}*{value@this.RandomNumber3}+{value@this.PS PointPool}*100"/>
+            </do_when>
+            <do_when value="{param@OBSDifficultyRank}" exact="{lookup.level@average}" comment="4">
+              <set_value name="this.PointPoolModification" exact="({value@this.PointPool}+{value@this.PlayerClosePoints}+{value@this.PS PointPool})*100"/>
+            </do_when>
+            <do_when value="{param@OBSDifficultyRank}" exact="{lookup.level@hard}" comment="5">
+              <set_value name="this.RandomNumber5" min="10" max="16"/>
+              <set_value name="this.PointPoolModification" exact="({value@this.PointPool}+{value@this.PS PointPool})*100+{value@this.PlayerTotalPoints}*{value@this.RandomNumber5}"/>
+            </do_when>
+            <do_when value="{param@OBSDifficultyRank}" exact="{lookup.level@veryhard}" comment="6">
+              <set_value name="this.RandomNumber6" min="25" max="33"/>
+              <set_value name="this.PointPoolModification" exact="({value@this.PointPool}+{value@this.PS PointPool})*100+{value@this.PlayerTotalPoints}*{value@this.RandomNumber6}"/>
+            </do_when>
+            <do_when value="{param@OBSDifficultyRank}" exact="{lookup.level@impossible}" comment="7">
+              <set_value name="this.RandomNumber7" min="50" max="66"/>
+              <set_value name="this.PointPoolModification" exact="({value@this.PointPool}+{value@this.PS PointPool})*100+{value@this.PlayerTotalPoints}*{value@this.RandomNumber7}"/>
+            </do_when>
+            <do_when value="{param@OBSDifficultyRank}" exact="8" comment="UNUSED?">
+              <set_value name="this.RandomNumber8" min="66" max="80"/>
+              <set_value name="this.PointPoolModification" exact="({value@this.PointPool}+{value@this.PS PointPool})*100+{value@this.PlayerTotalPoints}*{value@this.RandomNumber8}"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="this.RandomNumber1" min="10" max="16"/>
+              <set_value name="this.PointPoolModification" exact="{value@this.PointPool}*{value@this.RandomNumber1}"/>
+            </do_otherwise>
+          </do_choose>
+          <set_value name="{param@ValueName}" exact="1+({value@this.PointPoolModification}/100)"/>
+        </do_all>
+      </action>
+    </cue>
+  </cues>
+  <signature>m5Gq7YIyK+qAlpywj9smS+jfTzotRQ0HLB/ZYjYNsksH1bo519tjR7MMAPKm6XVbuTZNpLdki/rF75rfealn7gTB91XeDqmc/uNqtMzroRtgqT1IIbBAgIUkH84zP0EKCib0O4ONGgoayVZM7443i7H/Xs4qHe4gnrRjooKQ4pFGe09Xcn5n4Ii/EQRnRUYsppY13JajIoKyIkWNV1mTGwfABcbML8hJOUxA3/oCEa0nqDufASim5Ic4g/UsMFbZG5m3vwDQjegE969duHSO+uuvJsQ8Cz1XBJk1nTZ6stwwA7zbtVQmlM+H+4pQPp1pEiihFIuo9N02kW+ewqdOeQ==</signature>
+</director>
+

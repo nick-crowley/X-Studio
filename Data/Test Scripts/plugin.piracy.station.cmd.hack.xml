@@ -1,0 +1,147 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.station.cmd.hack</name>
+   <version>100</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Station Command: Hack Station: Befriends a station temporarily</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* ----------------- STATION RELATION RESET  by  MISTER BEAR  v1.00 -----------------</comment></line>
+      <line linenr="002" indent=""><comment>* </comment></line>
+      <line linenr="003" indent=""><comment>* Resets a hostile station HACKED by the PIRATE NETWORK from neutral back to hostile</comment></line>
+      <line linenr="004" indent=""><comment>* </comment></line>
+      <line linenr="005" indent=""> </line>
+      <line linenr="006" indent=""><var>$i = </var><text></text><var>30 * 1000 * 60 </var><text></text></line>
+      <line linenr="007" indent="" interruptable="@"><text></text><var> =</var><text> wait </text><var>$i</var><text> ms</text></line>
+      <line linenr="008" indent=""> </line>
+      <line linenr="009" indent=""><text></text><var>[PLAYERSHIP]</var><text>  ->  set relation against </text><var>[THIS]</var><text> to </text><var>Foe</var><text></text></line>
+      <line linenr="010" indent=""><text></text><var>[THIS]</var><text>  ->  set relation against </text><var>[PLAYERSHIP]</var><text> to </text><var>Foe</var><text></text></line>
+      <line linenr="011" indent=""> </line>
+      <line linenr="012" indent=""><comment>* TODO: Should this handle setting a docking fee?</comment></line>
+      <line linenr="013" indent=""><comment>* Wouldn't it be better if you moved some of the responsibility for that to the</comment></line>
+      <line linenr="014" indent=""><comment>* .. station and the black market script just polls it?</comment></line>
+      <line linenr="015" indent=""><text>return </text><var>null</var><text></text></line>
+      <line linenr="016" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.station.cmd.hack" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Station Command: Hack Station: Befriends a station temporarily" />
+         <sval type="int" val="100" />
+         <sval type="int" val="0" />
+         <sval type="array" size="1">
+            <sval type="string" val="i" />
+         </sval>
+         <sval type="array" size="5">
+            <sval type="array" size="19">
+               <sval type="int" val="104" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="30" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1000" />
+               <sval type="int" val="15" />
+               <sval type="int" val="13" />
+               <sval type="int" val="4" />
+               <sval type="int" val="60" />
+               <sval type="int" val="15" />
+               <sval type="int" val="13" />
+               <sval type="int" val="5" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="13" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="13" />
+               <sval type="int" val="-4" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="105" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="744" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="14" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="744" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="3" />
+               <sval type="int" val="14" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="11">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="----------------- STATION RELATION RESET  by  MISTER BEAR  v1.00 -----------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Resets a hostile station HACKED by the PIRATE NETWORK from neutral back to hostile" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="string" val="TODO: Should this handle setting a docking fee?" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Wouldn't it be better if you moved some of the responsibility for that to the" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="string" val=".. station and the black market script just polls it?" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="5" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+      </sval>
+   </codearray>
+</script>

@@ -1,0 +1,783 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>setup.plugin.piracy</name>
+   <version>120</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Script Collection Setup</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* PIRACY: SETUP SCRIPT  by  MISTER BEAR  v1.20  Jan-2011</comment></line>
+      <line linenr="002" indent=""><comment>* --------------------</comment></line>
+      <line linenr="003" indent=""><comment>* Setup script collection: Administration, Commands, Hotkeys, Signals and Global Variables</comment></line>
+      <line linenr="004" indent=""> </line>
+      <line linenr="005" indent=""><var>$szVersion = </var><text></text><var>'0.5 Alpha' </var><text></text></line>
+      <line linenr="006" indent=""><var>$iPageID = </var><text></text><var>7540 </var><text></text></line>
+      <line linenr="007" indent=""> </line>
+      <line linenr="008" indent=""><comment>* -------------------- COMMON --------------------</comment></line>
+      <line linenr="009" indent=""> </line>
+      <line linenr="010" indent=""><comment>* Load strings</comment></line>
+      <line linenr="011" indent=""><text>load text: id=</text><var>7539</var><text></text></line>
+      <line linenr="012" indent=""><text>load text: id=</text><var>$iPageID</var><text></text></line>
+      <line linenr="013" indent=""> </line>
+      <line linenr="014" indent=""><comment>* First time run dialog</comment></line>
+      <line linenr="015" indent=""><text></text><var>$szPreviousVersion =</var><text> get global variable: name=</text><var>'Piracy.Setup.szVersion'</var><text></text></line>
+      <line linenr="016" indent=""><var>skip if not </var><text></text><var>$szPreviousVersion == null </var><text></text></line>
+      <line linenr="017" indent="&#160;"><text>gosub </text><var><var>displayWelcomeDialog</var><text>:</text></var><text></text></line>
+      <line linenr="018" indent=""> </line>
+      <line linenr="019" indent=""><comment>* Check version and update if necessary</comment></line>
+      <line linenr="020" indent=""><var>skip if not </var><text></text><var>$szPreviousVersion != null AND $szPreviousVersion != $szVersion </var><text></text></line>
+      <line linenr="021" indent="&#160;"><text>gosub </text><var><var>upgradeFromPreviousVersion</var><text>:</text></var><text></text></line>
+      <line linenr="022" indent=""><text>set global variable: name=</text><var>'Piracy.Setup.szVersion'</var><text> value=</text><var>$szVersion</var><text></text></line>
+      <line linenr="023" indent=""> </line>
+      <line linenr="024" indent=""><comment>* Set global text resource page ID</comment></line>
+      <line linenr="025" indent=""><text></text><var>skip if</var><text> get global variable: name=</text><var>'Piracy.Setup.iPageID'</var><text></text></line>
+      <line linenr="026" indent="&#160;"><text>set global variable: name=</text><var>'Piracy.Setup.iPageID'</var><text> value=</text><var>$iPageID</var><text></text></line>
+      <line linenr="027" indent=""> </line>
+      <line linenr="028" indent=""><comment>* -------------------- ADD COMMANDS -------------------</comment></line>
+      <line linenr="029" indent=""> </line>
+      <line linenr="030" indent=""><comment>* Black Market Trader</comment></line>
+      <line linenr="031" indent=""><text>set script command upgrade: command=</text><var>COMMAND_BLACK_MARKET</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.blackmarket</call><var></var><text></text></line>
+      <line linenr="032" indent=""><text>global script map: set: key=</text><var>COMMAND_BLACK_MARKET</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.ship.cmd.blackmarket</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="033" indent=""> </line>
+      <line linenr="034" indent=""><comment>* Detect Pirate Base</comment></line>
+      <line linenr="035" indent=""><text>set script command upgrade: command=</text><var>COMMAND_DETECT_PIRATEBASE</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.enabled</call><var></var><text></text></line>
+      <line linenr="036" indent=""><text>global script map: set: key=</text><var>COMMAND_DETECT_PIRATEBASE</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.detectbase</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="037" indent=""> </line>
+      <line linenr="038" indent=""><comment>* Enslave Passengers</comment></line>
+      <line linenr="039" indent=""><text>set script command upgrade: command=</text><var>COMMAND_ENSLAVE_PASSENGERS</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.enslavepassengers</call><var></var><text></text></line>
+      <line linenr="040" indent=""><text>global script map: set: key=</text><var>COMMAND_ENSLAVE_PASSENGERS</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.enslavepassengers</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="041" indent=""> </line>
+      <line linenr="042" indent=""><comment>* Kidnap Civilian</comment></line>
+      <line linenr="043" indent=""><text>set script command upgrade: command=</text><var>COMMAND_KIDNAP_CIVILIAN</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.enabled</call><var></var><text></text></line>
+      <line linenr="044" indent=""><text>global script map: set: key=</text><var>COMMAND_KIDNAP_CIVILIAN</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.kidnapcivilians.menu</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="045" indent=""> </line>
+      <line linenr="046" indent=""><comment>* Loot Wreck</comment></line>
+      <line linenr="047" indent=""><text>set script command upgrade: command=</text><var>COMMAND_LOOT_WRECK</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.lootwreck</call><var></var><text></text></line>
+      <line linenr="048" indent=""><text>global script map: set: key=</text><var>COMMAND_LOOT_WRECK</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.lootwreck</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="049" indent=""> </line>
+      <line linenr="050" indent=""><comment>* Pirate Network</comment></line>
+      <line linenr="051" indent=""><text>set script command upgrade: command=</text><var>COMMAND_PIRATE_NETWORK</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.enabled</call><var></var><text></text></line>
+      <line linenr="052" indent=""><text>global script map: set: key=</text><var>COMMAND_PIRATE_NETWORK</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.piratenetwork</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="053" indent=""> </line>
+      <line linenr="054" indent=""><comment>* Sector Analysis</comment></line>
+      <line linenr="055" indent=""><text>set script command upgrade: command=</text><var>COMMAND_SECTOR_ANALYSIS</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.enabled</call><var></var><text></text></line>
+      <line linenr="056" indent=""><text>global script map: set: key=</text><var>COMMAND_SECTOR_ANALYSIS</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.scanner</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="057" indent=""> </line>
+      <line linenr="058" indent=""><comment>* Spacefly Beacon</comment></line>
+      <line linenr="059" indent=""><text>set script command upgrade: command=</text><var>COMMAND_SPACEFLY_BEACON</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.enabled</call><var></var><text></text></line>
+      <line linenr="060" indent=""><text>global script map: set: key=</text><var>COMMAND_SPACEFLY_BEACON</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.ship.cmd.spaceflybeacon</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="061" indent=""> </line>
+      <line linenr="062" indent=""><comment>* View Salvage</comment></line>
+      <line linenr="063" indent=""><text>set script command upgrade: command=</text><var>COMMAND_VIEW_SALVAGE</var><text>  upgrade=</text><var>[TRUE]</var><text>  script=</text><var></var><call>plugin.piracy.ship.chk.viewsalvage</call><var></var><text></text></line>
+      <line linenr="064" indent=""><text>global script map: set: key=</text><var>COMMAND_VIEW_SALVAGE</var><text>, class=</text><var>Ship 2004</var><text>, race=</text><var>Player</var><text>, script=</text><var></var><call>plugin.piracy.viewsalvage</call><var></var><text>, prio=</text><var>2</var><text></text></line>
+      <line linenr="065" indent=""> </line>
+      <line linenr="066" indent=""><comment>* --------------------  ADD SIGNALS  --------------------</comment></line>
+      <line linenr="067" indent=""> </line>
+      <line linenr="068" indent=""><comment>* Black Market Goods</comment></line>
+      <line linenr="069" indent=""><text>global script map: set: key=</text><var>SIGNAL_SCANNED 1011</var><text>, class=</text><var>Moveable Ship 2134</var><text>, race=</text><var>null</var><text>, script=</text><var></var><call>plugin.piracy.ship.signal.scanned</call><var></var><text>, prio=</text><var>10</var><text></text></line>
+      <line linenr="070" indent=""> </line>
+      <line linenr="071" indent=""><comment>* --------------------  ADD HOTKEYS  --------------------</comment></line>
+      <line linenr="072" indent=""> </line>
+      <line linenr="073" indent=""><comment>* Kidnap Civilians</comment></line>
+      <line linenr="074" indent=""><text></text><var>if not</var><text> get global variable: name=</text><var>'Piracy.KidnapCivilians.iHotkeyID'</var><text></text></line>
+      <line linenr="075" indent="&#160;"><text></text><var>$iHotkeyID =</var><text> = register hotkey </text><var>'Kidnap Passengers'</var><text> to call script </text><var></var><call>plugin.piracy.ship.cmd.kidnapcivilians</call><var></var><text></text></line>
+      <line linenr="076" indent="&#160;"><text>set global variable: name=</text><var>'Piracy.KidnapCivilians.iHotkeyID'</var><text> value=</text><var>$iHotkeyID</var><text></text></line>
+      <line linenr="077" indent=""><text>end</text></line>
+      <line linenr="078" indent=""> </line>
+      <line linenr="079" indent=""><comment>* --------------------  ADD GLOBAL DATA  --------------------</comment></line>
+      <line linenr="080" indent=""> </line>
+      <line linenr="081" indent=""><comment>* Loot Wreck - Universe Wrecks</comment></line>
+      <line linenr="082" indent=""><text></text><var>if not</var><text> get global variable: name=</text><var>'piracy.lootwreck.data'</var><text></text></line>
+      <line linenr="083" indent="&#160;"><text></text><var>$aSalvageData =</var><text> = array alloc: size=</text><var>0</var><text></text></line>
+      <line linenr="084" indent="&#160;"><text>set global variable: name=</text><var>'piracy.lootwreck.data'</var><text> value=</text><var>$aSalvageData</var><text></text></line>
+      <line linenr="085" indent=""><text>end</text></line>
+      <line linenr="086" indent=""> </line>
+      <line linenr="087" indent=""><comment>* --------------------  SCRIPT ENDS  --------------------</comment></line>
+      <line linenr="088" indent=""><comment>* --------------------  SCRIPT ENDS  --------------------</comment></line>
+      <line linenr="089" indent=""> </line>
+      <line linenr="090" indent=""><comment>* UPGRADE FROM PREVIOUS VERSION : Update an existing version of the collection to the current version</comment></line>
+      <line linenr="091" indent=""><comment>* -------------------------------</comment></line>
+      <line linenr="092" indent=""><comment>* PARAM  :  [string] szPreviousVersion  :  Version identifier of the existing version</comment></line>
+      <line linenr="093" indent=""><var>upgradeFromPreviousVersion</var><text>:</text></line>
+      <line linenr="094" indent=""><comment>* PLACEHOLDER : Empty for now</comment></line>
+      <line linenr="095" indent=""><text>endsub</text></line>
+      <line linenr="096" indent=""> </line>
+      <line linenr="097" indent=""> </line>
+      <line linenr="098" indent=""><comment>* DISPLAY WELCOME DIALOG : Display a welcome dialog giving showing feature details and information</comment></line>
+      <line linenr="099" indent=""><comment>* ------------------------</comment></line>
+      <line linenr="100" indent=""><var>displayWelcomeDialog</var><text>:</text></line>
+      <line linenr="101" indent=""><comment>* PLACEHOLDER : Empty for now</comment></line>
+      <line linenr="102" indent=""><text>endsub</text></line>
+      <line linenr="103" indent=""> </line>
+      <line linenr="104" indent=""><text>return </text><var>null</var><text></text></line>
+      <line linenr="105" indent=""> </line>
+      <line linenr="106" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="setup.plugin.piracy" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Script Collection Setup" />
+         <sval type="int" val="120" />
+         <sval type="int" val="0" />
+         <sval type="array" size="5">
+            <sval type="string" val="szVersion" />
+            <sval type="string" val="iPageID" />
+            <sval type="string" val="szPreviousVersion" />
+            <sval type="string" val="iHotkeyID" />
+            <sval type="string" val="aSalvageData" />
+         </sval>
+         <sval type="array" size="42">
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="0.5 Alpha" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="7540" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="151" />
+               <sval type="int" val="4" />
+               <sval type="int" val="7539" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="151" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="158" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Piracy.Setup.szVersion" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610610936" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1167" />
+               <sval type="int" val="39" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610610424" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="int" val="15" />
+               <sval type="int" val="9" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1167" />
+               <sval type="int" val="37" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="157" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Piracy.Setup.szVersion" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="158" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Piracy.Setup.iPageID" />
+               <sval type="int" val="-536867833" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="157" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Piracy.Setup.iPageID" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="615" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.blackmarket" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="615" />
+               <sval type="string" val="plugin.piracy.ship.cmd.blackmarket" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="617" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.enabled" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="617" />
+               <sval type="string" val="plugin.piracy.detectbase" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="616" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.enslavepassengers" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="616" />
+               <sval type="string" val="plugin.piracy.enslavepassengers" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="612" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.enabled" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="612" />
+               <sval type="string" val="plugin.piracy.kidnapcivilians.menu" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="614" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.lootwreck" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="614" />
+               <sval type="string" val="plugin.piracy.lootwreck" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="618" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.enabled" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="618" />
+               <sval type="string" val="plugin.piracy.piratenetwork" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="619" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.enabled" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="619" />
+               <sval type="string" val="plugin.piracy.scanner" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="621" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.enabled" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="621" />
+               <sval type="string" val="plugin.piracy.ship.cmd.spaceflybeacon" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="154" />
+               <sval type="int" val="18" />
+               <sval type="int" val="613" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+               <sval type="string" val="plugin.piracy.ship.chk.viewsalvage" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="613" />
+               <sval type="string" val="plugin.piracy.viewsalvage" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2004" />
+               <sval type="int" val="10" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="118" />
+               <sval type="int" val="18" />
+               <sval type="int" val="1011" />
+               <sval type="string" val="plugin.piracy.ship.signal.scanned" />
+               <sval type="int" val="4" />
+               <sval type="int" val="10" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2134" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="158" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Piracy.KidnapCivilians.iHotkeyID" />
+               <sval type="int" val="-536862204" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1100" />
+               <sval type="int" val="3" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnap Passengers" />
+               <sval type="string" val="plugin.piracy.ship.cmd.kidnapcivilians" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="157" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Piracy.KidnapCivilians.iHotkeyID" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="3" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="158" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.lootwreck.data" />
+               <sval type="int" val="-536861436" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="128" />
+               <sval type="int" val="4" />
+               <sval type="int" val="4" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="157" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.lootwreck.data" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="101" />
+               <sval type="string" val="upgradeFromPreviousVersion" />
+            </sval>
+            <sval type="array" size="1">
+               <sval type="int" val="1168" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="101" />
+               <sval type="string" val="displayWelcomeDialog" />
+            </sval>
+            <sval type="array" size="1">
+               <sval type="int" val="1168" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="64">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="PIRACY: SETUP SCRIPT  by  MISTER BEAR  v1.20  Jan-2011" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Setup script collection: Administration, Commands, Hotkeys, Signals and Global Variables" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="2" />
+               <sval type="int" val="1" />
+               <sval type="string" val="-------------------- COMMON --------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="2" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Load strings" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="string" val="First time run dialog" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="7" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Check version and update if necessary" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="10" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="10" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Set global text resource page ID" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="12" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="12" />
+               <sval type="int" val="1" />
+               <sval type="string" val="-------------------- ADD COMMANDS -------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="12" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="12" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Black Market Trader" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="14" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="14" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Detect Pirate Base" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="16" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="16" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Enslave Passengers" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="18" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="18" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Kidnap Civilian" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="20" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="20" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Loot Wreck" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="22" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="22" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Pirate Network" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="24" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="24" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Sector Analysis" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="26" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="26" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Spacefly Beacon" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="28" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="28" />
+               <sval type="int" val="1" />
+               <sval type="string" val="View Salvage" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="30" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="30" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------  ADD SIGNALS  --------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="30" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="30" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Black Market Goods" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="31" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="31" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------  ADD HOTKEYS  --------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="31" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="31" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Kidnap Civilians" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="34" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="34" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="34" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------  ADD GLOBAL DATA  --------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="34" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="34" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Loot Wreck - Universe Wrecks" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="37" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="37" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="37" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------  SCRIPT ENDS  --------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="37" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------  SCRIPT ENDS  --------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="37" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="37" />
+               <sval type="int" val="1" />
+               <sval type="string" val="UPGRADE FROM PREVIOUS VERSION : Update an existing version of the collection to the current version" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="37" />
+               <sval type="int" val="1" />
+               <sval type="string" val="-------------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="37" />
+               <sval type="int" val="1" />
+               <sval type="string" val="PARAM  :  [string] szPreviousVersion  :  Version identifier of the existing version" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="38" />
+               <sval type="int" val="1" />
+               <sval type="string" val="PLACEHOLDER : Empty for now" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="39" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="39" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="39" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DISPLAY WELCOME DIALOG : Display a welcome dialog giving showing feature details and information" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="39" />
+               <sval type="int" val="1" />
+               <sval type="string" val="------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="40" />
+               <sval type="int" val="1" />
+               <sval type="string" val="PLACEHOLDER : Empty for now" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="41" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="42" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="42" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+      </sval>
+   </codearray>
+</script>

@@ -1,0 +1,1132 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="SRST" name="Select Random Ship Type" description="Library to select random shiptypes from the maker race and ship class" />
+    <version number="0.5" date="23/05/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="SRST" library="1">
+      <documentation>
+        <content name="Select Random Ship Type" reference="SRST" type="utility"/>
+        <version number="0.5" date="23/05/2008" status="testing"/>
+        <params>
+          <param name="Race ID" type="number" compulsory="1" description="The maker race ID or the strings 'default' or 'pirategroup'"/>
+          <param name="Subrace ID" type="number" compulsory="0" description="The Subrace ID if the Race ID is 'pirate', one of main 5 races!"/>
+          <param name="Class ID" type="number" compulsory="1" description="The shipclass ID or the class IDs for bigship, fighter or freighter"/>
+          <param name="Cue" type="cuename" compulsory="1" description="The Cue that the shiptype list is saved too"/>
+          <param name="CancelCue" type="cuename" description="The cue which is cancelled at the end"/>
+          <param name="Result" type="valuename" description="Will contain 1 when Finished!"/>
+          <param name="Shiptype Address" type="valuename" compulsory="1" description="The address that the shiptype will be saved to NOT LOCALISED to Cue Param!!!"/>
+          <param name="Include M3P" compulsory="0" type="boolean" description="Include the M3Plus ships in the M3 search"/>
+          <param name="Include M4P" compulsory="0" type="boolean" description="Include the M4Plus ships in the M4 search"/>
+          <param name="Include M5P" compulsory="0" type="boolean" description="Include the M5Plus ships in the M5 search"/>
+          <param name="Include M6M" compulsory="0" type="boolean" description="Include the M6M ships in the M6 search"/>
+          <param name="Include M7M" compulsory="0" type="boolean" description="Include the M7M ships in the M7 search"/>
+          <param name="Include Clusters" compulsory="0" type="boolean" description="Include the khaak clusters"/>
+        </params>
+        <history>
+          <change date="21/08/2008" author="al_main"   description="Added missing goners, removed some of slowest ships with duplicate names"/>
+          <change date="14/08/2008" author="al_main"   description="Added Khaak corvette"/>
+          <change date="06/08/2008" author="Owen Lake" description="Removed SS_SH_B_M8 and SS_SH_Y_M6M."/>
+          <change date="05/07/2008" author="al_main"   description="Added khaak clusters, added param.exists checks for 'Include' params"/>
+          <change date="06/06/2008" author="al_main"   description="Added support for pirate and USC m8's"/>
+          <change date="23/05/2008" author="al_main"   description="Added pirate Subrace handling code, add tp return type for pirates"/>
+          <change date="23/05/2008" author="XGamer"    description="Added Feedback Value, Made Documentation more clear"/>
+          <change date="12/03/2008" author="al_main"   description="structure simplified"/>
+          <change date="11/02/2008" author="Owen Lake" description="Added the Shiptype Address parameter"/>
+          <change date="08/02/2008" author="Owen Lake" description="Updated shiptype names. Added more classes and the new ships."/>
+          <change date="03/03/2008" author="Owen Lake" description="Added the cancel cue and shiptype address"/>
+        </history>
+        <todo>
+          <item date="08/02/2008" author="Owen Lake" description="Lost Colony Terraformers"/>
+          <item date="08/02/2008" author="Owen Lake" description="USC Ships"/>
+          <item date="08/02/2008" author="Owen Lake" description="Terran Ships"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="SRST.Subrace" exact="0"/>
+          <do_if value="{param@Race ID}" list="{lookup.race@pirate}">
+            <do_if value="{param.exists@Subrace ID}" exact="1">
+              <set_value name="SRST.Subrace" exact="{param@Subrace ID}"/>
+            </do_if>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="SRST Use List" check="cancel">
+          <condition>
+            <check_value value="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Saved}" exact="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@Shiptype Address}" exact="0"/>
+              <do_if value="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Count}" min="1">
+                <set_value name="SRST.ShipType Number" min="1" max="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Count}"/>
+                <set_value name="{param@Shiptype Address}" exact="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.ShipType Number}}"/>
+              </do_if>
+              <set_value name="{param@Result}" exact="1"/>
+              <cancel_cue cue="{param@CancelCue}"/>
+              <cancel_cue cue="SRST"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="SRST Create New List" check="cancel">
+          <condition>
+            <check_value value="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Saved}" exact="0"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="SRST.Typename Count" exact="0"/>
+              <do_if value="{lookup.race.mask.{param@Race ID}@argon}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tl}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TL}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M6}"/>
+                  <do_if value="{param.exists@Include M6M}" exact="1">
+                    <do_if value="{param@Include M6M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M6M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M7}"/>
+                  <do_if value="{param.exists@Include M7M}" exact="1">
+                    <do_if value="{param@Include M7M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M7M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M8}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3_3}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4_3}"/>
+                  <do_if value="{param.exists@Include M4P}" exact="1">
+                    <do_if value="{param@Include M4P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5_3}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TM}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@ts}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS_4}"/>
+                  <!--removed as these ships are very slow and same name as above
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS_3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS_5}"/>-->
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tp}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TP}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TP_1}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@boron}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tl}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TL}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M6}"/>
+                  <do_if value="{param.exists@Include M6M}" exact="1">
+                    <do_if value="{param@Include M6M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M6M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M7}"/>
+                  <do_if value="{param@Include M7M}" exact="1">
+                    <do_if value="{param.exists@Include M7M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M7M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <!--<do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M8}"/>
+                </do_if>-->
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M3_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M3_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M3_3}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4_3}"/>
+                  <do_if value="{param.exists@Include M4P}" exact="1">
+                    <do_if value="{param@Include M4P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5_3}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TM}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@ts}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TS}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TS_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TS_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TS_4}"/>
+                  <!--removed as these ships are very slow and same name as above
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TS_3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TS_5}"/>-->
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tp}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TP}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TP_1}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@paranid}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tl}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TL}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M6}"/>
+                  <do_if value="{param.exists@Include M6M}" exact="1">
+                    <do_if value="{param@Include M6M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M6M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M7}"/>
+                  <do_if value="{param.exists@Include M7M}" exact="1">
+                    <do_if value="{param@Include M7M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M7M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M8}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3_3}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4_3}"/>
+                  <do_if value="{param.exists@Include M4P}" exact="1">
+                    <do_if value="{param@Include M4P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5_3}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TM}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@ts}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TS}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TS_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TS_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TS_3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TS_4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TS_5}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tp}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TP}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TP_1}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@split}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tl}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TL}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M6}"/>
+                  <do_if value="{param.exists@Include M6M}" exact="1">
+                    <do_if value="{param@Include M6M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M6M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M7}"/>
+                  <do_if value="{param.exists@Include M7M}" exact="1">
+                    <do_if value="{param@Include M7M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M7M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M8}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3_3}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M4_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M4_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M4_3}"/>
+                  <do_if value="{param.exists@Include M4P}" exact="1">
+                    <do_if value="{param@Include M4P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M4P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5_3}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TM}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@ts}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TS}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TS_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TS_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TS_3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TS_4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TS_5}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TS_6}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tp}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TP}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TP_1}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@teladi}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tl}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TL}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M6}"/>
+                  <do_if value="{param.exists@Include M6M}" exact="1">
+                    <do_if value="{param@Include M6M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M6M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M7}"/>
+                  <do_if value="{param.exists@Include M7M}" exact="1">
+                    <do_if value="{param@Include M7M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M7M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M8}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3_3}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M4_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M4_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M4_3}"/>
+                  <do_if value="{param.exists@Include M4P}" exact="1">
+                    <do_if value="{param@Include M4P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M4P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5_3}"/>
+                  <do_if value="{param.exists@Include M5P}" exact="1">
+                    <do_if value="{param@Include M5P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TM}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@ts}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TS}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TS_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TS_2}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TS_3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TS_4}"/>
+                  <!--removed as these ships are very slow and same name as above
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TS_5}"/>-->
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tp}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TP}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TP_1}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@xenon}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M6}"/>
+                  <do_if value="{param.exists@Include M6M}" exact="1">
+                    <do_if value="{param@Include M6M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M6M}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M7}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M3}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M4}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_X_M5}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@khaak}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_K_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_K_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_K_M6}"/>
+                </do_if>
+                <do_if value="{param.exists@Include Clusters}" exact="1">
+                  <do_if value="{param@Include Clusters}" exact="1">
+                    <do_if value="{param.exists@Include M3P}" exact="1">
+                      <do_if value="{param@Include M3P}" exact="1">
+                        <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                          <set_value name="SRST.Typename Count" operation="add"/>
+                          <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_THINKER6}"/>
+                        </do_if>
+                      </do_if>
+                    </do_if>
+                    <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_THINKER}"/>
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_THINKER14}"/>
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_THINKER27}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_K_M3}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_K_M4}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_K_M5}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@pirate}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M6_P}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@teladi}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M6_P}"/>
+                  </do_if>
+                  <!--added to ensure that pirate + M6 + Subrace returns value-->
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@boron}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M6}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@split}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M6}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@paranid}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M6}"/>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_PI_M7_P}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M8}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@boron}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M8}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@split}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M8}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@paranid}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M8}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@teladi}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M8}"/>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3_P_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3_P_2}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@teladi}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3_P}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3_P_3}"/>
+                  </do_if>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                        <set_value name="SRST.Typename Count" operation="add"/>
+                        <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M3P_P}"/>
+                      </do_if>
+                      <do_if value="{value@SRST.Subrace}" list="{lookup.race@teladi}|0">
+                        <set_value name="SRST.Typename Count" operation="add"/>
+                        <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M3P_P}"/>
+                      </do_if>
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_PI_M3P_P}"/>
+                    </do_if>
+                  </do_if>
+                  <!--added to ensure that pirate + M3 + Subrace returns value-->
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@boron}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M3_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M3_2}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@split}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M3_2}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@paranid}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M3_3}"/>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4_P}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4_P_2}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@split}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M4_P}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@teladi}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M4_P_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M4_P_3}"/>
+                  </do_if>
+                  <do_if value="{param.exists@Include M4P}" exact="1">
+                    <do_if value="{param@Include M4P}" exact="1">
+                      <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                        <set_value name="SRST.Typename Count" operation="add"/>
+                        <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M4P_P}"/>
+                      </do_if>
+                    </do_if>
+                  </do_if>
+                  <!--needed to ensure that pirate + M4 + Subrace returns a value-->
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@boron}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4_3}"/>
+                    <do_if value="{param.exists@Include M4P}" exact="1">
+                      <do_if value="{param@Include M4P}" exact="1">
+                        <set_value name="SRST.Typename Count" operation="add"/>
+                        <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M4P}"/>
+                      </do_if>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@paranid}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4_3}"/>
+                    <do_if value="{param.exists@Include M4P}" exact="1">
+                      <do_if value="{param@Include M4P}" exact="1">
+                        <set_value name="SRST.Typename Count" operation="add"/>
+                        <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M4P}"/>
+                      </do_if>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@teladi}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5_P}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5_P_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5_P_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5_P_3}"/>
+                    <do_if value="{param.exists@Include M5P}" exact="1">
+                      <do_if value="{param@Include M5P}" exact="1">
+                        <set_value name="SRST.Typename Count" operation="add"/>
+                        <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_M5P_P}"/>
+                      </do_if>
+                    </do_if>
+                  </do_if>
+                  <!--needed to ensure that pirate + M5 + Subrace returns a value-->
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M5_3}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@boron}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_M5_3}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@split}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_M5_3}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" exact="{lookup.race@paranid}">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5_1}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5_2}"/>
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_M5_3}"/>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_PI_TM_P}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@ts}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_PI_TS_P}"/>
+                </do_if>
+                <!--added to ensure pirate + tp returns a shiptype-->
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tp}" exact="1">
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@argon}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TP}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@boron}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_B_TP}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@split}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_S_TP}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@paranid}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_P_TP}"/>
+                  </do_if>
+                  <do_if value="{value@SRST.Subrace}" list="{lookup.race@teladi}|0">
+                    <set_value name="SRST.Typename Count" operation="add"/>
+                    <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_T_TP}"/>
+                  </do_if>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@goner}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tl}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TL}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M6}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M7}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M8}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_GONER}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_GONER}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_GONER}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TM}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@ts}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_GONER}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TS_2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tp}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_GONER}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TP}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_TP_1}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@yaki}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_A_M6_P}" comment="No Yaki M6"/>
+                  <!--<do_if value="{param.exists@Include M6M}" exact="1">
+                    <do_if value="{param@Include M6M}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M6M}"/>
+                    </do_if>
+                  </do_if>-->
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M3}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M3_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M3_2}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M4}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M4_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M4_2}"/>
+                  <do_if value="{param.exists@Include M4P}" exact="1">
+                    <do_if value="{param@Include M4P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M4P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M5}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M5_1}"/>
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_M5_2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@tm}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_Y_TM}"/>
+                </do_if>
+              </do_if>
+
+              <do_if value="{lookup.race.mask.{param@Race ID}@terran}" exact="1">
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m1}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M1}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m2}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M2}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m6}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M6}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m7}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M7}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m8}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M8}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m3}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M3}"/>
+                  <do_if value="{param.exists@Include M3P}" exact="1">
+                    <do_if value="{param@Include M3P}" exact="1">
+                      <set_value name="SRST.Typename Count" operation="add"/>
+                      <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M3P}"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m4}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M4}"/>
+                </do_if>
+                <do_if value="{lookup.class.isclass.{param@Class ID}@m5}" exact="1">
+                  <set_value name="SRST.Typename Count" operation="add"/>
+                  <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.Typename Count}" exact="{lookup.type@SS_SH_USC_M5}"/>
+                </do_if>
+              </do_if>
+              <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Count" exact="{value@SRST.Typename Count}"/>
+              <set_value name="{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Saved" exact="1"/>
+              <set_value name="{param@Shiptype Address}" exact="0"/>
+              <do_if value="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Count}" min="1">
+                <set_value name="SRST.ShipType Number" min="1" max="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} Count}"/>
+                <set_value name="{param@Shiptype Address}" exact="{value@{param@Cue}.SRST {param@Race ID} {value@SRST.Subrace} {param@Class ID} {value@SRST.ShipType Number}}"/>
+              </do_if>
+              <set_value name="{param@Result}" exact="1"/>
+              <cancel_cue cue="{param@CancelCue}"/>
+              <cancel_cue cue="SRST"/>
+            </do_all>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>tq1J+u3jrr9LOt/UsuKidFFVeOwjdURszhzhLb+B7Jfn2lMuN/a1to/gu2ub6L+h5eAHW2OHBLBsO0ZYLAhzjqYlepDNsH2pYIaVLkXOYqkfhovJl26i+Xgw29UwtHHa8F8KDHxoD7ftngE2bKbb/iuj1zLmOlpMO+AoZ1jY9FnSwhVALFMWhIMwEQbOXZSbA7S4iWe1Llb9lbIiQlFRR9a7XiavssO/jDB4J34iKQTNbsMooNqXUeiKnJk9sUZ8DMXzKH6ccRMYRJtTj6oSNr3+N3FqwnSliQm5uXJ09lOL7pLCVUv5ZEv60QxDDJ6mw9zhnYpEwQFfYzhfrlaiOA==</signature>
+</director>
+

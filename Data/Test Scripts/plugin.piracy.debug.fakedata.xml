@@ -1,0 +1,1533 @@
+<?xml version="1.0" standalone="yes" ?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl" ?>
+<script>
+<name>plugin.piracy.debug.fakedata</name>
+<version>140</version>
+<engineversion>44</engineversion>
+<description>Debug: Alter data for debugging</description>
+<arguments>
+</arguments>
+<sourcetext>
+<line linenr="001" indent=""><comment><text>*&#160;</text><var>ENSLAVE&#160;PASSENGERS&#160;&#160;-&#160;&#160;by&#160;MISTER&#160;BEAR&#160;&#160;v1.40&#160;12/2010</var></comment></line>
+<line linenr="002" indent=""><comment><text>*&#160;</text><var>INSERT&#160;FAKE&#160;DATA&#160;TEST&#160;SCRIPT</var></comment></line>
+<line linenr="003" indent=""><comment><text>*&#160;</text><var></var></comment></line>
+<line linenr="004" indent=""></line>
+<line linenr="005" indent=""><var>showMenu</var><text>:</text></line>
+<line linenr="006" indent=""><var>$aPassengers&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;passenger&#160;array</text></line>
+<line linenr="007" indent=""></line>
+<line linenr="008" indent=""><comment><text>*&#160;</text><var>------------------------------&#160;CREATE&#160;OPTIONS&#160;INFORMATION&#160;------------------------------</var></comment></line>
+<line linenr="009" indent=""><var>$szMenuItems&#160;=&#160;</var><text>&#160;create&#160;custom&#160;menu&#160;array:&#160;heading=</text><var>'Available&#160;Cargo&#160;Bay&#160;Options'</var></line>
+<line linenr="010" indent=""></line>
+<line linenr="011" indent=""><comment><text>*&#160;</text><var>LIST&#160;CARGO&#160;BAY&#160;CAPACITY</var></comment></line>
+<line linenr="012" indent=""><var>$iCargo&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;total&#160;volume&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="013" indent=""><var>$iCargoMax&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;cargo&#160;bay&#160;size</text></line>
+<line linenr="014" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'Cargo&#160;Bay&#160;Contents:&#160;(%s&#160;/&#160;%s)'</var><text>,&#160;</text><var>$iCargo</var><text>,&#160;</text><var>$iCargoMax</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="015" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="016" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'&#160;'</var></line>
+<line linenr="017" indent=""></line>
+<line linenr="018" indent=""><comment><text>*&#160;</text><var>LIST&#160;CARGO&#160;BAY&#160;CONTENTS</var></comment></line>
+<line linenr="019" indent=""><var>$i&#160;=&#160;</var><text>&#160;size&#160;of&#160;array&#160;</text><var>$aPassengers</var></line>
+<line linenr="020" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;real&#160;passengers'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="021" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="022" indent=""></line>
+<line linenr="023" indent=""><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Slaves</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="024" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;units&#160;of&#160;Slaves'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="025" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="026" indent=""></line>
+<line linenr="027" indent=""><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Low-yield&#160;Sidearms</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="028" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;units&#160;of&#160;Low-yield&#160;Sidearms'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="029" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="030" indent=""></line>
+<line linenr="031" indent=""><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Disintegrator&#160;Rifles&#160;</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="032" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;units&#160;of&#160;Disintegrator&#160;Rifles'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="033" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="034" indent=""></line>
+<line linenr="035" indent=""><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Passengers</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="036" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;units&#160;of&#160;Passengers'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="037" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="038" indent=""></line>
+<line linenr="039" indent=""><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Demonstrators</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="040" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;units&#160;of&#160;Demonstrators'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="041" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="042" indent=""></line>
+<line linenr="043" indent=""><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Very&#160;Important&#160;Passengers</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="044" indent=""><var>$szMessage&#160;=&#160;</var><text>sprintf:&#160;fmt=</text><var>'%s&#160;units&#160;of&#160;Very&#160;Important&#160;Passengers'</var><text>,&#160;</text><var>$i</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var><text>,&#160;</text><var>null</var></line>
+<line linenr="045" indent=""><text>add&#160;custom&#160;menu&#160;info&#160;line&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>$szMessage</var></line>
+<line linenr="046" indent=""></line>
+<line linenr="047" indent=""><comment><text>*&#160;</text><var>--------------------------------&#160;CREATE&#160;OPTION&#160;SELECTIONS&#160;--------------------------------</var></comment></line>
+<line linenr="048" indent=""></line>
+<line linenr="049" indent=""><comment><text>*&#160;</text><var>ADDITION&#160;OPTIONS</var></comment></line>
+<line linenr="050" indent=""><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Add&#160;7&#160;various&#160;passengers&#160;to&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'addPassengers'</var></line>
+<line linenr="051" indent=""><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Add&#160;10&#160;slaves&#160;to&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'addSlaves'</var></line>
+<line linenr="052" indent=""><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Add&#160;5&#160;low-yield&#160;sidearms&#160;to&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'addSidearms'</var></line>
+<line linenr="053" indent=""><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Add&#160;5&#160;disintegrator&#160;rifles&#160;to&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'addRifles'</var></line>
+<line linenr="054" indent=""></line>
+<line linenr="055" indent=""><comment><text>*&#160;</text><var>REMOVAL&#160;OPTIONS</var></comment></line>
+<line linenr="056" indent=""><comment><text>*&#160;</text><var>WEAPONS</var></comment></line>
+<line linenr="057" indent=""><var>if&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Low-yield&#160;Sidearms</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="058" indent="&#160;"><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Remove&#160;all&#160;low-yield&#160;sidearms&#160;to&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'removeSidearms'</var></line>
+<line linenr="059" indent=""><text>end</text></line>
+<line linenr="060" indent=""><var>if&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Disintegrator&#160;Rifles&#160;</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="061" indent="&#160;"><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Remove&#160;all&#160;disintegrator&#160;rifles&#160;to&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'removeRifles'</var></line>
+<line linenr="062" indent=""><text>end</text></line>
+<line linenr="063" indent=""><comment><text>*&#160;</text><var>PASSENGERS</var></comment></line>
+<line linenr="064" indent=""><var>if&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;passenger&#160;array</text></line>
+<line linenr="065" indent="&#160;"><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Remove&#160;all&#160;passengers&#160;from&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'removePassengers'</var></line>
+<line linenr="066" indent=""><text>end</text></line>
+<line linenr="067" indent=""></line>
+<line linenr="068" indent=""><comment><text>*&#160;</text><var>FAKE&#160;PASSENGERS</var></comment></line>
+<line linenr="069" indent=""><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Passengers</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="070" indent=""><var>$j&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Demonstrators</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="071" indent=""><var>$k&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Very&#160;Important&#160;Passengers</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="072" indent=""><var>if&#160;</var><var>$i</var><text>&#160;</text><var>&gt;</var><text>&#160;</text><var>0</var><text>&#160;</text><var>OR</var><text>&#160;</text><var>$j</var><text>&#160;</text><var>&gt;</var><text>&#160;</text><var>0</var><text>&#160;</text><var>OR</var><text>&#160;</text><var>$k</var><text>&#160;</text><var>&gt;</var><text>&#160;</text><var>0</var></line>
+<line linenr="073" indent="&#160;"><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Remove&#160;fake&#160;passenger&#160;freight&#160;from&#160;cargo&#160;bay'</var><text>&#160;returnvalue=</text><var>'removeFakes'</var></line>
+<line linenr="074" indent=""><text>end</text></line>
+<line linenr="075" indent=""></line>
+<line linenr="076" indent=""><comment><text>*&#160;</text><var>DISPLAY&#160;DIALOG</var></comment></line>
+<line linenr="077" indent=""><text>add&#160;custom&#160;menu&#160;item&#160;to&#160;array&#160;</text><var>$szMenuItems</var><text>:&#160;text=</text><var>'Cancel'</var><text>&#160;returnvalue=</text><var>'cancel'</var></line>
+<line linenr="078" indent=""></line>
+<line linenr="079" indent=""><var>$szItem&#160;=&#160;</var><text>&#160;open&#160;custom&#160;menu:&#160;title=</text><var>'Cargo&#160;Bay&#160;Tweaks'</var><text>&#160;description=</text><var>'Details'</var><text>&#160;option&#160;array=</text><var>$szMenuItems</var></line>
+<line linenr="080" indent=""></line>
+<line linenr="081" indent=""><comment><text>*&#160;</text><var>--------------------------------&#160;LOGIC&#160;--------------------------------</var></comment></line>
+<line linenr="082" indent=""></line>
+<line linenr="083" indent=""><comment><text>*&#160;</text><var>ADD&#160;REAL&#160;PASSENGERS</var></comment></line>
+<line linenr="084" indent=""><var>if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'addPassengers'</var></line>
+<line linenr="085" indent="&#160;"></line>
+<line linenr="086" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;create&#160;passenger&#160;in&#160;ship:&#160;name=</text><var>'Frasier'</var><text>&#160;race=</text><var>Teladi</var><text>&#160;voice=</text><var>1</var><text>&#160;face=</text><var>1</var></line>
+<line linenr="087" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;create&#160;passenger&#160;in&#160;ship:&#160;name=</text><var>'Bill&#160;Clinton'</var><text>&#160;race=</text><var>Goner</var><text>&#160;voice=</text><var>2</var><text>&#160;face=</text><var>2</var></line>
+<line linenr="088" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;create&#160;passenger&#160;in&#160;ship:&#160;name=</text><var>'Ghandi'</var><text>&#160;race=</text><var>Terran</var><text>&#160;voice=</text><var>3</var><text>&#160;face=</text><var>3</var></line>
+<line linenr="089" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;create&#160;passenger&#160;in&#160;ship:&#160;name=</text><var>'Ronald&#160;McDonald'</var><text>&#160;race=</text><var>Boron</var><text>&#160;voice=</text><var>4</var><text>&#160;face=</text><var>4</var></line>
+<line linenr="090" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;create&#160;passenger&#160;in&#160;ship:&#160;name=</text><var>'Henry&#160;Kissinger'</var><text>&#160;race=</text><var>Paranid</var><text>&#160;voice=</text><var>5</var><text>&#160;face=</text><var>5</var></line>
+<line linenr="091" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;create&#160;passenger&#160;in&#160;ship:&#160;name=</text><var>'Michael&#160;&#160;Jackson'</var><text>&#160;race=</text><var>Pirates</var><text>&#160;voice=</text><var>6</var><text>&#160;face=</text><var>6</var></line>
+<line linenr="092" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;create&#160;passenger&#160;in&#160;ship:&#160;name=</text><var>'The&#160;Who'</var><text>&#160;race=</text><var>Argon</var><text>&#160;voice=</text><var>7</var><text>&#160;face=</text><var>7</var></line>
+<line linenr="093" indent="&#160;"></line>
+<line linenr="094" indent=""><comment><text>*&#160;</text><var>REMOVE&#160;REAL&#160;PASSENGERS</var></comment></line>
+<line linenr="095" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'removePassengers'</var></line>
+<line linenr="096" indent="&#160;"></line>
+<line linenr="097" indent="&#160;"><var>$i&#160;=&#160;</var><text>&#160;size&#160;of&#160;array&#160;</text><var>$aPassengers</var></line>
+<line linenr="098" indent="&#160;"><var>while&#160;</var><var>$i</var></line>
+<line linenr="099" indent="&#160;&#160;"><text>dec&#160;</text><var>$i&#160;=&#160;</var></line>
+<line linenr="100" indent="&#160;&#160;"></line>
+<line linenr="101" indent="&#160;&#160;"><var>$oPassenger&#160;=&#160;</var><var>$aPassengers</var><text>[</text><var>$i</var><text>]</text></line>
+<line linenr="102" indent="&#160;&#160;"><var>=&#160;</var><var>$oPassenger&#160;-&gt;</var><text>&#160;destroy&#160;passenger</text></line>
+<line linenr="103" indent="&#160;"><text>end</text></line>
+<line linenr="104" indent="&#160;"></line>
+<line linenr="105" indent=""><comment><text>*&#160;</text><var>ADD&#160;SLAVES</var></comment></line>
+<line linenr="106" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'addSlaves'</var></line>
+<line linenr="107" indent="&#160;"></line>
+<line linenr="108" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>10</var><text>&#160;units&#160;of&#160;</text><var>Slaves</var></line>
+<line linenr="109" indent="&#160;"></line>
+<line linenr="110" indent=""><comment><text>*&#160;</text><var>ADD&#160;SIDEARMS</var></comment></line>
+<line linenr="111" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'addSidearms'</var></line>
+<line linenr="112" indent="&#160;"></line>
+<line linenr="113" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>5</var><text>&#160;units&#160;of&#160;</text><var>Low-yield&#160;Sidearms</var></line>
+<line linenr="114" indent="&#160;"></line>
+<line linenr="115" indent=""><comment><text>*&#160;</text><var>REMOVE&#160;SIDEARMS</var></comment></line>
+<line linenr="116" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'removeSidearms'</var></line>
+<line linenr="117" indent="&#160;"></line>
+<line linenr="118" indent="&#160;"><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Low-yield&#160;Sidearms</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="119" indent="&#160;"><var>$i&#160;=&#160;</var><var>0</var><text>&#160;</text><var>-</var><text>&#160;</text><var>$i</var></line>
+<line linenr="120" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>$i</var><text>&#160;units&#160;of&#160;</text><var>Low-yield&#160;Sidearms</var></line>
+<line linenr="121" indent="&#160;"></line>
+<line linenr="122" indent=""><comment><text>*&#160;</text><var>ADD&#160;RIFLES</var></comment></line>
+<line linenr="123" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'addRifles'</var></line>
+<line linenr="124" indent="&#160;"></line>
+<line linenr="125" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>5</var><text>&#160;units&#160;of&#160;</text><var>Disintegrator&#160;Rifles&#160;</var></line>
+<line linenr="126" indent="&#160;"></line>
+<line linenr="127" indent=""><comment><text>*&#160;</text><var>REMOVE&#160;RIFLES</var></comment></line>
+<line linenr="128" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'removeRifles'</var></line>
+<line linenr="129" indent="&#160;"></line>
+<line linenr="130" indent="&#160;"><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Disintegrator&#160;Rifles&#160;</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="131" indent="&#160;"><var>$i&#160;=&#160;</var><var>0</var><text>&#160;</text><var>-</var><text>&#160;</text><var>$i</var></line>
+<line linenr="132" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>$i</var><text>&#160;units&#160;of&#160;</text><var>Disintegrator&#160;Rifles&#160;</var></line>
+<line linenr="133" indent="&#160;"></line>
+<line linenr="134" indent=""><comment><text>*&#160;</text><var>REMOVE&#160;'FAKE'&#160;PASSENGERS</var></comment></line>
+<line linenr="135" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'removeFakes'</var></line>
+<line linenr="136" indent="&#160;"></line>
+<line linenr="137" indent="&#160;"><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Passengers</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="138" indent="&#160;"><var>$i&#160;=&#160;</var><var>0</var><text>&#160;</text><var>-</var><text>&#160;</text><var>$i</var></line>
+<line linenr="139" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>$i</var><text>&#160;units&#160;of&#160;</text><var>Passengers</var></line>
+<line linenr="140" indent="&#160;"></line>
+<line linenr="141" indent="&#160;"><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Demonstrators</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="142" indent="&#160;"><var>$i&#160;=&#160;</var><var>0</var><text>&#160;</text><var>-</var><text>&#160;</text><var>$i</var></line>
+<line linenr="143" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>$i</var><text>&#160;units&#160;of&#160;</text><var>Demonstrators</var></line>
+<line linenr="144" indent="&#160;"></line>
+<line linenr="145" indent="&#160;"><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Very&#160;Important&#160;Passengers</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="146" indent="&#160;"><var>$i&#160;=&#160;</var><var>0</var><text>&#160;</text><var>-</var><text>&#160;</text><var>$i</var></line>
+<line linenr="147" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>$i</var><text>&#160;units&#160;of&#160;</text><var>Very&#160;Important&#160;Passengers</var></line>
+<line linenr="148" indent="&#160;"></line>
+<line linenr="149" indent="&#160;"><var>$i&#160;=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;get&#160;true&#160;amount&#160;of&#160;ware&#160;</text><var>Slaves</var><text>&#160;in&#160;cargo&#160;bay</text></line>
+<line linenr="150" indent="&#160;"><var>$i&#160;=&#160;</var><var>0</var><text>&#160;</text><var>-</var><text>&#160;</text><var>$i</var></line>
+<line linenr="151" indent="&#160;"><var>=&#160;</var><var>[PLAYERSHIP]&#160;-&gt;</var><text>&#160;add&#160;</text><var>$i</var><text>&#160;units&#160;of&#160;</text><var>Slaves</var></line>
+<line linenr="152" indent=""><comment><text>*&#160;</text><var>END&#160;DIALOG</var></comment></line>
+<line linenr="153" indent=""><var>else&#160;if&#160;</var><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'cancel'</var><text>&#160;</text><var>OR</var><text>&#160;</text><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>'-1'</var><text>&#160;</text><var>OR</var><text>&#160;</text><var>$szItem</var><text>&#160;</text><var>==</var><text>&#160;</text><var>-1</var></line>
+<line linenr="154" indent="&#160;"><text>return&#160;</text><var>null</var></line>
+<line linenr="155" indent=""><text>end</text></line>
+<line linenr="156" indent=""></line>
+<line linenr="157" indent=""><comment><text>*&#160;</text><var>--------------------------------&#160;REPEAT&#160;--------------------------------</var></comment></line>
+<line linenr="158" indent=""><text>goto&#160;label&#160;</text><var>showMenu</var></line>
+<line linenr="159" indent=""></line>
+<line linenr="160" indent=""><text>return&#160;</text><var>null</var></line>
+<line linenr="161" indent=""></line>
+<line linenr="162" indent=""></line>
+<line linenr="163" indent=""></line>
+</sourcetext>
+<codearray>
+
+<sval type="array" size="10">
+  <sval type="string" val="plugin.piracy.debug.fakedata"/>
+  <sval type="int" val="44"/>
+  <sval type="string" val="Debug: Alter data for debugging"/>
+  <sval type="int" val="140"/>
+  <sval type="int" val="0"/>
+  <sval type="array" size="10">
+    <sval type="string" val="aPassengers"/>
+    <sval type="string" val="szMenuItems"/>
+    <sval type="string" val="iCargo"/>
+    <sval type="string" val="iCargoMax"/>
+    <sval type="string" val="szMessage"/>
+    <sval type="string" val="i"/>
+    <sval type="string" val="j"/>
+    <sval type="string" val="k"/>
+    <sval type="string" val="szItem"/>
+    <sval type="string" val="oPassenger"/>
+  </sval>
+  <sval type="array" size="100">
+    <sval type="array" size="2">
+      <sval type="int" val="101"/>
+      <sval type="string" val="showMenu"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="1234"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="1416"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Available Cargo Bay Options"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="616"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="611"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="3"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Cargo Bay Contents: (%s / %s)"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val=" "/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="131"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s real passengers"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048582"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s units of Slaves"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048671"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s units of Low-yield Sidearms"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048672"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s units of Disintegrator Rifles"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786454"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s units of Passengers"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786493"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s units of Demonstrators"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786455"/>
+    </sval>
+    <sval type="array" size="14">
+      <sval type="int" val="149"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="%s units of Very Important Passengers"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="5">
+      <sval type="int" val="1446"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Add 7 various passengers to cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addPassengers"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Add 10 slaves to cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addSlaves"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Add 5 low-yield sidearms to cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addSidearms"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Add 5 disintegrator rifles to cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addRifles"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1610603773"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048671"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Remove all low-yield sidearms to cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removeSidearms"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1610603261"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048672"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Remove all disintegrator rifles to cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removeRifles"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="1234"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1610602749"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Remove all passengers from cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removePassengers"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786454"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786493"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786455"/>
+    </sval>
+    <sval type="array" size="37">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610601469"/>
+      <sval type="int" val="11"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="11"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="-2"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="-4"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="-5"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="-8"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="-9"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Remove fake passenger freight from cargo bay"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removeFakes"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="1447"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Cancel"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="cancel"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="1230"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Cargo Bay Tweaks"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Details"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="1"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610598653"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addPassengers"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1231"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Frasier"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="1"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1231"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Bill Clinton"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1231"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Ghandi"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="18"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="3"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1231"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Ronald McDonald"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1231"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Henry Kissinger"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1231"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="Michael  Jackson"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="6"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="6"/>
+    </sval>
+    <sval type="array" size="12">
+      <sval type="int" val="1231"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="The Who"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="7"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="7"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610596603"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removePassengers"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="131"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="7">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610596855"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="-1"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="143"/>
+      <sval type="int" val="5"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="129"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+    </sval>
+    <sval type="array" size="4">
+      <sval type="int" val="1237"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="-2147483647"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="57"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610595835"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addSlaves"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048582"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610595067"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addSidearms"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048671"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610593787"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removeSidearms"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048671"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048671"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610593019"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="addRifles"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048672"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610591739"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removeRifles"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048672"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048672"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610588155"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="removeFakes"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786454"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786454"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786493"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786493"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786455"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="786455"/>
+    </sval>
+    <sval type="array" size="6">
+      <sval type="int" val="619"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048582"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="104"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="12"/>
+      <sval type="int" val="-2"/>
+    </sval>
+    <sval type="array" size="8">
+      <sval type="int" val="646"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="3"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="5"/>
+      <sval type="int" val="9"/>
+      <sval type="int" val="1048582"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="112"/>
+      <sval type="int" val="98"/>
+    </sval>
+    <sval type="array" size="37">
+      <sval type="int" val="104"/>
+      <sval type="int" val="-1610587643"/>
+      <sval type="int" val="11"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="cancel"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="5"/>
+      <sval type="string" val="-1"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="8"/>
+      <sval type="int" val="4"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="15"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="11"/>
+      <sval type="int" val="-1"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-2"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="-4"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-5"/>
+      <sval type="int" val="10"/>
+      <sval type="int" val="-8"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="-9"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="103"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="100"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="103"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+  </sval>
+  <sval type="int" val="0"/>
+  <sval type="array" size="72">
+    <sval type="array" size="3">
+      <sval type="int" val="0"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="ENSLAVE PASSENGERS  -  by MISTER BEAR  v1.40 12/2010"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="0"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="INSERT FAKE DATA TEST SCRIPT"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="0"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val=""/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="0"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="2"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="2"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="------------------------------ CREATE OPTIONS INFORMATION ------------------------------"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="3"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="3"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="LIST CARGO BAY CAPACITY"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="8"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="8"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="LIST CARGO BAY CONTENTS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="11"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="14"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="17"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="20"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="23"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="26"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="29"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="29"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="-------------------------------- CREATE OPTION SELECTIONS --------------------------------"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="29"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="29"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="ADDITION OPTIONS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="33"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="33"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="REMOVAL OPTIONS"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="33"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="WEAPONS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="35"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="37"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="37"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="PASSENGERS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="39"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="39"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="39"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="FAKE PASSENGERS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="44"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="44"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="44"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="DISPLAY DIALOG"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="45"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="46"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="46"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="-------------------------------- LOGIC --------------------------------"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="46"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="46"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="ADD REAL PASSENGERS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="47"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="54"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="54"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="REMOVE REAL PASSENGERS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="56"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="59"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="62"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="62"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="62"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="ADD SLAVES"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="64"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="65"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="65"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="ADD SIDEARMS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="67"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="68"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="68"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="REMOVE SIDEARMS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="70"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="73"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="73"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="ADD RIFLES"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="75"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="76"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="76"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="REMOVE RIFLES"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="78"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="81"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="81"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="REMOVE 'FAKE' PASSENGERS"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="83"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="86"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="89"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="92"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="95"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="END DIALOG"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="98"/>
+      <sval type="int" val="4"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="98"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="98"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="-------------------------------- REPEAT --------------------------------"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="99"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="100"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="100"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="100"/>
+      <sval type="int" val="2"/>
+    </sval>
+  </sval>
+  <sval type="int" val="0"/>
+</sval>
+
+</codearray>
+</script>

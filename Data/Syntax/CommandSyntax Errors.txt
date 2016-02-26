@@ -1,0 +1,79 @@
+X3R Command
+------------
+
+"<RetVar> = get ware array for <Var/Ship>" : appears to no longer exist? (I HAVE NO IDEA ABOUT THIS)
+
+-----------------------------------
+
+"START <RefObj> -> command: arg1= <Value>, arg2= <Value>, arg3= <Value>, arg4= <Value>" : no longer exists
+THINK I SOLVED THIS ONE
+
+-----------------------------------
+
+MISSED: (X3R)
+ <t id="1232">%1%0 add passenger to ship %2</t>
+
+-----------------------------------
+
+DIFFERENT:
+X3R:
+ <t id="1233">%1%0 remove passenger %2</t>
+
+X3TC:
+ $1 $0 move passenger to ship $2: set passenger as pilot=$3
+
+-----------------------------------
+
+DIFFERENT:
+R:
+ <t id="1236">%0 create passenger: name=%1 race=%2 voice=%3 face=%4</t>
+
+TC:
+ $1 $0 eject passenger
+
+-----------------------------------
+
+DIFFERENT:
+X3R:
+ <t id="1237">%0 release passenger</t>
+
+X3TC:
+ $1 $0 destroy passenger
+-----------------------------------
+
+DIFFERENT:
+
+X3R:
+ <t id="1238">%1%0 create passenger from pilot: remove pilot from ship=%2</t>
+
+X3TC:
+ $1 $0 add pilot of ship $2 as passenger: disable ship=$3 
+-----------------------------------
+
+DIFFERENT:
+
+X3R:
+
+
+X3TC:
+
+-----------------------------------
+
+DIFFERENT:
+
+X3R:
+
+
+X3TC:
+
+-----------------------------------
+
+DIFFERENT:
+
+X3R:
+
+
+X3TC:
+
+-----------------------------------
+

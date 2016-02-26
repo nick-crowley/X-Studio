@@ -1,0 +1,108 @@
+<?xml version="1.0" standalone="yes" ?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl" ?>
+<script>
+<name>!ship.cmd.collectware.std</name>
+<version>1</version>
+<engineversion>40</engineversion>
+<description>Ship Standard COMMAND COLLECT WARE</description>
+<arguments>
+<argument index="1" name="wareobj" type="Value" desc="GALOBJ of ware flying in sector" />
+</arguments>
+<sourcetext>
+<line linenr="001" indent=""><var>[THIS]&#160;-&gt;</var><text>&#160;set&#160;command:&#160;</text><var>COMMAND_COLLECT_WARE</var><text>&#160;&#160;target=</text><var>$wareobj</var><text>&#160;target2=</text><var>null</var><text>&#160;par1=</text><var>null</var><text>&#160;par2=</text><var>null</var></line>
+<line linenr="002" indent=""></line>
+<line linenr="003" interruptable="@" indent=""><var>=&#160;</var><var>[THIS]&#160;-&gt;</var><text>&#160;call&#160;script&#160;</text><call>!move.collectware</call><text>&#160;:&#160;</text><text>&#160;GALOBJ&#160;of&#160;flying&#160;ware=</text><var>$wareobj</var><text>&#160;</text><text>&#160;destroy&#160;only=</text><var>[FALSE]</var></line>
+<line linenr="004" indent=""></line>
+<line linenr="005" indent=""><comment><text>*&#160;</text><var>done,&#160;then&#160;start&#160;the&#160;default&#160;action</var></comment></line>
+<line linenr="006" indent=""><text>START&#160;</text><var>[THIS]&#160;-&gt;</var><text>&#160;command&#160;</text><var>COMMAND_ACTION</var><text>&#160;:&#160;arg1=</text><var>null</var><text>,&#160;arg2=</text><var>null</var><text>,&#160;arg3=</text><var>null</var><text>,&#160;arg4=</text><var>null</var></line>
+<line linenr="007" indent=""><text>return&#160;</text><var>null</var></line>
+</sourcetext>
+<codearray>
+
+<sval type="array" size="10">
+  <sval type="string" val="!ship.cmd.collectware.std"/>
+  <sval type="int" val="40"/>
+  <sval type="string" val="Ship Standard COMMAND COLLECT WARE"/>
+  <sval type="int" val="1"/>
+  <sval type="int" val="0"/>
+  <sval type="array" size="1">
+    <sval type="string" val="wareobj"/>
+  </sval>
+  <sval type="array" size="4">
+    <sval type="array" size="13">
+      <sval type="int" val="538"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="18"/>
+      <sval type="int" val="24"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="10">
+      <sval type="int" val="102"/>
+      <sval type="string" val="!move.collectware"/>
+      <sval type="int" val="-2147483647"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="2"/>
+      <sval type="int" val="131074"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="9"/>
+    </sval>
+    <sval type="array" size="13">
+      <sval type="int" val="514"/>
+      <sval type="int" val="131075"/>
+      <sval type="int" val="1"/>
+      <sval type="int" val="18"/>
+      <sval type="int" val="20"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="103"/>
+      <sval type="int" val="0"/>
+      <sval type="int" val="0"/>
+    </sval>
+  </sval>
+  <sval type="array" size="1">
+    <sval type="array" size="2">
+      <sval type="int" val="9"/>
+      <sval type="string" val="GALOBJ of ware flying in sector"/>
+    </sval>
+  </sval>
+  <sval type="array" size="3">
+    <sval type="array" size="2">
+      <sval type="int" val="1"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="2">
+      <sval type="int" val="2"/>
+      <sval type="int" val="2"/>
+    </sval>
+    <sval type="array" size="3">
+      <sval type="int" val="2"/>
+      <sval type="int" val="1"/>
+      <sval type="string" val="done, then start the default action"/>
+    </sval>
+  </sval>
+  <sval type="int" val="24"/>
+</sval>
+
+</codearray>
+<signature>
+Q65YYZmP1WtrTDxNuS/T1JeCgL16/KKX29C19VtsOpCuPGoAc/ZGZ1QKjBpPrfE2D5lYkPrlXFIrsrd3Rz+rWIKOEKWJ2PBh3usVqCDxIyu57J/VBfDPVPX7N6nr8eF7JLP2osiu/ODW34HPh2v26Iart2vx/m+gb7attaRfkWNXt4cU6fgh2twpIvoWONaXbgZoRjvtRz9GoukkqUB/W7sIGDQAPIy6tXXeXXpbIIDn3SGsJWWPcw6nmUlpiBySP18cc4l4AQleVHEBookYOERDCrCRUQ3oLBFTch8rzhgk2aZZyOoj/swfN9txkH1HP3UHkKMEY2fvlLlrgaCKLA==
+</signature>
+</script>

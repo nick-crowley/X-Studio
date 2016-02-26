@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="yes" ?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl" ?>
+<script>
+<name>!ship.cmd.getware.pl</name>
+<version>1</version>
+<engineversion>20</engineversion>
+<description>Ship Player COMMAND GET WARE</description>
+<arguments>
+<argument index="1" name="inputarr" type="Var/Station and Product" desc="input array. ware and station" />
+</arguments>
+<sourcetext>
+<line linenr="001" indent=""></line>
+<line linenr="002" indent=""><var>$ware&#160;=&#160;</var><var>$inputarr</var><text>[</text><var>0</var><text>]</text></line>
+<line linenr="003" indent=""><var>$dst&#160;=&#160;</var><var>$inputarr</var><text>[</text><var>1</var><text>]</text></line>
+<line linenr="004" indent=""></line>
+<line linenr="005" interruptable="@" indent=""><var>=&#160;</var><var>[THIS]&#160;-&gt;</var><text>&#160;call&#160;script&#160;</text><call>!ship.cmd.getware.std</call><text>&#160;:&#160;</text><text>&#160;ware=</text><var>$ware</var><text>&#160;</text><text>&#160;trade&#160;partner=</text><var>$dst</var><text>&#160;</text><text>&#160;amount=</text><var>null</var><text>&#160;</text><text>&#160;max&#160;price=</text><var>null</var><text>&#160;</text><text>&#160;stay&#160;if&#160;unable&#160;to&#160;buy=</text><var>null</var></line>
+<line linenr="006" indent=""><text>return&#160;</text><var>null</var></line>
+</sourcetext>
+<codearray>
+<sval type="array" size="10"><sval type="string" val="!ship.cmd.getware.pl" /><sval type="int" val="20" /><sval type="string" val="Ship Player COMMAND GET WARE" /><sval type="int" val="1" /><sval type="int" val="0" /><sval type="array" size="3"><sval type="string" val="inputarr" /><sval type="string" val="ware" /><sval type="string" val="dst" /></sval><sval type="array" size="4"><sval type="array" size="6"><sval type="int" val="129" /><sval type="int" val="1" /><sval type="int" val="131074" /><sval type="int" val="0" /><sval type="int" val="4" /><sval type="int" val="0" /></sval><sval type="array" size="6"><sval type="int" val="129" /><sval type="int" val="2" /><sval type="int" val="131074" /><sval type="int" val="0" /><sval type="int" val="4" /><sval type="int" val="1" /></sval><sval type="array" size="16"><sval type="int" val="102" /><sval type="string" val="!ship.cmd.getware.std" /><sval type="int" val="-2147483647" /><sval type="int" val="131075" /><sval type="int" val="65536" /><sval type="int" val="5" /><sval type="int" val="131074" /><sval type="int" val="1" /><sval type="int" val="131074" /><sval type="int" val="2" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /></sval><sval type="array" size="3"><sval type="int" val="103" /><sval type="int" val="0" /><sval type="int" val="0" /></sval></sval><sval type="array" size="1"><sval type="array" size="2"><sval type="int" val="47" /><sval type="string" val="input array. ware and station" /></sval></sval><sval type="array" size="2"><sval type="array" size="2"><sval type="int" val="0" /><sval type="int" val="2" /></sval><sval type="array" size="2"><sval type="int" val="2" /><sval type="int" val="2" /></sval></sval><sval type="int" val="9" /></sval>
+</codearray>
+</script>

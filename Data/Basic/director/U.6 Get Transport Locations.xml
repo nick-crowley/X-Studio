@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Library" name="Get Transport Locations" description="Get start / end points for a mission" />
+    <version number="0.6" date="02/07/08" status="testing"/>
+  </documentation>
+
+  <cues>
+    <cue name="LUM06" library="1">
+      <documentation>
+        <content name="Get Transport Locations" reference="LUM06" type="utility"/>
+        <version number="0.6" date="02/07/08" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue that the mission is localised in"/>
+          <param name="ID" type="number" compulsory="1" description="The Mission ID, carried over from L0 mission"/>
+          <!--pre-set destinations-->
+          <param name="Start" type="objectname" compulsory="0" description="The station to start from - 1st priority"/>
+          <param name="Dest" type="objectname" compulsory="0" description="The destination to end at"/>
+          <param name="ShipStart" type="objectname" compulsory="0" description="The ship to start at - 2nd priority"/>
+          <param name="ShipDest" type="objectname" compulsory="0" description="The ship to end at"/>
+          <!--find/create destination-->
+          <param name="StartRace" type="number" compulsory="0" description="Specify the race to start at" default="Mission OfferRace"/>
+          <param name="DestRace" type="number" compulsory="0" description="Specify the race to end at" default="Mission OfferRace"/>
+          <param name="StartDist" type="number" compulsory="0" description="Minimum start distance (jumps)"/>
+          <param name="DestDist" type="number" compulsory="0" description="Minimum end distance (jumps)"/>
+          <param name="NoDest" type="boolean" compulsory="0" description="No destination required"/>
+          <param name="UseShips" type="number" compulsory="0" description="% chance of using ships"/>
+          <param name="Military" type="number" compulsory="0" description="% chance of how military the ships used are 0=CV 100=M2 (only when creating)"/>
+          <param name="TransportShip" type="objectname" compulsory="0" description="The ship to be travelling (usually playership)" default="playership"/>
+          <!--removed for now
+          <param name="NoStart" compulsory="0" description="0/1 If set then only return a destination"/>
+          <param name="NoPirates" compulsory="0" description="Set if pirate stations should not be used for locations"/>
+          <param name="Lv1Guide" compulsory="0" description="The actor offering the mission, usually specifed automatically, used in checking moving the destination"/>-->
+        </params>
+        <returns>
+          <return name="{param@Cue}.{param@ID} L0Start" type="objectid" description="The starting object"/>
+          <return name="{param@Cue}.{param@ID} L0Dest" type="objectid" description="The end object"/>
+          <return name="{param@Cue}.{param@ID} L0UseStartTD" type="boolean" description="Set as 1 when the start object can not be docked at"/>
+          <return name="{param@Cue}.{param@ID} L0UseDestTD" type="boolean" description="Set as 1 when the end object can not be docked at"/>
+          <return name="{param@Cue}.{param@ID} L0StartCreated" type="boolean" description="Set as 1 when the start object is a created ship"/>
+          <return name="{param@Cue}.{param@ID} L0DestCreated" type="boolean" description="Set as 1 when the end object is a created ship"/>
+        </returns>
+        <history>
+          <change date="21/07/08" author="al_main" description="Fixed ship selection code, added param@Military -1 code for freighter"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="02/07/08" author="al_main" description="Fixed military param usage, removes surplus code setting objects, ID param added to documentation"/>
+          <change date="25/06/08" author="al_main" description="Fixed mutual relation setting"/>
+          <change date="24/05/08" author="al_main" description="Added NoDest parameter"/>
+          <change date="23/05/08" author="al_main" description="Fixed Jump range error"/>
+          <change date="22/05/08" author="al_main" description="Complere re-write and re-structuring of base code to eliminate bugs"/>
+          <change date="13/05/08" author="al_main" description="Added support for ships other than playership, fixed bug with ship race"/>
+          <change date="18/02/08" author="al_main" description="Improved sector finding routine"/>
+          <change date="18/02/08" author="al_main" description="Minor fixes plus added check for moving mission offerer and better chance of finding a station"/>
+          <change date="13/02/08" author="al_main" description="returns node added to documentation"/>
+          <change date="12/02/08" author="al_main" description="Improved station finding cues to handle races better"/>
+          <change date="12/02/08" author="al_main" description="Fixed issues with failing destination check and the created ship's race"/>
+          <change date="12/02/08" author="al_main" description="Fixed issue with shiptype choice"/>
+          <change date="11/02/08" author="al_main" description="Added much functionality including sanity check that start and end arent the same station"/>
+          <change date="11/02/08" author="al_main" description="Split from L0 mission cues"/>
+        </history>
+        <todo>
+          <item priority="low" description="Add in station class so that docks / SY etc can be specified as preferance, perhaps use the military param?"/>
+          <item priority="trivial" description="Add M8 to ship choices?"/>
+          <item priority="trivial" description="Add NoPirates parameter % chance?"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="LUM06.UseShipStart" exact="0"/>
+          <do_if value="{param.exists@UseShips}" exact="1">
+            <set_value name="LUM06.UseShipStart" exact="1" chance="{param@UseShips}"/>
+          </do_if>
+          <set_value name="LUM06.UseShipDest" exact="0"/>
+          <do_if value="{param.exists@UseShips}" exact="1">
+            <set_value name="LUM06.UseShipDest" exact="1" chance="{param@UseShips}"/>
+          </do_if>
+          <set_value name="{param@Cue}.{param@ID} L0UseStartTD" exact="0"/>
+          <set_value name="{param@Cue}.{param@ID} L0UseDestTD" exact="0"/>
+          <set_value name="{param@Cue}.{param@ID} L0StartCreated" exact="0"/>
+          <set_value name="{param@Cue}.{param@ID} L0DestCreated" exact="0"/>
+
+          <!--pick shiptypes-->
+          <set_value name="this.temp" min="-5" max="0"/>
+          <do_if value="{param.exists@Military}" exact="1">
+            <set_value name="this.temp" operation="add" exact="{param@Military}"/>
+          </do_if>
+          <do_choose>
+            <do_when value="{param.exists@Military}" exact="1" negate="1">
+              <set_value name="this.Ship Class Start" exact="{random.class@freighter|m3|m4|m5}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@freighter|m3|m4|m5}"/>
+            </do_when>
+            <do_when value="{value@this.temp}" min="95">
+              <set_value name="this.Ship Class Start" exact="{random.class@m2|m7}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@m2|m7}"/>
+            </do_when>
+            <do_when value="{value@this.temp}" min="70">
+              <set_value name="this.Ship Class Start" exact="{random.class@m7|m6|m6|m3}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@m7|m6|m6|m3}"/>
+            </do_when>
+            <do_when value="{value@this.temp}" min="45">
+              <set_value name="this.Ship Class Start" exact="{random.class@m6|m3|m4|tm}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@m6|m3|m4|tm}"/>
+            </do_when>
+            <do_when value="{value@this.temp}" min="20">
+              <set_value name="this.Ship Class Start" exact="{random.class@freighter|fighter|ts|tp|m4}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@freighter|fighter|ts|tp|m4}"/>
+            </do_when>
+            <do_when value="{value@this.temp}" min="10">
+              <set_value name="this.Ship Class Start" exact="{random.class@freighter|m4|m5}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@freighter|m4|m5}"/>
+            </do_when>
+            <do_when value="{param@Military}" exact="-1">
+              <set_value name="this.Ship Class Start" exact="{random.class@freighter}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@freighter}"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="this.Ship Class Start" exact="{random.class@freighter|m5}"/>
+              <set_value name="this.Ship Class Dest" exact="{random.class@freighter|m5}"/>
+            </do_otherwise>
+          </do_choose>
+
+          <!--set transport object-->
+          <do_if value="{param.exists@TransportShip}" exact="1">
+            <do_if value="{object.exists@{param@TransportShip}}" exact="1">
+              <set_object name="LUM06.TransportShip" value="{object@{param@TransportShip}}"/>
+            </do_if>
+          </do_if>
+          <do_if value="{object.exists@LUM06.TransportShip}" exact="0">
+            <set_object name="LUM06.TransportShip" value="{player.ship}"/>
+          </do_if>
+
+          <!--set start race-->
+          <do_if value="{param.exists@StartRace}" exact="1">
+            <set_value name="LUM06.StartRace" exact="{param@StartRace}"/>
+          </do_if>
+          <do_if value="{value@LUM06.StartRace}" min="1" max="20" negate="1">
+            <set_value name="LUM06.StartRace" exact="{param@OfferRace}"/>
+          </do_if>
+          <!--set end race-->
+          <do_if value="{param.exists@DestRace}" exact="1">
+            <set_value name="LUM06.DestRace" exact="{param@DestRace}"/>
+          </do_if>
+          <do_if value="{value@LUM06.DestRace}" min="1" max="20" negate="1">
+            <set_value name="LUM06.DestRace" exact="{param@OfferRace}"/>
+          </do_if>
+
+          <!--set jumps-->
+          <do_if value="{param.exists@StartDist}" exact="1">
+            <set_value name="this.StartJumpsMin" exact="{param@StartDist}"/>
+          </do_if>
+          <do_choose>
+            <do_when value="{value@this.StartJumpsMin}" min="1" negate="1">
+              <set_value name="this.StartJumpsMin" exact="1"/>
+              <set_value name="this.StartJumpsMax" exact="1"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="this.StartJumpsMax" min="{value@this.StartJumpsMin}+2" max="({value@this.StartJumpsMin}*3)/2"/>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{param.exists@DestDist}" exact="1">
+            <set_value name="this.DestJumpsMin" exact="{param@DestDist}"/>
+          </do_if>
+          <do_choose>
+            <do_when value="{value@this.DestJumpsMin}" min="1" negate="1">
+              <set_value name="this.DestJumpsMin" exact="1"/>
+              <set_value name="this.DestJumpsMax" min="1" max="2"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="this.DestJumpsMax" min="{value@this.DestJumpsMin}+2" max="{value@this.DestJumpsMin}+3"/>
+            </do_otherwise>
+          </do_choose>
+
+          <!--clear any previous objects (need to be set as params to keep)-->
+          <set_object name="this.Start" value="{object@{param@Start}}"/>
+          <set_object name="this.Dest" value="{object@{param@Dest}}"/>
+          <remove_object object="{param@Cue}.{param@ID} L0Start"/>
+          <remove_object object="{param@Cue}.{param@ID} L0Dest"/>
+
+          <!--set previously defined locations-->
+          <!--use a pre defined start station-->
+          <do_if value="{object.exists@this.Start}" exact="1">
+            <set_object name="{param@Cue}.{param@ID} L0Start" value="{object@this.Start}"/>
+          </do_if>
+          <!--use a pre defined ship-->
+          <do_if value="{param.exists@ShipStart}" exact="1">
+            <do_if value="{object.exists@{param@ShipStart}}" exact="1">
+              <set_object name="{param@Cue}.{param@ID} L0Start" value="{object@{param@ShipStart}}"/>
+              <set_value name="{param@Cue}.{param@ID} L0UseStartTD" exact="1"/>
+              <do_if value="{object.class@{param@ShipStart}}" exact="{lookup.class@ship}">
+                <add_equipment object="{param@ShipStart}">
+                  <ware typename="SS_WARE_BEAMING" exact="1" critical="1"/>
+                </add_equipment>
+              </do_if>
+            </do_if>
+          </do_if>
+          <!--use a pre defined destination station-->
+          <do_if value="{object.exists@this.Dest}" exact="1">
+            <set_object name="{param@Cue}.{param@ID} L0Dest" value="{object@this.Dest}"/>
+          </do_if>
+          <!--use a pre defined ship-->
+          <do_if value="{param.exists@ShipDest}" exact="1">
+            <do_if value="{object.exists@{param@ShipDest}}" exact="1">
+              <set_object name="{param@Cue}.{param@ID} L0Dest" value="{object@{param@ShipDest}}"/>
+              <set_value name="{param@Cue}.{param@ID} L0UseDestTD" exact="1"/>
+              <do_if value="{object.class@{param@ShipDest}}" exact="{lookup.class@ship}">
+                <add_equipment object="{param@ShipDest}">
+                  <ware typename="SS_WARE_BEAMING" exact="1" critical="1"/>
+                </add_equipment>
+              </do_if>
+            </do_if>
+          </do_if>
+
+          <!--find new start-->
+          <do_if value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="0">
+            <set_object name="LUM06.StartFindObject" value="{object@{param@Cue}.{param@ID} L0Dest}"/>
+            <do_if value="{object.exists@LUM06.StartFindObject}" exact="0">
+              <set_object name="LUM06.StartFindObject" value="{player.ship}"/>
+            </do_if>
+            <do_if value="{value@LUM06.UseShipStart}" exact="0">
+              <find_station name="{param@Cue}.{param@ID} L0Start" findobject="LUM06.TransportShip" race="{value@LUM06.StartRace}" class="station" dockingallowed="1" enemy="0" >
+                <sector sector="{object.sector@LUM06.StartFindObject}"/>
+                <jumps min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+              </find_station>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="0">
+                <find_station name="{param@Cue}.{param@ID} L0Start" findobject="LUM06.TransportShip" race="{param@OfferRace}" class="station" dockingallowed="1" enemy="0" >
+                  <sector sector="{object.sector@LUM06.StartFindObject}"/>
+                  <jumps min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+                </find_station>
+              </do_if>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="0">
+                <find_station name="{param@Cue}.{param@ID} L0Start" findobject="LUM06.TransportShip" race="pirategroup" class="station" dockingallowed="1" enemy="0" >
+                  <sector sector="{object.sector@LUM06.StartFindObject}"/>
+                  <jumps min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+                </find_station>
+              </do_if>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="0">
+                <find_station name="{param@Cue}.{param@ID} L0Start" findobject="LUM06.TransportShip" race="default" class="station" dockingallowed="1" enemy="0" >
+                  <sector sector="{object.sector@LUM06.StartFindObject}"/>
+                  <jumps min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+                </find_station>
+              </do_if>
+            </do_if>
+            <do_if value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="0">
+              <find_sector name="this.sector" sector="{object.sector@LUM06.StartFindObject}" race="{value@LUM06.StartRace}" min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.sector" sector="{object.sector@LUM06.StartFindObject}" race="{param@OfferRace}" min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+              </do_if>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.sector" sector="{object.sector@LUM06.StartFindObject}" race="default" min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+              </do_if>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.sector" sector="{object.sector@LUM06.StartFindObject}" race="pirategroup" min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.StartJumpsMax}"/>
+              </do_if>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.sector" sector="{object.sector@LUM06.StartFindObject}" race="all" min="{value@LUM06.StartJumpsMin}" max="99" nearest="1"/>
+              </do_if>
+              <create_stationary name="{param@Cue}.{param@ID} L0Start" class="beacon" typename="SS_SH_BEACON">
+                <position x="0" min="18km" max="35km" height="4km"/>
+                <sector sector="this.sector"/>
+              </create_stationary>
+              <set_value name="LUM06.ReplaceStart" exact="1"/>
+            </do_if>
+          </do_if>
+
+          <!--find new destination-->
+          <do_if value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="0">
+            <set_object name="LUM06.DestFindObject" value="{object@{param@Cue}.{param@ID} L0Start}"/>
+            <do_if value="{object.exists@LUM06.DestFindObject}" exact="0">
+              <set_object name="LUM06.DestFindObject" value="{player.ship}"/>
+            </do_if>
+            <do_if value="{value@LUM06.UseShipDest}" exact="0">
+              <find_station name="{param@Cue}.{param@ID} L0Dest" findobject="LUM06.TransportShip" race="{value@LUM06.DestRace}" class="station" dockingallowed="1" enemy="0" >
+                <sector sector="{object.sector@LUM06.DestFindObject}"/>
+                <jumps min="{value@LUM06.DestJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+              </find_station>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="0">
+                <find_station name="{param@Cue}.{param@ID} L0Dest" findobject="LUM06.TransportShip" race="{param@OfferRace}" class="station" dockingallowed="1" enemy="0" >
+                  <sector sector="{object.sector@LUM06.DestFindObject}"/>
+                  <jumps min="{value@LUM06.StartJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+                </find_station>
+              </do_if>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="0">
+                <find_station name="{param@Cue}.{param@ID} L0Dest" findobject="LUM06.TransportShip" race="pirategroup" class="station" dockingallowed="1" enemy="0" >
+                  <sector sector="{object.sector@LUM06.DestFindObject}"/>
+                  <jumps min="{value@LUM06.DestJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+                </find_station>
+              </do_if>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="0">
+                <find_station name="{param@Cue}.{param@ID} L0Dest" findobject="LUM06.TransportShip" race="default" class="station" dockingallowed="1" enemy="0" >
+                  <sector sector="{object.sector@LUM06.DestFindObject}"/>
+                  <jumps min="{value@LUM06.DestJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+                </find_station>
+              </do_if>
+            </do_if>
+            <do_if value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="0">
+              <find_sector name="this.DestSector" sector="{object.sector@LUM06.DestFindObject}" race="{value@LUM06.DestRace}" min="{value@LUM06.DestJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.DestSector" sector="{object.sector@LUM06.DestFindObject}" race="{param@OfferRace}" min="{value@LUM06.DestJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+              </do_if>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.DestSector" sector="{object.sector@LUM06.DestFindObject}" race="default" min="{value@LUM06.DestJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+              </do_if>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.DestSector" sector="{object.sector@LUM06.DestFindObject}" race="pirategroup" min="{value@LUM06.DestJumpsMin}" max="{value@LUM06.DestJumpsMax}"/>
+              </do_if>
+              <do_if value="{sector.exists@this.sector}" exact="0">
+                <find_sector name="this.DestSector" sector="{object.sector@LUM06.DestFindObject}" race="all" min="{value@LUM06.DestJumpsMin}" max="99" nearest="1"/>
+              </do_if>
+              <create_stationary name="{param@Cue}.{param@ID} L0Dest" class="beacon" typename="SS_SH_BEACON">
+                <position x="0" min="18km" max="35km" height="4km"/>
+                <sector sector="this.DestSector"/>
+              </create_stationary>
+              <set_value name="LUM06.ReplaceDest" exact="1"/>
+            </do_if>
+          </do_if>
+
+        </do_all>
+      </action>
+      <cues>
+        <cue name="LUM06 Process">
+          <condition>
+            <cue_is_complete cue="LUM06"/>
+          </condition>
+          <cues>
+            <cue name="LUM06 Create Start" check="cancel">
+              <condition>
+                <check_value value="{value@LUM06.ReplaceStart}" exact="1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="LUM06 Create Start.sector" exact="{object.sector@{param@Cue}.{param@ID} L0Start}"/>
+                  <set_value name="LUM06 Create Start.x" exact="{object.position.x@{param@Cue}.{param@ID} L0Start}"/>
+                  <set_value name="LUM06 Create Start.y" exact="{object.position.y@{param@Cue}.{param@ID} L0Start}"/>
+                  <set_value name="LUM06 Create Start.z" exact="{object.position.z@{param@Cue}.{param@ID} L0Start}"/>
+                  <destroy_object object="{param@Cue}.{param@ID} L0Start" explosion="0" warp="0"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="SRST">
+                  <params>
+                    <param name="Cue" value="LUM06" comment="The Cue where variables are saved"/>
+                    <param name="Shiptype Address" value="LUM06.SRST Start Shiptype" comment="The address where the shiptype is saved"/>
+                    <param name="Race ID" value="{value@LUM06.StartRace}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                    <param name="Class ID" value="{value@LUM06.Ship Class Start}" comment="The shipclass ID or the strings 'bigship', 'fighter' or 'freighter'"/>
+                    <param name="Result" value="LUM06 Create Start.SRSTDone"/>
+                  </params>
+                </cue>
+                <cue name="LUM06 Create Start Ship">
+                  <condition>
+                    <check_value value="{value@LUM06 Create Start.SRSTDone}"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <create_ship name="{param@Cue}.{param@ID} L0Start" typename="{value@LUM06.SRST Start Shiptype}" race="{value@LUM06.StartRace}" capturable="0">
+                        <position x="{value@LUM06 Create Start.x}" y="{value@LUM06 Create Start.y}" z="{value@LUM06 Create Start.z}"/>
+                        <sector sector="LUM06 Create Start.sector"/>
+                        <equipment loadout="default">
+                          <ware typename="SS_WARE_BEAMING" exact="1" critical="1"/>
+                        </equipment>
+                        <command command="idle"/>
+                        <relations>
+                          <relation object="{player.ship}" relation="friend" mutual="0"/>
+                          <relation object="LUM06.TransportShip" relation="friend" mutual="1"/>
+                        </relations>
+                      </create_ship>
+                      <do_if value="{param@IsPlot}" exact="1">
+                        <set_invincible object="{param@Cue}.{param@ID} L0Start" invincible="1"/>
+                      </do_if>
+                      <set_value name="{param@Cue}.{param@ID} L0StartCreated" exact="1"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="LUM06 Create Dest" check="cancel">
+              <condition>
+                <check_value value="{value@LUM06.ReplaceDest}" exact="1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="LUM06 Create Dest.sector" exact="{object.sector@{param@Cue}.{param@ID} L0Dest}"/>
+                  <set_value name="LUM06 Create Dest.x" exact="{object.position.x@{param@Cue}.{param@ID} L0Dest}"/>
+                  <set_value name="LUM06 Create Dest.y" exact="{object.position.y@{param@Cue}.{param@ID} L0Dest}"/>
+                  <set_value name="LUM06 Create Dest.z" exact="{object.position.z@{param@Cue}.{param@ID} L0Dest}"/>
+                  <destroy_object object="{param@Cue}.{param@ID} L0Dest" explosion="0" warp="0"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="SRST">
+                  <params>
+                    <param name="Cue" value="LUM06" comment="The Cue where variables are saved"/>
+                    <param name="Shiptype Address" value="LUM06.SRST Dest Shiptype" comment="The address where the shiptype is saved"/>
+                    <param name="Race ID" value="{value@LUM06.DestRace}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                    <param name="Class ID" value="{value@LUM06.Ship Class Dest}" comment="The shipclass ID or the strings 'bigship', 'fighter' or 'freighter'"/>
+                    <param name="Result" value="LUM06 Create Dest.SRSTDone"/>
+                  </params>
+                </cue>
+                <cue name="LUM06 Create Dest Ship">
+                  <condition>
+                    <check_value value="{value@LUM06 Create Dest.SRSTDone}"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <create_ship name="{param@Cue}.{param@ID} L0Dest" typename="{value@LUM06.SRST Dest Shiptype}" race="{value@LUM06.DestRace}" capturable="0">
+                        <position x="{value@LUM06 Create Dest.x}" y="{value@LUM06 Create Dest.y}" z="{value@LUM06 Create Dest.z}"/>
+                        <sector sector="LUM06 Create Dest.sector"/>
+                        <equipment loadout="default">
+                          <ware typename="SS_WARE_BEAMING" exact="1" critical="1"/>
+                        </equipment>
+                        <command command="idle"/>
+                        <relations>
+                          <relation object="{player.ship}" relation="friend" mutual="0"/>
+                          <relation object="LUM06.TransportShip" relation="friend" mutual="1"/>
+                        </relations>
+                      </create_ship>
+                      <do_if value="{param@IsPlot}" exact="1">
+                        <set_invincible object="{param@Cue}.{param@ID} L0Dest" invincible="1"/>
+                      </do_if>
+                      <set_value name="{param@Cue}.{param@ID} L0DestCreated" exact="1"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="LUM06 Finished">
+              <condition>
+                <check_all>
+                  <check_any>
+                    <cue_is_complete cue="LUM06 Create Start Ship"/>
+                    <cue_is_cancelled cue="LUM06 Create Start"/>
+                  </check_any>
+                  <check_any>
+                    <cue_is_complete cue="LUM06 Create Dest Ship"/>
+                    <cue_is_cancelled cue="LUM06 Create Dest"/>
+                  </check_any>
+                  <object_exists object="{param@Cue}.{param@ID} L0Start"/>
+                  <object_exists object="{param@Cue}.{param@ID} L0Dest"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_if value="{param.exists@NoDest}" exact="1">
+                  <do_if value="{value@{param@Cue}.{param@ID} L0DestCreated}" exact="1">
+                    <destroy_object object="{param@Cue}.{param@ID} L0Dest" explosion="0" warp="0"/>
+                  </do_if>
+                </do_if>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>9Gi7rVLD4d7XwBwCNslb4blrjp8Z8prsLmsjI82WjmRXe3qv04VlNP6EAwkD6OLruCyomAR2DEJn8JTjwCHoPpRK3qGdCGvk/d1y2b1K5gagTl9lri4b19GKqecErG2DfalwFs5GoHFjGtBfWNernUBJhHap2GJCpf4Czsi37qiGFRwKpZAqOdLoSTSziXI/EWY+s4voLplC8LqQknewW0SnWvngLdN5FfyrdNmSKjpzFtaULjz23ZL3lP+Yrf9G296+4khl1lhDBNpk4vTn65cFOoSPhNO7FclD58p2DcsTzX96vdtEnH0WWHRmzrjH6hyBoLaYF80F442r6KuYBQ==</signature>
+</director>
+

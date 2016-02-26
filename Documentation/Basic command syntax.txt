@@ -1,0 +1,131 @@
+COMMAND TEXT PARAMETER FORMATTING MEANINGs
+===========================================
+
+
+<First Word> = <Command name> <Parameter(s)> ...
+============
+
+inc %0
+inc <RetVar>
+
+load text: id=%0
+load text: id=<Var/Number>
+
+play sample %0
+play sample <Var/Number>
+
+set script command: %0
+set script command: <Object Command/Signal>
+
+set script command target: %0
+set script command target: <Value>
+
+set script priority to %0
+set script priority to <Var/Number>
+
+
+%1%0 <Gap> <First Word>  ==  <RetVar/IF> = <RefObj> -> <Command name>
+===============
+
+%1%0 fly to station %2
+@ <RetVar/IF> <RefObj> -> fly to station <Var/Station>
+
+%1%0 fire lasers on target %2 using turret %3
+<RetVar/IF> <RefObj> -> fire lasers on target <Value> using turret <Var/Number>
+
+
+%1%0 attack run on target %2 : timeout=%3 ms
+@ <RetVar/IF> <RefObj> -> attack run on target <Value>: timeout=<Var/Number> ms
+
+%1%0 move around %2 ms
+@ <RetVar/IF> <RefObj> -> move around <Var/Number> ms
+
+%1%0 escort ship %2
+@ <RetVar/IF> <RefObj> -> escort ship <Var/Ship>
+
+%1%0 turn turret %3 to target %2 : timeout=%4 ms
+@ <RetVar/IF> <RefObj> -> turn turret <Var/Number> to target <Var/Ship/Station>: timeout=<Var/Number> ms
+
+
+%1%0 <First Word>   ==  <RetVar> = <RefObj> -> <Command Name>   (?? Only 1 example) 
+==================
+
+%1%0get merchants
+<RetVar> = <RefObj> -> get merchants
+
+
+%0 <Gap> <First Word>  ==  <RefObj> -> <Command name>
+===============
+
+
+%0 send audio message %1 to player
+<RefObj> -> send audio message <Var/Number> to player
+
+%0 remove from any formation
+<RefObj> -> remove from any formation
+
+%0 set formation %1
+<RefObj> -> set formation <Var/Number>
+
+%0 set command: %1
+<RefObj> -> set command: <Object Command>
+
+%0 set attack target to %1
+<RefObj> -> set attack target to <Value>
+
+%0 set destination to %1
+<RefObj> -> set destination to <Value>
+
+%0 set follow mode %1
+<RefObj> -> set follow mode <Var/Number>
+
+
+%0 <First Word> = <RetVar/If> or <RetVar> = <Command name>
+===============
+
+%0get script command
+<RetVar/IF> get script command
+
+%0get script command target
+<RetVar/IF> get script command target
+
+%0playing time
+<RetVar> = playing time
+
+%0system date is month=%1, day=%2
+<RetVar/IF> system date is month=<Var/Number>, day=<Var/Number>
+
+%0sprintf: fmt=%1, %2, %3, %4, %5, %6
+<RetVar> = sprintf: fmt=<Var/String>, <Value>, <Value>, <Value>, <Value>, <Value>
+
+%0 array alloc: size=%1
+<RetVar> = array alloc: size=<Var/Number>
+
+%0 size of array %1
+<RetVar/IF> size of array <Var/Array>
+
+
+
+%1 <Gap> <First Word>   ==  <RetVar> = <Command name>
+======================
+
+%1 get ship array: of race %0 class/type=%2
+<RetVar> = get ship array: of race <Var/Race> class/type=<Value>
+
+%1 get station array: of race %0 class/type=%2
+<RetVar> = get station array: of race <Var/Race> class/type=<Value>
+
+
+%1 <First Word>   ==  <RetVar/If> or <RetVar> = <Command name>
+================
+
+%1get global variable: name=%0
+<RetVar/IF> get global variable: name=<Var/String>
+
+
+
+%2%0 <Gap> <First Word>   ==  <RetVar/If> = <RefObj> -> <Command Name>   (?? Only 1 example) 
+========================
+
+%2%0 get local variable: name=%1
+<RetVar/IF> <RefObj> -> get local variable: name=<Var/String>

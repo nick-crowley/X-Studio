@@ -1,0 +1,166 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.ship.signal.scanned</name>
+   <version>100</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Ship Signal: Add wares on scan</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* *******************************************************************</comment></line>
+      <line linenr="002" indent=""><comment>* ADD BLACK MARKET WARES TO VESSEL  -by-  MISTER BEAR  v1.00  Jan-2011</comment></line>
+      <line linenr="003" indent=""><comment>* </comment></line>
+      <line linenr="004" indent=""><comment>* Has a chance of adding black market wares to appropriate vessels when they are scanned</comment></line>
+      <line linenr="005" indent=""> </line>
+      <line linenr="006" indent=""><comment>* Add black market wares (if appropriate)</comment></line>
+      <line linenr="007" indent=""><text></text><var> =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.lib.wares'</var><text>, </text><var>'AddBlackMarketWaresToShip'</var><text>, </text><var>[THIS]</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="008" indent=""> </line>
+      <line linenr="009" indent=""><comment>* <text></text><var>$szName =</var><text> </text><var>[THIS]</var><text>  ->  get name</text></comment></line>
+      <line linenr="010" indent=""><comment>* <var>$oSector = </var><text></text><var>[SECTOR] </var><text></text></comment></line>
+      <line linenr="011" indent=""><comment>* <text></text><var>$szTemp =</var><text> = sprintf: fmt=</text><var>'Vessel %s in %s was scanned!'</var><text>, </text><var>$szName</var><text>, </text><var>$oSector</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></comment></line>
+      <line linenr="012" indent=""><comment>* <text>send incoming message </text><var>$szTemp</var><text> to player: display it=</text><var>[FALSE]</var><text></text></comment></line>
+      <line linenr="013" indent=""> </line>
+      <line linenr="014" indent=""><text>return </text><var>null</var><text></text></line>
+      <line linenr="015" indent=""> </line>
+      <line linenr="016" indent=""> </line>
+      <line linenr="017" indent=""> </line>
+      <line linenr="018" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.ship.signal.scanned" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Ship Signal: Add wares on scan" />
+         <sval type="int" val="100" />
+         <sval type="int" val="0" />
+         <sval type="int" val="0" />
+         <sval type="array" size="2">
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.lib.wares" />
+               <sval type="int" val="5" />
+               <sval type="string" val="AddBlackMarketWaresToShip" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="16">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="*******************************************************************" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="ADD BLACK MARKET WARES TO VESSEL  -by-  MISTER BEAR  v1.00  Jan-2011" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Has a chance of adding black market wares to appropriate vessels when they are scanned" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Add black market wares (if appropriate)" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="1028" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="string" val="szName" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="104" />
+               <sval type="string" val="oSector" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="6" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="149" />
+               <sval type="string" val="szTemp" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Vessel %s in %s was scanned!" />
+               <sval type="int" val="131074" />
+               <sval type="string" val="szName" />
+               <sval type="int" val="131074" />
+               <sval type="string" val="oSector" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="203" />
+               <sval type="int" val="131074" />
+               <sval type="string" val="szTemp" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="9" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+      </sval>
+   </codearray>
+</script>

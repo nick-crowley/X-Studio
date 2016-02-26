@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen_Lake@eogsoft.com Skype: Owen Lake"/>
+    <content reference="L0M27" name="Destroy Convoy" description="Destroy some ships before they reach their destination."/>
+    <version number="0.1" date="19/06/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L0M27 B" library="1">
+      <documentation>
+        <content name="Destroy Convoy Briefing Dummy" reference="L0M27 B" type="utility"/>
+        <version date="19/06/2008" number="0.1" status="release"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="OfferRace" type="number" description="Offer Race ID"/>
+          <param name="Preview" type="boolean" description="Is the briefing a preview"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="DestName" type="objectname" description="The Address of the destination"/>
+          <param name="DestSector" type="sectorname" description="The Address of the destination sector"/>
+          <param name="GroupName" type="groupname" description="The Address of the Convoy Group"/>
+          <param name="SetObjective" type="boolean" default="Set the objectives and run the objective library"/>
+          <param name="Complete Briefing" type="boolean" description="Run the briefing completion library"/>
+          <param name="Difficulty" type="valuename" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text Multi" type="number" description="The briefing text ID"/>
+          <param name="TextID Text Singular" type="number" description="The briefing text ID"/>
+          <param name="TextID MultiShips" type="number" description="The text ID for the multiple object escort object"/>
+          <param name="TextID SingleShip" type="number" description="The text ID for the single object escort object"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="NoReward" type="boolean" compulsory="0" description="Do not add a reward"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <param name="RewardFree" type="boolean" compulsory="0" description="Reward - use free text"/>
+          <param name="RewardText" type="text" compulsory="0" description="Free text for reward" />
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+        </params>
+        <todo>
+          <item date="12/02/2008" author="Owen Lake" description="Add the option to generate some initial objects to make the L0 more independent"/>
+          <item date="12/02/2008" author="Owen Lake" description="Add a seperate set of briefing objectives for previews only"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M27 B.Step" exact="{value@{param@Step}}"/>
+          <do_if value="{param.exists@Duration}" exact="1">
+            <do_if value="{value@{param@Duration}}" exact="0">
+              <set_value name="{param@Duration}" min="4500" max="9000"/>
+            </do_if>
+          </do_if>
+          <do_if value="{param.exists@RewardCr}" exact="1">
+            <do_choose>
+              <do_when value="{param@Difficulty}" exact="0">
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money.{param@OfferRace}@{param@Difficulty}}"/>
+                </do_if>
+              </do_when>
+              <do_otherwise>
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money}"/>
+                </do_if>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+
+          <set_value name="L0M27 B.Ship PageID" exact="{param@PageID}"/>
+          <set_value name="L0M27 B.TextID MultiShips" exact="{param@TextID MultiShips}"/>
+          <set_value name="L0M27 B.TextID SingleShip" exact="{param@TextID SingleShip}"/>
+          <do_if value="{text.exists@{value@L0M27 B.Ship PageID},{value@L0M27 B.TextID MultiShips}}" exact="0">
+            <set_value name="L0M27 B.TextID MultiShips" exact="1007"/>
+            <set_value name="L0M27 B.Ship PageID" exact="3627"/>
+          </do_if>
+          <do_if value="{text.exists@{value@L0M27 B.Ship PageID},{value@L0M27 B.TextID SingleShip}}" exact="0">
+            <set_value name="L0M27 B.TextID SingleShip" exact="1008"/>
+            <set_value name="L0M27 B.Ship PageID" exact="3627"/>
+          </do_if>
+
+          <set_value name="L0M27 B.B Title PageID" exact="{param@PageID}"/>
+          <set_value name="L0M27 B.B Title TextID" exact="{param@TextID Title}"/>
+          <do_if value="{text.exists@{value@L0M27 B.B Title PageID},{value@L0M27 B.B Title TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M27 B.B Title PageID" exact="3627"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <set_value name="L0M27 B.B Title TextID" exact="1001"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L0M27 B.B Title TextID" exact="1004"/>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+
+          <set_value name="L0M27 B.B Text PageID" exact="{param@PageID}"/>
+          <do_choose>
+            <do_when value="{group.object.count@{param@GroupName}}" min="2">
+              <set_value name="L0M27 B.B Text TextID" exact="{param@TextID Text Multi}"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="L0M27 B.B Text TextID" exact="{param@TextID Text Singular}"/>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{text.exists@{value@L0M27 B.B Text PageID},{value@L0M27 B.B Text TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M27 B.B Text PageID" exact="3627"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <do_choose>
+                    <do_when value="{group.object.count@{param@GroupName}}" min="2">
+                      <set_value name="L0M27 B.B Text TextID" exact="1002"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L0M27 B.B Text TextID" exact="1003"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_when>
+                <do_otherwise>
+                  <do_choose>
+                    <do_when value="{group.object.count@{param@GroupName}}" min="2">
+                      <set_value name="L0M27 B.B Text TextID" exact="1005"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L0M27 B.B Text TextID" exact="1006"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+
+          <do_choose>
+            <do_when value="{group.object.count@{param@GroupName}}" min="2">
+              <set_value name="this.Ship TextID" exact="{value@L0M27 B.TextID MultiShips}"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="this.Ship TextID" exact="{value@L0M27 B.TextID SingleShip}"/>
+            </do_otherwise>
+          </do_choose>
+          <!--Create Briefing-->
+          <create_briefing cue="{param@Cue}">
+            <objectives>
+              <objective step="{value@L0M27 B.Step}">
+                <custom action="{35,2004}" text="{{value@this.Ship PageID},{value@this.Ship TextID}}" icon="destroy"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <do_if value="{text.exists@{value@L0M27 B.B Title PageID},{value@L0M27 B.B Title TextID}}" exact="1">
+            <do_if value="{text.exists@{value@L0M27 B.B Text PageID},{value@L0M27 B.B Text TextID}}" exact="1">
+              <create_briefing cue="{param@Cue}" title="{{value@L0M27 B.B Title PageID},{value@L0M27 B.B Title TextID}}" text="{{value@L0M27 B.B Text PageID},{value@L0M27 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+          <do_if value="{param@SetObjective}" exact="1">
+            <do_if value="{text.exists@{value@L0M27 B.B Title PageID},{value@L0M27 B.B Title TextID}}" exact="1">
+              <do_if value="{text.exists@{value@L0M27 B.B Text PageID},{value@L0M27 B.B Text TextID}}" exact="1">
+                <set_value name="this.ObjectiveTitle" exact="1"/>
+              </do_if>
+            </do_if>
+            <set_objective cue="{param@Cue}">
+              <briefing cue="{param@Cue}" step="{value@L0M27 B.Step}"/>
+              <custom action="{35,2004}" text="{{value@this.Ship PageID},{value@this.Ship TextID}}" icon="destroy" guidance="{group.object.random@{param@GroupName}}"/>
+            </set_objective>
+            <do_if value="{value@this.ObjectiveTitle}" exact="1">
+              <set_objective cue="{param@Cue}" title="{{value@L0M27 B.B Title PageID},{value@L0M27 B.B Title TextID}}" text="{{value@L0M27 B.B Text PageID},{value@L0M27 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+          <set_value name="{param@Step}" exact="{value@L0M27 B.Step}"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L0M27 B Complete Briefing" check="cancel">
+          <condition>
+            <check_all>
+              <cue_completed cue="L0M27 B"/>
+              <check_value value="{param@Complete Briefing}" exact="1"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="LUM04">
+              <params>
+                <param name="Discipline" value="XFXX" comment="The mission discipline"/>
+              </params>
+            </cue>
+            <cue name="L0M27 B Set Objectives" check="cancel">
+              <condition>
+                <check_value value="{param@SetObjective}" exact="1"/>
+              </condition>
+              <cues>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Discipline" value="XFXX" comment="The mission discipline"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M27" library="1">
+      <documentation>
+        <content name="Destroy Convoy" reference="L0M27" type="L0"/>
+        <version date="04/05/2008" number="0.4" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="OfferRace" type="number" description="Offer Race ID"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text Multi" type="number" description="The briefing text ID"/>
+          <param name="TextID Text Singular" type="number" description="The briefing text ID"/>
+          <param name="TextID MultiShips" type="number" description="The text ID for the multiple object escort object"/>
+          <param name="TextID SingleShip" type="number" description="The text ID for the single object escort object"/>
+          <param name="DestName" type="objectname" description="The Address of the destination"/>
+          <param name="DestSector" type="sectorname" description="The Address of the destination sector"/>
+          <param name="Dockat Dest" type="boolean" description="Dock at DestName"/>
+          <param name="Kill Count" type="valuename" description="Where the number of kills is saved"/>
+          <param name="Finished Count" type="valuename" description="The amount of ships which get to the destination"/>
+          <param name="Complete Briefing" type="boolean" description="Run the briefing completion library"/>
+          <param name="SetObjective" type="boolean" default="Set the objectives and run the objective library"/>
+          <param name="UnhighlightAtDock" type="boolean" description="0/1: Unhightlight the ships when they dock"/>
+          <param name="GroupName" type="groupname" description="The Address of the Convoy Group"/>
+          <param name="Difficulty" type="valuename" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="FeedbackName" type="valuename" description="The address where the step value is stored"/>
+
+          <param name="OBSDelay" type="number" description="The delay between OBS spawns"/>
+          <param name="OBS" type="boolean" description="Activate the OBS"/>
+          <param name="MaxOBSRuns" type="number" description="The maximum OBS spawns. 0=Infinate"/>
+          <param name="OBS Counter" type="valuename" description="The name of the OBS counter"/>
+          <param name="OBS Cue" type="cuename" description="The cue name where the ship groups are saved too"/>
+          <param name="OBSFleetRace" type="number" description="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+          <param name="OBSFleetPilotsRace" type="number" description="The race ID of the pilots"/>
+          <param name="OBSMissionRank" type="number" description="A 0-30 scale preferably based on the players fight rank"/>
+          <param name="OBSDifficultyRank" type="number" description="A 1-8 scale of difficulty"/>
+          <param name="OBSPosition" type="number" description="how far away should the OBS ships be from OBSFleetPositionObject"/>
+          <param name="OBSFleetPositionObject" type="objectid" description="The object which will provide the location information"/>
+          <param name="OBSSector" type="sectorid" description="The sector where the ships will spawn if OBSFleetPositionObject not set"/>
+          <param name="OBS X" type="number" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBS Y" type="number" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBS Z" type="number" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBSFleetCapturable" type="boolean" description="Sets if the created ships are capturable"/>
+          <param name="OBSFleetCommunicates" type="boolean" description="Sets if the created ships can be communicated with"/>
+          <param name="OBSFleetCovered" type="boolean" description="0/1 Sets if created pirate ships are covered"/>
+          <param name="OBSFleetHomebaseID" type="boolean" description="Object ID for the fleets homebase"/>
+          <param name="OBSFleetScanned" type="boolean" description="0/1 Sets if the created ships have their freight on display"/>
+          <param name="OBSFleetHighlight" type="boolean" description="0/1 Sets if the created ships will be highlighted"/>
+          <param name="OBSFleetRaceLogic" type="boolean"/>
+          <param name="OBS Dock Support" type="boolean" description="0/1 Sets if the created support ships are docked with their homebase"/>
+          <param name="OBS Support Overflow" type="boolean" description="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+        </params>
+        <history>
+          <change date="04/05/2008" author="Owen Lake" description="Added add operations. Capture ship cue now removes object."/>
+          <change date="15/02/2008" author="Owen Lake" description="Modified Format"/>
+          <change date="15/02/2008" author="Owen Lake" description="Initial Version"/>
+        </history>
+        <todo>
+          <item date="15/02/2008" priority="medium" author="Owen Lake" description="Add checks to stop the player running off"/>
+          <item date="07/02/2008" priority="medium" author="Owen Lake" description="Add sector and position parameters and functionality"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M27.Number Of Ships" exact="{group.object.count@{param@GroupName}}"/>
+          <set_value name="L0M27.Initial Number Of Ships" exact="{group.object.count@{param@GroupName}}"/>
+          <set_value name="L0M27.Initial Step" exact="{value@{param@Step}}"/>
+          <set_value name="L0M27.Step" exact="{value@{param@Step}}"/>
+          <set_value name="L0M27.OBSDelay" exact="{param@OBSDelay}"/>
+          <do_if value="{value@L0M27.OBSDelay}" max="10">
+            <set_value name="L0M27.OBSDelay" min="200" max="300"/>
+          </do_if>
+          <set_value name="L0M27.OBSTime" min="{value@L0M27.OBSDelay}+{player.age}" max="{value@L0M27.OBSDelay}+{player.age}+30"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="L0M27 B">
+          <params>
+            <param name="SetObjective" value="1"/>
+          </params>
+        </cue>
+
+        <cue name="L0M27 Guidance Update" delay="5s" instantiate="static">
+          <condition>
+            <check_any>
+              <object_exists object="L0M27.LastShip" negate="1"/>
+              <check_value value="{group.nearest@{param@GroupName}}" exact="{object@L0M27.LastShip}" negate="1"/>
+            </check_any>
+          </condition>
+          <action>
+            <do_all>
+              <set_object name="L0M27.LastShip" value="{group.nearest@{param@GroupName}}"/>
+              <set_objective cue="{param@Cue}" silent="1">
+                <briefing cue="{param@Cue}" step="{value@L0M27.Step}"/>
+                <custom object="L0M27.LastShip"/>
+              </set_objective>
+            </do_all>
+          </action>
+        </cue>
+        
+        <cue name="L0M27 Destroy Ships">
+          <cues>
+            <cue name="L2M27 All Ships Lost" delay="5s">
+              <condition>
+                <check_value value="{group.object.count@{param@GroupName}}" exact="0"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@FeedbackName}" exact="1"/>
+                  <cancel_cue cue="L0M27"/>
+                </do_all>
+              </action>
+            </cue>
+
+            <cue name="L0M27 Ship Destroyed L0M27 B" instantiate="static">
+              <condition>
+                <check_all>
+                  <any_object_destroyed group="{param@GroupName}"/>
+                  <check_value value="{group.object.count@{param@GroupName}}-1" min="1" comment="Minus one as the ship is not removed from the group yet."/>
+                </check_all>
+              </condition>
+              <cues>
+                <cue ref="L0M27 B">
+                  <params>
+                    <param name="Complete Briefing" value="0"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+            
+            <cue name="L0M27 Ship Lost Through Player" instantiate="static">
+              <condition>
+                <check_any>
+                  <any_object_captured group="{param@GroupName}"/>
+                  <any_object_destroyed_by_player group="{param@GroupName}"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@Kill Count}" operation="add"/>
+                  <set_highlight object="{param@GroupName} {event.object}" highlight="0"/>
+                  <remove_object object="{param@GroupName} {event.object}"/>
+                </do_all>
+              </action>
+            </cue>
+
+            <cue name="L0M27 Objective Canceled">
+              <condition>
+                <objective_cancelled cue="{param@Cue}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@FeedbackName}" exact="99"/>
+                  <cancel_cue cue="L0M27"/>
+                </do_all>
+              </action>
+            </cue>
+
+            <cue name="L0M27 Destination Reached" instantiate="static">
+              <condition>
+                <check_any>
+                  <any_object_docked group="{param@GroupName}"/>
+                  <any_object_changed_sector group="{param@GroupName}"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_if value="{value@L0M27.Destination Reached By {event.object}}" exact="1" negate="1">
+                  <do_choose>
+                    <do_when value="{object.exists@{param@DestName}}" exact="1">
+                      <do_if value="{object.dockobject.exists@{event.object}}" exact="1">
+                        <do_if value="{object.dockobject@{event.object}}" exact="{object@{param@DestName}}">
+                          <set_value name="this.Reached" exact="1"/>
+                        </do_if>
+                      </do_if>
+                    </do_when>
+                    <do_otherwise>
+                      <do_if value="{object.sector@{event.object}}" exact="{sector@{param@DestSector}}">
+                        <set_value name="this.Reached" exact="1"/>
+                      </do_if>
+                    </do_otherwise>
+                  </do_choose>
+                  <do_if value="{value@this.Reached}" exact="1">
+                    <remove_object_from_group object="{event.object}" group="{param@GroupName}"/>
+                    <set_value name="L0M27.Destination Reached By {event.object}" exact="1"/>
+                    <set_value name="{param@Finished Count}" operation="add"/>
+                    <do_if value="{group.object.count@{param@GroupName}}" min="1">
+                      <set_value name="L0M27 Destination Reached.Rerun L0M27 B" exact="1"/>
+                    </do_if>
+                  </do_if>
+                </do_if>
+              </action>
+              <cues>
+                <cue name="L0M27 Dest Reached Rerun L0M27 B" check="cancel">
+                  <condition>
+                    <check_all>
+                      <cue_completed cue="L0M27 Destination Reached"/>
+                      <check_value value="{value@L0M27 Destination Reached.Rerun L0M27 B}" exact="1"/>
+                    </check_all>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M27 B">
+                      <params>
+                        <param name="Complete Briefing" value="0"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            
+            <cue name="L0M27 OBS" check="cancel">
+              <condition>
+                <check_value value="{param@OBS}" exact="1"/>
+              </condition>
+              <cues>
+                <cue name="L0M27 OBS Time" delay="5s" instantiate="static">
+                  <condition>
+                    <check_age min="{value@L0M27.OBSTime}"/>
+                  </condition>
+                  <cues>
+                    <cue name="L0M27 Check OBS Count">
+                      <condition>
+                        <check_any>
+                          <check_value value="{param@Max OBS Instances}" exact="0"/>
+                          <check_value value="{param@Max OBS Instances}-{value@{param@OBS Counter}}" min="1"/>
+                        </check_any>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="L0M27.OBSTime" min="{value@L0M27.OBSDelay}+{player.age}" max="{value@L0M27.OBSDelay}+{player.age}+30"/>
+                          <set_value name="L0M34.OBS X" min="-20" max="20"/>
+                          <set_value name="L0M34.OBS Y" min="-20" max="20"/>
+                          <set_value name="L0M34.OBS Z" min="-10" max="10"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L0M27 ref OBS">
+                          <cues>
+                            <cue ref="OBS">
+                              <params>
+                                <param name="OBS Cancel Cue" value="L0M27 ref OBS" comment="The cue which is canceled after the OBS finishes"/>
+                                <param name="OBS Fleet Group Name" value="Enemies" comment="The group name where all main ships are saved too"/>
+                                <param name="OBS Support Fleet Group Name" value="Enemy Support" comment="The group name where all support ships are saved too"/>
+                                <param name="OBS Mother Ship Group Name" value="Enemy Carriers" comment="The group name where all ships with owned ships are saved too"/>
+                                <param name="OBSPosition" value="10km" comment="how far away should the OBS ships be from FleetPositionObject"/>
+                                <param name="OBSFleetPositionObject" value="{object@L0M27.Temp OBS Object}" comment="The object which will provide the location information"/>
+                                <param name="OBSSector" value="{object.sector@L0M27.Temp OBS Object}" comment="The sector where the ships will spawn if OBSFleetPositionObject not set"/>
+                              </params>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L0M27 OBS Set Command">
+                          <condition>
+                            <cue_cancelled cue="L0M27 ref OBS"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <set_group_command group="{param@OBS Cue}.Enemies" command="attack" commandobject="{group.object.random@{param@Group Address}}"/>
+                              <set_value name="{param@OBS Counter}" operation="add"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L0M27 Cancel OBS" check="cancel">
+                      <condition>
+                        <check_all>
+                          <check_value value="{param@Max OBS Instances}" min="1"/>
+                          <check_value value="{param@Max OBS Instances}-{value@{param@OBS Counter}}" exact="0"/>
+                        </check_all>
+                      </condition>
+                      <timing>
+                        <time exact="5s"/>
+                      </timing>
+                      <action>
+                        <cancel_cue cue="L0M27 OBS" instantiate="static"/>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>dXRttJNB6cwAun8rTXJSefJqz06W1PPYT1fy66+ZTkPTDO8wbYEPXmKpcs2aFDjdp7bohv+QApXcyv1fJuAcVTGiospZnR9S/agxVguuJLmSzoiUIghJ6aVs/QMDe5qgJc85gByfuI3B9y/KFpNIzOryKM0Xxp1JG+lRzFKG30lMwvmSeWILdkLQDbs13ey7DHulXS0pOCe4HReIeu5SSTGKAV2LxUqD96AFOj6xpDUCnbQsc8URbXLaeDmPJOzEoEm/45RQ70/QntXZtJKw69wvIsKq4rK+nskCqmvqPAvds7TbJOHlHHWS2UATtCd+3HM7gekBa5lGeAb18sSKeQ==</signature>
+</director>
+

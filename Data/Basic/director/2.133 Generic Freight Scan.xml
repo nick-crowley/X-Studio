@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M133" name="Generic Patrol" description="Move through several sectors, attacking enemies"/>
+    <version number="0.1" date="13/05/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M133" library="1" check="cancel">
+      <documentation>
+        <content name="Generic Patrol" reference="L2M133" type="L2"/>
+        <version date="13/05/2008" number="0.1" status="release"/>
+      </documentation>
+      <condition>
+        <count_stations min="1" class="station" friend="1" neutral="1" dockingallowed="1" race="default">
+          <jumps exact="0"/>
+        </count_stations>
+      </condition>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_station name="L2M133.OfferStation" friend="1" neutral="1" class="station" dockingallowed="1" race="default">
+            <jumps exact="0"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@L2M133.OfferStation}" exact="0">
+              <cancel_cue cue="L2M133"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="L2M133.TimeOut" min="{player.age}+700" max="{player.age}+800"/>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M133 Start Mission">
+          <condition>
+            <cue_completed cue="L2M133"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M133.PageID" exact="3333"/>
+              <set_value name="L2M133.Step" exact="1"/>
+              <do_choose>
+                <do_when value="{object.sector.race.mask.default@L2M133.OfferStation}" exact="1">
+                  <do_any>
+                    <do_all>
+                      <set_value name="L2M133.Variation" exact="1"/>
+                      <set_value name="L2M133.Difficulty" min="{lookup.level@easy}" max="{lookup.level@veryhard}"/>
+                      <set_value name="L2M133.NeedIllegal" exact="1"/>
+                      <set_value name="L2M133.RewardShare" min="3*{value@L2M133.Difficulty}" max="6*{value@L2M133.Difficulty}"/>
+                      <set_value name="L2M133.GoodCatch" exact="3000*{value@L2M133.Difficulty}"/>
+                      <do_any>
+                        <set_value name="L2M133.AllSectors" exact="1"/>
+                        <set_value name="L2M133.Sector" exact="{object.sector@L2M133.OfferStation}"/>
+                        <do_all>
+                          <set_value name="L2M133.SectorRace" exact="{object.race@L2M133.OfferStation}"/>
+                          <do_any>
+                            <set_value name="L2M133.Core" exact="1"/>
+                            <set_value name="L2M133.Border" exact="1"/>
+                            <do_all>
+                              <set_value name="L2M133.Core" exact="1"/>
+                              <set_value name="L2M133.Border" exact="1"/>
+                            </do_all>
+                          </do_any>
+                        </do_all>
+                      </do_any>
+                    </do_all>
+                  </do_any>
+                </do_when>
+                <do_otherwise>
+                  <do_all>
+                    <set_value name="L2M133.Variation" exact="2"/>
+                    <set_value name="L2M133.Difficulty" min="{lookup.level@average}" max="{lookup.level@veryhard}"/>
+                    <set_value name="L2M133.SectorRace" exact="{lookup.race@pirate}"/>
+                    <set_value name="L2M133.ShipClass" exact="{lookup.class@freighter}"/>
+                    <set_value name="L2M133.Border" exact="1"/>
+                    <set_value name="L2M133.NeedFreight" exact="1"/>
+                    <set_value name="L2M133.GoodCatch" exact="15000*{value@L2M133.Difficulty}"/>
+                    <set_value name="L2M133.RewardShare" min="2*{value@L2M133.Difficulty}" max="4*{value@L2M133.Difficulty}"/>
+                  </do_all>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M133 Patrol">
+              <action>
+                <do_all>
+                  <set_value name="L2M133.OfferRace" exact="{object.race@L2M133.OfferStation}"/>
+                  <do_choose>
+                    <do_when value="{value@L2M133.OfferRace}" exact="{lookup.race@goner}">
+                      <create_actor name="L2M133.OfferActor" race="argon" object="L2M133.OfferStation" location="crew" voiceflags="32"/>
+                    </do_when>
+                    <do_otherwise>
+                      <create_actor name="L2M133.OfferActor" race="{value@L2M133.OfferRace}" object="L2M133.OfferStation" location="crew" voiceflags="32"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <create_offer actor="L2M133.OfferActor" conversation="L2OfferNormal" cue="L2M133 Patrol" discipline="XXXT"/>
+
+                  <set_value name="L2M133.TextID Title P" exact="{value@L2M133.Variation}001"/>
+                  <set_value name="L2M133.TextID Title" exact="{value@L2M133.Variation}007"/>
+                  <set_value name="L2M133.TextID Targets" exact="{value@L2M133.Variation}013"/>
+                  <set_value name="L2M133.TextID Text P" exact="{value@L2M133.Variation}002"/>
+                  <set_value name="L2M133.TextID Text" exact="{value@L2M133.Variation}008"/>
+                  <do_if value="{value@L2M133.SectorRace}" exact="0" negate="1">
+                    <do_choose>
+                      <do_when value="{value@L2M133.Core}+{value@L2M133.Border}" exact="2">
+                        <set_value name="L2M133.TextID Text P" exact="{value@L2M133.Variation}004"/>
+                        <set_value name="L2M133.TextID Text" exact="{value@L2M133.Variation}010"/>
+                      </do_when>
+                      <do_when value="{value@L2M133.Core}" exact="1">
+                        <set_value name="L2M133.TextID Text P" exact="{value@L2M133.Variation}005"/>
+                        <set_value name="L2M133.TextID Text" exact="{value@L2M133.Variation}011"/>
+                      </do_when>
+                      <do_otherwise comment="Border">
+                        <set_value name="L2M133.TextID Text P" exact="{value@L2M133.Variation}006"/>
+                        <set_value name="L2M133.TextID Text" exact="{value@L2M133.Variation}012"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_if>
+                  <do_if value="{sector.exists@{param@Sector}}" exact="1">
+                    <set_value name="L2M133.TextID Text P" exact="{value@L2M133.Variation}004"/>
+                    <set_value name="L2M133.TextID Text" exact="{value@L2M133.Variation}010"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M133 Patrol Briefing">
+                  <condition>
+                    <conversation_completed actor="L2M133.OfferActor" answer="briefing" conversation="L2OfferNormal"/>
+                  </condition>
+                  <action>
+                    <set_value name="L2M133.TempStep" exact="1"/>
+                  </action>
+                  <cues>
+                    <cue ref="L0M33 B">
+                      <params>
+                        <param name="Cue" value="L2M133 Patrol" comment="The cue where values will be localized"/>
+                        <param name="Step" value="L2M133.TempStep"/>
+                        <param name="PageID" value="{value@L2M133.PageID}" comment="The PageID of the text"/>
+                        <param name="TextID Title" value="{value@L2M133.TextID Title P}" comment="The briefing title ID"/>
+                        <param name="TextID Text" value="{value@L2M133.TextID Text P}" comment="The briefing text ID"/>
+                        <param name="TextID Target" value="{value@L2M133.TextID Targets}" comment="What is the player searching for"/>
+                        <param name="Preview" value="1"/>
+                        <param name="SetObjective" value="0"/>
+                        <param name="Sector" value="L2M133.SectorRace" comment="A single sector to patrol"/>
+                        <param name="SectorRace" value="{value@L2M133.SectorRace}" comment="Race ID of the sector owner"/>
+                        <param name="Core" value="{value@L2M133.Core}" comment="Core sectors are to be scanned"/>
+                        <param name="Border" value="{value@L2M133.Border}" comment="Border sectors are to be scanned"/>
+                        <param name="ShipClass" value="{value@L2M133.ShipClass}" comment="A shipclass id which must be scanned."/>
+                        <param name="OfferRace" value="{value@L2M133.OfferRace}" comment="The offer race"/>
+                        <param name="CheckHomeRace" value="0" comment="Use the sector owner as the basis for the illegal check"/>
+                        <param name="PatrolSector" value="L2M133.OfferSector" comment="The next sector on the way to the destination"/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="Difficulty" value="{value@L2M133.Difficulty}" comment="The value address for the difficulty"/>
+                        <param name="Duration" value="L2M133.Duration" comment="Mission Time"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RewardFree" value="{value@L2M133.RewardShare}{3333,1}" comment="Reward - Free"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M133 Patrol Accepted">
+                  <condition>
+                    <conversation_completed actor="L2M133.OfferActor" answer="accept" conversation="L2OfferNormal"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M133 Check Offer"/>
+                      <set_value name="L2M133 Patrol.Step" exact="1"/>
+                      <increment_statistic statistic="5160"/>
+                      <remove_offer actor="L2M133.OfferActor" discipline="XXXT" conversation="L2OfferNormal"/>
+                      <clear_actor_location actor="L2M133.OfferActor"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue ref="L0M33">
+                      <params>
+                        <param name="Cue" value="L2M133 Patrol" comment="The cue where values will be localized"/>
+                        <param name="Step" value="L2M133 Patrol.Step" comment="The initial objective step"/>
+                        <param name="PageID" value="{value@L2M133.PageID}" comment="The PageID of the text"/>
+                        <param name="TextID Title" value="{value@L2M133.TextID Title}" comment="The briefing title ID"/>
+                        <param name="TextID Text" value="{value@L2M133.TextID Text}" comment="The briefing text ID"/>
+                        <param name="TextID Target" value="{value@L2M133.TextID Targets}" comment="What is the player searching for"/>
+                        <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                        <param name="Sector" value="L2M133.SectorRace" comment="A single sector to patrol"/>
+                        <param name="SectorRace" value="{value@L2M133.SectorRace}" comment="Race ID of the sector owner"/>
+                        <param name="Core" value="{value@L2M133.Core}" comment="Core sectors are to be scanned"/>
+                        <param name="Border" value="{value@L2M133.Border}" comment="Border sectors are to be scanned"/>
+                        <param name="ShipClass" value="{value@L2M133.ShipClass}" comment="A shipclass id which must be scanned."/>
+                        <param name="OfferRace" value="{value@L2M133.OfferRace}" comment="The offer race"/>
+                        <param name="CheckHomeRace" value="0" comment="Use the sector owner as the basis for the illegal check"/>
+                        <param name="ScannedCount" value="L2M133.ScannedCount" comment="Value name where the number of scanned ships is incremented."/>
+                        <param name="IllegalValue" value="L2M133.IllegalValue" comment="Value name where the value of illegal cargo is saved."/>
+                        <param name="CargoValue" value="L2M133.CargoValue" comment="Value name where the value of legal cargo is saved."/>
+                        <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                        <param name="IsPlot" value="0" comment="Is this a plot mission"/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="UseTimer" value="0" comment="Override the plot signal and use a timer"/>
+                        <param name="Difficulty" value="{value@L2M133.Difficulty}" comment="The value address for the difficulty"/>
+                        <param name="Duration" value="L2M133.Duration" comment="Mission Time"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RewardFree" value="{value@L2M133.RewardShare}{3333,1}" comment="Reward - Free"/>
+                        <param name="FeedbackName" value="L2M133 Patrol.Feedback" comment="The address where the step value is stored"/>
+
+                        <param name="OBS" value="0" comment="Activate the OBS"/>
+                        <param name="MaxOBSRuns" value="{value@L2M133.Max OBS Instances}" comment="The maximum OBS spawns. 0=Infinate"/>
+                        <param name="OBS Counter" value="L2M133.OBS Count" comment="The name of the OBS counter"/>
+                        <param name="OBS Cue" value="L2M133" comment="The cue name where the ship groups are saved too"/>
+                        <param name="OBSFleetRace" value="{value@L2M133.OBSEnemyMaker}" comment="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+                        <param name="OBSFleetPilotsRace" value="{value@L2M133.OBSEnemyRace}" comment="The race ID of the pilots"/>
+                        <param name="OBSMissionRank" value="{player.fightrank.rank}" comment="A 0-30 scale preferably based on the players fight rank"/>
+                        <param name="OBSDifficultyRank" value="{value@L2M133.Difficulty}" comment="A 1-8 scale of difficulty"/>
+                        <param name="OBSFleetCovered" value="0" comment="0/1 Sets if created pirate ships are covered"/>
+                        <param name="OBS Dock Support" value="1" comment="0/1 Sets if the created support ships are docked with their homebase"/>
+                        <param name="OBS Support Overflow" value="0" comment="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M133 Patrol Ended" delay="2s">
+                      <condition>
+                        <check_value value="{value@L2M133 Patrol.Feedback}" exact="0" negate="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="L2M133.TotalShipsScanned" exact="{value@L2M133.ScannedCount}"/>
+                          <do_choose>
+                            <do_when value="{value@L2M133 Patrol.Feedback}" exact="99">
+                              <remove_objective cue="L2M133 Patrol" status="aborted"/>
+                            </do_when>
+                            <do_otherwise>
+                              <do_choose>
+                                <do_when value="{value@L2M133.NeedIllegal}" exact="1">
+                                  <set_value name="L2M133.Catch" exact="{value@L2M133.IllegalValue}"/>
+                                </do_when>
+                                <do_otherwise comment="NeedFreight">
+                                  <set_value name="L2M133.Catch" exact="{value@L2M133.CargoValue}"/>
+                                </do_otherwise>
+                              </do_choose>
+                              <do_choose>
+                                <do_when value="{value@L2M133.Catch}" max="0">
+                                  <do_choose>
+                                    <do_when value="{value@L2M133.ScannedCount}" exact="0">
+                                      <incoming_message author="{actor.name@L2M133.OfferActor}" text="{{value@L2M133.PageID},{value@L2M133.Variation}1}"/>
+                                      <remove_objective cue="L2M133 Patrol" status="failed"/>
+                                    </do_when>
+                                    <do_otherwise>
+                                      <set_value name="L2M133.Reward" min="{value@L2M133.ScannedCount}*400" max="{value@L2M133.ScannedCount}*500"/>
+                                      <incoming_message author="{actor.name@L2M133.OfferActor}" text="{{value@L2M133.PageID},{value@L2M133.Variation}2}"/>
+                                      <remove_objective cue="L2M133 Patrol" status="failed"/>
+                                    </do_otherwise>
+                                  </do_choose>
+                                </do_when>
+                                <do_when value="{value@L2M133.Catch}" min="1" max="{value@L2M133.GoodCatch}">
+                                  <set_value name="L2M133.Reward" min="({value@L2M133.ScannedCount}*400)+(({value@L2M133.Catch}*{value@L2M113.RewardShare})/100)" max="({value@L2M133.ScannedCount}*500)+(({value@L2M133.Catch}*{value@L2M113.RewardShare})/100)"/>
+                                  <incoming_message author="{actor.name@L2M133.OfferActor}" text="{{value@L2M133.PageID},{value@L2M133.Variation}3}"/>
+                                  <increment_statistic statistic="5170"/>
+                                  <remove_objective cue="L2M133 Patrol" status="complete"/>
+                                </do_when>
+                                <do_otherwise>
+                                  <set_value name="L2M133.Reward" min="({value@L2M133.ScannedCount}*800)+(({value@L2M133.Catch}*{value@L2M113.RewardShare})/100)" max="({value@L2M133.ScannedCount}*1200)+(({value@L2M133.Catch}*{value@L2M113.RewardShare})/100)"/>
+                                  <incoming_message author="{actor.name@L2M133.OfferActor}" text="{{value@L2M133.PageID},{value@L2M133.Variation}4}"/>
+                                  <increment_statistic statistic="5170"/>
+                                  <remove_objective cue="L2M133 Patrol" status="complete"/>
+                                </do_otherwise>
+                              </do_choose>
+                              <reward_player>
+                                <money exact="{value@L2M133.Reward}"/>
+                              </reward_player>
+                            </do_otherwise>
+                          </do_choose>
+                          <remove_briefing cue="L2M133 Patrol"/>
+                          <destroy_actor actor="L2M133.OfferActor"/>
+                          <cancel_cue cue="L2M133"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M133 Check Offer">
+              <condition>
+                <cue_completed cue="L2M133 Patrol"/>
+              </condition>
+              <cues>
+                <cue name="L2M133 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age min="{value@L2M133.TimeOut}"/>
+                      <object_relation object="L2M133.OfferStation">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M133 Check Comms" delay="1s">
+                      <condition>
+                        <check_all>
+                          <check_value value="{player.menu.dialog}" exact="0"/>
+                          <cue_is_active cue="L2M133 Patrol Accepted" negate="1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <destroy_actor actor="L2M133.OfferActor"/>
+                          <cancel_cue cue="L2M133"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M133 Sector Out" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <object_changed_sector/>
+                      <check_value value="{player.sector}" exact="{actor.sector@L2M133.OfferActor}" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L2M133.SectorChanges" operation="add"/>
+                      <do_if value="{value@L2M133.SectorChanges}" min="4">
+                        <destroy_actor actor="L2M133.OfferActor"/>
+                        <cancel_cue cue="L2M133"/>
+                      </do_if>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>HtfVd+iJUtEMjwqqoJMvRGQToDXQnJi2Mk6naIcPle32zaHwvaxF8qYUiHah/KRXGh2iTy19JCi4KJ0WKcB7cvypsNP/XR3Uwzk8mCSFxOpNjx0M+9X6cUHZH83S9UjBJJINPxrDWQa8ZwW8Nvc9Ktu4tuIt3q76LGMlwYGuCL4RuLRABGoJqOyukQhWUiljsOate3xOUsl4vYwsgFSHOcO9UD0SIttrijPAqqVmwSy9t/PIEGgiQd+5DjMrwKyfDvvdiX9dq+A3Bf5pUOm0W/snCT+RtxUgBt8NXf1ncaFlOjEMYX+scK/Xg0JyfU6bqXRSRXoyp2FeFXyNjaCuNQ==</signature>
+</director>
+
+
+

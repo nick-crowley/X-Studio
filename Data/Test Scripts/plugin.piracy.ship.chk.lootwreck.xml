@@ -1,0 +1,279 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.ship.chk.lootwreck</name>
+   <version>105</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Command Check: Loot Wreck</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* LOOT WRECK [COMMAND CHECK]  by  MISTER BEAR  v1.05</comment></line>
+      <line linenr="002" indent=""><comment>* </comment></line>
+      <line linenr="003" indent=""><comment>* Determines whether or not to display command</comment></line>
+      <line linenr="004" indent=""> </line>
+      <line linenr="005" indent=""><text></text><var>$oSelected =</var><text> get player tracking aim</text></line>
+      <line linenr="006" indent=""> </line>
+      <line linenr="007" indent=""><comment>* DISABLE IF NOTHING SELECTED</comment></line>
+      <line linenr="008" indent=""><var>skip if </var><text></text><var>$oSelected != null </var><text></text></line>
+      <line linenr="009" indent="&#160;"><text>return </text><var>[CmdConCheck.Disabled]</var><text></text></line>
+      <line linenr="010" indent=""> </line>
+      <line linenr="011" indent=""><comment>* GET PROPERTIES TO COMPARE</comment></line>
+      <line linenr="012" indent=""><text></text><var>$szName =</var><text> </text><var>$oSelected</var><text>  ->  get name</text></line>
+      <line linenr="013" indent=""><text></text><var>$oClass =</var><text> </text><var>$oSelected</var><text>  ->  get object class</text></line>
+      <line linenr="014" indent=""> </line>
+      <line linenr="015" indent=""><text></text><var>$iWareType =</var><text> </text><var>$oSelected</var><text>  ->  get ware type code of object</text></line>
+      <line linenr="016" indent=""><text></text><var>$iWareType =</var><text> = get maintype of ware </text><var>$iWareType</var><text></text></line>
+      <line linenr="017" indent=""> </line>
+      <line linenr="018" indent=""><comment>* QUICK AND DIRTY CHECK.</comment></line>
+      <line linenr="019" indent=""><comment>* Note: These were the only properties I found that are common to all wrecks.</comment></line>
+      <line linenr="020" indent=""><var>if </var><text></text><var>$oClass == Special AND $iWareType == 20 </var><text></text></line>
+      <line linenr="021" indent="&#160;"><var>if </var><text></text><var>$szName == 'Station Debris' OR $szName == 'Ship Debris' </var><text></text></line>
+      <line linenr="022" indent="&#160;&#160;"><text></text><var>$i =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.ship.chk.enabled'</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="023" indent="&#160;&#160;"><text>return </text><var>$i</var><text></text></line>
+      <line linenr="024" indent="&#160;"><text>end</text></line>
+      <line linenr="025" indent=""><text>end</text></line>
+      <line linenr="026" indent=""> </line>
+      <line linenr="027" indent=""><comment>* DEFAULT: DISABLED</comment></line>
+      <line linenr="028" indent=""><text>return </text><var>[CmdConCheck.Disabled]</var><text></text></line>
+      <line linenr="029" indent=""> </line>
+      <line linenr="030" indent=""> </line>
+      <line linenr="031" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.ship.chk.lootwreck" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Command Check: Loot Wreck" />
+         <sval type="int" val="105" />
+         <sval type="int" val="0" />
+         <sval type="array" size="5">
+            <sval type="string" val="oSelected" />
+            <sval type="string" val="szName" />
+            <sval type="string" val="oClass" />
+            <sval type="string" val="iWareType" />
+            <sval type="string" val="i" />
+         </sval>
+         <sval type="array" size="12">
+            <sval type="array" size="2">
+               <sval type="int" val="535" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-536870137" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="118" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="1028" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="700" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="707" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="655" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="3" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610609917" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="12" />
+               <sval type="int" val="1001" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="3" />
+               <sval type="int" val="4" />
+               <sval type="int" val="20" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="9" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610609917" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Station Debris" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Ship Debris" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.ship.chk.enabled" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="118" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="19">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="LOOT WRECK [COMMAND CHECK]  by  MISTER BEAR  v1.05" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Determines whether or not to display command" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DISABLE IF NOTHING SELECTED" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="3" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="3" />
+               <sval type="int" val="1" />
+               <sval type="string" val="GET PROPERTIES TO COMPARE" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="5" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="7" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="string" val="QUICK AND DIRTY CHECK." />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Note: These were the only properties I found that are common to all wrecks." />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="11" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="11" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="11" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="11" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DEFAULT: DISABLED" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="12" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="12" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="12" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="string" val="COMMAND_LOOT_WRECK" />
+      </sval>
+   </codearray>
+</script>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Objective 1" name="Meet Contact" description="Mission to meet a contact" />
+    <version number="0.2" date="15/05/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="OBJ01" library="1">
+      <documentation>
+        <content name="OBJ01" reference="Meet Contact" type="objective"/>
+        <version number="0.2" date="15/05/08" status="development"/>
+        <params>
+          <param name="OfferRace" type="number" description="The race offering the mission"/>
+          <param name="Step" type="number"/>
+          <param name="L0PageID" type="number" description="L0 page ID"/>
+          <param name="L0Conv" type="text"/>
+          <param name="L0ConvDock" type="text"/>
+          <param name="Title" type="number" description="Title text ID"/>
+        </params>
+        <history>
+          <change date="10/08/08" author="al_main" description="Fixed MD code in message, OBJ01 Dock Contact now cancelled"/>
+          <change date="21/07/08" author="al_main" description="Localised contact actor in main param@Cue for L0 access"/>
+          <change date="10/07/08" author="Owen Lake" description="Added the discipline attribute to remove_offer. Changed all disciplines to XXXT"/>
+          <change date="07/07/08" author="al_main" description="Fixed ID param needed in the MustDock value"/>
+          <change date="15/05/08" author="al_main" description="Added voiceflags support"/>
+        </history>
+        <todo>
+          <item priority="low" description="Add param to use station of set race"/>
+          <item priority="low" description="Add param to use specified object as the contact"/>
+          <item priority="medium" description="Add param to meet a contact in a ship, not station"/>
+          <item priority="critical" description="What if no station found?"/>
+          <item priority="critical" description="What if station is destroyed?"/>
+          </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <find_station name="this.dest" dockingallowed="1" findobject="{player.ship}" enemy="0" class="station">
+            <sector sector="{player.sector}"/>
+            <jumps min="1" max="3"/>
+          </find_station>
+          <!--WHAT IF NO STATION???-->
+          <create_actor name="{param@Cue}.{param@ID} OBJ01 Guide" object="this.dest" voiceflags="32" race="{param@OfferRace}"/>
+          <!--create dumy actor for message text-->         
+          <create_actor name="OBJ01.Guide" character="{actor.name@{param@Cue}.{param@ID} OBJ01 Guide}" race="{param@OfferRace}"/>
+          <do_choose>
+            <do_when value="{value@{param@Cue}.{param@ID} L0MustDock}" exact="1">
+              <create_offer cue="OBJ01" discipline="XXXT" actor="{param@Cue}.{param@ID} OBJ01 Guide" conversation="{param@L0ConvDock}"/>
+              <create_briefing cue="{param@Cue}">
+                <mission level="trivial" discipline="XXXT"/>
+                <objectives>
+                  <objective step="{param@Step}">
+                    <dockat object="this.dest"/>
+                  </objective>
+                  <objective step="{param@Step}+1">
+                    <talkto actor="{param@Cue}.{param@ID} OBJ01 Guide"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="{param@Cue}" title="{{param@L0PageID},{param@Title}}">
+                <briefing cue="{param@Cue}" step="{param@Step}"/>
+                <mission level="trivial" discipline="XXXT"/>
+                <dockat object="this.dest"/>
+              </set_objective>
+            </do_when>
+            <do_otherwise>
+              <create_offer cue="OBJ01" discipline="XXXT" actor="{param@Cue}.{param@ID} OBJ01 Guide" conversation="{param@L0Conv}"/>
+              <create_briefing cue="{param@Cue}">
+                <mission level="trivial" discipline="XXXT"/>
+                <objectives>
+                  <objective step="{param@Step}">
+                    <flyto object="this.dest"/>
+                  </objective>
+                  <objective step="{param@Step}+1">
+                    <talkto actor="{param@Cue}.{param@ID} OBJ01 Guide"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="{param@Cue}" title="{{param@L0PageID},{param@Title}}">
+                <briefing cue="{param@Cue}" step="{param@Step}"/>
+                <mission level="trivial" discipline="XXXT"/>
+                <flyto object="this.dest"/>
+              </set_objective>
+            </do_otherwise>
+          </do_choose>
+          <set_value name="OBJ01.StartTime" exact="{player.age}"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="LUM04">
+          <params>
+            <param name="StartTime" value="OBJ01.StartTime"/>
+            <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+          </params>
+        </cue>
+        <cue ref="LUM05">
+          <params>
+            <param name="StartTime" value="OBJ01.StartTime"/>
+            <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+          </params>
+        </cue>
+        <cue name="OBJ01 Met Contact">
+          <condition>
+            <conversation_completed answer="transmit" conversation="{param@L0Conv}" actor="{param@Cue}.{param@ID} OBJ01 Guide"/>
+          </condition>
+          <action>
+            <do_all>
+              <play_text pageid="13" textid="1332" priority="99"/>
+              <remove_offer actor="{param@Cue}.{param@ID} OBJ01 Guide" conversation="{param@L0Conv}" discipline="XXXT"/>
+              <set_value name="{param@Cue}.{param@ID} L0Hidden" exact="2"/>
+              <cancel_cue cue="OBJ01 Dock Contact"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="OBJ01 Station Destroyed">
+          <condition>
+            <check_any>
+              <object_destroyed object="OBJ01.dest"/>
+              <object_destroyed_by_player object="OBJ01.dest"/>
+            </check_any>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@Cue}.{param@ID} L0Hidden" exact="3"/>
+              <cancel_cue cue="OBJ01 Dock Contact"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="OBJ01 Dock Contact" comment="Player must dock at same station as contact">
+          <condition>
+            <check_all>
+              <cue_completed cue="OBJ01"/>
+              <check_value value="{value@{param@Cue}.{param@ID} L0MustDock}" exact="1"/>
+            </check_all>
+          </condition>
+          <action>
+            <cancel_cue cue="OBJ01 Met Contact"/>
+          </action>
+          <cues>
+            <cue name="OBJ01 Docked" delay="2s">
+              <condition>
+                <object_is_docked dockobject="{object@OBJ01.dest}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <remove_offer actor="{param@Cue}.{param@ID} OBJ01 Guide" discipline="XXXT" conversation="{param@L0ConvDock}"/>
+                  <create_offer cue="OBJ01" discipline="XXXT" actor="{param@Cue}.{param@ID} OBJ01 Guide" conversation="{param@L0Conv}"/>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{param@Step}+1"/>
+                    <talkto actor="{param@Cue}.{param@ID} OBJ01 Guide"/>
+                  </set_objective>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="OBJ01 Met Contact 2">
+                  <condition>
+                    <conversation_completed answer="transmit" conversation="{param@L0Conv}" actor="{param@Cue}.{param@ID} OBJ01 Guide"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <play_text pageid="13" textid="1332" priority="99"/>
+                      <remove_offer actor="{param@Cue}.{param@ID} OBJ01 Guide" conversation="{param@L0Conv}" discipline="XXXT"/>
+                      <set_value name="{param@Cue}.{param@ID} L0Hidden" exact="2"/>
+                      <cancel_cue cue="OBJ01 Dock Contact"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="OBJ01 Undocked">
+                  <condition>
+                    <object_undocked/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <remove_offer actor="{param@Cue}.{param@ID} OBJ01 Guide" discipline="XXXT" conversation="{param@L0Conv}"/>
+                      <create_offer cue="OBJ01" discipline="XXXT" actor="{param@Cue}.{param@ID} OBJ01 Guide" conversation="{param@L0ConvDock}"/>
+                      <set_objective cue="{param@Cue}">
+                        <briefing cue="{param@Cue}" step="{param@Step}"/>
+                        <dockat object="this.dest"/>
+                      </set_objective>
+                      <create_briefing cue="{param@Cue}">
+                        <objectives>
+                          <objective step="{param@Step}">
+                            <dockat object="this.dest"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <reset_cue cue="OBJ01 Docked"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <!--WHAT IF THE STATION THE CONTACT IS ON IS DESTROYED????-->
+      </cues>
+    </cue>
+  </cues>
+  <signature>YuMetZVQ/fxbA1zY07hvOrS9HJ9pMrukO4bFi8evaJ9JLCyAi+/BTeTd3UNufhNfB7w4obozETxQq6pVkrb1ZhWJxIJXwiVc3J1cCIP32aPKi4tYXfhiELa7L/kRsdNE4bnwKkpQaksioKiOSoLaXGJqDAntKoXQeNaRi8q5Ym/kJw+m4o1UF3RlDvAj0Js9YIaCLX9bDbWI5mbab/Dd3GYww6k7ZTNueQRhQen1NvNH2Uwei5sHQ9p6Ng8ywI++dWq/gSKVUJjAJkH0jtahqsbYr91AuXfXPx3Ajs1GAEG52bo0Sc9L/UNWk8QXcsW25fuvnd01ARpCO/eNCbvcig==</signature>
+</director>

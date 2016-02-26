@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M105" name="Generic Return Ship" description="Generic claim and return ship mission"/>
+    <version number="0.4" date="28/05/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M105" library="1" check="cancel">
+      <documentation>
+        <content name="Generic Return Ship" reference="L2M105" type="L2"/>
+        <version date="28/05/2008" number="0.3" status="release"/>
+        <history>
+          <change date="04/05/2008" author="Owen Lake" description="Actor now destroyed at end. Added timeout feature. Changed difficulty"/>
+        </history>
+      </documentation>
+      <condition>
+        <count_stations min="1" dockingallowed="1" friend="1" neutral="1" race="default|terran">
+          <jumps exact="0"/>
+        </count_stations>
+      </condition>
+      <action>
+        <do_all>
+          <find_station name="L2M105.OfferStation" dockingallowed="1" friend="1" neutral="1" race="default|terran">
+            <jumps exact="0"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@L2M105.OfferStation}" exact="0">
+              <cancel_cue cue="L2M105"/>
+            </do_when>
+            <do_otherwise>
+              <set_sector name="L2M105.OfferSector" value="{object.sector@L2M105.OfferStation}"/>
+              <set_value name="L2M105.SectorDistance" min="1" max="4"/>
+              <find_sector race="default|terran|goner" exact="{value@L2M105.SectorDistance}" sector="L2M105.OfferSector" name="L2M105.ShipSector"/>
+              <do_choose>
+                <do_when value="{sector.exists@L2M105.ShipSector}" exact="0">
+                  <cancel_cue cue="L2M105"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L2M105.TimeOut" min="{player.age}+700" max="{player.age}+800"/>
+                  <do_any>
+                    <set_value name="L2M105.OfferRace" exact="{object.race@L2M105.OfferStation}" chance="5"/>
+                    <set_value name="L2M105.OfferRace" exact="{random.race@default}" chance="2"/>
+                  </do_any>
+                  <do_if value="{object.race@L2M105.OfferStation}" exact="{lookup.race@terran}">
+                    <set_value name="L2M105.OfferRace" exact="{lookup.race@terran}"/>
+                  </do_if>
+                </do_otherwise>
+              </do_choose>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues> 
+        <cue name="L2M105 Start Mission">
+          <condition>
+            <check_all>
+              <cue_completed cue="L2M105"/>
+              <object_exists object="L2M105.OfferStation"/>
+              <check_value value="{sector.exists@L2M105.ShipSector}" exact="1"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M105.PageID" exact="3305"/>
+              <do_any>
+                <set_value name="L2M105.Variation" exact="0"/>
+                <do_all>
+                  <set_value name="L2M105.Variation" exact="1"/>
+                  <set_value name="L2M105.TextID Title P" exact="1001"/>
+                  <set_value name="L2M105.TextID Text P" exact="1002"/>
+                  <set_value name="L2M105.TextID Claim P" exact="1005"/>
+                  <set_value name="L2M105.TextID Return P" exact="1006"/>
+                  <set_value name="L2M105.TextID Title" exact="1003"/>
+                  <set_value name="L2M105.TextID Text" exact="1004"/>
+                  <set_value name="L2M105.TextID Claim" exact="1007"/>
+                  <set_value name="L2M105.TextID Return" exact="1008"/>
+                </do_all>
+                <do_all>
+                  <set_value name="L2M105.Variation" exact="2"/>
+                  <set_value name="L2M105.TextID Title P" exact="2001"/>
+                  <set_value name="L2M105.TextID Text P" exact="2002"/>
+                  <set_value name="L2M105.TextID Claim P" exact="2005"/>
+                  <set_value name="L2M105.TextID Return P" exact="2006"/>
+                  <set_value name="L2M105.TextID Title" exact="2003"/>
+                  <set_value name="L2M105.TextID Text" exact="2004"/>
+                  <set_value name="L2M105.TextID Claim" exact="2007"/>
+                  <set_value name="L2M105.TextID Return" exact="2008"/>
+                  <set_value name="L2M105.Ship Stolen" exact="1"/>
+                </do_all>
+              </do_any>
+              <do_choose>
+                <do_when value="{lookup.race.mask.default@{value@L2M105.OfferRace}}" exact="1">
+                  <set_value name="L2M105.ShipRace" exact="{lookup.race.mask@argon}+{lookup.race.mask@boron}+{lookup.race.mask@split}+{lookup.race.mask@paranid}+{lookup.race.mask@teladi}"/>
+                </do_when>
+                <do_when value="{lookup.race.mask.terran@{value@L2M105.OfferRace}}" exact="1">
+                  <set_value name="L2M105.ShipRace" exact="{lookup.race.mask@terran}"/>
+                </do_when>
+              </do_choose>
+              
+              <set_value name="L2M105.ClassCount" operation="add"/>
+              <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@m5}"/>
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="3">
+                <set_value name="L2M105.ClassCount" operation="add"/>
+                <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@m4}"/>
+                <set_value name="L2M105.ClassCount" operation="add"/>
+                <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@ts}"/>
+                <set_value name="L2M105.ClassCount" operation="add"/>
+                <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@tp}"/>
+              </do_if>              
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="4">
+                <set_value name="L2M105.M5P" exact="1"/>
+              </do_if>
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="5">
+                <set_value name="L2M105.M4P" exact="1"/>
+              </do_if>
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="6">
+                <set_value name="L2M105.ClassCount" operation="add"/>
+                <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@m3}"/> 
+              </do_if>
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="7">
+                <set_value name="L2M105.ClassCount" operation="add"/>
+                <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@m8}"/>
+                <set_value name="L2M105.M3P" exact="1"/>
+              </do_if>
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="8">
+                <set_value name="L2M105.ClassCount" operation="add"/>
+                <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@m6}"/>
+              </do_if>
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="9">
+                <set_value name="L2M105.ClassCount" operation="add"/>
+                <set_value name="L2M105.Class{value@L2M105.ClassCount}" exact="{lookup.class@m7}"/>
+                <set_value name="L2M105.M6M" exact="1"/>
+              </do_if>
+              <do_if value="{player.notoriety.{value@L2M105.OfferRace}.rank}" min="10">
+                <set_value name="L2M105.M7M" exact="1"/>
+              </do_if>
+              <set_value name="L2M105.ClassChoice" min="1" max="{value@L2M105.ClassCount}"/>
+              <set_value name="L2M105.Class" exact="{value@L2M105.Class{value@L2M105.ClassChoice}}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M105 Return Ship">
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{value@L2M105.OfferRace}" exact="{lookup.race@goner}">
+                      <create_actor name="L2M105.OfferActor" race="argon" voiceflags="32" object="L2M105.OfferStation"/>
+                    </do_when>
+                    <do_otherwise>
+                      <create_actor name="L2M105.OfferActor" race="{value@L2M105.OfferRace}" voiceflags="32" object="L2M105.OfferStation"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <create_offer actor="L2M105.OfferActor" conversation="L2OfferNormal" cue="L2M105 Return Ship" discipline="XXXT"/>
+                  <set_value name="L2M105 Return Ship.Difficulty" exact="{value@L2M105.SectorDistance}+1"/>
+                  <do_choose>
+                    <do_when value="{player.notoriety.{value@L2M105.OfferRace}.rank}" max="0">
+                      <set_value name="L2M105 Return Ship.Difficulty" min="{lookup.level@trivial}" max="{lookup.level@average}" profile="decreasing"/>
+                    </do_when>
+                    <do_when value="{player.notoriety.{value@L2M105.OfferRace}.rank}" list="1|2">
+                      <set_value name="L2M105 Return Ship.Difficulty" min="{lookup.level@trivial}" max="{lookup.level@hard}" profile="decreasing"/>
+                    </do_when>
+                    <do_when value="{player.notoriety.{value@L2M105.OfferRace}.rank}" list="3|4">
+                      <set_value name="L2M105 Return Ship.Difficulty" min="{lookup.level@veryeasy}" max="{lookup.level@hard}" profile="bell"/>
+                    </do_when>
+                    <do_when value="{player.notoriety.{value@L2M105.OfferRace}.rank}" list="5|6">
+                      <set_value name="L2M105 Return Ship.Difficulty" min="{lookup.level@veryeasy}" max="{lookup.level@veryhard}" profile="bell"/>
+                    </do_when>
+                    <do_when value="{player.notoriety.{value@L2M105.OfferRace}.rank}" list="7|8">
+                      <set_value name="L2M105 Return Ship.Difficulty" min="{lookup.level@veryeasy}" max="{lookup.level@veryhard}" profile="increasing"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L2M105 Return Ship.Difficulty" min="{lookup.level@easy}" max="{lookup.level@impossible}" profile="bell"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M105 ref SRST">
+                  <cues>
+                    <cue ref="SRST">
+                      <params>
+                        <param name="Race ID" value="{value@L2M105.ShipRace}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                        <param name="Class ID" value="{value@L2M105.Class}" comment="The shipclass ID or the class IDs for bigship, fighter or freighter"/>
+                        <param name="Cue" value="L2M105 Return Ship" comment="The Cue that the shiptype list is saved too"/>
+                        <param name="CancelCue" value="L2M105 ref SRST"/>
+                        <param name="Shiptype Address" value="L2M105 Return Ship.Shiptype" comment="The address that the shiptype will be saved to"/>
+                        <param name="Include M3P" value="{value@L2M105.M3P}" comment="Include the M3Plus ships in the M3 search"/>
+                        <param name="Include M4P" value="{value@L2M105.M4P}" comment="Include the M4Plus ships in the M4 search"/>
+                        <param name="Include M5P" value="{value@L2M105.M5P}" comment="Include the M5Plus ships in the M5 search"/>
+                        <param name="Include M6M" value="{value@L2M105.M6M}" comment="Include the M6M ships in the M6 search"/>
+                        <param name="Include M7M" value="{value@L2M105.M7M}" comment="Include the M7M ships in the M7 search"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M105 SRST Check">
+                  <condition>
+                    <cue_cancelled cue="L2M105 ref SRST"/>
+                  </condition>
+                  <action>
+                    <do_if value="{value@L2M105 Return Ship.Shiptype}" exact="0">
+                      <destroy_actor actor="L2M105.OfferActor"/>
+                      <cancel_cue cue="L2M105"/>
+                    </do_if>
+                  </action>
+                  <cues>
+                    <cue name="L2M105 Return Ship Briefing">
+                      <condition>
+                        <conversation_completed actor="L2M105.OfferActor" answer="briefing" conversation="L2OfferNormal"/>
+                      </condition>
+                      <action>
+                        <set_value name="L2M105.TempStep" exact="1"/>
+                      </action>
+                      <cues>
+                        <cue ref="L0M05 B">
+                          <params>
+                            <param name="Cue" value="L2M105 Return Ship" comment="The cue where values will be localized"/>
+                            <param name="Step" value="L2M105.TempStep"/>
+                            <param name="OfferRace" value="{value@L2M105.OfferRace}" comment="Offer Race ID"/>
+                            <param name="PageID" value="{value@L2M105.PageID}" comment="The PageID of the text"/>
+                            <param name="TextID Title" value="{value@L2M105.TextID Title P}" comment="The briefing title ID"/>
+                            <param name="TextID Text" value="{value@L2M105.TextID Text P}" comment="The briefing text ID"/>
+                            <param name="TextID Claim" value="{value@L2M105.TextID Claim P}" comment="The text ID for the claim objective text"/>
+                            <param name="TextID Return" value="{value@L2M105.TextID Return P}" comment="The text ID for the return objective text"/>
+                            <param name="Preview" value="1"/>
+                            <param name="SetObjective" value="0"/>
+                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                            <param name="DestName" value="L2M105.OfferStation"/>
+                            <param name="Difficulty" value="{value@L2M105 Return Ship.Difficulty}" comment="The value address for the difficulty"/>
+                            <!--reward parameters (in priority order)-->
+                            <param name="RoundReward" value="1" comment="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+                            <param name="RewardCr" value="L2M105 Return Ship.RewardCr" comment="Reward - credits"/>
+                            <param name="Duration" value="L2M105 Return Ship.Duration" comment="Mission Time"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M105 Return Ship Accepted">
+                      <condition>
+                        <conversation_completed actor="L2M105.OfferActor" answer="accept" conversation="L2OfferNormal"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <cancel_cue cue="L2M105 Check Offer"/>
+                          <increment_statistic statistic="5160"/>
+                          <set_value name="L2M105 Return Ship.Step" exact="1"/>
+                          <remove_offer actor="L2M105.OfferActor" discipline="XXXT" conversation="L2OfferNormal"/>
+                          <do_choose>
+                            <do_when value="{value@L2M105.Ship Stolen}" exact="0" comment="Ship in space">
+                              <set_value name="this.X" min="-40000" max="40000"/>
+                              <set_value name="this.Y" min="-10000" max="10000"/>
+                              <set_value name="this.Z" min="-40000" max="40000"/>
+                              <create_ship name="L2M105 Return Ship.Ship" typename="{value@L2M105 Return Ship.Shiptype}" race="neutral" capturable="1">
+                                <position x="{value@this.X}m" y="{value@this.Y}m" z="{value@this.Z}m"/>
+                                <sector sector="L2M105.ShipSector"/>
+                                <hull min="40" max="70"/>
+                              </create_ship>
+                            </do_when>
+                            <do_otherwise comment="Ship on the run">
+                              <set_value name="this.X" min="-40000" max="40000"/>
+                              <set_value name="this.Y" min="-10000" max="10000"/>
+                              <set_value name="this.Z" min="-40000" max="40000"/>
+                              <create_ship name="L2M105 Return Ship.Ship" typename="{value@L2M105 Return Ship.Shiptype}" race="pirate" covered="1" capturable="1">
+                                <position x="{value@this.X}m" y="{value@this.Y}m" z="{value@this.Z}m"/>
+                                <sector sector="L2M105.ShipSector"/>
+                                <equipment loadout="minimum"/>
+                              </create_ship>
+                              <find_sector name="L2M105.Destination" sector="L2M105.ShipSector" min="3" max="10"/>
+                              <do_choose>
+                                <do_when value="{object.exists@L2M105.Destination}" exact="1">
+                                  <set_command object="L2M105 Return Ship.Ship" command="movesector">
+                                    <sector sector="L2M105.Destination"/>
+                                  </set_command>
+                                </do_when>
+                                <do_otherwise>
+                                  <set_command object="L2M105 Return Ship.Ship" command="idle"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M105 Ship Finished" instantiate="static">
+                          <condition>
+                            <object_finished object="L2M105 Return Ship.Ship"/>
+                          </condition>
+                          <timing>
+                            <time exact="2s"/>
+                          </timing>
+                          <action>
+                            <do_if value="{object.race@L2M105 Return Ship.Ship}" exact="{lookup.race@player}" negate="1">
+                              <find_sector name="L2M105.Destination" sector="L2M105.ShipSector" min="3" max="10"/>
+                              <do_choose>
+                                <do_when value="{object.exists@L2M105.Destination}" exact="1">
+                                  <set_command object="L2M105 Return Ship.Ship" command="movesector">
+                                    <sector sector="L2M105.Destination"/>
+                                  </set_command>
+                                </do_when>
+                                <do_otherwise>
+                                  <set_command object="L2M105 Return Ship.Ship" command="idle"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_if>
+                          </action>
+                        </cue>
+                        <cue name="L2M105 Ship Captured">
+                          <condition>
+                            <object_captured object="L2M105 Return Ship.Ship"/>
+                          </condition>
+                          <action>
+                            <cancel_cue cue="L2M105 Ship Finished"/>
+                          </action>
+                        </cue>
+                        <cue name="L2M105 Return Ship ref L0M05">
+                          <cues>
+                            <cue ref="L0M05">
+                              <params>
+                                <param name="Cue" value="L2M105 Return Ship" comment="The cue where values will be localized"/>
+                                <param name="Step" value="L2M105 Return Ship.Step" comment="The initial objective step"/>
+                                <param name="OfferRace" value="{value@L2M105.OfferRace}" comment="Offer Race ID"/>
+                                <param name="PageID" value="{value@L2M105.PageID}" comment="The PageID of the text"/>
+                                <param name="Direction" value="{object.route.gate.name@L2M105 Return Ship.Ship}"/>
+                                <param name="TextID Title" value="{value@L2M105.TextID Title}" comment="The briefing title ID"/>
+                                <param name="TextID Text" value="{value@L2M105.TextID Text}" comment="The briefing text ID"/>
+                                <param name="TextID Claim" value="{value@L2M105.TextID Claim}" comment="The text ID for the claim objective text"/>
+                                <param name="TextID Return" value="{value@L2M105.TextID Return}" comment="The text ID for the return objective text"/>
+                                <param name="DestName" value="L2M105.OfferStation"/>
+                                <param name="ShipName" value="L2M105 Return Ship.Ship"/>
+                                <param name="AllowLoss" value="1"/>
+                                <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                                <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                <param name="IsPlot" value="0" comment="Is this a plot mission"/>
+                                <param name="UseTimer" value="0" comment="Override the plot signal and use a timer"/>
+                                <param name="Difficulty" value="{value@L2M105 Return Ship.Difficulty}" comment="The value address for the difficulty"/>
+                                <param name="Duration" value="L2M105 Return Ship.Duration" comment="Mission Time"/>
+                                <!--reward parameters (in priority order)-->
+                                <param name="RewardCr" value="L2M105 Return Ship.RewardCr" comment="Reward - credits"/>
+                                <param name="OfferActor" value="{actor@L2M105.OfferActor}" comment="The actor"/>
+                                <param name="FeedbackName" value="L2M105 Return Ship.Feedback" comment="The address where the step value is stored"/>
+                              </params>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L2M105 Return Ship Ended" delay="2s">
+                          <condition>
+                            <check_value value="{value@L2M105 Return Ship.Feedback}" exact="0" negate="1"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <do_choose>
+                                <do_when value="{value@L2M105 Return Ship.Feedback}" list="1">
+                                  <!--Ship Returned-->
+                                  <incoming_message author="{actor.name@L2M105.OfferActor}" text="{{value@L2M105.PageID},{value@L2M105.Variation}{value@L2M105 Return Ship.Feedback}}"/>
+                                  <reward_player>
+                                    <money exact="{value@L2M105 Return Ship.RewardCr}"/>
+                                    <notoriety>
+                                      <relation race="{value@L2M105.OfferRace}" exact="{reward.notoriety.{value@L2M105.OfferRace}@{value@L2M105 Return Ship.Difficulty}}"/>
+                                    </notoriety>
+                                  </reward_player>
+                                  <set_actor_location actor="L2M105.OfferActor" object="L2M105 Return Ship.Ship" location="pilot"/>
+                                  <increment_statistic statistic="5170"/>
+                                  <remove_objective cue="L2M105 Return Ship" status="complete"/>
+                                  <remove_briefing cue="L2M105 Return Ship"/>
+                                </do_when>
+                                <do_when value="{value@L2M105 Return Ship.Feedback}" list="2|3|4">
+                                  <!--Player Failed-->
+                                  <incoming_message author="{actor.name@L2M105.OfferActor}" text="{{value@L2M105.PageID},{value@L2M105.Variation}{value@L2M105 Return Ship.Feedback}}"/>
+                                  <reward_player>
+                                    <notoriety>
+                                      <relation race="{value@L2M105.OfferRace}" exact="{penalty.notoriety.{value@L2M105.OfferRace}@{value@L2M105 Return Ship.Difficulty}}*2"/>
+                                    </notoriety>
+                                  </reward_player>
+                                  <remove_objective cue="L2M105 Return Ship" status="failed"/>
+                                </do_when>
+                                <do_when value="{value@L2M105 Return Ship.Feedback}" exact="5">
+                                  <!--Destination Destroyed-->
+                                  <incoming_message author="{player.name}" text="{{value@L2M105.PageID},{value@L2M105.Variation}{value@L2M105 Return Ship.Feedback}}"/>
+                                  <remove_objective cue="L2M105 Return Ship" status="aborted"/>
+                                </do_when>
+                                <do_when value="{value@L2M105 Return Ship.Feedback}" exact="6">
+                                  <!--Player Failed-->
+                                  <incoming_message author="{actor.name@L2M105.OfferActor}" text="{{value@L2M105.PageID},{value@L2M105.Variation}4}"/>
+                                  <reward_player>
+                                    <notoriety>
+                                      <relation race="{value@L2M105.OfferRace}" exact="{penalty.notoriety.{value@L2M105.OfferRace}@{value@L2M105 Return Ship.Difficulty}}*3"/>
+                                    </notoriety>
+                                  </reward_player>
+                                  <remove_objective cue="L2M105 Return Ship" status="failed"/>
+                                </do_when>
+                                <do_when value="{value@L2M105 Return Ship.Feedback}" exact="99">
+                                  <!--Aborted-->
+                                  <remove_objective cue="L2M105 Return Ship" status="aborted"/>
+                                  <do_choose>
+                                    <do_when value="{object.race@L2M105 Return Ship.Ship}" exact="{lookup.race@player}">
+                                      <reward_player>
+                                        <notoriety>
+                                          <relation race="{value@L2M105.OfferRace}" exact="{penalty.notoriety.{value@L2M105.OfferRace}@{value@L2M105 Return Ship.Difficulty}}*2"/>
+                                        </notoriety>
+                                      </reward_player>
+                                    </do_when>
+                                    <do_otherwise>
+                                      <destroy_object object="L2M105 Return Ship.Ship" warp="1"/>
+                                      <reward_player>
+                                        <notoriety>
+                                          <relation race="{value@L2M105.OfferRace}" exact="{penalty.notoriety.{value@L2M105.OfferRace}@{value@L2M105 Return Ship.Difficulty}}"/>
+                                        </notoriety>
+                                      </reward_player>
+                                    </do_otherwise>
+                                  </do_choose>
+                                </do_when>
+                                <do_otherwise>
+                                  <remove_objective cue="L2M105 Return Ship" status="aborted"/>
+                                </do_otherwise>
+                              </do_choose>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M105 Cleanup Ship" delay="1s">
+                              <condition>
+                                <check_all>
+                                  <object_exists object="L2M105 Return Ship.Ship"/>
+                                  <check_value value="{object.race@L2M105 Return Ship.Ship}" exact="{lookup.race@player}" negate="1"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <set_owner object="L2M105 Return Ship.Ship" race="neutral"/>
+                              </action>
+                              <cues>
+                                <cue ref="LUM15">
+                                  <params>
+                                    <param name="RemoveShip" value="L2M105 Return Ship.Ship" comment="Ship to remove"/>
+                                  </params>
+                                </cue>
+                              </cues>
+                            </cue>
+                            <cue name="L2M105 Ship Destroyed" delay="5s">
+                              <condition>
+                                <object_exists object="L2M105 Return Ship.Ship" negate="1"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <set_group_command group="L2M105.Ships" command="killenemies"/>
+                                  <cancel_cue cue="L2M105"/>
+                                </do_all>
+                              </action>
+                            </cue>
+                            <cue name="L2M105 Player Stole Ship" delay="5s">
+                              <condition>
+                                <check_value value="{object.race@L2M105 Return Ship.Ship}" exact="{lookup.race@player}"/>
+                              </condition>
+                              <timing>
+                                <time min="3m" max="10m"/>
+                              </timing>
+                              <cues>
+                                <cue name="L2M105 Player Stole Ship Wait">
+                                  <condition>
+                                    <cue_completed cue="L2M105 Player Stole Ship"/>
+                                  </condition>
+                                  <cues>
+                                    <cue name="L2M105 ref OBS">
+                                      <cues>
+                                        <cue ref="OBS">
+                                          <params>
+                                            <param name="OBS Cue" value="L2M105" comment="The cue name where the ship groups are saved too"/>
+                                            <param name="OBS Cancel Cue" value="L2M105 ref OBS" comment="The cue which is canceled after the OBS finishes"/>
+                                            <param name="OBS Fleet Group Name" value="Ships" comment="The group name where all main ships are saved too"/>
+                                            <param name="OBS Support Fleet Group Name" value="Support" comment="The group name where all support ships are saved too"/>
+                                            <param name="OBS Mother Ship Group Name" value="Motherships" comment="The group name where all ships with owned ships are saved too"/>
+                                            <param name="OBSFleetRace" value="{value@L2M105.OfferRace}" comment="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+                                            <param name="OBSFleetPilotsRace" value="{value@L2M105.OfferRace}" comment="The race ID of the pilots"/>
+                                            <param name="OBSMissionRank" value="{player.fightrank.rank}" comment="A 0-30 scale preferably based on the players fight rank"/>
+                                            <param name="OBSDifficultyRank" value="{value@L2M105 Return Ship.Difficulty}" comment="A 1-8 scale of difficulty"/>
+                                            <param name="OBSPosition" value="5" comment="how far away should the OBS ships be from FleetPositionObject"/>
+                                            <param name="OBSFleetRaceLogic" value="0" comment="0/1 Sets if the created ships will have default race logic"/>
+                                            <param name="OBSFleetPositionObject" value="L2M105 Return Ship.Ship" comment="The object which will provide the location information"/>
+                                            <param name="OBSFleetJobTextID" value="30002" comment="Job text id of shipname"/>
+                                            <param name="OBS Dock Support" value="1" comment="0/1 Sets if the created support ships are docked with their homebase"/>
+                                            <param name="OBS Support Overflow" value="1" comment="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+                                            <param name="OBSFleetCapturable" value="0" comment="0/1 Sets if the created ships are capturable"/>
+                                          </params>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                    <cue name="L2M105 Attack Player">
+                                      <condition>
+                                        <cue_cancelled cue="L2M105 ref OBS"/>
+                                      </condition>
+                                      <action>
+                                        <set_group_command group="L2M105.Ships" command="attack" commandobject="L2M105 Return Ship.Ship"/>
+                                      </action>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M105 Check Offer">
+              <cues>
+                <cue name="L2M105 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age value="{player.age}" min="{value@L2M105.TimeOut}"/>
+                      <object_relation object="L2M105.OfferStation">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M105 Check Comms" delay="1s">
+                      <condition>
+                        <check_value value="{player.menu.dialog}" exact="0"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <destroy_actor actor="L2M105.OfferActor"/>
+                          <cancel_cue cue="L2M105"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M105 Sector Out" instantiate="static">
+                  <condition>
+                    <object_changed_sector/>
+                  </condition>
+                  <action>
+                    <do_if value="{player.sector}" exact="{actor.sector@L2M105.OfferActor}" negate="1">
+                      <set_value name="L2M105.SectorChanges" operation="add"/>
+                      <do_if value="{value@L2M105.SectorChanges}" min="2">
+                        <destroy_actor actor="L2M105.OfferActor"/>
+                        <cancel_cue cue="L2M105"/>
+                      </do_if>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>+rXzni3igramx7iHRHbWBxZlIAq6PTgPkMuJ7DiOAJBYQ5usQfugSoq8Ti/1ZRo9iCq783L3mF4t/gpSTFaz1e4d1hVi0SZbsDfjmITlZgNRjuO2jgRTR78Xyp2qEhIGuV2ArqcvRNE4y2ydRDSdUPAmQJLQyIV1gvhCuXtPdDNRfrkSQMwMDOK8iuja8n4eaM/2sSI1l4PXZ0ux2UXA4tZuHForIsCMjpQeFVKU1i5HPprrj+e2gTj7w3ONs+c07Jh3jgjm41EfuxxgtIgf3sN9gkS4YP1BZskuljJWaDfP2mgbmTeYWpduUcHR3BmakWTSJdRKzmdbXW06oAeQHw==</signature>
+</director>

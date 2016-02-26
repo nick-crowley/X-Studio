@@ -1,0 +1,1865 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.lib.wares</name>
+   <version>100</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Library: Black Market Wares</description>
+   <arguments>
+      <argument index="0" name="szFunction" type="String" desc="Name of function to call" />
+      <argument index="1" name="xArgument1" type="Value" desc="[optional] First argument (see function)" />
+      <argument index="2" name="xArgument2" type="Value" desc="[optional] Second argument (see function)" />
+      <argument index="3" name="xArgument3" type="Value" desc="[optional] Third argument (see function)" />
+   </arguments>
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* **********************************************************************</comment></line>
+      <line linenr="002" indent=""><comment>* PIRACY: BLACK MARKET WARES LIBRARY   -by-   MISTER BEAR    v1.00  Jan-2011</comment></line>
+      <line linenr="003" indent=""><comment>* ----------------------------------</comment></line>
+      <line linenr="004" indent=""><comment>* DESCRIPTION: Functions for using and querying new wares added by Piracy collection</comment></line>
+      <line linenr="005" indent=""><comment>* **********************************************************************</comment></line>
+      <line linenr="006" indent=""> </line>
+      <line linenr="007" indent=""><comment>* ------------------------- ADD BLACK MARKET WARES TO SHIP -------------------------</comment></line>
+      <line linenr="008" indent=""><var>if </var><text></text><var>$szFunction == 'AddBlackMarketWaresToShip' </var><text></text></line>
+      <line linenr="009" indent="&#160;"><comment>* --------------------------------</comment></line>
+      <line linenr="010" indent="&#160;"><comment>* ADD BLACK MARKET WARES TO SHIP : Add black market wares to a ship (if appropriate) and mark it as examined</comment></line>
+      <line linenr="011" indent="&#160;"><comment>* --------------------------------</comment></line>
+      <line linenr="012" indent="&#160;"><comment>* ARGUMENT 1    :  [ship] Ship to examine</comment></line>
+      <line linenr="013" indent="&#160;"> </line>
+      <line linenr="014" indent="&#160;"><text></text><var>skip if not</var><text> </text><var>$xArgument1</var><text>  ->  get local variable: name=</text><var>'plugin.piracy.bBlackMarketWaresAdded'</var><text></text></line>
+      <line linenr="015" indent="&#160;&#160;"><text>return </text><var>null</var><text></text></line>
+      <line linenr="016" indent="&#160;"> </line>
+      <line linenr="017" indent="&#160;"><text></text><var>$i =</var><text> </text><var>$xArgument1</var><text>  ->  get owner race</text></line>
+      <line linenr="018" indent="&#160;"><text></text><var>$iJob =</var><text> </text><var>$xArgument1</var><text>  ->  get job id</text></line>
+      <line linenr="019" indent="&#160;"> </line>
+      <line linenr="020" indent="&#160;"><var>if </var><text></text><var>$i == Pirates OR $i == Yaki </var><text></text></line>
+      <line linenr="021" indent="&#160;&#160;"><comment>* Pirates</comment></line>
+      <line linenr="022" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Pirate Sidearms</var><text></text></line>
+      <line linenr="023" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Hand Weapons</var><text></text></line>
+      <line linenr="024" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Jewels 7221</var><text></text></line>
+      <line linenr="025" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Narcotics</var><text></text></line>
+      <line linenr="026" indent="&#160;&#160;"> </line>
+      <line linenr="027" indent="&#160;"><var>else if </var><text></text><var>$iJob == 502 OR $iJob == 503 OR $iJob == 1016 </var><text></text></line>
+      <line linenr="028" indent="&#160;&#160;"><comment>* Customs</comment></line>
+      <line linenr="029" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Narcotics</var><text></text></line>
+      <line linenr="030" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Prisoners</var><text></text></line>
+      <line linenr="031" indent="&#160;&#160;"> </line>
+      <line linenr="032" indent="&#160;"><var>else if </var><text></text><var>$iJob == 501 OR $iJob == 1015 </var><text></text></line>
+      <line linenr="033" indent="&#160;&#160;"><comment>* Police</comment></line>
+      <line linenr="034" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Narcotics</var><text></text></line>
+      <line linenr="035" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Spacefly Eggs</var><text></text></line>
+      <line linenr="036" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Prisoners</var><text></text></line>
+      <line linenr="037" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Pirate Sidearms</var><text></text></line>
+      <line linenr="038" indent="&#160;&#160;"> </line>
+      <line linenr="039" indent="&#160;"><var>else if </var><text></text><var>( $iJob &gt; 1399 AND $iJob &lt; 1412 ) OR $iJob == 6136 OR $iJob == 6168 </var><text></text></line>
+      <line linenr="040" indent="&#160;&#160;"><comment>* Recon, Intelligence Service</comment></line>
+      <line linenr="041" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>5</var><text> units of </text><var>Cartography Chips</var><text></text></line>
+      <line linenr="042" indent="&#160;&#160;"> </line>
+      <line linenr="043" indent="&#160;"><var>else if </var><text></text><var>$iJob == 6133 </var><text></text></line>
+      <line linenr="044" indent="&#160;&#160;"><comment>* Spacefly hunters</comment></line>
+      <line linenr="045" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Spacefly Eggs</var><text></text></line>
+      <line linenr="046" indent="&#160;&#160;"> </line>
+      <line linenr="047" indent="&#160;"><var>else if </var><text></text><var>$iJob == 6118 </var><text></text></line>
+      <line linenr="048" indent="&#160;&#160;"><comment>* Archaeologists</comment></line>
+      <line linenr="049" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Artefacts</var><text></text></line>
+      <line linenr="050" indent="&#160;&#160;"> </line>
+      <line linenr="051" indent="&#160;"><var>else if </var><text></text><var>$iJob == 6120 </var><text></text></line>
+      <line linenr="052" indent="&#160;&#160;"><comment>* Casino</comment></line>
+      <line linenr="053" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Jewels 7221</var><text></text></line>
+      <line linenr="054" indent="&#160;&#160;"><comment>* <text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>1000000</var><text> units of </text><var>Credits</var><text></text></comment></line>
+      <line linenr="055" indent="&#160;&#160;"> </line>
+      <line linenr="056" indent="&#160;"><var>else if </var><text></text><var>$iJob == 6123 OR $iJob == 6165 </var><text></text></line>
+      <line linenr="057" indent="&#160;&#160;"><comment>* Humanitarian Aid</comment></line>
+      <line linenr="058" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Hand Weapons</var><text></text></line>
+      <line linenr="059" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Disintegrator Rifles </var><text></text></line>
+      <line linenr="060" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Low-yield Sidearms</var><text></text></line>
+      <line linenr="061" indent="&#160;&#160;"> </line>
+      <line linenr="062" indent="&#160;"><var>else if </var><text></text><var>$iJob == 6139 OR $iJob == 6171 </var><text></text></line>
+      <line linenr="063" indent="&#160;&#160;"><comment>* Diplomatic Transport</comment></line>
+      <line linenr="064" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Very Important Passengers</var><text></text></line>
+      <line linenr="065" indent="&#160;&#160;"> </line>
+      <line linenr="066" indent="&#160;"><var>else if </var><text></text><var>$iJob == 6114 OR $iJob == 6160 OR $iJob == 6143 OR $iJob == 6175 OR $iJob == 6138 OR $iJob == 6170 </var><text></text></line>
+      <line linenr="067" indent="&#160;&#160;"><comment>* Dropship, Recruit Transport, Troop Transport</comment></line>
+      <line linenr="068" indent="&#160;&#160;"><text></text><var> =</var><text> </text><var>$xArgument1</var><text>  ->  add </text><var>2</var><text> units of </text><var>Military Personnel</var><text></text></line>
+      <line linenr="069" indent="&#160;"><text>end</text></line>
+      <line linenr="070" indent="&#160;"> </line>
+      <line linenr="071" indent="&#160;"><text></text><var>$xArgument1</var><text>  ->  set local variable: name=</text><var>'plugin.piracy.bBlackMarketWaresAdded'</var><text> value=</text><var>[TRUE]</var><text></text></line>
+      <line linenr="072" indent="&#160;"> </line>
+      <line linenr="073" indent="&#160;"><comment>* -------------------- GET BLACK MARKET WARE PROPERTY --------------------</comment></line>
+      <line linenr="074" indent=""><var>else if </var><text></text><var>$szFunction == 'GetBlackMarketWareProperty' </var><text></text></line>
+      <line linenr="075" indent="&#160;"><comment>* --------------------------------</comment></line>
+      <line linenr="076" indent="&#160;"><comment>* GET BLACK MARKET WARE PROPERTY : Get various properties of a black market ware</comment></line>
+      <line linenr="077" indent="&#160;"><comment>* --------------------------------</comment></line>
+      <line linenr="078" indent="&#160;"><comment>* ARGUMENT 1    :  [ware] Ware to be queries</comment></line>
+      <line linenr="079" indent="&#160;"><comment>* ARGUMENT 2    :  [int] Property    1:Average Price   2:Minimum Price   3:Maximum Price   4:Maximum stock for stations</comment></line>
+      <line linenr="080" indent="&#160;"><comment>* RETURN VALUE  :  [int] Chosen property value</comment></line>
+      <line linenr="081" indent="&#160;"> </line>
+      <line linenr="082" indent="&#160;"><var>if </var><text></text><var>$xArgument1 == Artefacts </var><text></text></line>
+      <line linenr="083" indent="&#160;&#160;"><comment>* Worth a lot but very rare</comment></line>
+      <line linenr="084" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>35000 </var><text></text></line>
+      <line linenr="085" indent="&#160;&#160;"><var>$i = </var><text></text><var>8000 </var><text></text></line>
+      <line linenr="086" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>10 </var><text></text></line>
+      <line linenr="087" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Cartography Chips </var><text></text></line>
+      <line linenr="088" indent="&#160;&#160;"><comment>* Valueable for their usefulness</comment></line>
+      <line linenr="089" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>10000 </var><text></text></line>
+      <line linenr="090" indent="&#160;&#160;"><var>$i = </var><text></text><var>2000 </var><text></text></line>
+      <line linenr="091" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>20 </var><text></text></line>
+      <line linenr="092" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Disintegrator Rifles  </var><text></text></line>
+      <line linenr="093" indent="&#160;&#160;"><comment>* Increase the amount a station will buy</comment></line>
+      <line linenr="094" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>80 </var><text></text></line>
+      <line linenr="095" indent="&#160;&#160;"><var>$i = </var><text></text><var>'StandardWare' </var><text></text></line>
+      <line linenr="096" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Jewels 7221 </var><text></text></line>
+      <line linenr="097" indent="&#160;&#160;"><comment>* Not so valueable individually but found in bulk (TODO: Simply raise value?)</comment></line>
+      <line linenr="098" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>15000 </var><text></text></line>
+      <line linenr="099" indent="&#160;&#160;"><var>$i = </var><text></text><var>7500 </var><text></text></line>
+      <line linenr="100" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>900 </var><text></text></line>
+      <line linenr="101" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Low-yield Sidearms </var><text></text></line>
+      <line linenr="102" indent="&#160;&#160;"><comment>* Increase the amount a station will buy</comment></line>
+      <line linenr="103" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>160 </var><text></text></line>
+      <line linenr="104" indent="&#160;&#160;"><var>$i = </var><text></text><var>'StandardWare' </var><text></text></line>
+      <line linenr="105" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Hand Weapons </var><text></text></line>
+      <line linenr="106" indent="&#160;&#160;"><comment>* Fairly worthless</comment></line>
+      <line linenr="107" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>2000 </var><text></text></line>
+      <line linenr="108" indent="&#160;&#160;"><var>$i = </var><text></text><var>800 </var><text></text></line>
+      <line linenr="109" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>100 </var><text></text></line>
+      <line linenr="110" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Narcotics </var><text></text></line>
+      <line linenr="111" indent="&#160;&#160;"><comment>* Average value but very common</comment></line>
+      <line linenr="112" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>5000 </var><text></text></line>
+      <line linenr="113" indent="&#160;&#160;"><var>$i = </var><text></text><var>1250 </var><text></text></line>
+      <line linenr="114" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>360 </var><text></text></line>
+      <line linenr="115" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Pirate Sidearms </var><text></text></line>
+      <line linenr="116" indent="&#160;&#160;"><comment>* Could be used by enslave passengers</comment></line>
+      <line linenr="117" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>8000 </var><text></text></line>
+      <line linenr="118" indent="&#160;&#160;"><var>$i = </var><text></text><var>3000 </var><text></text></line>
+      <line linenr="119" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>180 </var><text></text></line>
+      <line linenr="120" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Plutonium 7121 </var><text></text></line>
+      <line linenr="121" indent="&#160;&#160;"><comment>* Rare? Dunno..</comment></line>
+      <line linenr="122" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>12000 </var><text></text></line>
+      <line linenr="123" indent="&#160;&#160;"><var>$i = </var><text></text><var>6000 </var><text></text></line>
+      <line linenr="124" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>40 </var><text></text></line>
+      <line linenr="125" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Spacefly Eggs </var><text></text></line>
+      <line linenr="126" indent="&#160;&#160;"><comment>* High value, fairly rare</comment></line>
+      <line linenr="127" indent="&#160;&#160;"><var>$iPrice = </var><text></text><var>16000 </var><text></text></line>
+      <line linenr="128" indent="&#160;&#160;"><var>$i = </var><text></text><var>4000 </var><text></text></line>
+      <line linenr="129" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>60 </var><text></text></line>
+      <line linenr="130" indent="&#160;"><var>else if </var><text></text><var>$xArgument1 == Passengers OR $xArgument1 == Prisoners OR $xArgument1 == Slaves </var><text></text></line>
+      <line linenr="131" indent="&#160;&#160;"><var>$xArgument1 = </var><text></text><var>Slaves </var><text></text></line>
+      <line linenr="132" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>240 </var><text></text></line>
+      <line linenr="133" indent="&#160;&#160;"><var>$i = </var><text></text><var>'StandardWare' </var><text></text></line>
+      <line linenr="134" indent="&#160;"><text>else</text></line>
+      <line linenr="135" indent="&#160;&#160;"><comment>* Space weed, Space Fuel, Space flies</comment></line>
+      <line linenr="136" indent="&#160;&#160;"><var>$iStock = </var><text></text><var>200 </var><text></text></line>
+      <line linenr="137" indent="&#160;&#160;"><var>$i = </var><text></text><var>'StandardWare' </var><text></text></line>
+      <line linenr="138" indent="&#160;"><text>end</text></line>
+      <line linenr="139" indent="&#160;"><comment>* [STOCK] Check and return</comment></line>
+      <line linenr="140" indent="&#160;"><var>skip if not </var><text></text><var>$xArgument2 == 4 </var><text></text></line>
+      <line linenr="141" indent="&#160;&#160;"><text>return </text><var>$iStock</var><text></text></line>
+      <line linenr="142" indent="&#160;"><comment>* [PRICES] Use the standard functions for standard wares</comment></line>
+      <line linenr="143" indent="&#160;"><var>if </var><text></text><var>$i == 'StandardWare' </var><text></text></line>
+      <line linenr="144" indent="&#160;&#160;"><text></text><var>$iPrice =</var><text> = get average price of ware </text><var>$xArgument1</var><text></text></line>
+      <line linenr="145" indent="&#160;&#160;"><var>skip if not </var><text></text><var>$xArgument2 == 2 </var><text></text></line>
+      <line linenr="146" indent="&#160;&#160;&#160;"><text></text><var>$iPrice =</var><text> = get min price of ware </text><var>$xArgument1</var><text></text></line>
+      <line linenr="147" indent="&#160;&#160;"><var>skip if not </var><text></text><var>$xArgument2 == 3 </var><text></text></line>
+      <line linenr="148" indent="&#160;&#160;&#160;"><text></text><var>$iPrice =</var><text> = get max price of ware </text><var>$xArgument1</var><text></text></line>
+      <line linenr="149" indent="&#160;"><text>else</text></line>
+      <line linenr="150" indent="&#160;&#160;"><comment>* [PRICES] Alter the base price by 'i' to create min and max, if required</comment></line>
+      <line linenr="151" indent="&#160;&#160;"><var>skip if not </var><text></text><var>$xArgument2 == 2 </var><text></text></line>
+      <line linenr="152" indent="&#160;&#160;&#160;"><var>$iPrice = </var><text></text><var>$iPrice - $i </var><text></text></line>
+      <line linenr="153" indent="&#160;&#160;"><var>skip if not </var><text></text><var>$xArgument2 == 3 </var><text></text></line>
+      <line linenr="154" indent="&#160;&#160;&#160;"><var>$iPrice = </var><text></text><var>$iPrice + $i </var><text></text></line>
+      <line linenr="155" indent="&#160;"><text>end</text></line>
+      <line linenr="156" indent="&#160;"> </line>
+      <line linenr="157" indent="&#160;"><text>return </text><var>$iPrice</var><text></text></line>
+      <line linenr="158" indent=""><text>else</text></line>
+      <line linenr="159" indent="&#160;"><text>return </text><var>'Error:FunctionName'</var><text></text></line>
+      <line linenr="160" indent=""><text>end</text></line>
+      <line linenr="161" indent=""><comment>* ---------------------------- SCRIPT ENDS ----------------------------</comment></line>
+      <line linenr="162" indent=""><comment>* ---------------------------- SCRIPT ENDS ----------------------------</comment></line>
+      <line linenr="163" indent=""><text>return </text><var>null</var><text></text></line>
+      <line linenr="164" indent=""> </line>
+      <line linenr="165" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.lib.wares" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Library: Black Market Wares" />
+         <sval type="int" val="100" />
+         <sval type="int" val="0" />
+         <sval type="array" size="8">
+            <sval type="string" val="szFunction" />
+            <sval type="string" val="xArgument1" />
+            <sval type="string" val="xArgument2" />
+            <sval type="string" val="xArgument3" />
+            <sval type="string" val="i" />
+            <sval type="string" val="iJob" />
+            <sval type="string" val="iPrice" />
+            <sval type="string" val="iStock" />
+         </sval>
+         <sval type="array" size="118">
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610601213" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="AddBlackMarketWaresToShip" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="156" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.bBlackMarketWaresAdded" />
+               <sval type="int" val="-1610611960" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="701" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="1202" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610609917" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="10" />
+               <sval type="int" val="8" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="10" />
+               <sval type="int" val="19" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786451" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786440" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786477" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786448" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="37">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610608891" />
+               <sval type="int" val="11" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="502" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="503" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1016" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="11" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-8" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-9" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786448" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786497" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610607355" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="501" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1015" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786448" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786450" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786497" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786451" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="51">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610606587" />
+               <sval type="int" val="15" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1399" />
+               <sval type="int" val="15" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1412" />
+               <sval type="int" val="15" />
+               <sval type="int" val="3" />
+               <sval type="int" val="15" />
+               <sval type="int" val="9" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6136" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6168" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="17" />
+               <sval type="int" val="16" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="2" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-5" />
+               <sval type="int" val="17" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-8" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-9" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-12" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-13" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="5" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786436" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610605819" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6133" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786450" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610605051" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6118" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786433" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610604283" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6120" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786477" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610603003" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6123" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6165" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786440" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="1048672" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="1048671" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610602235" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6139" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6171" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786455" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="43" />
+            </sval>
+            <sval type="array" size="73">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610601723" />
+               <sval type="int" val="23" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6114" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6160" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6143" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6175" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6138" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6170" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="23" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-8" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-9" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-12" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-13" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-16" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-17" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-20" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-21" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786453" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="155" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.bBlackMarketWaresAdded" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="10" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="117" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610583035" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="GetBlackMarketWareProperty" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610599677" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786433" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="35000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="8000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="10" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610598395" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786436" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="10000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="20" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610597371" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="1048672" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="80" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="StandardWare" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610596091" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786477" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="15000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="7500" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="900" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610595067" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="1048671" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="160" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="StandardWare" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610593787" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786440" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="800" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="100" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610592507" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786448" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="5000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1250" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="360" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610591227" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786451" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="8000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="3000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="180" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610589947" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786467" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="12000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="6000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="40" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610588667" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786450" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="16000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="4000" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="60" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="37">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610587387" />
+               <sval type="int" val="11" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786454" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="786497" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="1048582" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="11" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-8" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-9" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="9" />
+               <sval type="int" val="1048582" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="240" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="StandardWare" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="101" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="7" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="200" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="104" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="StandardWare" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610586360" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="4" />
+               <sval type="int" val="4" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="7" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610584573" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="5" />
+               <sval type="string" val="StandardWare" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="629" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610585336" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="631" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610584824" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="4" />
+               <sval type="int" val="3" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="630" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="114" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610584056" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="4" />
+               <sval type="int" val="2" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="15" />
+               <sval type="int" val="12" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="12" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610583544" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="4" />
+               <sval type="int" val="3" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="6" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="4" />
+               <sval type="int" val="15" />
+               <sval type="int" val="11" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="11" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="6" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="112" />
+               <sval type="int" val="117" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Error:FunctionName" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+         </sval>
+         <sval type="array" size="4">
+            <sval type="array" size="2">
+               <sval type="int" val="2" />
+               <sval type="string" val="Name of function to call" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="9" />
+               <sval type="string" val="[optional] First argument (see function)" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="9" />
+               <sval type="string" val="[optional] Second argument (see function)" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="9" />
+               <sval type="string" val="[optional] Third argument (see function)" />
+            </sval>
+         </sval>
+         <sval type="array" size="70">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="**********************************************************************" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="PIRACY: BLACK MARKET WARES LIBRARY   -by-   MISTER BEAR    v1.00  Jan-2011" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="----------------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="DESCRIPTION: Functions for using and querying new wares added by Piracy collection" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="**********************************************************************" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="------------------------- ADD BLACK MARKET WARES TO SHIP -------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="string" val="ADD BLACK MARKET WARES TO SHIP : Add black market wares to a ship (if appropriate) and mark it as examined" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="string" val="ARGUMENT 1    :  [ship] Ship to examine" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="3" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="5" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="6" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Pirates" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="10" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="12" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Customs" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="14" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="16" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Police" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="20" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="22" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Recon, Intelligence Service" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="23" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="25" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Spacefly hunters" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="26" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="28" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Archaeologists" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="29" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="31" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Casino" />
+            </sval>
+            <sval type="array" size="10">
+               <sval type="int" val="32" />
+               <sval type="int" val="3" />
+               <sval type="int" val="646" />
+               <sval type="int" val="131074" />
+               <sval type="string" val="xArgument1" />
+               <sval type="int" val="-2147483647" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1000000" />
+               <sval type="int" val="9" />
+               <sval type="int" val="1048655" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="32" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="34" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Humanitarian Aid" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="37" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="39" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Diplomatic Transport" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="40" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="42" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Dropship, Recruit Transport, Troop Transport" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="43" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="43" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="44" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="44" />
+               <sval type="int" val="1" />
+               <sval type="string" val="-------------------- GET BLACK MARKET WARE PROPERTY --------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="46" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="46" />
+               <sval type="int" val="1" />
+               <sval type="string" val="GET BLACK MARKET WARE PROPERTY : Get various properties of a black market ware" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="46" />
+               <sval type="int" val="1" />
+               <sval type="string" val="--------------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="46" />
+               <sval type="int" val="1" />
+               <sval type="string" val="ARGUMENT 1    :  [ware] Ware to be queries" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="46" />
+               <sval type="int" val="1" />
+               <sval type="string" val="ARGUMENT 2    :  [int] Property    1:Average Price   2:Minimum Price   3:Maximum Price   4:Maximum stock for stations" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="46" />
+               <sval type="int" val="1" />
+               <sval type="string" val="RETURN VALUE  :  [int] Chosen property value" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="46" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="47" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Worth a lot but very rare" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="52" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Valueable for their usefulness" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="57" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Increase the amount a station will buy" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="61" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Not so valueable individually but found in bulk (TODO: Simply raise value?)" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="66" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Increase the amount a station will buy" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="70" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Fairly worthless" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="75" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Average value but very common" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="80" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Could be used by enslave passengers" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="85" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Rare? Dunno.." />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="90" />
+               <sval type="int" val="1" />
+               <sval type="string" val="High value, fairly rare" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="99" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="99" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Space weed, Space Fuel, Space flies" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="101" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="101" />
+               <sval type="int" val="1" />
+               <sval type="string" val="[STOCK] Check and return" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="1" />
+               <sval type="string" val="[PRICES] Use the standard functions for standard wares" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="110" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="110" />
+               <sval type="int" val="1" />
+               <sval type="string" val="[PRICES] Alter the base price by 'i' to create min and max, if required" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="114" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="114" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="116" />
+               <sval type="int" val="5" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="117" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="117" />
+               <sval type="int" val="1" />
+               <sval type="string" val="---------------------------- SCRIPT ENDS ----------------------------" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="117" />
+               <sval type="int" val="1" />
+               <sval type="string" val="---------------------------- SCRIPT ENDS ----------------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="118" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="118" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+      </sval>
+   </codearray>
+</script>

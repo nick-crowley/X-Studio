@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Level 0 Mission 8" name="Battle Enemy Ships" description="Large Battle"/>
+    <version number="0.3" date="17/06/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L0M08 B" library="1">
+      <documentation>
+        <content name="L0M08 Battle Enemy Ships" reference="XFXT" type="briefing"/>
+        <version number="0.3" date="17/06/08" status="development"/>
+        <params>
+          <param name="Cue" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" compulsory="1" description="The person offering the mission"/>
+          <param name="Location" compulsory="1" description="Location of battle and entry point for enemy ships"/>
+          <param name="Sector" type="sectorname" compulsory="0" description="Used when no location, compulsary if no location!"/>
+          <param name="JumpIn" type="boolean" compulsory="0" description="If set as 1 then ships jump in to battle instead of using gates"/>
+          <param name="SectorMinDist" type="number" compulsory="0" description="Dist in km, used when jumping in"/>
+          <param name="SectorMaxDist" type="number" compulsory="0" description="Dist in km, used when jumping in"/>
+          <param name="Friendlies" type="groupname" compulsory="0" description="Pre existing group of friendlies"/>
+          <param name="Step" type="number" compulsory="0" description="The step to use if additional objectives are involved"/>
+          <param name="PageID" type="number" description="Page ID of mission description"/>
+          <param name="TextID" type="number" description="Text ID of mission description"/>
+          <param name="StoryID" type="number" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" type="number" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Command" compulsory="0" description="Command station or ship" default="No command station events"/>
+          <param name="Bonus" type="valuename" compulsory="0" description="If supplied the mission will add bonuses for destroyed ships"/>
+        </params>
+        <history>
+          <change date="16/07/08" author="al_main" description="Change L0X/Y/ZCoord to use metres to be more clear"/>
+          <change date="12/07/08" author="al_main" description="Fixed missing exact='1' on the destroy spacefly do_if"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="05/07/08" author="al_main" description="Added code for ships notusing gates, fixed some stuff"/>
+          <change date="17/06/08" author="al_main" description="Added ID param, some setup improvements"/>
+          <change date="04/06/08" author="al_main" description="Fixed find_gate issue"/>
+          <change date="27/02/08" author="al_main" description="Changes to handling of OBJ03 location"/>
+          <change date="20/02/08" author="al_main"  description="Initial briefing improved"/>
+          <change date="20/02/08" author="al_main"  description="Change to use group text file"/>
+          <change date="19/02/08" author="al_main" description="Rewritten to use OBJ03"/>
+          <change date="04/02/08" author="al_main" description="Documentation nodes added"/>
+          <change date="04/02/08" author="al_main" description="Re-written for new cue structure"/>
+        </history>
+        <todo>
+          <item priority="low" description="Make location not compulsary"/>
+          <item priority="high" description="Add bonus system for bigger payout when done better"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="{param@Cue}.{param@ID} L0Step" exact="{param@Step}"/>
+          <do_if value="{value@{param@Cue}.{param@ID} L0Step}" min="1" negate="1">
+            <set_value name="{param@Cue}.{param@ID} L0Step" exact="1"/>
+          </do_if>
+          <!--set location for battle-->
+          <do_choose>
+            <do_when value="{param.exists@Location}" exact="1">
+              <set_object name="{param@Cue}.{param@ID} L0M08Location" value="{object@{param@Location}}"/>
+              <set_sector name="{param@Cue}.{param@ID} L0Sector" value="{object.sector@{param@Location}}"/>
+              <set_value name="{param@Cue}.{param@ID} L0XCoord" exact="{object.position.x.m@{param@Location}}"/>
+              <set_value name="{param@Cue}.{param@ID} L0YCoord" exact="{object.position.y.m@{param@Location}}"/>
+              <set_value name="{param@Cue}.{param@ID} L0ZCoord" exact="{object.position.z.m@{param@Location}}"/>
+            </do_when>
+            <do_otherwise>
+              <set_sector name="{param@Cue}.{param@ID} L0Sector" value="{sector@{param@Sector}}"/>
+              <set_value name="{param@Cue}.{param@ID} L0XCoord" min="-5000" max="5000"/>
+              <set_value name="{param@Cue}.{param@ID} L0YCoord" min="-2000" max="2000"/>
+              <set_value name="{param@Cue}.{param@ID} L0ZCoord" min="-5000" max="5000"/>
+            </do_otherwise>
+          </do_choose>
+          <!--decide whether to jump in or use gates-->
+          <do_if value="{param.exists@JumpIn}" exact="1">
+            <set_value name="L0M08 B.jumpIn" exact="1"/>
+          </do_if>
+          <do_if value="{param@EnemyRace}" exact="{lookup.race@khaak}">
+            <set_value name="L0M08 B.jumpIn" exact="1"/>
+          </do_if>
+          <!--find an entry point-->
+          <do_choose>
+            <do_when value="{value@L0M08 B.jumpIn}" exact="1">
+              <do_if value="{param.exists@SectorMinDist}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} minDist" exact="{param@SectorMinDist}"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} minDist}" max="5">
+                <set_value name="{param@Cue}.{param@ID} minDist" exact="7"/>
+              </do_if>
+              <do_if value="{param.exists@SectorMaxDist}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} maxDist" exact="{param@SectorMaxDist}"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} maxDist}" max="5">
+                <set_value name="{param@Cue}.{param@ID} maxDist" exact="7"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} maxDist}" max="{value@{param@Cue}.{param@ID} minDist}">
+                <set_value name="{param@Cue}.{param@ID} maxDist" exact="{value@{param@Cue}.{param@ID} minDist}+1"/>
+              </do_if>
+              <create_spacefly name="{param@Cue}.{param@ID} L0M08EntryPoint">
+                <position x="{value@{param@Cue}.{param@ID} L0XCoord}m" y="{value@{param@Cue}.{param@ID} L0YCoord}m" z="{value@{param@Cue}.{param@ID} L0ZCoord}m" min="{value@{param@Cue}.{param@ID} minDist}km" max="{value@{param@Cue}.{param@ID} maxDist}km" height="3km"/>
+                <sector sector="{param@Cue}.{param@ID} L0Sector"/>
+              </create_spacefly>
+            </do_when>
+            <do_otherwise>
+              <find_sector name="this.EnemySector" race="{param@EnemyRace}" sector="{param@Cue}.{param@ID} L0Sector" exact="1"/>
+              <do_if value="{sector.exists@this.EnemySector}" exact="1">
+                <find_gate group="this.gates" multiple="1" max="6" >
+                  <position x="{value@{param@Cue}.{param@ID} L0XCoord}m" y="{value@{param@Cue}.{param@ID} L0YCoord}m" z="{value@{param@Cue}.{param@ID} L0ZCoord}m"/>
+                  <sector sector="{sector@{param@Cue}.{param@ID} L0Sector}"/>
+                  <jumps exact="0"/>
+                </find_gate>
+                <do_all exact="{group.object.count@this.gates}" counter="gate">
+                  <do_if value="{group.object.{counter@gate}.destination.sector@this.gates}" exact="{sector@this.EnemySector}">
+                    <set_object name="{param@Cue}.{param@ID} EntryGate" value="{group.object.{counter@gate}@this.gates}"/>
+                  </do_if>
+                </do_all>
+              </do_if>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} EntryGate}" exact="0">
+                <find_gate name="{param@Cue}.{param@ID} EntryGate" nearest="1" >
+                  <position x="{value@{param@Cue}.{param@ID} L0XCoord}m" y="{value@{param@Cue}.{param@ID} L0YCoord}m" z="{value@{param@Cue}.{param@ID} L0ZCoord}m"/>
+                  <sector sector="{sector@{param@Cue}.{param@ID} L0Sector}"/>
+                </find_gate>
+              </do_if>
+              <do_choose>
+                <do_when value="{object.destination.exists@{param@Cue}.{param@ID} EntryGate}" exact="1">
+                  <set_object name="{param@Cue}.{param@ID} L0M08EntryPoint" value="{object.destination@{param@Cue}.{param@ID} EntryGate}"/>
+                </do_when>
+                <do_otherwise>
+                  <set_object name="{param@Cue}.{param@ID} L0M08EntryPoint" value="{object@{param@Cue}.{param@ID} EntryGate}"/>
+                </do_otherwise>
+              </do_choose>
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0M08Location}" exact="1">
+                <do_if value="{object.class@{param@Cue}.{param@ID} L0M08Location}" exact="{lookup.class@gate}">
+                  <do_if value="{object.destination.exists@{param@Cue}.{param@ID} L0M08Location}" exact="1">
+                    <set_object name="{param@Cue}.{param@ID} L0M08EntryPoint" value="{object.destination@{param@Cue}.{param@ID} L0M08Location}"/>
+                  </do_if>
+                </do_if>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+          <!--set entry point location-->
+          <set_sector name="{param@Cue}.{param@ID} L0EntrySector" value="{object.sector@{param@Cue}.{param@ID} L0M08EntryPoint}"/>
+          <set_value name="{param@Cue}.{param@ID} L0EntryXCoord" exact="{object.position.x@{param@Cue}.{param@ID} L0M08EntryPoint}"/>
+          <set_value name="{param@Cue}.{param@ID} L0EntryYCoord" exact="{object.position.y@{param@Cue}.{param@ID} L0M08EntryPoint}"/>
+          <set_value name="{param@Cue}.{param@ID} L0EntryZCoord" exact="{object.position.z@{param@Cue}.{param@ID} L0M08EntryPoint}"/>
+          <set_value name="{param@Cue}.{param@ID} L0EntryXCoordkm" exact="{object.position.x.km@{param@Cue}.{param@ID} L0M08EntryPoint}"/>
+          <set_value name="{param@Cue}.{param@ID} L0EntryYCoordkm" exact="{object.position.y.km@{param@Cue}.{param@ID} L0M08EntryPoint}"/>
+          <set_value name="{param@Cue}.{param@ID} L0EntryZCoordkm" exact="{object.position.z.km@{param@Cue}.{param@ID} L0M08EntryPoint}"/>
+          <!--destroy temporary spacefly in knaak case-->
+          <do_if value="{object.isclass.spacefly@{param@Cue}.{param@ID} L0M08EntryPoint}" exact="1">
+            <destroy_object object="{param@Cue}.{param@ID} L0M08EntryPoint" explosion="0" warp="0"/>
+          </do_if>
+          <set_value name="{param@Cue}.{param@ID} L0Title" min="1001" max="{3608,1000}" profile="decreasing"/>
+          <set_value name="{param@Cue}.{param@ID} L0M08FleetName" list="2112|2114"/>
+          <do_if value="{param@EnemyRace}" list="{lookup.race@xenon}|{lookup.race@khaak}">
+            <set_value name="{param@Cue}.{param@ID} L0M08FleetName" list="2152|2153" chance="90"/>
+          </do_if>
+          <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3608,{value@{param@Cue}.{param@ID} L0Title}}">
+            <objectives>
+              <objective step="{value@{param@Cue}.{param@ID} L0Step}">
+                <custom icon="destroy" text="{35,{value@{param@Cue}.{param@ID} L0M08FleetName}}"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <do_if value="{object.exists@{param@Command}}" exact="1">
+            <set_object name="{param@Cue}.{param@ID} L0M08Command" value="{param@Command}"/>
+            <create_briefing cue="{param@Cue}">
+              <objectives>
+                <objective step="{value@{param@Cue}.{param@ID} L0Step}+1">
+                  <custom icon="protect" action=" + {35,2010}" text="{object.name@{param@Cue}.{param@ID} L0M08Command}"/>
+                  <!--<protect object="{param@Cue}.{param@ID} L0M08Command"/>-->
+                </objective>
+              </objectives>
+            </create_briefing>
+          </do_if>
+          <do_if value="{param.exists@Bonus}" exact="1">
+            <do_if value="{value@{param@RewardCr}}" exact="0">
+              <set_value name="{param@RewardCr}" exact="{reward.money@{param@Difficulty}.XFXX}/2"/>
+            </do_if>
+            <set_value name="{param@Cue}.{param@ID} Bonus" exact="1+({reward.money@average.XFXX}/250)"/>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="LUM04">
+          <params>
+            <param name="Discipline" value="XFXX"/>
+          </params>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M08" library="1">
+      <documentation>
+        <content name="L0M08 Battle Enemy Ships" reference="XFXT" type="briefing"/>
+        <version number="0.3" date="17/06/08" status="development"/>
+        <params>
+          <param name="Cue" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID"/>
+          <param name="TextID"/>
+          <param name="AddText"/>
+          <param name="Reward"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Command" compulsory="0" description="Command station or ship" default="No command station events"/>
+          <param name="Difficulty" description="Mission difficulty"/>
+          <param name="Enemies" type="groupname" compulsory="0" description="Pre existing group of enemies"/>
+          <param name="Friendlies" type="groupname" compulsory="0" description="Pre existing group of friendlies"/>
+          <param name="NoStartMessage" type="boolean" compulsory="0" description="param.exists = 1 blocks sending of start message"/>
+          <param name="CanLeaveSector" type="boolean" compulsory="0" description="param.exist = 1 allows player to leave the sector and not fail"/>
+          <param name="Bonus" type="valuename" compulsory="0" description="If supplied the mission will add bonuses for destroyed ships"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.{param@ID} L0M08 Progress" type="number" description="1 - Mission complete"/>
+          <return name="{param@Cue}.{param@ID} L0M08 Progress" type="number" description="4 - Player Left Sector"/>
+        </returns>
+        <history>
+          <change date="20/08/08" author="al_main" description="Fixed new invader updates, and increased performance, working bonuses for kills"/>
+          <change date="17/08/08" author="al_main" description="Removed incorrect subtitle update"/>
+          <change date="12/08/08" author="al_main" description="In Xenon and Khaak cases new invaders are now added"/>
+          <change date="12/08/08" author="al_main" description="Objective updates now silent"/>
+          <change date="22/07/08" author="al_main" description="Fixed created enemies count"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="20/06/08" author="al_main" description="Fixed mission not starting bug, added param.exists check"/>
+          <change date="17/06/08" author="al_main" description="Added ID param"/>
+          <change date="22/02/08" author="al_main" description="Create ships moved to seprate cue and new cue ordering"/>
+          <change date="22/02/08" author="al_main" description="Fix for bailing ship not completing, gate works as location"/>
+          <change date="20/02/08" author="al_main" description="Change to use group text file"/>
+          <change date="18/02/08" author="al_main" description="Event objectives split to use OBJ library"/>
+          <change date="04/02/08" author="al_main" description="Documentation nodes added"/>
+          <change date="04/02/08" author="al_main" description="Re-written for new cue structure"/>
+        </history>
+        <todo>
+          <item priority="high" description="Add fail for leaving the sector"/>
+          <item priority="high" description="Add bonus system for bigger payout when done better"/>
+          <item priority="high" description="Message variation in L0M08 Main"/>
+          <item priority="low" description="check sector is final sector before interrupting movement command"/>
+          <item priority="low" description="Use killenemiesrange command"/>
+          <item priority="high" description="CUE TO ALLOW REINFORCEMENTS TO TURN UP IF THE FRIENDLY FLEET IS IN TROUBLE (PARAM)"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <!--SETUP-->
+          <set_value name="this.Event" exact="0"/>
+          <set_value name="this.Start" exact="{player.age}"/>
+          <set_value name="this.AddBriefing" exact="0"/>
+          <set_value name="this.SetObjective" exact="0"/>
+          <set_value name="this.StepName" exact="0"/>
+          <do_if value="{param.exists@Enemies}" exact="1">
+            <set_value name="this.EnemyObjects" exact="{group.object.count@{param@Enemies}}"/>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L0M08 Mission">
+          <cues>
+            <cue name="L0M08 Enemy Fleet Exists" check="cancel">
+              <condition>
+                <check_all>
+                  <cue_completed cue="L0M08 Mission"/>
+                  <check_value value="{value@L0M08.EnemyObjects}" min="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <copy_group name="{param@Cue}.{param@ID} L0M08Enemies" group="{param@Enemies}"/>
+              </action>
+            </cue>
+            <cue name="L0M08 Enemy Fleet Create" check="cancel">
+              <condition>
+                <check_all>
+                  <cue_completed cue="L0M08 Mission"/>
+                  <check_value value="{value@L0M08.EnemyObjects}" min="1" negate="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_choose>
+                  <do_when value="{player.fightrank.rank}" max="25">
+                    <set_value name="L0M08 Enemy Fleet Create.OBSRank" exact="{player.fightrank.rank}+((25-{player.fightrank.rank})/5)"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="L0M08 Enemy Fleet Create.OBSRank" exact="{player.fightrank.rank}"/>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+              <cues>
+                <cue name="L0M08 OBS Finished"/>
+                <cue ref="OBS">
+                  <params>
+                    <param name="OBS Cue" value="{param@Cue}"/>
+                    <param name="OBS Cancel Cue" value="L0M08 OBS Finished"/>
+                    <param name="OBS Fleet Group Name" value="{param@ID} L0M08Enemies"/>
+                    <param name="OBSFleetRace" value="{param@EnemyRace}"/>
+                    <param name="OBSFleetPilotsRace" value="{param@EnemyRace}"/>
+                    <param name="OBSMissionRank" value="{value@L0M08 Enemy Fleet Create.OBSRank}"/>
+                    <param name="OBSDifficultyRank" value="{param@Difficulty}"/>
+                    <param name="OBSSector" value="{sector@{param@Cue}.{param@ID} L0EntrySector}"/>
+                    <param name="OBS X" value="{value@{param@Cue}.{param@ID} L0EntryXCoordkm}"/>
+                    <param name="OBS Y" value="{value@{param@Cue}.{param@ID} L0EntryYCoordkm}"/>
+                    <param name="OBS Z" value="{value@{param@Cue}.{param@ID} L0EntryZCoordkm}"/>
+                    <param name="OBSPosition" value="200"/>
+                    <param name="OBSFleetCapturable" value="1"/>
+                    <param name="OBSFleetCommunicates" value="1"/>
+                    <param name="OBSFleetCovered" value="0"/>
+                    <param name="OBS Dock Support" value="1"/>
+                    <param name="OBS Support Overflow" value="1"/>
+                  </params>
+                </cue>
+                <cue name="L0M08 Enemies Created">
+                  <condition>
+                    <cue_cancelled cue="L0M08 OBS Finished"/>
+                  </condition>
+                  <timing>
+                    <time min="100" max="200"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <set_value name="this.range" exact="({value@{param@Cue}.{param@ID} maxDist}*125)/100"/>
+                      <do_if value="{value@this.range}" max="25">
+                        <set_value name="this.range" exact="30"/>
+                      </do_if>
+                      <set_group_command group="{param@Cue}.{param@ID} L0M08Enemies" command="killenemiesrange" distance="{value@this.range}km">
+                        <position x="{value@{param@Cue}.{param@ID} L0XCoord}m" y="{value@{param@Cue}.{param@ID} L0YCoord}m" z="{value@{param@Cue}.{param@ID} L0ZCoord}m"/>
+                        <sector sector="{param@Cue}.{param@ID} L0Sector"/>
+                      </set_group_command>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M08 Main" delay="500">
+              <condition>
+                <check_any>
+                  <cue_is_complete cue="L0M08 Enemy Fleet Exists"/>
+                  <cue_is_complete cue="L0M08 Enemies Created"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="1s" max="2s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <do_if value="{param.exists@Friendlies}" exact="1">
+                    <set_group_command group="{param@Friendlies}" command="killenemiesrange" distance="30km">
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{param@Cue}.{param@ID} L0Sector"/>
+                    </set_group_command>
+                  </do_if>
+
+                  <!--CREATE BRIEFING, ETC-->
+                  <set_objective cue="{param@Cue}" title="{3608,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                    <mission level="{param@Difficulty}" discipline="XFXX"/>
+                    <custom icon="destroy" text="{35,{value@{param@Cue}.{param@ID} L0M08FleetName}}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                  </set_objective>
+
+                  <!--IF STATION SPECIFIED THEN SHIPS NEED TO MOVE TOWARDS COMMAND STATION-->
+                  <set_target object="{group.leader@{param@Cue}.{param@ID} L0M08Enemies}"/>
+
+                  <!--MESSAGES FOR LOCATION OBJECT EXISTING AND IS GATE OR NOT, AND FOR DEFEND COMMAND SHIP / SECTOR. ACTOR SPECIFIC?-->
+                  <do_if value="{param.exists@NoStartMessage}" exact="0">
+                    <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{lookup.race.name@{param@EnemyRace}} detected near to the {object.name@{param@Cue}.{param@ID} L0M08Location}, defend {object.sector.name@{param@Cue}.{param@ID} L0M08Location} at all costs!"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="LUM04">
+                  <params>
+                    <param name="Discipline" value="XFXX"/>
+                  </params>
+                </cue>
+                <cue ref="LUM05"/>
+                
+                <!--***MISSION EVENTS***-->
+                <!--
+            <cue name="L0M08 Mission Events">
+              <condition>
+                <cue_completed cue="L0M08 Main"/>
+              </condition>
+              add chance condition for no events?
+              <cues>
+                <cue ref="OBJ03">
+                  <params>
+                    <param name="EntryPoint" value="{param@Cue}.{param@ID} L0M08EntryPoint"/>
+                    <param name="Sector" value="{param@Cue}.{param@ID} L0Sector"/>
+                    <param name="FriendlyFleet" value="L0M08 Main.Friendlies"/>
+                    <param name="EnemyFleet" value="{param@Cue}.{param@ID} L0M08Enemies"/>
+                    <param name="Command" value="{param@Cue}.{param@ID} L0M08Command"/>
+                    <param name="IsEvent" value="L0M08.Event"/>
+                    <param name="AddBriefing" value="L0M08.AddBriefing"/>
+                    <param name="SetObjective" value="L0M08.SetObjective"/>
+                    <param name="StepName" value="{param@Cue}.{param@ID} L0Step"/>
+                    <param name="Done" value="L0M08 Main.done"/>
+                    <param name="Max" value="L0M08 Main.max"/>
+                  </params>
+                </cue>
+                <cue name="L0M08 Add Briefing Objectives">
+                  <condition>
+                    <check_value value="{value@L0M08.AddBriefing}" exact="1"/>
+                  </condition>
+                  <action>
+                    <set_value name="L0M08.AddBriefing" exact="0"/>
+                  </action>
+                  <cues>
+                    <cue ref="L0M08 Briefing Library"/>
+                  </cues>
+                </cue>
+                <cue name="L0M08 Reset Objective">
+                  <condition>
+                    <check_value value="{value@L0M08.SetObjective}" exact="1"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L0M08.SetObjective" exact="0"/>
+                      <set_objective cue="{param@Cue}" title="{3608,{value@{param@Cue}.{param@ID} L0Title}}">
+                        <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                        <mission level="{param@Difficulty}" discipline="XFXX"/>
+                        <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                      </set_objective>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            -->
+                <!--CUE TO ALLOW REINFORCEMENTS TO TURN UP IF THE FRIENDLY FLEET IS IN TROUBLE (PARAM)-->
+
+                <!--***PROGRESS UPDATES***-->
+                <cue name="L0M08 Kill Standard">
+                  <condition>
+                    <!--normal race checks on the enemy group-->
+                    <check_value value="{param@EnemyRace}" list="{lookup.race@xenon}|{lookup.race@khaak}" negate="1"/>
+                  </condition>
+                  <cues>
+                    <cue name="L0M08 Killed Std" instantiate="static">
+                      <condition>
+                        <any_object_destroyed_by_player group="{param@Cue}.{param@ID} L0M08Enemies"/>
+                      </condition>
+                      <timing>
+                        <time min="25" max="50"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <set_value name="L0M08.PlayerKilled" operation="add"/>
+                          <set_value name="L0M08.Progress" operation="add"/>
+                          <!--dont change guidance if tracking an event-->
+                          <do_if value="{group.object.count@{param@Cue}.{param@ID} L0M08Enemies}" min="1">
+                            <do_if value="{value@L0M08.Event}" exact="0">
+                              <set_objective cue="{param@Cue}" silent="1">
+                                <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                                <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                              </set_objective>
+                              <!--if bonus set then add score to bonus-->
+                              <do_if value="{value@{param@Cue}.{param@ID} Bonus}" min="1">
+                                <set_value name="this.increase" exact="{value@Constant {object.class@{event.object}} Points}*{value@{param@Cue}.{param@ID} Bonus}"/>
+                                <do_if value="{value@this.increase}" exact="0">
+                                  <set_value name="this.increase" exact="{value@Constant {lookup.class@m4} Points}*{value@{param@Cue}.{param@ID} Bonus}"/>
+                                </do_if>
+                                <set_value name="{param@Bonus}" operation="add" exact="{value@this.increase}"/>
+                                <set_objective cue="{param@Cue}">
+                                  <custom action="{35,1104065}" text="+ [o]{value@this.increase}[/o] Cr"/>
+                                </set_objective>
+                                <set_objective cue="{param@Cue}" silent="1">
+                                  <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                                  <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                                </set_objective>
+                                <create_briefing cue="{param@Cue}">
+                                  <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                                </create_briefing>
+                              </do_if>
+                            </do_if>
+                          </do_if>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L0M08 Killed Else" instantiate="static">
+                  <condition>
+                    <any_object_destroyed group="{param@Cue}.{param@ID} L0M08Enemies"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{object.race@{event.param2}}" exact="{lookup.race@player}">
+                          <set_value name="L0M08.Progress" operation="add"/>
+                          <!--if bonus set then add score to bonus-->
+                          <do_if value="{value@{param@Cue}.{param@ID} Bonus}" min="1">
+                            <set_value name="this.increase" exact="{value@Constant {object.class@{event.object}} Points}*{value@{param@Cue}.{param@ID} Bonus}"/>
+                            <do_if value="{value@this.increase}" exact="0">
+                              <set_value name="this.increase" exact="{value@Constant {lookup.class@m4} Points}*{value@{param@Cue}.{param@ID} Bonus}"/>
+                            </do_if>
+                            <set_value name="{param@Bonus}" operation="add" exact="{value@this.increase}"/>
+                            <create_briefing cue="{param@Cue}">
+                              <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                            </create_briefing>
+                          </do_if>
+                        </do_when>
+                        <do_otherwise>
+                          <set_value name="L0M08.Progress" operation="subtract"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <!--xenon/khaak are special cases as all xenon/khaak ships are hostile so we destroy them all-->
+                      <!--set the time to refresh the group-->
+                      <do_if value="{param@EnemyRace}" list="{lookup.race@xenon}|{lookup.race@khaak}">
+                        <do_if value="{value@L0M08.GroupCheckTime}" min="{player.age}+1">
+                          <set_value name="L0M08.GroupCheckTime" exact="{player.age}+1"/>
+                        </do_if>
+                      </do_if>
+
+                      <!--update the guidance-->
+                      <do_if value="{group.object.count@{param@Cue}.{param@ID} L0M08Enemies}" min="1">
+                        <do_if value="{value@L0M08.Event}" exact="0" comment="Dont change guidance if tracking an event">
+                          <!--update bonus guidance-->
+                          <do_if value="{value@this.increase}" min="1">
+                            <set_objective cue="{param@Cue}">
+                              <custom action="{35,1104065}" text="+ [o]{value@this.increase}[/o] Cr"/>
+                            </set_objective>
+                            <set_objective cue="{param@Cue}" silent="1">
+                              <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                            </set_objective>
+                          </do_if>
+                          <set_objective cue="{param@Cue}" silent="1">
+                            <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                            <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                          </set_objective>
+                        </do_if>
+                      </do_if>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M08 Bail" instantiate="static">
+                  <condition>
+                    <any_object_captured group="{param@Cue}.{param@ID} L0M08Enemies"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L0M08.Progress" operation="add"/>
+                      <remove_object_from_group object="{event.object}" group="{param@Cue}.{param@ID} L0M08Enemies"/>
+                      <do_if value="{param@EnemyRace}" exact="{lookup.race@xenon}">
+                        <!--xenon/khaak are special cases as all xenon/khaak ships are hostile so we destroy them all-->
+                        <!--set the time to refresh the group-->
+                        <do_if value="{param@EnemyRace}" list="{lookup.race@xenon}|{lookup.race@khaak}">
+                          <do_if value="{value@L0M08.GroupCheckTime}" min="{player.age}+1">
+                            <set_value name="L0M08.GroupCheckTime" exact="{player.age}+1"/>
+                          </do_if>
+                        </do_if>
+                      </do_if>
+                      <do_if value="{value@L0M08.Event}" exact="0" comment="Dont change guidance if tracking an event">
+                        <set_objective cue="{param@Cue}" silent="1">
+                          <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                          <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                        </set_objective>
+                      </do_if>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M08 Any Kill" check="cancel">
+                  <condition>
+                    <!--xenon/khaak are special cases as all xenon/khaak ships are hostile so we destroy them all-->
+                    <!--we refresh the group incase any ships have left the battle/sector-->
+                    <check_value value="{param@EnemyRace}" list="{lookup.race@xenon}|{lookup.race@khaak}"/>
+                  </condition>
+                  <timing>
+                    <time exact="60s"/>
+                  </timing>
+                  <cues>
+                    <cue name="L0M08 Killed Any" instantiate="static">
+                      <condition>
+                        <player_killed_object/>
+                      </condition>
+                      <action>
+                        <do_if value="{object.race.mask.{param@EnemyRace}@{event.object}}" exact="1">
+                          <set_value name="L0M08.PlayerKilled" operation="add"/>
+                          <set_value name="L0M08.Progress" operation="add"/>
+                          <!--set the time to refresh the group-->
+                          <do_if value="{param@EnemyRace}" list="{lookup.race@xenon}|{lookup.race@khaak}">
+                            <do_if value="{value@L0M08.GroupCheckTime}" min="{player.age}+1">
+                              <set_value name="L0M08.GroupCheckTime" exact="{player.age}+1"/>
+                            </do_if>
+                          </do_if>
+                          <!--dont change guidance if tracking an event-->
+                          <do_if value="{group.object.count@{param@Cue}.{param@ID} L0M08Enemies}" min="1">
+                            <do_if value="{value@L0M08.Event}" exact="0">
+                              <set_objective cue="{param@Cue}" silent="1">
+                                <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                                <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                              </set_objective>
+                              <!--if bonus set then add score to bonus-->
+                              <do_if value="{value@{param@Cue}.{param@ID} Bonus}" min="1">
+                                <set_value name="this.increase" exact="{value@Constant {object.class@{event.object}} Points}*{value@{param@Cue}.{param@ID} Bonus}"/>
+                                <do_if value="{value@this.increase}" exact="0">
+                                  <set_value name="this.increase" exact="{value@Constant {lookup.class@m4} Points}*{value@{param@Cue}.{param@ID} Bonus}"/>
+                                </do_if>
+                                <set_value name="{param@Bonus}" operation="add" exact="{value@this.increase}"/>
+                                <set_objective cue="{param@Cue}">
+                                  <custom action="{35,1104065}" text="+ [o]{value@this.increase}[/o] Cr"/>
+                                </set_objective>
+                                <set_objective cue="{param@Cue}" silent="1">
+                                  <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                                  <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                                </set_objective>
+                                <create_briefing cue="{param@Cue}">
+                                  <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                                </create_briefing>
+                              </do_if>
+                            </do_if>
+                          </do_if>
+                        </do_if>
+                      </action>
+                    </cue>
+                    <cue name="L0M08 Refresh Group Wait">
+                      <!--are tracking any kills so refresh the group for player owned ships-->
+                      <!--we dont want to start refreshing the group till 1 minute in when ships are in the sector-->
+                      <condition>
+                        <cue_completed cue="L0M08 Any Kill"/>
+                      </condition>
+                      <cues>
+                        <cue name="L0M08 Refresh Group" delay="1131">
+                          <condition>
+                            <check_all>
+                              <check_value value="{value@L0M08.GroupCheckTime}" min="1"/>
+                              <check_value value="{player.age}" min="{value@L0M08.GroupCheckTime}"/>
+                              <count_ships nearest="1" race="{param@EnemyRace}" multiple="1" min="1">
+                                <position x="0" y="0" z="0"/>
+                                <sector sector="{sector@{param@Cue}.{param@ID} L0Sector}"/>
+                                <jumps exact="0"/>
+                                <distance max="60km"/>
+                              </count_ships>
+                            </check_all>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <remove_group group="{param@Cue}.{param@ID} L0M08Enemies"/>
+                              <find_ship group="{param@Cue}.{param@ID} L0M08Enemies" nearest="1" race="{param@EnemyRace}" multiple="1" max="40">
+                                <position x="0" y="0" z="0"/>
+                                <sector sector="{sector@{param@Cue}.{param@ID} L0Sector}"/>
+                                <jumps exact="0"/>
+                                <distance max="60km"/>
+                              </find_ship>
+                              <set_objective cue="{param@Cue}" silent="1">
+                                <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                              </set_objective>
+                              <set_value name="L0M08.GroupCheckTime" exact="{player.age}+10"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L0M08 Done" delay="1983">
+                  <condition>
+                    <check_all>
+                      <check_value value="{group.object.count@{param@Cue}.{param@ID} L0M08Enemies}" exact="0"/>
+                      <cue_is_complete cue="L0M08 Main"/>
+                    </check_all>
+                  </condition>
+                  <timing>
+                    <time exact="1s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <!--xenon/khaak are special cases as all xenon/khaak ships are hostile so we destroy them all-->
+                      <!--do quick sweep for remaining ships-->
+                      <do_if value="{param@EnemyRace}" list="{lookup.race@xenon}|{lookup.race@khaak}">
+                        <find_ship group="{param@Cue}.{param@ID} L0M08Enemies" nearest="1" race="{param@EnemyRace}" multiple="1" max="40">
+                          <position x="0" y="0" z="0"/>                         
+                          <sector sector="{sector@{param@Cue}.{param@ID} L0Sector}"/>
+                          <jumps exact="0"/>
+                          <distance max="60km"/>
+                        </find_ship>
+                      </do_if>
+                      <do_choose>
+                        <!--check that new ships werent added before finishing-->
+                        <do_when value="{group.object.count@{param@Cue}.{param@ID} L0M08Enemies}" exact="0">
+                          <set_value name="{param@Cue}.{param@ID} L0M08 Progress" exact="1"/>
+                          <cancel_cue cue="L0M08 Mission Events"/>
+                          <cancel_cue cue="L0M08 Fail Checks"/>
+                        </do_when>
+                        <do_otherwise>
+                          <!--still ships left so update objective and reset-->
+                          <set_objective cue="{param@Cue}" silent="1">
+                            <custom icon="destroy" text="{35,2111}" guidance="{group.strongest@{param@Cue}.{param@ID} L0M08Enemies}"/>
+                          </set_objective>
+                          <set_value name="L0M08.GroupCheckTime" exact="{player.age}+10"/>
+                          <reset_cue cue="L0M08 Done"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+
+                <!--***FAILED MISSION***-->
+                <cue name="L0M08 Fail Checks">
+                  <condition>
+                    <cue_completed cue="L0M08 Main"/>
+                  </condition>
+                  <cues>
+                    <cue name="L0M08 Left Sector">
+                      <condition>
+                        <object_changed_sector/>
+                      </condition>
+                      <action>
+                        <do_choose>
+                          <do_when value="{player.sector}" exact="{sector@{param@Cue}.{param@ID} L0Sector}">
+                            <reset_cue cue="L0M08 Left Sector"/>
+                          </do_when>
+                          <do_when value="{param.exists@CanLeaveSector}" exact="1" negate="1">
+                            <set_value name="{param@Cue}.{param@ID} L0M08 Progress" exact="4"/>
+                          </do_when>
+                        </do_choose>
+                      </action>
+                    </cue>
+                    <cue name="L0M08 Check Command" check="cancel">
+                      <condition>
+                        <check_all>
+                          <check_value value="{param.exists@Command}" exact="1"/>
+                          <object_exists object="{param@Command}"/>
+                        </check_all>
+                      </condition>
+                      <cues>
+                        <cue name="L0M08 Command Destroyed">
+                          <condition>
+                            <check_any>
+                              <object_destroyed object="{param@Command}"/>
+                              <object_destroyed_by_player object="{param@Command}"/>
+                            </check_any>
+                          </condition>
+                          <action>
+                            <!--THIS CUE IS NOT USED ANYWHERE SO REMOVE? OR USED BY XENON INVASION MISSION? CHECK.-->
+                            <!--TESTING CODE-->
+                            <incoming_message author="MISSION" text="MISSION FAILED L0M08, COMMAND DESTROYED"/>
+                            <!--WHAT EXACTLY SHOULD THIS DO?-->
+                            <!--LET SHIPS ATTACK EACH OTHER THEN CLEAN UP THE WINNERS?-->
+                            <!--KILL THE PLAYER IN A CUTSCENE?-->
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L0M08 Aborted">
+                      <condition>
+                        <objective_cancelled cue="{param@Cue}"/>
+                      </condition>
+                      <action>
+                        <set_value name="{param@Cue}.{param@ID} L0M08 Progress" exact="99"/>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L0M08 Cleanup">
+          <condition>
+            <check_value value="{value@{param@Cue}.{param@ID} L0M08 Progress}" min="1"/>
+          </condition>
+          <action>
+            <cancel_cue cue="L0M08 Mission"/>
+            <!--clean up the ships if created-->
+          </action>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M08 Briefing Library" library="1">
+      <action>
+        <do_all>
+          <create_briefing cue="{param@Cue}">
+            <objectives>
+              <objective step="{value@{param@Cue}.{param@ID} L0Step}">
+                <custom icon="destroy" text="{35,2114}"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <do_if value="{object.exists@{param@Cue}.{param@ID} L0M08Command}" exact="1">
+            <create_briefing cue="{param@Cue}">
+              <objectives>
+                <objective step="{value@{param@Cue}.{param@ID} L0Step}+1">
+                  <custom icon="protect" action=" + {35,2010}" text="{object.name@{param@Cue}.{param@ID} L0M08Command}"/>
+                  <!--<protect object="{param@Cue}.{param@ID} L0M08Command"/>-->
+                </objective>
+              </objectives>
+            </create_briefing>
+          </do_if>
+        </do_all>
+      </action>
+    </cue>
+  </cues>
+  <signature>uN+Tr1HQEDbbIGGs7Cb4uij+PRjNVgkpf3IBM83ek7OoRtmVhHnrqfYhSe9eBY0da72nA7VgRQisCPj9tCpLcrgXvRe51gHB4azgCDB0r0M2n+Wie76ayI3EbP+h7mIewLGF/VmORcLOYeKndt6ZgduJknGs860Q8ervHiQ+uXwitY7YgsdxIc7Dnh/N8zcoVt4Q5zSLzSdeK8vn16UV13unIVp8VO+qacQK6vPzf5M0cMtVrcu3iOf0YT4+VaM/FMTX/SrQVv0b6xTaXeIJw1lzcP5CglKQk6jnvnp838XLd+KXNJv9cWIvzz4l1yMsGe/eE+agiD96/PkG7uvoMA==</signature>
+</director>

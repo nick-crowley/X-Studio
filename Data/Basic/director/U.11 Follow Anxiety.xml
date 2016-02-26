@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen_Lake@eogsoft.com Skype: Owen Lake"/>
+    <content reference="LUM11" name="Follow Anxiety" description="Checks the follow anxiety"/>
+    <version number="0.1" date="13/05/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="LUM11" library="1">
+      <documentation>
+        <content name="LUM11 Follow Anxiety" reference="XXXT" type="objective"/>
+        <version date="13/05/08" number="0.1" status="development"/>
+        <params>
+          <param name="Feedback Name" compulsory="1" description="The feedback value address"/>
+          <param name="Object" compulsory="1" description="The object to be scanned"/>
+          <param name="MinRange" compulsory="0" description="Minimum safe distance (in metres)"/>
+          <param name="AnxietySeconds" type="number" description="Number of seconds needed to be fully aggitated"/>
+          <param name="Recover" type="boolean" description="Recover anxiety"/>
+        </params>
+        <history>
+          <change date="15/05/2008" author="Owen Lake" description="Initial Version"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <do_if value="{object.exists@{param@Object}}" exact="0">
+            <cancel_cue cue="LUM11"/>
+          </do_if>
+          <set_value name="this.MinRange" exact="{param@MinRange}"/>
+          <do_if value="{value@this.MinRange}" min="30" negate="1">
+            <set_value name="this.MinRange" exact="2000"/>
+          </do_if>
+          <set_value name="this.AnxietySeconds" exact="{param@AnxietySeconds}"/>
+          <do_if value="{value@this.AnxietySeconds}" exact="0">
+            <set_value name="this.AnxietySeconds" exact="20"/>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="LUM11 No Object" delay="1s">
+          <condition>
+            <object_exists object="{param@Object}" negate="1"/>
+          </condition>
+          <action>
+            <cancel_cue cue="LUM11"/>
+          </action>
+        </cue>
+        <cue name="LUM11 Too Close" delay="1s" instantiate="static">
+          <condition>
+            <check_distance value="{object.distance@{param@Object}}" max="{value@LUM11.MinRange}m"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="LUM11.TotalAnxiety" operation="add" comment="Second increment must match the cue delay"/>
+              <set_value name="LUM11.AnxietyPercentage" exact="({value@LUM11.TotalAnxiety}*100)/{value@LUM11.AnxietySeconds}"/>
+              <play_subtitles text="{3300,21101}"/>
+              <do_if value="{value@LUM11.AnxietyPercentage}" min="100">
+                <set_value name="{param@Feedback Name}" exact="1"/>
+                <cancel_cue cue="LUM11"/>
+              </do_if>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="LUM11 Recover Check" check="cancel">
+          <condition>
+            <check_value value="{param@Recover}" exact="1"/>
+          </condition>
+          <cues>
+            <cue name="LUM11 Recover" delay="1s" instantiate="static">
+              <condition>
+                <check_all>
+                  <check_value value="{value@LUM11.TotalAnxiety}" min="1"/>
+                  <check_distance value="{object.distance@{param@Object}}" min="{value@LUM11.MinRange}m"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="LUM11.TotalAnxiety" operation="subtract" comment="Second increment must match the cue delay"/>
+                  <set_value name="LUM11.AnxietyPercentage" exact="({value@LUM11.TotalAnxiety}*100)/{value@LUM11.AnxietySeconds}"/>
+                  <play_subtitles text="{3300,21101}"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>mrVDwAXHoH3oLFkvMVsQemmNA+1mVLISDe3CBeaNznf8rnkJLnu2xmbSBXW5R0HUMrDfe+AlM0/bioB9MsrWyIwjkCAHIFKjwfqTrFsD2es1WkKJo55PTucKWCXeMDPwsqCmWPRPq7ktbLGFQjwMcFdJ3YulN8j9AZnAftLXUFDlRJ8RzKcSRSNMgIhZL4QSemVy07bPw3Ji0ox/n3RiN4iEwp84WyD9+AmvAGKoB99J+tdJrgecMXoLCbCIw1UFv6jINkpD708il0Js+ruGLLWnwx0y99vhafoh4Jq1jrQXAlbZ80pTMDST6f9WxwMjLRr49Jurcq5cfZiOfI7vFw==</signature>
+</director>

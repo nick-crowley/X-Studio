@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language id="44">
+	<!-- X-Tended - Terran Conflict Mod Textfile 7213, containing the following
+page ids
+7213: XTC - Command Slots
+2008: Script Object Commands
+2010: Script Cmd Names
+2011: Script Cmd Shorts
+2022: Command Info
+-->
+	<page id="7213" title="XTC" descr="XTC Command Slots">
+		<!-- Point to Point Jump -->
+		<t id="1">223</t>
+		<!-- break up ore -->
+		<t id="2">738</t>
+		<!-- Build Missiles -->
+		<t id="3">1221</t>
+		<!-- Build Ammunition -->
+		<t id="4">1222</t>
+		<!-- Config Products -->
+		<t id="5">1122</t>
+		<!-- Production -->
+		<t id="6">1225</t>
+		<!-- POED -->
+		<t id="7">1128</t>
+		<!-- STC station command -->
+		<t id="8">1132</t>
+		<!-- STC ship command -->
+		<t id="9">1226</t>
+		<!-- TL Pickup command -->
+		<t id="10">518</t>
+		<!-- Drone Carrier Production -->
+		<t id="11">1227</t>
+		<!-- Pickup crates -->
+		<t id="12">520</t>
+		<!-- Reveal asteroid data -->
+		<t id="13">527</t>
+		<!-- Reveal sector data -->
+		<t id="14">528</t>
+		<!-- scout drone -->
+		<t id="15">538</t>
+		<!-- scanning for illegal wares -->
+		<t id="16">539</t>
+		<!-- claim ship -->
+		<t id="17">616</t>
+		<!-- settings -->
+		<t id="18">1228</t>	
+		</page>
+	<page id="2008" title="Script Object Commands" descr="">
+		<!-- Point to Point Jump -->
+		<t id="223">CMD_XTC_POINT_JUMP</t>
+		<!-- break up ore -->
+		<t id="738">CMD_XTC_CRUSH_ORE</t>
+		<!-- Build Missiles -->
+		<t id="1221">CMD_XTC_BUILD_MISSILES</t>
+		<!-- Build Ammunition -->
+		<t id="1222">CMD_XTC_BUILD_AMMUNITION</t>
+		<!-- Config Products -->
+		<t id="1122">CMD_XTC_CONFIG_PRODUCTS</t>
+		<!-- Production -->
+		<t id="1225">CMD_XTC_PRODUCTION</t>
+		<!-- POED -->
+		<t id="1128">CMD_XTC_POED</t>
+		<!-- STC station command-->
+		<t id="1132">CMD_XTC_STC_STATION</t>
+		<!-- STC ship command -->
+		<t id="1226">CMD_XTC_STC_SHIP</t>
+		<!-- TL Pickup command -->
+		<t id="518">CMD_XTC_PICKUP_STATION</t>
+		<!-- Drone Carrier Production -->
+		<t id="1227">CMD_XTC_DRONE_CARRIER_PRODUCTION</t>
+		<!-- Pickup crates -->
+		<t id="520">CMD_XTC_PICKUP_CRATES</t>
+		<!-- Reveal asteroid data -->
+		<t id="527">CMD_XTC_REVEAL_ASTRO_DATA</t>
+		<!-- Reveal sector data -->
+		<t id="528">CMD_XTC_REVEAL_SECTOR_DATA</t>
+		<!-- scout drone -->
+		<t id="538">CMD_XTC_SCOUT_DRONE</t>
+		<!-- scan for illegal wares -->
+		<t id="539">CMD_XTC_SCAN_ILLEGAL_WARES</t>
+		<!-- claim ship -->
+		<t id="616">CMD_XTC_CLAIM_SHIP</t>
+		<!-- settings -->
+		<t id="1228">CMD_XTC_SETTINGS</t>			
+	</page>
+	<page id="2010" title="Script Cmd Names" descr="">
+		<!-- Point to Point Jump -->
+		<t id="223">Point to Point Jump</t>
+		<!-- break up ore -->
+		<t id="738">Ore Crusher</t>
+		<!-- Build Missiles -->
+		<t id="1221">Build Missiles</t>
+		<!-- Build Ammunition -->
+		<t id="1222">Build Ammunition</t>
+		<!-- Config Products -->
+		<t id="1122">Configure Products</t>
+		<!-- Production -->
+		<t id="1225">Production</t>
+		<!-- POED -->
+		<t id="1128">POED add upgrades</t>
+		<!-- STC station command-->
+		<t id="1132">Statistic Centre show station values</t>
+		<!-- STC ship command -->
+		<t id="1226">Statistic Centre show ship values</t>
+		<!-- TL Pickup command -->
+		<t id="518">Pick-up Station</t>
+		<!-- Drone Carrier Production -->
+		<t id="1227">Drone Carrier Production</t>
+		<!-- Pickup crates -->
+		<t id="520">Mass Pick-up Crates</t>
+		<!-- Reveal asteroid data -->
+		<t id="527">Mass Scan Asteroids</t>
+		<!-- Reveal sector data -->
+		<t id="528">Reveal Objects</t>
+		<!-- scout drone -->
+		<t id="538">Launch Recon Drone</t>
+		<!-- scan for illegal wares -->
+		<t id="539">Mass Scan Ships</t>
+		<!-- claim ship -->
+		<t id="616">Claim Ship</t>
+		<!-- settings -->
+		<t id="1228">Configuration</t>		
+	</page>
+	<page id="2011" title="Script Cmd Shorts" descr="">
+		<!-- Point to Point Jump -->
+		<t id="223">P2P.J</t>
+		<!-- break up ore -->
+		<t id="738">O.Crush</t>
+		<!-- Build Missiles -->
+		<t id="1221">B.Missiles</t>
+		<!-- Build Ammunition -->
+		<t id="1222">B.Ammunition</t>
+		<!-- Config Products -->
+		<t id="1122">C.Products</t>
+		<!-- Production -->
+		<t id="1225">Production</t>
+		<!-- POED -->
+		<t id="1128">POEDadd</t>
+		<!-- STC station command-->
+		<t id="1132">STC.Station</t>
+		<!-- STC ship command -->
+		<t id="1226">STC.Ship</t>
+		<!-- TL Pickup command -->
+		<t id="518">PickStat</t>
+		<!-- Drone Carrier Production -->
+		<t id="1227">DronCarrProd</t>
+		<!-- Pickup crates -->
+		<t id="520">PickupCrate</t>
+		<!-- Reveal asteroid data -->
+		<t id="527">RevAstroDat</t>
+		<!-- Reveal sector data -->
+		<t id="528">RevSecData</t>
+		<!-- scout drone -->
+		<t id="538">ScoutDrone</t>
+		<!-- scan for illegal wares -->
+		<t id="539">ScanShips</t>
+		<!-- Claim Ship -->
+		<t id="616">ClaimShip</t>
+		<!-- settings -->
+		<t id="1228">Config</t>		
+	</page>
+	<page id="2022" title="Command Info" descr="">
+		<!-- Point to Point Jump -->
+		<t id="223">Point to point jump available via advances in jumpdrive technology.</t>
+		<!-- break up ore -->
+		<t id="738">Breaks up ore into smaller pieces which are then useable as Meteor Cannon Ammunition.</t>
+		<!-- Build Missiles -->
+		<t id="1221">This command starts the production of missiles.</t>
+		<!-- Build Ammunition -->
+		<t id="1222">This command starts the production of ammunition.</t>
+		<!-- Config Products -->
+		<t id="1122">This command allows configuration of products.</t>
+		<!-- Production -->
+		<t id="1225">This command starts the production.</t>
+		<!-- POED-->
+		<t id="1128">This command adds upgrades from a ship to the equipment dock.</t>
+		<!-- STC station command-->
+		<t id="1132">This command shows the STC-values of the station.</t>
+		<!-- STC ship command -->
+		<t id="1226">This command shows the STC-values of the ship.</t>
+		<!-- TL Pickup command -->
+		<t id="518">This command allows a TL-vessel to pick up a station.</t>
+		<!-- Drone Carrier Production -->
+		<t id="1227">This command allows the production of drones on the drone carrier.</t>
+		<!-- Pickup crates -->
+		<t id="520">This command allows you to pick up crates with your transporter.</t>
+		<!-- Reveal asteroid data -->
+		<t id="527">Shows the yields of the surrounding asteroids.</t>
+		<!-- Reveal sector data -->
+		<t id="528">Marks surrounding objects as known.</t>
+		<!-- scout drone -->
+		<t id="538">Send drone to place a satellite at the specified position.</t>
+		<!-- scan for illegal wares -->
+		<t id="539">Scan all ships in range.</t>
+		<!-- Claim Ship -->
+		<t id="616">This command attempts to transfer control of a pilotless ship.</t>
+		<!-- ship settings -->
+		<t id="1228">Opens the configuration console.</t>
+	</page>
+	<page id="7212" title="XTC" descr="XTC Framework Texts">
+		<!-- XTC Version Data (7210-7220) -->
+		<t id="7213">01020301</t>
+	</page>
+</language>

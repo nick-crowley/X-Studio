@@ -1,0 +1,493 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.kidnapcivilians.menu</name>
+   <version>100</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Kidnap Civilians: Display options menu</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* KIDNAP CIVILIANS OPTIONS MENU  -by-   MISTER BEAR   v1.00</comment></line>
+      <line linenr="002" indent=""><comment>* </comment></line>
+      <line linenr="003" indent=""><comment>* Allows alter settings for kidnapping civilians</comment></line>
+      <line linenr="004" indent=""> </line>
+      <line linenr="005" indent=""><var>dialogStart</var><text>:</text></line>
+      <line linenr="006" indent=""> </line>
+      <line linenr="007" indent=""><comment>* Display instructions</comment></line>
+      <line linenr="008" indent=""><text></text><var>$aMenu =</var><text> = create custom menu array: heading=</text><var>null</var><text></text></line>
+      <line linenr="009" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'To kidnap civilians you must first target a civilian vessel.'</var><text></text></line>
+      <line linenr="010" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'You must then move to within 3km and reduce their shields to 15%.'</var><text></text></line>
+      <line linenr="011" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'You must keep their shields below 15% during the entire transport.'</var><text></text></line>
+      <line linenr="012" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'Kidnapping civilians will eventually attract police in the sector.'</var><text></text></line>
+      <line linenr="013" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>' '</var><text></text></line>
+      <line linenr="014" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'Transporting kidnap victims to your cargo bay as passengers allows you'</var><text></text></line>
+      <line linenr="015" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'to demand money from them for their freedom, but uses more space in'</var><text></text></line>
+      <line linenr="016" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'your cargo bay'</var><text></text></line>
+      <line linenr="017" indent=""> </line>
+      <line linenr="018" indent=""><comment>* Add Enslavment options</comment></line>
+      <line linenr="019" indent=""><text>add custom menu heading to array </text><var>$aMenu</var><text>: title=</text><var>'Options'</var><text></text></line>
+      <line linenr="020" indent=""> </line>
+      <line linenr="021" indent=""><text></text><var>$i =</var><text> get global variable: name=</text><var>'piracy.kidnapcivilians.bAutoEnslave'</var><text></text></line>
+      <line linenr="022" indent=""><text></text><var>$aTemp =</var><text> = create new array, arguments=</text><var>'Kept as passengers'</var><text>, </text><var>'Enslaved immediately'</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="023" indent=""><text>add value selection to menu: </text><var>$aMenu</var><text>, text=</text><var>'Kidnap victims should be'</var><text>, value array=</text><var>$aTemp</var><text>, default=</text><var>$i</var><text>, return id=</text><var>'Option.Enslave'</var><text></text></line>
+      <line linenr="024" indent=""> </line>
+      <line linenr="025" indent=""><comment>* Add OK and Statistics buttons</comment></line>
+      <line linenr="026" indent=""><text>add custom menu heading to array </text><var>$aMenu</var><text>: title=</text><var>'Available Actions'</var><text></text></line>
+      <line linenr="027" indent=""><text>add custom menu item to array </text><var>$aMenu</var><text>: text=</text><var>'View Kidnapping Statistics'</var><text> returnvalue=</text><var>'Option.Statistics'</var><text></text></line>
+      <line linenr="028" indent=""><text>add section to custom menu: </text><var>$aMenu</var><text></text></line>
+      <line linenr="029" indent=""><text>add custom menu item to array </text><var>$aMenu</var><text>: text=</text><var>'Close Interface'</var><text> returnvalue=</text><var>'Option.Cancel'</var><text></text></line>
+      <line linenr="030" indent=""><comment>* Display</comment></line>
+      <line linenr="031" indent=""><text></text><var>$aTemp =</var><text> open custom menu: title=</text><var>'Kidnap Civilians'</var><text> description=</text><var>'More info'</var><text> option array=</text><var>$aMenu</var><text></text></line>
+      <line linenr="032" indent=""> </line>
+      <line linenr="033" indent=""><comment>* Save kidnap setting to a global variable</comment></line>
+      <line linenr="034" indent=""><text></text><var>$i =</var><text> </text><var>$aTemp</var><text>[</text><var>1</var><text>][</text><var>1</var><text>]</text></line>
+      <line linenr="035" indent=""><text>set global variable: name=</text><var>'piracy.kidnapcivilians.bAutoEnslave'</var><text> value=</text><var>$i</var><text></text></line>
+      <line linenr="036" indent=""> </line>
+      <line linenr="037" indent=""><comment>* Trap cancel</comment></line>
+      <line linenr="038" indent=""><text></text><var>$i =</var><text> </text><var>$aTemp</var><text>[</text><var>0</var><text>]</text></line>
+      <line linenr="039" indent=""><var>if </var><text></text><var>$i == 'Option.Cancel' OR $i == -1 </var><text></text></line>
+      <line linenr="040" indent="&#160;"><text>return </text><var>null</var><text></text></line>
+      <line linenr="041" indent=""><text>end</text></line>
+      <line linenr="042" indent=""> </line>
+      <line linenr="043" indent=""><comment>* -------------------- CREATE STATISTICS MENU ----------------------</comment></line>
+      <line linenr="044" indent=""> </line>
+      <line linenr="045" indent=""><comment>* TODO: Load stats from Global variables</comment></line>
+      <line linenr="046" indent=""> </line>
+      <line linenr="047" indent=""><text></text><var>$aMenu =</var><text> = create custom menu array: heading=</text><var>null</var><text></text></line>
+      <line linenr="048" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'Biggest ever kidnapping: -ship name-. date?'</var><text></text></line>
+      <line linenr="049" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'Total civilians kidnapped: -num-'</var><text></text></line>
+      <line linenr="050" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'Kidnap victims enslaved: -num-'</var><text></text></line>
+      <line linenr="051" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>' '</var><text></text></line>
+      <line linenr="052" indent=""><text>add custom menu info line to array </text><var>$aMenu</var><text>: text=</text><var>'Kidnap victims by race?'</var><text></text></line>
+      <line linenr="053" indent=""> </line>
+      <line linenr="054" indent=""><text>add custom menu heading to array </text><var>$aMenu</var><text>: title=</text><var>'Available Actions'</var><text></text></line>
+      <line linenr="055" indent=""><text>add custom menu item to array </text><var>$aMenu</var><text>: text=</text><var>'Close Interface'</var><text> returnvalue=</text><var>-1</var><text></text></line>
+      <line linenr="056" indent=""><comment>* Display</comment></line>
+      <line linenr="057" indent=""><text></text><var>$i =</var><text> open custom menu: title=</text><var>'Kidnap Civilians'</var><text> description=</text><var>'More info'</var><text> option array=</text><var>$aMenu</var><text></text></line>
+      <line linenr="058" indent=""> </line>
+      <line linenr="059" indent=""><text>goto label </text><var><var>dialogStart</var><text>:</text></var><text></text></line>
+      <line linenr="060" indent=""><text>return </text><var>null</var><text></text></line>
+      <line linenr="061" indent=""> </line>
+      <line linenr="062" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.kidnapcivilians.menu" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Kidnap Civilians: Display options menu" />
+         <sval type="int" val="100" />
+         <sval type="int" val="0" />
+         <sval type="array" size="3">
+            <sval type="string" val="aMenu" />
+            <sval type="string" val="i" />
+            <sval type="string" val="aTemp" />
+         </sval>
+         <sval type="array" size="35">
+            <sval type="array" size="2">
+               <sval type="int" val="101" />
+               <sval type="string" val="dialogStart" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="1416" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="To kidnap civilians you must first target a civilian vessel." />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="You must then move to within 3km and reduce their shields to 15%." />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="You must keep their shields below 15% during the entire transport." />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnapping civilians will eventually attract police in the sector." />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val=" " />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Transporting kidnap victims to your cargo bay as passengers allows you" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="to demand money from them for their freedom, but uses more space in" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="your cargo bay" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1448" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Options" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="158" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.kidnapcivilians.bAutoEnslave" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="12">
+               <sval type="int" val="1415" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kept as passengers" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Enslaved immediately" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="11">
+               <sval type="int" val="1527" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnap victims should be" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Option.Enslave" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1448" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Available Actions" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1447" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="View Kidnapping Statistics" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Option.Statistics" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1522" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1447" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Close Interface" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Option.Cancel" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="1230" />
+               <sval type="int" val="2" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnap Civilians" />
+               <sval type="int" val="5" />
+               <sval type="string" val="More info" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="1081" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="157" />
+               <sval type="int" val="5" />
+               <sval type="string" val="piracy.kidnapcivilians.bAutoEnslave" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="129" />
+               <sval type="int" val="1" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="2" />
+               <sval type="int" val="4" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="25">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610606589" />
+               <sval type="int" val="7" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Option.Cancel" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+               <sval type="int" val="4" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="15" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="10" />
+               <sval type="int" val="7" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-2" />
+               <sval type="int" val="10" />
+               <sval type="int" val="-4" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-5" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="4">
+               <sval type="int" val="1416" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Biggest ever kidnapping: -ship name-. date?" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Total civilians kidnapped: -num-" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnap victims enslaved: -num-" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val=" " />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1446" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnap victims by race?" />
+            </sval>
+            <sval type="array" size="5">
+               <sval type="int" val="1448" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Available Actions" />
+            </sval>
+            <sval type="array" size="7">
+               <sval type="int" val="1447" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Close Interface" />
+               <sval type="int" val="4" />
+               <sval type="int" val="-1" />
+            </sval>
+            <sval type="array" size="8">
+               <sval type="int" val="1230" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="Kidnap Civilians" />
+               <sval type="int" val="5" />
+               <sval type="string" val="More info" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="100" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="27">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="KIDNAP CIVILIANS OPTIONS MENU  -by-   MISTER BEAR   v1.00" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Allows alter settings for kidnapping civilians" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Display instructions" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="10" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="10" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Add Enslavment options" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="11" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="14" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="14" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Add OK and Statistics buttons" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="18" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Display" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="19" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="19" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Save kidnap setting to a global variable" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="21" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="21" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Trap cancel" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="24" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="24" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="24" />
+               <sval type="int" val="1" />
+               <sval type="string" val="-------------------- CREATE STATISTICS MENU ----------------------" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="24" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="24" />
+               <sval type="int" val="1" />
+               <sval type="string" val="TODO: Load stats from Global variables" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="24" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="30" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="32" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Display" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="33" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="35" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="35" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="string" val="COMMAND_KIDNAP_CIVILIAN" />
+      </sval>
+   </codearray>
+</script>

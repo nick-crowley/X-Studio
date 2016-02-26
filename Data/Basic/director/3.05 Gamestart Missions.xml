@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="al_main" alias="Al Main" contact="Skype: al_main"/>
+    <content reference="L3M05" name="Level 3 Gamestart Missons Director" description="The Gamestart Missions are triggered here"/>
+    <version number="0.1" date="15/05/08" status="concept"/>
+  </documentation>
+  <cues>
+    <cue name="L3M05">
+      <documentation>
+        <content name="Gamestart Missons" reference="L3M05" type="L3"/>
+        <version number="0.1" date="15/05/08" status="development"/>
+        <history>
+          <change date="17/07/08" author="al_main" description="Added gamestart 110 and 111"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="15/05/08" author="al_main" description="Initial Concept"/>
+          <change date="08/05/08" author="al_main" description="Initial Concept"/>
+        </history>
+        <todo>
+          <item priority="medium" description="Remaining gamestarts"/>
+        </todo>
+      </documentation>
+      <condition>
+        <check_age min="8s"/>
+      </condition>
+      <cues>
+        <cue name="L3M05 106" check="cancel" comment="Bankrupt Assassin">
+          <condition>
+            <check_value value="{player.gamestart}" exact="106"/>
+          </condition>
+          <cues>
+            <cue ref="LUM10">
+              <params>
+                <param name="Cue" value="L3M05 106"/>
+                <param name="Race" value="{lookup.race@pirate}"/>
+                <param name="Name" value="20042"/>
+                <param name="Delay" value="600"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L3M05 110" check="cancel" comment="Tormented Teladi">
+          <condition>
+            <check_value value="{player.gamestart}" exact="110"/>
+          </condition>
+          <action>
+            <do_all>
+              <find_station name="L3M05 110.TradeStation" race="teladi" typename="SS_DOCK_T_TRADE" nearest="1"/>
+              <do_if value="{object.exists@L3M05 110.TradeStation}" exact="0">
+                <find_station name="L3M05 110.TradeStation" race="teladi" typename="SS_DOCK_T_TRADE">
+                  <jumps min="0" max="3"/>
+                </find_station>
+              </do_if>
+              <do_if value="{object.exists@L3M05 110.TradeStation}" exact="0">
+                <find_station name="L3M05 110.TradeStation" race="teladi" typename="SS_DOCK_T_TRADE">
+                  <jumps min="1" max="99"/>
+                </find_station>
+              </do_if>
+              <do_choose>
+                <do_when value="{object.exists@L3M05 110.TradeStation}" exact="0">
+                  <cancel_cue cue="L3M05 110"/>
+                </do_when>
+                <do_otherwise>
+                  <set_known object="L3M05 110.TradeStation" known="1"/>
+                  <reward_player>
+                    <map>
+                      <sector sector="{object.sector@L3M05 110.TradeStation}"/>
+                    </map>
+                  </reward_player>
+                  <set_invincible object="L3M05 110.TradeStation" invincible="1"/>
+                  <create_actor name="L3M05 110.ProfitGuildGuy" race="teladi" character="{random.pilot.teladi}, {3210,11000}" voice="510" face="503" object="L3M05 110.TradeStation" location="crew"/>
+                  <set_value name="L3M05 110.Hours" exact="12"/>
+                  <set_value name="L3M05 110.Credits" exact="2250000"/>
+                  <incoming_message author="{actor.name@L3M05 110.ProfitGuildGuy}" text="{3210,11001}"/>
+                  <create_briefing cue="L3M05 110" title="{3210,11010}" text="{3210,11012}" background="ship_argon_mercury.tga">
+                    <mission discipline="TXXX" level="average"/>
+                    <reward other="{3210,11013}"/>
+                    <timer duration="{value@L3M05 110.Hours}*3600"/>
+                    <!--<thumbnails>
+                      <thumbnail order="1" image="{actor.image@L3M05 110.ProfitGuildGuy}"/>
+                      <thumbnail order="2" image="{lookup.type.image@SS_SH_T_M3P_ENH}"/>
+                      <thumbnail order="3" image="{actor.race.image@L3M05 110.ProfitGuildGuy}"/>
+                    </thumbnails>-->
+                    <thumbnails>
+                      <thumbnail order="1" image="SS_WARE_CREDITS.tga"/>
+                      <thumbnail order="2" image="{lookup.type.image@SS_SH_T_M3P_ENH}"/>
+                    </thumbnails>
+                    <objectives>
+                      <objective step="1">
+                        <custom icon="buy" action="{35,2074}" text="{3210,11011}" guidance="L3M05 110.ProfitGuildGuy"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_value name="L3M05 110.EndTime" exact="{player.age}+({value@L3M05 110.Hours}*3600)"/>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L3M05 110 Message Read" delay="250">
+              <condition>
+                <check_value value="{player.menu.2288}" exact="1"/>
+              </condition>
+              <timing>
+                <time min="50" max="100"/>
+              </timing>
+              <action>
+                <do_all>
+                  <set_objective cue="L3M05 110" noabort="1" title="{3210,11010}">
+                    <briefing cue="L3M05 110" step="1"/>
+                    <mission discipline="TXXX" level="average"/>
+                    <reward other="{3210,11013}"/>
+                    <timer end="{value@L3M05 110.EndTime}"/>
+                    <custom icon="buy" action="{35,2074}" text="{3210,11011}" guidance="L3M05 110.TradeStation"/>
+                  </set_objective>
+                  <cancel_cue cue="L3M05 110 Add Objective"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L3M05 110 Add Objective" comment="Incase the player manages not to read the message in 20 minutes somehow">
+              <timing>
+                <time exact="1202s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <set_objective cue="L3M05 110" noabort="1" title="{3210,11010}">
+                    <briefing cue="L3M05 110" step="1"/>
+                    <mission discipline="TXXX" level="average"/>
+                    <reward other="{3210,11013}"/>
+                    <timer end="{value@L3M05 110.EndTime}"/>
+                    <custom icon="buy" action="{35,2074}" text="{3210,11011}" guidance="L3M05 110.TradeStation"/>
+                  </set_objective>
+                  <cancel_cue cue="L3M05 110 Message Read"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L3M05 110 Has Cr" delay="1s">
+              <condition>
+                <check_value value="{player.money}" min="{value@L3M05 110.Credits}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <remove_offer actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Fail"/>
+                  <create_offer actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Pass" discipline="XXXXP">
+                    <params>
+                      <param name="Cost" value="{value.formatted@L3M05 110.Credits}"/>
+                    </params>
+                  </create_offer>
+                  <reset_cue cue="L3M05 110 No Cr"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L3M05 110 Finished">
+                  <condition>
+                    <conversation_completed actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Pass" answer="accept"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <reward_player>
+                        <money exact="-{value@L3M05 110.Credits}"/>
+                      </reward_player>
+                      <find_station name="this.dock" class="dock" race="teladi"/>
+                      <do_if value="{object.exists@this.dock}" exact="0">
+                        <set_object name="this.dock" value="{object@L3M05 110.TradeStation}"/>
+                      </do_if>
+                      <create_ship name="this.reward" dockobject="this.dock" typename="SS_SH_T_M3P_ENH" race="player">
+                        <equipment loadout="default">
+                          <ware typename="SS_WARE_TECH213" exact="18"/>
+                          <ware typename="SS_WARE_TECH246" exact="9"/>
+                        </equipment>
+                        <cargo>
+                          <ware typename="SS_WARE_TECH207" exact="32"/>
+                          <ware typename="SS_WARE_TECH206" exact="18"/>
+                          <ware typename="SS_WARE_ENERGY" exact="250"/>
+                          <ware typename="SS_LASER_FBL" exact="12"/>
+                        </cargo>
+                      </create_ship>
+                      <incoming_message author="{3300,10}" text="{3210,11007}"/>
+                      <enable_gamestart requirements="128"/>
+                      <remove_offer actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Pass" discipline="XXXXP"/>
+                      <remove_briefing cue="L3M05 110"/>
+                      <remove_objective cue="L3M05 110" status="complete"/>
+                      <set_invincible object="L3M05 110.TradeStation" invincible="0"/>
+                      <destroy_actor actor="L3M05 110.ProfitGuildGuy"/>
+                      <cancel_cue cue="L3M05 110"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L3M05 110 No Cr" delay="1s">
+              <condition>
+                <check_value value="{player.money}" max="{value@L3M05 110.Credits}-1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <remove_offer actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Pass" discipline="XXXXP"/>
+                  <create_offer actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Fail">
+                    <params>
+                      <param name="Cost" value="{value.formatted@L3M05 110.Credits}"/>
+                    </params>
+                  </create_offer>
+                  <reset_cue cue="L3M05 110 Has Cr"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L3M05 110 Out of Time">
+              <condition>
+                <cue_completed cue="L3M05 110"/>
+              </condition>
+              <timing>
+                <time exact="({value@L3M05 110.Hours}*3600)s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <incoming_message author="{actor.name@L3M05 110.ProfitGuildGuy}" text="{3210,11002}"/>
+                  <remove_offer actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Pass" discipline="XXXXP"/>
+                  <remove_offer actor="L3M05 110.ProfitGuildGuy" conversation="L2ConvGS110Fail"/>
+                  <destroy_actor actor="L3M05 110.ProfitGuildGuy"/>
+                  <remove_briefing cue="L3M05 110"/>
+                  <remove_objective cue="L3M05 110" status="failed"/>
+                  <set_invincible object="L3M05 110.TradeStation" invincible="0"/>
+                  <cancel_cue cue="L3M05 110"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L3M05 111" check="cancel" comment="Poisoned Paranid">
+          <condition>
+            <check_value value="{player.gamestart}" exact="111"/>
+          </condition>
+          <timing>
+            <time min="8s" max="10s"/>
+          </timing>
+          <action>
+            <do_all>
+              <set_value name="L3M05 111.Hours" exact="75"/>
+              <set_value name="L3M05 111.Credits" exact="25000000"/>
+              <play_text face="402" pageid="416" textid="641" priority="99"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L3M05 111 Maintain Notoriety" delay="30s" instantiate="static">
+              <condition>
+                <check_value value="{player.notoriety.paranid}" min="-9999"/>
+              </condition>
+              <action>
+                <reward_player>
+                  <notoriety>
+                    <relation race="paranid" operation="set" exact="-10000"/>
+                  </notoriety>
+                </reward_player>
+              </action>
+            </cue>
+            <cue name="L3M05 111 Message">
+              <condition>
+                <object_changed_sector/>
+              </condition>
+              <timing>
+                <time min="10s" max="12s"/>
+              </timing>
+              <action>
+                <incoming_message author="{random.pilot.paranid}" text="{3210,11108}"/>
+              </action>
+            </cue>
+            <cue name="L3M05 111 Wait">
+              <condition>
+                <object_changed_sector/>
+              </condition>
+              <timing>
+                <time min="45s" max="60s"/>
+              </timing>
+            </cue>
+            <cue name="L3M05 111 Start">
+              <condition>
+                <cue_completed cue="L3M05 111 Wait"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="L3M05 111.Reward Assets" exact="1"/>
+                  <find_station name="L3M05 111.TradeStation" race="boron" typename="SS_DOCK_B_TRADE">
+                    <sector sector="{player.sector}"/>
+                    <jumps exact="0"/>
+                  </find_station>
+                  <do_if value="{object.exists@L3M05 111.TradeStation}" exact="0">
+                    <find_station name="L3M05 111.TradeStation" race="boron" typename="SS_DOCK_B_TRADE">
+                      <sector sector="{player.sector}"/>
+                      <jumps min="1" max="4"/>
+                    </find_station>
+                  </do_if>
+                  <do_if value="{object.exists@L3M05 111.TradeStation}" exact="0">
+                    <find_station name="L3M05 111.TradeStation" race="boron" typename="SS_DOCK_B_TRADE">
+                      <sector sector="{player.sector}"/>
+                      <jumps min="1" max="12"/>
+                    </find_station>
+                  </do_if>
+                  <do_if value="{object.exists@L3M05 111.TradeStation}" exact="0">
+                    <find_station name="L3M05 111.TradeStation" race="boron" typename="SS_DOCK_B_TRADE">
+                      <sector sector="{player.sector}"/>
+                      <jumps min="1" max="99"/>
+                    </find_station>
+                  </do_if>
+                  <do_choose>
+                    <do_when value="{object.exists@L3M05 111.TradeStation}" exact="0">
+                      <cancel_cue cue="L3M05 111"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_known object="L3M05 111.TradeStation" known="1"/>
+                      <reward_player>
+                        <map>
+                          <sector sector="{object.sector@L3M05 111.TradeStation}"/>
+                        </map>
+                      </reward_player>
+                      <set_invincible object="L3M05 111.TradeStation" invincible="1"/>
+                      <create_actor name="L3M05 111.BoronGuy" race="boron" character="{3210,11120}, {3210,11100}" voice="210" face="203" object="L3M05 111.TradeStation" location="crew"/>
+                      <incoming_message author="{actor.name@L3M05 111.BoronGuy}" text="{3210,11101}"/>
+                      <create_briefing cue="L3M05 111" title="{3210,11110}" text="{3210,11112}" background="sector_boron_shore_of_infinity.tga">
+                        <mission discipline="TXXX" level="hard"/>
+                        <reward other="{3210,11113}"/>
+                        <timer duration="{value@L3M05 111.Hours}*3600"/>
+                        <!--<thumbnails>
+                          <thumbnail order="1" image="{actor.image@L3M05 111.BoronGuy}"/>
+                          <thumbnail order="2" image="{lookup.type.image@SS_SH_P_M6_ADV}"/>
+                          <thumbnail order="3" image="{actor.race.image@L3M05 111.BoronGuy}"/>
+                        </thumbnails>-->
+                        <thumbnails>
+                          <thumbnail order="1" image="SS_DOCK_B_TRADE.tga"/>
+                          <thumbnail order="2" image="SS_WARE_MEDEQUIPMENT.tga"/>
+                          <thumbnail order="3" image="{lookup.type.image@SS_SH_P_M6_ADV}"/>
+                        </thumbnails>
+                        <objectives>
+                          <objective step="1">
+                            <custom icon="buy" action="{35,2074}" text="{3210,11111}" guidance="L3M05 111.BoronGuy"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <set_value name="L3M05 111.EndTime" exact="{player.age}+({value@L3M05 111.Hours}*3600)"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L3M05 111 Message Read" delay="250">
+                  <condition>
+                    <check_value value="{player.menu.2288}" exact="1"/>
+                  </condition>
+                  <timing>
+                    <time min="50" max="100"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <set_objective cue="L3M05 111" noabort="1" title="{3210,11110}">
+                        <briefing cue="L3M05 111" step="1"/>
+                        <mission discipline="TXXX" level="hard"/>
+                        <reward other="{3210,11113}"/>
+                        <timer end="{value@L3M05 111.EndTime}"/>
+                        <custom icon="buy" action="{35,2074}" text="{3210,11111}" guidance="L3M05 111.TradeStation"/>
+                      </set_objective>
+                      <cancel_cue cue="L3M05 111 Add Objective"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L3M05 111 Add Objective" comment="Incase the player manages not to read the message in 20 minutes somehow">
+                  <timing>
+                    <time exact="1202s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <set_objective cue="L3M05 111" noabort="1" title="{3210,11110}">
+                        <briefing cue="L3M05 111" step="1"/>
+                        <mission discipline="TXXX" level="hard"/>
+                        <reward other="{3210,11113}"/>
+                        <timer end="{value@L3M05 111.EndTime}"/>
+                        <custom icon="buy" action="{35,2074}" text="{3210,11111}" guidance="L3M05 111.TradeStation"/>
+                      </set_objective>
+                      <cancel_cue cue="L3M05 111 Message Read"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L3M05 111 Has Cr" delay="991">
+                  <condition>
+                    <check_all>
+                      <check_value value="{player.money}" min="{value@L3M05 111.Credits}"/>
+                      <object_is_docked dockobject="L3M05 111.TradeStation"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_if value="{value@L3M05 111.CurrentOffer}" exact="1">
+                      <remove_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Fail"/>
+                      </do_if>
+                      <do_if value="{value@L3M05 111.CurrentOffer}" exact="2">
+                        <remove_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Dock" discipline="XXXXP"/>
+                      </do_if>
+                      <create_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Pass" discipline="XXXXP">
+                        <params>
+                          <param name="Cost" value="{value.formatted@L3M05 111.Credits}"/>
+                        </params>
+                      </create_offer>
+                      <set_value name="L3M05 111.CurrentOffer" exact="3"/>
+                      <reset_cue cue="L3M05 111 No Cr"/>
+                      <reset_cue cue="L3M05 111 Must Dock"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L3M05 111 Finished">
+                      <condition>
+                        <conversation_completed actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Pass" answer="accept"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <reward_player>
+                            <money exact="-{value@L3M05 111.Credits}"/>
+                          </reward_player>
+                          <do_if value="{value@L3M05 111.Reward Assets}" exact="1">
+                            <find_station name="this.dock" class="dock" race="paranid"/>
+                            <do_if value="{object.exists@this.dock}" exact="0">
+                              <set_object name="this.dock" value="{object@L3M05 111.TradeStation}"/>
+                            </do_if>
+                            <create_ship name="this.reward" dockobject="this.dock" typename="SS_SH_P_M6_ADV" race="player">
+                              <equipment loadout="default">
+                                <ware typename="SS_WARE_TECH213" exact="12"/>
+                                <ware typename="SS_WARE_TECH246" exact="8"/>
+                              </equipment>
+                            </create_ship>
+                            <create_ship name="this.reward2" dockobject="this.dock" typename="SS_SH_P_M3_ADV" race="player">
+                              <equipment loadout="default">
+                                <ware typename="SS_WARE_TECH213" exact="8"/>
+                                <ware typename="SS_WARE_TECH246" exact="5"/>
+                              </equipment>
+                            </create_ship>
+                            <incoming_message author="{3300,10}" text="{3210,11107}"/>
+                          </do_if>
+                          <remove_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Pass" discipline="XXXXP"/>
+                          <remove_briefing cue="L3M05 111"/>
+                          <remove_objective cue="L3M05 111" status="complete"/>
+                          <set_invincible object="L3M05 111.TradeStation" invincible="0"/>
+                          <destroy_actor actor="L3M05 111.BoronGuy"/>
+                          <reward_player>
+                            <notoriety>
+                              <relation race="paranid" operation="set" exact="-10"/>
+                            </notoriety>
+                          </reward_player>
+                          <cancel_cue cue="L3M05 111"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L3M05 111 Must Dock" delay="1007">
+                  <condition>
+                    <check_all>
+                      <check_value value="{player.money}" min="{value@L3M05 111.Credits}"/>
+                      <object_is_docked dockobject="L3M05 111.TradeStation" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_if value="{value@L3M05 111.CurrentOffer}" exact="1">
+                        <remove_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Fail"/>
+                      </do_if>
+                      <do_if value="{value@L3M05 111.CurrentOffer}" exact="3">
+                        <remove_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Pass" discipline="XXXXP"/>
+                      </do_if>
+                      <create_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Dock" discipline="XXXXP">
+                        <params>
+                          <param name="Cost" value="{value.formatted@L3M05 111.Credits}"/>
+                        </params>
+                      </create_offer>
+                      <set_value name="L3M05 111.CurrentOffer" exact="2"/>
+                      <reset_cue cue="L3M05 111 Has Cr"/>
+                      <reset_cue cue="L3M05 111 No Cr"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L3M05 111 No Cr" delay="1001">
+                  <condition>
+                    <check_value value="{player.money}" max="{value@L3M05 111.Credits}-1"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_if value="{value@L3M05 111.CurrentOffer}" exact="2">
+                        <remove_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Dock" discipline="XXXXP"/>
+                      </do_if>
+                      <do_if value="{value@L3M05 111.CurrentOffer}" exact="3">
+                        <remove_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Pass" discipline="XXXXP"/>
+                      </do_if>
+                      <create_offer actor="L3M05 111.BoronGuy" conversation="L2ConvGS111Fail">
+                        <params>
+                          <param name="Cost" value="{value.formatted@L3M05 111.Credits}"/>
+                        </params>
+                      </create_offer>
+                      <set_value name="L3M05 111.CurrentOffer" exact="1"/>
+                      <reset_cue cue="L3M05 111 Has Cr"/>
+                      <reset_cue cue="L3M05 111 Must Dock"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L3M05 111 Out of Time">
+                  <condition>
+                    <cue_completed cue="L3M05 111"/>
+                  </condition>
+                  <timing>
+                    <time exact="({value@L3M05 111.Hours}*3600)s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <incoming_message author="{random.pilot.paranid}" text="{3210,11102}"/>
+                      <set_objective cue="L3M05 111" noabort="1" title="{3210,11110}" silent="1">
+                        <reward other="{3210,11114}"/>
+                      </set_objective>
+                      <create_briefing cue="L3M05 111">
+                        <mission discipline="TXXX" level="easy"/>
+                        <reward other="{3210,11114}"/>
+                      </create_briefing>
+                      <set_value name="L3M05 111.Reward Assets" exact="0"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L3M05 114" check="cancel" comment="Unholy Traitor">
+          <condition>
+            <check_value value="{player.gamestart}" exact="114"/>
+          </condition>
+          <cues>
+            <cue ref="LUM10">
+              <params>
+                <param name="Cue" value="L3M05 114"/>
+                <param name="Race" value="{lookup.race@paranid}"/>
+                <param name="Name" value="20042"/>
+                <param name="Delay" value="30"/>
+                <param name="Amount" value="15"/>
+                <param name="Difficulty" value="{lookup.level@hard}"/>
+                <param name="RealRaceOwned" value="1"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>px5Xg0EYSUvlBXhu3FEjIH/4xSCRWfROktxesuLQsgJRzu8bGAcamqkhphSYKyPOqlkyDyqrfH7P5k7697jRK/ecKaV/OghHL2SLjk1QKbiGKYwtHE/HUX8qP83rDkQki7l9I5++3/HzwA6SULn1uD5REq69Wa0DNHdig7G1FV1VLFTF4fG2eT7wG6HQn6j2M4+1+T9F07mJQJs5fCueX/ToeCeJM2kO3/GEa6L5Pz94RWBFx7TnNJJQ9WG38XzpMBN1fVG2kcX+NMdfnN12HS4Fn+RqvwDCmnkQOUBoGNgFjt6khhMHWcoLczjIyiWxiO9ZxVmTZlbSl/UrGbzkGw==</signature>
+</director>
+
+
+
+

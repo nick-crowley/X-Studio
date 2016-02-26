@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Objective 3" name="Scan Object" description="Objective to scan an object"/>
+    <version number="0.3" date="07/04/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="OBJ03" library="1">
+      <documentation>
+        <content name="OBJ03 Battle Objectives" reference="XFXT" type="objective"/>
+        <version number="0.3" date="07/04/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="OfferRace" type="number" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" type="number" compulsory="1" description="Race of the enemy"/>
+          <param name="EntryPoint" type="objectname" compulsory="1" description="Place to create ships at"/>
+          <param name="Sector" type="sectorname" compulsory="1" description="The sector where the battle is"/>
+          <param name="FriendlyFleet" type="groupname" compulsory="0" description="The friendly fleet"/>
+          <param name="EnemyFleet" type="groupname" compulsory="0" description="The enemy fleet"/>
+          <param name="Command" type="objectname" compulsory="0" description="Command station or ship" default="No command station events"/>
+          <param name="IsEvent" type="valuename" compulsory="1" description="Parameter that is updated when an event is in progress or not"/>
+          <param name="AddBriefing" type="valuename" compulsory="1" description="Feedback value to tell L0 to add the rest of the objectives to briefing"/>
+          <param name="SetObjective" type="valuename" compulsory="1" description="Feedback value to tell L0 to reset the objective"/>
+          <param name="StepName" type="valuename" compulsory="1" description="The current step value for the next available step"/>
+          <param name="Done" type="valuename" compulsory="1" description="Value that holds how many ships have been destroyed"/>
+          <param name="Max" type="valuename" compulsory="1" description="Value that holds how many ships have been involved in total"/>
+          <param name="EventDelay" type="number" compulsory="0" description="Delay in seconds before events are triggered" default="60 seconds"/>
+          <param name="BlockProactive" type="boolean" compulsory="0" description="Block proactive events"/>
+        </params>
+        <history>
+          <change date="25/06/08" author="al_main" description="Fixed mutual relation setting"/>
+          <change date="07/04/08" author="Diamonddragon" description="Reactive events 2,3,4 added"/>
+          <change date="27/02/08" author="al_main" description="Entry point code improved"/>
+          <change date="18/02/08" author="al_main" description="Initial version"/>
+          <change date="08/03/08" author="Diamonddragon" description="Added Protect a wingman having issues to reactive"/>
+          <change date="14/03/08" author="Diamonddragon" description="Added Do bombing run to reactive"/>
+        </history>
+        <todo>
+          <item description="Enemy reinforcements (param for chance to allow?)"/>
+          <item description="Xenon, Khaak, Terran OR entry is Gate = Protect us from Incoming bombers"/>
+          <item description="Xenon, Khaak, Terran, entry is Gate OR Enemy capital exists = Protect us from Incoming fighters"/>
+          <item description="Enemy capital exists = Do bombing run / Distraction"/>
+          <item description="Friendly Capital or TL = Need some help in this turret"/>
+          <item description="Friendly Transport = Drop back to defend this transport"/>
+          <item description="Civilian presence in the sector = Defend the civilian transports under attack"/>
+          <item description="Player In big ship / bomber = Attack Enemy Capital"/>
+          <item description="Player in small ship = Engage enemy fighter wing"/>
+          <item description="Player in small ship, friendly fighter with low shields and an attacker = Protect a wingman having issues"/>
+          <item description="Enemy Capital with low shields = Do bombing run"/>
+          <item description="Enemy Capital with low shields = Drop mines"/>
+          <item description="Friendly capital with low shields = Protect it / Maybe drop LT's for defence if enemy fighters"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_if value="{param.exists@EntryPoint}" exact="1">
+            <do_if value="{object.exists@{param@EntryPoint}}" exact="1">
+              <set_sector name="{param@Cue}.L0EntrySector" value="{object.sector@{param@EntryPoint}}"/>
+              <set_value name="{param@Cue}.L0EntryXCoord" exact="{object.position.x@{param@EntryPoint}}"/>
+              <set_value name="{param@Cue}.L0EntryYCoord" exact="{object.position.y@{param@EntryPoint}}"/>
+              <set_value name="{param@Cue}.L0EntryZCoord" exact="{object.position.z@{param@EntryPoint}}"/>
+            </do_if>
+          </do_if>
+          <!--CHECK RACES AND LOOK FOR A NEARBY GATE TO USE AS ENTRY POINT OR IF CAN DOCK AT TARGET-->
+          <set_value name="this.Start" exact="{player.age}"/>
+          <set_value name="{param@IsEvent}" exact="0"/>
+          <set_value name="{param@AddBriefing}" exact="0"/>
+          <set_value name="{param@SetObjective}" exact="0"/>
+          <set_value name="this.MinimumWait" exact="{param@EventDelay}"/>
+          <do_if value="{value@this.MinimumWait}" min="1" negate="1">
+            <set_value name="this.MinimumWait" exact="60"/>
+          </do_if>
+          <set_value name="this.UseProactive" exact="1"/>
+          <do_if value="{param.exists@BlockProactive}" exact="1">
+            <do_if value="{value@{param@BlockProactive}}" exact="1">
+              <set_value name="this.UseProactive" exact="0"/>
+            </do_if>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <!--***PROACTIVE MISSION EVENTS***-->
+        <cue name="OBJ03 Proactive Events">
+          <condition>
+            <check_all>
+              <cue_completed cue="OBJ03"/>
+              <check_value value="{value@OBJ03.UseProactive}" exact="1"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue name="OBJ03 E01" comment="Enemy Bomber(s) Attacking Command" delay="5s">
+              <!--MIGHT ALSO WANT TO CHECK FOR A VALID ENTRY POINT, GATE OR CAPITAL SHIP-->
+              <condition>
+                <check_all>
+                  <object_exists object="{param@Command}"/>
+                  <check_any>
+                    <check_age min="{value@OBJ03.Start}+{value@OBJ03.MinimumWait}"/>
+                    <check_value value="({value@{param@Done}}*100)/{value@{param@Max}}" min="75"/>
+                  </check_any>
+                  <check_value value="{value@{param@IsEvent}}" exact="0"/>
+                </check_all>
+              </condition>
+              <action>
+                <set_value name="{param@IsEvent}" exact="1"/>
+              </action>
+              <cues>
+                <cue ref="SRST">
+                  <params>
+                    <param name="Cue" value="OBJ03 E01" comment="The Cue where variables are saved"/>
+                    <param name="Shiptype Address" value="OBJ03 E01.SRST Shiptype" comment="The address where the shiptype is saved"/>
+                    <param name="Race ID" value="{param@EnemyRace}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                    <param name="Class ID" value="{lookup.class@m3}" comment="The shipclass ID or the strings 'bigship', 'fighter' or 'freighter'"/>
+                  </params>
+                </cue>
+                <cue name="OBJ03 E01 Create">
+                  <condition>
+                    <cue_completed cue="SRST"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_if value="{value@OBJ03 E01.SRST Shiptype}" exact="0" comment="If no shiptype was found use teladi m3">
+                        <set_value name="OBJ03 E01.SRST Shiptype" exact="{lookup.type@SS_SH_T_M3}"/>
+                      </do_if>
+                      <create_ship name="{param@Cue}.OBJ03 E01 Bomber" typename="{value@OBJ03 E01.SRST Shiptype}" class="m3" group="{param@EnemyFleet}" communicates="0" capturable="0" race="{param@EnemyRace}" racelogic="1">
+                        <position x="{value@{param@Cue}.L0EntryXCoord}" y="{value@{param@Cue}.L0EntryYCoord}" z="{value@{param@Cue}.L0EntryZCoord}"/>
+                        <sector sector="{param@Cue}.L0EntrySector"/>
+                        <equipment loadout="maximum"/>
+                        <command command="attack" commandobject="{param@Command}"/>
+                        <relations>
+                          <relation object="{player.ship}" mutual="0" relation="enemy"/>
+                        </relations>
+                        <!--ADD MISSILES?-->
+                      </create_ship>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="OBJ03 E01 Start">
+                  <condition>
+                    <cue_completed cue="OBJ03 E01 Create"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <!--TEXT (FROM LV1GUIDE?) NEEDS SORTING!-->
+                      <incoming_message text="Incoming bomber, intercept it!"/>
+
+                      <set_value name="{param@Max}" exact="{value@{param@Max}}+1"/>
+                      <create_briefing cue="{param@Cue}">
+                        <objectives>
+                          <objective step="{value@{param@StepName}}" background="mission003.tga">
+                            <destroy object="{param@Cue}.OBJ03 E01 Bomber"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <set_objective cue="{param@Cue}">
+                        <briefing cue="{param@Cue}" step="{value@{param@StepName}}"/>
+                        <mission level="{param@Difficulty}" discipline="XFXX"/>
+                        <progress current="{value@{param@Done}}" limit="{value@{param@Max}}"/>
+                        <destroy object="{param@Cue}.OBJ03 E01 Bomber"/>
+                      </set_objective>
+                      <set_value name="{param@StepName}" exact="{value@{param@StepName}}+1"/>
+                      <set_value name="{param@AddBriefing}" exact="1"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="OBJ03 Event01 Fin">
+                      <condition>
+                        <check_any>
+                          <object_destroyed object="{object@{param@Cue}.OBJ03 E01 Bomber}"/>
+                          <object_destroyed_by_player object="{object@{param@Cue}.OBJ03 E01 Bomber}"/>
+                        </check_any>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="{param@IsEvent}" exact="0"/>
+                          <set_value name="{param@SetObjective}" exact="1"/>
+                          <!--WELL DONE MESSAGE OF SOME SORT FROM LV1GUIDE?-->
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+
+            </cue>
+          </cues>
+        </cue>
+
+        <!--***REACTIVE MISSION EVENTS***-->
+        <cue name="OBJ03 E101" comment="Enemy Attacking Command" delay="15s">
+          <condition>
+            <check_all>
+              <object_attacked object="{param@Command}"/>
+              <match_object object="{object.attacker@{param@Command}}" class="bigship"/>
+              <check_value value="{param@IsEvent}" exact="0"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_object name="this.Attacker" value="{object.attacker@{param@Command}}"/>
+              <set_value name="{param@IsEvent}" exact="1"/>
+              <!--TEXT (FROM LV1GUIDE?) NEEDS SORTING!-->
+              <incoming_message text="Incoming bomber, intercept it!"/>
+              <create_briefing cue="{param@Cue}">
+                <objectives>
+                  <objective step="{value@{param@StepName}}" background="mission003.tga">
+                    <destroy object="OBJ03 E101.Attacker"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="{param@Cue}">
+                <briefing cue="{param@Cue}" step="{value@{param@StepName}}"/>
+                <mission level="{param@Difficulty}" discipline="XFXX"/>
+                <progress current="{value@{param@Done}}" limit="{value@{param@Max}}"/>
+                <destroy object="OBJ03 E101.Attacker"/>
+              </set_objective>
+              <set_value name="{param@StepName}" exact="{value@{param@StepName}}+1"/>
+              <set_value name="{param@AddBriefing}" exact="1"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="OBJ03 Event01 Fin">
+              <condition>
+                <check_any>
+                  <object_destroyed object="OBJ03 E101.Attacker"/>
+                  <object_destroyed_by_player object="OBJ03 E101.Attacker"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@SetObjective}" exact="1"/>
+                  <set_value name="{param@IsEvent}" exact="0"/>
+                  <!--WELL DONE MESSAGE OF SOME SORT FROM LV1GUIDE?-->
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="OBJ03 E102" comment="Enemy Attacking Wingman|Protect a wingman having issues">
+          <condition>
+            <check_all>
+              <check_value value="{value@{param@IsEvent}}" exact="0"/>
+              <match_object object="{player.ship}" class="littleship"/>
+              <any_object_attacked group="{param@FriendlyFleet}"/>
+            </check_all>
+          </condition>
+          <timing>
+            <time exact="3s"/>
+            <!--important delay, else attacker of Wingman can't be found-->
+          </timing>
+          <action>
+            <do_all>
+              <set_object name="this.Wingman" value="{event.object}"/>
+              <set_object name="this.Attacker" value="{object.attacker@this.Wingman}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="OBJ03 E102 Wingman attacked">
+              <condition>
+                <check_all>
+                  <cue_completed cue="OBJ03 E102"/>
+                  <check_any>
+                    <match_object object="OBJ03 E102.Wingman" class="m3"/>
+                    <match_object object="OBJ03 E102.Wingman" class="m4"/>
+                    <match_object object="OBJ03 E102.Wingman" class="m5"/>
+                  </check_any>
+                  <check_any>
+                    <object_shields object="OBJ03 E102.Wingman" min="0" max="75"/>
+                    <check_value value="{object.class@OBJ03 E102.Attacker}" max="{{object.class@OBJ03 E102.Wingman}-1}" comment="check if the attacker has a higher class, support for the new
+                                 classes should be added"/>
+                    <match_object object="OBJ03 E102.Attacker" class="m6"/>
+                  </check_any>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@IsEvent}" exact="1"/>
+
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@{param@StepName}}" background="mission003.tga">
+                        <protect object="OBJ03 E102.Wingman"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{value@{param@StepName}}"/>
+                    <mission level="{param@Difficulty}" discipline="XFXX"/>
+                    <progress current="{value@{param@Done}}" limit="{value@{param@Max}}"/>
+                    <protect object="OBJ03 E102.Wingman"/>
+                  </set_objective>
+                  <set_value name="{param@StepName}" exact="{value@{param@StepName}}+1"/>
+                  <set_value name="{param@AddBriefing}" exact="1"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="OBJ03 E102 Success">
+                  <condition>
+                    <check_all>
+                      <check_any>
+                        <object_destroyed_by_player object="OBJ03 E102.Attacker"/>
+                        <object_destroyed object="OBJ03 E102.Attacker"/>
+                      </check_any>
+                      <object_attacked object="OBJ03 E102.Wingman" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="{param@SetObjective}" exact="1"/>
+                      <set_value name="{param@IsEvent}" exact="0"/>
+                      <!--Successful defended the ship. What now?-->
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="OBJ03 E102 Failure">
+                  <condition>
+                    <check_any>
+                      <object_destroyed_by_player object="OBJ03 E102.Wingman"/>
+                      <object_destroyed object="OBJ03 E102.Wingman"/>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="{param@SetObjective}" exact="1"/>
+                      <set_value name="{param@IsEvent}" exact="0"/>
+                      <!--Bad player didn't defend the ship. What now?-->
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        
+        <cue name="OBJ03 E103" comment="Enemy Capital with low shields = Do bombing run">
+          <condition>
+            <check_time exact="0"/>
+          </condition>
+          <timing>
+            <time exact="2s"/>
+          </timing>
+          <action>
+            <do_all>
+              <do_all exact="{group.object.count@{param@EnemyFleet}}" counter="Fleet">
+                <do_if value="{group.object.{counter@Fleet}.class.name@{param@EnemyFleet}}" list="M7|M1|M2|TL">
+                  <set_object name="this.Ship" value="{group.object.{counter@Fleet}@{param@EnemyFleet}}"/>
+                  <add_object_to_group object="this.Ship" group="this.EnemyCapital"/>
+                </do_if>
+              </do_all>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="OBJ03 E103 Capital ship shields low">
+              <condition>
+                <check_all>
+                  <any_object_shields group="OBJ03 E103.EnemyCapital" min="0" max="50"/>
+                  <check_value value="{value@{param@IsEvent}}" exact="0"/>
+                </check_all>
+              </condition>
+              <timing>
+                <time exact="2s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <do_all exact="{group.object.count@OBJ03 E103.EnemyCapital}" counter="Cap">
+                    <do_if value="{group.object.{counter@Cap}.shields@OBJ03 E103.EnemyCapital}" min="0" max="50">
+                      <set_object name="OBJ03 E103.Capital" value="{group.object.{counter@Cap}@OBJ03 E103.EnemyCapital}"/>
+                    </do_if>
+                  </do_all>
+                  <!--<incoming_message text="th {object.name@OBJ03 E103.Capital}"/>-->
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@{param@StepName}}" background="mission003.tga">
+                        <destroy object="OBJ03 E103.Capital"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{value@{param@StepName}}"/>
+                    <mission level="{param@Difficulty}" discipline="XFXX"/>
+                    <progress current="{value@{param@Done}}" limit="{value@{param@Max}}"/>
+                    <destroy object="OBJ03 E103.Capital"/>
+                  </set_objective>
+                  <set_value name="{param@StepName}" exact="{value@{param@StepName}}+1"/>
+                  <set_value name="{param@AddBriefing}" exact="1"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="OBJ03 E103 Capital destroyed by player">
+                  <condition>
+                    <object_destroyed_by_player object="OBJ03 E103.Capital"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <!--player destroyed the cap ship,-->
+                      <set_value name="{param@SetObjective}" exact="1"/>
+                      <set_value name="{param@IsEvent}" exact="0"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="OBJ03 E103 Capital destroyed">
+                  <condition>
+                    <object_destroyed object="OBJ03 E103.Capital"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <!--something destroyed the cap ship,-->
+                      <set_value name="{param@SetObjective}" exact="1"/>
+                      <set_value name="{param@IsEvent}" exact="0"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="OBJ03 E104" comment="Friendly Transport = Drop back to defend this transport">
+          <condition>
+
+          </condition>
+          <action>
+            <do_all>
+              <find_ship class="ts" multiple="1" max="500" group="this.Transport" race="{param@OfferRace}"/>
+              <find_ship class="tp" multiple="1" max="500" group="this.Transport" race="{param@OfferRace}"/>
+              <find_ship class="tl" multiple="1" max="500" group="this.Transport" race="{param@OfferRace}"/>
+              <find_ship class="tm" multiple="1" max="500" group="this.Transport" race="{param@OfferRace}"/>
+              <!--<incoming_message text="cou {group.object.count@this.Transport}"/>-->
+            </do_all>
+          </action>
+          <cues>
+            <cue name="OBJ03 E104 Transport attacked">
+              <condition>
+                <check_all>
+                  <check_value value="{value@{param@IsEvent}}" exact="0"/>
+                  <any_object_attacked group="OBJ03 E104.Transport"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="this.Time" exact="{player.age}"/>
+                  <set_object name="OBJ03 E104.Transporter" value="{event.object}"/>
+                  <set_value name="{param@IsEvent}" exact="1"/>
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@{param@StepName}}" background="mission003.tga">
+                        <protect object="OBJ03 E104.Transporter"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{value@{param@StepName}}"/>
+                    <mission level="{param@Difficulty}" discipline="XFXX"/>
+                    <progress current="{value@{param@Done}}" limit="{value@{param@Max}}"/>
+                    <protect object="OBJ03 E104.Transporter"/>
+                  </set_objective>
+                  <set_value name="{param@StepName}" exact="{value@{param@StepName}}+1"/>
+                  <set_value name="{param@AddBriefing}" exact="1"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="OBJ03 E104 Success">
+                  <condition>
+                  </condition>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>Ruz84WGaZDnBKYVthpM/7U1d7thGZ8Ks67szTo5whBAqTZm3Vm0/3m387nQowNBY9RfWiDpOn/d63wJCwJ6VBhdEg9Xs4JbcJAuvdc+7EW5CGTo6ZhQAhG8EMDafqa81QaPBD2IZh53VtXzJG94OyMEbMtsVa0huMqm3kEnFUTvxZt1JuG+mppY24LTFWMzqg9T6zIstnxhOT3XEBW5JeaiR8/R+aZ425pkTgG63xiBf+bhx0ji71hfruoIEBAf1gd5ENcG66p+azSWfSGNoRXgp8nDbEZKLJCZbqwwslU/LFcgjCnc8EskbY9Wlf3J37m8kgXjyiEsuX76Xp7iTRA==</signature>
+</director>

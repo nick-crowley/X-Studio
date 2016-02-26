@@ -1,0 +1,82 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="director.css"/>
+		<script lang="Javascript">
+
+				//create xml document object and load file
+				dxml = new ActiveXObject("MSXML2.FreeThreadedDOMDocument.3.0");
+				dxml.setProperty("SelectionLanguage", "XPath");
+				dxml.async = "False";
+				dxml.load("director.xsd");
+
+				//create xsldocument object and load file
+				dxsl = new ActiveXObject("MSXML2.FreeThreadedDOMDocument.3.0");
+				dxsl.setProperty("SelectionLanguage", "XPath");
+				dxsl.async = "False";
+				dxsl.load("dirschema.xsl");
+
+				//create template object and pull in dxsl and dxml
+				template = new ActiveXObject("MSXML2.XSLTemplate.3.0");
+				template.stylesheet = dxsl
+				proc = template.createProcessor();
+				proc.input = dxml
+
+				//perform transformation and set output to div
+				proc.transform
+
+
+		function update() {
+
+				//update parameters in template object
+				proc.addParameter ("filter", document.f.filter.value)
+				proc.addParameter ("sort", document.f.sort.checked)
+
+				//perform transformation and set output to div
+				proc.transform
+				divXMLDisplay.innerHTML = proc.output
+
+				}
+
+				function process(){
+
+				//create xml document object and load file
+				dxml = new ActiveXObject("MSXML2.FreeThreadedDOMDocument.3.0");
+				dxml.setProperty("SelectionLanguage", "XPath");
+				dxml.async = "False";
+				dxml.load(file1);
+
+				//create xsldocument object and load file
+				dxsl = new ActiveXObject("MSXML2.FreeThreadedDOMDocument.3.0");
+				dxsl.setProperty("SelectionLanguage", "XPath");
+				dxsl.async = "False";
+				dxsl.load(document.fstyle.style[fstyle.style.selectedIndex].value);
+
+				//create template object and pull in dxsl and dxml
+				template = new ActiveXObject("MSXML2.XSLTemplate.3.0");
+				template.stylesheet = dxsl
+				proc = template.createProcessor();
+				proc.input = dxml
+
+				//perform transformation and set output to div
+				proc.transform
+				divXMLDisplay.innerHTML = proc.output
+				}
+
+
+		</script>
+
+	</head>
+	<body onload="update()">
+		<form name="f" action="javascript:update()">
+			<span class="title">
+				Filter
+			</span>
+			<input id="filter" onblur="update()"/>
+			<span class="title">
+			    Sort?
+			</span>
+			<input id="sort" type="checkbox" onclick="update()"/>
+		</form>
+		<div id="divXMLDisplay" />
+	</body>
+</html>

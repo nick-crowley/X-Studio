@@ -1,0 +1,3107 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<conversations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="conversations.xsd">
+
+  <!--check TODO-->
+  <!--remove the npc lines at the start when no longer needed-->
+
+  <!--MISSION OFFERS-->
+  <conversation name="L2OfferNormal" description="Basic generic mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803}" comment="I have a job going"/>
+        <npc text="{@pageid,2100}" comment="I have a job going"/>
+        <npc text="{@pageid,2101}" comment="I have a job going"/>
+        <npc text="{@pageid,2102}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc text="{@pageid,822}" comment="Are you interested?">
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+          <!--<player_any>
+              <player text="{3800,401}" outcome="accept"/>
+              <player text="{3800,402}" outcome="accept"/>
+              <player text="{3800,403}" outcome="accept"/>
+            </player_any>-->
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>  
+  <conversation name="L2OfferCombat" description="Basic combat mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+                <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferCombatEasy" description="Basic combat mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferCombatHard" description="Basic combat mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,804}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,804} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferShip" description="Deliver a ship mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,805}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,805}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,805}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,805}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,805} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,805} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,805} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,805} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+                <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferDeliver" description="Deliver goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferDeliverEasy" description="Deliver goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferDeliverHard" description="Deliver goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferDeliverIllegal" description="Deliver goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,806} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferEscort" description="Escort mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,835} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,835} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,835} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,835} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,837} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,837} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,837} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,837} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferEscortEasy" description="Escort mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferEscortHard" description="Escort mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,807}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,807} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,831} {@pageid,835} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,835} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,837} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,837} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,835} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,835} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,837} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,837} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferKill" description="Assassination mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferKillEasy" description="Assassination mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,833} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,833} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,833} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,833} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferKillHard" description="Assassination mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,809}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,809} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTaxi" description="Mission offer to pick up and transport a passenger for them">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+               <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTaxiEasy" description="Mission offer to pick up and transport a passenger for them">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTaxiHard" description="Mission offer to pick up and transport a passenger for them">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTaxiIllegal" description="Mission offer to pick up and transport a passenger for them">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,810} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferRide" description="Mission offer to take the person somewhere">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferRideEasy" description="Mission offer to take the person somewhere">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferRideHard" description="Mission offer to take the person somewhere">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,811}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,811} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferRideIllegal" description="Mission offer to take the person somewhere">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,812}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,812}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,812}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,812}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,812} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,812} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,812} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,812} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuild" description="Mission to build a station">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuildEasy" description="Mission to build a station">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuildHard" description="Mission to build a station">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,813}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,813} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTransport" description="Transport goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTransportEasy" description="Transport goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTransportHard" description="Transport goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferTransportIllegal" description="Transport goods mission offer">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,814} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,808} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,836} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,827} {@pageid,831} {@pageid,836} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferFind" description="Mission to find someone">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,822}" comment="Are you interested?"/>
+                <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferFindEasy" description="Mission to find someone">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,830} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferFindHard" description="Mission to find someone">
+    <player_any>
+      <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+      <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+      <npc_any>
+        <npc text="{@pageid,803} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,815}" comment="I have a job going"/>
+        <npc text="{@pageid,803} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2100} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2101} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <npc text="{@pageid,2102} {@pageid,815} {@pageid,821}" comment="I have a job going"/>
+        <player_all>
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc_any>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,831} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,825} {@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,820}" comment="Are you interested?"/>
+              <npc text="{@pageid,832} {@pageid,822}" comment="Are you interested?"/>
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc_any>
+          </player_any>
+          <player_any>
+            <player text="{3800,501}" outcome="reject"/>
+            <player text="{3800,502}" outcome="reject"/>
+            <player text="{3800,503}" outcome="reject"/>
+            <player text="{3800,504}" outcome="reject"/>
+            <player text="{3800,505}" outcome="reject"/>
+            <player text="{3800,506}" outcome="reject"/>
+          </player_any>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+
+  <conversation name="L2OfferBuy1">
+    <player_any>
+      <player text="{3800,1401}" comment="What you got?"/>
+      <player text="{3800,1402}" comment="What you got?"/>
+      <player text="{3800,1403}" comment="What you got?"/>
+      <player text="{3800,1404}" comment="What you got?"/>
+      <player text="{3800,1405}" comment="What you got?"/>
+      <player text="{3800,1406}" comment="What you got?"/>
+      <player text="{3800,1407}" comment="What you got?"/>
+      <player text="{3800,1408}" comment="What you got?"/>
+      <npc_any>
+        <npc text="{@pageid,958}" comment="Ok, here are the prices"/>
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuy2">
+    <player_any>
+      <player text="{3800,1401}" comment="What you got?"/>
+      <player text="{3800,1402}" comment="What you got?"/>
+      <player text="{3800,1403}" comment="What you got?"/>
+      <player text="{3800,1404}" comment="What you got?"/>
+      <player text="{3800,1405}" comment="What you got?"/>
+      <player text="{3800,1406}" comment="What you got?"/>
+      <player text="{3800,1407}" comment="What you got?"/>
+      <player text="{3800,1408}" comment="What you got?"/>
+      <npc_any>
+        <npc text="{@pageid,958}" comment="Ok, here are the prices"/>
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuy3">
+    <player_any>
+      <player text="{3800,1401}" comment="What you got?"/>
+      <player text="{3800,1402}" comment="What you got?"/>
+      <player text="{3800,1403}" comment="What you got?"/>
+      <player text="{3800,1404}" comment="What you got?"/>
+      <player text="{3800,1405}" comment="What you got?"/>
+      <player text="{3800,1406}" comment="What you got?"/>
+      <player text="{3800,1407}" comment="What you got?"/>
+      <player text="{3800,1408}" comment="What you got?"/>
+      <npc_any>
+        <npc text="{@pageid,958}" comment="Ok, here are the prices"/>
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuy4">
+    <player_any>
+      <player text="{3800,1401}" comment="What you got?"/>
+      <player text="{3800,1402}" comment="What you got?"/>
+      <player text="{3800,1403}" comment="What you got?"/>
+      <player text="{3800,1404}" comment="What you got?"/>
+      <player text="{3800,1405}" comment="What you got?"/>
+      <player text="{3800,1406}" comment="What you got?"/>
+      <player text="{3800,1407}" comment="What you got?"/>
+      <player text="{3800,1408}" comment="What you got?"/>
+      <npc_any>
+        <npc text="{@pageid,958}" comment="Ok, here are the prices"/>
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,5004}" outcome="accept4"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuy5">
+    <player_any>
+      <player text="{3800,1401}" comment="What you got?"/>
+      <player text="{3800,1402}" comment="What you got?"/>
+      <player text="{3800,1403}" comment="What you got?"/>
+      <player text="{3800,1404}" comment="What you got?"/>
+      <player text="{3800,1405}" comment="What you got?"/>
+      <player text="{3800,1406}" comment="What you got?"/>
+      <player text="{3800,1407}" comment="What you got?"/>
+      <player text="{3800,1408}" comment="What you got?"/>
+      <npc_any>
+        <npc text="{@pageid,958}" comment="Ok, here are the prices"/>
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,5004}" outcome="accept4"/>
+          <player text="{3800,5005}" outcome="accept5"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2OfferBuy6">
+    <player_any>
+      <player text="{3800,1401}" comment="What you got?"/>
+      <player text="{3800,1402}" comment="What you got?"/>
+      <player text="{3800,1403}" comment="What you got?"/>
+      <player text="{3800,1404}" comment="What you got?"/>
+      <player text="{3800,1405}" comment="What you got?"/>
+      <player text="{3800,1406}" comment="What you got?"/>
+      <player text="{3800,1407}" comment="What you got?"/>
+      <player text="{3800,1408}" comment="What you got?"/>
+      <npc_any>
+        <npc text="{@pageid,958}" comment="Ok, here are the prices"/>
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,5004}" outcome="accept4"/>
+          <player text="{3800,5005}" outcome="accept5"/>
+          <player text="{3800,5006}" outcome="accept6"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc_any>
+    </player_any>
+  </conversation>
+
+  <conversation name="L2OfferBuyCustom1">
+    <player text="{3800,5000}" comment="Custom text">
+      <npc text="{@pageid,958}" comment="Ok, here are the prices">
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+  <conversation name="L2OfferBuyCustom2">
+    <player text="{3800,5000}" comment="Custom text">
+      <npc text="{@pageid,958}" comment="Ok, here are the prices">
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+  <conversation name="L2OfferBuyCustom3">
+    <player text="{3800,5000}" comment="Custom text">
+      <npc text="{@pageid,958}" comment="Ok, here are the prices">
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+  <conversation name="L2OfferBuyCustom4">
+    <player text="{3800,5000}" comment="Custom text">
+      <npc text="{@pageid,958}" comment="Ok, here are the prices">
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,5004}" outcome="accept4"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+  <conversation name="L2OfferBuyCustom5">
+    <player text="{3800,5000}" comment="Custom text">
+      <npc text="{@pageid,958}" comment="Ok, here are the prices">
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,5004}" outcome="accept4"/>
+          <player text="{3800,5005}" outcome="accept5"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later then"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+  <conversation name="L2OfferBuyCustom6">
+    <player text="{3800,5000}" comment="Custom text">
+      <npc text="{@pageid,958}" comment="Ok, here are the prices">
+        <player_all>
+          <player text="{3800,5001}" outcome="accept1"/>
+          <player text="{3800,5002}" outcome="accept2"/>
+          <player text="{3800,5003}" outcome="accept3"/>
+          <player text="{3800,5004}" outcome="accept4"/>
+          <player text="{3800,5005}" outcome="accept5"/>
+          <player text="{3800,5006}" outcome="accept6"/>
+          <player text="{3800,502}" outcome="cancel">
+            <npc text="{@pageid,951}" comment="Ok, come back later if you change your mind"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2ShowBriefing" description="Player wants to re-check the briefing">
+    <npc text="{@pageid,20}">
+      <player_any>
+        <player text="{3800,601}" action="briefing" comment="What do I need to do again?"/>
+        <player text="{3800,602}" action="briefing"  comment="What do I need to do again?"/>
+        <npc text="{@pageid,944}" comment="Are you going to get started then?">
+          <player_any>
+            <player text="{3800,701}" comment="ok"/>
+            <player text="{3800,702}" comment="ok"/>
+            <player text="{3800,703}" comment="ok"/>
+            <player text="{3800,704}" comment="ok"/>
+          </player_any>
+        </npc>
+      </player_any>
+    </npc>
+  </conversation>
+
+
+  <!--MISSION SPECIFIC CONVERSATIONS-->
+  <conversation name="L0M01Contact" description="Used in: 0.1, 0.2">
+    <player text="{3601,3001}" comment="I'm here to get the coords">
+      <npc text="{@pageid,10}">
+        <player text="{3800,1}" outcome="transmit"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L0M01ContactDock" description="Used in: 0.1, 0.2 - like above, but wants you to dock">
+    <player text="{3601,3001}" comment="I'm here to get the coords">
+      <npc text="{@pageid,942}">
+        <player text="{3800,8}" outcome="none"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L0M02DockShip" description="Used in: 0.2 - player has not docked yet">
+    <player text="{3601,3001}" comment="I've brought the ship for you">
+      <npc text="{@pageid,943}">
+        <player text="{3800,6}" outcome="none"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L0M02DockWare" description="Used in: 0.2 - player has not docked yet">
+    <player text="{3601,3001}" comment="I've brought the wares for you">
+      <npc text="{@pageid,943}">
+        <player text="{3800,6}" outcome="none"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L0M13WhereYouGoing" description="Used in: 0.13 - player question guy to follow">
+    <player text="{3800,1201}" outcome="enemy" comment="Where are you going?">
+      <npc text="{@pageid,957}">
+        <player text="{3800,507}"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L0M16DockWare" description="Used in: 0.16 - player has not docked yet">
+    <npc text="{@pageid,20}">
+      <player_any>
+        <player text="{3800,1001}" comment="I'm here for the delivery"/>
+        <player text="{3800,1002}" comment="I'm here for the delivery"/>
+        <player text="{3800,1003}" comment="I'm here for the delivery"/>
+        <player text="{3800,1004}" comment="I'm here for the delivery"/>
+        <npc text="{@pageid,941}">
+          <player_any>
+            <player text="{3800,6}" outcome="none"/>
+            <player text="{3800,8}" outcome="none"/>
+          </player_any>
+        </npc>
+      </player_any>
+    </npc>
+  </conversation>
+
+  <conversation name="L0M16ClearSpace" description="Used in: 0.16 - player must clear some space">
+    <npc text="{@pageid,20}">
+      <player_any>
+        <player text="{3800,1001}" comment="I'm here for the delivery"/>
+        <player text="{3800,1002}" comment="I'm here for the delivery"/>
+        <player text="{3800,1003}" comment="I'm here for the delivery"/>
+        <player text="{3800,1004}" comment="I'm here for the delivery"/>
+        <npc text="{@pageid,940}">
+          <player_any>
+            <player text="{3800,6}" outcome="none"/>
+            <player text="{3800,8}" outcome="none"/>
+          </player_any>
+        </npc>
+      </player_any>
+    </npc>
+  </conversation>
+
+  <conversation name="L0M16LostWare" description="Used in: 0.16 - player has lost ware">
+    <!--TODO - USE SIMPLIFIED FORMAT IF IT WORKS PROPERLY, NEED VARIATIONS-->
+    <player text="{3800,1101}" comment="I lost your cargo" outcome="fail">
+      <npc text="{@pageid,846}" comment="Go away!"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M150Offer">
+    <npc text="{@pageid,20}">
+      <player_any>
+        <player text="{3800,1401}" outcome="briefing" action="briefing"/>
+        <player text="{3800,1402}" outcome="briefing" action="briefing"/>
+        <player text="{3800,1403}" outcome="briefing" action="briefing"/>
+        <player text="{3800,1406}" outcome="briefing" action="briefing"/>
+        <player text="{3800,1408}" outcome="briefing" action="briefing"/>
+        <npc_any>
+          <npc text="{@pageid,825}" comment="Sending the info">
+            <player_all>
+              <player text="{3800,2307}" outcome="accept"/>
+              <player text="{3800,2309}" outcome="add"/>
+              <player text="{3800,2310}"/>
+            </player_all>
+          </npc>
+        </npc_any>
+      </player_any>
+    </npc>
+  </conversation>
+
+
+  <!--TERRAN PLOT-->
+  <conversation name="L2M001 No1" description="Terran Plot, Scene 1, Plinter 1">
+    <player outcome="ready" text="{3899,991101}" comment="I'm reporting in for patrol duty."/>
+  </conversation>
+
+  <conversation name="L2M002 No1" description="Terran Plot, Scene 2, Ishiyama 1">
+    <player text="{3899,991201}" outcome="ready" comment="I'm ready for my mission">
+      <npc text="{@pageid,191205}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M002 No2" description="Terran Plot, Scene 2, Jackson 1">
+    <player text="{3899,991202}" outcome="meet" comment="Are you Mark Jackson?"/>
+  </conversation>
+
+  <conversation name="L2M002 No3" description="Terran Plot, Scene 2, Jackson 2">
+    <player text="{3899,991203}" outcome="ready" comment="I found the pirate base and scanned it.">
+      <npc text="{@pageid,201208}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M002 No4" description="Terran Plot, Scene 2, Jackson 3">
+    <player text="{3899,991204}" outcome="ready" comment="We ran into ships which looked like Terraformers!">
+      <npc text="{@pageid,201213}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M002 No5" description="Terran Plot, Scene 2, Plinter 1">
+    <player text="{3899,991205}" outcome="ready" comment="I'm here for the patrol">
+      <npc text="{@pageid,161201}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M002 No6" description="Terran Plot, Scene 2, Benthami 1">
+    <player text="{3899,991206}" outcome="ready" comment="Reporting in">
+      <npc text="{@pageid,181204}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M003 No1" description="Terran Plot, Scene 3, Jackson 1">
+    <player text="{3899,991301}" outcome="ready" comment="Hello sir.">
+      <npc text="{@pageid,201301}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M003 No2" description="Terran Plot, Scene 3, Heywood 2">
+    <player text="{3899,991302}" comment="Communications open. Who are you?">
+      <npc text="{@pageid,221302}">
+        <player text="{3899,991303}" comment="We need to inform the USC">
+          <npc text="{@pageid,221303}">
+            <player text="{3899,991304}" outcome="ready" comment="Those are not my orders">
+              <npc text="{@pageid,221304}"/>
+            </player>
+          </npc>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M003 No3" description="Terran Plot, Scene 3, Haleos 1">
+    <player text="{3899,991305}" outcome="ready" comment="It's done.">
+      <npc text="{@pageid,231305}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M005 No1" description="Terran Plot, Scene 5, Jackson 1">
+    <player text="{3899,991501}" outcome="ready" comment="It's done.">
+      <npc text="{@pageid,201501}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M006 No1" description="Terran Plot, Scene 0, Darel 1">
+    <player text="{3899,991601}" outcome="ready" comment="I would like to take part in the escort.">
+      <npc text="{@pageid,121003}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M006 No2" description="Terran Plot, Scene 0, Iovis 1">
+    <player text="{3899,991602}" outcome="ready" comment="I am very interested in working for your race.">
+      <npc text="{@pageid,141008}"/>
+    </player>
+  </conversation>
+
+  
+  <!--HUB PLOT-->
+  <conversation name="L2M007 No1" description="HUB Plot, Scene 1, Mahi Ma 1">
+    <player text="{3800,102}">
+      <npc text="{@pageid,303103}">
+        <player text="{3899,993101}">
+          <npc text="{@pageid,303104}">
+            <player text="{3899,993102}">
+              <npc text="{@pageid,303105}">
+                <player text="{3899,993103}" outcome="ready">
+                  <npc text="{@pageid,303106}"/>
+                </player>
+              </npc>
+            </player>
+          </npc>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M007 No2" description="HUB Plot, Scene 1, Mahi Ma 2">
+    <player text="{3899,993105}">
+      <npc text="{@pageid,303107}">
+        <player text="{3899,993104}" outcome="ready">
+          <npc text="{@pageid,303108}"/>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M007 No3" description="HUB Plot, Scene 1, Mahi Ma 3">
+    <player text="{3204,742}">
+      <npc text="{@pageid,303124}">
+        <player text="{3899,993105}" outcome="ready">
+          <npc text="{@pageid,303125}"/>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M007 No4" description="HUB Plot, Scene 3, Otmanckstras 1">
+    <player text="{3204,747}">
+      <npc text="{@pageid,313301}">
+        <player text="{3899,993301}" outcome="ready">
+          <npc text="{@pageid,313302}"/>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M007 No5" description="HUB Plot, Scene 3, Otmanckstras 2">
+    <player_all>
+      <player text="{3899,993302}"/>
+      <player text="{3899,993303}" outcome="ready"/>
+    </player_all>
+  </conversation>
+
+  
+  <!--HQ PLOT-->
+  <conversation name="L2M008 No1" description="HQ Plot, Scene 1, Humi Wi 1">
+    <player text="{3899,995103}" outcome="start1">
+      <npc text="{@pageid,365101}">
+        <player_all>
+          <player text="{3899,995102}" outcome="ready1">
+            <npc text="{@pageid,365103}"/>
+          </player>
+          <player text="{3899,995101}">
+            <npc text="{@pageid,365102}"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M008 No2" description="HQ Plot, Scene 1, Humi Wi 2">
+    <player text="{3899,995104}">
+      <npc text="{@pageid,365107}">
+        <player_all>
+          <player text="{3899,995101}">
+            <npc text="{@pageid,365102}"/>
+          </player>
+          <player text="{3899,995102}" outcome="ready1">
+            <npc text="{@pageid,365103}"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M008 No3" description="HQ Plot, Scene 2, Brano 1">
+    <player text="{3899,995201}" outcome="ready">
+      <npc text="{@pageid,375201}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M008 No4" description="HQ Plot, Scene 2, Brano 2">
+    <player text="{3899,995202}" outcome="ready">
+      <npc text="{@pageid,375202}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M008 No5" description="HQ Plot, Scene 3, Humi Wi 1">
+    <player text="{3899,995302}" outcome="start3">
+      <npc text="{@pageid,365301}">
+        <player text="{3899,995301}" outcome="ready3"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M008 No6" description="HQ Plot, Scene 3, Humi Wi 2">
+    <player text="{3899,995302}">
+      <npc text="{@pageid,365107}">
+        <player text="{3899,995301}" outcome="ready3">
+          <npc text="{@pageid,365302}"/>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  
+  <!--TUTORIAL-->
+  <conversation name="L2M009 No1" description="Tutoroial, 1">
+    <player text="{3800,1406}">
+      <npc text="{@pageid,389101}">
+        <player_all>
+          <player text="{3899,995102}" outcome="ready">
+            <npc text="{@pageid,389103}"/>
+          </player>
+          <player text="{3899,999101}">
+            <npc text="{@pageid,389102}"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M009 No2" description="Tutoroial, 2">
+    <player text="{3899,995104}" outcome="ready">
+    </player>
+  </conversation>
+
+  <conversation name="L2M009 Quit" description="Tutoroial, player quits">
+    <player text="{113,551}" outcome="cancel">
+      <npc text="{@pageid,951}">
+        <player text="{3800,10}"/>
+      </npc>
+    </player>
+  </conversation>
+
+
+  <!--KHA'AK PLOT-->
+  <conversation name="L2M02Conv11" description="Khaak Plot Scene 1 Step 1">
+    <player text="{3899,992101}" outcome="briefing">
+      <npc text="{@pageid,272101}">
+        <player_all>
+          <player text="{3899,992102}">
+            <npc text="{@pageid,272102}">
+              <player_all>
+                <player text="{3899,992104}" outcome="accept">
+                  <npc text="{@pageid,272103}"/>
+                </player>
+                <player text="{3899,992103}"/>
+              </player_all>
+            </npc>
+          </player>
+          <player text="{3899,992105}">
+            <npc text="{@pageid,272107}">
+              <player text="{3899,992106}">
+                <npc text="{@pageid,272102}">
+                  <player_all>
+                    <player text="{3899,992104}" outcome="accept">
+                      <npc text="{@pageid,272103}"/>
+                    </player>
+                    <player text="{3899,992103}"/>
+                  </player_all>
+                </npc>
+              </player>
+            </npc>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M02Conv31" description="Khaak Plot Scene 3 Step 1">
+    <player text="{3899,992301}" outcome="briefing" action="briefing">
+      <npc text="{3828,282302}">
+        <player text="{3899,992302}" outcome="accept"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M02Conv41" description="Khaak Plot Scene 4 Step 1">
+    <player text="{3899,992303}" outcome="briefing" action="briefing">
+      <npc text="{3828,282402}"/>
+    </player>
+  </conversation>
+  <conversation name="L2M02Conv43" description="Khaak Plot Scene 4 Step 3">
+    <player text="{3899,992401}" outcome="launch">
+      <npc text="{510,292404}"/>
+    </player>
+  </conversation>
+  <conversation name="L2M02Conv43R" description="Khaak Plot Scene 4 Step 3 Repeat">
+    <player text="{3899,992401}" outcome="launch">
+      <npc text="{510,292403}"/>
+    </player>
+  </conversation>
+
+  <conversation name="L2M02Conv5A" description="Khaak Plot Scene 5 Step A">
+    <player_any>
+      <player text="{3899,991101}" action="briefing"/>
+      <player text="{3899,991206}" action="briefing"/>
+      <player text="{3899,991501}" action="briefing"/>
+      <player text="{3899,992301}" action="briefing"/>
+      <player text="{3899,992303}" action="briefing"/>
+      <player text="{3899,992601}" action="briefing"/>
+      <player text="{3899,994102}" action="briefing"/>
+      <player text="{3899,994201}" action="briefing"/>
+      <player text="{3899,994209}" action="briefing"/>
+      <npc_any>
+        <npc text="{3828,282901}"/>
+        <npc text="{3828,282902}"/>
+        <npc text="{3828,282903}"/>
+        <player_any>
+          <player text="{3800,403}" outcome="accept"/>
+          <player text="{3800,701}" outcome="accept"/>
+          <player text="{3800,702}" outcome="accept"/>
+          <player text="{3800,703}" outcome="accept"/>
+          <player text="{3899,992302}" outcome="accept"/>
+          <player text="{3899,992501}" outcome="accept"/>
+          <player text="{3899,992502}" outcome="accept"/>
+          <player text="{3899,992503}" outcome="accept"/>
+          <player text="{3899,992504}" outcome="accept"/>
+          <player text="{3899,992505}" outcome="accept"/>
+          <player text="{3899,992506}" outcome="accept"/>
+        </player_any>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2M02Conv5B" description="Khaak Plot Scene 5 Step B">
+    <player_any>
+      <player text="{3899,991101}" action="briefing"/>
+      <player text="{3899,991206}" action="briefing"/>
+      <player text="{3899,991501}" action="briefing"/>
+      <player text="{3899,992301}" action="briefing"/>
+      <player text="{3899,992303}" action="briefing"/>
+      <player text="{3899,992601}" action="briefing"/>
+      <player text="{3899,994102}" action="briefing"/>
+      <player text="{3899,994201}" action="briefing"/>
+      <player text="{3899,994209}" action="briefing"/>
+      <npc text="{3828,282905}">
+        <player_any>
+          <player text="{3800,403}" outcome="accept"/>
+          <player text="{3800,701}" outcome="accept"/>
+          <player text="{3800,702}" outcome="accept"/>
+          <player text="{3800,703}" outcome="accept"/>
+          <player text="{3899,992302}" outcome="accept"/>
+          <player text="{3899,992501}" outcome="accept"/>
+          <player text="{3899,992502}" outcome="accept"/>
+          <player text="{3899,992503}" outcome="accept"/>
+          <player text="{3899,992504}" outcome="accept"/>
+          <player text="{3899,992505}" outcome="accept"/>
+          <player text="{3899,992506}" outcome="accept"/>
+        </player_any>
+      </npc>
+    </player_any>
+  </conversation>
+  <conversation name="L2M02Conv5C" description="Khaak Plot Scene 5 Step C">
+    <player_any>
+      <player text="{3899,991101}" action="briefing"/>
+      <player text="{3899,991206}" action="briefing"/>
+      <player text="{3899,991501}" action="briefing"/>
+      <player text="{3899,992301}" action="briefing"/>
+      <player text="{3899,992303}" action="briefing"/>
+      <player text="{3899,992601}" action="briefing"/>
+      <player text="{3899,994102}" action="briefing"/>
+      <player text="{3899,994201}" action="briefing"/>
+      <player text="{3899,994209}" action="briefing"/>
+      <npc_any>
+        <npc text="{3828,282911}"/>
+        <npc text="{3828,282912}"/>
+        <npc text="{3828,282913}"/>
+        <npc text="{3828,282914}"/>
+        <npc text="{3828,282915}"/>
+        <npc text="{3828,282916}"/>
+        <player_any>
+          <player text="{3800,403}" outcome="accept"/>
+          <player text="{3800,701}" outcome="accept"/>
+          <player text="{3800,702}" outcome="accept"/>
+          <player text="{3800,703}" outcome="accept"/>
+          <player text="{3899,992302}" outcome="accept"/>
+          <player text="{3899,992501}" outcome="accept"/>
+          <player text="{3899,992502}" outcome="accept"/>
+          <player text="{3899,992503}" outcome="accept"/>
+          <player text="{3899,992504}" outcome="accept"/>
+          <player text="{3899,992505}" outcome="accept"/>
+          <player text="{3899,992506}" outcome="accept"/>
+        </player_any>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2M02Conv5D" description="Khaak Plot Scene 5 Step D">
+    <player_any>
+      <player text="{3899,991101}" action="briefing"/>
+      <player text="{3899,991206}" action="briefing"/>
+      <player text="{3899,991501}" action="briefing"/>
+      <player text="{3899,992301}" action="briefing"/>
+      <player text="{3899,992303}" action="briefing"/>
+      <player text="{3899,992601}" action="briefing"/>
+      <player text="{3899,994102}" action="briefing"/>
+      <player text="{3899,994201}" action="briefing"/>
+      <player text="{3899,994209}" action="briefing"/>
+      <npc_any>
+        <npc text="{3828,282921}"/>
+        <npc text="{3828,282922}"/>
+        <npc text="{3828,282923}"/>
+        <npc text="{3828,282924}"/>
+        <npc text="{3828,282925}"/>
+        <npc text="{3828,282926}"/>
+        <player_any>
+          <player text="{3800,403}" outcome="accept"/>
+          <player text="{3800,701}" outcome="accept"/>
+          <player text="{3800,702}" outcome="accept"/>
+          <player text="{3800,703}" outcome="accept"/>
+          <player text="{3899,992302}" outcome="accept"/>
+          <player text="{3899,992501}" outcome="accept"/>
+          <player text="{3899,992502}" outcome="accept"/>
+          <player text="{3899,992503}" outcome="accept"/>
+          <player text="{3899,992504}" outcome="accept"/>
+          <player text="{3899,992505}" outcome="accept"/>
+          <player text="{3899,992506}" outcome="accept"/>
+        </player_any>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2M02Conv5E" description="Khaak Plot Scene 5 Step E">
+    <player_any>
+      <player text="{3899,991101}" action="briefing"/>
+      <player text="{3899,991206}" action="briefing"/>
+      <player text="{3899,991501}" action="briefing"/>
+      <player text="{3899,992301}" action="briefing"/>
+      <player text="{3899,992303}" action="briefing"/>
+      <player text="{3899,992601}" action="briefing"/>
+      <player text="{3899,994102}" action="briefing"/>
+      <player text="{3899,994201}" action="briefing"/>
+      <player text="{3899,994209}" action="briefing"/>
+      <npc_any>
+        <npc text="{3828,282931}"/>
+        <npc text="{3828,282932}"/>
+        <npc text="{3828,282933}"/>
+        <npc text="{3828,282934}"/>
+        <npc text="{3828,282935}"/>
+        <npc text="{3828,282936}"/>
+        <npc text="{3828,282937}"/>
+        <npc text="{3828,282938}"/>
+        <npc text="{3828,282939}"/>
+        <player_any>
+          <player text="{3800,403}" outcome="accept"/>
+          <player text="{3800,701}" outcome="accept"/>
+          <player text="{3800,702}" outcome="accept"/>
+          <player text="{3800,703}" outcome="accept"/>
+          <player text="{3899,992302}" outcome="accept"/>
+          <player text="{3899,992501}" outcome="accept"/>
+          <player text="{3899,992502}" outcome="accept"/>
+          <player text="{3899,992503}" outcome="accept"/>
+          <player text="{3899,992504}" outcome="accept"/>
+          <player text="{3899,992505}" outcome="accept"/>
+          <player text="{3899,992506}" outcome="accept"/>
+        </player_any>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <conversation name="L2M02Conv5F" description="Khaak Plot Scene 5 Step F">
+    <player_any>
+      <player text="{3899,991101}" action="briefing"/>
+      <player text="{3899,991206}" action="briefing"/>
+      <player text="{3899,991501}" action="briefing"/>
+      <player text="{3899,992301}" action="briefing"/>
+      <player text="{3899,992303}" action="briefing"/>
+      <player text="{3899,992601}" action="briefing"/>
+      <player text="{3899,994102}" action="briefing"/>
+      <player text="{3899,994201}" action="briefing"/>
+      <player text="{3899,994209}" action="briefing"/>
+      <npc_any>
+        <npc text="{3828,282941}"/>
+        <npc text="{3828,282942}"/>
+        <npc text="{3828,282943}"/>
+        <npc text="{3828,282944}"/>
+        <npc text="{3828,282945}"/>
+        <npc text="{3828,282946}"/>
+        <npc text="{3828,282947}"/>
+        <npc text="{3828,282948}"/>
+        <npc text="{3828,282949}"/>
+        <player_any>
+          <player text="{3800,403}" outcome="accept"/>
+          <player text="{3800,701}" outcome="accept"/>
+          <player text="{3800,702}" outcome="accept"/>
+          <player text="{3800,703}" outcome="accept"/>
+          <player text="{3899,992302}" outcome="accept"/>
+          <player text="{3899,992501}" outcome="accept"/>
+          <player text="{3899,992502}" outcome="accept"/>
+          <player text="{3899,992503}" outcome="accept"/>
+          <player text="{3899,992504}" outcome="accept"/>
+          <player text="{3899,992505}" outcome="accept"/>
+          <player text="{3899,992506}" outcome="accept"/>
+        </player_any>
+      </npc_any>
+    </player_any>
+  </conversation>
+  <!--<conversation name="L2M02Conv5B" description="Khaak Plot Scene 5 Step B">
+    <player text="{3899,992303}" outcome="briefing" action="briefing">
+      <npc text="{3828,282502}"/>
+    </player>
+  </conversation>-->
+
+  <conversation name="L2M02Conv62" description="Khaak Plot Scene 6 Step 2">
+    <player text="{3899,992601}" outcome="briefing" action="briefing">
+      <npc text="{3828,282606}"/>
+    </player>
+  </conversation>
+
+
+  <!--GONER PLOT-->
+  <conversation name="L2M03Conv11" description="Goner Plot Scene 1 Step 1">
+    <player text="{3899,994101}">
+      <npc text="{@pageid,334102}">
+        <player text="{3899,994102}" action="briefing">
+          <npc text="{@pageid,334103}">
+            <player_all>
+              <player text="{3899,994103}" outcome="accept">
+                <npc text="{@pageid,334104}"/>
+              </player>
+              <player text="{3899,994104}">
+                <npc text="{@pageid,334105}"/>
+              </player>
+            </player_all>
+          </npc>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv21" description="Goner Plot Scene 2 Step 1">
+    <player text="{3899,994201}" action="briefing">
+      <npc text="{@pageid,344202}">
+        <player_all>
+          <player text="{3899,994202}" outcome="accept">
+            <npc text="{@pageid,344203}"/>
+          </player>
+          <player text="{3899,994203}">
+            <npc text="{@pageid,344204}"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv22" description="Goner Plot Scene 2 Step 2">
+    <player text="{3899,994204}" action="briefing">
+      <npc text="{@pageid,344207}">
+        <player_all>
+          <player text="{3899,994202}" outcome="accept">
+            <npc text="{@pageid,344203}"/>
+          </player>
+          <player text="{3899,994203}">
+            <npc text="{@pageid,344204}"/>
+          </player>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv23" description="Goner Plot Scene 2 Step 3">
+    <player text="{3899,994205}" outcome="fail">
+      <npc text="{@pageid,344208}">
+        <player text="{3899,994102}" action="briefing">
+          <npc text="{@pageid,344209}">
+            <player text="{3899,994202}" outcome="accept"/>
+          </npc>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv24" description="Goner Plot Scene 2 Step 4">
+    <player text="{3899,994207}">
+      <npc text="{@pageid,344210}">
+        <player text="{3899,994208}" action="briefing">
+          <npc text="{@pageid,344211}">
+            <player text="{3899,994210}" outcome="accept"/>
+          </npc>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv25" description="Goner Plot Scene 2 Step 5">
+    <player text="{3899,994209}" outcome="briefing" action="briefing">
+      <npc text="{@pageid,334201}">
+        <player text="{3899,994210}" outcome="accept"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv51" description="Goner Plot Scene 5 Step 1">
+    <player text="{3899,994501}">
+      <npc text="{@pageid,344502}">
+        <player text="{3899,994502}">
+          <npc text="{@pageid,344503}">
+            <player text="{3899,994503}">
+              <npc text="{@pageid,344504}">
+                <player text="{3899,994504}" outcome="accept">
+                  <npc text="{@pageid,344505}"/>
+                </player>
+              </npc>
+            </player>
+          </npc>
+        </player>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv51SerKep" description="Goner Plot Scene 5 Step 1">
+    <player text="{3800,1001}">
+      <npc text="{@pageid,955} {@pageid,945}">
+        <player text="{3800,8}"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv52" description="Goner Plot Scene 5 Step 2">
+    <player text="{3899,994505}">
+      <npc text="{@pageid,414501}">
+        <player text="{3899,994506}" outcome="accept"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M03Conv52F" description="Goner Plot Scene 5 Step 2 Failed">
+    <player text="{3899,994505}">
+      <npc text="{@pageid,26}">
+        <player text="{3800,1302}"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2ConvGS110Fail" description="Gamestart 110 Fail">
+    <player text="{3210,11003}">
+      <npc_any>
+        <npc text="{510,944}"/>
+        <npc text="{510,23}"/>
+        <npc text="{510,33}"/>
+        <player text="{3210,11004}"/>
+      </npc_any>
+    </player>
+  </conversation>
+
+  <conversation name="L2ConvGS110Pass" description="Gamestart 110 Pass">
+    <player text="{3210,11003}">
+      <npc text="{510,949}">
+        <player text="{3210,11005}" outcome="accept"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2ConvGS111Fail" description="Gamestart 111 Fail">
+    <player text="{3210,11103}">
+      <npc_any>
+        <npc text="{210,25}"/>
+        <npc text="{210,22}"/>
+        <player text="{3210,11004}"/>
+      </npc_any>
+    </player>
+  </conversation>
+
+  <conversation name="L2ConvGS111Dock" description="Gamestart 111 Dock">
+    <player text="{3210,11103}">
+      <npc text="{210,945}">
+        <player text="{3800,6}" outcome="accept"/>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2ConvGS111Pass" description="Gamestart 111 Pass">
+    <player text="{3210,11103}">
+      <npc text="{210,3001}">
+        <player text="{3210,11105}" outcome="accept"/>
+      </npc>
+    </player>
+  </conversation>
+
+
+  <!--*****TO REMOVE FROM HERE DOWNWARDS*****-->
+  <!--DEBUG CODE-->
+  <conversation name="Ship Select" description="DEBUG">
+    <player_all>
+      <player text="Argon" outcome="argon"/>
+      <player text="Boron" outcome="boron"/>
+      <player text="Paranid" outcome="paranid"/>
+      <player text="Teladi" outcome="teladi"/>
+      <player text="Split" outcome="split"/>
+      <player text="Xenon" outcome="xenon"/>
+      <player text="Pirate" outcome="pirate"/>
+      <player text="Yaki" outcome="yaki"/>
+      <player text="Terran" outcome="terran"/>
+      <player text="Argon" outcome="argon"/>
+    </player_all>
+  </conversation>
+
+  <conversation name="Terran Plot Choice">
+    <player_all>
+      <player text="Start Terran Plot From Scene 2" outcome="two"/>
+      <player text="Start Terran Plot From Scene 3" outcome="three"/>
+      <player text="Start Terran Plot From Scene 4" outcome="four"/>
+      <player text="Start Terran Plot From Scene 5" outcome="five"/>
+      <player text="Start HUB Plot" outcome="HUB"/>
+      <player text="Start HQ Plot" outcome="HQ"/>
+    </player_all>
+  </conversation>
+
+  <conversation name="Khaak Plot Choice">
+    <player_all>
+      <player text="Start Kha'ak Plot From Scene 2" outcome="two"/>
+      <player text="Start Kha'ak Plot From Scene 3" outcome="three"/>
+      <player text="Start Kha'ak Plot From Scene 4" outcome="four"/>
+      <player text="Start Kha'ak Plot From Scene 5" outcome="five"/>
+      <player text="Start Kha'ak Plot From Scene 6" outcome="six"/>
+      <player text="Start Kha'ak Plot From Scene 7" outcome="seven"/>
+    </player_all>
+  </conversation>
+
+  <conversation name="L2GenericOffer" description="Basic generic mission offer">
+    <npc text="{@pageid,20}">
+      <player_any>
+        <player text="{3800,101}" comment="looking for job" outcome="briefing"/>
+        <player text="{3800,102}" comment="looking for job" outcome="briefing"/>
+        <player text="{3800,104}" comment="looking for job" outcome="briefing"/>
+        <npc_any>
+          <npc text="{@pageid,803}" comment="I have a job going"/>
+          <npc text="{@pageid,2100}" comment="I have a job going"/>
+          <npc text="{@pageid,2101}" comment="I have a job going"/>
+          <npc text="{@pageid,2102}" comment="I have a job going"/>
+          <!--
+          <player_all>-->
+          <player_any>
+            <player text="{3800,201}" action="briefing"/>
+            <player text="{3800,202}" action="briefing"/>
+            <player text="{3800,203}" action="briefing"/>
+            <player text="{3800,204}" action="briefing"/>
+            <npc text="{@pageid,822}" comment="Are you interested?">
+              <player_all>
+                <player_any>
+                  <player text="{3800,301}" outcome="accept"/>
+                  <player text="{3800,302}" outcome="accept"/>
+                  <player text="{3800,303}" outcome="accept"/>
+                  <player text="{3800,304}" outcome="accept"/>
+                  <player text="{3800,305}" outcome="accept"/>
+                </player_any>
+                <player_any>
+                  <player text="{3800,501}" outcome="reject"/>
+                  <player text="{3800,502}" outcome="reject"/>
+                  <player text="{3800,503}" outcome="reject"/>
+                  <player text="{3800,504}" outcome="reject"/>
+                  <player text="{3800,505}" outcome="reject"/>
+                  <player text="{3800,506}" outcome="reject"/>
+                </player_any>
+              </player_all>
+            </npc>
+          </player_any>
+          <!--
+            <player_any>
+              <player text="{3800,401}" outcome="accept"/>
+              <player text="{3800,402}" outcome="accept"/>
+              <player text="{3800,403}" outcome="accept"/>
+            </player_any>
+          </player_all>-->
+        </npc_any>
+      </player_any>
+    </npc>
+  </conversation>
+
+  <!--SCAN ROIDS MISSION-->
+  <conversation name="L2M145 DoOffer">
+    <player text="May I help you with something?">
+      <npc text="I got a job for you if you would like to help me out">
+        <player_all>
+          <player text="Sure, just show me what Job that is" outcome="briefing" action="briefing">
+            <npc text="So as you can see I would like you to scan some asteroids for me. The Payment is good so will you accept the Job?">
+              <player_all>
+                <player text="Yeah I like scanning Roids..." outcome="accept"/>
+                <player text="No scanning Roids is boooring, go find someone else..." outcome="denied"/>
+              </player_all>
+            </npc>
+          </player>
+          <player text="No thanks I dont like you so piss off..." outcome="denied"/>
+        </player_all>
+      </npc>
+    </player>
+  </conversation>
+
+  <conversation name="L2M145 Completed">
+    <player text="I got the Scan Results...">
+      <npc text="Ahh great. Would you show me the results please...">
+        <player_any>
+          <player text="Sure... Here they are... I hope you found what you wanted" outcome="finish">
+            <npc_any>
+              <npc text="Ah yes they look very good... thanks for your Work, here is your reward."/>
+              <npc text="Hm yeah not what I expected but still... Here is your reward."/>
+            </npc_any>
+          </player>
+          <player text="Sure... Here they are... I hope you found what you wanted" outcome="finish">
+            <npc_any>
+              <npc text="Ah yes they look very good... thanks for your Work, here is your reward."/>
+              <npc text="Hm yeah not what I expected but still... Here is your reward."/>
+            </npc_any>
+          </player>
+          <player text="Yes you may have them, but I'll keep a copy for myself..." outcome="keepcopy">
+            <npc_any>
+              <npc text="Ah yes they look very good... thanks for your Work, here is your reward."/>
+              <npc text="Hm yeah not what I expected but still... Here is your reward."/>
+            </npc_any>
+          </player>
+        </player_any>
+      </npc>
+    </player>
+  </conversation>
+
+
+</conversations>

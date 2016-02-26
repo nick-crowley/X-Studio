@@ -1,0 +1,170 @@
+<?xml version="1.0" standalone="yes"?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl"?>
+<!--Produced externally by the Exscriptor-->
+<script>
+   <name>plugin.piracy.ship.chk.blackmarket</name>
+   <version>100</version>
+   <engineversion>44</engineversion>
+   <description>Piracy: Command Check: Black Market Trader</description>
+   <arguments />
+   <sourcetext>
+      <line linenr="001" indent=""><comment>* BLACK MARKET TRADER [COMMAND CHECK]  by  MISTER BEAR  v1.00</comment></line>
+      <line linenr="002" indent=""><comment>* </comment></line>
+      <line linenr="003" indent=""><comment>* Requires user to target a station</comment></line>
+      <line linenr="004" indent=""> </line>
+      <line linenr="005" indent=""><text></text><var>$oSelected =</var><text> get player tracking aim</text></line>
+      <line linenr="006" indent=""> </line>
+      <line linenr="007" indent=""><var>if </var><text></text><var>$oSelected != null </var><text></text></line>
+      <line linenr="008" indent="&#160;"><text></text><var>if</var><text> </text><var>$oSelected</var><text>  ->  is of class </text><var>Station 2016</var><text></text></line>
+      <line linenr="009" indent="&#160;&#160;"><text></text><var>$i =</var><text> </text><var>[THIS]</var><text>  ->  call named script: script=</text><var>'plugin.piracy.ship.chk.enabled'</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text>, </text><var>null</var><text></text></line>
+      <line linenr="010" indent="&#160;&#160;"><text>return </text><var>$i</var><text></text></line>
+      <line linenr="011" indent="&#160;"><text>end</text></line>
+      <line linenr="012" indent=""><text>end</text></line>
+      <line linenr="013" indent=""> </line>
+      <line linenr="014" indent=""><text>return </text><var>[CmdConCheck.Disabled]</var><text></text></line>
+      <line linenr="015" indent=""> </line>
+      <line linenr="016" indent=""> </line>
+      <line linenr="017" indent=""> </line>
+      <line linenr="018" indent=""> </line>
+      <line linenr="019" indent=""> </line>
+      <line linenr="020" indent=""> </line>
+      <line linenr="021" indent=""> </line>
+   </sourcetext>
+   <codearray>
+      <sval type="array" size="10">
+         <sval type="string" val="plugin.piracy.ship.chk.blackmarket" />
+         <sval type="int" val="44" />
+         <sval type="string" val="Piracy: Command Check: Black Market Trader" />
+         <sval type="int" val="100" />
+         <sval type="int" val="0" />
+         <sval type="array" size="2">
+            <sval type="string" val="oSelected" />
+            <sval type="string" val="i" />
+         </sval>
+         <sval type="array" size="6">
+            <sval type="array" size="2">
+               <sval type="int" val="535" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="13">
+               <sval type="int" val="104" />
+               <sval type="int" val="-1610611453" />
+               <sval type="int" val="3" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="15" />
+               <sval type="int" val="1" />
+               <sval type="int" val="3" />
+               <sval type="int" val="-1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="-2" />
+            </sval>
+            <sval type="array" size="6">
+               <sval type="int" val="705" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="0" />
+               <sval type="int" val="-1610611453" />
+               <sval type="int" val="12" />
+               <sval type="int" val="2016" />
+            </sval>
+            <sval type="array" size="16">
+               <sval type="int" val="1425" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="1" />
+               <sval type="int" val="1" />
+               <sval type="int" val="5" />
+               <sval type="string" val="plugin.piracy.ship.chk.enabled" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+               <sval type="int" val="0" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="131074" />
+               <sval type="int" val="1" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="103" />
+               <sval type="int" val="131075" />
+               <sval type="int" val="118" />
+            </sval>
+         </sval>
+         <sval type="int" val="0" />
+         <sval type="array" size="15">
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="BLACK MARKET TRADER [COMMAND CHECK]  by  MISTER BEAR  v1.00" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="" />
+            </sval>
+            <sval type="array" size="3">
+               <sval type="int" val="0" />
+               <sval type="int" val="1" />
+               <sval type="string" val="Requires user to target a station" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="0" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="1" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="5" />
+               <sval type="int" val="4" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="5" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+            <sval type="array" size="2">
+               <sval type="int" val="6" />
+               <sval type="int" val="2" />
+            </sval>
+         </sval>
+         <sval type="string" val="COMMAND_BLACK_MARKET" />
+      </sval>
+   </codearray>
+</script>

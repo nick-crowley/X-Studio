@@ -1,0 +1,588 @@
+<page id="2003" title="Script Command Names" descr="" voice="no">
+ <t id="1">* %0</t>
+ <t id="2">NOP</t>
+ <t id="3">cmd comment</t>
+ <t id="4">end conditional</t>
+ <t id="5">else</t>
+ <t id="6">continue</t>
+ <t id="7">break</t>
+ <t id="100">goto label %0</t>
+ <t id="101">define label %0</t>
+ <t id="102">%1%2 call script %0 : %3</t>
+ <t id="103">return %0</t>
+ <t id="104">%0%1</t>
+ <t id="105">%0wait %1 ms</t>
+ <t id="106">%0 = random value from 0 to %1 - 1</t>
+ <t id="107">%0wait randomly from %1 to %2 ms</t>
+ <t id="108">%0 = get script priority</t>
+ <t id="109">set script priority to %0</t>
+ <t id="110">%0 = random value from %1 to %2 - 1</t>
+ <t id="111">%0 interrupt with script %1 and prio %2</t>
+ <t id="112">hidden goto label %0</t>
+ <t id="113">%0 connect ship command/signal %1 to script %2 with prio %3</t>
+ <t id="114">%0 set ship command/signal %1 to global default behaviour</t>
+ <t id="115">%0 ignore ship command/signal %1</t>
+ <t id="116">enable signal/interrupt handling: %0</t>
+ <t id="117">%0is signal/interrupt handling on</t>
+ <t id="118">global script map: set: key=%0, class=%3, race=%4, script=%1, prio=%2</t>
+ <t id="119">global script map: remove: key=%0, class=%1, race=%2</t>
+ <t id="120">set script command: %0</t>
+ <t id="121">%0get script command</t>
+ <t id="122">set script command target: %0</t>
+ <t id="123">%0get script command target</t>
+ <t id="124">%0 datatyp[ %1 ]</t>
+ <t id="125">%0 is datatyp[ %1 ] == %2</t>
+ <t id="126">%0 read text: page=%1 id=%2</t>
+ <t id="127">global script map: ignore: key=%0, class=%1, race=%2</t>
+ <t id="128">%0 array alloc: size=%1</t>
+ <t id="129">%0%1[%2]</t>
+ <t id="130">%0[%1] = %2</t>
+ <t id="131">%0 size of array %1</t>
+ <t id="132">%0 clone array %1 : index %2 ... %3</t>
+ <t id="133">copy array %2 index %3 ... %4 into array %0 at index %1</t>
+ <t id="134">insert %2 into array %0 at index %1</t>
+ <t id="135">append %1 to array %0</t>
+ <t id="136">remove element from array %0 at index %1</t>
+ <t id="137">resize array %0 to %1</t>
+ <t id="138">%0state of news article: page=%1 id=%2</t>
+ <t id="139">set state of news article page=%0 id=%1 to %2</t>
+ <t id="140">%0system date is month=%1, day=%2</t>
+ <t id="141">%0playing time</t>
+ <t id="142">inc %0</t>
+ <t id="143">dec %0</t>
+ <t id="144">set script command upgrade: command=%0  upgrade=%1</t>
+ <t id="145">%0get script command upgrade: command=%1</t>
+ <t id="146">%0is script with prio %1 on stack</t>
+ <t id="147">%0get task ID</t>
+ <t id="148">%0get PID</t>
+ <t id="149">%0sprintf: fmt=%1, %2, %3, %4, %5, %6</t>
+ <t id="150">%0sprintf: pageid=%1 textid=%2, %3, %4, %5, %6, %7</t>
+ <t id="151">load text: id=%0</t>
+ <t id="152">%0script engine version</t>
+ <t id="153">infinite loop detection enabled=%0</t>
+ <t id="154">set script command upgrade: command=%0  upgrade=%1  script=%2</t>
+ <t id="155">%0 set local variable: name=%1 value=%2</t>
+ <t id="156">%2%0 get local variable: name=%1</t>
+ <t id="157">set global variable: name=%0 value=%1</t>
+ <t id="158">%1get global variable: name=%0</t>
+ <t id="159">%0 interrupt with script %1 and prio %2: arg1=%3 arg2=%4 arg3=%5 arg4=%6</t>
+ <t id="200">play sample %0</t>
+ <t id="201">play sample: incoming transmission %0, from object %1</t>
+ <t id="202">%0 send audio message %1 to player</t>
+ <t id="203">send incoming message %0 to player: display it=%1</t>
+ <t id="204">%0 -= %1</t>
+ <t id="205">%0 = %1 * %2</t>
+ <t id="206">%0 *= %1</t>
+ <t id="207">%0 = %1 / %2</t>
+ <t id="208">%0 /= %1</t>
+ <t id="209">%0 = %1 modulo %2</t>
+ <t id="210">%0 modulo= %1</t>
+ <t id="211">%0 = - %1</t>
+ <t id="212">send incoming question %0 to player: callback=%1</t>
+ <t id="213">send incoming question %0 to player: callback=%1 flags=%2</t>
+ <t id="300">%0 = %1 &amp; %2</t>
+ <t id="301">%0 &amp;= %1</t>
+ <t id="302">%0 = %1 | %2</t>
+ <t id="303">%0 |= %1</t>
+ <t id="304">%0 = %1 ^ %2</t>
+ <t id="305">%0 ^= %1</t>
+ <t id="306">%0 = ~ %1</t>
+ <t id="307">%0 = %1 &amp;&amp; %2</t>
+ <t id="308">%0 = %1 || %2</t>
+ <t id="309">%0 = ! %1</t>
+ <t id="400">write to player logbook %0</t>
+ <t id="401">%0 write to logbook %1</t>
+ <t id="402">write to player logbook: printf: fmt=%0, %1, %2, %3, %4, %5</t>
+ <t id="403">write to player logbook: printf: pageid=%0 textid=%1, %2, %3, %4, %5, %6</t>
+ <t id="404">write to log file #%0  append=%1  value=%2</t>
+ <t id="405">write to log file #%0  append=%1  printf: fmt=%2, %3, %4, %5, %6, %7</t>
+ <t id="406">write to log file #%0  append=%1  printf: pageid=%2 textid=%3, %4, %5, %6, %7, %8</t>
+ <t id="500">%1%0 fly to home base</t>
+ <t id="501">%1%0 fly to station %2</t>
+ <t id="502">%1%0 fly to sector %2</t>
+ <t id="503">%1%0 find nearest enemy ship: max.dist=%2</t>
+ <t id="504">%1%0 find nearest enemy station: max.dist=%2</t>
+ <t id="505">%1%0 fire lasers on target %2 using turret %3</t>
+ <t id="506">%1%0 attack run on target %2 : timeout=%3 ms</t>
+ <t id="507">%1%0 move around %2 ms</t>
+ <t id="508">%1%0 escort ship %2</t>
+ <t id="509">%0 set formation %1</t>
+ <t id="510">%0 add to formation with leader %1</t>
+ <t id="511">%0 remove from any formation</t>
+ <t id="512">%1%0 get formation leader</t>
+ <t id="513">%1%0 is docking allowed at %2</t>
+ <t id="514">START %0 command %1 : arg1=%2, arg2=%3, arg3=%4, arg4=%5</t>
+ <t id="515">%0 send signal %1 : arg1=%2, arg2=%3, arg3=%4, arg4=%5</t>
+ <t id="516">%1%0 follow object %2 with precision %3 m</t>
+ <t id="517">%0 set follow mode %1</t>
+ <t id="518">%1%0 get follow mode</t>
+ <t id="519">%0 set destination to %1</t>
+ <t id="520">%1%0 get destination</t>
+ <t id="521">%0 set attack target to %1</t>
+ <t id="522">%1%0 get attack target</t>
+ <t id="523">%1%0 move to position: x=%2 y=%3 z=%4 with precision %5 m</t>
+ <t id="524">%0 set command: %1</t>
+ <t id="525">%1%0 get command</t>
+ <t id="526">%0 set command target: %1</t>
+ <t id="527">%1%0 get command target</t>
+ <t id="528">%0 set command target2: %1</t>
+ <t id="529">%1%0 get command target2</t>
+ <t id="530">%1%0 select new formation leader by: ship class=%2 strength=%3 min.speed=%4</t>
+ <t id="531">%1%0 has formation ships</t>
+ <t id="532">%0 give formation leadership to %1</t>
+ <t id="533">%0 set pilot fightskill to %1</t>
+ <t id="534">%1%0 get pilot fightskill</t>
+ <t id="535">%0 get player tracking aim</t>
+ <t id="536">%1%0 is %2 in firing range of turret %3</t>
+ <t id="537">%1%0 find enemy in firing range of turret %2</t>
+ <t id="538">%0 set command: %1  target=%2 target2=%3 par1=%4 par2=%5</t>
+ <t id="539">%1%0 turn turret %3 to target %2 : timeout=%4 ms</t>
+ <t id="540">%1%0 move to ware object %2 for collecting: timeout=%3 ms</t>
+ <t id="541">%1%0 catch ware object %2</t>
+ <t id="542">%1%0 fire missile %3 on %2</t>
+ <t id="543">%1%0 get current missile</t>
+ <t id="544">%1%0 find best missile for target %2</t>
+ <t id="545">%0 best missile type for target %1</t>
+ <t id="546">%1%0 launch %2 fight drones: protect me or attack target=%3</t>
+ <t id="547">%1%0 is missile %2 ready to fire</t>
+ <t id="548">%1%0 should a missile be fired</t>
+ <t id="549">%1%0 get fire missile probability</t>
+ <t id="550">%1%0 get fire missile time difference in seconds</t>
+ <t id="551">%0 set fire missile probability to %1</t>
+ <t id="552">%0 set fire missile time difference to %1 s</t>
+ <t id="553">%1%0 fits laser %2 into turret %3</t>
+ <t id="554">%1%0 get max. number of lasers in turret %2</t>
+ <t id="555">%1%0 get laser type in turret %2 at slot %3</t>
+ <t id="556">%1%0 get number of turrets</t>
+ <t id="557">%0 get range of missile type %1</t>
+ <t id="558">%1%0 find nearest missile aiming to me</t>
+ <t id="559">%1%0 get formation follower ships</t>
+ <t id="560">%1%0 decouple ships</t>
+ <t id="561">%1%0 is decoupled ships leader</t>
+ <t id="562">%1%0 escort ship %2: timeout=%3 ms</t>
+ <t id="563">%1%0 follow %2 with precision %3 m : timeout=%4 ms</t>
+ <t id="564">%1%0 get current galaxy flight timestep in ms</t>
+ <t id="565">%1%0 defensive move: type=%2, intensity=%3, timeout=%4ms, avoid object=%5</t>
+ <t id="566">%1%0 use jump drive: target=%2</t>
+ <t id="567">%1%0 needed jump drive energy for jump to sector %2</t>
+ <t id="568">%1%0 check, select and fire missile on %2</t>
+ <t id="570">%1%0 move to position continue: x=%2 y=%3 z=%4 with precision %5 m</t>
+ <t id="571">%1%0 can missile %2 be installed</t>
+ <t id="600">%1%0 get money</t>
+ <t id="601">%1%0 buy %2 units of %3</t>
+ <t id="602">%1%0 buy %2 units of %3 to a max. price of %4 Cr</t>
+ <t id="603">%1%0 sell %2 units of %3</t>
+ <t id="604">%0get volume of ware %1</t>
+ <t id="605">%0get transport class of ware %1</t>
+ <t id="606">%0 find station: product %1 with best price:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="607">%0 find station: product %1 with min. jumps:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="608">%0 find station: resource %1 with best price: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="609">%0 find station: resource %1 with min. jumps: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="610">%1%0 get max. ware transport class</t>
+ <t id="611">%1%0 get cargo bay size</t>
+ <t id="612">%1%0 get free volume of cargo bay</t>
+ <t id="613">%1%0 get volume of ware %2 in cargo bay</t>
+ <t id="614">%1%0 get true volume of ware %2 in cargo bay</t>
+ <t id="615">%1%0 get free volume of ware %2 in cargo bay</t>
+ <t id="616">%1%0 get total volume in cargo bay</t>
+ <t id="617">%1%0 can transport ware %2</t>
+ <t id="618">%1%0 get amount of ware %2 in cargo bay</t>
+ <t id="619">%1%0 get true amount of ware %2 in cargo bay</t>
+ <t id="620">%1%0 get free amount of ware %2 in cargo bay</t>
+ <t id="621">%1%0 get max amount of ware %2 that can be stored in cargo bay</t>
+ <t id="622">%1%0 get best store amount of ware %2</t>
+ <t id="623">%1%0 get max. store amount of ware %2</t>
+ <t id="624">%1%0 can buy ware %2</t>
+ <t id="625">%1%0 can sell ware %2</t>
+ <t id="626">%0get player money</t>
+ <t id="627">%1%0 get price of ware %2</t>
+ <t id="628">%1%0 get average price of ware %2</t>
+ <t id="629">%0get average price of ware %1</t>
+ <t id="630">%0get max price of ware %1</t>
+ <t id="631">%0get min price of ware %1</t>
+ <t id="632">%0get max price of ware %1 as secondary resource</t>
+ <t id="633">%0get min price of ware %1 as secondary resource</t>
+ <t id="634">%0 set price of ware %1 to %2 Cr</t>
+ <t id="635">%1%0 uses ware %2 as primary resource</t>
+ <t id="636">%1%0 uses ware %2 as secondary resource</t>
+ <t id="637">%1%0 trades with ware %2</t>
+ <t id="638">%1%0 get product ware</t>
+ <t id="639">%1%0 load %2 units of %3</t>
+ <t id="640">%1%0 unload %2 units of %3</t>
+ <t id="641">%1%0 get number of resources</t>
+ <t id="642">%1%0 get number of primary resources</t>
+ <t id="643">%1%0 get number of secondary resources</t>
+ <t id="644">%1%0 get max trade jumps</t>
+ <t id="645">%0 add default items to ship</t>
+ <t id="646">%1%0 add %2 units of %3</t>
+ <t id="647">%1%0 install %2 units of %3</t>
+ <t id="648">%0 switch laser in turret %2 gun %3 to %1</t>
+ <t id="649">%0 set wanted ware count to %1</t>
+ <t id="650">%0 set wanted ware to %1</t>
+ <t id="651">%1%0 get wanted ware count</t>
+ <t id="652">%1%0 get wanted ware</t>
+ <t id="653">%0 is ware %1 illegal in %2 sectors</t>
+ <t id="654">%1%0 has illegal ware onboard: race=%2</t>
+ <t id="655">%0 get maintype of ware %1</t>
+ <t id="656">%0 get subtype of ware %1</t>
+ <t id="657">%0 get ware from maintype %1 and subtype %2</t>
+ <t id="658">%0 get number of subtypes of maintype %1</t>
+ <t id="659">%1%0 get maintype</t>
+ <t id="660">%1%0 get subtype</t>
+ <t id="661">%0 add money: %1</t>
+ <t id="662">add money to player: %0</t>
+ <t id="663">%0 find station sells: resource %1 with best price: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="664">%0 find station sells: resource %1 with min. jumps: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="665">%1%0 only player own ships can trade with</t>
+ <t id="700">%1%0 get object class</t>
+ <t id="701">%1%0 get owner race</t>
+ <t id="702">%1%0 get environment</t>
+ <t id="703">%1%0 get sector</t>
+ <t id="704">%1%0 get homebase</t>
+ <t id="705">%1%0 is of class %2</t>
+ <t id="706">%1%0 exists</t>
+ <t id="707">%1%0 get ware type code of object</t>
+ <t id="708">%1%0 get serial name of station</t>
+ <t id="709">%0 find station in galaxy: startsector=%1 class or type=%2 race=%3 flags=%4 refobj=%5 serial=%6 max.jumps=%7</t>
+ <t id="710">%1%0 is of type %2</t>
+ <t id="711">%0get jumps from sector %1 to sector %2</t>
+ <t id="712">%0get next sector on route from sector %1 to sector %2</t>
+ <t id="713">%0 set homebase to %1</t>
+ <t id="714">%1%0 get current shield strength</t>
+ <t id="715">%1%0 get maximum shield strength</t>
+ <t id="716">%1%0 get current laser strength</t>
+ <t id="717">%1%0 get maximum laser strength</t>
+ <t id="718">%1%0 get max. shield type that can be installed</t>
+ <t id="719">%1%0 get max. laser type that can be installed</t>
+ <t id="720">%1%0 get number of shield bays</t>
+ <t id="721">%1%0 get number of laser bays</t>
+ <t id="722">%1%0 get most destructive missile type that can be installed</t>
+ <t id="723">%1%0 get relation to object %2</t>
+ <t id="724">%1%0 get relation to race %2</t>
+ <t id="725">%1%0 get notoriety to race %2</t>
+ <t id="726">%0get notoriety from race %1 to race %2</t>
+ <t id="727">%1%0 is %2 a enemy</t>
+ <t id="728">%1%0 is %2 a friend</t>
+ <t id="729">%1%0 is %2 neutral to me</t>
+ <t id="730">%1%0 get shield type in bay %2</t>
+ <t id="731">%1%0 get laser type in bay %2</t>
+ <t id="732">%1%0 has same environment as %2</t>
+ <t id="733">%1%0 is in same sector as %2</t>
+ <t id="734">%1%0 is landed</t>
+ <t id="735">%1%0 is in a sector</t>
+ <t id="736">%1%0 get attacker</t>
+ <t id="737">%0 set attacker to %1</t>
+ <t id="738">%0get distance between %1 and %2</t>
+ <t id="739">%0 create ship: type=%1 owner=%2 addto=%3 x=%4 y=%5 z=%6</t>
+ <t id="740">%1%0 get x position</t>
+ <t id="741">%1%0 get y position</t>
+ <t id="742">%1%0 get z position</t>
+ <t id="743">%0 get player ship</t>
+ <t id="744">%0 set relation against %1 to %2</t>
+ <t id="745">%1%0 is docked</t>
+ <t id="746">%1%0 is docking possible of %2</t>
+ <t id="747">%0 create station: type=%1 owner=%2 addto=%3 x=%4 y=%5 z=%6</t>
+ <t id="748">%0 create gate: type=%1 addto=%2 gateid=%6 dstsecx=%7 dstsecy=%8 dstgateid=%9 x=%3 y=%4 z=%5</t>
+ <t id="749">%0 create asteroid: type=%1 addto=%2 resource=%3 yield=%4 x=%5 y=%6 z=%7</t>
+ <t id="750">%0 add product to factory or dock: %1</t>
+ <t id="751">%0 add primary resource to factory: %1</t>
+ <t id="752">%0 add second resource to factory: %1</t>
+ <t id="753">%0 create nebula: type=%1 addto=%2 x=%3 y=%4 z=%5</t>
+ <t id="754">%0 create sun: subtype=%8 r=%1 g=%2 b=%3 addto=%4 x=%5 y=%6 z=%7</t>
+ <t id="755">%0 create planet: subtype=%1 addto=%2 x=%3 y=%4 z=%5</t>
+ <t id="756">%0 create special: type=%1 addto=%2 x=%3 y=%4 z=%5</t>
+ <t id="757">%0 find ship: sector=%1 class or type=%2 race=%3 flags=%4 refobj=%5 maxdist=%6 maxnum=%7 refpos=%8</t>
+ <t id="758">%0 find asteroid: sector=%1 resourcetype=%2 min.yield=%3 flags=%4 refobj=%5 maxdist=%6 maxnum=%7 refpos=%8</t>
+ <t id="759">%1%0 is disabled</t>
+ <t id="760">%0 station trade and production tasks: on=%1</t>
+ <t id="761">%1%0 get SectorObject ID</t>
+ <t id="762">%1 get ware type of SectorObject %0</t>
+ <t id="763">%1 exists SectorObject %0</t>
+ <t id="764">%1 get object from SectorObject %0</t>
+ <t id="765">%0 destruct: show no explosion=%1</t>
+ <t id="766">%0 find flying ware: sector=%1 maintype=%2 subtype=%3 flags=%4 refobj=%5 maxdist=%6 maxnum=%7, refpos=%8</t>
+ <t id="767">%0 set position: x=%1 y=%2 z=%3</t>
+ <t id="768">%0 set rotation: alpha=%1 beta=%2 gamma=%3</t>
+ <t id="769">set position of sector object %0 : x=%1 y=%2 z=%3</t>
+ <t id="770">set safe position of sector object %0 : x=%1 y=%2 z=%3</t>
+ <t id="771">set rotation of sector object %0 : x=%1 y=%2 z=%3</t>
+ <t id="772">%0 create sector object: maintype=%1 subtype=%2</t>
+ <t id="773">free sector object %0</t>
+ <t id="774">kill sector object %0 : reason=%1 , killer sector object=%2</t>
+ <t id="775">start sector object %0 in space %1</t>
+ <t id="776">%0 create flying ware: maintype=%1 subtype=%2 count=%3 sector=%4 x=%5 y=%6 z=%7 selfdestruct=%8</t>
+ <t id="777">%1%0 get rot alpha</t>
+ <t id="778">%1%0 get rot beta</t>
+ <t id="779">%1%0 get rot gamma</t>
+ <t id="780">%1%0 get size of object</t>
+ <t id="781">%0 remove product from factory or dock: %1</t>
+ <t id="782">%0 remove primary resource from factory: %1</t>
+ <t id="783">%0 remove second resource from factory: %1</t>
+ <t id="784">%1%0 get max upgrades for upgrade %2</t>
+ <t id="785">%1%0 get max speed</t>
+ <t id="786">%1%0 get max hull</t>
+ <t id="787">%1%0 get hull</t>
+ <t id="788">%1%0 get max upgraded speed</t>
+ <t id="789">%1%0 get dock bay size</t>
+ <t id="790">%1%0 get number of landed ships</t>
+ <t id="791">player loses police licence for race %0</t>
+ <t id="792">%0 add notoriety: race=%1 value=%2</t>
+ <t id="793">%0 set ship disabled to %1</t>
+ <t id="794">%0 find station: sector=%1 class or type=%2 race=%3 flags=%4 refobj=%5 maxdist=%6 maxnum=%7 refpos=%8</t>
+ <t id="795">%1%0 get position as array</t>
+ <t id="796">%1%0 get distance to: x=%2 y=%3 z=%4</t>
+ <t id="797">%1%0 get distance to: position array=%2</t>
+ <t id="798">%0get distance: position array1=%1  array2=%2</t>
+ <t id="799">%0 create debris: type=%1 addto=%2 resource=%3 yield=%4 x=%5 y=%6 z=%7</t>
+ <t id="800">%0get sector from universe index: x=%1, y=%2</t>
+ <t id="801">%0get max sectors in x direction</t>
+ <t id="802">%0get max sectors in y direction</t>
+ <t id="803">%1%0 is sector known by the player</t>
+ <t id="804">%1%0 get universe x index</t>
+ <t id="805">%1%0 get universe y index</t>
+ <t id="806">%1%0 get north warp gate</t>
+ <t id="807">%1%0 get south warp gate</t>
+ <t id="808">%1%0 get east warp gate</t>
+ <t id="809">%1%0 get west warp gate</t>
+ <t id="810">%0 find a random sector: startsector=%1, jumps=%2, owner=%3</t>
+ <t id="811">%1%0 get warp gate: gate id=%2</t>
+ <t id="900">%1%0 get hull percent</t>
+ <t id="901">%1%0 get shield percent</t>
+ <t id="902">%1%0 get shield and hull percent</t>
+ <t id="903">%1%0 get max laser strength in turret %2</t>
+ <t id="904">%1%0 is landing</t>
+ <t id="905">%1%0 is starting</t>
+ <t id="906">%0 put into environment %1</t>
+ <t id="1000">al engine: register script=%0</t>
+ <t id="1001">al engine: unregister script %0</t>
+ <t id="1002">%1%0 find station: product %2 with best price:  max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7</t>
+ <t id="1003">%1%0 find station: product %2 with min. jumps:  max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7</t>
+ <t id="1004">%1%0 find station: resource %2 with best price: min.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7</t>
+ <t id="1005">%1%0 find station: resource %2 with min. jumps: min.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7</t>
+ <t id="1006">%1%0 find station sells: resource %2 with best price: max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7</t>
+ <t id="1007">%1%0 find station sells: resource %2 with min. jumps: max.price=%3, amount=%4, max.jumps=%5, startsector=%6, trader=%7</t>
+ <t id="1008">%1%0 get ship array from sector/ship/station</t>
+ <t id="1009">%1%0 get station array from sector</t>
+ <t id="1010">%1%0 get factory array from sector</t>
+ <t id="1011">%1%0 get dock array from sector</t>
+ <t id="1012">%1%0 get player owned ship array from sector</t>
+ <t id="1013">%1%0 get player owned station array from sector</t>
+ <t id="1014">%1%0 get asteroid array from sector</t>
+ <t id="1015">%0 station send defend squad against ship %1</t>
+ <t id="1016">%0 interrupt task %2 with script %1 and prio %3: arg1=%4 arg2=%5 arg3=%6 arg4=%7</t>
+ <t id="1017">%0 start task %2 with script %1 and prio %3: arg1=%4 arg2=%5 arg3=%6 arg4=%7 arg5=%8</t>
+ <t id="1018">%1%0 add big ship %2</t>
+ <t id="1019">%1%0 has a free ship dock port: ship subtype = %2</t>
+ <t id="1020">%1%0 can be controlled by race logic</t>
+
+ <t id="1021">%0 set race logic control enabled to %1</t>
+ <t id="1022">%1%0 can execute StartAction</t>
+ <t id="1023">%0 set StartAction enabled to %1</t>
+ <t id="1024">al engine: set plugin %0 description to %1</t>
+ <t id="1025">al engine: set plugin %0 timer interval to %1 s</t>
+ <t id="1026">%0 set as player wingman: %1</t>
+ <t id="1027">%1%0 is player wingman</t>
+ <t id="1028">%1%0 get name</t>
+ <t id="1029">%0 set name to %1</t>
+ <t id="1030">%0 set owner race to %1</t>
+ <t id="1031">%0get script version</t>
+ <t id="1032">%0get script name</t>
+ <t id="1033">%1%0 find ship: class or type=%2 race=%3 flags=%4 refobj=%5 maxnum=%6  with homebase=%7</t>
+ <t id="1034">%0is plot %1 state flag %2</t>
+ <t id="1035">%0 find station in galaxy: startsector=%1 class or type=%2 race=%3 flags=%4 refobj=%5 serial=%6 max.jumps=%7 num=%8</t>
+ <t id="1036">%1%0 get ID code</t>
+ <t id="1037">%1%0 get pilot name</t>
+ <t id="1038">%0 set pilot name to %1</t>
+ <t id="1039">%0get random name: race=%1</t>
+ <t id="1040">%0 set pilot speaker: voice=%1, face=%2, Pirate subrace=%3, Argon female=%4</t>
+ <t id="1041">%1%0 get tradeable ware array from station</t>
+ <t id="1042">%0speak text: page=%1 id=%2 priority=%3</t>
+ <t id="1043">%0 set serial name of station to %1</t>
+ <t id="1044">%0get Kha'ak aggression level</t>
+ <t id="1045">set Kha'ak aggression level to %0</t>
+ <t id="1046">set player tracking aim to %0</t>
+ <t id="1047">%0 set hull to %1</t>
+ <t id="1048">%0 set current shield strength to %1</t>
+ <t id="1049">%1%0 get current max speed</t>
+ <t id="1050">%0 = fixed sin %1</t>
+ <t id="1051">%0 = fixed cos %1</t>
+ <t id="1052">%1%0 get production cycle time: account for secondary resources=%2</t>
+ <t id="1053">%1%0 get remaining production cycle time</t>
+ <t id="1054">%1%0 get number of products per cycle</t>
+ <t id="1055">%1%0 get number of resources per cycle for ware %2</t>
+ <t id="1056">%1%0 get production status: as percentage=%2</t>
+ <t id="1057">%1%0 get gate destination: return sector=%2</t>
+ <t id="1058">%1%0 get gate id</t>
+ <t id="1059">%0 get fight rank</t>
+ <t id="1060">%0 get trade rank</t>
+ <t id="1061">%1%0 is known</t>
+ <t id="1062">%0 set known status to %1</t>
+ <t id="1063">%1%0 is detectable</t>
+ <t id="1064">%1%0 is hired</t>
+ <t id="1065">%1%0 get formation</t>
+ <t id="1066">%1%0 serialise object</t>
+ <t id="1067">%1%0 get owned ships: class/type=%2</t>
+ <t id="1068">%1 get ship array: of race %0 class/type=%2</t>
+ <t id="1069">%1 get station array: of race %0 class/type=%2</t>
+ <t id="1070">%0 get player name</t>
+ <t id="1071">%1%0 get tradeable ware array from ship</t>
+ <t id="1072">%1%0 is script %2 on stack of task=%3</t>
+ <t id="1073">%1%0 is task %2 in use</t>
+ <t id="1074">%0 get next gate on route from %1 to %2</t>
+ <t id="1075">%0 get length of string %1</t>
+ <t id="1076">%0 find position of pattern %2 in %1</t>
+ <t id="1077">%0 get substring of %1 offset=%2 length=%3</t>
+ <t id="1078">%0 string %1 to integer</t>
+ <t id="1079">%0 substitute in string %1: pattern %2 with %3</t>
+
+ <t id="1080">%0 format seconds=%1 to Zura time string</t>
+ <t id="1081">%0%1[%2][%3]</t>
+ <t id="1082">%0[%1][%2] = %3</t>
+ <t id="1083">%0 get index of %2 in array %1 offset=%3 \053 1</t>
+ <t id="1084">register quest script %0 instance multiple=%1</t>
+ <t id="1085">set quest state with message: quest=%0 state=%1 msg=%2</t>
+ <t id="1086">set quest/event %0 timer to %1ms</t>
+ <t id="1087">set quest %0 timeout to %1</t>
+ <t id="1088">%0 add event listener: quest/event=%1 objevent=%2 script=%3</t>
+ <t id="1089">%0 remove event listener: quest/event=%1</t>
+ <t id="1090">%0 display news article: page=%1 newsid=%2 occurrences=%3 maxoffertime=%4 maxtime=%5 placeholder:race1=%6 race2=%7 customarray=%8</t>
+ <t id="1091">change event news availibility: %0 race=%1 sector=%2 jumps=%3</t>
+ <t id="1092">%0[%1] = %2[%3]</t>
+ <t id="1093">%0 square root of %1</t>
+ <t id="1094">%1%0 get current action</t>
+ <t id="1095">%1%0 get array of missiles aiming to me</t>
+ <t id="1096">%0 disable ship rebuild</t>
+ <t id="1097">%1%0 turret %2 can use laser %3 </t>
+ <t id="1098">%0 set pirate cover state to %1</t>
+ <t id="1099">%1%0 scan potential pirate %2 for illegal wares</t>
+ <t id="1100">%0 register hotkey %1 to call script %2</t>
+ <t id="1101">unregister hotkey %0</t>
+ <t id="1110">add merchant %0 base=%1 wanted wares=%2 owned wares=%3 cash=%4 rank=%5</t>
+ <t id="1111">%1%0get merchants</t>
+ <t id="1112">remove merchant %0</t>
+ <t id="1113">merchant %0 got ware %1: quantity=%2</t>
+ <t id="1114">merchant %0 sold ware %1: quantity=%2</t>
+ <t id="1115">reset merchant %0 expiry</t>
+ <t id="1116">%0 get data for merchant %1: item number=%2 </t>
+ <t id="1120">%0 get random NPC</t>
+
+ <t id="1121">%1%0 get NPC personal ship</t>
+ <t id="1122">%0 NPC send voice message: id=%1</t>
+ <t id="1123">%0 release NPC personal ship</t>
+ <t id="1124">%0 release NPC</t>
+ <t id="1125">%1%0 NPC wants to bail</t>
+ <t id="1126">%1%0 NPC is aggressive</t>
+ <t id="1127">%0 spawn NPC personal ship: rank=%1</t>
+ <t id="1128">%0 spawn NPC fleet: rank=%1</t>
+ <t id="1129">%1%0 get NPC fleet</t>
+ <t id="1130">%1%0 attack run on target %2 : timeout=%3ms speedlimit=%4</t>
+ <t id="1131">%1%0 get current speed</t>
+ <t id="1132">%1 get power generator of ship/station type %0</t>
+ <t id="1133">%1%0 get power generator </t>
+ <t id="1134">%0 get range of laser %1</t>
+ <t id="1135">%0 get shield damage of laser %1</t>
+ <t id="1136">%0 get hull damage of laser %1</t>
+ <t id="1137">%0 get ammunition of laser %1</t>
+ <t id="1138">%0 get missile range of %1</t>
+ <t id="1139">%0 get missile max damage of %1</t>
+ <t id="1140">%0 get relvalue of %1</t>
+ <t id="1141">register god event: script=%0 mask=%1</t>
+ <t id="1142">%0 order ship in next shipyard: owner=%1 sector=%2 class=%3 optional: default shiptype for race:%4</t>
+ <t id="1143">%0 find nebula: sector=%1 type=%2 effect=%3 flags=%4 refobj=%5 maxdist=%6 maxnum=%7 refpos=%8</t>
+ <t id="1144">%1%0 is hidden</t>
+ <t id="1145">%1%0 is target visible %2</t>
+ <t id="1146">abort god event: %0</t>
+ <t id="1147">finish god event: %0</t>
+ <t id="1148">%0 factory production task: on=%1</t>
+ <t id="1149">%1%0 get scanner range</t>
+ <t id="1150">%0 select and switch lasers for target %1 in turret %2: scan for friends %3</t>
+ <t id="1151">%0 trademaster: is %1 a trader</t>
+ <t id="1152">%0 get warearray for %1</t>
+ <t id="1153">%0 trademaster: add trader=%1 to dock as merchant</t>
+ <t id="1154">trademaster: remove trader=%0 from dock</t>
+ <t id="1155">%0 trademaster: is trader=%1 a merchant</t>
+ <t id="1156">station %0: lock ware %1 for race %2</t>
+ <t id="1157">station %0: unlock ware %1 for race %2</t>
+ <t id="1158">%0 station %1: is ware %2 for race %3 locked</t>
+ <t id="1159">trademaster order: trader=%0 delivery of amount=%1 successful</t>
+ <t id="1160">trademaster order: trader=%0 delivery aborted</t>
+ <t id="1161">%0 trademaster order: find and register order for %1</t>
+ <t id="1162">%1%0 get homesector</t>
+ <t id="1163">%0 set homesector to %1</t>
+ <t id="1164">%1%0 get products</t>
+ <t id="1165">%1%0 uses ware %2 as product</t>
+ <t id="1166">%1%0 get upgrade price: cargo-speed-rot %2 units:%3</t>
+ <t id="1167">gosub %0</t>
+ <t id="1168">endsub</t>
+ <t id="1169">%0 find station: product %1 with best price depend on jumps:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="1170">%0 find station: resource %1 with best price depend on jumps: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="1171">%0 find station sells: resource %1 with best price depend on jumps: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="1172">%1%0 lock ware: %2 on station: %3 for this</t>
+ <t id="1173">%1%0 get defined amount of ware %2 as ship hardware</t>
+ <t id="1174">%1%0 set defined amount of ware %2 as ship hardware</t>
+ <t id="1175">%1%0 get ship hardware as array</t>
+ <t id="1176">%0 find station: product %1 with best price random:  max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="1177">%0 find station: resource %1 with best price random: min.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="1178">%0 find station sells: resource %1 with best price random: max.price=%2, amount=%3, max.jumps=%4, startsector=%5, trader=%6</t>
+ <t id="1179">%1%0 get asteroid yield</t>
+ <t id="1180">%1%0 get job leader</t>
+ <t id="1181">%1%0 get job idle rate</t>
+ <t id="1182">%1%0 get flight time</t>
+ <t id="1183">%1%0 get job jump range</t>
+ <t id="1184">%0 start job</t>
+ <t id="1185">START %0 command %1 : arg1=%2, arg2=%3, arg3=%4, arg4=%5</t>
+ <t id="1186">%0 connect wing command/signal %1 to script %2 with prio %3</t>
+ <t id="1187">%1%0 get true owner</t>
+ <t id="1188">%1%0 wait idle rate minimum:%2 ms</t>
+ <t id="1189">%1%0 fire laser of turret %2 ahead</t>
+ <t id="1190">%1%0 turn turret %2 to pos %3 relativ:%4 timeout:%5</t>
+ <t id="1191">%0reset flight time</t>
+ <t id="1192">%0 auto sync patrol sector with environment: %1</t>
+ <t id="1193">%0 add to patrol group for sector: %1</t>
+ <t id="1194">%0 remove from patrol group for sector: %1</t>
+ <t id="1195">%0 remove all patrol group references</t>
+ <t id="1196">%0 add lasers per value:%1(0-100) flags:%2</t>
+ <t id="1197">%0 add shields per value:%1(0-100)</t>
+ <t id="1198">%1%0 is asteroid scanned</t>
+ <t id="1199">%0 set asteroid scanned to %1</t>
+ <t id="1200">%0 set relations from notoriety: include player as target and race &gt; teladi as owner=%1</t>
+ <t id="1201">%0 is a new script version available</t>
+ <t id="1202">%1%0 get job id</t>
+ <t id="1203">%1%0 get flying ware count</t>
+ <t id="1204">%1%0 get pilot morale</t>
+ <t id="1205">%1%0 get pilot aggression</t>
+ <t id="1206">%0 find a random sector: startsector=%1, jumps=%2, owner=%3, security level=%4</t>
+ <t id="1207">set notoriety of %0 -&gt; %1 to %2 points</t>
+ <t id="1208">%1%0 get intermediates buyable</t>
+ <t id="1209">%0 set intermediates buyable to %1</t>
+ <t id="1210">%1%0 get intermediates sellable</t>
+ <t id="1211">%0 set intermediates sellable to %1</t>
+ <t id="1212">%0 find debris: sector=%1 resource=%2 min yield=%3 flags=%4 refobj=%5 num=%6 max distance=%7 refpos=%8</t>
+ <t id="1213">%1%0 get resource waretype of asteroid</t>
+ <t id="1214">%1%0 has collectible rocks</t>
+ <t id="1215">%0 send incoming message: text=%1 temporary=%2</t>
+ <t id="1216">%1%0 move to debris/asteroid %2 and turn turret %3 to target: timeout=%4</t>
+ <t id="1217">add blueprints to player HQ: type=%0</t>
+ <t id="1218">%0 player HQ has blueprints for: type=%1</t>
+ <t id="1219">remove blueprints from player HQ: type=%0</t>
+ <t id="1220">%0 last load time</t>
+ <t id="1221">%0 ignore collisions: %1</t>
+ <t id="1222">%0 set pilot morale: %1</t>
+ <t id="1223">%0 set pilot aggression: %1</t>
+ <t id="1224">%0 force position: x=%1 y=%2 z=%3</t>
+ <t id="1230">%0 open custom menu: title=%1 description=%2 option array=%3</t>
+ <t id="1231">%1%0 create passenger in ship: name=%2 race=%3 voice=%4 face=%5</t>
+ <t id="1232">%1%0 add passenger to ship %2</t>
+ <t id="1233">%1%0 remove passenger %2</t>
+ <t id="1234">%1%0 get passenger array</t>
+ <t id="1235">%1%0 enslave passenger %2</t>
+ <t id="1236">%0 create passenger: name=%1 race=%2 voice=%3 face=%4</t>
+ <t id="1237">%0 release passenger</t>
+ <t id="1238">%1%0 create passenger from pilot: remove pilot from ship=%2</t>
+ <t id="1245">%1%0 pilot eject from ship</t>
+ <t id="1250">%1%0 get repair cost of ship %2</t>
+ <t id="1300">%0 get missile flags of %1</t>
+ <t id="1320">%0 player has police license for race %1</t>
+ <t id="1325">%1%0 get pilot tradeskill</t>
+ <t id="1326">%0 set pilot tradeskill to %1</t>
+</page>

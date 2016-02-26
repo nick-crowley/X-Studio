@@ -1,0 +1,5746 @@
+<?xml version="1.0"?>
+<universe>
+  <o t="1" x="3" y="5" r="8" size="10000000" m="-1" p="-1">
+    <o t="2" s="0" neb="0" stars="0" />
+    <o t="3" s="0" x="500000000" y="500000000" z="0" color="16777215" />
+    <o t="5" s="SS_DOCK_A_TRADE" x="-75000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="14" s="SS_WARE_F217" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="16" s="SS_WARE_L_A" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH206" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_TECH205" />
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_TECH209" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_AMMO" x="-67500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_X_SHIP" x="-60000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="7" s="SS_SH_X_M1" />
+        <o t="7" s="SS_SH_X_M2" />
+        <o t="7" s="SS_SH_X_M3" />
+        <o t="7" s="SS_SH_X_M3P" />
+        <o t="7" s="SS_SH_X_M4" />
+        <o t="7" s="SS_SH_X_M5" />
+        <o t="7" s="SS_SH_X_M6" />
+        <o t="7" s="SS_SH_X_M6M" />
+        <o t="7" s="SS_SH_X_M7" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_OTAS_SHIP" x="-60000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="7" s="SS_SH_OTAS_M4P" />
+        <o t="7" s="SS_SH_OTAS_TM" />
+        <o t="7" s="SS_SH_OTAS_M6M" />
+        <o t="7" s="SS_SH_OTAS_M7M" />
+        <o t="7" s="SS_SH_OTAS_M2" />
+        <o t="7" s="SS_SH_OTAS_TS" />
+        <o t="7" s="SS_SH_OTAS_TS_1" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SHIP" x="-60000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="6" s="SS_FAC_A_TECH206" />
+        <o t="5" s="SS_DOCK_A_TRADE" />
+        <o t="7" s="SS_SH_A_TL" />
+        <o t="6" s="SS_FAC_A_PL" />
+        <o t="6" s="SS_FAC_T_CCKIT" />
+        <o t="6" s="SS_FAC_R215" />
+        <o t="6" s="SS_FAC_A_TECH205" />
+        <o t="6" s="SS_FAC_A_ORE" />
+        <o t="6" s="SS_FAC_A_POWER" />
+        <o t="7" s="SS_SH_A_M1" />
+        <o t="6" s="SS_FAC_A_CCKIT" />
+        <o t="6" s="SS_FAC_A_SHIELD_A" />
+        <o t="7" s="SS_SH_A_M2" />
+        <o t="7" s="SS_SH_A_M3" />
+        <o t="6" s="SS_FAC_B_CCKIT" />
+        <o t="6" s="SS_FAC_F217" />
+        <o t="6" s="SS_FAC_A_SIL" />
+        <o t="6" s="SS_FAC_A_MASS" />
+        <o t="6" s="SS_FAC_A_SAT" />
+        <o t="7" s="SS_SH_A_M4" />
+        <o t="6" s="SS_FAC_P_CCKIT" />
+        <o t="6" s="SS_FAC_A_CIG" />
+        <o t="5" s="SS_DOCK_A_EQUIP" />
+        <o t="6" s="SS_FAC_F218" />
+        <o t="6" s="SS_FAC_S_CCKIT" />
+        <o t="6" s="SS_FAC_A_AMMO" />
+        <o t="7" s="SS_SH_A_M5" />
+        <o t="6" s="SS_FAC_R214" />
+        <o t="7" s="SS_SH_A_TM" />
+        <o t="7" s="SS_SH_A_M7" />
+        <o t="7" s="SS_SH_A_M3P" />
+        <o t="7" s="SS_SH_A_M4P" />
+        <o t="6" s="SS_FAC_A_LS" />
+        <o t="6" s="SS_FAC_A_DRONE" />
+        <o t="6" s="SS_FAC_A_ARMS_1" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SHIP_BIG" x="-60000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="5" s="SS_DOCK_A_EQUIP" />
+        <o t="5" s="SS_DOCK_A_TRADE" />
+        <o t="6" s="SS_FAC_A_AMMO" />
+        <o t="6" s="SS_FAC_A_CCKIT" />
+        <o t="6" s="SS_FAC_A_CFLAK" />
+        <o t="6" s="SS_FAC_A_MISSILE_A" />
+        <o t="6" s="SS_FAC_A_MISSILE_B" />
+        <o t="6" s="SS_FAC_A_MISSILE_D" />
+        <o t="6" s="SS_FAC_A_MISSILE_DMBF" />
+        <o t="6" s="SS_FAC_A_OLASER" />
+        <o t="6" s="SS_FAC_A_ORE" />
+        <o t="6" s="SS_FAC_A_ORE_1" />
+        <o t="6" s="SS_FAC_A_PL" />
+        <o t="6" s="SS_FAC_A_POWER" />
+        <o t="6" s="SS_FAC_A_POWER_2" />
+        <o t="6" s="SS_FAC_A_PPC" />
+        <o t="6" s="SS_FAC_A_PR" />
+        <o t="6" s="SS_FAC_A_PRG" />
+        <o t="6" s="SS_FAC_A_SAT2" />
+        <o t="6" s="SS_FAC_A_SHIELD_A" />
+        <o t="6" s="SS_FAC_A_SHIELD_D" />
+        <o t="6" s="SS_FAC_A_SHIELD_F" />
+        <o t="6" s="SS_FAC_A_SIL_1" />
+        <o t="6" s="SS_FAC_A_TECH204" />
+        <o t="6" s="SS_FAC_A_TECH205" />
+        <o t="6" s="SS_FAC_A_TECH206" />
+        <o t="6" s="SS_FAC_A_TECH207" />
+        <o t="6" s="SS_FAC_F217" />
+        <o t="6" s="SS_FAC_F217_1" />
+        <o t="6" s="SS_FAC_F218" />
+        <o t="6" s="SS_FAC_F218_1" />
+        <o t="6" s="SS_FAC_F219" />
+        <o t="6" s="SS_FAC_F219_1" />
+        <o t="6" s="SS_FAC_R214" />
+        <o t="6" s="SS_FAC_R214_1" />
+        <o t="6" s="SS_FAC_R215" />
+        <o t="6" s="SS_FAC_R215_1" />
+        <o t="7" s="SS_SH_A_M1" />
+        <o t="7" s="SS_SH_A_M2" />
+        <o t="7" s="SS_SH_A_M3" />
+        <o t="7" s="SS_SH_A_M3_2" />
+        <o t="7" s="SS_SH_A_M3_3" />
+        <o t="7" s="SS_SH_A_M4" />
+        <o t="7" s="SS_SH_A_M4_2" />
+        <o t="7" s="SS_SH_A_M5" />
+        <o t="7" s="SS_SH_A_M5_1" />
+        <o t="7" s="SS_SH_A_M5_2" />
+        <o t="7" s="SS_SH_A_M6" />
+        <o t="7" s="SS_SH_A_TL" />
+        <o t="7" s="SS_SH_A_TP" />
+        <o t="7" s="SS_SH_A_TS" />
+        <o t="7" s="SS_SH_A_TS_2" />
+        <o t="7" s="SS_SH_A_TS_3" />
+        <o t="7" s="SS_SH_A_TS_4" />
+        <o t="7" s="SS_SH_A_M6M" />
+        <o t="7" s="SS_SH_A_M7M" />
+        <o t="7" s="SS_SH_A_M8" />
+        <o t="6" s="SS_FAC_A_AF_CAPITAL" />
+        <o t="6" s="SS_FAC_A_BOMBER" />
+        <o t="6" s="SS_FAC_A_MISSILE_TORP" />
+        <o t="6" s="SS_FAC_A_TORP_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MISSILE_B" x="-52500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_MISSILE_B" x="-52500000" y="2500000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MISSILE_B" x="-52500000" y="5000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_S_TRADE" x="-45000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_L_S" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="14" s="SS_WARE_F237" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="16" s="SS_WARE_TECH205" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_MINE_3" />
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_POWER" x="-37500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_POWER_1" x="-37500000" y="25000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_POWER_2" x="-37500000" y="50000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_ION" x="-30000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F228" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IOND" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_ESR" x="-30000000" y="-50000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F238" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_ESR" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R255" x="-22500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+      <o t="23" s="8">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R255_1" x="-22500000" y="25000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+      <o t="23" s="8">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SHIP" x="-15000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="5" s="SS_DOCK_S_EQUIP" />
+        <o t="5" s="SS_DOCK_S_TRADE" />
+        <o t="6" s="SS_FAC_F237" />
+        <o t="6" s="SS_FAC_F237_1" />
+        <o t="6" s="SS_FAC_F238" />
+        <o t="6" s="SS_FAC_R234" />
+        <o t="6" s="SS_FAC_R234_1" />
+        <o t="6" s="SS_FAC_R235_1" />
+        <o t="6" s="SS_FAC_S_AMMO" />
+        <o t="6" s="SS_FAC_S_CCKIT" />
+        <o t="6" s="SS_FAC_S_ESR" />
+        <o t="6" s="SS_FAC_S_LS" />
+        <o t="6" s="SS_FAC_S_MINE" />
+        <o t="6" s="SS_FAC_S_MISSILE_D" />
+        <o t="6" s="SS_FAC_S_OLASER" />
+        <o t="6" s="SS_FAC_S_ORE" />
+        <o t="6" s="SS_FAC_S_ORE_1" />
+        <o t="6" s="SS_FAC_S_POWER" />
+        <o t="6" s="SS_FAC_S_POWER_1" />
+        <o t="6" s="SS_FAC_S_SAT" />
+        <o t="6" s="SS_FAC_S_SIL" />
+        <o t="6" s="SS_FAC_S_SIL_1" />
+        <o t="6" s="SS_FAC_S_TECH204" />
+        <o t="6" s="SS_FAC_S_TECH206" />
+        <o t="7" s="SS_SH_S_M1" />
+        <o t="7" s="SS_SH_S_M2" />
+        <o t="7" s="SS_SH_S_M3_1" />
+        <o t="7" s="SS_SH_S_M3_2" />
+        <o t="7" s="SS_SH_S_M3P" />
+        <o t="7" s="SS_SH_S_M4" />
+        <o t="7" s="SS_SH_S_M4_3" />
+        <o t="7" s="SS_SH_S_M4P" />
+        <o t="7" s="SS_SH_S_M5" />
+        <o t="7" s="SS_SH_S_M5_3" />
+        <o t="7" s="SS_SH_S_M6" />
+        <o t="7" s="SS_SH_S_M7" />
+        <o t="7" s="SS_SH_S_TL" />
+        <o t="7" s="SS_SH_S_TM" />
+        <o t="7" s="SS_SH_S_TP" />
+        <o t="7" s="SS_SH_S_TS" />
+        <o t="7" s="SS_SH_S_TS_4" />
+        <o t="7" s="SS_SH_S_TS_6" />
+        <o t="6" s="SS_FAC_S_DRONE" />
+        <o t="6" s="SS_FAC_S_ARMS_1" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SHIP_BIG" x="-15000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="5" s="SS_DOCK_S_EQUIP" />
+        <o t="5" s="SS_DOCK_S_TRADE" />
+        <o t="6" s="SS_FAC_F237" />
+        <o t="6" s="SS_FAC_F237_1" />
+        <o t="6" s="SS_FAC_F238" />
+        <o t="6" s="SS_FAC_F238_1" />
+        <o t="6" s="SS_FAC_R234" />
+        <o t="6" s="SS_FAC_R234_1" />
+        <o t="6" s="SS_FAC_R235" />
+        <o t="6" s="SS_FAC_R235_1" />
+        <o t="6" s="SS_FAC_S_AMMO" />
+        <o t="6" s="SS_FAC_S_CCKIT" />
+        <o t="6" s="SS_FAC_S_ESR" />
+        <o t="6" s="SS_FAC_S_LS" />
+        <o t="6" s="SS_FAC_S_MINE" />
+        <o t="6" s="SS_FAC_S_MISSILE_B" />
+        <o t="6" s="SS_FAC_S_MISSILE_C" />
+        <o t="6" s="SS_FAC_S_MISSILE_D" />
+        <o t="6" s="SS_FAC_S_MISSILE_D" />
+        <o t="6" s="SS_FAC_S_MISSILE_HTSK" />
+        <o t="6" s="SS_FAC_S_OLASER" />
+        <o t="6" s="SS_FAC_S_ORE" />
+        <o t="6" s="SS_FAC_S_ORE_1" />
+        <o t="6" s="SS_FAC_S_PBE" />
+        <o t="6" s="SS_FAC_S_PL" />
+        <o t="6" s="SS_FAC_S_POWER" />
+        <o t="6" s="SS_FAC_S_POWER_1" />
+        <o t="6" s="SS_FAC_S_POWER_2" />
+        <o t="6" s="SS_FAC_S_PPC" />
+        <o t="6" s="SS_FAC_S_SAT" />
+        <o t="6" s="SS_FAC_S_SAT2" />
+        <o t="6" s="SS_FAC_S_SHIELD_C" />
+        <o t="6" s="SS_FAC_S_SHIELD_E" />
+        <o t="6" s="SS_FAC_S_SIL" />
+        <o t="6" s="SS_FAC_S_SIL_1" />
+        <o t="6" s="SS_FAC_S_TECH204" />
+        <o t="6" s="SS_FAC_S_TECH205" />
+        <o t="6" s="SS_FAC_S_TECH206" />
+        <o t="6" s="SS_FAC_S_TECH207" />
+        <o t="6" s="SS_FAC_S_TECH208" />
+        <o t="7" s="SS_SH_S_M1" />
+        <o t="7" s="SS_SH_S_M2" />
+        <o t="7" s="SS_SH_S_M3" />
+        <o t="7" s="SS_SH_S_M3_1" />
+        <o t="7" s="SS_SH_S_M3_2" />
+        <o t="7" s="SS_SH_S_M4" />
+        <o t="7" s="SS_SH_S_M4_2" />
+        <o t="7" s="SS_SH_S_M4_3" />
+        <o t="7" s="SS_SH_S_M5" />
+        <o t="7" s="SS_SH_S_M5_1" />
+        <o t="7" s="SS_SH_S_M5_2" />
+        <o t="7" s="SS_SH_S_M5_3" />
+        <o t="7" s="SS_SH_S_M6" />
+        <o t="7" s="SS_SH_S_TL" />
+        <o t="7" s="SS_SH_S_TP" />
+        <o t="7" s="SS_SH_S_TS" />
+        <o t="7" s="SS_SH_S_TS_1" />
+        <o t="7" s="SS_SH_S_TS_2" />
+        <o t="7" s="SS_SH_S_TS_3" />
+        <o t="7" s="SS_SH_S_TS_4" />
+        <o t="7" s="SS_SH_S_TS_5" />
+        <o t="7" s="SS_SH_S_TS_6" />
+        <o t="7" s="SS_SH_S_M6M" />
+        <o t="7" s="SS_SH_S_M7M" />
+        <o t="7" s="SS_SH_S_M8" />
+        <o t="7" s="SS_SH_S_M7_SPECIAL" />
+        <o t="6" s="SS_FAC_S_MASS" />
+        <o t="6" s="SS_FAC_S_ARMS_2" />
+        <o t="6" s="SS_FAC_S_BOMBER" />
+        <o t="6" s="SS_FAC_S_TORP_CAPITAL" />
+        <o t="6" s="SS_FAC_S_AF_CAPITAL" />
+        <o t="6" s="SS_FAC_S_MINE_3" />
+        <o t="6" s="SS_FAC_S_MISSILE_SWRMDMBF" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_P_TRADE" x="-7500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="16" s="SS_WARE_L_P" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="14" s="SS_WARE_F247" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_MISSILE_A" x="0" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SHIP" x="7500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="7" s="SS_SH_P_M4" />
+        <o t="7" s="SS_SH_P_TP" />
+        <o t="7" s="SS_SH_P_M5" />
+        <o t="7" s="SS_SH_P_M3" />
+        <o t="7" s="SS_SH_P_TM" />
+        <o t="7" s="SS_SH_P_M7" />
+        <o t="7" s="SS_SH_P_M3P" />
+        <o t="7" s="SS_SH_P_M4P" />
+        <o t="6" s="SS_FAC_P_ARMS_1" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SHIP_BIG" x="7500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="5" s="SS_DOCK_P_EQUIP" />
+        <o t="5" s="SS_DOCK_P_TRADE" />
+        <o t="6" s="SS_FAC_F247" />
+        <o t="6" s="SS_FAC_F247_1" />
+        <o t="6" s="SS_FAC_F248" />
+        <o t="6" s="SS_FAC_F248_1" />
+        <o t="6" s="SS_FAC_P_CCKIT" />
+        <o t="6" s="SS_FAC_P_CIG" />
+        <o t="6" s="SS_FAC_P_DRILL" />
+        <o t="6" s="SS_FAC_P_FBL" />
+        <o t="6" s="SS_FAC_P_MINE" />
+        <o t="6" s="SS_FAC_P_MISSILE_B" />
+        <o t="6" s="SS_FAC_P_MISSILE_E" />
+        <o t="6" s="SS_FAC_P_MISSILE_SYN" />
+        <o t="6" s="SS_FAC_P_OLASER" />
+        <o t="6" s="SS_FAC_P_ORE" />
+        <o t="6" s="SS_FAC_P_ORE_1" />
+        <o t="6" s="SS_FAC_P_PL" />
+        <o t="6" s="SS_FAC_P_POWER" />
+        <o t="6" s="SS_FAC_P_POWER_1" />
+        <o t="6" s="SS_FAC_P_POWER_2" />
+        <o t="6" s="SS_FAC_P_PPC" />
+        <o t="6" s="SS_FAC_P_PR" />
+        <o t="6" s="SS_FAC_P_PSG" />
+        <o t="6" s="SS_FAC_P_SAT2" />
+        <o t="6" s="SS_FAC_P_SHIELD_B" />
+        <o t="6" s="SS_FAC_P_SHIELD_C" />
+        <o t="6" s="SS_FAC_P_SHIELD_C" />
+        <o t="6" s="SS_FAC_P_SHIELD_F" />
+        <o t="6" s="SS_FAC_P_SIL" />
+        <o t="6" s="SS_FAC_P_SIL_1" />
+        <o t="6" s="SS_FAC_P_TECH204" />
+        <o t="6" s="SS_FAC_P_TECH205" />
+        <o t="6" s="SS_FAC_P_TECH206" />
+        <o t="6" s="SS_FAC_P_TECH207" />
+        <o t="6" s="SS_FAC_P_TECH208" />
+        <o t="6" s="SS_FAC_R244" />
+        <o t="6" s="SS_FAC_R244_1" />
+        <o t="6" s="SS_FAC_R245" />
+        <o t="6" s="SS_FAC_R245_1" />
+        <o t="7" s="SS_SH_P_M1" />
+        <o t="7" s="SS_SH_P_M2" />
+        <o t="7" s="SS_SH_P_M3" />
+        <o t="7" s="SS_SH_P_M3_1" />
+        <o t="7" s="SS_SH_P_M3_2" />
+        <o t="7" s="SS_SH_P_M3_3" />
+        <o t="7" s="SS_SH_P_M4" />
+        <o t="7" s="SS_SH_P_M4_1" />
+        <o t="7" s="SS_SH_P_M4_3" />
+        <o t="7" s="SS_SH_P_M5" />
+        <o t="7" s="SS_SH_P_M5_1" />
+        <o t="7" s="SS_SH_P_M5_2" />
+        <o t="7" s="SS_SH_P_M5_3" />
+        <o t="7" s="SS_SH_P_M6" />
+        <o t="7" s="SS_SH_P_TL" />
+        <o t="7" s="SS_SH_P_TP" />
+        <o t="7" s="SS_SH_P_TP_1" />
+        <o t="7" s="SS_SH_P_TS" />
+        <o t="7" s="SS_SH_P_TS_1" />
+        <o t="7" s="SS_SH_P_TS_2" />
+        <o t="7" s="SS_SH_P_TS_3" />
+        <o t="7" s="SS_SH_P_TS_4" />
+        <o t="7" s="SS_SH_P_TS_5" />
+        <o t="7" s="SS_SH_P_M6M" />
+        <o t="7" s="SS_SH_P_M7M" />
+        <o t="7" s="SS_SH_P_M8" />
+        <o t="6" s="SS_FAC_P_BOMBER" />
+        <o t="6" s="SS_FAC_P_AF_CAPITAL" />
+        <o t="6" s="SS_FAC_P_TORP_CAPITAL" />
+        <o t="6" s="SS_FAC_P_TRACTORBEAM" />
+        <o t="6" s="SS_FAC_P_MISSILE_PROX" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_B_TRADE" x="15000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F228" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH206" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="14" s="SS_WARE_F227" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_L_B" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_MINE_2" />
+        <o t="16" s="SS_WARE_FREIGHTDRONE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SHIP" x="22500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="6" s="SS_FAC_B_PPC" />
+        <o t="6" s="SS_FAC_B_ION" />
+        <o t="5" s="SS_DOCK_B_EQUIP" />
+        <o t="6" s="SS_FAC_B_DRONE" />
+        <o t="6" s="SS_FAC_B_MISSILE_A" />
+        <o t="7" s="SS_SH_B_M6" />
+        <o t="6" s="SS_FAC_B_TECH208" />
+        <o t="6" s="SS_FAC_R224" />
+        <o t="5" s="SS_DOCK_B_TRADE" />
+        <o t="6" s="SS_FAC_F227" />
+        <o t="7" s="SS_SH_B_TL" />
+        <o t="6" s="SS_FAC_F228" />
+        <o t="6" s="SS_FAC_R225" />
+        <o t="6" s="SS_FAC_B_ORE" />
+        <o t="7" s="SS_SH_B_M1" />
+        <o t="6" s="SS_FAC_B_POWER" />
+        <o t="6" s="SS_FAC_B_TECH204" />
+        <o t="6" s="SS_FAC_B_SIL" />
+        <o t="7" s="SS_SH_B_M2" />
+        <o t="7" s="SS_SH_B_TM" />
+        <o t="7" s="SS_SH_B_M7" />
+        <o t="7" s="SS_SH_B_M3P" />
+        <o t="7" s="SS_SH_B_M4P" />
+        <o t="6" s="SS_FAC_B_LS" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SHIP_BIG" x="22500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="5" s="SS_DOCK_B_EQUIP" />
+        <o t="5" s="SS_DOCK_B_TRADE" />
+        <o t="6" s="SS_FAC_B_CCKIT" />
+        <o t="6" s="SS_FAC_B_ION" />
+        <o t="6" s="SS_FAC_B_IONC" />
+        <o t="6" s="SS_FAC_B_IONP" />
+        <o t="6" s="SS_FAC_B_MISSILE_A" />
+        <o t="6" s="SS_FAC_B_MISSILE_C" />
+        <o t="6" s="SS_FAC_B_MISSILE_FF" />
+        <o t="6" s="SS_FAC_B_ORE" />
+        <o t="6" s="SS_FAC_B_ORE_1" />
+        <o t="6" s="SS_FAC_B_POWER" />
+        <o t="6" s="SS_FAC_B_POWER_1" />
+        <o t="6" s="SS_FAC_B_POWER_2" />
+        <o t="6" s="SS_FAC_B_PPC" />
+        <o t="6" s="SS_FAC_B_PR" />
+        <o t="6" s="SS_FAC_B_SAT" />
+        <o t="6" s="SS_FAC_B_SHIELD_D" />
+        <o t="6" s="SS_FAC_B_SHIELD_E" />
+        <o t="6" s="SS_FAC_B_SIL" />
+        <o t="6" s="SS_FAC_B_SIL_1" />
+        <o t="6" s="SS_FAC_B_TECH204" />
+        <o t="6" s="SS_FAC_B_TECH205" />
+        <o t="6" s="SS_FAC_B_TECH206" />
+        <o t="6" s="SS_FAC_B_TECH207" />
+        <o t="6" s="SS_FAC_B_TECH208" />
+        <o t="6" s="SS_FAC_F227" />
+        <o t="6" s="SS_FAC_F227_1" />
+        <o t="6" s="SS_FAC_F228" />
+        <o t="6" s="SS_FAC_F228_1" />
+        <o t="6" s="SS_FAC_R224" />
+        <o t="6" s="SS_FAC_R224_1" />
+        <o t="6" s="SS_FAC_R225" />
+        <o t="6" s="SS_FAC_R225_1" />
+        <o t="7" s="SS_SH_B_M1" />
+        <o t="7" s="SS_SH_B_M2" />
+        <o t="7" s="SS_SH_B_M3" />
+        <o t="7" s="SS_SH_B_M3_1" />
+        <o t="7" s="SS_SH_B_M3_2" />
+        <o t="7" s="SS_SH_B_M3_3" />
+        <o t="7" s="SS_SH_B_M4" />
+        <o t="7" s="SS_SH_B_M4_2" />
+        <o t="7" s="SS_SH_B_M4_3" />
+        <o t="7" s="SS_SH_B_M5" />
+        <o t="7" s="SS_SH_B_M5_1" />
+        <o t="7" s="SS_SH_B_M5_2" />
+        <o t="7" s="SS_SH_B_M5_3" />
+        <o t="7" s="SS_SH_B_M6" />
+        <o t="7" s="SS_SH_B_TL" />
+        <o t="7" s="SS_SH_B_TP" />
+        <o t="7" s="SS_SH_B_TP_1" />
+        <o t="7" s="SS_SH_B_TS" />
+        <o t="7" s="SS_SH_B_TS_1" />
+        <o t="7" s="SS_SH_B_TS_2" />
+        <o t="7" s="SS_SH_B_TS_3" />
+        <o t="7" s="SS_SH_B_TS_4" />
+        <o t="7" s="SS_SH_B_M6M" />
+        <o t="7" s="SS_SH_B_M7M" />
+        <o t="7" s="SS_SH_B_TP_SPECIAL" />
+        <o t="6" s="SS_FAC_B_AF_CAPITAL" />
+        <o t="6" s="SS_FAC_B_BOMBER" />
+        <o t="6" s="SS_FAC_B_TORP_CAPITAL" />
+        <o t="6" s="SS_FAC_B_MISSILE_PROXTRAK" />
+        <o t="6" s="SS_FAC_B_RECONDRONE" />
+        <o t="6" s="SS_FAC_B_MINE_2" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_MISSILE_C" x="30000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_C" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R256" x="37500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R256" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R256_1" x="37500000" y="25000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R256" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SHIP" x="45000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="7" s="SS_SH_T_M2" />
+        <o t="6" s="SS_FAC_R255" />
+        <o t="6" s="SS_FAC_F219" />
+        <o t="6" s="SS_FAC_F258" />
+        <o t="6" s="SS_FAC_T_TECH207" />
+        <o t="6" s="SS_FAC_T_MISSILE_D" />
+        <o t="5" s="SS_DOCK_T_EQUIP" />
+        <o t="6" s="SS_FAC_R256" />
+        <o t="6" s="SS_FAC_T_ORE" />
+        <o t="5" s="SS_DOCK_T_TRADE" />
+        <o t="7" s="SS_SH_T_TL" />
+        <o t="6" s="SS_FAC_T_SIL" />
+        <o t="6" s="SS_FAC_T_TECH208" />
+        <o t="6" s="SS_FAC_F257" />
+        <o t="6" s="SS_FAC_T_POWER" />
+        <o t="7" s="SS_SH_T_M1" />
+        <o t="6" s="SS_FAC_T_LS" />
+        <o t="6" s="SS_FAC_R254" />
+        <o t="6" s="SS_FAC_T_SHIELD_B" />
+        <o t="7" s="SS_SH_T_TM" />
+        <o t="7" s="SS_SH_T_M7" />
+        <o t="7" s="SS_SH_T_M3P" />
+        <o t="7" s="SS_SH_T_M4P" />
+        <o t="7" s="SS_SH_T_M5P" />
+        <o t="6" s="SS_FAC_T_DRONE" />
+        <o t="6" s="SS_FAC_T_EBC" />
+        <o t="6" s="SS_FAC_T_AMMO_GAMMA" />
+        <o t="6" s="SS_FAC_T_AMMO_BETA" />
+        <o t="6" s="SS_FAC_T_ARMS_1" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SHIP_BIG" x="45000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="5" s="SS_DOCK_T_EQUIP" />
+        <o t="5" s="SS_DOCK_T_TRADE" />
+        <o t="6" s="SS_FAC_F257" />
+        <o t="6" s="SS_FAC_F257_1" />
+        <o t="6" s="SS_FAC_F258" />
+        <o t="6" s="SS_FAC_F258_1" />
+        <o t="6" s="SS_FAC_R254" />
+        <o t="6" s="SS_FAC_R254_1" />
+        <o t="6" s="SS_FAC_R255" />
+        <o t="6" s="SS_FAC_R255_1" />
+        <o t="6" s="SS_FAC_R256" />
+        <o t="6" s="SS_FAC_R256_1" />
+        <o t="6" s="SS_FAC_T_CCKIT" />
+        <o t="6" s="SS_FAC_T_CIG" />
+        <o t="6" s="SS_FAC_T_DRILL" />
+        <o t="6" s="SS_FAC_T_FLAK" />
+        <o t="6" s="SS_FAC_T_LS" />
+        <o t="6" s="SS_FAC_T_MINE" />
+        <o t="6" s="SS_FAC_T_MISSILE_A" />
+        <o t="6" s="SS_FAC_T_MISSILE_D" />
+        <o t="6" s="SS_FAC_T_MISSILE_SWRM" />
+        <o t="6" s="SS_FAC_T_ORE" />
+        <o t="6" s="SS_FAC_T_ORE_1" />
+        <o t="6" s="SS_FAC_T_PL" />
+        <o t="6" s="SS_FAC_T_POWER" />
+        <o t="6" s="SS_FAC_T_POWER_1" />
+        <o t="6" s="SS_FAC_T_POWER_2" />
+        <o t="6" s="SS_FAC_T_SAT" />
+        <o t="6" s="SS_FAC_T_SHIELD_A" />
+        <o t="6" s="SS_FAC_T_SHIELD_B" />
+        <o t="6" s="SS_FAC_T_SIL" />
+        <o t="6" s="SS_FAC_T_SIL_1" />
+        <o t="6" s="SS_FAC_T_TECH204" />
+        <o t="6" s="SS_FAC_T_TECH205" />
+        <o t="6" s="SS_FAC_T_TECH206" />
+        <o t="6" s="SS_FAC_T_TECH207" />
+        <o t="6" s="SS_FAC_T_TECH208" />
+        <o t="7" s="SS_SH_T_M1" />
+        <o t="7" s="SS_SH_T_M2" />
+        <o t="7" s="SS_SH_T_M3" />
+        <o t="7" s="SS_SH_T_M3_1" />
+        <o t="7" s="SS_SH_T_M3_2" />
+        <o t="7" s="SS_SH_T_M4" />
+        <o t="7" s="SS_SH_T_M4_2" />
+        <o t="7" s="SS_SH_T_M4_3" />
+        <o t="7" s="SS_SH_T_M5" />
+        <o t="7" s="SS_SH_T_M5_1" />
+        <o t="7" s="SS_SH_T_M5_2" />
+        <o t="7" s="SS_SH_T_M6" />
+        <o t="7" s="SS_SH_T_TL" />
+        <o t="7" s="SS_SH_T_TP" />
+        <o t="7" s="SS_SH_T_TS" />
+        <o t="7" s="SS_SH_T_TS_1" />
+        <o t="7" s="SS_SH_T_TS_2" />
+        <o t="7" s="SS_SH_T_TS_3" />
+        <o t="7" s="SS_SH_T_TS_4" />
+        <o t="7" s="SS_SH_T_TS_5" />
+        <o t="7" s="SS_SH_T_M6M" />
+        <o t="7" s="SS_SH_T_M7M" />
+        <o t="7" s="SS_SH_T_M8" />
+        <o t="6" s="SS_FAC_T_AF_CAPITAL" />
+        <o t="6" s="SS_FAC_T_BOMBER" />
+        <o t="6" s="SS_FAC_T_GAUSS" />
+        <o t="6" s="SS_FAC_T_TORP_CAPITAL" />
+        <o t="6" s="SS_FAC_T_MISSILE_TRAK" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_POWER" x="52500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_POWER_1" x="52500000" y="25000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_POWER_2" x="52500000" y="50000000" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_T_TRADE" x="60000000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="13" s="SS_WARE_R255" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="16" s="SS_WARE_TECH205" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="14" s="SS_WARE_F258" />
+        <o t="16" s="SS_WARE_TECH206" />
+        <o t="16" s="SS_WARE_L_T" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH207" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_FREIGHTDRONE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_MISSILE_E" x="-75000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_E" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F217" x="-67500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F217_1" x="-67500000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_TECH204" x="-60000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F217" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_TECH204" x="-60000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_TECH204" x="-60000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_A_EQUIP" x="-52500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_SW_TRADE_1" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_SW_TRADE_2" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_PRG" />
+        <o t="8" s="SS_LASER_HEPT" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="8" s="SS_LASER_FLAK_CLUSTER" />
+        <o t="8" s="SS_LASER_PPC" />
+        <o t="8" s="SS_LASER_MINING" />
+        <o t="8" s="SS_LASER_TUG" />
+        <o t="10" s="SS_MISSILE_A" />
+        <o t="10" s="SS_MISSILE_D" />
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_F" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_POWER" x="-45000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_POWER_1" x="-45000000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_POWER_2" x="-45000000" y="50000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MISSILE_C" x="-37500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_C" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F218" x="-30000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R214" />
+        <o t="13" s="SS_WARE_R215" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F218_1" x="-30000000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R214" />
+        <o t="13" s="SS_WARE_R215" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_TECH204" x="-22500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_S_EQUIP" x="-15000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="8" s="SS_LASER_PBE" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="10" s="SS_MISSILE_B" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="8" s="SS_LASER_ESR" />
+        <o t="10" s="SS_MISSILE_D" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SPACEFLYCOLLECTOR" />
+        <o t="16" s="SS_WARE_SW_TRADE_1" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_SW_TRADE_2" />
+        <o t="16" s="SS_WARE_MINE_3" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="8" s="SS_LASER_HEPT" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="8" s="SS_LASER_TUG" />
+        <o t="8" s="SS_LASER_MINING" />
+        <o t="16" s="SS_WARE_SW_CARRIER_1" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_P_EQUIP" x="-7500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="10" s="SS_MISSILE_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="8" s="SS_LASER_PSG" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="8" s="SS_LASER_PPC" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="8" s="SS_LASER_MINING" />
+        <o t="8" s="SS_LASER_FBL" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_SW_TRADE_1" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_SW_TRADE_2" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_F" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_HEPT" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="8" s="SS_LASER_TUG" />
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_MISSILE_A" x="0" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_B_EQUIP" x="7500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="10" s="SS_MISSILE_B" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="8" s="SS_LASER_IOND" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="10" s="SS_MISSILE_D" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="8" s="SS_LASER_IONC" />
+        <o t="8" s="SS_LASER_IPG" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="8" s="SS_LASER_PPC" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="8" s="SS_LASER_HEPT" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_TECH242" />
+        <o t="16" s="SS_WARE_SW_TRADE_1" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_SW_TRADE_2" />
+        <o t="16" s="SS_WARE_MINE_2" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="8" s="SS_LASER_PPC" />
+        <o t="8" s="SS_LASER_TUG" />
+        <o t="8" s="SS_LASER_MINING" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_TECH204" x="15000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F219" x="22500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F219" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F219_1" x="22500000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F219" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_T_EQUIP" x="30000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_BESTBUY" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="10" s="SS_MISSILE_C" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_BESTSELL" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="8" s="SS_LASER_FLAK_ALPHA" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="10" s="SS_MISSILE_D" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="8" s="SS_LASER_MINING" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH242" />
+        <o t="16" s="SS_WARE_SW_TRADE_1" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_SW_TRADE_2" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_EBC" />
+        <o t="8" s="SS_LASER_HEPT" />
+        <o t="8" s="SS_LASER_PBE" />
+        <o t="8" s="SS_LASER_PD" />
+        <o t="8" s="SS_LASER_PPC" />
+        <o t="8" s="SS_LASER_GAUSS" />
+        <o t="8" s="SS_LASER_IBL" />
+        <o t="8" s="SS_LASER_TUG" />
+        <o t="16" s="SS_WARE_AMMUNITION_BETA" />
+        <o t="16" s="SS_WARE_AMMUNITION_GAMMA" />
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="16" s="SS_WARE_SW_CARRIER_1" />
+        <o t="16" s="SS_WARE_SW_NEW13" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_MISSILE_D" x="37500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MISSILE_D" x="37500000" y="2500000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MISSILE_D" x="37500000" y="5000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F227" x="45000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R214" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F227_1" x="45000000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R214" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_ORE" x="52500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_ORE_1" x="52500000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_ORE_2" x="52500000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_ORE_3" x="52500000" y="25000000" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_MINE" x="60000000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F248" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_MINE_1" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F217" />
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_TECH205" x="67500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_TECH205" x="67500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_GONER" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_WARPING" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_GONER_NEW" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_WARPING" />
+				<o t="16" s="SS_WARE_L_A"/>
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_1" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_L_A" />
+        <o t="16" s="SS_WARE_BESTBUY" />
+        <o t="16" s="SS_WARE_BESTSELL" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_WARPING" />
+        <o t="16" s="SS_WARE_SW_NEW13" />
+        <o t="16" s="SS_WARE_SW_SUPPLY_1" />
+        <o t="16" s="SS_WARE_BIOSCANNER" />
+        <o t="16" s="SS_WARE_WARPING" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_WARPING" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_2" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_WARPING" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SW_SUPPLY_1" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_3" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SW_SUPPLY_1" />
+        <o t="16" s="SS_WARE_BIOSCANNER" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_4" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="15" s="SS_WARE_NIVIDIUM2" />
+        <o t="15" s="SS_WARE_ICE" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_SW_SUPPLY_1" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_5" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="15" s="SS_WARE_NIVIDIUM2" />
+        <o t="15" s="SS_WARE_ICE" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_SW_EXPLORE_1" />
+        <o t="16" s="SS_WARE_BESTBUY" />
+        <o t="16" s="SS_WARE_BESTSELL" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_6" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_SLAVE" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="16" s="SS_WARE_L_P" />
+        <o t="16" s="SS_WARE_LIFESUPPORT" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SW_NEW2" />
+        <o t="16" s="SS_WARE_SW_NEW3" />
+        <o t="16" s="SS_WARE_CARGOSHIELD" />
+        <o t="16" s="SS_WARE_SW_PATROL_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_7" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+        <o t="16" s="SS_WARE_TECH207" />
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="16" s="SS_WARE_WARPING" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_FREIGHTDRONE" />
+        <o t="16" s="SS_WARE_MINE_2" />
+        <o t="16" s="SS_WARE_RECONDRONE" />
+        <o t="16" s="SS_WARE_A_MK2DRONE" />
+        <o t="6" s="SS_FAC_B_RECONDRONE" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_CORP_8" x="-75000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_MINE_3" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_LIFESUPPORT" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_CARGOSHIELD" />
+        <o t="16" s="SS_WARE_ARMS_1" />
+        <o t="16" s="SS_WARE_ARMS_2" />
+        <o t="16" s="SS_WARE_TR_ARMS" />
+        <o t="16" s="SS_WARE_SLAVE" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="16" s="SS_WARE_AMMUNITION_BETA" />
+        <o t="16" s="SS_WARE_AMMUNITION_GAMMA" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MINE" x="-67500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_MINE_1" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F217" />
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_TECH205" x="-60000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_PIRATES" x="-52500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="13" s="SS_WARE_R254" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="14" s="SS_WARE_F258" />
+        <o t="14" s="SS_WARE_F219" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SLAVE" />
+        <o t="16" s="SS_WARE_LIFESUPPORT" />
+        <o t="16" s="SS_WARE_MINE_3" />
+        <o t="16" s="SS_WARE_SOLDIER_1" />
+        <o t="16" s="SS_WARE_SOLDIER_2" />
+        <o t="16" s="SS_WARE_ARMS_1" />
+        <o t="16" s="SS_WARE_ARMS_2" />
+        <o t="10" s="SS_MISSILE_BOARDINGPOD" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_TECH205" x="-45000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_ORE" x="-37500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_ORE_1" x="-37500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_ORE_2" x="-37500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_ORE_3" x="-37500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F228" x="-30000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R225" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F248" />
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F228_1" x="-30000000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R225" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F248" />
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_MINE" x="-22500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_MINE_1" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F217" />
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_OLASER" x="-15000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_OLASER" x="-15000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_OLASER" x="-15000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F217" />
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_ORE" x="-7500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_ORE_1" x="-7500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_ORE_2" x="-7500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_ORE_3" x="-7500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R214" x="0" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+      <o t="23" s="8">
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R214_1" x="0" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+      <o t="23" s="8">
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F237" x="7500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R234" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F237" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F248" />
+        <o t="16" s="SS_WARE_TECH239" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F237_1" x="7500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R234" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F237" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F248" />
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_TECH205" x="15000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_PPC" x="22500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_TECH206" x="30000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F238" x="37500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R235" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F238_1" x="37500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R235" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_TECH206" x="45000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_ORE" x="52500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_ORE_1" x="52500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_ORE_2" x="52500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_ORE_3" x="52500000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R215" x="60000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R215" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R234" />
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R215_1" x="60000000" y="25000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R215" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R234" />
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_TECH206" x="67500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_TECH206" x="-75000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R224" x="-67500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R224_1" x="-67500000" y="2500000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R224" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R214" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F247" x="-60000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R245" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F247_1" x="-60000000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R245" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_ORE" x="-52500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_ORE_1" x="-52500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_ORE_2" x="-52500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_ORE_3" x="-52500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_TECH206" x="-45000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SHIELD_A" x="-37500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_A" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SHIELD_A" x="-37500000" y="2500000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_A" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_DRONE" x="-30000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F237" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_DRONE" x="-30000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F237" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_FREIGHTDRONE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_DRONE" x="-30000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F237" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_DRONE" x="-30000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F237" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_FREIGHTDRONE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R225" x="-22500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R225" />
+      </o>
+      <o t="23" s="8">
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R225_1" x="-22500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R225" />
+      </o>
+      <o t="23" s="8">
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F248" x="-15000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R244" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F248_1" x="-15000000" y="2500000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R244" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SIL" x="-7500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SIL_1" x="-7500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SIL_2" x="-7500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SIL_3" x="-7500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SAT" x="0" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SATELLITE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SAT" x="0" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SATELLITE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SAT" x="0" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F227" />
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SATELLITE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SAT" x="0" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SATELLITE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SAT2" x="0" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SATELLITE2" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SAT2" x="0" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SATELLITE2" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SAT2" x="0" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F247" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SATELLITE2" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_TECH207" x="7500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_TECH207" x="15000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_FBL" x="22500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_FBL" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_TECH207" x="30000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F248" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SIL" x="37500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SIL_1" x="37500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SIL_2" x="37500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SIL_3" x="37500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F257" x="45000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R254" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R256" />
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F257_1" x="45000000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R254" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R256" />
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R234" x="52500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R234" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="13" s="SS_WARE_R254" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R234_1" x="52500000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R234" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="13" s="SS_WARE_R254" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SHIELD_B" x="60000000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SHIELD_B" x="60000000" y="-25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_LSHIELD_COMPLEX" x="60000000" y="25000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_LSHIELD_COMPLEX" x="60000000" y="50000000" z="30000000" r="2" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_LSHIELD_COMPLEX" x="60000000" y="75000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_LSHIELD_COMPLEX" x="60000000" y="100000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_LSHIELD_COMPLEX" x="60000000" y="125000000" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_TECH207" x="67500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_TECH207" x="67500000" y="0" z="30000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F258" x="-75000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R256" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F258" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_F258_1" x="-75000000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_R256" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F258" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F227" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R235" x="-67500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R235" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R235_1" x="-67500000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R235" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH239" />
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SIL" x="-60000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SIL_1" x="-60000000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SIL_2" x="-60000000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SIL_3" x="-60000000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_TECH208" x="-52500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_TECH208" x="-52500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_POWER" x="-45000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_POWER_1" x="-45000000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_POWER_2" x="-45000000" y="50000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_TECH208" x="-37500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R244" x="-30000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R244" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R244_1" x="-30000000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R244" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SIL" x="-22500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SIL_1" x="-22500000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SIL_2" x="-22500000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SIL_3" x="-22500000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_TECH208" x="-15000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R245" x="-7500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R245" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R245_1" x="-7500000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R245" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SIL" x="0" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SIL_1" x="0" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SIL_2" x="0" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SIL_3" x="0" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MASS" x="7500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_TECH208" x="15000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH207" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SHIELD_C" x="22500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_C" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SHIELD_C" x="22500000" y="-2500000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_C" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SHIELD_D" x="25000000" y="2500000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SHIELD_D" x="25000000" y="-2500000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MSHIELD_COMPLEX" x="25000000" y="5000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_MSHIELD_COMPLEX" x="25000000" y="7500000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MSHIELD_COMPLEX" x="25000000" y="10000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_MSHIELD_COMPLEX" x="25000000" y="12500000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_MSHIELD_COMPLEX" x="25000000" y="15000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MASS" x="30000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_MASS" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_POWER" x="37500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_POWER_1" x="37500000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_POWER_2" x="37500000" y="50000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_AMMO" x="45000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MISSILE_A" x="52500000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R254" x="60000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R254" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_R254_1" x="60000000" y="25000000" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R254" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_LS" x="0" y="-50000000" z="0" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IRE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_LS" x="25000000" y="-50000000" z="0" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IRE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_LS" x="0" y="-50000000" z="25000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IRE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_LS" x="25000000" y="-50000000" z="25000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IRE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_LWEP_COMPLEX" x="0" y="-50000000" z="50000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_PR" x="25000000" y="-50000000" z="50000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PAC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_PR" x="0" y="-50000000" z="75000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PAC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_PR" x="25000000" y="-50000000" z="75000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PAC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_PR" x="0" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PAC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_CIG" x="25000000" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_CIG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_LWEP_COMPLEX" x="0" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_PRG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_PR" x="25000000" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PAC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_PL" x="0" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_HEPT" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_PL" x="25000000" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_HEPT" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_PL" x="0" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_HEPT" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_PL" x="25000000" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_HEPT" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_LWEP_COMPLEX" x="0" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_FBL" />
+        <o t="8" s="SS_LASER_HEPT" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MWEP_COMPLEX" x="25000000" y="-50000000" z="100000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_HEPT" />
+        <o t="8" s="SS_LASER_CIG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_CIG" x="0" y="-50000000" z="125000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_CIG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_GAUSS" x="0" y="-50000000" z="125000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_GAUSS" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_PPC" x="25000000" y="-50000000" z="125000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_PPC" x="125000000" y="-50000000" z="125000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_PPC" x="50000000" y="-50000000" z="125000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_PPC" x="150000000" y="-50000000" z="125000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_PPC" x="75000000" y="-50000000" z="125000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_FBL" x="0" y="-50000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_FBL" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_CIG" x="25000000" y="-50000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_CIG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_PSG" x="0" y="-70000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PSG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_FLAK" x="25000000" y="-70000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_FLAK_ALPHA" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_HWEP_COMPLEX" x="50000000" y="-70000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_HWEP_COMPLEX" x="75000000" y="-70000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_GAUSS" />
+        <o t="8" s="SS_LASER_FLAK_ALPHA" />
+        <o t="16" s="SS_WARE_AMMUNITION_GAMMA" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SWEP_COMPLEX" x="75000000" y="-70000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PRG" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_CIG" x="75000000" y="-70000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_CIG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_LWEP_COMPLEX" x="75000000" y="-70000000" z="175000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PBE" />
+        <o t="8" s="SS_LASER_ESR" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_DRILL" x="0" y="-80000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_MINING" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_DRILL" x="25000000" y="-80000000" z="150000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_MINING" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_IONC" x="0" y="-50000000" z="175000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IONC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_CFLAK" x="0" y="-25000000" z="175000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_FLAK_CLUSTER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_HWEP_COMPLEX" x="25000000" y="-25000000" z="175000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IONC" />
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_HWEP_COMPLEX" x="0" y="-75000000" z="175000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PSG" />
+        <o t="8" s="SS_LASER_PPC" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_PRG" x="0" y="-50000000" z="200000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PRG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_EBC" x="25000000" y="-50000000" z="200000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_EBC" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_IONP" x="0" y="-50000000" z="200000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IPG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_PBE" x="25000000" y="-50000000" z="200000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PBE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_MWEP_COMPLEX" x="0" y="-50000000" z="200000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IPG" />
+        <o t="8" s="SS_LASER_CIG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_CIG" x="25000000" y="-50000000" z="200000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_CIG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SHIELD_E" x="25000000" y="0" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_E" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SHIELD_E" x="25000000" y="-2500000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_E" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SHIELD_F" x="25000000" y="-5000000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SHIELD_F" x="25000000" y="-7500000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_HSHIELD_COMPLEX" x="25000000" y="2500000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_HSHIELD_COMPLEX" x="25000000" y="5000000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_HSHIELD_COMPLEX" x="25000000" y="7500000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_HSHIELD_COMPLEX" x="25000000" y="10000000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_HSHIELD_COMPLEX" x="25000000" y="12500000" z="225000000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MISSILE_DMBF" x="0" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_DMBF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MISSILE_HTSK" x="2500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_HTSK" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_MISSILE_FF" x="5000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_FF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_MISSILE_PROX" x="7500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_PROX" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_MISSILE_TRAK" x="10000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_PROXTRAK" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_MISSILE_PROXTRAK" x="12500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_PROXTRAK" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MISSILE_SWRMDMBF" x="15000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_SWRMDMBF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_MISSILE_SWRM" x="17500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_SWRM" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_MISSILE_TORP" x="20000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_MISSILE_SYN" x="22500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_SYN" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_DUMBFIRE_COMPLEX" x="25000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_C" />
+        <o t="10" s="SS_MISSILE_DMBF" />
+        <o t="10" s="SS_MISSILE_SYN" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_DUMBFIRE_COMPLEX" x="25000000" y="2500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_C" />
+        <o t="10" s="SS_MISSILE_DMBF" />
+        <o t="10" s="SS_MISSILE_SYN" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_DUMBFIRE_COMPLEX" x="25000000" y="5000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_C" />
+        <o t="10" s="SS_MISSILE_DMBF" />
+        <o t="10" s="SS_MISSILE_SYN" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_DUMBFIRE_COMPLEX" x="25000000" y="7500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_C" />
+        <o t="10" s="SS_MISSILE_DMBF" />
+        <o t="10" s="SS_MISSILE_SYN" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_DUMBFIRE_COMPLEX" x="25000000" y="10000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_C" />
+        <o t="10" s="SS_MISSILE_DMBF" />
+        <o t="10" s="SS_MISSILE_SYN" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SWARM_COMPLEX" x="27500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+        <o t="10" s="SS_MISSILE_SWRM" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SWARM_COMPLEX" x="27500000" y="2500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+        <o t="10" s="SS_MISSILE_SWRM" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SWARM_COMPLEX" x="27500000" y="5000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+        <o t="10" s="SS_MISSILE_SWRM" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SWARM_COMPLEX" x="27500000" y="7500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+        <o t="10" s="SS_MISSILE_SWRM" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SWARM_COMPLEX" x="27500000" y="10000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_B" />
+        <o t="10" s="SS_MISSILE_SWRM" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SEEKER_COMPLEX" x="30000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_HTSK" />
+        <o t="10" s="SS_MISSILE_FF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_SEEKER_COMPLEX" x="30000000" y="2500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_HTSK" />
+        <o t="10" s="SS_MISSILE_FF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_SEEKER_COMPLEX" x="30000000" y="5000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_HTSK" />
+        <o t="10" s="SS_MISSILE_FF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_SEEKER_COMPLEX" x="30000000" y="7500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_HTSK" />
+        <o t="10" s="SS_MISSILE_FF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_SEEKER_COMPLEX" x="30000000" y="10000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_HTSK" />
+        <o t="10" s="SS_MISSILE_FF" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_IMAGERECOG_COMPLEX" x="32500000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_IMAGERECOG_COMPLEX" x="32500000" y="2500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_IMAGERECOG_COMPLEX" x="32500000" y="5000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_IMAGERECOG_COMPLEX" x="32500000" y="7500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_IMAGERECOG_COMPLEX" x="32500000" y="10000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_A" />
+        <o t="10" s="SS_MISSILE_D" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_HIGHYIELD_COMPLEX" x="35000000" y="0" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_HIGHYIELD_COMPLEX" x="35000000" y="2500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_HIGHYIELD_COMPLEX" x="35000000" y="5000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_HIGHYIELD_COMPLEX" x="35000000" y="7500000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_HIGHYIELD_COMPLEX" x="35000000" y="10000000" z="22500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_E" />
+        <o t="10" s="SS_MISSILE_TORP" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_TRACTORBEAM" x="-67500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_TUG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_TRACTORBEAM" x="-67500000" y="0" z="7500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F248" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_TUG" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_X_POWER" x="-45000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_POWER" x="-45000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_POWER_1" x="-45000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_POWER_2" x="-45000000" y="0" z="37500000" r="1" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_SHIP" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="7">
+        <o t="7" s="SS_SH_USC_TS" />
+        <o t="7" s="SS_SH_USC_TP" />
+        <o t="7" s="SS_SH_USC_TL_MINING" />
+        <o t="7" s="SS_SH_USC_M2" />
+        <o t="7" s="SS_SH_USC_M1" />
+        <o t="7" s="SS_SH_USC_M3" />
+        <o t="7" s="SS_SH_USC_M3P" />
+        <o t="7" s="SS_SH_USC_M4" />
+        <o t="7" s="SS_SH_USC_M5" />
+        <o t="7" s="SS_SH_USC_M6" />
+        <o t="7" s="SS_SH_USC_M7" />
+        <o t="7" s="SS_SH_USC_M8" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_F5" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="13" s="SS_WARE_TR_R1" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_TR_F5" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_TR_R2" />
+        <o t="13" s="SS_WARE_TR_R4" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_F5_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="13" s="SS_WARE_TR_R1" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_TR_F5" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_TR_R2" />
+        <o t="13" s="SS_WARE_TR_R4" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_F6" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_TR_R3" />
+        <o t="13" s="SS_WARE_TR_R1" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_TR_F6" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="13" s="SS_WARE_TR_R4" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_F6_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_TR_R1" />
+        <o t="13" s="SS_WARE_TR_R3" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_TR_F6" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="13" s="SS_WARE_TR_R4" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_ORE" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_TR_F6" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_ORE_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_TR_F6" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_WATER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="15" s="SS_WARE_ICE" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_EMP" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F5" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_EMP" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_MAM" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F5" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_MAM" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_TERRANANTIFIGHTER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F5" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_PSP" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PSP" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_BOMBER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_USC_BOMBER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_TORP_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_USC_TORP_CAPITAL" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_AF_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_USC_AF_CAPITAL" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_SPECTRE" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_POLTERGEIST" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_WRAITH" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_WRAITH" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_TECH7" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_TECH8" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_SOLDIER_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SOLDIER_1" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_SLAVE" />
+        <o t="14" s="SS_WARE_F219" />
+        <o t="16" s="SS_WARE_ARMS_2" />
+        <o t="16" s="SS_WARE_ARMS_1" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_SOLDIER_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_SOLDIER_2" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F219" />
+        <o t="16" s="SS_WARE_ARMS_2" />
+        <o t="16" s="SS_WARE_ARMS_1" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TR_SUPPLY_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_TR_R1" />
+        <o t="13" s="SS_WARE_TR_R2" />
+        <o t="13" s="SS_WARE_TR_R3" />
+        <o t="13" s="SS_WARE_TR_R4" />
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="15" s="SS_WARE_ICE" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TR_SUPPLY_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_TR_R1" />
+        <o t="13" s="SS_WARE_TR_R2" />
+        <o t="13" s="SS_WARE_TR_R3" />
+        <o t="13" s="SS_WARE_TR_R4" />
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="15" s="SS_WARE_ICE" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TR_SUPPLY_3" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_TR_R1" />
+        <o t="13" s="SS_WARE_TR_R2" />
+        <o t="13" s="SS_WARE_TR_R3" />
+        <o t="13" s="SS_WARE_TR_R4" />
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="15" s="SS_WARE_ICE" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TR_MILITARY_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_ARMS" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="16" s="SS_WARE_TR_MINE" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_TRADE_1" />
+        <o t="16" s="SS_WARE_SW_TRADE_2" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="16" s="SS_WARE_TECH242" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER" />
+        <o t="8" s="SS_LASER_PSP" />
+        <o t="8" s="SS_LASER_EMP" />
+        <o t="8" s="SS_LASER_MAM" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_LIFESUPPORT" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_WRAITH" />
+        <o t="10" s="SS_MISSILE_USC_BOMBER" />
+        <o t="10" s="SS_MISSILE_USC_TORP_CAPITAL" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TR_MILITARY_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="16" s="SS_WARE_TR_ARMS" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+        <o t="16" s="SS_WARE_TR_MINE" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER" />
+        <o t="8" s="SS_LASER_EMP" />
+        <o t="8" s="SS_LASER_MAM" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_USC_BOMBER" />
+        <o t="10" s="SS_MISSILE_USC_TORP_CAPITAL" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_E" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TR_MILITARY_3" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="8" s="SS_LASER_EMP" />
+        <o t="8" s="SS_LASER_MAM" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="9" s="SS_SHIELD_C" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TR_RESEARCH" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+        <o t="16" s="SS_WARE_TR_ARMS" />
+        <o t="16" s="SS_WARE_TR_MINE" />
+        <o t="16" s="SS_WARE_USC_DRONE" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_TORUS" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH209" />
+        <o t="16" s="SS_WARE_TECH275" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_WARPING" />
+        <o t="16" s="SS_WARE_LIFESUPPORT" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_TRADE_1" />
+        <o t="16" s="SS_WARE_SW_TRADE_2" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_PATROL_1" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+        <o t="16" s="SS_WARE_TR_ARMS" />
+        <o t="16" s="SS_WARE_TR_MINE" />
+        <o t="16" s="SS_WARE_USC_DRONE" />
+        <o t="8" s="SS_LASER_EMP" />
+        <o t="8" s="SS_LASER_MAM" />
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER" />
+        <o t="8" s="SS_LASER_PSP" />
+        <o t="10" s="SS_MISSILE_WRAITH" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="10" s="SS_MISSILE_USC_BOMBER" />
+        <o t="10" s="SS_MISSILE_USC_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_USC_AF_CAPITAL" />
+        <o t="13" s="SS_WARE_TR_R1" />
+        <o t="13" s="SS_WARE_TR_R2" />
+        <o t="13" s="SS_WARE_TR_R3" />
+        <o t="13" s="SS_WARE_TR_R4" />
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_TR_F5" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="15" s="SS_WARE_ICE" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_ATF_MILITARY_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_TR_ARMS" />
+        <o t="16" s="SS_WARE_USC_DRONE" />
+        <o t="8" s="SS_LASER_EMP" />
+        <o t="8" s="SS_LASER_MAM" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="10" s="SS_MISSILE_USC_BOMBER" />
+        <o t="10" s="SS_MISSILE_USC_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_USC_AF_CAPITAL" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_ATF_MILITARY_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BEAMING" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+        <o t="16" s="SS_WARE_TR_ARMS" />
+        <o t="16" s="SS_WARE_TR_MINE" />
+        <o t="16" s="SS_WARE_USC_DRONE" />
+        <o t="8" s="SS_LASER_EMP" />
+        <o t="8" s="SS_LASER_MAM" />
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER" />
+        <o t="8" s="SS_LASER_PSP" />
+        <o t="10" s="SS_MISSILE_WRAITH" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="10" s="SS_MISSILE_USC_BOMBER" />
+        <o t="10" s="SS_MISSILE_USC_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_USC_AF_CAPITAL" />
+        <o t="16" s="SS_WARE_SW_PATROL_1" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_LC_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- ALDRIN DOCK SMALL -->
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="8" s="SS_LASER_EMP_1" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_LC_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- ALDRIN DOCK BIG -->
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_LIFESUPPORT" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="8" s="SS_LASER_EMP_1" />
+        <o t="8" s="SS_LASER_MAM_1" />
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER_1" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_LC_5" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- ALDRIN DOCK BIG -->
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH277" />
+        <o t="16" s="SS_WARE_TECH251" />
+        <o t="16" s="SS_WARE_TECH213" />
+        <o t="16" s="SS_WARE_TECH246" />
+        <o t="16" s="SS_WARE_TECH231" />
+        <o t="16" s="SS_WARE_TECH241" />
+        <o t="16" s="SS_WARE_BOOST" />
+        <o t="16" s="SS_WARE_SCANNER2" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_LIFESUPPORT" />
+        <o t="16" s="SS_WARE_ORECOLLECTOR" />
+        <o t="16" s="SS_WARE_SW_NAV_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_SW_FIGHT_2" />
+        <o t="16" s="SS_WARE_SW_SPECIAL_1" />
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="8" s="SS_LASER_EMP_1" />
+        <o t="8" s="SS_LASER_MAM_1" />
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER_1" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+        <o t="9" s="SS_SHIELD_A" />
+        <o t="9" s="SS_SHIELD_B" />
+        <o t="9" s="SS_SHIELD_C" />
+        <o t="9" s="SS_SHIELD_D" />
+        <o t="9" s="SS_SHIELD_E" />
+        <o t="9" s="SS_SHIELD_F" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_LC_1" x="52500000" y="0" z="15000000" r="1" a="0" b="0" g="0">
+      <!-- MINE -->
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_LC_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- TECH -->
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F217" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="14" s="SS_WARE_F219" />
+        <o t="14" s="SS_WARE_F237" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_LC_7" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- TECH2 (WEAPONS and AMMO) -->
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F217" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="14" s="SS_WARE_F219" />
+        <o t="14" s="SS_WARE_F237" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="8" s="SS_LASER_EMP_1" />
+        <o t="8" s="SS_LASER_MAM_1" />
+        <o t="8" s="SS_LASER_TERRANANTIFIGHTER_1" />
+        <o t="10" s="SS_MISSILE_SPECTRE" />
+        <o t="10" s="SS_MISSILE_POLTERGEIST" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_LC_3" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- FOOD -->
+      <o t="23" s="6">
+        <o t="13" s="SS_WARE_R214" />
+        <o t="13" s="SS_WARE_R215" />
+        <o t="13" s="SS_WARE_R234" />
+        <o t="13" s="SS_WARE_R235" />
+        <o t="13" s="SS_WARE_R244" />
+        <o t="13" s="SS_WARE_R254" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="14" s="SS_WARE_F217" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="14" s="SS_WARE_F219" />
+        <o t="14" s="SS_WARE_F237" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_LC_4" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- BIO -->
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="13" s="SS_WARE_R214" />
+        <o t="13" s="SS_WARE_R215" />
+        <o t="13" s="SS_WARE_R234" />
+        <o t="13" s="SS_WARE_R235" />
+        <o t="13" s="SS_WARE_R244" />
+        <o t="13" s="SS_WARE_R254" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_LC_5" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- SPP -->
+      <o t="23" s="7">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_LC_6" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <!-- SHIPYARD -->
+      <o t="23" s="7">
+        <o t="7" s="SS_SH_TERRAFORMER2" />
+        <o t="7" s="SS_SH_TERRAFORMER3" />
+        <o t="7" s="SS_SH_TERRAFORMER4" />
+        <o t="7" s="SS_SH_LOST_M3H" />
+        <o t="7" s="SS_SH_LOST_M6H" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_MINE_3" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F238" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_MINE_3" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH207" />
+        <o t="16" s="SS_WARE_TECH204" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_MINE_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_MINE_2" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_MINE" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TR_MINE" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH7" />
+        <o t="16" s="SS_WARE_TR_TECH8" />
+        <o t="13" s="SS_WARE_WATER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_ARMS" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="13" s="SS_WARE_WATER" />
+        <o t="14" s="SS_WARE_TR_F6" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_TR_ARMS" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TR_TECH8" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_ICE" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ICE" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_TR_F5" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_TR_ICE_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+      <o t="23" s="7">
+        <o t="15" s="SS_WARE_ICE" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_TR_F5" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_AF_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_AF_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_AF_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_AF_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_AF_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_TORP_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_TORP_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_TORP_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_TORP_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_TORP_CAPITAL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_BOMBER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_BOMBER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_BOMBER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_BOMBER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_BOMBER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_BOMBER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_BOMBER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F228" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_BOMBER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_BOMBER" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH204" />
+        <o t="14" s="SS_WARE_F217" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+        <o t="15" s="SS_WARE_SILICON" />
+      </o>
+      <o t="23" s="7">
+        <o t="10" s="SS_MISSILE_BOMBER" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_AMMO_GAMMA" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_AMMUNITION_GAMMA" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_AMMO_BETA" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_AMMUNITION_BETA" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_B_RECONDRONE" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_SILICON" />
+        <o t="14" s="SS_WARE_F228" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_RECONDRONE" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F228" />
+        <o t="16" s="SS_WARE_TECH206" />
+        <o t="16" s="SS_WARE_TECH208" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_ARMS_2" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ARMS_2" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F247" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_ARMS_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ARMS_1" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F247" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_P_ARMS_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F248" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ARMS_1" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F247" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_ARMS_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F247" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ARMS_1" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_S_ARMS_1" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F247" />
+        <o t="16" s="SS_WARE_TECH206" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F238" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_ARMS_1" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_PI_PD" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="14" s="SS_WARE_F219" />
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PD" />
+      </o>
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F258" />
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_PI_IBL" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="14" s="SS_WARE_F258" />
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F219" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_IBL" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_T_LWEP_COMPLEX" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F257" />
+      </o>
+      <o t="23" s="7">
+        <o t="16" s="SS_WARE_AMMUNITION_BETA" />
+        <o t="8" s="SS_LASER_EBC" />
+        <o t="8" s="SS_LASER_HEPT" />
+      </o>
+      <o t="23" s="8">
+        <o t="13" s="SS_WARE_R255" />
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="6" s="SS_FAC_A_HWEP_COMPLEX" r="1" x="0" y="0" z="0" a="0" b="0" g="0">
+      <o t="23" s="6">
+        <o t="11" s="SS_WARE_ENERGY" />
+        <o t="15" s="SS_WARE_ORE" />
+        <o t="14" s="SS_WARE_F218" />
+      </o>
+      <o t="23" s="7">
+        <o t="8" s="SS_LASER_PPC" />
+        <o t="8" s="SS_LASER_FLAK_CLUSTER" />
+      </o>
+      <o t="23" s="8">
+        <o t="16" s="SS_WARE_TECH205" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_A_MILITARY" x="0" y="0" z="0" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="8" s="SS_LASER_PRG" />
+        <o t="16" s="SS_WARE_L_A" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="10" s="SS_MISSILE_BOMBER" />
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="16" s="SS_WARE_SOLDIER_1" />
+        <o t="16" s="SS_WARE_SOLDIER_2" />
+        <o t="10" s="SS_MISSILE_TORP" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_B_MILITARY" x="0" y="0" z="0" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="8" s="SS_LASER_IOND" />
+        <o t="16" s="SS_WARE_L_B" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="10" s="SS_MISSILE_BOMBER" />
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="10" s="SS_MISSILE_TORP" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_S_MILITARY" x="0" y="0" z="0" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="8" s="SS_LASER_PBE" />
+        <o t="16" s="SS_WARE_L_S" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="10" s="SS_MISSILE_BOMBER" />
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="16" s="SS_WARE_SOLDIER_1" />
+        <o t="16" s="SS_WARE_SOLDIER_2" />
+        <o t="10" s="SS_MISSILE_TORP" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_P_MILITARY" x="0" y="0" z="0" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="8" s="SS_LASER_FBL" />
+        <o t="16" s="SS_WARE_L_P" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="10" s="SS_MISSILE_BOMBER" />
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="16" s="SS_WARE_SOLDIER_1" />
+        <o t="16" s="SS_WARE_SOLDIER_2" />
+        <o t="10" s="SS_MISSILE_TORP" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+    </o>
+    <o t="5" s="SS_DOCK_T_MILITARY" x="0" y="0" z="0" r="1" a="0" b="0" g="0">
+      <o t="23" s="8">
+        <o t="8" s="SS_LASER_EBC" />
+        <o t="16" s="SS_WARE_L_T" />
+        <o t="16" s="SS_WARE_SCANNER3" />
+        <o t="16" s="SS_WARE_SATELLITE" />
+        <o t="16" s="SS_WARE_SATELLITE2" />
+        <o t="16" s="SS_WARE_TECH276" />
+        <o t="16" s="SS_WARE_SW_FIGHT_1" />
+        <o t="16" s="SS_WARE_MINE_1" />
+        <o t="16" s="SS_WARE_FIGHTDRONE" />
+        <o t="16" s="SS_WARE_ORBITALLASER" />
+        <o t="8" s="SS_LASER_IRE" />
+        <o t="8" s="SS_LASER_PAC" />
+        <o t="8" s="SS_LASER_MASS" />
+        <o t="8" s="SS_LASER_CIG" />
+        <o t="10" s="SS_MISSILE_BOMBER" />
+        <o t="10" s="SS_MISSILE_TORP_CAPITAL" />
+        <o t="10" s="SS_MISSILE_AF_CAPITAL" />
+        <o t="16" s="SS_WARE_AMMUNITION_ALPHA" />
+        <o t="16" s="SS_WARE_AMMUNITION_BETA" />
+        <o t="16" s="SS_WARE_SOLDIER_1" />
+        <o t="16" s="SS_WARE_SOLDIER_2" />
+        <o t="10" s="SS_MISSILE_TORP" />
+        <o t="11" s="SS_WARE_ENERGY" />
+      </o>
+    </o>
+  </o>
+</universe>

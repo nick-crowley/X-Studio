@@ -1,0 +1,108 @@
+/* general */
+
+body {
+	font-family: Verdana, arial, sans-serif;
+	background-color: black;
+	text-align: center;
+}
+
+/* text styles */
+
+.title {
+	font-size: 12pt;
+	font-weight: bold;
+	color: white;
+}
+.comment {
+	font-style: italic;
+}
+.node {
+	color: blue;
+}
+.attributename {
+	color: green;
+}
+.lookup,a.lookup {
+	color: red;
+	text-decoration: none;
+}
+.description {
+	color: black;
+}
+.type {
+	color: gray;
+}
+.value {
+	color: gray;
+}
+.elementtitle {
+	font-weight: bold;
+}
+
+/* cue table */
+
+table.cue {
+	background-color: #F0F0FF;
+	margin: 4px;
+	border-style: solid;
+	border-width: 2px;
+	border-color: navy;
+	text-align: left;
+	font-size: 10pt;
+}
+th.cue {
+	font-size: 10pt;
+	background-color: navy;
+	color: white;
+	text-align: center;
+}
+
+/* element table */
+
+table.element {
+	background-color: #F0F0FF;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: navy;
+	text-align: left;
+	font-size: 8pt;
+}
+th.element {
+	font-size: 8pt;
+	font-weight: bold;
+}
+td.element {
+	background-color: white;
+}
+
+/* attributes table */
+
+table.attributes {
+	margin-left: 10px;
+	text-align: left;
+	font-size: 8pt;
+}
+
+/* attribute table */
+
+table.attribute {
+	background-color: #F0F0FF;
+	text-align: left;
+	font-size: 8pt;
+}
+td.attribute {
+	background-color: white;
+	font-size: 8pt;
+}
+
+/* subnode table */
+
+table.subnode {
+	background-color: #F0F0FF;
+	border-style: dashed;
+	border-width: 1px;
+	border-color: navy;
+	font-size: 8pt;
+}

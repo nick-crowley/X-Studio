@@ -1,0 +1,22 @@
+http://forum.egosoft.com/viewtopic.php?t=111562
+
+
+Tricky part about file overriding in catalogs
+---------------------------------------------
+
+Maybe you already encountered a problem that X2/X3 didn't used your version of file placed in catalog (mod) even if the mod was active.
+
+This is because X2/X3 has a file type priority list:
+
+from highest priority to lowest:
+
+packed binary files (pbb)
+binary files (bob)
+packed files (pck, pbd)
+plain files (txt, bod, xml)
+
+That means if you want to override TShips.pck then your TShips must also be packed. If you use TShips.txt it will not work because X2/X3 will find .pck version in another catalog and will use it.
+
+That's mainly issuse when overriding scenes and models. If the scene/model is in bob, you must also have it in bob (or in pbb). But in X3 that doesn't matter imho as you can simply add new file names instead of overriding the original files.
+
+Note that I'm not sure about the priority of bob <> pbb - it's just my guess.

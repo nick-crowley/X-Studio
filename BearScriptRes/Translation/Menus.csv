@@ -1,0 +1,455 @@
+MAIN_WINDOW MENU 
+BEGIN
+    POPUP;"&File"
+    BEGIN
+        POPUP;"New"
+        BEGIN
+            MENUITEM ;"Language Strings File";IDM_FILE_NEW_LANGUAGE
+            MENUITEM ;"MCSI Script";IDM_FILE_NEW_SCRIPT
+            MENUITEM ;"Mission Director Script";IDM_FILE_NEW_MISSION
+            MENUITEM ;"X-Studio Project";IDM_FILE_NEW_PROJECT
+        END
+        MENUITEM ;"Open...\tCtrl+O";IDM_FILE_OPEN
+        MENUITEM ;"Browse VFS...";IDM_FILE_BROWSE
+        MENUITEM ;"Close Document\tCtrl+W";IDM_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Save Document\tCtrl+S";IDM_FILE_SAVE
+        MENUITEM ;"Save Document As...";IDM_FILE_SAVE_AS
+        MENUITEM ;"Save All\tCtrl+Shift+S";IDM_FILE_SAVE_ALL
+        MENUITEM ;"Export Project";IDM_FILE_EXPORT_PROJECT
+        MENUITEM SEPARATOR
+        POPUP;"Recent Files"
+        BEGIN
+            MENUITEM ;"No Recent Files";IDM_FILE_RECENT_EMPTY
+        END
+        MENUITEM SEPARATOR
+        MENUITEM ;"E&xit\tCtrl+Q";IDM_FILE_EXIT
+    END
+    POPUP;"Edit"
+    BEGIN
+        MENUITEM ;"Undo\tCtrl+Z";IDM_EDIT_UNDO
+        MENUITEM ;"Redo\tCtrl+Y";IDM_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM ;"Cut\tCtrl+X";IDM_EDIT_CUT
+        MENUITEM ;"Copy\tCtrl+C";IDM_EDIT_COPY
+        MENUITEM ;"Paste\tCtrl+V";IDM_EDIT_PASTE
+        MENUITEM ;"Delete\tDel";IDM_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Select All\tCtrl+A";IDM_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM ;"Find Text\tCtrl+F";IDM_EDIT_FIND
+        MENUITEM ;"Comment Lines\tCtrl+T";IDM_EDIT_COMMENT
+    END
+    POPUP;"View"
+    BEGIN
+        MENUITEM ;"Script Command List\tAlt+C";IDM_VIEW_COMMAND_LIST
+        MENUITEM ;"Game Objects List\tAlt+G";IDM_VIEW_GAME_OBJECTS_LIST
+        MENUITEM ;"Script Objects List\tAlt+S";IDM_VIEW_SCRIPT_OBJECTS_LIST
+        MENUITEM ;"Compiler Messages\tAlt+O";IDM_VIEW_COMPILER_OUTPUT
+        MENUITEM ;"Project Explorer\tAlt+P";IDM_VIEW_PROJECT_EXPLORER
+        MENUITEM ;"Document Properties\tAlt+Enter";IDM_VIEW_DOCUMENT_PROPERTIES
+        MENUITEM SEPARATOR
+        MENUITEM ;"Preferences\tCtrl+P";IDM_VIEW_PREFERENCES
+    END
+    POPUP;"Game Data"
+    BEGIN
+        MENUITEM ;"X³ Language Entries";IDM_TOOLS_GAME_STRINGS
+        MENUITEM ;"X³ Media Browser";IDM_TOOLS_MEDIA_BROWSER
+        MENUITEM SEPARATOR
+        MENUITEM ;"Reload Game Data";IDM_TOOLS_RELOAD_GAME_DATA
+    END
+    POPUP;"Test"
+    BEGIN
+        MENUITEM ;"Load test script";IDM_TEST_ORIGINAL_SCRIPT
+        MENUITEM SEPARATOR
+        MENUITEM ;"Validate all .xml scripts";IDM_TEST_VALIDATE_XML_SCRIPTS
+        MENUITEM ;"Validate all scripts";IDM_TEST_VALIDATE_ALL_SCRIPTS
+        MENUITEM SEPARATOR
+        MENUITEM ;"Test current code section";IDM_TEST_CURRENT_CODE
+    END
+    POPUP;"Window"
+    BEGIN
+        MENUITEM ;"Close All Documents";IDM_WINDOW_CLOSE_ALL_DOCUMENTS
+        MENUITEM ;"Close Other Documents\tCtrl+Shift+W";IDM_WINDOW_CLOSE_OTHER_DOCUMENTS
+        MENUITEM SEPARATOR
+    END
+    POPUP;"&Help"
+    BEGIN
+        MENUITEM ;"Help\tF1";IDM_HELP_HELP
+        MENUITEM SEPARATOR
+        MENUITEM ;"Check For Updates...";IDM_HELP_UPDATES
+        MENUITEM ;"Display X-Universe Forum...";IDM_HELP_FORUMS
+        MENUITEM ;"Submit bug report...";IDM_HELP_SUBMIT_FILE
+        POPUP;"View Tutorial"
+        BEGIN
+            MENUITEM ;"About Catalogue Browser";IDM_HELP_TUTORIAL_OPEN_FILE
+            MENUITEM ;"About Catalogue Browser Options";IDM_HELP_TUTORIAL_FILE_OPTIONS
+            MENUITEM ;"About Game Data";IDM_HELP_TUTORIAL_GAME_DATA
+            MENUITEM ;"About Game Objects";IDM_HELP_TUTORIAL_GAME_OBJECTS
+            MENUITEM ;"About MSCI Script Editor";IDM_HELP_TUTORIAL_EDITOR
+            MENUITEM ;"About Project Explorer";IDM_HELP_TUTORIAL_PROJECTS
+            MENUITEM ;"About Script Commands";IDM_HELP_TUTORIAL_COMMANDS
+            MENUITEM ;"About Script Objects";IDM_HELP_TUTORIAL_SCRIPT_OBJECTS
+        END
+        MENUITEM SEPARATOR
+        MENUITEM ;"&About ...";IDM_HELP_ABOUT
+    END
+END
+
+DIALOG_MENU MENU 
+BEGIN
+    POPUP;"DocumentsCtrl Menu"
+    BEGIN
+        MENUITEM ;"Save";IDM_FILE_SAVE
+        MENUITEM ;"Close";IDM_FILE_CLOSE
+        MENUITEM ;"Close Except Active";IDM_WINDOW_CLOSE_OTHER_DOCUMENTS
+        MENUITEM SEPARATOR
+        MENUITEM ;"Add to project";IDM_DOCUMENT_ADD_PROJECT
+        MENUITEM ;"Remove from project";IDM_DOCUMENT_REMOVE_PROJECT
+    END
+    POPUP;"OutputDlg Menu"
+    BEGIN
+        MENUITEM ;"Clear Messages";IDM_OUTPUT_CLEAR
+    END
+    POPUP;"ProjectDlg Menu"
+    BEGIN
+        MENUITEM ;"Open Selected";IDM_PROJECT_OPEN_DOCUMENT
+        MENUITEM ;"Remove Selected";IDM_PROJECT_REMOVE_DOCUMENT
+        MENUITEM SEPARATOR
+        MENUITEM ;"Add All Documents";IDM_PROJECT_ADD_ALL_DOCUMENTS
+        MENUITEM ;"Project Variables";IDM_PROJECT_EDIT_VARIABLES
+    END
+    POPUP;"ProjectVariablesDlg Menu"
+    BEGIN
+        MENUITEM ;"Add Variable";IDM_PROJECT_VARIABLES_ADD
+        MENUITEM ;"Remove Variable";IDM_PROJECT_VARIABLES_REMOVE
+    END
+    POPUP;"ResultsDlg Menu"
+    BEGIN
+        MENUITEM ;"Insert Result";IDM_RESULTS_INSERT_RESULT
+        MENUITEM SEPARATOR
+        MENUITEM ;"Submit Correction";IDM_RESULTS_SUBMIT_CORRECTION
+        MENUITEM ;"View MSCI Reference";IDM_RESULTS_MSCI_LOOKUP
+    END
+END
+
+SCRIPT_MENU MENU 
+BEGIN
+    POPUP;"ScriptEdit Menu"
+    BEGIN
+        MENUITEM ;"Cut\tCtrl+X";IDM_EDIT_CUT
+        MENUITEM ;"Copy\tCtrl+C";IDM_EDIT_COPY
+        MENUITEM ;"Paste\tCtrl+V";IDM_EDIT_PASTE
+        MENUITEM ;"Delete\tDel";IDM_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"View Suggestions\tCtrl+Space";IDM_CODE_EDIT_VIEW_SUGGESTIONS
+        MENUITEM ;"View MSCI Reference";IDM_CODE_EDIT_LOOKUP_COMMAND
+        MENUITEM ;"Open Target Script";IDM_CODE_EDIT_OPEN_TARGET_SCRIPT
+        MENUITEM ;"Goto Label '%s'";IDM_CODE_EDIT_GOTO_LABEL
+        MENUITEM ;"Goto Subroutine '%s'";IDM_CODE_EDIT_GOTO_SUBROUTINE
+        MENUITEM ;"Edit Language String";IDM_CODE_EDIT_VIEW_LANGUAGE_STRING
+        MENUITEM ;"View Compiler Error";IDM_CODE_EDIT_VIEW_ERROR
+        MENUITEM ;"View Compiler Warning";IDM_CODE_EDIT_VIEW_WARNING
+        MENUITEM SEPARATOR
+        MENUITEM ;"Script Properties";IDM_CODE_EDIT_PROPERTIES
+    END
+    POPUP;"Arguments Menu"
+    BEGIN
+        MENUITEM ;"Add Argument";IDM_ARGUMENT_INSERT
+        MENUITEM ;"Edit Argument";IDM_ARGUMENT_EDIT
+        MENUITEM ;"Remove Argument";IDM_ARGUMENT_DELETE
+    END
+    POPUP;"Dependencies Menu"
+    BEGIN
+        MENUITEM ;"Open Selected Scripts";IDM_DEPENDENCIES_LOAD
+        MENUITEM SEPARATOR
+        MENUITEM ;"Refresh";IDM_DEPENDENCIES_REFRESH
+    END
+    POPUP;"Variables Menu"
+    BEGIN
+        MENUITEM ;"Refresh";IDM_VARIABLES_REFRESH
+    END
+    POPUP;"Strings Menu"
+    BEGIN
+        MENUITEM ;"Refresh";IDM_STRINGS_REFRESH
+    END
+END
+
+LANGUAGE_MENU MENU 
+BEGIN
+    POPUP;"GamePage Menu"
+    BEGIN
+        MENUITEM ;"Add Page";IDM_GAMEPAGE_INSERT
+        MENUITEM ;"Edit Page";IDM_GAMEPAGE_EDIT
+        MENUITEM ;"Delete Page";IDM_GAMEPAGE_DELETE
+    END
+    POPUP;"GameString Menu"
+    BEGIN
+        MENUITEM ;"Insert String";IDM_GAMESTRING_INSERT
+        MENUITEM ;"Edit String";IDM_GAMESTRING_EDIT
+        MENUITEM ;"Delete String";IDM_GAMESTRING_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"View Error Details";IDM_GAMESTRING_VIEW_ERROR
+        MENUITEM ;"Properties";IDM_GAMESTRING_PROPERTIES
+    END
+    POPUP;"RichEdit Menu"
+    BEGIN
+        MENUITEM ;"Cut\tCtrl+X";IDM_EDIT_CUT
+        MENUITEM ;"Copy\tCtrl+C";IDM_EDIT_COPY
+        MENUITEM ;"Paste\tCtrl+V";IDM_EDIT_PASTE
+        MENUITEM ;"Delete\tDel";IDM_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Properties";IDM_RICHEDIT_PROPERTIES
+    END
+    POPUP;"Colour Menu"
+    BEGIN
+        MENUITEM ;"Black";IDM_COLOUR_BLACK
+        MENUITEM ;"Blue";IDM_COLOUR_BLUE
+        MENUITEM ;"Cyan";IDM_COLOUR_CYAN
+        MENUITEM ;"Default";IDM_COLOUR_DEFAULT
+        MENUITEM ;"Green";IDM_COLOUR_GREEN
+        MENUITEM ;"Orange";IDM_COLOUR_ORANGE
+        MENUITEM ;"Purple";IDM_COLOUR_PURPLE
+        MENUITEM ;"Red";IDM_COLOUR_RED
+        MENUITEM ;"White";IDM_COLOUR_WHITE
+        MENUITEM ;"Yellow";IDM_COLOUR_YELLOW
+    END
+    POPUP;"Buttons Menu"
+    BEGIN
+        MENUITEM ;"Edit Selection";IDM_BUTTON_EDIT
+        MENUITEM ;"Delete Selection";IDM_BUTTON_DELETE
+    END
+END
+
+
+
+
+
+
+
+
+
+
+
+MAIN_WINDOW MENU 
+BEGIN
+    POPUP;"&Datei"
+    BEGIN
+        POPUP;"Neu"
+        BEGIN
+            MENUITEM ;"Sprache Strings Datei";IDM_FILE_NEW_LANGUAGE
+            MENUITEM ;"MCSI Script";IDM_FILE_NEW_SCRIPT
+            MENUITEM ;"Mission Director Script";IDM_FILE_NEW_MISSION
+            MENUITEM ;"X-Studio Project";IDM_FILE_NEW_PROJECT
+        END
+        MENUITEM ;"Öffnen...\tCtrl+O";IDM_FILE_OPEN
+        MENUITEM ;"Blättern VFS...";IDM_FILE_BROWSE
+        MENUITEM ;"Dokument Schließen\tCtrl+W";IDM_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Dokument Speichern\tCtrl+S";IDM_FILE_SAVE
+        MENUITEM ;"Dokument Speichern Unter...";IDM_FILE_SAVE_AS
+        MENUITEM ;"Alle Speichern\tCtrl+Shift+S";IDM_FILE_SAVE_ALL
+        MENUITEM ;"Projekt Exportieren";IDM_FILE_EXPORT_PROJECT
+        MENUITEM SEPARATOR
+        POPUP;"Letzte Dokumente"
+        BEGIN
+            MENUITEM ;"Keiner";IDM_FILE_RECENT_EMPTY
+        END
+        MENUITEM SEPARATOR
+        MENUITEM ;"Verlassen\tCtrl+Q";IDM_FILE_EXIT
+    END
+    POPUP;"Bearbeiten"
+    BEGIN
+        MENUITEM ;"Rückgängig Machen\tCtrl+Z";IDM_EDIT_UNDO
+        MENUITEM ;"Noch Einmal Machen\tCtrl+Y";IDM_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM ;"Schneiden\tCtrl+X";IDM_EDIT_CUT
+        MENUITEM ;"Kopieren\tCtrl+C";IDM_EDIT_COPY
+        MENUITEM ;"Kleben\tCtrl+V";IDM_EDIT_PASTE
+        MENUITEM ;"Löschen\tDel";IDM_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Alles Auswählen\tCtrl+A";IDM_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM ;"Text Suchen\tCtrl+F";IDM_EDIT_FIND
+        MENUITEM ;"Kommentarzeilen\tCtrl+T";IDM_EDIT_COMMENT
+    END
+    POPUP;"Ansehen"
+    BEGIN
+        MENUITEM ;"Skript Befehlsliste\tAlt+C";IDM_VIEW_COMMAND_LIST
+        MENUITEM ;"Liste der Spielobjekte\tAlt+G";IDM_VIEW_GAME_OBJECTS_LIST
+        MENUITEM ;"Liste der Skript Objekte\tAlt+S";IDM_VIEW_SCRIPT_OBJECTS_LIST
+        MENUITEM ;"Compilermeldungen\tAlt+O";IDM_VIEW_COMPILER_OUTPUT
+        MENUITEM ;"Projekt-Explorer\tAlt+P";IDM_VIEW_PROJECT_EXPLORER
+        MENUITEM ;"Dokumenteigenschaften\tAlt+Enter";IDM_VIEW_DOCUMENT_PROPERTIES
+        MENUITEM SEPARATOR
+        MENUITEM ;"Einstellungen\tCtrl+P";IDM_VIEW_PREFERENCES
+    END
+    POPUP;"Spieldaten"
+    BEGIN
+        MENUITEM ;"X³ Sprache Entries";IDM_TOOLS_GAME_STRINGS
+        MENUITEM ;"X³ Medienübersicht";IDM_TOOLS_MEDIA_BROWSER
+        MENUITEM SEPARATOR
+        MENUITEM ;"Seite neu laden Game Data";IDM_TOOLS_RELOAD_GAME_DATA
+    END
+    POPUP;"Test"
+    BEGIN
+        MENUITEM ;"Load test script";IDM_TEST_ORIGINAL_SCRIPT
+        MENUITEM SEPARATOR
+        MENUITEM ;"Validate all .xml scripts";IDM_TEST_VALIDATE_XML_SCRIPTS
+        MENUITEM ;"Validate all scripts";IDM_TEST_VALIDATE_ALL_SCRIPTS
+        MENUITEM SEPARATOR
+        MENUITEM ;"Test current code section";IDM_TEST_CURRENT_CODE
+    END
+    POPUP;"Schalter"
+    BEGIN
+        MENUITEM ;"Schließen Sie alle Dokumente";IDM_WINDOW_CLOSE_ALL_DOCUMENTS
+        MENUITEM ;"Schließen Andere Dokumente\tCtrl+Shift+W";IDM_WINDOW_CLOSE_OTHER_DOCUMENTS
+        MENUITEM SEPARATOR
+    END
+    POPUP;"&Hilfe"
+    BEGIN
+        MENUITEM ;"Hilfe\tF1";IDM_HELP_HELP
+        MENUITEM SEPARATOR
+        MENUITEM ;"Auf Aktualisierungen prüfen...";IDM_HELP_UPDATES
+        MENUITEM ;"Display X-Universe Forum...";IDM_HELP_FORUMS
+        MENUITEM ;"Senden Fehlerbericht...";IDM_HELP_SUBMIT_FILE
+        POPUP;"Lernprogramm anzeigen"
+        BEGIN
+            MENUITEM ;"Über Katalog Browser";IDM_HELP_TUTORIAL_OPEN_FILE
+            MENUITEM ;"Über Katalog-Browser-Optionen";IDM_HELP_TUTORIAL_FILE_OPTIONS
+            MENUITEM ;"Über Game Data";IDM_HELP_TUTORIAL_GAME_DATA
+            MENUITEM ;"Über Spielobjekte";IDM_HELP_TUTORIAL_GAME_OBJECTS
+            MENUITEM ;"Über MSCI Skript-Editor";IDM_HELP_TUTORIAL_EDITOR
+            MENUITEM ;"Über das Projekt Explorer";IDM_HELP_TUTORIAL_PROJECTS
+            MENUITEM ;"Über Skriptbefehlpanel";IDM_HELP_TUTORIAL_COMMANDS
+            MENUITEM ;"Über Script Objekte";IDM_HELP_TUTORIAL_SCRIPT_OBJECTS
+        END
+        MENUITEM SEPARATOR
+        MENUITEM ;"&Über ...";IDM_HELP_ABOUT
+    END
+END
+
+DIALOG_MENU MENU 
+BEGIN
+    POPUP;"DocumentsCtrl Menu"
+    BEGIN
+        MENUITEM ;"Sparen";IDM_FILE_SAVE
+        MENUITEM ;"Schließen";IDM_FILE_CLOSE
+        MENUITEM ;"Schließen Außer Aktive";IDM_WINDOW_CLOSE_OTHER_DOCUMENTS
+        MENUITEM SEPARATOR
+        MENUITEM ;"In den Projekt";IDM_DOCUMENT_ADD_PROJECT
+        MENUITEM ;"Aus Projekt entfernen";IDM_DOCUMENT_REMOVE_PROJECT
+    END
+    POPUP;"OutputDlg Menu"
+    BEGIN
+        MENUITEM ;"Meldungen löschen";IDM_OUTPUT_CLEAR
+    END
+    POPUP;"ProjectDlg Menu"
+    BEGIN
+        MENUITEM ;"Öffnen gewählte";IDM_PROJECT_OPEN_DOCUMENT
+        MENUITEM ;"Markierte entfernen";IDM_PROJECT_REMOVE_DOCUMENT
+        MENUITEM SEPARATOR
+        MENUITEM ;"Hinzufügen Alle Dokumente";IDM_PROJECT_ADD_ALL_DOCUMENTS
+        MENUITEM ;"Projekt Variablen";IDM_PROJECT_EDIT_VARIABLES
+    END
+    POPUP;"ProjectVariablesDlg Menu"
+    BEGIN
+        MENUITEM ;"Variable hinzufügen";IDM_PROJECT_VARIABLES_ADD
+        MENUITEM ;"Entfernen Variable";IDM_PROJECT_VARIABLES_REMOVE
+    END
+    POPUP;"ResultsDlg Menu"
+    BEGIN
+        MENUITEM ;"Legen Ergebnis";IDM_RESULTS_INSERT_RESULT
+        MENUITEM SEPARATOR
+        MENUITEM ;"Korrekturvorschlag";IDM_RESULTS_SUBMIT_CORRECTION
+        MENUITEM ;"Ansicht MSCI Reference";IDM_RESULTS_MSCI_LOOKUP
+    END
+END
+
+SCRIPT_MENU MENU 
+BEGIN
+    POPUP;"ScriptEdit Menu"
+    BEGIN
+        MENUITEM ;"Schneiden\tCtrl+X";IDM_EDIT_CUT
+        MENUITEM ;"Kopieren\tCtrl+C";IDM_EDIT_COPY
+        MENUITEM ;"Kleben\tCtrl+V";IDM_EDIT_PASTE
+        MENUITEM ;"Löschen\tDel";IDM_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Anzeigen Vorschläge\tCtrl+Space";IDM_CODE_EDIT_VIEW_SUGGESTIONS
+        MENUITEM ;"Ansicht MSCI Reference";IDM_CODE_EDIT_LOOKUP_COMMAND
+        MENUITEM ;"Offene Zielscheibe Skript";IDM_CODE_EDIT_OPEN_TARGET_SCRIPT
+        MENUITEM ;"Zum Label '%s'";IDM_CODE_EDIT_GOTO_LABEL
+        MENUITEM ;"Zum Unterprogramm '%s'";IDM_CODE_EDIT_GOTO_SUBROUTINE
+        MENUITEM ;"Bearbeiten Sprache String";IDM_CODE_EDIT_VIEW_LANGUAGE_STRING
+        MENUITEM ;"Anzeigen Compilerfehler";IDM_CODE_EDIT_VIEW_ERROR
+        MENUITEM ;"Anzeigen Compilerwarnung";IDM_CODE_EDIT_VIEW_WARNING
+        MENUITEM SEPARATOR
+        MENUITEM ;"Skript-Eigenschaften";IDM_CODE_EDIT_PROPERTIES
+    END
+    POPUP;"Arguments Menu"
+    BEGIN
+        MENUITEM ;"Fügen Argument";IDM_ARGUMENT_INSERT
+        MENUITEM ;"Bearbeiten Argument";IDM_ARGUMENT_EDIT
+        MENUITEM ;"Entfernen Argument";IDM_ARGUMENT_DELETE
+    END
+    POPUP;"Dependencies Menu"
+    BEGIN
+        MENUITEM ;"Öffnen Ausgewählte Scripts";IDM_DEPENDENCIES_LOAD
+        MENUITEM SEPARATOR
+        MENUITEM ;"Erfrischen";IDM_DEPENDENCIES_REFRESH
+    END
+    POPUP;"Variables Menu"
+    BEGIN
+        MENUITEM ;"Erfrischen";IDM_VARIABLES_REFRESH
+    END
+    POPUP;"Strings Menu"
+    BEGIN
+        MENUITEM ;"Erfrischen";IDM_STRINGS_REFRESH
+    END
+END
+
+LANGUAGE_MENU MENU 
+BEGIN
+    POPUP;"GamePage Menu"
+    BEGIN
+        MENUITEM ;"Seite hinzufügen";IDM_GAMEPAGE_INSERT
+        MENUITEM ;"Seite bearbeiten";IDM_GAMEPAGE_EDIT
+        MENUITEM ;"Seite löschen";IDM_GAMEPAGE_DELETE
+    END
+    POPUP;"GameString Menu"
+    BEGIN
+        MENUITEM ;"Legen String";IDM_GAMESTRING_INSERT
+        MENUITEM ;"Bearbeiten String";IDM_GAMESTRING_EDIT
+        MENUITEM ;"Löschen String";IDM_GAMESTRING_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Anzeigen Error Details";IDM_GAMESTRING_VIEW_ERROR
+        MENUITEM ;"Eigenschaften";IDM_GAMESTRING_PROPERTIES
+    END
+    POPUP;"RichEdit Menu"
+    BEGIN
+        MENUITEM ;"Schneiden\tCtrl+X";IDM_EDIT_CUT
+        MENUITEM ;"Kopieren\tCtrl+C";IDM_EDIT_COPY
+        MENUITEM ;"Kleben\tCtrl+V";IDM_EDIT_PASTE
+        MENUITEM ;"Löschen\tDel";IDM_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM ;"Eigenschaften";IDM_RICHEDIT_PROPERTIES
+    END
+    POPUP;"Colour Menu"
+    BEGIN
+        MENUITEM ;"Schwarz";IDM_COLOUR_BLACK
+        MENUITEM ;"Blau";IDM_COLOUR_BLUE
+        MENUITEM ;"Cyan";IDM_COLOUR_CYAN
+        MENUITEM ;"Üblich";IDM_COLOUR_DEFAULT
+        MENUITEM ;"Grün";IDM_COLOUR_GREEN
+        MENUITEM ;"Orange";IDM_COLOUR_ORANGE
+        MENUITEM ;"Lila";IDM_COLOUR_PURPLE
+        MENUITEM ;"Rot";IDM_COLOUR_RED
+        MENUITEM ;"Weiß";IDM_COLOUR_WHITE
+        MENUITEM ;"Gelb";IDM_COLOUR_YELLOW
+    END
+    POPUP;"Buttons Menu"
+    BEGIN
+        MENUITEM ;"Edit Selection";IDM_BUTTON_EDIT
+        MENUITEM ;"Delete Selection";IDM_BUTTON_DELETE
+    END
+END

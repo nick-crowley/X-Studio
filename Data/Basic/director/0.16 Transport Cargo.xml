@@ -1,0 +1,897 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Level 0 Mission 16" name="Transport Cargo" description="Mission to transport wares"/>
+    <version number="0.5.3" date="09/06/08" status="development"/>
+  </documentation>
+
+  <cues>
+
+    <cue name="L0M16 B" library="1">
+      <documentation>
+        <content name="Transport Cargo" reference="TXXT" type="briefing"/>
+        <version number="0.5.3" date="09/06/08" status="development"/>
+        <params>
+          <param name="Cue" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" type="actorname" compulsory="1" description="The person offering the mission"/>
+          <param name="Ware" type="number" compulsory="1" description="The ware to transport"/>
+          <param name="Amount" type="number" compulsory="1" description="The amount to transport"/>
+          <param name="Client" type="actorname" compulsory="0" description="Pre existing client to deliver to"/>
+          <param name="Holder" type="actorname" compulsory="0" description="Pre existing holder to pick up from"/>
+          <param name="Difficulty" compulsory="1" description="Difficulty level of mission"/>
+          <param name="PageID" description="Page ID of mission description"/>
+          <param name="TextID" description="Text ID of mission description"/>
+          <param name="Reward" description="Reward type"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Start" compulsory="0" description="A pre defined starting point"/>
+          <param name="Dest" compulsory="0" description="A pre defined ending point"/>
+          <param name="StartRace" compulsory="0" description="Specify the race to start at" default="Mission OfferRace"/>
+          <param name="DestRace" compulsory="0" description="Specify the race to end at" default="Mission OfferRace"/>
+          <param name="ShipStart" compulsory="0" description="The ship to start at"/>
+          <param name="ShipDest" compulsory="0" description="The ship to end at"/>
+          <param name="HideDest" compulsory="0" description="% chance to hide the destination in the initial briefing"/>
+          <param name="Step" compulsory="0" description="The step to use if additional objectives are involved"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.{param@ID} L0M16 Progress" description="1 - Mission completed"/>
+          <return name="{param@Cue}.{param@ID} L0M16 Progress" description="2 - Out of time"/>
+          <return name="{param@Cue}.{param@ID} L0M16 Progress" description="3 - Wares lost"/>
+          <return name="{param@Cue}.{param@ID} L0M16 Progress" description="92 - Out of time, not started mission"/>
+          <return name="{param@Cue}.{param@ID} L0M16 Progress" description="93 - Destination destroyed, not started mission"/>
+          <return name="{param@Cue}.{param@ID} L0M16 Progress" description="94 - Destination and Mission Offerer killed"/>
+          <return name="{param@Cue}.{param@ID} L0M16 Progress" description="99 - Aborted"/>
+        </returns>
+        <history>
+          <change date="10/08/08" author="al_main" description="Fixed issue with Start param not working"/>
+          <change date="21/07/08" author="al_main" description="Added missing U.6 params, changed step 1 to fly to for ships and added cargo"/>
+          <change date="14/07/08" author="al_main" description="Fixed unsynchronised timers"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="09/06/08" author="al_main" description="Fixed actor creation issues with goners and changing station race"/>
+          <change date="02/06/08" author="al_main" description="Debug fixes using param.exists"/>
+          <change date="15/05/08" author="al_main" description="Added voiceflags support"/>
+          <change date="12/05/08" author="al_main" description="Fixed actor location issue,added better support for ship destinations, tidied up code with .isclass variable"/>
+          <change date="09/04/08" author="al_main" description="ID + Summary now used to differentiate in L1 chain"/>
+          <change date="18/02/08" author="al_main" description="Improvement to code checking for existing stations / actors"/>
+          <change date="16/02/08" author="al_main" description="Fixes to briefing"/>
+          <change date="14/02/08" author="al_main" description="Now uses U.6 Library"/>
+          <change date="13/02/08" author="al_main" description="Re-written for new cue structure"/>
+        </history>
+        <todo>
+          <item priority="low" description="check the set_actor_location code for if actor should be pilot or passenger or crew"/>
+          <item priority="trivial" description="Emergency values for ware and amounts?"/>
+          <item priority="high" description="base the jump ranges on generated difficulty level"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="{param@Cue}.{param@ID} L0M16Ware" exact="{param@Ware}"/>
+          <set_value name="{param@Cue}.{param@ID} L0M16Amount" exact="{param@Amount}"/>
+          <do_choose>
+            <do_when value="{param@Summary}" exact="1">
+              <create_briefing cue="{param@Cue}">
+                <objectives>
+                  <objective step="{param@Step}">
+                    <custom action="{35,2025}" text="{lookup.type.name@{value@{param@Cue}.{param@ID} L0M16Ware}}"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <cancel_cue cue="L0M16 B"/>
+            </do_when>
+            <do_otherwise>
+              <do_if value="{param.exists@Step}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} L0M16Step" exact="{param@Step}"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0M16Step}" min="1" negate="1">
+                <set_value name="{param@Cue}.{param@ID} L0M16Step" exact="1"/>
+              </do_if>
+              <do_if value="{object.exists@{param@Start}}" exact="1">
+                <set_object name="{param@Cue}.{param@ID} L0Start" value="{object@{param@Start}}"/>
+                <do_if value="{object@{param@Start}}" exact="{player.dockobject}">
+                  <set_value name="this.NoStart" exact="1"/>
+                </do_if>
+              </do_if>
+              <do_if value="{object.exists@{param@Dest}}" exact="1">
+                <set_object name="{param@Cue}.{param@ID} L0Dest" value="{object@{param@Dest}}"/>
+              </do_if>
+              <do_if value="{actor.exists@{param@Holder}}" exact="1">
+                <set_actor name="{param@Cue}.{param@ID} L0M16Holder" value="{actor@{param@Holder}}"/>
+                <set_value name="this.NoStart" exact="1"/>
+                <set_object name="{param@Cue}.{param@ID} L0Start" value="{actor.station@{param@Holder}}"/>
+                <do_if value="{object.isclass.ship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                  <set_object name="L0M16 B.ShipStart" value="{object@{param@Cue}.{param@ID} L0Start}"/>
+                </do_if>
+              </do_if>
+              <do_if value="{actor.exists@{param@Client}}" exact="1">
+                <set_actor name="{param@Cue}.{param@ID} L0M16Client" value="{actor@{param@Client}}"/>
+                <set_object name="{param@Cue}.{param@ID} L0Dest" value="{actor.station@{param@Client}}"/>
+                <do_if value="{object.isclass.ship@{param@Cue}.{param@ID} L0Dest}" exact="1">
+                  <set_object name="L0M16 B.ShipDest" value="{object@{param@Cue}.{param@ID} L0Dest}"/>
+                </do_if>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+        <!--JUMP RANGES NEED ENLARGING AFTER TESTING, based on diffoculty level-->
+      </action>
+      <cues>
+        <!--SET SOME PREFFERED DESTINATION SUCH AS PIRATE BASES, SY/EQ/TRDST + RACES-->
+        <cue ref="LUM06">
+          <params>
+            <!--perhaps chance of "Start" being set as the original offer station?-->
+            <param name="StartDist" value="0"/>
+            <param name="DestDist" value="1"/>
+            <param name="Start" value="{param@Cue}.{param@ID} L0Start"/>
+            <param name="Dest" value="{param@Cue}.{param@ID} L0Dest"/>
+            <param name="NoStart" value="{value@L0M16 B.NoStart}"/>
+            <param name="ShipStart" value="L0M16 B.ShipStart"/>
+            <param name="ShipDest" value="L0M16 B.ShipDest"/>
+            <param name="Military" value="-1"/>
+          </params>
+        </cue>
+        <cue name="L0M16 Create Briefing">
+          <condition>
+            <cue_completed cue="LUM06 Finished"/>
+          </condition>
+          <action>
+            <do_all>
+              <!--set timer-->
+              <set_value name="this.startTime" min="({object.distance@{param@Cue}.{param@ID} L0Start}/{player.ship.maxspeed})*8" max="({object.distance@{param@Cue}.{param@ID} L0Start}/{player.ship.maxspeed})*10" comment="Set time between 4 and 6 times the time needed"/>
+              <set_value name="{param@Cue}.{param@ID} L0Time" min="({object.distance@{param@Cue}.{param@ID} L0Dest}/{player.ship.maxspeed})*8" max="({object.distance@{param@Cue}.{param@ID} L0Dest}/{player.ship.maxspeed})*10" comment="Set time between 4 and 6 times the time needed"/>
+              <do_if value="{value@this.startTime}" min="{value@{param@Cue}.{param@ID} L0Time}+1">
+                <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@this.startTime}"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Time}" max="360">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="360" max="400"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Time}" min="3600">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="3600" max="3700"/>
+              </do_if>
+              <do_if value="{param.exists@Difficulty}" exact="1">
+                <do_if value="{param@Difficulty}" min="1">
+                  <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@{param@Cue}.{param@ID} L0Time}/{param@Difficulty}"/>
+                </do_if>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Time}" max="180">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="180" max="220"/>
+              </do_if>
+              <set_value name="{param@Cue}.{param@ID} L0EndTime" exact="{value@{param@Cue}.{param@ID} L0Time}+{player.age}"/>
+
+              <set_value name="{param@Cue}.{param@ID} L0M16Title" min="1001" max="{3616,1000}" profile="decreasing"/>
+
+              <!--check actors exist and at the right location-->
+              <do_choose>
+                <do_when value="{actor.exists@{param@Cue}.{param@ID} L0M16Holder}" exact="1">
+                  <do_if value="{object@{param@Cue}.{param@ID} L0Start}" exact="{actor.station@{param@Cue}.{param@ID} L0M16Holder}" negate="1">
+                    <do_choose>
+                      <do_when value="{object.isclass.hugeship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0M16Holder" object="{param@Cue}.{param@ID} L0Start" location="crew"/>
+                      </do_when>
+                      <do_when value="{object.isclass.ship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0M16Holder" object="{param@Cue}.{param@ID} L0Start" location="pilot"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0M16Holder" object="{param@Cue}.{param@ID} L0Start" location="crew"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_if>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="{param@Cue}.{param@ID} Created Holder" exact="1"/>
+                  <do_choose>
+                    <do_when value="{param@OfferRace}" exact="{lookup.race@goner}">
+                      <set_value name="this.face" list="901|902"/>
+                      <set_value name="this.voice" list="110|111"/>
+                      <create_actor name="{param@Cue}.{param@ID} L0M16Holder" race="argon" object="{param@Cue}.{param@ID} L0Start" voice="{value@this.voice}" face="{value@this.face}" location="crew"/>
+                    </do_when>
+                    <do_otherwise>
+                      <create_actor name="{param@Cue}.{param@ID} L0M16Holder" race="{param@OfferRace}" object="{param@Cue}.{param@ID} L0Start" voiceflags="32" location="crew"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_otherwise>
+              </do_choose>
+              <do_choose>
+                <do_when value="{actor.exists@{param@Cue}.{param@ID} L0M16Client}" exact="1">
+                  <do_if value="{object@{param@Cue}.{param@ID} L0Dest}" exact="{actor.station@{param@Cue}.{param@ID} L0M16Client}" negate="1">
+                    <do_choose>
+                      <do_when value="{object.isclass.hugeship@{param@Cue}.{param@ID} L0Dest}" exact="1">
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0M16Client" object="{param@Cue}.{param@ID} L0Dest" location="crew"/>
+                      </do_when>
+                      <do_when value="{object.isclass.ship@{param@Cue}.{param@ID} L0Dest}" exact="1">
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0M16Client" object="{param@Cue}.{param@ID} L0Dest" location="pilot"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0M16Client" object="{param@Cue}.{param@ID} L0Dest" location="crew"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_if>
+                </do_when>
+                <do_otherwise>
+                  <do_choose>
+                    <do_when value="{param@OfferRace}" exact="{lookup.race@goner}">
+                      <set_value name="this.face" list="901|902"/>
+                      <set_value name="this.voice" list="110|111"/>
+                      <create_actor name="{param@Cue}.{param@ID} L0M16Client" race="argon" object="{param@Cue}.{param@ID} L0Dest" voice="{value@this.voice}" face="{value@this.face}" location="crew"/>
+                    </do_when>
+                    <do_otherwise>
+                      <create_actor name="{param@Cue}.{param@ID} L0M16Client" race="{param@OfferRace}" object="{param@Cue}.{param@ID} L0Dest" voiceflags="32" location="crew"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <set_value name="{param@Cue}.{param@ID} Created Client" exact="1"/>
+                </do_otherwise>
+              </do_choose>
+
+              <!--create briefing-->
+              <do_choose>
+                <!--this first do_when only prevents an error in .dmp, is same as do_otherwise-->
+                <do_when value="{player.dockobject.exists}" exact="0">
+                  <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3616,{value@{param@Cue}.{param@ID} L0M16Title}}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M16Step}">
+                        <dockat object="{param@Cue}.{param@ID} L0Start"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M16Step}+1">
+                        <talkto actor="{param@Cue}.{param@ID} L0M16Holder"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M16Step}+2">
+                        <deliver object="{param@Cue}.{param@ID} L0Dest">
+                          <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                        </deliver>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_value name="this.deststep" exact="{value@{param@Cue}.{param@ID} L0M16Step}+2"/>
+                </do_when>
+                <do_when value="{value@{param@Cue}.{param@ID} L0Start}" exact="{player.dockobject}">
+                  <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3616,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M16Step}">
+                        <deliver object="{param@Cue}.{param@ID} L0Dest">
+                          <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                        </deliver>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_value name="this.deststep" exact="{value@{param@Cue}.{param@ID} L0M16Step}"/>
+                </do_when>
+                <do_otherwise>
+                  <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3616,{value@{param@Cue}.{param@ID} L0M16Title}}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M16Step}">
+                        <dockat object="{param@Cue}.{param@ID} L0Start"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M16Step}+1">
+                        <talkto actor="{param@Cue}.{param@ID} L0M16Holder"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M16Step}+2">
+                        <deliver object="{param@Cue}.{param@ID} L0Dest">
+                          <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                        </deliver>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_value name="this.deststep" exact="{value@{param@Cue}.{param@ID} L0M16Step}+2"/>
+                </do_otherwise>
+              </do_choose>
+
+              <!--if start is a ship-->
+              <do_if value="{object.isclass.ship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <objectives>
+                    <objective step="{value@{param@Cue}.{param@ID} L0M16Step}">
+                      <flyto object="{param@Cue}.{param@ID} L0Start"/>
+                    </objective>
+                  </objectives>
+                </create_briefing>
+                <add_cargo object="{param@Cue}.{param@ID} L0Start">
+                  <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}" critical="1"/>
+                </add_cargo>
+              </do_if>
+
+              <!--if destination hidden-->
+              <do_if value="{param.exists@HideDest}" exact="1">
+                <set_value name="this.Random" min="1" max="99" profile="flat"/>
+                <do_if value="{value@this.Random}" max="{param@HideDest}">
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@this.deststep}">
+                        <custom icon="deliver" action="{35,2003}" text="{actor.name@{param@Cue}.{param@ID} L0Client}">
+                          <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                        </custom>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_if>
+              </do_if>
+              <set_value name="L0M16 B.StartTime" exact="{player.age}+7200"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue ref="LUM04">
+              <params>
+                <param name="Discipline" value="TXXX"/>
+                <param name="StartTime" value="L0M16 B.StartTime"/>
+                <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M16" library="1">
+      <documentation>
+        <content name="Transport Cargo" reference="TXXT" type="L0"/>
+        <version number="0.5.2" date="20/05/08" status="development"/>
+        <params>
+          <param name="Cue" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" description="Page ID of mission description"/>
+          <param name="TextID" description="Text ID of mission description"/>
+          <param name="Reward" description="Reward type"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Difficulty" compulsory="1" description="Difficulty level of mission"/>
+          <param name="LostConv" type="text" compulsory="0" description="The conversation name for losing the wares"/>
+          <param name="LostCue" type="cuename" compulsory="0" description="The cue name for losing the wares mission"/>
+        </params>
+        <history>
+          <change date="22/07/08" author="al_main" description="Fixed mismatched difficulties"/>
+          <change date="21/07/08" author="al_main" description="Fixed incorrect 'client' actor name"/>
+          <change date="17/07/08" author="al_main" description="Fixed timeout and destination destroyed cues"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="20/05/08" author="al_main" description="Cleanup added"/>
+          <change date="13/05/08" author="al_main" description="Progress report codes added, conversation for lost wares added"/>
+          <change date="12/05/08" author="al_main" description="Fixed some text entries"/>
+          <change date="09/04/08" author="al_main" description="Fixed error finishing the mission"/>
+          <change date="09/04/08" author="al_main" description="ID + Summary now used to differentiate in L1 chain"/>
+          <change date="16/02/08" author="al_main" description="Improvements to cue structure, fix to timeout error"/>
+          <change date="12/02/08" author="al_main" description="Re-written for new cue structure"/>
+        </history>
+        <todo>
+          <item priority="low" description="cue to Check if wares are ejected"/>
+          <item priority="trivial" description="hurry up cue for timeout 1"/>
+          <item priority="medium" description="SCALE TIME BY DIFFICULTY"/>
+          <item priority="medium" description="Add conversations for no space"/>
+          <item priority="medium" description="NEED A CUE TO ADD ENEMY ATTACKS WHEN CHANGING SECTOR"/>
+          <item priority="medium" description="NEED A CUE TO ADD ENEMY ATTACKS BEFORE DESTINATION"/>
+          <item priority="low" description="NEED A CUE TO CREATE POLICE IN CASE OF AN 'ILLEGAL' WARE?"/>
+          <item priority="trivial" description="perhaps UseStartTD variable's better performance than match_object"/>
+        </todo>
+        <!--CODE SIMILAR TO 0.3, COPY CHANGES ACROSS-->
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="this.Needed" exact="{lookup.type.cargospace@{value@{param@Cue}.{param@ID} L0M16Ware}}*{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+          <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="0"/>
+          <create_actor name="{param@Cue}.{param@ID} L0M16ClientDummy" character="{actor.name@{param@Cue}.{param@ID} L0M16Client}" race="{actor.race@{param@Cue}.{param@ID} L0M16Client}" voiceflags="32"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L0M16 Mission">
+          <cues>
+            <cue name="L0M16 Go Start">
+              <condition comment="if player hasnt started at the starting point">
+                <check_all>
+                  <cue_completed cue="L0M16 Mission"/>
+                  <check_any>
+                    <check_all>
+                      <match_object object="{param@Cue}.{param@ID} L0Start" class="station"/>
+                      <object_is_docked dockobject="{param@Cue}.{param@ID} L0Start" negate="1"/>
+                    </check_all>
+                    <check_all>
+                      <match_object object="{param@Cue}.{param@ID} L0Start" class="station" negate="1"/>
+                      <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Start}" min="5km"/>
+                    </check_all>
+                  </check_any>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="this.Travelled" exact="1"/>
+                  <!--set the end time so we can calculate the remaining time-->
+                  <set_value name="{param@Cue}.{param@ID} L0EndTime" exact="{value@{param@Cue}.{param@ID} L0Time}+{player.age}"/>
+
+                  <!--set objective-->
+                  <set_objective cue="{param@Cue}" title="{3616,{value@{param@Cue}.{param@ID} L0M16Title}}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0M16Step}"/>
+                    <mission level="{param@Difficulty}" discipline="XXXT"/>
+                    <dockat object="{param@Cue}.{param@ID} L0Start"/>
+                  </set_objective>
+
+                  <!--if ship then set as 'fly to' instead of 'dock at'-->
+                  <do_if value="{object.isclass.ship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                    <set_objective cue="{param@Cue}">
+                      <flyto object="{param@Cue}.{param@ID} L0Start"/>
+                    </set_objective>
+                  </do_if>
+
+                  <set_value name="this.text" exact="1"/>
+                  <do_if value="{actor@{param@Cue}.{param@ID} L0M16Holder}" exact="{actor@{param@Lv1Guide}}">
+                    <set_value name="this.text" exact="2"/>
+                  </do_if>
+                  <do_if value="{actor@{param@Cue}.{param@ID} L0M16Client}" exact="{actor@{param@Lv1Guide}}">
+                    <set_value name="this.text" exact="3"/>
+                    <do_if value="{actor.station@{param@Cue}.{param@ID} L0M16Client}" exact="{object@{param@Cue}.{param@ID} L0Dest}">
+                      <set_value name="this.text" exact="4"/>
+                    </do_if>
+                  </do_if>
+                  <do_choose>
+                    <do_when value="{param@AddText}" min="1">
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{{param@PageID},{param@TextID}}\n\n{3616,{value@this.text}}" silent="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3616,{value@this.text}}" silent="1"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <create_offer actor="{param@Lv1Guide}" conversation="L2ShowBriefing" cue="{param@Cue}"/>
+                  <do_if value="{object.isclass.station@{param@Cue}.{param@ID} L0Start}">
+                    <create_offer actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16DockWare"/>
+                  </do_if>
+                  <set_value name="L0M16 Go Start.StartTime" exact="{player.age}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="LUM04">
+                  <params>
+                    <param name="StartTime" value="L0M16 Go Start.StartTime"/>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+
+            <cue name="L0M16 No Space" delay="500">
+              <condition>
+                <check_all>
+                  <check_any>
+                    <object_is_docked dockobject="{param@Cue}.{param@ID} L0Start"/>
+                    <check_all>
+                      <!--REMOVE THIS AND ADD A CONVERSATION FOR IF THE PLAYER CONTACTS HIM WITHOUT SPACE?-->
+                      <match_object object="{param@Cue}.{param@ID} L0Start" class="station" negate="1"/>
+                      <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Start}" max="5km"/>
+                    </check_all>
+                  </check_any>
+                  <check_any>
+                    <check_value value="{player.ship.cargospace}" max="{value@L0M16.Needed}-1"/>
+                    <check_value value="{player.ship.cargoclass}" max="{lookup.type.cargoclass@{value@{param@Cue}.{param@ID} L0M16Ware}}-1"/>
+                  </check_any>
+                  <check_value value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{player.ship.maxcargospace}" max="{value@L0M16.Needed}-10">
+                      <set_value name="this.id" min="801" max="800+{3616,800}"/>
+                      <do_choose>
+                        <do_when value="{text.exists@{actor.voice@{param@Cue}.{param@ID} L0M16Holder},940}" exact="1">
+                          <play_text actor="{param@Cue}.{param@ID} L0M16Holder" textid="940"/>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{{actor.voice@{param@Cue}.{param@ID} L0M16Holder},940} {3616,{value@this.id}}" silent="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{3616,{value@this.id}}"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_when>
+                    <do_when value="{player.ship.cargoclass}" max="{lookup.type.cargoclass@{value@{param@Cue}.{param@ID} L0M16Ware}}-1">
+                      <set_value name="this.id" min="901" max="900+{3616,900}"/>
+                      <do_choose>
+                        <do_when value="{text.exists@{actor.voice@{param@Cue}.{param@ID} L0M16Holder},855}" exact="1">
+                          <play_text actor="{param@Cue}.{param@ID} L0M16Holder" textid="855"/>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{{actor.voice@{param@Cue}.{param@ID} L0M16Holder},855} {3616,{value@this.id}}" silent="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{3616,{value@this.id}}"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="this.id" min="701" max="700+{3616,700}"/>
+                      <do_choose>
+                        <do_when value="{text.exists@{actor.voice@{param@Cue}.{param@ID} L0M16Holder},940}" exact="1">
+                          <play_text actor="{param@Cue}.{param@ID} L0M16Holder" textid="940"/>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{{actor.voice@{param@Cue}.{param@ID} L0M16Holder},940} {3616,{value@this.id}}" silent="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{3616,{value@this.id}}"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_otherwise>
+                  </do_choose>
+                  <do_if value="{object.isclass.station@{param@Cue}.{param@ID} L0Start}">
+                    <remove_offer actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16DockWare"/>
+                    <create_offer actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16ClearSpace"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L0M16 No Space Reset">
+                  <condition>
+                    <object_undocked/>
+                  </condition>
+                  <timing>
+                    <time min="250" max="500"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <do_if value="{object.isclass.station@{param@Cue}.{param@ID} L0Start}">
+                        <create_offer actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16DockWare"/>
+                        <remove_offer actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16ClearSpace"/>
+                      </do_if>
+                      <reset_cue cue="L0M16 No Space"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <!--NEED A HURRY UP CUE maybe?-->
+            <cue name="L0M16 Time Out 1">
+              <condition comment="If mission Started and allowed to fail">
+                <check_all>
+                  <cue_completed cue="L0M16 Go Start"/>
+                  <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+                </check_all>
+              </condition>
+              <timing>
+                <time exact="{value@{param@Cue}.{param@ID} L0Time}s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3616,502}"/>
+                  <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="92"/>
+                  <cancel_cue cue="L0M16 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M16 Start Destroyed 1">
+              <condition>
+                <check_any>
+                  <object_destroyed object="{param@Cue}.{param@ID} L0Start"/>
+                  <object_destroyed_by_player object="{param@Cue}.{param@ID} L0Start"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{actor.exists@{param@LvGuide}}" exact="1">
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3616,504}"/>
+                    </do_when>
+                    <do_when value="{actor.exists@{param@Cue}.{param@ID} L0M16Client}" exact="1">
+                      <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Client}" text="{3616,504}"/>
+                    </do_when>
+                    <do_otherwise>
+                      <incoming_message author="{3300,10}" text="{3300,52}"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="93"/>
+                  <cancel_cue cue="L0M16 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M16 Dest Destroyed 1">
+              <condition>
+                <check_any>
+                  <object_destroyed object="{param@Cue}.{param@ID} L0Dest"/>
+                  <object_destroyed_by_player object="{param@Cue}.{param@ID} L0Dest"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{actor.exists@{param@LvGuide}}" exact="1">
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3616,504}"/>
+                    </do_when>
+                    <do_when value="{actor.exists@{param@Cue}.{param@ID} L0M16Holder}" exact="1">
+                      <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{3616,504}"/>
+                    </do_when>
+                    <do_otherwise>
+                      <incoming_message author="{3300,10}" text="{3300,52}"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="93"/>
+                  <cancel_cue cue="L0M16 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M16 At Start" delay="1000">
+              <condition>
+                <check_all>
+                  <check_value value="{player.ship.cargospace}" min="{value@L0M16.Needed}"/>
+                  <check_value value="{player.ship.cargoclass}" min="{lookup.type.cargoclass@{value@{param@Cue}.{param@ID} L0M16Ware}}"/>
+                  <check_any>
+                    <object_is_docked dockobject="{param@Cue}.{param@ID} L0Start"/>
+                    <check_all>
+                      <match_object object="{param@Cue}.{param@ID} L0Start" class="station" negate="1"/>
+                      <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Start}" max="5km"/>
+                    </check_all>
+                  </check_any>
+                  <check_value value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="L0M16 No Space"/>
+                  <cancel_cue cue="L0M16 Time Out 1"/>
+                  <cancel_cue cue="L0M16 Dest Destroyed 1"/>
+                  <cancel_cue cue="L0M16 Start Destroyed 1"/>
+                  <!--reset timer value if was calculated earlier-->
+                  <do_if value="{value@{param@Cue}.{param@ID} L0EndTime}" min="1">
+                    <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@{param@Cue}.{param@ID} L0EndTime}-{player.age}"/>
+                  </do_if>
+                  <!--add a small amount of time if very low-->
+                  <do_if value="{value@{param@Cue}.{param@ID} L0Time}" max="240">
+                    <set_value name="{param@Cue}.{param@ID} L0Time" min="240" max="260"/>
+                  </do_if>
+                  <set_value name="this.hurry" min="{value@{param@Cue}.{param@ID} L0Time}-120" max="{value@{param@Cue}.{param@ID} L0Time}-100"/>
+
+                  <set_value name="this.step" exact="{value@{param@Cue}.{param@ID} L0M16Step}"/>
+                  <do_if value="{value@L0M16 Go Start.Travelled}" exact="1">
+                    <set_value name="this.step" exact="{value@{param@Cue}.{param@ID} L0M16Step}+2"/>
+                  </do_if>
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@this.step}">
+                        <deliver object="{param@Cue}.{param@ID} L0Dest">
+                          <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                        </deliver>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{value@this.step}"/>
+                    <mission level="{param@Difficulty}" discipline="TXXX"/>
+                    <deliver object="{param@Cue}.{param@ID} L0Dest">
+                      <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                    </deliver>
+                  </set_objective>
+
+                  <set_value name="this.id" min="101" max="100+{3616,100}"/>
+                  <do_choose>
+                    <do_when value="{text.exact@{actor.voice@{param@Cue}.{param@ID} L0M16Holder},913}" exact="1">
+                      <play_text actor="{param@Cue}.{param@ID} L0M16Holder" textid="913"/>
+                      <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{{actor.voice@{param@Cue}.{param@ID} L0M16Holder},913} {3616,101}" silent="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Holder}" text="{3616,101}"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <!--add cargo to player ship-->                
+                  <add_cargo>
+                    <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}" critical="1"/>
+                  </add_cargo>
+                  <!--remove cargo from npc if ship-->
+                  <do_if value="{object.isclass.ship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                    <add_cargo object="{param@Cue}.{param@ID} L0Start">
+                      <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="-{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                    </add_cargo>
+                  </do_if>
+
+                  <do_if value="{object.isclass.station@{param@Cue}.{param@ID} L0Start}">
+                    <remove_offer actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16DockWare"/>
+                    <remove_offer actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16ClearSpace"/>
+                  </do_if>
+                  <do_choose>
+                    <do_when value="{param.exists@LostConv}">
+                      <create_offer actor="{param@Lv1Guide}" conversation="{param@LostConv}" cue="{param@LostCue}"/>
+                    </do_when>
+                    <do_otherwise>
+                      <create_offer actor="{param@Lv1Guide}" conversation="L0M16LostWare"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <set_value name="L0M16 At Start.StartTime" exact="{player.age}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="LUM04">
+                  <params>
+                    <param name="StartTime" value="L0M16 At Start.StartTime"/>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+                <cue name="L0M16 Hurry 2">
+                  <condition>
+                    <cue_completed cue="L0M16 At Start"/>
+                  </condition>
+                  <timing>
+                    <time exact="{value@L0M16 At Start.hurry}s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <set_value name="this.id" min="601" max="600+{3616,600}"/>
+                      <do_choose>
+                        <do_when value="{text.exists@{actor.voice@{param@Cue}.{param@ID} L0M16Client},902}" exact="1">
+                          <do_if value="{actor.sector@L0M16.{param@Cue}.{param@ID} L0M16Client}" exact="{player.sector}">
+                            <play_text actor="L0M16.{param@Cue}.{param@ID} L0M16Client" textid="902" priority="99"/>
+                          </do_if>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Client}" text="{{actor.voice@{param@Cue}.{param@ID} L0M16Client},902} {3616,{value@this.id}}" silent="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0M16Client}" text="{3616,{value@this.id}}"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M16 Time Out 2">
+                  <condition>
+                    <check_all>
+                      <cue_completed cue="L0M16 At Start"/>
+                      <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <timing>
+                    <time exact="{value@{param@Cue}.{param@ID} L0Time}s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="2"/>
+                      <cancel_cue cue="L0M16 Mission"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M16 Lost Wares">
+                  <condition>
+                    <check_any>
+                      <conversation_completed actor="{param@Cue}.{param@ID} L0M16Holder" conversation="L0M16LostWare" answer="fail"/>
+                      <conversation_completed actor="{param@Cue}.{param@ID} L0M16Holder" conversation="{param@LostConv}" answer="fail"/>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="3"/>
+                      <cancel_cue cue="L0M16 Mission"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M16 Dest Destroyed 2" delay="5s">
+                  <condition>
+                    <check_value value="{actor.exists@{param@Cue}.{param@ID} L0M16Client}" exact="1" negate="1"/>
+                  </condition>
+                  <action>
+                    <do_choose>
+                      <do_when value="{actor.exists@{param@Lv1Guide}}" exact="1">
+                        <do_choose>
+                          <!--if Lv1 Guide still alive he'll take the wares back-->
+                          <do_when value="{actor.station.exists@{param@Lv1Guide}}+{actor.ship.exists@{param@Lv1Guide}}" min="1">
+                            <set_actor name="{param@Cue}.{param@ID} L0M16Client" value="{actor@{param@Lv1Guide}}"/>
+                            <set_value name="this.step" exact="{value@{param@Cue}.{param@ID} L0M16Step}"/>
+                            <do_if value="{value@L0M16 Go Start.Travelled}" exact="1">
+                              <set_value name="this.step" exact="{value@{param@Cue}.{param@ID} L0M16Step}+2"/>
+                            </do_if>
+                            <do_if value="{actor.ship.exists@{param@Lv1Guide}}" exact="1">
+                              <set_object name="{param@Cue}.{param@ID} L0Dest" value="{actor.ship@{param@Lv1Guide}}"/>
+                            </do_if>
+                            <do_if value="{actor.station.exists@{param@Lv1Guide}}" exact="1">
+                              <set_object name="{param@Cue}.{param@ID} L0Dest" value="{actor.station@{param@Lv1Guide}}"/>
+                            </do_if>
+                            <create_briefing cue="{param@Cue}">
+                              <objectives>
+                                <objective step="{value@this.step}">
+                                  <deliver object="{param@Cue}.{param@ID} L0Dest">
+                                    <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                                  </deliver>
+                                </objective>
+                              </objectives>
+                            </create_briefing>
+                            <set_objective cue="{param@Cue}">
+                              <briefing cue="{param@Cue}" step="{value@this.step}"/>
+                              <mission level="{param@Difficulty}" discipline="TXXT"/>
+                              <deliver object="{param@Cue}.{param@ID} L0Dest">
+                                <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                              </deliver>
+                            </set_objective>
+                            <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3616,511}"/>
+                            <reset_cue cue="L0M16 Dest Destroyed 2"/>
+                          </do_when>
+                          <do_otherwise>
+                            <incoming_message author="{3300,10}" text="{3300,56}"/>
+                            <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="94"/>
+                          </do_otherwise>
+                        </do_choose>
+                      </do_when>
+                      <do_otherwise>
+                        <incoming_message author="{3300,10}" text="{3300,56}"/>
+                        <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="94"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </action>
+                </cue>
+                <cue name="L0M16 At End" delay="2s">
+                  <condition>
+                    <check_any>
+                      <check_all>
+                        <object_is_docked dockobject="{object@{param@Cue}.{param@ID} L0Dest}"/>
+                        <check_value value="{player.ship.cargo.{value@{param@Cue}.{param@ID} L0M16Ware}.count}" min="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                        <check_value value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="1"/>
+                      </check_all>
+                      <check_all>
+                        <match_object object="{param@Cue}.{param@ID} L0Dest" class="station" negate="1"/>
+                        <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Dest}" max="5km"/>
+                        <check_value value="{player.ship.cargo.{value@{param@Cue}.{param@ID} L0M16Ware}.count}" min="{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                        <check_value value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="1"/>
+                      </check_all>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <add_cargo>
+                        <ware typename="{value@{param@Cue}.{param@ID} L0M16Ware}" exact="0-{value@{param@Cue}.{param@ID} L0M16Amount}"/>
+                      </add_cargo>
+                      <do_if value="{value@{param@Cue}.{param@ID} L0UseDestTD}" exact="1">
+                        <play_sound soundid="991"/>
+                      </do_if>
+                      <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="1"/>
+                      <cancel_cue cue="L0M16 Mission"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <!--NEED A CUE TO ADD ENEMY ATTACKS WHEN CHANGING SECTOR-->
+            <!--NEED A CUE TO ADD ENEMY ATTACKS BEFORE DESTINATION-->
+            <!--NEED A CUE TO CREATE POLICE IN CASE OF AN ILLEGAL WARE?-->
+            <!--cue to Check wares are ejected-->
+            <cue name="L0M16 Aborted">
+              <condition>
+                <objective_cancelled cue="{param@Cue}"/>
+              </condition>
+              <action>
+                <set_value name="{param@Cue}.{param@ID} L0M16 Progress" exact="99"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L0M16 Cleanup">
+          <condition>
+            <check_value value="{value@{param@Cue}.{param@ID} L0M16 Progress}" min="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <!--remove offers-->
+              <remove_offer actor="{param@Lv1Guide}" conversation="L2ShowBriefing"/>
+              <do_choose>
+                <do_when value="{param.exists@LostConv}">
+                  <remove_offer actor="{param@Lv1Guide}" conversation="{param@LostConv}"/>
+                </do_when>
+                <do_otherwise>
+                  <remove_offer actor="{param@Lv1Guide}" conversation="L0M16LostWare"/>
+                </do_otherwise>
+              </do_choose>
+              <!--remove any created actors-->
+              <do_if value="{value@{param@Cue}.{param@ID} Created Holder}" exact="1">
+                <destroy_actor actor="{param@Cue}.{param@ID} L0M16Holder"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} Created Client}" exact="1">
+                <destroy_actor actor="{param@Cue}.{param@ID} L0M16Client"/>
+              </do_if>
+              <destroy_actor actor="{param@Cue}.{param@ID} L0M16ClientDummy"/>
+              <!--cancel mission cues-->
+              <cancel_cue cue="L0M16 Mission"/>
+            </do_all>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+
+  </cues>
+  <signature>7jioZapoh58vPD5hElRZSwvYbfqGo+c5D7EcuCP4kdzJtZvaLQ/2CR5hGxO0uDJLULcAZGefi5TdB0NUjgiFs3g+/B754erLHZE4/ynn3Vfmt1P5VJtOATk90pnMN06kmXpJUR7xThg2eYc9N9PS7RMq7OZnoxC/lNZ6EDOFYU82TmSceRcOakzKG5QBeBRFJl/6nMvjIo5KcFJ0W1T/d/bS1zoQ5Bynk5u7d8PNyV1F8cfGXswczsiDw5kCeHDh91ybPB7ol8+ogyv2e+E0hDozCndXwmBW/shxcavGWqAzAAkwolO+OwB1UVoDhdvizBe8OrAetSEi40cV1CGWBA==</signature>
+</director>

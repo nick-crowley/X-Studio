@@ -1,0 +1,71 @@
+Rules are run from top to bottom
+
+********** COMMENT/NOP *********
+
+COMMENT/NOP
+COMMENT/NOP
+
+********** SKIP-IF *********
+
+SKIP-IF
+	COMMENT/NOP
+
+	  -------
+
+SKIP-IF
+	[COMMENT/NOP]
+	COMMAND
+
+          -------
+ 
+SKIP-IF
+	[COMMENT/NOP]
+IF/WHILE/SKIP-IF/ELSE/ELSE-IF/END
+
+          -------
+
+	SKIP-IF
+		[COMMENT/NOP]
+		COMMAND
+	[COMMENT/NOP]
+ELSE/ELSE-IF/END
+
+          -------
+
+SKIP-IF
+	[COMMENT/NOP]
+	COMMAND
+NOT {ELSE/ELSE-IF/END}
+
+********** IF/WHILE *********
+
+IF/WHILE
+	NOT {ELSE/ELSE-IF/END}
+
+          -------
+
+IF/WHILE
+[COMMENT/NOP]
+ELSE/ELSE-IF/END
+
+****** ELSE/ELSE-IF/END ******
+
+ELSE/ELSE-IF
+	NOT {ELSE/ELSE-IF/END}
+
+          -------
+
+ELSE/ELSE-IF
+[COMMENT/NOP]
+ELSE/ELSE-IF/END
+
+          -------
+
+	COMMAND/COMMENT/NOP
+END
+
+********* COMMAND*********
+
+COMMAND
+COMMAND
+

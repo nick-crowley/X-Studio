@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Objective 2" name="Scan Object" description="Objective to scan an object"/>
+    <version number="0.4" date="01/07/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="OBJ02" library="1">
+      <documentation>
+        <content name="OBJ02 Scan Object" reference="XXXT" type="objective"/>
+        <version number="0.4" date="01/07/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue"/>
+          <param name="Object" type="objectname" compulsory="1" description="The object to be scanned"/>
+          <param name="Range" type="number" compulsory="0" description="How close the player must be (in metres)"/>
+          <param name="Length" type="number" compulsory="0" description="How long the object must be scanned for (seconds)"/>
+          <param name="Text" type="text" compulsory="0" description="The subtitle text used without the percentage."/>
+          <param name="NoVoice" type="boolean" compulsory="0" description="Use the computer scan lines"/>
+          <param name="MaxSpeed" type="number" compulsory="0" description="A speed in ms that the player must be below to scan"/>
+          <param name="ResetWhenInterrupted" type="boolean" compulsory="0" description="Reset the scan percentage when interrupted?"/>
+          <param name="CappingFails" type="boolean" compulsory="0" description="Whether player making the target bail fails the mission"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.OBJ02 Progress"  type="number" description="1 - Objective Completed"/>
+          <return name="{param@Cue}.OBJ02 Progress"  type="number" description="2 - Target Destroyed"/>
+          <return name="{param@Cue}.OBJ02 Progress"  type="number" description="3 - Player Made Target Bail"/>
+          <return name="{param@Cue}.OBJ02 Scan Started"  type="number" description="1 - Player has started scanning"/>
+        </returns>
+        <history>
+          <change date="12/08/08" author="al_main"   description="Fixed broken help text"/>
+          <change date="01/07/08" author="al_main"   description="Added 'going too fast' help box, added returns for destroyed and capped targets, added scan started return"/>
+          <change date="01/07/08" author="al_main"   description="Set NoVoice value and fixed several other param.exists, increased default distance to work with big objects, subtitles now dont play when no text specified"/>
+          <change date="16/06/08" author="Owen Lake" description="Added text parameter. Changed default distance."/>
+          <change date="01/05/08" author="Owen Lake" description="Added subtitle progress percentage, reset param and changed the cue structure"/>
+          <change date="07/02/08" author="al_main"   description="Fixed auto-completed issue when running the mission twice in a row"/>
+          <change date="07/02/08" author="al_main"   description="Fixed ship speed ratio, simplified structure"/>
+          <change date="06/02/08" author="al_main"   description="Initial version"/>
+        </history>
+        <todo>
+          <item description="Possibly add that needs player to press scan rather than just waiting to be in range, but would need KC support for some object types"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="this.Range" exact="{param@Range}"/>
+          <do_if value="{value@this.Range}" min="30" negate="1">
+            <set_value name="this.Range" exact="{object.size.m@{param@Object}}+500"/>
+          </do_if>
+          <do_if value="{param.exists@MaxSpeed}" exact="1">
+            <set_value name="this.MaxSpeedReal" exact="{param@MaxSpeed}"/>
+            <set_value name="this.MaxSpeed" exact="{param@MaxSpeed}*500"/>
+          </do_if>
+          <do_if value="{value@this.MaxSpeed}" min="1" negate="1">
+            <set_value name="this.MaxSpeed" exact="9999*500"/>
+            <cancel_cue cue="OBJ02 Too Fast"/>
+          </do_if>
+          <set_value name="this.Length" exact="{param@Length}"/>
+          <do_if value="{value@this.Length}" min="5" negate="1">
+            <set_value name="this.Length" exact="8"/>
+          </do_if>
+          <do_if value="{param.exists@NoVoice}" exact="1">
+            <do_if value="{param@NoVoice}" exact="1">
+              <set_value name="OBJ02.NoVoice" exact="1"/>
+            </do_if>
+          </do_if>
+          <do_if value="{param.exists@CappingFails}" exact="1">
+            <do_if value="{param@CappingFails}" exact="1">
+              <set_value name="OBJ02.CappingFails" exact="1"/>
+            </do_if>
+          </do_if>
+          <set_value name="OBJ02.Interrupted" exact="1"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="OBJ02 Scan" delay="1s" instantiate="static">
+          <condition>
+            <check_all>
+              <check_distance value="{object.distance@{param@Object}}" max="{value@OBJ02.Range}m"/>
+              <check_value value="{player.ship.speed}" max="{value@OBJ02.MaxSpeed}"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{value@OBJ02.ScanStarted}" exact="1" negate="1">
+                <do_if value="{value@OBJ02.NoVoice}" exact="1" negate="1">
+                  <play_text pageid="13" textid="2001"/>
+                </do_if>
+                <set_value name="OBJ02.ScanStarted" exact="1"/>
+                <set_value name="{param@Cue}.OBJ02 Scan Started" exact="1"/>
+              </do_if>
+              <remove_value value="OBJ02.Interrupted"/>
+              <set_value name="OBJ02.TotalTime" operation="add" comment="Second increment must match the cue delay"/>
+              <set_value name="OBJ02.TimePercentage" exact="({value@OBJ02.TotalTime}*100)/{value@OBJ02.Length}"/>
+              <do_if value="{param.exists@Text}">
+                <play_subtitles text="{param@Text}: {value@OBJ02.TimePercentage}%"/>
+              </do_if>
+              <do_if value="{value@OBJ02.TimePercentage}" min="100">
+                <do_if value="{value@OBJ02.NoVoice}" exact="1" negate="1">
+                  <play_text pageid="13" textid="2002"/>
+                </do_if>
+                <set_value name="{param@Cue}.OBJ02 Progress" exact="1"/>
+                <cancel_cue cue="OBJ02"/>
+              </do_if>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="OBJ02 Scan Interrupted" delay="1s" instantiate="static">
+          <condition>
+            <check_all>
+              <check_value value="{value@OBJ02.Interrupted}" exact="1" negate="1"/>
+              <check_any>
+                <check_distance value="{object.distance@{param@Object}}" max="{value@OBJ02.Range}m" negate="1"/>
+                <check_value value="{player.ship.speed}" max="{value@OBJ02.MaxSpeed}" negate="1"/>
+              </check_any>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{value@OBJ02.NoVoice}" exact="1" negate="1">
+                <play_text pageid="13" textid="2003"/>
+              </do_if>
+              <remove_value value="OBJ02.ScanStarted"/>
+              <set_value name="OBJ02.Interrupted" exact="1"/>
+              <do_if value="{param.exists@ResetWhenInterrupted}" exact="1">
+                <do_if value="{param@ResetWhenInterrupted}" exact="1">
+                  <remove_value value="OBJ02.TotalTime"/>
+                </do_if>
+              </do_if>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="OBJ02 Target Destroyed">
+          <condition>
+            <check_any>
+              <object_destroyed object="{param@Object}"/>
+              <object_destroyed_by_player object="{param@Object}"/>
+            </check_any>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@Cue}.OBJ02 Progress" exact="2"/>
+              <cancel_cue cue="OBJ02"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="OBJ02 Capping Fails" check="cancel">
+          <condition>
+            <check_value value="{value@OBJ02.CappingFails}" exact="1"/>
+          </condition>
+          <cues>
+            <cue name="OBJ02 Target Captured">
+              <condition>
+                <object_captured object="{param@Object}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@Cue}.OBJ02 Progress" exact="3"/>
+                  <cancel_cue cue="OBJ02"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="OBJ02 Too Fast">
+          <condition>
+            <check_all>
+              <check_distance value="{object.distance@{param@Object}}" max="{value@OBJ02.Range}m"/>
+              <check_value value="{player.ship.speed}" max="{value@OBJ02.MaxSpeed}" negate="1"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="this.MaxSpeedReal" exact="{value@OBJ02.MaxSpeedReal}"/>
+              <show_help duration="8000" text="{3300,1205}"/>
+            </do_all>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>41t2q3QVxPR6hXBIknzFBi1oDl1RqI0v230dXiSf0JGbk/ASj2StMoVIronDZXvvQXr4YBxCTJdAH7hgdIc3nL2C8L7nTeSt3aMIO9EKTcmSjY2hqWW8t0EfMGzBY+XFLTD9Itvt/s5nsAcrlgIRMgAbDsphHxOTPzXf/cjxRDbX55IQq9hsj40TgKoDLM+IXKLIT7MvnanO3n/rF9w9cFAqCgmxtjaCxz4uKQC9+N3dXWbGsMgPoUmbMDUPJq2KrHUWRO386vJKyqEOxARS/3pVdg0IiVZBVXt3LcM4BXSzBEBBzWzscTO1IL0ayzhwMZjm4/F1fR14HROOYLe2ZA==</signature>
+</director>

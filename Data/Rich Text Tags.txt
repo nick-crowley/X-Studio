@@ -1,0 +1,31 @@
+[author]$Author$[/author][text cols='1' colwidth='400'][ranking type='fight' title='$FightRankNeed$'/][justify]Hello, my name is $Author$. If you can ferry me to the $DestStation$ in $DestSector$ without interruption I will pay you $Credits$ credits. You should be both fearless and competent in weaponry since I expect hostile contacts on the way. Serious offers only please!\n\n[/justify][center][select value='start']Contact me![/select][/center][/text]
+
+
+[text cols='1' colwidth='400']
+
+[select value='start']Contact me![/select]
+
+[ranking type='fight' title='$FightRankNeed$'/]
+
+
+
+[article state='0']
+[declare name='setstate' script='!bbsnews.misc.setstate' args='$PAGE$,$ARG$'/]
+[declare name='if_state' script='!bbsnews.eval.state.eq' args='$PAGE$,$ARG$'/]
+[declare name='ifnot_state' script='!bbsnews.eval.state.eq' args='$PAGE$,$ARG$' neg='1'/]
+[declare name='if_state_le' script='!bbsnews.eval.state.le' args='$PAGE$,$ARG$'/]
+[declare name='if_state_gt' script='!bbsnews.eval.state.le' args='$PAGE$,$ARG$' neg='1'/]
+[declare name='if_sector' script='!bbsnews.eval.sector'/]
+[declare name='ifnot_sector' script='!bbsnews.eval.sector' neg='1'/]
+[declare name='if_split_fire' script='!bbsnews.eval.sector' args='3,5'/]
+[declare name='if_race' script='!bbsnews.eval.ownerrace' args='{$ARG$}'/]
+[declare name='ifnot_race' script='!bbsnews.eval.ownerrace' args='{$ARG$}' neg='1'/]
+[declare name='if_product' script='!bbsnews.eval.product' args='{$ARG$}'/]
+[declare name='ifnot_product' script='!bbsnews.eval.product' args='{$ARG$}' neg='1'/]
+[declare name='if_type' script='!bbsnews.eval.stationtype' args='{$ARG$}'/]
+[declare name='ifnot_type' script='!bbsnews.eval.stationtype' args='{$ARG$}' neg='1'/]
+[declare name='if_age_min' script='!bbsnews.eval.age'/][declare name='if_age_max' script='!bbsnews.eval.age' neg='1' /][declare name='if_sysdate' script='!bbsnews.eval.sysdate'/][var name='RACE' script='!bbsnews.get.ownerrace'/][var name='STATION' script='!bbsnews.get.environment'/][var name='SECTOR' script='!bbsnews.get.sector'/][var name='PRODUCT' script='!bbsnews.get.product'/][/article]
+
+
+If this entry is to be displayed as a message then it can have an author and title.
+Specify an 'Author' and 'Title' for this en

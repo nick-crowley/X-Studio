@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language id="44">
+<!-- X-Tended - Terran Conflict Mod Textfile 7215, containing the following
+page ids
+7215: XTC
+-->
+	<page id="7215" title="XTC" descr="XTC ">
+
+		<!-- encycolpedia texts 100.000-200.000 -->
+        <t id="100000">Starship Drive : Chemical Drive</t>
+        <t id="100001">The chemical drive is the most basic of all
+propulsion systems that are known to work in zero gravity environments. It
+is based on an exothermic reaction that occurs when two usually inert
+compounds are introduced to each other in special circumstances, like
+increased pressure or temperature. Chemical drives were initially used on
+all early spacecraft, but they were soon made redundant by newer
+technologies that did not require large amounts of chemical compounds to be
+carried as fuel in order to continue sustained engine operation. The
+chemical drive however is being reintroduced nowadays as a cheap alternative
+propulsion system for devices that are not capable of carrying a plasma
+generator and have short flight duration, like missiles and automated short
+range drones.</t>
+        <t id="100002">Starship Drive : Plasma Drive</t>
+        <t id="100003">The plasma drive propulsion system uses the high
+energy obtained from ionized plasma that is created in a compact fusion
+reactor to create physical reactive thrust. The plasma drive is capable of
+producing up to fifty times more energy than what can be created with a
+chemical drive system, rendering it far more efficient as a thrust
+generator. The modern plasma drives do not contain the design flaws and
+errors of the early models and are now considered to be the safest and
+easiest to maintain of all propulsion systems. The vast majority of existing
+spacecraft make use of the plasma drive; they can be noticed from a distance
+due to the colourful trails their engines leave behind whilst in operation.
+The specific colour is determined by the type of resource that the fusion
+reactor uses as a fuel source.</t>
+        <t id="100004">Starship Drive : Ion Drive</t>
+        <t id="100005">This is a newly developed technology that makes use
+of the tiny impulses created by accelerating ionised gases to high
+velocities via a magnetic field stabiliser. Ionized gases can be obtained in
+a multitude of ways, with two being widely used in conventional ion drives.
+One way is to use electron bombardment to ionize the gas; the other is to
+pass an output from a standard fusion core through a static electric field
+in order to separate the positive and negative charged particles and
+accelerate them. This results in a hybrid system that uses both ion drive
+and plasma drive technology. This hybrid is not as effective as a pure ion
+drive, but it is still a considerable improvement over the basic plasma
+drive and capable of generating up to twice the thrust with no additional
+fuel consumption. The principal component of the ion drive is a particle
+accelerator that accelerates the ions to velocities only marginally slower
+than the speed of light to provide a sizeable thrust increase. It is a
+stable, powerful and efficient technology, but it does take up considerable
+space, so it is only installed in very large vessels. Currently most Terran
+capital ships use accelerated ion drives, while the Commonwealth capital
+ships have been fitted with hybrid drives.</t>
+        <t id="101000">Power Generator : Fission Reactor</t>
+        <t id="101001">Nuclear fission reactors generate power by bombarding
+heavy atom nuclei with free neutrons, initiating a nuclear collapse and the
+creation of two light metal atoms. A large amount of free energy is released
+during this process. Fission reactors were outlawed in the year 603 [Earth
+year 2773] due to their numerous shortcomings. The Uranium and Plutonium
+isotopes, which are used as fuel for the reactor, are quite rare, expensive
+and dangerous. In its active operating state, the fission reactor produces
+vast amounts of radioactive waste and requires constant and precise
+monitoring. Even the slightest misbalance can lead to a core meltdown, an
+event where the superheated core literally burns through its protective
+casing in the direction of the nearest gravity well or opposite to the
+direction of acceleration due to its own inertia. The fission reactor has
+been replaced by fusion power cores or smaller fusion batteries widely known
+as energy cells.</t>
+        <t id="101002">Power Generator : Fusion Reactor</t>
+        <t id="101003">This device generates power by initiating a fusion of
+two light nuclei in order to create one that is heavier. Hydrogen isotopes
+are usually the preferred type of light nuclei, due to their natural
+abundance and harmlessness to living beings. The fusion reactor creates far
+more energy than the fission reactor for an equal amount of fuel used and
+creates no radioactive waste at all. Fusion plasma, which is the form that
+the resulting free energy takes, is highly conductive and therefore is
+commonly used for various energetic devices, like weapons and ship
+propulsion systems. It is a key component in the widely utilised plasma
+drive system. Fusion reactors are widespread throughout the universe in two
+major forms, one being a large fusion power core and the other, a small
+fusion battery which is also known as an energy cell.</t>
+        <t id="101004">Power Generator : Matter/Antimatter Reactor</t>
+        <t id="101005">This reactor combines matter and antimatter particles
+to create energy which is released from their mass when they collide and
+annihilate each other. This energy can then be used for various purposes,
+one of them being plasma generation. The reactor is an advanced device that
+requires precise magnetic and gravitational field manipulators to keep the
+matter and antimatter from colliding prematurely and to channel the
+resulting energy away from the annihilation point. The flow of antimatter
+has to be exactly controlled using only miniscule quantities; if a large
+amount of antimatter broke free and combined with regular matter, the
+resulting reaction would be capable of destroying an area of several cubic
+parsecs and potentially damaging the very fabric of space. This technology
+is only used on large experimental ship designs that can handle the demands
+of the antimatter containment systems.</t>
+        <t id="101006">Power Generator : Quantum Singularity Engine</t>
+        <t id="101007">This technology exploits the destructive power of a
+trapped black hole. Using an advanced gravitational field technology, an
+artificial quantum singularity is created and any matter introduced into it
+is destroyed, resulting in a release of pure energy. This technology only
+uses half the amount of fuel that the matter/antimatter reactor requires and
+is not limited by any specific fuel type. The only by-product that this
+device creates is antimatter which can be further used in weapon systems or
+as a secondary power source. Since the created singularity is artificial, it
+will simply collapse upon a breach, resulting in a single and final
+antimatter burst and nothing else. This technology is only used by the
+Terran Federation to power their engines and weapon systems, and it is
+incompatible with Commonwealth technology. There are reports that the
+Kha’ak ships use a similar technology on their capital ships.</t>
+        <t id="101008">Power Generator : Quantum Subspace Tap</t>
+        <t id="101009">This is a purely theoretical technology only recently
+proposed in jumpdrive research laboratories. This unique device would draw
+energy directly from subspace through an unconnected jump portal. The energy
+supply would be completely limitless, generated by fluctuations of tidal
+subspace currents which are amplified by other objects traversing through
+hyperspace. It is not known how energy would be collected and transmitted,
+and the nearest working prototype of this technology won’t be created for
+at least three hundred years. It is speculated that this type of technology
+was probably used by the Ancients. A very crude form of this technology has
+been found on Kha’ak capital craft as well, and recent experimental ship
+designs have incorporated retrofitted Kha’ak subspace taps into prototype
+power generators.</t>
+        <t id="102000">Technology : Jumpgates</t>
+        <t id="102001">Jumpgates can send any object across vast distances
+in a matter of seconds through a tunnel that transcends regular space. It is
+created by folding space and creating a hyperspace passageway, also known as
+the tunnel or wormhole. It is claimed that hyperspace is another physical
+dimension that does not adhere to the laws of time and distance. The gate
+network that forms the X-Universe was built by an ancient alien race, which
+is known only as the Ancients. They are known to keep an eye on the network
+and have reconnected the tunnels to allow all sentient races to leave their
+home worlds and colonize other planets and systems. The gates seem to have
+an on-board memory that determines the final destination of the contained
+tunnel. They can be reset and locked onto other gates, but this practice is
+highly dangerous, as the gate cannot differentiate between various
+hyperspace openings and they are liable to lock onto naturally created
+wormholes or even a black hole. This theory was proven to be true during an
+experimental reconnection of the recently discovered 'Hub' - this
+unfortunately locked onto a black hole and then automatically cut all other
+active connections to maintain the integrity of the tunnel. Researchers have
+determined that a maximum of six gates can operate within a single spherical
+light second; any additional gate may cause a permanent uncontrollable rift
+in the fabric of the three-dimensional space.</t>
+        <t id="102002">Technology : Jumpdrive</t>
+        <t id="102003">The jumpdrive operates by creating a personal
+wormhole which is forced to lock onto an already existing hyperspace tunnel
+entry, usually contained within a jumpgate. The on-board computer of any
+ship has access to the coordinates of all gates it has crossed and is
+capable of transferring these coordinates to the jumpdrive. When opened, a
+weak hyperspace link only exists for mere milliseconds, which is just enough
+time for a ship to cross the intersection and enter the relatively secure
+tunnel between two gates. For a few nanoseconds, while the ship is still in
+the temporary link, it is vulnerable to any interference. Long range jumps
+produced a problem for the scientists that developed the jumpdrive system as
+it became clear that locking onto a distant gate even for milliseconds would
+require energy bursts that cannot be produced by conventional ship energy
+generators. Though larger ships could produce more energy, their increased
+mass meant that the link had to be more stable and this in turn required
+even more energy. It was only later that scientists developed a way for
+disposable energy cells to create the short and rapid pulse of energy
+required for the jump. A unified energy transfer system was soon adopted,
+and it was determined that a safe traverse of one gate required the combined
+power of five energy cells for even the smallest of spaceships to create a
+durable working link to the nearest tunnel.</t>
+        <t id="102004">Technology : Gateless Jumpdrive</t>
+        <t id="102005">This system was first used in the prototype vessel
+named the 'X-Shuttle'. Unlike conventional jumpdrives that create an
+intersecting link to an existing hyperspace tunnel, the gateless jumpdrive
+allows for the creation of a temporary artificial wormhole that is focused
+independently of any existing gates. The device creates a microscopic
+wormhole during the charging period. Once the micro-wormhole is established
+and confirmed to be secure, the energy from the energy cells is released
+into the point generator which expands the micro-wormhole to traversable
+size and establishes a conventional hyperspace tunnel. The drive systems by
+design need precise spatial coordinates for the calculation and projection
+of the exit point. As with the jumpgates, the exit point can be intercepted
+by natural wormholes and black holes as well as other deactivated jumpgates.
+The travelling object can also be thrown off course by subspace tidal waves,
+a problem that does not occur to the shielded tunnels maintained by the
+gates. It is believed that the Kha’ak use a very similar system to conduct
+their jumps. It has been noticed that their smaller ships are unable to jump
+by themselves and have to form a cluster group to achieve the power required
+for the jump. It is not known how they plot their course and project the
+exit points.</t>
+        <t id="102006">Technology : Tractor Beam</t>
+        <t id="102007">With numerous accidents experienced using physical
+grappling hook techniques, Argon scientists have recently developed a new
+technology for ship and station towing, called the 'Tractor Beam'. It is
+based on gravitational manipulation, greatly lessening the inertia and
+perceived mass of the target object as well as introducing its own pull
+force vectors. It has been designed to work with the jump gates, but the
+implementation is still relatively unrefined, therefore it is crucial to
+know how towed ships will react when passing through a jump gate. To
+successfully traverse hyperspace, one must cross the event horizon of the
+gate at a speed no greater than 80m/s. Once on the other side, it is
+advisable to come to a complete halt and simply wait for the other ship to
+come through. If you choose to fly away or engage the autopilot, the tractor
+beam may collapse and cause damage to both your ship and the target vessel.
+The tractor beam will eventually lock itself on the target automatically,
+but it is known that this automated connection can often be faulty and will
+break upon the slightest strain. It is advised always to approach the target
+ship and reduce speed to 0m/s and then slowly accelerate away, keeping a
+close watch on the tractor beam connection. If it breaks, you will have to
+reconnect it manually once more. Due to safety precautions, factories cannot
+be pulled through gates, and the tractor beam control systems will
+automatically terminate any connection if you engage your jumpdrive.</t>
+
+		<t id="103000">Person : Gardna, Julian</t>
+		<t id="103001">TODO</t>
+		<t id="103002">Person : Bala Gi</t>
+		<t id="103003">TODO</t>
+		<t id="103004">Person : Mahi Ma</t>
+		<t id="103005">TODO</t>
+		<t id="103006">Person : Banks, Melissa</t>
+		<t id="103007">TODO</t>
+		<t id="103008">Person : Kho, Elena</t>
+		<t id="103009">TODO</t>
+		<t id="103010">Person : Kho, Saya</t>
+		<t id="103011">TODO</t>
+		<t id="103012">Person : Bernnan, Kyle-William</t>
+		<t id="103013">TODO</t>
+		<t id="103014">Person : Winters, Marteen</t>
+		<t id="103015">TODO</t>
+		<t id="103016">Person : Herron, Fran</t>
+		<t id="103017">TODO</t>
+		<t id="103018">Person : Takio, Makato</t>
+		<t id="103019">TODO</t>
+		<t id="103020">Person : Maher, Ned</t>
+		<t id="103021">TODO</t>
+		<t id="103022">Person : Awasi, Aiko</t>
+		<t id="103023">TODO</t>
+		<t id="103024">Person : Takame, Esu</t>
+		<t id="103025">TODO</t>
+
+		<t id="104000">Organisation : Pax Universalis</t>
+		<t id="104001">TODO</t>
+		<t id="104002">Organisation : United Space Command (USC)</t>
+		<t id="104003">TODO</t>
+		<t id="104004">Organisation : AGI Task Force (ATF)</t>
+		<t id="104005">TODO</t>
+		<t id="104006">Organisation : Free League of Hewa</t>
+		<t id="104007">TODO</t>
+
+		<t id="105000">Event : Battle of Heretic's End</t>
+		<t id="105001">TODO</t>
+		<t id="105002">Event : Aldrin Incident</t>
+		<t id="105003">TODO</t>
+		<t id="105004">Event : Closure of the Pandora Gate</t>
+		<t id="105005">TODO</t>
+		<t id="105006">Event : Battle of Heretic's End</t>
+		<t id="105007">TODO</t>
+
+		<t id="106000">Location : Pandora Gate</t>
+		<t id="106001">TODO</t>
+		<t id="106002">Location : Fuji Station</t>
+		<t id="106003">TODO</t>
+
+	</page>
+
+	<page id="7212" title="XTC" descr="XTC Framework Texts">
+		<!-- XTC Version Data (7210-7220) -->
+		<t id="7215">01020301</t>
+	</page>
+</language>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Daniel Winsor" alias="AalaarDB" contact="aalaardb@gmail.com" />
+    <content reference="utility" name="Remove Object From Group and Move Group To Cue"
+             description="2 libraries related to groups"/>
+    <version number="1" status="testing" date="15/04/08"/>
+  </documentation>
+  <cues>
+    <cue name="ROFG" library="1" comment="Given a group, remove all objects that pass at least X given conditions">
+      <documentation>
+        <content type="utility" name="Remove Object From Group"/>
+        <version date="04/186/08" status="testing" number="1"/>
+        <params>
+          <!-- Compulsory Parameters-->
+          <param name="objectGroup" type="groupname" compulsory="1" description="The name of the group from which to remove objects"/>
+          <param name="groupCue" type="cuename" compulsory="1" description="The cue that has the groups, also the cue that the library runs on"/>
+          <param name="cancelCue" type="cuename" compulsory="0" description="The cue that gets cancelled when done"/>
+          <param name="removedGroup" type="groupname" compulsory="0" description="The name of the group to which to add removed objects"/>
+          <param name="numberOfChecks" type="number" compulsory="1" default="1" description="The number of checks you have supplied"/>
+
+          <!-- Value Check Params-->
+          <param name="checkText1" type="text" compulsory="0"
+                 description="The text you'd put between {object. and @objectInGroup}
+                 for example if the text were dockobject.exists you'd check {object.dockobject.exists@objectInGroup} and see if it was docked"/>
+          <param name="checkValue1" compulsory="0"
+                 description="if you were checking {object.race@objectInGroup}, a suitable check value would be {lookup.race@argon}"/>
+          <param name="negateCheck1" type="boolean" compulsory="0"/>
+
+          <!-- you can have as many checks as you want...-->
+          <param name="checkText999" type="text" compulsory="0"/>
+
+          <!-- Threshold Parameter-->
+          <param name="minimumThreshold" type="number" compulsory="0" default="1"
+                 description="Tells how many conditions must be reached to remove the object
+                 for example if there are 3 conditions, and minimumThreshold is set to 2
+                 then the object is removed if it passes any 2 or all 3 of the conditions
+                 but it is not removed if it just passes 1 or 0
+                 this would normally be left alone at 1 (C1 OR C2 OR C3),
+                 or set to the number of conditions (C1 AND C2 AND C3)"/>
+        </params>
+        <history>
+          <change author="Daniel Winsor" date="04/16/08" description="initial version"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="this.objectRemoved" exact="0"/>
+
+          <set_value name="this.numberOfChecks" exact="{param@numberOfChecks}"/>
+          <do_if value="{value@this.numberOfChecks}" max="0">
+            <set_value name="this.numberOfChecks" exact="1"/>
+          </do_if>
+          <set_value name="this.minimumThreshold" exact="{param@minimumThreshold}"/>
+          <do_if value="{value@this.minimumThreshold}" max="0">
+            <set_value name="this.minimumThreshold" exact="1"/>
+          </do_if>
+          <do_if value="{value@this.minimumThreshold} - {value@this.numberOfChecks}" min="1">
+            <!-- oops, the threshold is higher than the number of checks, set threshold to number of checks-->
+            <set_value name="this.minimumThreshold" exact="{value@this.numberOfChecks}"/>
+          </do_if>
+          <do_all exact="{value@this.numberOfChecks}" counter="numChecks">
+            <set_value name="this.performCheck{counter@numChecks}" exact="{param.exists@checkText{counter@numChecks}}*{param.exists@checkValue{counter@numChecks}}"/>
+            <!-- If negate parameters don't exist, they will be set to 0, which is default-->
+            <set_value name="this.negateCheck{counter@numChecks}" exact="{param@negateCheck{counter@numChecks}}"/>
+          </do_all>
+
+          <!-- For each object in the group, make it an object local to the groupCue and determine if it should be removed-->
+          <set_value name="this.numObjects" exact="{group.object.count@{param@groupCue}.{param@objectGroup}}"/>
+          <do_all exact="{value@this.numObjects}" counter="iterations">
+            <set_object name="{param@groupCue}.ROFG {counter@iterations}" value="{group.object.{counter@iterations}@{param@groupCue}.{param@objectGroup}}"/>
+            <set_value name="this.remove" exact="0"/>
+            
+            <!-- for each check parameter, check this object-->
+            <do_all exact="{value@this.numberOfChecks}" counter="numChecks">
+              <do_choose>
+                <do_when value="{value@this.negateCheck{counter@numChecks}}" exact="1">
+                  <do_if value="{object.{param@checkText{counter@numChecks}}@{param@groupCue}.ROFG {counter@iterations}}" exact="{param@checkValue{counter@numChecks}}" negate="1">
+                    <set_value name="this.remove" operation="add"/>
+                  </do_if>
+                </do_when>
+                <do_otherwise>
+                  <do_if value="{object.{param@checkText{counter@numChecks}}@{param@groupCue}.ROFG {counter@iterations}}" exact="{param@checkValue{counter@numChecks}}">
+                    <set_value name="this.remove" operation="add"/>
+                  </do_if>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+
+            <set_value name="this.remove {counter@iterations}" exact="{value@this.remove}"/>
+          </do_all>
+
+          <!--remove only those necessary-->
+          <do_all exact="{value@this.numObjects}" counter="iterations">
+            <do_if value="{value@this.remove {counter@iterations}}" min="{value@this.minimumThreshold}">
+              <remove_object_from_group object="{object@{param@groupCue}.ROFG {counter@iterations}}" group="{param@groupCue}.{param@objectGroup}"/>
+              <do_if value="{param.exists@removedGroup}" exact="1">
+                <add_object_to_group object="{param@groupCue}.ROFG {counter@iterations}" group="{param@groupCue}.{param@removedGroup}"/>
+              </do_if>
+            </do_if>
+          </do_all>
+
+          <do_if value="{param.exists@cancelCue}" exact="1">
+            <cancel_cue cue="{param@cancelCue}"/>
+          </do_if>
+        </do_all>
+      </action>
+    </cue>
+  </cues>
+  <signature>4lusmrMocv2C7jXBFJJ2zJYhNJ75UfI6/LeTOqyZOrmKUgCesfp2rpQIGj9/XGeOfqFMtirAT3CLz4pWIXsmTDCUMv7amRmIbRC2HlTRmU5289g6IUJgsxJjxBm0ZyDxPAe7/MGZQYdWXgQVjszajJaZ6wCMRfysmcNckSwELyf4/N+DmGVRxL3M3xzVx83v/3z8nCsGCIV+zYk67WHVwTnqZJDSk6d1QhWqkfqHJAd+wcfSCT1Yga3zey74UcZs+S9QBcbd2iQrY7U+2AWRRyRZ3+84cNrS7wJQq9MLXizRonlqw+nX9wgDMZ9wH6eSqDRQ3epqi+Wk/eFJz5K1gA==</signature>
+</director>

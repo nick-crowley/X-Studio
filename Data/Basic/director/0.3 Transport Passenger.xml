@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Level 0 Mission 3" name="Transport Passenger" description="Mission to transport a passenger" />
+    <version number="0.7" date="30/05/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L0M03 B" library="1">
+      <documentation>
+        <content name="L0M03 Transport Passenger" reference="XXXT" type="briefing"/>
+        <version number="0.7" date="30/05/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" type="number" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" type="number" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" type="actorname" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" type="number" description="Page ID of mission description"/>
+          <param name="TextID" type="number" description="Text ID of mission description"/>
+          <param name="Reward" description="Reward type"/>
+          <param name="StoryID" type="number" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" type="number" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Difficulty" type="number" compulsory="1" description="Difficulty level of mission"/>
+          <param name="Passenger" type="actorname" compulsory="0" description="Transport the already defined passenger"/>
+          <param name="StartObject" type="objectname" compulsory="0" description="A pre defined starting point"/>
+          <param name="Dest" type="objectname" compulsory="0" description="A pre defined ending point"/>
+          <param name="StartRace" type="number" compulsory="0" description="Specify the race to start at" default="Mission OfferRace"/>
+          <param name="DestRace" type="number" compulsory="0" description="Specify the race to end at" default="Mission OfferRace"/>
+          <param name="ShipStart" type="objectname" compulsory="0" description="The ship to start at"/>
+          <param name="ShipDest" type="objectname" compulsory="0" description="The ship to end at"/>
+          <param name="HideDest" type="chance" compulsory="0" description="% chance to hide the destination in the initial briefing"/>
+          <param name="Step" type="number" compulsory="0" description="The step to use if additional objectives are involved"/>
+          <param name="TPNeeded" type="number" compulsory="0" description="% Chance that the npc will require a TP transport"/>
+          <param name="Summary" type="boolean" compulsory="0" description="Used to specify summary objectives in a chain of missions"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.{param@ID} L0M03 Progress" type="number" description="1 - Mission Completed"/>
+          <return name="{param@Cue}.{param@ID} L0M03 Progress" type="number" description="2 - Out of time"/>
+          <return name="{param@Cue}.{param@ID} L0M03 Progress" type="number" description="3 - Killed/Enslaved Passenger"/>
+          <return name="{param@Cue}.{param@ID} L0M03 Progress" type="number" description="5 - Player Ejected Pilot"/>
+          <return name="{param@Cue}.{param@ID} L0M03 Progress" type="number" description="92 - Out of time, not started mission"/>
+          <return name="{param@Cue}.{param@ID} L0M03 Progress" type="number" description="93 - Destination destroyed, not started mission"/>
+          <return name="{param@Cue}.{param@ID} L0M03 Progress" type="number" description="99 - Aborted"/>
+        </returns>
+        <history>
+          <change date="18/08/08" author="al_main" description="Removed backgrounds"/>
+          <change date="14/07/08" author="al_main" description="Fixed unsynchronised timers"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="02/07/08" author="al_main" description="Fixed station setting code, needing TP now uses the correct % chance"/>
+          <change date="25/06/08" author="al_main" description="Fixed actor starting position problem"/>
+          <change date="30/05/08" author="al_main" description="Added some param.exists fixes, Added support for npc requiring TP"/>
+          <change date="15/05/08" author="al_main" description="Added voiceflags support"/>
+          <change date="09/04/08" author="al_main" description="ID + Summary now used to differentiate in L1 chain"/>
+          <change date="12/02/08" author="al_main" description="Fix to code concerning already existing passengers"/>
+          <change date="12/02/08" author="al_main" description="Change from 'UsePassenger' to 'Passenger' param"/>
+          <change date="11/02/08" author="al_main" description="modified to use LUM06 Get Transport Locations"/>
+          <change date="02/02/08" author="al_main" description="Documentation nodes added"/>
+          <change date="28/01/08" author="al_main" description="Parameters for using existing objects added"/>
+          <change date="28/01/08" author="al_main" description="Re-written for new cue structure"/>
+        </history>
+        <todo>
+          <item priority="high" description="Scale timer by distance"/>
+        </todo>
+        <!--CODE SIMILAR TO 0.16, COPY CHANGES ACROSS-->
+      </documentation>
+      <action>
+        <do_all>
+          <do_choose>
+            <do_when value="{param@Summary}" exact="1">
+              <do_if value="{actor.exists@{param@Passenger}}" exact="1">
+                <set_actor name="{param@Cue}.{param@ID} L0Passenger" value="{actor@{param@Passenger}}"/>
+              </do_if>
+              <do_if value="{actor.exists@{param@Cue}.{param@ID} L0Passenger}" exact="0">
+                <create_actor name="{param@Cue}.{param@ID} L0Passenger" race="{param@OfferRace}" voiceflags="32"/>
+                <set_value name="{param@Cue}.{param@ID} Passenger Created" exact="1"/>
+              </do_if>
+              <create_briefing cue="{param@Cue}">
+                <objectives>
+                  <objective step="{param@Step}">
+                    <custom action="{35,2025}" text="{actor.name@{param@Cue}.{param@ID} L0Passenger}"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <cancel_cue cue="L0M03 B"/>
+            </do_when>
+            <do_otherwise>
+              <do_if value="{param.exists@Step}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} L0M03Step" exact="{param@Step}"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0M03Step}" min="1" negate="1">
+                <set_value name="{param@Cue}.{param@ID} L0M03Step" exact="1"/>
+              </do_if>
+              <do_if value="{param.exists@StartObject}" exact="1">
+                <do_if value="{object.exists@{param@StartObject}}" exact="1">
+                  <set_object name="L0M03 B.L0Start" value="{object@{param@StartObject}}"/>
+                </do_if>
+              </do_if>
+              <set_value name="{param@Cue}.{param@ID} TPNeeded" exact="0"/>
+              <do_if value="{param.exists@TPNeeded}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} TPNeeded" exact="1" chance="{param@TPNeeded}"/>
+              </do_if>
+              <do_if value="{param.exists@Passenger}" exact="1">
+                <do_if value="{actor.exists@{param@Passenger}}" exact="1">
+                  <set_actor name="{param@Cue}.{param@ID} L0Passenger" value="{actor@{param@Passenger}}"/>
+                  <do_if value="{actor.station.exists@{param@Passenger}}" exact="1">
+                    <set_object name="L0M03 B.L0Start" value="{actor.station@{param@Passenger}}"/>
+                  </do_if>
+                </do_if>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+        <!--JUMP RANGES NEED ENLARGING AFTER TESTING, based on difficulty level-->
+        <!--SET SOME PREFFERED DESTINATION SUCH AS PIRATE BASES, SY/EQ/TRDST + RACES-->
+      </action>
+      <cues>
+        <cue ref="LUM06">
+          <params>
+            <!--perhaps chance of "Start" being set as the original offer station?-->
+            <param name="StartDist" value="0"/>
+            <param name="DestDist" value="1"/>
+            <param name="Start" value="L0M03 B.L0Start"/>
+          </params>
+        </cue>
+        <cue name="L0M03 Create Briefing">
+          <condition>
+            <cue_completed cue="LUM06 Finished"/>
+          </condition>
+          <action>
+            <do_all>
+              <!--set timer-->
+              <set_value name="this.startTime" min="({object.distance@{param@Cue}.{param@ID} L0Start}/{player.ship.maxspeed})*8" max="({object.distance@{param@Cue}.{param@ID} L0Start}/{player.ship.maxspeed})*10" comment="Set time between 4 and 6 times the time needed"/>
+              <set_value name="{param@Cue}.{param@ID} L0Time" min="({object.distance@{param@Cue}.{param@ID} L0Dest}/{player.ship.maxspeed})*8" max="({object.distance@{param@Cue}.{param@ID} L0Dest}/{player.ship.maxspeed})*10" comment="Set time between 4 and 6 times the time needed"/>
+              <do_if value="{value@this.startTime}" min="{value@{param@Cue}.{param@ID} L0Time}+1">
+                <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@this.startTime}"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Time}" max="360">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="360" max="400"/>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Time}" min="3600">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="3600" max="3700"/>
+              </do_if>
+              <do_if value="{param.exists@Difficulty}" exact="1">
+                <do_if value="{param@Difficulty}" min="1">
+                  <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@{param@Cue}.{param@ID} L0Time}/{param@Difficulty}"/>
+                </do_if>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Time}" max="180">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="180" max="220"/>
+              </do_if>
+              <do_choose>
+                <do_when value="{actor.exists@{param@Cue}.{param@ID} L0Passenger}" exact="1">
+                  <do_if value="{object@{param@Cue}.{param@ID} L0Start}" exact="{actor.station@{param@Cue}.{param@ID} L0Passenger}" negate="1">
+                    <do_choose>
+                      <do_when value="{object.isclass.hugeship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0Passenger" object="{param@Cue}.{param@ID} L0Start" location="crew"/>
+                      </do_when>
+                      <do_when value="{object.isclass.ship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0Passenger" object="{param@Cue}.{param@ID} L0Start" location="passenger"/>
+                      </do_when>
+                      <do_otherwise>
+                        <!--does this matter for a station, etc?-->
+                        <set_actor_location actor="{param@Cue}.{param@ID} L0Passenger" object="{param@Cue}.{param@ID} L0Start" location="crew"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_if>
+                </do_when>
+                <do_otherwise>
+                  <do_choose>
+                    <do_when value="{object.isclass.hugeship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                      <create_actor name="{param@Cue}.{param@ID} L0Passenger" race="{param@OfferRace}" voiceflags="32" object="{param@Cue}.{param@ID} L0Start" location="crew"/>
+                      <set_value name="{param@Cue}.{param@ID} Passenger Created" exact="1"/>
+                    </do_when>
+                    <do_when value="{object.isclass.ship@{param@Cue}.{param@ID} L0Start}" exact="1">
+                      <create_actor name="{param@Cue}.{param@ID} L0Passenger" race="{param@OfferRace}" voiceflags="32" object="{param@Cue}.{param@ID} L0Start" location="passenger"/>
+                      <set_value name="{param@Cue}.{param@ID} Passenger Created" exact="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <!--does this matter for a station, etc?-->
+                      <create_actor name="{param@Cue}.{param@ID} L0Passenger" race="{param@OfferRace}" voiceflags="32" object="{param@Cue}.{param@ID} L0Start" location="crew"/>
+                      <set_value name="{param@Cue}.{param@ID} Passenger Created" exact="1"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_otherwise>
+              </do_choose>
+              <!--<set_object name="this.PassengerObj" value="{actor@{param@Cue}.{param@ID} L0Passenger}"/>-->
+              <set_value name="{param@Cue}.{param@ID} L0Title" min="1001" max="{3603,1000}" profile="decreasing"/>
+              <!--create briefing-->
+              <do_choose>
+                <!--this first do_when only prevents an error in .dmp, is same as do_otherwise-->
+                <do_when value="{player.dockobject.exists}" exact="0">
+                  <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3603,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}">
+                        <dockat object="{param@Cue}.{param@ID} L0Start"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}+1">
+                        <custom icon="flyto" action="{35,2043}" text="{actor.name@{param@Cue}.{param@ID} L0Passenger}"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}+2">
+                        <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_value name="{param@Cue}.{param@ID} L0DestStep" exact="{value@{param@Cue}.{param@ID} L0M03Step}+2"/>
+                </do_when>
+                <do_when value="{object@{param@Cue}.{param@ID} L0Start}" exact="{player.dockobject}">
+                  <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3603,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}">
+                        <custom icon="flyto" action="{35,2043}" text="{actor.name@{param@Cue}.{param@ID} L0Passenger}"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}+1">
+                        <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_value name="{param@Cue}.{param@ID} L0DestStep" exact="{value@{param@Cue}.{param@ID} L0M03Step}+1"/>
+                </do_when>
+                <do_otherwise>
+                  <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3603,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}">
+                        <dockat object="{param@Cue}.{param@ID} L0Start"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}+1">
+                        <custom icon="flyto" action="{35,2043}" text="{actor.name@{param@Cue}.{param@ID} L0Passenger}"/>
+                      </objective>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}+2">
+                        <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_value name="{param@Cue}.{param@ID} L0DestStep" exact="{value@{param@Cue}.{param@ID} L0M03Step}+2"/>
+                </do_otherwise>
+              </do_choose>
+              <set_value name="this.Random" min="0" max="99"/>
+              <do_if value="{value@this.Random}" min="100-{param@HideDest}">
+                <create_briefing cue="{param@Cue}">
+                  <objectives>
+                    <objective step="{value@{param@Cue}.{param@ID} L0DestStep}">
+                      <custom icon="flyto" action="{35,2007}" text="{3603,2002}"/>
+                    </objective>
+                  </objectives>
+                </create_briefing>
+              </do_if>
+              <set_value name="L0M03 B.StartTime" exact="{player.age}+7200"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue ref="LUM04">
+              <params>
+                <param name="Discipline" value="XXXT"/>
+                <param name="RewardMult" value="1+{value@{param@Cue}.{param@ID} TPNeeded}"/>
+                <param name="StartTime" value="L0M03 B.StartTime"/>
+                <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M03" library="1">
+      <documentation>
+        <content name="L0M03 Transport Passenger" reference="XXXT" type="L0"/>
+        <version date="30/05/08" number="0.7" status="development"/>
+        <params>
+          <param name="Cue" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" type="actorname" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" description="Page ID of mission description"/>
+          <param name="TextID" description="Text ID of mission description"/>
+          <param name="Reward" description="Reward type"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Difficulty" compulsory="1" description="Difficulty level of mission"/>
+          <param name="Step" compulsory="1" description="The starting Step of the mission"/>
+        </params>
+        <history>
+          <change date="19/08/08" author="Owen Lake" description="Fixed timer mismatch. Fixed destination destroyed 2 bug. Other small changes."/>
+          <change date="18/08/08" author="al_main" description="Removed backgrounds"/>
+          <change date="04/08/08" author="al_main" description="Fixed cleanup for an actor who hasnt been picked up"/>
+          <change date="15/07/08" author="al_main" description="Added fix for destroyed destination station"/>
+          <change date="14/07/08" author="al_main" description="Fixed unsynchronised timers and this.textID message when aborting"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="30/05/08" author="al_main" description="Added support for npc requiring TP, Fixed cleanup cues, improved cue structure"/>
+          <change date="15/05/08" author="al_main" description="Cleaned up some progress code"/>
+          <change date="09/05/08" author="al_main" description="Tidied cue structure, added NPC speech IDs"/>
+          <change date="09/04/08" author="al_main" description="ID now used to differentiate in L1 chain"/>
+          <change date="14/03/08" author="al_main" description="Mission now fails when ejecting passengers, fixed actor killed cue"/>
+          <change date="14/03/08" author="al_main" description="Fixed out of time not failing, added check for player.ship before speaking"/>
+          <change date="16/02/08" author="al_main" description="Improvements to cue structure, fix to timeout error"/>
+          <change date="12/02/08" author="al_main" description="Several improvements with briefings and taking cue values from L0 B"/>
+          <change date="12/02/08" author="al_main" description="Improvements to accept objects other than stations as destinations"/>
+          <change date="11/02/08" author="al_main" description="modified to use LUM06 Get Transport Locations"/>
+          <change date="05/02/08" author="al_main" description="play_dialog removed for play_text"/>
+          <change date="02/02/08" author="al_main" description="Documentation nodes added"/>
+          <change date="28/01/08" author="al_main" description="Ability to use existing objects added"/>
+          <change date="28/01/08" author="al_main" description="Re-written for new cue structure"/>
+        </history>
+        <todo>
+          <item priority="critical" description="When destinations are destroyed"/>
+          <item priority="critical" description="0.03 add custom text for L2M03.SerKeppel wanting to get underway"/>
+          <item priority="high" description="Add pirates when undocking - Goner plot needed!"/>
+          <item priority="medium" description="NEED A CUE TO ADD ENEMY ATTACKS WHEN CHANGING SECTOR"/>
+          <item priority="medium" description="NEED A CUE TO ADD ENEMY ATTACKS BEFORE DESTINATION"/>
+          <item priority="medium" description="SCALE TIME BY DIFFICULTY"/>
+          <item priority="low" description="'Talk to' should not be displayed on briefing when passenger is the mission offerer (or changed to 'pick up')"/>
+          <item priority="low" description="NEED A CUE TO CREATE POLICE IN CASE OF AN 'ILLEGAL' PASSENGER?"/>
+          <item priority="low" description="Add I've got lifesupport / I've ceared room conversation when asked to do them"/>
+          <item priority="low" description="Add conversations for no space and no lifesupport to passenger while waiting incase player contacts him"/>
+          <item priority="trivial" description="hurry up cue for timeout 1"/>
+        </todo>
+        <!--CODE SIMILAR TO 0.16, COPY CHANGES ACROSS-->
+      </documentation>
+      <action>
+        <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="0"/>
+      </action>
+      <cues>
+        <cue name="L0M03 Mission">
+          <cues>
+            <cue name="L0M03 Go Start" check="cancel">
+              <condition comment="if player hasnt started at the starting point">
+                <check_any>
+                  <object_is_docked dockobject="{param@Cue}.{param@ID} L0Start" negate="1"/>
+                  <check_all>
+                    <match_object object="{param@Cue}.{param@ID} L0Start" class="station" negate="1"/>
+                    <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Start}" min="5km"/>
+                  </check_all>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="this.Travelled" exact="1"/>
+                  <!--set the end time so we can calculate the remaining time-->
+                  <set_value name="{param@Cue}.{param@ID} L0EndTime" exact="{value@{param@Cue}.{param@ID} L0Time}+{player.age}"/>
+                  <!--set the objective / briefing-->
+                  <set_objective cue="{param@Cue}" title="{3603,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0M03Step}"/>
+                    <mission level="{param@Difficulty}" discipline="XXXT"/>
+                    <dockat object="{param@Cue}.{param@ID} L0Start"/>
+                  </set_objective>
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0M03Step}+2">
+                        <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+
+                  <set_value name="this.text" exact="1"/>
+                  <do_if value="{actor@{param@Cue}.{param@ID} L0Passenger}" exact="{actor@{param@Lv1Guide}}">
+                    <set_value name="this.text" exact="2"/>
+                  </do_if>
+                  <do_choose>
+                    <do_when value="{param@AddText}" min="1">
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{{param@PageID},{param@TextID}}\n\n{3603,{value@this.text}}" silent="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3603,{value@this.text}}" silent="1"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <set_value name="L0M03 Go Start.StartTime" exact="{player.age}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="LUM04">
+                  <params>
+                    <param name="StartTime" value="L0M03 Go Start.StartTime"/>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M03 Cant Transport" delay="1000">
+              <condition>
+                <check_all>
+                  <check_value value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="1"/>
+                  <check_any>
+                    <object_is_docked dockobject="{object@{param@Cue}.{param@ID} L0Start}"/>
+                    <check_all>
+                      <match_object object="{param@Cue}.{param@ID} L0Start" class="station" negate="1"/>
+                      <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Start}" max="5km"/>
+                    </check_all>
+                  </check_any>
+                  <check_any>
+                    <check_value value="{player.ship.cargospace}" max="{lookup.type.cargospace@SS_WARE_PASSENGER}-1"/>
+                    <object_has_equipment>
+                      <ware typename="SS_WARE_LIFESUPPORT" exact="0"/>
+                    </object_has_equipment>
+                    <check_value value="{value@{param@Cue}.{param@ID} TPNeeded}-{player.ship.isclass.tp}" min="1"/>
+                  </check_any>
+                </check_all>
+              </condition>
+              <timing>
+                <time exact="{text.duration@13,1502}+50"/>
+              </timing>
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{value@{param@Cue}.{param@ID} TPNeeded}-{player.ship.isclass.tp}" min="1">
+                      <play_text actor="{param@Cue}.{param@ID} L0Passenger" textid="907" priority="99"/>
+                      <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{{actor.voice@{param@Cue}.{param@ID} L0Passenger},907}" silent="1"/>
+                    </do_when>
+                    <do_when value="{player.ship.cargo.SS_WARE_LIFESUPPORT.exists}" exact="0">
+                      <play_text actor="{param@Cue}.{param@ID} L0Passenger" textid="906" priority="99"/>
+                      <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{{actor.voice@{param@Cue}.{param@ID} L0Passenger},906}" silent="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <play_text actor="{param@Cue}.{param@ID} L0Passenger" textid="905" priority="99"/>
+                      <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{{actor.voice@{param@Cue}.{param@ID} L0Passenger},905}" silent="1"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0DestStep}-1"/>
+                    <custom icon="flyto" action="{35,2043}" text="{actor.name@{param@Cue}.{param@ID} L0Passenger}" actor="{param@Cue}.{param@ID} L0Passenger"/>
+                  </set_objective>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L0M03 Cant Transport Reset">
+                  <condition>
+                    <object_undocked/>
+                  </condition>
+                  <timing>
+                    <time exact="1s"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="L0M03 Cant Transport"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <!--NEED A HURRY UP CUE maybe?-->
+            <cue name="L0M03 Time Out 1">
+              <condition comment="If mission Started and allowed to fail">
+                <check_all>
+                  <cue_completed cue="L0M03 Go Start"/>
+                  <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+                </check_all>
+              </condition>
+              <timing>
+                <time exact="{value@{param@Cue}.{param@ID} L0Time}s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{3603,502}"/>
+                  <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="92"/>
+                  <cancel_cue cue="L0M03 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M03 Dest Destroyed 1">
+              <condition>
+                <check_any>
+                  <object_destroyed object="{param@Cue}.{param@ID} L0Dest"/>
+                  <object_destroyed_by_player object="{param@Cue}.{param@ID} L0Dest"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{3603,503}"/>
+                  <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="93"/>
+                  <cancel_cue cue="L0M03 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M03 At Start" delay="1000">
+              <condition>
+                <check_all>
+                  <object_has_equipment>
+                    <ware typename="SS_WARE_LIFESUPPORT" min="1"/>
+                  </object_has_equipment>
+                  <check_value value="{player.ship.cargospace}" min="{lookup.type.cargospace@SS_WARE_PASSENGER}"/>
+                  <check_value value="{value@{param@Cue}.{param@ID} TPNeeded}-{player.ship.isclass.tp}" max="0"/>
+                  <check_any>
+                    <object_is_docked dockobject="{object@{param@Cue}.{param@ID} L0Start}"/>
+                    <check_all>
+                      <match_object object="{param@Cue}.{param@ID} L0Start" class="station" negate="1"/>
+                      <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Start}" max="5km"/>
+                    </check_all>
+                  </check_any>
+                  <check_value value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="L0M03 Cant Transport"/>
+                  <cancel_cue cue="L0M03 Time Out 1"/>
+                  <cancel_cue cue="L0M03 Dest Destroyed 1"/>
+                  <!--reset timer value if was  calculated earlier-->
+                  <do_if value="{value@{param@Cue}.{param@ID} L0EndTime}" min="1">
+                    <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@{param@Cue}.{param@ID} L0EndTime}-{player.age}"/>
+                  </do_if>
+                  <!--add a small amount of time if very low-->
+                  <do_if value="{value@{param@Cue}.{param@ID} L0Time}" max="240">
+                    <set_value name="{param@Cue}.{param@ID} L0Time" min="240" max="260"/>
+                  </do_if>
+
+                  <set_value name="this.hurry" min="{value@{param@Cue}.{param@ID} L0Time}/2" max="({value@{param@Cue}.{param@ID} L0Time}/2)+15"/>
+
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@{param@Cue}.{param@ID} L0DestStep}">
+                        <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="{param@Cue}" title="{3603,{value@{param@Cue}.{param@ID} L0Title}}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0DestStep}"/>
+                    <mission level="{param@Difficulty}" discipline="XXXT"/>
+                    <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                  </set_objective>
+
+                  <set_actor_location actor="{param@Cue}.{param@ID} L0Passenger" object="{player.ship}" location="passenger"/>
+                  <do_if value="{value@{param@Cue}.{param@ID} L0UseStartTD}" exact="1">
+                    <play_sound soundid="991"/>
+                  </do_if>
+                  <set_value name="L0M03 At Start.StartTime" exact="{player.age}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L0M03 At Start Speak">
+                  <condition>
+                    <cue_completed cue="L0M03 At Start"/>
+                  </condition>
+                  <timing>
+                    <time exact="{text.duration@13,1502}+50"/>
+                  </timing>
+                  <action>
+                    <play_text actor="{param@Cue}.{param@ID} L0Passenger" priority="99">
+                      <line actor="{param@Cue}.{param@ID} L0Passenger" textid="900"/>
+                      <line actor="{param@Cue}.{param@ID} L0Passenger" textid="901"/>
+                    </play_text>
+                  </action>
+                </cue>
+                <cue ref="LUM04">
+                  <params>
+                    <param name="StartTime" value="L0M03 At Start.StartTime"/>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="StartTime" value="L0M03 At Start.StartTime"/>
+                    <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+                  </params>
+                </cue>
+                <cue name="L0M03 Hurry 2">
+                  <condition>
+                    <cue_completed cue="L0M03 At Start"/>
+                  </condition>
+                  <timing>
+                    <time exact="{value@L0M03 At Start.hurry}s"/>
+                  </timing>
+                  <action>
+                    <do_if value="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" exact="{player.ship}">
+                      <play_text actor="{param@Cue}.{param@ID} L0Passenger" textid="80" priority="99"/>
+                    </do_if>
+                  </action>
+                </cue>
+                <cue name="L0M03 Time Out 2">
+                  <condition>
+                    <check_all>
+                      <cue_completed cue="L0M03 At Start"/>
+                      <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <timing>
+                    <time exact="{value@{param@Cue}.{param@ID} L0Time}s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="2"/>
+                      <cancel_cue cue="L0M03 Mission"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M03 Ejected" delay="3s">
+                  <condition>
+                    <match_object object="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" class="astronaut"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{actor.sector@{param@Cue}.{param@ID} L0Passenger}" exact="{player.sector}">
+                          <play_text actor="{param@Cue}.{param@ID} L0Passenger" textid="852" priority="99"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{{actor.voice@{param@Cue}.{param@ID} L0Passenger},852}"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="5"/>
+                      <cancel_cue cue="L0M03 Mission"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M03 Dest Destroyed 2" delay="5s">
+                  <condition>
+                    <check_value value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="0"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <find_station name="{param@Cue}.{param@ID} L0Dest" class="trade" dockingallowed="1" findobject="{player.ship}" nearest="1"/>
+                      <do_if value="{object.exists@{param@Cue}.{param@ID} L0Start}" exact="0">
+                        <find_station name="{param@Cue}.{param@ID} L0Dest" class="dock" dockingallowed="1" findobject="{player.ship}" nearest="1"/>
+                      </do_if>
+                      <do_if value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="0">
+                        <find_station name="{param@Cue}.{param@ID} L0Dest" class="station" dockingallowed="1" findobject="{player.ship}" nearest="1"/>
+                      </do_if>
+                      <set_value name="this.step" exact="{value@{param@Cue}.{param@ID} L0M03Step}"/>
+                      <do_if value="{value@L0M03 Go Start.Travelled}" exact="1">
+                        <set_value name="this.step" exact="{value@{param@Cue}.{param@ID} L0M03Step}+2"/>
+                      </do_if>
+                      <do_choose>
+                        <do_when value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="1">
+                          <create_briefing cue="{param@Cue}">
+                            <objectives>
+                              <objective step="{value@this.step}">
+                                <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                              </objective>
+                            </objectives>
+                          </create_briefing>
+                          <set_objective cue="{param@Cue}">
+                            <briefing cue="{param@Cue}" step="{value@this.step}"/>
+                            <mission level="{param@Difficulty}" discipline="XXXT"/>
+                            <flyto object="{param@Cue}.{param@ID} L0Dest"/>
+                          </set_objective>
+                          <do_if value="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" exact="{player.ship}">
+                            <play_text priority="99">
+                              <line actor="{param@Cue}.{param@ID} L0Passenger" textid="849"/>
+                              <line actor="{param@Cue}.{param@ID} L0Passenger" textid="901"/>
+                            </play_text>
+                          </do_if>
+                          <reset_cue cue="L0M03 Dest Destroyed 2"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{3603,503}"/>
+                          <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="93"/>
+                          <cancel_cue cue="L0M03 Mission"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L0M03 At End">
+                  <condition>
+                    <check_any>
+                      <check_all>
+                        <object_is_docked dockobject="{object@{param@Cue}.{param@ID} L0Dest}"/>
+                        <check_value value="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" exact="{player.ship}"/>
+                        <check_value value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="1"/>
+                      </check_all>
+                      <check_all>
+                        <object_exists object="{param@Cue}.{param@ID} L0Dest"/>
+                        <match_object object="{param@Cue}.{param@ID} L0Dest" class="station" negate="1"/>
+                        <check_distance value="{object.distance@{param@Cue}.{param@ID} L0Dest}" max="5km"/>
+                        <check_value value="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" exact="{player.ship}"/>
+                        <check_value value="{object.exists@{param@Cue}.{param@ID} L0Dest}" exact="1"/>
+                      </check_all>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_if value="{object.isclass.station@{param@Cue}.{param@ID} L0Dest}" exact="0">
+                        <play_sound soundid="991"/>
+                      </do_if>
+                      <set_value name="this.dialog" list="841|842"/>
+                      <set_value name="this.text" min="101" max="{3603,100}"/>
+                      <do_choose>
+                        <do_when value="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" exact="{player.ship}">
+                          <play_text actor="{param@Cue}.{param@ID} L0Passenger" textid="{value@this.dialog}" priority="99"/>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{3603,{value@this.text}} {{actor.voice@{param@Cue}.{param@ID} L0Passenger},{value@this.dialog}}" silent="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{3603,{value@this.text}} {{actor.voice@{param@Cue}.{param@ID} L0Passenger},{value@this.dialog}}"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="1"/>
+                      <clear_actor_location actor="{param@Cue}.{param@ID} L0Passenger"/>
+                      <destroy_actor actor="{param@Cue}.{param@ID} L0Passenger"/>
+                      <cancel_cue cue="L0M03 Mission"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <!--NEED A CUE TO ADD ENEMY ATTACKS WHEN CHANGING SECTOR-->
+            <!--NEED A CUE TO ADD ENEMY ATTACKS BEFORE DESTINATION-->
+            <!--NEED A CUE TO CREATE POLICE IN CASE OF AN ILLEGAL PASSENGER?-->
+            <cue name="L0M03 Killed" delay="150">
+              <condition>
+                <check_value value="{actor.exists@{param@Cue}.{param@ID} L0Passenger}" exact="0"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="3"/>
+                  <cancel_cue cue="L0M03 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L0M03 Aborted">
+              <condition>
+                <objective_cancelled cue="{param@Cue}"/>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="{param@Cue}.{param@ID} L0M03 Progress" exact="99"/>
+                  <cancel_cue cue="L0M03 Mission"/>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L0M03 Cleanup">
+          <condition>
+            <check_value value="{value@{param@Cue}.{param@ID} L0M03 Progress}" min="1"/>
+          </condition>
+          <action>
+            <do_choose>
+              <!--actor dead, nothing needed-->
+              <do_when value="{actor.exists@{param@Cue}.{param@ID} L0Passenger}" exact="0">
+                <cancel_cue cue="L0M03 Cleanup Actor"/>
+              </do_when>
+              <!--actor aboard player ship, must be time out or abort-->
+              <do_when value="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" exact="{player.ship}">
+                <set_value name="this.TextID" list="81|903"/>
+                <play_text actor="{param@Cue}.{param@ID} L0Passenger" textid="{value@this.TextID}" priority="99"/>
+                <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{{actor.voice@{param@Cue}.{param@ID} L0Passenger},{value@this.TextID}}" silent="1"/>
+              </do_when>
+              <!--actor aboard player owned ship, must be time out or abort-->
+              <do_when value="{actor.ship.race@{param@Cue}.{param@ID} L0Passenger}" exact="{lookup.race@player}">
+                <set_value name="this.TextID" list="81|903"/>
+                <incoming_message author="{actor.name@{param@Cue}.{param@ID} L0Passenger}" text="{{actor.voice@{param@Cue}.{param@ID} L0Passenger},{value@this.TextID}}" popup="1"/>
+              </do_when>
+              <!--actor is astronaut, was ejected-->
+              <do_when value="{actor.ship.isclass.astronaut@{param@Cue}.{param@ID} L0Passenger}" exact="1">
+                <find_station name="this.ActorDest" class="station" dockingallowed="1" findobject="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" nearest="1"/>
+                <set_command object="{actor.ship@{param@Cue}.{param@ID} L0Passenger}" command="dock" commandobject="this.ActorDest"/>
+              </do_when>
+              <!--else actor not picked up then-->
+              <do_otherwise>
+                <do_if value="{actor.exists@{param@Cue}.{param@ID} L0Passenger}" exact="1">
+                  <do_choose>
+                    <do_when value="{value@{param@Cue}.{param@ID} Passenger Created}" exact="1">
+                      <destroy_actor actor="{param@Cue}.{param@ID} L0Passenger"/>
+                    </do_when>
+                    <do_otherwise>
+                      <clear_actor_location actor="{param@Cue}.{param@ID} L0Passenger"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_if>
+                <cancel_cue cue="L0M03 Cleanup Actor"/>
+              </do_otherwise>
+            </do_choose>
+          </action>
+          <cues>
+            <cue name="L0M03 Cleanup Actor">
+              <cues>
+                <cue name="L0M03 Cleanup Actor Destroyed" delay="235">
+                  <condition>
+                    <check_value value="{actor.exists@{param@Cue}.{param@ID} L0Passenger}" exact="1"/>
+                  </condition>
+                  <action>
+                    <cancel_cue cue="L0M03 Cleanup Actor Depart"/>
+                  </action>
+                </cue>
+                <cue name="L0M03 Cleanup Actor Depart" delay="250">
+                  <condition>
+                    <object_is_docked object="{actor.ship@{param@Cue}.{param@ID} L0Passenger}"/>
+                  </condition>
+                  <action>
+                    <do_if value="{actor.exists@{param@Cue}.{param@ID} L0Passenger}" exact="1">
+                      <set_object name="this.ship" value="{actor.ship@{param@Cue}.{param@ID} L0Passenger}"/>
+                      <do_choose>
+                        <do_when value="{value@{param@Cue}.{param@ID} Passenger Created}" exact="1">
+                          <destroy_actor actor="{param@Cue}.{param@ID} L0Passenger"/>
+                        </do_when>
+                        <do_otherwise>
+                          <clear_actor_location actor="{param@Cue}.{param@ID} L0Passenger"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <do_if value="{object.isclass.astronaut@this.ship}" exact="1">
+                        <destroy_object object="this.ship"/>
+                      </do_if>
+                      <do_if value="{object.exists@this.ship}" exact="1">
+                        <remove_object object="this.ship"/>
+                      </do_if>
+                      <cancel_cue cue="L0M03 Cleanup Actor Destroyed"/>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>BHnSyqdmHnllVZQxyCkoPBt/19LVobid46/y94N4zWMywLFl6I2/0s3EvKmzCf8F4vpOzz2CWhL4PxTUMTofT8GKnrLR9vJOBl+idTOHwDYd1R10GAKuivFnVA/co3ZpWkUxjeLyuY1IHGRvbhnSOTOSLCYd8rKf+imMfo9RXTSneHFCfDFO+t/Rtb7FJnUSJCeAhALCEjYwETzGDviW6Gcdi/IRHWmWYHGEMQBQy7Ws7X3Fj9luCvHILt9Uqfo0uXmxIKgyp78n5bgN9SlWMUSOPPUWvm+r0p2jx4ozCJ1eCJSlv7KmFsPjZEGKBfxh5ALTkpsNWR0z8CAUDYfcHA==</signature>
+</director>

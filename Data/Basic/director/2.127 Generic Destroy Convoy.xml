@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen_Lake@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M127" name="Level 2 Destroy Convoy Mission" description="Protect or Destroy a convoy"/>
+    <version number="0.3" date="28/05/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M127" library="1" check="cancel">
+      <documentation>
+        <content reference="L2M127" name="Destroy Convoy Mission" type="L2"/>
+        <version date="28/05/2008" number="0.3" status="release"/>
+        <history>
+          <change date="12/05/2008" author="Owen Lake" description="Fixed Escorts, removed initial Pirates"/>
+          <change date="06/02/2008" author="Owen Lake" description="Initial Version"/>
+        </history>
+      </documentation>
+      <condition>
+        <check_all>
+          <match_sector sector="{player.sector}" race="default|terran|goner|pirategroup"/>
+          <count_stations min="1" race="default|terran|goner|pirategroup">
+            <jumps min="1" max="3"/>
+          </count_stations>
+        </check_all>
+      </condition>
+      <cues>
+        <cue name="L2M127 Cleanup" delay="1s">
+          <condition>
+            <check_value value="{value@L2M127.Cleanup}" exact="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <destroy_actor actor="L2M127.OfferActor"/>
+              <do_if value="{object.isclass.ship@L2M127.Offer Station}" exact="1">
+                <destroy_object object="L2M127.Offer Station" warp="1"/>
+              </do_if>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M127 Wait For Ship Cleanup" delay="1m">
+              <condition>
+                <check_value value="{group.object.count@L2M127.COM01Ships}+{group.object.count@L2M127.CleanupShips}" exact="0"/>
+              </condition>
+              <action>
+                <cancel_cue cue="L2M127"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M127 Setup">
+          <condition>
+            <cue_completed cue="L2M127"/>
+          </condition>
+          <action>
+            <do_all>
+              <find_station name="L2M127.Destination Station" race="default|terran|goner|pirategroup">
+                <jumps min="1" max="3"/>
+              </find_station>
+              <do_choose>
+                <do_when value="{object.exists@L2M127.Destination Station}" exact="0">
+                  <cancel_cue cue="L2M127"/>
+                </do_when>
+                <do_otherwise>
+                  <set_sector name="L2M127.DestSector" value="{object.sector@L2M127.Destination Station}"/>
+                  <find_sector name="L2M127.StartSector" sector="L2M127.Destination Sector" min="1" max="3"/>
+                  <set_value name="L2M127.Convoy Race" exact="{object.race@L2M127.Destination Station}"/>
+                  <set_value name="L2M127.TextOffset" exact="1"/>
+                  <set_value name="L2M127.PageID" exact="3327"/>
+                  <set_value name="L2M127.Convoy Size" min="2" max="4"/>
+                  <!--<set_value chance="20" name="L2M127.CreateEscorts" exact="1"/>-->
+                  <set_value name="L2M127.TimeOut" min="{player.age}+700" max="{player.age}+800"/>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue ref="LUM13">
+              <params>
+                <param name="Race" value="{value@L2M127.Convoy Race}" comment="The race to find the rivals to"/>
+                <param name="ReturnName" value="L2M127.RivalMask" comment="Where to save the rival race mask to"/>
+                <param name="FeedbackName" value="L2M127.LUM13 Done" comment="Where to save the feedback value to"/>
+                <param name="IncludeAlien" value="0"/>
+                <param name="ATF Is Terran" value="1"/>
+              </params>
+            </cue>
+            <cue name="L2M127 Delay End" delay="1s">
+              <condition>
+                <check_all>
+                  <check_value value="{value@L2M127.LUM13 Done}" exact="1"/>
+                  <count_stations exact="0" dockingallowed="1" race="{value@L2M127.RivalMask}">
+                    <sector sector="{player.sector}"/>
+                  </count_stations>
+                </check_all>
+              </condition>
+              <action>
+                <cancel_cue cue="L2M127"/>
+              </action>
+            </cue>
+            <cue name="L2M127 Delay" delay="1s">
+              <condition>
+                <check_all>
+                  <check_value value="{value@L2M127.LUM13 Done}" exact="1"/>
+                  <count_stations min="1" dockingallowed="1" race="{value@L2M127.RivalMask}">
+                    <sector sector="{player.sector}"/>
+                  </count_stations>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="L2M127 Delay End"/>
+                  <find_station name="L2M127.Offer Station" dockingallowed="1" friend="1" neutral="1" race="{value@L2M127.RivalMask}">
+                    <sector sector="{player.sector}"/>
+                  </find_station>
+                  <do_choose>
+                    <do_when value="{object.exists@L2M127.Offer Station}" exact="0">
+                      <set_value name="L2M127.Create Ship" exact="1"/>
+                      <set_value name="L2M127.OfferRace" exact="{random.race@{value@L2M127.RivalMask}}"/>
+                      <do_if value="{value@L2M127.OfferRace}" exact="{lookup.race@goner}">
+                        <set_value name="L2M127.OfferRace" exact="{lookup.race@argon}"/>
+                      </do_if>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L2M127.OfferRace" exact="{object.race@L2M127.Offer Station}"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <do_if value="{player.sector.race}" exact="{lookup.race@terran}">
+                    <set_value name="L2M127.OfferRace" exact="{lookup.race@terran}"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M127 Create Offerer" delay="2s">
+                  <condition>
+                    <check_all>
+                      <cue_is_complete cue="L2M127 Delay"/>
+                      <object_exists object="L2M127.Offer Station" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <cues>
+                    <cue ref="SRST">
+                      <params>
+                        <param name="Race ID" value="{value@L2M127.OfferRace}"/>
+                        <param name="Class ID" value="{lookup.class@fighter}"/>
+                        <param name="Cue" value="L2M127 Create Offerer"/>
+                        <param name="Result" value="L2M127 Create Offerer.SRST Done"/>
+                        <param name="CancelCue" value="SRST"/>
+                        <param name="Shiptype Address" value="L2M127 Create Offerer.ShipType"/>
+                        <param name="Include M3P" value="0" comment="Include the M3Plus ships in the M3 search"/>
+                        <param name="Include M4P" value="0" comment="Include the M4Plus ships in the M4 search"/>
+                        <param name="Include M5P" value="0" comment="Include the M5Plus ships in the M5 search"/>
+                        <param name="Include M6M" value="0" comment="Include the M6M ships in the M6 search"/>
+                        <param name="Include M7M" value="0" comment="Include the M7M ships in the M7 search"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M127 Spawn Offerer" delay="2s">
+                      <condition>
+                        <check_value value="{value@L2M127 Create Offerer.SRST Done}" exact="1"/>
+                      </condition>
+                      <action>
+                        <create_ship name="L2M127.Offer Station" typename="{value@L2M127 Create Offerer.ShipType}" race="{value@L2M127.OfferRace}">
+                          <position x="0" y="0" z="0" min="10m" max="20km" height="8km"/>
+                          <equipment loadout="default"/>
+                          <command command="idle"/>
+                        </create_ship>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M127 Create Objects" delay="2s">
+                  <condition>
+                    <check_all>
+                      <cue_is_complete cue="L2M127 Delay"/>
+                      <object_exists object="L2M127.Offer Station"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <find_station name="this.Station" race="default|terran|goner">
+                        <sector sector="L2M127.StartSector"/>
+                      </find_station>
+                      <do_choose>
+                        <do_when value="{object.exists@this.Station}" exact="1">
+                          <set_value name="L2M127.ConvoyX" exact="{object.position.x.m@this.Station}"/>
+                          <set_value name="L2M127.ConvoyY" exact="{object.position.y.m@this.Station}"/>
+                          <set_value name="L2M127.ConvoyZ" exact="{object.position.z.m@this.Station}"/>
+                        </do_when>
+                        <do_otherwise>
+                          <set_value name="L2M127.ConvoyX" min="-20000" max="20000"/>
+                          <set_value name="L2M127.ConvoyY" min="-5000" max="5000"/>
+                          <set_value name="L2M127.ConvoyZ" min="-20000" max="20000"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M127 Create Convoy">
+                      <condition>
+                        <cue_completed cue="L2M127 Create Objects"/>
+                      </condition>
+                      <cues>
+                        <cue ref="LUM03 Create Ships">
+                          <params>
+                            <param name="Cue" value="L2M127" comment="Where the created convoy will be localised."/>
+                            <param name="Cancel Cue" value="L2M127 Create Convoy" comment="The cue which is canceled at the end"/>
+                            <param name="Group Name" value="Ships" comment="The name assigned to the created convoy."/>
+                            <param name="Ship Amount" value="{value@L2M127.Convoy Size}"/>
+                            <param name="Ship Class" value="{lookup.class@ts}" comment="The class of ships created"/>
+                            <param name="Maker Race" value="default" comment="The race of the ship maker"/>
+                            <param name="Race" value="{value@L2M127.Convoy Race}"/>
+                            <param name="Ship Race Logic" value="0" comment="0/1 Turn racelogic on or off"/>
+                            <param name="Ship Scanned" value="default" comment="0/1 Cargo is revealed."/>
+                            <param name="Ship Capturable" value="default" comment="0/1 The ships are capturable"/>
+                            <param name="Ship Communicates" value="default" comment="0/1 The ships communicate"/>
+                            <param name="Ship Covered" value="default" comment="0/1 Pirate Ships are Covered"/>
+                            <param name="Ship Highlight" value="default" comment="0/1 The ships are Highlighted"/>
+                            <param name="Distance" value="500m"/>
+                            <param name="Sector" value="L2M127.StartSector"/>
+                            <param name="Ship X" value="{value@L2M127.ConvoyX}m"/>
+                            <param name="Ship Y" value="{value@L2M127.ConvoyY}m"/>
+                            <param name="Ship Z" value="{value@L2M127.ConvoyZ}m"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M127 Create Escorts">
+                      <condition>
+                        <cue_cancelled cue="L2M127 Create Convoy"/>
+                      </condition>
+                      <action>
+                        <do_if value="{value@L2M127.CreateEscorts}" exact="1" negate="1">
+                          <cancel_cue cue="L2M127 Create Escorts"/>
+                        </do_if>
+                      </action>
+                      <cues>
+                        <cue ref="LUM03 Create Ships">
+                          <params>
+                            <param name="Cue" value="L2M127" comment="Where the created convoy will be localised."/>
+                            <param name="Cancel Cue" value="L2M127 Create Escorts" comment="The cue which is canceled at the end"/>
+                            <param name="Group Name" value="Escorts" comment="The name assigned to the created escorts."/>
+                            <param name="Ship Amount" value="3"/>
+                            <param name="Ship Class" value="{lookup.class@m4}" comment="The class of ships created"/>
+                            <param name="Maker Race" value="default" comment="The race of the ship maker"/>
+                            <param name="Race" value="{value@L2M127.Convoy Race}"/>
+                            <param name="Ship Race Logic" value="0" comment="0/1 Turn racelogic on or off"/>
+                            <param name="Ship Scanned" value="default" comment="0/1 Cargo is revealed."/>
+                            <param name="Ship Capturable" value="default" comment="0/1 The ships are capturable"/>
+                            <param name="Ship Communicates" value="default" comment="0/1 The ships communicate"/>
+                            <param name="Ship Covered" value="default" comment="0/1 Pirate Ships are Covered"/>
+                            <param name="Ship Highlight" value="default" comment="0/1 The ships are Highlighted"/>
+                            <param name="Position Object" value="{group.object.random@L2M127.Ships}"/>
+                            <param name="Distance" value="500m"/>
+                            <param name="Sector" value="{player.sector}"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M127 Start Ships">
+                      <condition>
+                        <cue_cancelled cue="L2M127 Create Escorts"/>
+                      </condition>
+                      <cues>
+                        <cue name="L2M127 Ship Captured">
+                          <condition>
+                            <any_object_captured group="L2M127.Ships"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <remove_object object="L2M127.Ships {event.object}"/>
+                              <do_if value="{group.object.count@L2M127.Ships}" exact="0">
+                                <remove_offer actor="L2M127.OfferActor" conversation="L2OfferCombat" discipline="XFXX"/>
+                                <set_value name="L2M127.Cleanup" exact="1"/>
+                              </do_if>
+                            </do_all>
+                          </action>
+                        </cue>
+                        <cue name="L2M127 All Ships Destroyed">
+                          <condition>
+                            <all_objects_destroyed group="L2M127.Ships"/>
+                          </condition>
+                          <action>
+                            <set_value name="L2M127.Cleanup" exact="1"/>
+                          </action>
+                        </cue>
+                        <cue name="L2M127 Check Offer">
+                          <cues>
+                            <cue name="L2M127 Time Out" delay="30s">
+                              <condition>
+                                <check_any>
+                                  <check_age value="{player.age}" min="{value@L2M127.TimeOut}"/>
+                                  <object_relation object="L2M127.Offer Station">
+                                    <relation relation="enemy"/>
+                                  </object_relation>
+                                </check_any>
+                              </condition>
+                              <cues>
+                                <cue name="L2M127 Check Comms" delay="1s">
+                                  <condition>
+                                    <check_value value="{player.menu.dialog}" exact="0"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <remove_offer actor="L2M127.OfferActor" conversation="L2OfferCombat" discipline="XFXX"/>
+                                      <set_value name="L2M127.Cleanup" exact="1"/>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                              </cues>
+                            </cue>
+                            <cue name="L2M127 Sector Out" instantiate="static">
+                              <condition>
+                                <check_all>
+                                  <object_changed_sector/>
+                                  <check_value value="{player.sector}" exact="{actor.sector@L2M127.OfferActor}" negate="1"/>
+                                </check_all>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <set_value name="L2M127.SectorChanges" operation="add"/>
+                                  <do_if value="{value@L2M127.SectorChanges}" min="4">
+                                    <remove_offer actor="L2M127.OfferActor" conversation="L2OfferCombat" discipline="XFXX"/>
+                                    <set_value name="L2M127.Cleanup" exact="1"/>
+                                  </do_if>
+                                </do_all>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L2M127 Convoy Offers">
+                          <action>
+                            <do_all>
+                              <do_all exact="{group.object.count@L2M127.Ships}" counter="ObjectCount">
+                                <set_object name="L2M127.COM01Ships {group.object.{counter@ObjectCount}@L2M127.Ships}" value="{group.object.{counter@ObjectCount}@L2M127.Ships}" group="L2M127.COM01Ships"/>
+                              </do_all>
+                              <set_group_leader group="L2M127.Ships" object="L2M127.Ships {group.object.random@L2M127.Ships}"/>
+                              <set_group_leader group="L2M127.COM01Ships" object="L2M127.COM01Ships {group.leader@L2M127.Ships}"/>
+                              <set_group_command group="L2M127.Escorts" command="protect" commandobject="{group.leader@L2M127.Ships}"/>
+                              <set_group_command group="L2M127.Ships" command="follow" commandobject="{group.leader@L2M127.Ships}"/>
+                              <set_command object="{group.leader@L2M127.Ships}" command="idle"/>
+                              <create_actor name="L2M127.OfferActor" race="{value@L2M127.OfferRace}" object="L2M127.Offer Station" voiceflags="32"/>
+                              <create_offer actor="L2M127.OfferActor" conversation="L2OfferCombat" cue="L2M127 Convoy Offers" discipline="XFXX"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M127 Escort Ships Briefing">
+                              <condition>
+                                <conversation_completed answer="briefing" actor="L2M127.OfferActor" conversation="L2OfferCombat"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <set_value name="L2M127 Convoy Offers.Temp Step" exact="1"/>
+                                  <set_value name="L2M127 Convoy Offers.Difficulty" min="{lookup.level@veryeasy}" max="{lookup.level@veryhard}"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue ref="L0M27 B">
+                                  <params>
+                                    <param name="Cue" value="L2M127 Convoy Offers" comment="The cue where the briefing will be localised"/>
+                                    <param name="Step" value="L2M127 Convoy Offers.Temp Step" comment="The initial objective step"/>
+                                    <param name="OfferRace" value="{value@L2M127.OfferRace}" comment="Offer Race ID"/>
+                                    <param name="Preview" value="1"/>
+                                    <param name="PageID" value="{value@L2M127.PageID}"/>
+                                    <param name="TextID Title" value="1001" comment="The briefing title ID"/>
+                                    <param name="TextID Text Multi" value="1002" comment="The text ID for the multiple object escort object"/>
+                                    <param name="TextID Text Singular" value="1003" comment="The text ID for the single object escort object"/>
+                                    <param name="TextID MultiShips" value="1007" comment="The text ID for the multiple object escort object"/>
+                                    <param name="TextID SingleShip" value="1008" comment="The text ID for the single object escort object"/>
+                                    <param name="DestName" value="L2M127.Destination Station" comment="The Address of the destination"/>
+                                    <param name="DestSector" value="L2M127.DestSector" comment="The destination sector"/>
+                                    <param name="GroupName" value="L2M127.Ships" comment="The Address of the Convoy Group"/>
+                                    <param name="SetObjective" value="0"/>
+                                    <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                    <param name="Difficulty" value="{value@L2M127 Convoy Offers.Difficulty}" comment="The value for the difficulty"/>
+                                    <!--reward parameters (in priority order)-->
+                                    <param name="RoundReward" value="1" comment="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+                                    <param name="RewardCr" value="L2M127 Convoy Offers.RewardCr" comment="Reward - credits"/>
+                                  </params>
+                                </cue>
+                              </cues>
+                            </cue>
+                            <cue name="L2M127 Escort Ships Accepted">
+                              <condition>
+                                <conversation_completed answer="accept" actor="L2M127.OfferActor" conversation="L2OfferCombat"/>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <cancel_cue cue="L2M127 Check Offer"/>
+                                  <cancel_cue cue="L2M127 All Ships Destroyed"/>
+                                  <increment_statistic statistic="5160"/>
+                                  <do_if value="{value@L2M127 Convoy Offers.Difficulty}" max="8">
+                                    <set_value name="L2M127 Convoy Offers.Max OBS Instances" exact="({value@L2M127 Convoy Offers.Difficulty}+1)*2"/>
+                                  </do_if>
+                                  <set_value name="L2M127.Convoy Count" exact="{group.object.count@L2M127.Ships}"/>
+                                  <set_value name="L2M127 Convoy Offers.Step" exact="1"/>
+                                  <remove_offer actor="L2M127.OfferActor" discipline="XFXX" conversation="L2OfferCombat"/>
+                                  <clear_actor_location actor="L2M127.OfferActor"/>
+                                  <do_if value="{object.isclass.ship@L2M127.Offer Station}" exact="1">
+                                    <destroy_object object="L2M127.Offer Station" warp="1"/>
+                                  </do_if>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue ref="L0M27">
+                                  <params>
+                                    <param name="Cue" value="L2M127 Convoy Offers" comment="The cue where the briefing will be localised"/>
+                                    <param name="Step" value="L2M127 Convoy Offers.Step" comment="The initial objective step"/>
+                                    <param name="OfferRace" value="{value@L2M127.OfferRace}" comment="Offer Race ID"/>
+                                    <param name="PageID" value="{value@L2M127.PageID}"/>
+                                    <param name="TextID Title" value="1004" comment="The briefing title ID"/>
+                                    <param name="TextID Text Multi" value="1005" comment="The text ID for the multiple object escort object"/>
+                                    <param name="TextID Text Singular" value="1006" comment="The text ID for the single object escort object"/>
+                                    <param name="TextID MultiShips" value="1007" comment="The text ID for the multiple object escort object"/>
+                                    <param name="TextID SingleShip" value="1008" comment="The text ID for the single object escort object"/>
+                                    <param name="DestName" value="L2M127.Destination Station" comment="The Address of the destination"/>
+                                    <param name="DestSector" value="L2M127.DestSector" comment="The destination sector"/>
+                                    <param name="GroupName" value="L2M127.Ships" comment="The Address of the Convoy Group"/>
+                                    <param name="FeedbackName" value="L2M127 Convoy Offers.Feedback"/>
+                                    <param name="AllowLoss" value="1" comment="0/1: Can the mission continue after a ship has been destroyed"/>
+                                    <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                    <param name="SetObjective" value="1" comment="Set the objectives and run the objective library"/>
+                                    <param name="Difficulty" value="{value@L2M127 Convoy Offers.Difficulty}" comment="The value address for the difficulty"/>
+                                    <param name="RewardCr" value="L2M127 Convoy Offers.RewardCr" comment="Reward - credits"/>
+                                    <param name="Kill Count" value="L2M127.Kill Count" comment="Where the number of kills is saved"/>
+                                    <param name="Finished Count" value="L2M127.Finished Count" comment="The amount of ships which get to the destination"/>
+
+                                    <param name="OBS" value="0" comment="Activate the OBS"/>
+                                    <param name="MaxOBSRuns" value="{value@L2M127 Convoy Offers.Max OBS Instances}" comment="The maximum OBS spawns. 0=Infinate"/>
+                                    <param name="OBS Counter" value="L2M127 Convoy Offers.OBS Count" comment="The name of the OBS counter"/>
+                                    <param name="OBS Cue" value="L2M127 Convoy Offers" comment="The cue name where the ship groups are saved too"/>
+                                    <param name="OBSFleetRace" value="{value@L2M127.EnemyMaker}" comment="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+                                    <param name="OBSFleetPilotsRace" value="{value@L2M127.EnemyRace}" comment="The race ID of the pilots"/>
+                                    <param name="OBSMissionRank" value="{player.fightrank.rank}" comment="A 0-30 scale preferably based on the players fight rank"/>
+                                    <param name="OBSDifficultyRank" value="{value@L2M127 Convoy Offers.Difficulty}" comment="A 1-8 scale of difficulty"/>
+                                    <param name="OBSFleetCovered" value="0" comment="0/1 Sets if created pirate ships are covered"/>
+                                    <param name="OBS Dock Support" value="1" comment="0/1 Sets if the created support ships are docked with their homebase"/>
+                                    <param name="OBS Support Overflow" value="0" comment="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+                                  </params>
+                                </cue>
+                                <cue name="L2M127 Escort Ships Completed" delay="2s">
+                                  <condition>
+                                    <check_value value="{value@L2M127 Convoy Offers.Feedback}" exact="0" negate="1"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <remove_briefing cue="L2M127 Convoy Offers"/>
+                                      <do_choose>
+                                        <do_when value="{value@L2M127 Convoy Offers.Feedback}" exact="1">
+                                          <do_choose>
+                                            <do_when value="{value@L2M127.Kill Count}" exact="{value@L2M127.Convoy Count}">
+                                              <incoming_message author="{actor.name@L2M127.OfferActor}" text="{{value@L2M127.PageID},{value@L2M127.TextOffset}1}"/>
+                                              <reward_player>
+                                                <money exact="{value@L2M127 Convoy Offers.RewardCr}"/>
+                                                <notoriety>
+                                                  <relation race="{value@L2M127.OfferRace}" exact="{reward.notoriety.{value@L2M127.OfferRace}@{value@L2M127 Convoy Offers.Difficulty}}"/>
+                                                </notoriety>
+                                              </reward_player>
+                                              <increment_statistic statistic="5170"/>
+                                              <remove_objective cue="L2M127 Convoy Offers" status="complete"/>
+                                            </do_when>
+                                            <do_when value="{value@L2M127.Kill Count}" min="1">
+                                              <do_choose>
+                                                <do_when value="{value@L2M127.Finished Count}" min="1">
+                                                  <set_value name="L2M127 Convoy Offers.RewardCr" operation="subtract" exact="{value@L2M127 Convoy Offers.RewardCr}/({value@L2M127.Convoy Count}-{value@L2M127.Kill CountKill Count})"/>
+                                                  <set_value name="L2M127 Convoy Offers.RewardCr" operation="divide" exact="{value@L2M127.Finished Count}"/>
+                                                  <incoming_message author="{actor.name@L2M127.OfferActor}" text="{{value@L2M127.PageID},{value@L2M127.TextOffset}3}"/>
+                                                  <reward_player>
+                                                    <money exact="{value@L2M127 Convoy Offers.RewardCr}"/>
+                                                    <notoriety>
+                                                      <relation race="{value@L2M127.OfferRace}" exact="{reward.notoriety.{value@L2M127.OfferRace}@{value@L2M127 Convoy Offers.Difficulty}}/({value@L2M127.Convoy Count}-{value@L2M127.Kill CountKill Count})"/>
+                                                    </notoriety>
+                                                  </reward_player>
+                                                </do_when>
+                                                <do_otherwise>
+                                                  <set_value name="L2M127 Convoy Offers.RewardCr" operation="subtract" exact="{value@L2M127 Convoy Offers.RewardCr}/({value@L2M127.Convoy Count}-{value@L2M127.Kill CountKill Count})"/>
+                                                  <incoming_message author="{actor.name@L2M127.OfferActor}" text="{{value@L2M127.PageID},{value@L2M127.TextOffset}2}"/>
+                                                  <reward_player>
+                                                    <money exact="{value@L2M127 Convoy Offers.RewardCr}"/>
+                                                    <notoriety>
+                                                      <relation race="{value@L2M127.OfferRace}" exact="{reward.notoriety.{value@L2M127.OfferRace}@{value@L2M127 Convoy Offers.Difficulty}}/({value@L2M127.Convoy Count}-{value@L2M127.Kill CountKill Count})"/>
+                                                    </notoriety>
+                                                  </reward_player>
+                                                </do_otherwise>
+                                              </do_choose>
+                                              <increment_statistic statistic="5170"/>
+                                              <remove_objective cue="L2M127 Convoy Offers" status="complete"/>
+                                            </do_when>
+                                            <do_otherwise>
+                                              <do_choose>
+                                                <do_when value="{value@L2M127.Finished Count}" min="1">
+                                                  <incoming_message author="{actor.name@L2M127.OfferActor}" text="{{value@L2M127.PageID},{value@L2M127.TextOffset}5}"/>
+                                                </do_when>
+                                                <do_when value="{value@L2M127.Finished Count}" exact="{value@L2M127.Convoy Count}">
+                                                  <incoming_message author="{actor.name@L2M127.OfferActor}" text="{{value@L2M127.PageID},{value@L2M127.TextOffset}6}"/>
+                                                </do_when>
+                                                <do_otherwise>
+                                                  <incoming_message author="{actor.name@L2M127.OfferActor}" text="{{value@L2M127.PageID},{value@L2M127.TextOffset}4}"/>
+                                                </do_otherwise>
+                                              </do_choose>
+                                              <remove_objective cue="L2M127 Convoy Offers" status="failed"/>
+                                            </do_otherwise>
+                                          </do_choose>
+                                        </do_when>
+                                        <do_when value="{value@L2M127 Convoy Offers.Feedback}" exact="99">
+                                          <remove_objective cue="L2M127 Convoy Offers" status="aborted"/>
+                                        </do_when>
+                                        <do_otherwise>
+                                          <remove_objective cue="L2M127 Convoy Offers" status="failed"/>
+                                        </do_otherwise>
+                                      </do_choose>
+                                      <set_value name="L2M127.Cleanup" exact="1"/>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                        <cue name="L2M127 Go To Destination Delay">
+                          <timing>
+                            <time min="5s" max="10s"/>
+                          </timing>
+                        </cue>
+                        <cue name="L2M127 Go To Destination">
+                          <condition>
+                            <cue_completed cue="L2M127 Go To Destination Delay"/>
+                          </condition>
+                          <action>
+                            <do_if value="{object.exists@{L2M127.Destination Station}}" exact="0">
+                              <find_station name="{value@L2M127.Destination Station}" findobject="{group.object.random@L2M127.Ships}" dockingallowed="1" class="station">
+                                <sector sector="{group.object.random.sector@L2M127.Ships}"/>
+                                <jumps min="1"/>
+                              </find_station>
+                            </do_if>
+                          </action>
+                          <cues>
+                            <cue name="L2M127 Go To Destination Wait">
+                              <condition>
+                                <cue_completed cue="L2M127 Go To Destination"/>
+                              </condition>
+                              <cues>
+                                <cue ref="COM01">
+                                  <params>
+                                    <param name="GroupName" value="L2M127.COM01Ships"/>
+                                    <param name="CleanupName" value="L2M127.CleanupShips"/>
+                                    <param name="DestName" value="L2M127.Destination Station"/>
+                                    <param name="Follow Leader" value="1"/>
+                                    <param name="Cleanup Individuals" value="1"/>
+                                    <param name="Reset Leader" value="1"/>
+                                    <param name="Constant Update" value="1"/>
+                                  </params>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>0xCgwkmfIV9Jujz61x0my05e7AIHMIaVUEBtAKTJna0IhX+OTR1J2mete1JMXdCyt9FaF1oZcLfh3FHR4OUjVhgpXMmh9f/88+4kP99TkGJ8mL7+BN18SaMGCbjzZaPvenhMeMcvFu371rv3Yojxpj4lFD60oSjRCUeUN9H9oR1jvnErYacy8Q/Xgqjlh5xMkKBvuCgPflk2uvrfKj1cBzgi1FztgGnTuFHLuPXKBzrjUuQcjiYpZt5bFHGarKp1DeyVfTb5kApIFvZeU/zM8zi7/6i8yWh5mebW3D+BF98eCQKlFlw2JKAXNPmT4evbI+8JPUpW6hQos+bwK2A1og==</signature>
+</director>
+
+
+  

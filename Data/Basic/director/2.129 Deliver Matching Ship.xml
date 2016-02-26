@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen_Lake@eogsoft.com Skype: Owen Lake" />
+    <content reference="L2M129" name="Level 2 Deliver Matching Ship Mission" description="Find and Deliver a ship which matches the Criteria"/>
+    <version number="0.2" date="28/05/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M129" library="1" check="cancel">
+      <documentation>
+        <content name="Deliever Matching Ship" reference="L2M129" type="L2"/>
+        <version date="28/05/2008" number="0.2" status="release"/>
+        <todo>
+          <item author="Owen Lake" date="30/01/2008" description="Implement levels of difficulty. Higher levels include stricter matching criteria,
+                stricter time restraints, better rewards and more expensive ship classes."/>
+        </todo>
+      </documentation>
+      <condition>
+        <count_stations dockingallowed="1" friend="1" neutral="1" race="default|terran|goner|pirategroup" min="1">
+          <sector sector="{player.sector}"/>
+        </count_stations>
+      </condition>
+      <cues>
+        <cue name="L2M129 Setup">
+          <action>
+            <do_all>
+              <set_value name="L2M129.PageID" exact="3329"/>
+              <find_station name="L2M129.DestStation" dockingallowed="1" friend="1" neutral="1" race="default|terran|goner|pirategroup">
+                <sector sector="{player.sector}"/>
+              </find_station>
+              <set_value name="L2M129.TimeOut" min="{player.age}+700" max="{player.age}+800"/>
+              <do_choose>
+                <do_when value="{object.exists@L2M129.DestStation}" exact="0">
+                  <cancel_cue cue="L2M129"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L2M129.Ship Race" exact="{object.race@L2M129.DestStation}"/>
+                  <do_if value="{object.race.mask.default@L2M129.DestStation}" exact="1">
+                    <set_value name="L2M129.Ship Race" exact="{random.race@default}"/>
+                  </do_if>
+                  <do_if value="{object.race@L2M129.DestStation}" exact="{lookup.race@goner}">
+                    <set_value name="L2M129.Ship Race" exact="{random.race@default}"/>
+                  </do_if>
+                  <do_any>
+                    <do_all>
+                      <set_value name="L2M129.Situation" exact="0" comment="Deliver Ship"/>
+                      <set_value name="L2M129.TextOffset" exact="0"/>
+                      <set_value name="L2M129.Ship Class" exact="{random.class@ts|tp|m4|m5}"/>
+                    </do_all>
+                    <do_all>
+                      <set_value name="L2M129.Situation" exact="1" comment="Deliver Freighter"/>
+                      <set_value name="L2M129.TextOffset" exact="1"/>
+                      <set_value name="L2M129.Ship Class" exact="{random.class@ts|tp}"/>
+                    </do_all>
+                    <do_all>
+                      <set_value name="L2M129.Situation" exact="2" comment="Deliver Fighter"/>
+                      <set_value name="L2M129.TextOffset" exact="2"/>
+                      <set_value name="L2M129.Ship Class" exact="{random.class@m4|m5}"/>
+                    </do_all>
+                  </do_any>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M129 ref SRST">
+              <condition>
+                <cue_completed cue="L2M129 Setup"/>
+              </condition>
+              <cues>
+                <cue ref="SRST" comment="Find a random shiptype to reference">
+                  <params>
+                    <param name="Race ID" value="{value@L2M129.Ship Race}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                    <param name="Class ID" value="{value@L2M129.Ship Class}" comment="Class ID or Class Mask."/>
+                    <param name="Cue" value="L2M129" comment="The Cue that the shiptype is saved too"/>
+                    <param name="CancelCue" value="L2M129 ref SRST"/>
+                    <param name="Shiptype Address" value="L2M129.ShipType" comment="The address that the shiptype will be saved to"/>
+                    <param name="Include M3P" value="0" comment="Include the M3Plus ships in the M3 search"/>
+                    <param name="Include M4P" value="0" comment="Include the M4Plus ships in the M4 search"/>
+                    <param name="Include M5P" value="0" comment="Include the M5Plus ships in the M5 search"/>
+                    <param name="Include M6M" value="0" comment="Include the M6M ships in the M6 search"/>
+                    <param name="Include M7M" value="0" comment="Include the M7M ships in the M7 search"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M129 wait for type">
+              <condition>
+                <cue_cancelled cue="L2M129 ref SRST"/>
+              </condition>
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{value@L2M129.ShipType}" exact="0" comment="If no shiptype is found">
+                      <cancel_cue cue="L2M129"/>
+                    </do_when>
+                    <do_otherwise>
+                      <do_choose>
+                        <do_when value="{value@L2M129.Ship Race}" exact="{lookup.race@goner}">
+                          <create_actor name="L2M129.Offer Actor" race="argon" object="L2M129.DestStation" voiceflags="32"/>
+                        </do_when>
+                        <do_otherwise>
+                          <create_actor name="L2M129.Offer Actor" race="{value@L2M129.Ship Race}" object="L2M129.DestStation" voiceflags="32"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <create_offer actor="L2M129.Offer Actor" conversation="L2OfferShip" cue="L2M129" discipline="XXXT"/>
+                      <set_value name="L2M129.Step" exact="1"/>
+                      <set_value name="L2M129.Use Typename" list="0|1"/>
+                      <set_value name="L2M129.Use Maker" list="0|1"/>
+                      <do_if value="{value@L2M129.TextOffset}" min="1">
+                        <set_value name="L2M129.B Title TextID" exact="{value@L2M129.TextOffset}001"/>
+                        <do_choose>
+                          <do_when value="{value@L2M129.Use Typename}" exact="1">
+                            <set_value name="L2M129.B Text TextID" exact="{value@L2M129.TextOffset}004"/>
+                          </do_when>
+                          <do_otherwise>
+                            <do_choose>
+                              <do_when value="{lookup.race@{param@Maker}}" exact="0" negate="1">
+                                <set_value name="L2M129.B Text TextID" exact="{value@L2M129.TextOffset}003"/>
+                              </do_when>
+                              <do_otherwise>
+                                <set_value name="L2M129.B Text TextID" exact="{value@L2M129.TextOffset}002"/>
+                              </do_otherwise>
+                            </do_choose>
+                          </do_otherwise>
+                        </do_choose>
+                      </do_if>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M129 Check Offer">
+                  <cues>
+                    <cue name="L2M129 Time Out" delay="30s">
+                      <condition>
+                        <check_any>
+                          <check_age value="{player.age}" min="{value@L2M129.TimeOut}"/>
+                          <object_relation object="L2M129.DestStation">
+                            <relation relation="enemy"/>
+                          </object_relation>
+                        </check_any>
+                      </condition>
+                      <cues>
+                        <cue name="L2M129 Check Comms" delay="1s">
+                          <condition>
+                            <check_value value="{player.menu.dialog}" exact="0"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <destroy_actor actor="L2M129.Offer Actor"/>
+                              <cancel_cue cue="L2M129"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M129 Sector Out" instantiate="static">
+                      <condition>
+                        <object_changed_sector/>
+                      </condition>
+                      <action>
+                        <do_if value="{player.sector}" exact="{actor.sector@L2M129.Offer Actor}" negate="1">
+                          <set_value name="L2M129.SectorChanges" operation="add"/>
+                          <do_if value="{value@L2M129.SectorChanges}" min="2">
+                            <destroy_actor actor="L2M129.Offer Actor"/>
+                            <cancel_cue cue="L2M129"/>
+                          </do_if>
+                        </do_if>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M129 Deliver Ship Briefing">
+                  <condition>
+                    <conversation_completed answer="briefing" actor="L2M129.Offer Actor" conversation="L2OfferShip"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L2M129.TempStep" exact="1"/>
+                      <set_value name="L2M129.Step" exact="1"/>
+                      <set_value name="L2M129.Difficulty" min="{lookup.level@veryeasy}" max="{lookup.level@veryhard}"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue ref="L0M29 B">
+                      <params>
+                        <param name="Cue" value="L2M129" comment="The cue where the briefing will be localised"/>
+                        <param name="Step" value="L2M129.TempStep" comment="The initial objective step"/>
+                        <param name="OfferRace" value="{value@L2M129.Ship Race}" comment="Offer Race ID"/>
+                        <param name="PageID" value="{value@L2M129.PageID}" comment="The pageID for mission text"/>
+                        <param name="TextID Title" value="{value@L2M129.B Title PageID}" comment="The briefing title ID"/>
+                        <param name="TextID Text" value="{value@L2M129.B Text TextID}" comment="The briefing text ID"/>
+                        <param name="DestName" value="L2M129.DestStation" comment="The Address of the destination"/>
+                        <param name="Maker" value="{value@L2M129.Ship Race}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                        <param name="Class" value="{value@L2M129.Ship Class}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                        <param name="Typename" value="{value@L2M129.ShipType}" comment="Typename ID. Used when 'UseTypename' is 1."/>
+                        <param name="UseTypename" value="{value@L2M129.Use Typename}" comment="Omitting this parameter sets 0."/>
+                        <param name="Preview" value="1"/>
+                        <param name="SetObjective" value="0"/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="Difficulty" value="{value@L2M129.Difficulty}" comment="The value address for the difficulty"/>
+                        <param name="Duration" value="L2M129.Duration" comment="Mission Time"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RoundReward" value="1" comment="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+                        <param name="RewardCr" value="L2M129.RewardCr" comment="Reward - credits"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M129 Deliver Ship">
+                  <condition>
+                    <conversation_completed answer="accept" actor="L2M129.Offer Actor" conversation="L2OfferShip"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M129 Check Offer"/>
+                      <increment_statistic statistic="5160"/>
+                      <remove_offer actor="L2M129.Offer Actor" conversation="L2OfferShip" discipline="XXXT"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M129 Deliver Ship ref L0M29">
+                      <cues>
+                        <cue ref="L0M29">
+                          <params>
+                            <param name="Cue" value="L2M129 Deliver Ship" comment="The cue where the briefing will be localised"/>
+                            <param name="Step" value="L2M129.Step" comment="The initial objective step"/>
+                            <param name="OfferRace" value="{value@L2M129.Ship Race}" comment="Offer Race ID"/>
+                            <param name="PageID" value="{value@L2M129.PageID}" comment="The pageID for mission text"/>
+                            <param name="TextID Title" value="{value@L2M129.B Title PageID}" comment="The briefing title ID"/>
+                            <param name="TextID Text" value="{value@L2M129.B Text TextID}" comment="The briefing text ID"/>
+                            <param name="DestName" value="L2M129.DestStation" comment="The address of the destination object"/>
+                            <param name="Maker" value="{value@L2M129.Ship Race}" comment="Race ID. Can be used with 'Class'. Omit if not needed."/>
+                            <param name="Class" value="{value@L2M129.Ship Class}" comment="Class ID. Can be used with 'Maker'. Omit if not needed."/>
+                            <param name="Typename" value="{value@L2M129.ShipType}" comment="Typename ID. Used when 'UseTypename' is 1."/>
+                            <param name="UseTypename" value="{value@L2M129.Use Typename}" comment="Omitting this parameter sets 0."/>
+                            <param name="SetObjective" value="1"/>
+                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                            <param name="Difficulty" value="{value@L2M129.Difficulty}" comment="The value address for the difficulty"/>
+                            <param name="Duration" value="L2M129.Duration" comment="Mission Time"/>
+                            <param name="RewardCr" value="L2M129.RewardCr" comment="Reward - credits"/>
+                            <param name="Offer Actor" value="{actor@L2M129.Offer Actor}"/>
+                            <param name="ShipName" value="L2M129.Ship" comment="Where the choosen ship will be localized"/>
+                            <param name="FeedbackName" value="L2M129 Deliver Ship.Feedback" comment="The address where the step value is stored"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M129 L0M29 End" delay="2s">
+                      <condition>
+                        <check_value value="{value@L2M129 Deliver Ship.Feedback}" exact="0" negate="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <do_choose>
+                            <do_when value="{value@L2M129 Deliver Ship.Feedback}" exact="1">
+                              <set_value name="L2M129.Reward" exact="{object.cargo.value@L2M129.Ship}+{object.type.price@L2M129.Ship}+{value@L2M129.RewardCr}"/>
+                              <reward_player>
+                                <money exact="{value@L2M129.Reward}"/>
+                                <notoriety>
+                                  <relation race="{value@L2M129.Ship Race}" exact="{reward.notoriety.{value@L2M129.Ship Race}@{value@L2M129.Difficulty}}"/>
+                                </notoriety>
+                              </reward_player>
+                              <set_owner object="L2M129.Ship" race="{actor.race@L2M129.Offer Actor}"/>
+                              <set_pilot_data object="L2M129.Ship" name="{actor.name@L2M129.Offer Actor}"/>
+                              <set_command/>
+                              <incoming_message author="{actor.name@L2M129.Offer Actor}" text="{{value@L2M129.PageID},{value@L2M129.TextOffset}1}"/>
+                              <increment_statistic statistic="5170"/>
+                              <remove_objective cue="L2M129 Deliver Ship" status="complete"/>
+                            </do_when>
+                            <do_when value="{value@L2M129 Deliver Ship.Feedback}" exact="2">
+                              <incoming_message author="{actor.name@L2M129.Offer Actor}" text="{{value@L2M129.PageID},{value@L2M129.TextOffset}2}"/>
+                              <remove_objective cue="L2M129 Deliver Ship" status="failed"/>
+                            </do_when>
+                            <do_when value="{value@L2M129 Deliver Ship.Feedback}" exact="99">
+                              <remove_objective cue="L2M129 Deliver Ship" status="aborted"/>
+                            </do_when>
+                            <do_otherwise>
+                              <remove_objective cue="L2M129 Deliver Ship" status="aborted"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <destroy_actor actor="L2M129.Offer Actor"/>
+                          <remove_briefing cue="L2M129 Deliver Ship"/>
+                          <cancel_cue cue="L2M129"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>mS7ARSwM4gMGRaRTiTE0tyMtu/ZalhM94u1y2e7vc1fJEyhF1yhKUlOgwPcsalvqQ1zGHuXIpkFPZm2HP2Aka3m4ZJFaJ1sVAJ9xDuH8mUnwesnWeC8pu0DAM3l7nC5+C8uei4iFS2w4zHGPjTHavePcFkFX442ftytKtNOjSsR75VjZQPilu/5HOVEFm1CevoQNsRte0QHAeSJTVQQpdkpVPYrpXqLNwuK4QyZeCYtH7Byd2knxuUxnggiz43tYcZ9em7ul9GNy8PNWQM8cmklie4kBAy47GB/8Rs6Il9Jb6uTP6xRPsItnDdOMNlpC+AOUYNNxuPiU/WiJ1LdDkw==</signature>
+</director>

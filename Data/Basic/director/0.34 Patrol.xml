@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L0M34" name="Patrol" description="Patrol sectors to the destination sector"/>
+    <version number="0.2" date="13/05/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="L0M34 B" library="1">
+      <documentation>
+        <content name="Patrol Briefing Dummy" reference="L0M34 B" type="utility"/>
+        <version date="13/05/2008" number="0.1" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text" type="number" description="The briefing text ID"/>
+          <param name="FinalSector" type="sectorname" description="The Address of the destination. Overrides all other criteria."/>
+          <param name="PatrolSector" type="sectorname" description="The next sector on the way to the destination"/>
+          <param name="EnemyRace" type="number" description="Race id or mask"/>
+          <param name="OfferRace" type="number" description="Offer Race ID"/>
+          <param name="Difficulty" type="number" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="Preview" type="boolean" description="Is the briefing a preview"/>
+          <param name="SetObjectives" type="boolean" description="Set the objectives and run the Objective library"/>
+          <param name="Complete Briefing" type="boolean" description="Run the briefing completion library"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="NoReward" type="boolean" compulsory="0" description="Do not add a reward"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <param name="RewardFree" type="boolean" compulsory="0" description="Reward - use free text"/>
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+        </params>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M34 B.Step" exact="{value@{param@Step}}"/>
+          <do_if value="{param.exists@Duration}" exact="1">
+            <do_if value="{value@{param@Duration}}" exact="0">
+              <set_value name="{param@Duration}" min="2400" max="2700"/>
+            </do_if>
+          </do_if>
+          <do_choose>
+            <do_when value="{param.exists@StartTime}" exact="1">
+              <set_value name="L0M34 B.StartTime" exact="{param@StartTime}"/>
+            </do_when>
+            <do_otherwise>
+              <do_if value="{value@{param@Duration}}" min="1">
+                <do_choose>
+                  <do_when value="{param@Preview}" exact="1">
+                    <set_value name="L0M34 B.StartTime" exact="5000+{player.age}+{value@{param@Duration}}"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="L0M34 B.StartTime" exact="{player.age}"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{param.exists@RewardCr}" exact="1">
+            <do_choose>
+              <do_when value="{param@Difficulty}" exact="0">
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money.{param@OfferRace}@{param@Difficulty}.XFXX}/2"/>
+                </do_if>
+              </do_when>
+              <do_otherwise>
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money}"/>
+                </do_if>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+
+          <set_value name="L0M34 B.B Title PageID" exact="{param@PageID}"/>
+          <set_value name="L0M34 B.B Title TextID" exact="{param@TextID Title}"/>
+          <do_if value="{text.exists@{value@L0M34 B.B Title PageID},{value@L0M34 B.B Title TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M34 B.B Title PageID" exact="3634"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <set_value name="L0M34 B.B Title TextID" exact="1001"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L0M34 B.B Title TextID" exact="1004"/>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+
+          <set_value name="L0M34 B.B Text PageID" exact="{param@PageID}"/>
+          <set_value name="L0M34 B.B Text TextID" exact="{param@TextID Text}"/>
+          <do_if value="{text.exists@{value@L0M34 B.B Text PageID},{value@L0M34 B.B Text TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M34 B.B Text PageID" exact="3634"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <do_choose>
+                    <do_when value="{sector@{param@FinalSector}}" exact="{sector@{param@PatrolSector}}">
+                      <set_value name="L0M34 B.B Text TextID" exact="1003"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L0M34 B.B Text TextID" exact="1002"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_when>
+                <do_otherwise>
+                  <do_choose>
+                    <do_when value="{sector@{param@FinalSector}}" exact="{sector@{param@PatrolSector}}">
+                      <set_value name="L0M34 B.B Text TextID" exact="1007"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L0M34 B.B Text TextID" exact="1006"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+          <do_choose>
+            <do_when value="{param@Preview}" exact="1">
+              <do_choose>
+                <do_when value="{sector@{param@FinalSector}}" exact="{sector@{param@PatrolSector}}">
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@L0M34 B.Step}">
+                        <custom action="{35,2052}" text="{sector.name@{param@FinalSector}}" icon="destroy"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_when>
+                <do_otherwise>
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@L0M34 B.Step}">
+                        <custom action="{35,2053}" text="{sector.name@{param@FinalSector}}" icon="destroy"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_otherwise>
+              </do_choose>
+            </do_when>
+            <do_otherwise>
+              <do_choose>
+                <do_when value="{player.sector}" exact="{sector@{param@PatrolSector}}">
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@L0M34 B.Step}">
+                        <custom action="{35,2052}" text="{sector.name@{param@PatrolSector}}" icon="destroy">
+                          <sector sector="{param@PatrolSector}"/>
+                        </custom>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_when>
+                <do_otherwise>
+                  <create_briefing cue="{param@Cue}">
+                    <objectives>
+                      <objective step="{value@L0M34 B.Step}">
+                        <flyto>
+                          <sector sector="{param@PatrolSector}"/>
+                        </flyto>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                </do_otherwise>
+              </do_choose>
+            </do_otherwise>
+          </do_choose>
+
+          <do_if value="{text.exists@{value@L0M34 B.B Title PageID},{value@L0M34 B.B Title TextID}}" exact="1">
+            <do_if value="{text.exists@{value@L0M34 B.B Text PageID},{value@L0M34 B.B Text TextID}}" exact="1">
+              <create_briefing cue="{param@Cue}" title="{{value@L0M34 B.B Title PageID},{value@L0M34 B.B Title TextID}}" text="{{value@L0M34 B.B Text PageID},{value@L0M34 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+          
+          <do_if value="{param@SetObjective}" exact="1">
+            <do_if value="{text.exists@{value@L0M34 B.B Title PageID},{value@L0M34 B.B Title TextID}}" exact="1">
+              <do_if value="{text.exists@{value@L0M34 B.B Text PageID},{value@L0M34 B.B Text TextID}}" exact="1">
+                <set_value name="this.ObjectiveTitle" exact="1"/>
+              </do_if>
+            </do_if>
+            <do_choose>
+              <do_when value="{player.sector}" exact="{sector@{param@PatrolSector}}">
+                <set_objective cue="{param@Cue}">
+                  <briefing cue="{param@Cue}" step="{value@L0M34 B.Step}"/>
+                  <custom action="{35,2052}" text="{sector.name@{param@PatrolSector}}" icon="destroy"/>
+                </set_objective>
+              </do_when>
+              <do_otherwise>
+                <set_objective cue="{param@Cue}">
+                  <briefing cue="{param@Cue}" step="{value@L0M34 B.Step}"/>
+                  <flyto>
+                    <sector sector="{param@PatrolSector}"/>
+                  </flyto>
+                </set_objective>
+              </do_otherwise>
+            </do_choose>
+            <do_if value="{value@this.ObjectiveTitle}" exact="1">
+              <set_objective cue="{param@Cue}" title="{{value@L0M34 B.B Title PageID},{value@L0M34 B.B Title TextID}}" text="{{value@L0M34 B.B Text PageID},{value@L0M34 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L0M34 B Complete Briefing" check="cancel">
+          <condition>
+            <check_all>
+              <cue_completed cue="L0M34 B"/>
+              <check_value value="{param@Complete Briefing}" exact="1"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="LUM04">
+              <params>
+                <param name="Discipline" value="XFXX" comment="The mission discipline"/>
+                <param name="StartTime" value="L0M34 B.StartTime"/>
+              </params>
+            </cue>
+            <cue name="L0M34 Set Objectives" check="cancel">
+              <condition>
+                <check_value value="{param@SetObjective}" exact="1"/>
+              </condition>
+              <cues>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Discipline" value="XFXX" comment="The mission discipline"/>
+                    <param name="StartTime" value="L0M34 B.StartTime"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+    <cue name="L0M34" library="1">
+      <documentation>
+        <content name="Patrol Mission" reference="L0M34" type="L0"/>
+        <version date="13/05/2008" number="0.1" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text" type="number" description="The briefing text ID"/>
+          <param name="FinalSector" type="sectorname" description="The Address of the destination. Overrides all other criteria."/>
+          <param name="PatrolSector" type="sectorname" description="The next sector on the way to the destination"/>
+          <param name="EnemyRace" type="number" description="Race id or mask"/>
+          <param name="OfferRace" type="number" description="Offer Race ID"/>
+          <param name="Clear Enemies" type="boolean" description="Only move on when there are no enemies around the player"/>
+          <param name="Use Offer Race Enemies" type="boolean" description="0 = Sector Owner Enemies, 1 = Enemies are enemies of the offer race. Not used if EnemyRace provided."/>
+          <param name="Difficulty" type="number" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="Preview" type="boolean" description="Is the briefing a preview"/>
+          <param name="SetObjectives" type="boolean" description="Set the objectives and run the Objective library"/>
+          <param name="Complete Briefing" type="boolean" description="Run the briefing completion library"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+          <param name="PatrolDest" type="boolean" description="Patrol the destination sector"/>
+          <param name="PatrolTime" type="number" description="Duration of patrol per sector in seconds"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="NoReward" type="boolean" compulsory="0" description="Do not add a reward"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <param name="RewardFree" type="boolean" compulsory="0" description="Reward - use free text"/>
+          <param name="RewardText" type="text" compulsory="0" description="Free text for reward" />
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+
+          <param name="OBSDelay" type="number" description="The delay between OBS spawns"/>
+          <param name="OBS" type="boolean" description="Activate the OBS"/>
+          <param name="MaxOBSRuns" type="number" description="The maximum OBS spawns. 0=Infinate"/>
+          <param name="OBS Counter" type="valuename" description="The name of the OBS counter"/>
+          <param name="OBS Cue" type="cuename" description="The cue name where the ship groups are saved too"/>
+          <param name="OBSFleetRace" type="number" description="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+          <param name="OBSFleetPilotsRace" type="number" description="The race ID of the pilots"/>
+          <param name="OBSMissionRank" type="number" description="A 0-30 scale preferably based on the players fight rank"/>
+          <param name="OBSDifficultyRank" type="number" description="A 1-8 scale of difficulty"/>
+          <param name="OBSPosition" type="number" description="how far away should the OBS ships be from OBSFleetPositionObject"/>
+          <param name="OBSFleetPositionObject" type="objectid" description="The object which will provide the location information"/>
+          <param name="OBSSector" type="sectorid" description="The sector where the ships will spawn if OBSFleetPositionObject not set"/>
+          <param name="OBS X" type="number" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBS Y" type="number" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBS Z" type="number" description="Co-ordinate value in KM if the OBSFleetPositionObject was not set"/>
+          <param name="OBSFleetCapturable" type="boolean" description="Sets if the created ships are capturable"/>
+          <param name="OBSFleetCommunicates" type="boolean" description="Sets if the created ships can be communicated with"/>
+          <param name="OBSFleetCovered" type="boolean" description="0/1 Sets if created pirate ships are covered"/>
+          <param name="OBSFleetHomebaseID" type="boolean" description="Object ID for the fleets homebase"/>
+          <param name="OBSFleetScanned" type="boolean" description="0/1 Sets if the created ships have their freight on display"/>
+          <param name="OBSFleetHighlight" type="boolean" description="0/1 Sets if the created ships will be highlighted"/>
+          <param name="OBSFleetRaceLogic" type="boolean"/>
+          <param name="OBS Dock Support" type="boolean" description="0/1 Sets if the created support ships are docked with their homebase"/>
+          <param name="OBS Support Overflow" type="boolean" description="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+        </params>
+        <history>
+          <change date="13/05/2008" author="Owen Lake" description="Added add operations. Minor changes"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M34.Initial Step" exact="{value@{param@Step}}"/>
+          <set_value name="L0M34.Step" exact="{value@{param@Step}}"/>
+          <do_if value="{value@{param@Duration}}" exact="0" negate="1">
+            <set_value name="L0M34.Duration" exact="{value@{param@Duration}}+{player.age}"/>
+          </do_if>
+          <set_value name="L0M34.PatrolTime" exact="{param@PatrolTime}"/>
+          <do_if value="{value@L0M34.PatrolTime}" max="10">
+            <set_value name="L0M34.PatrolTime" min="150" max="250"/>
+          </do_if>
+
+          <set_value name="L0M34.MaxOBSPerSector" exact="{param@MaxOBSPerSector}"/>
+          
+          <set_value name="L0M34.EndTime" exact="{value@{param@EndTime}}"/>
+          
+          <set_value name="L0M34.OBSDelay" exact="{param@OBSDelay}"/>
+          <do_if value="{value@L0M34.OBSDelay}" max="10">
+            <do_choose>
+              <do_when value="{value@L0M34.MaxOBSPerSector}" min="1">
+                <set_value name="L0M34.OBSDelay" exact="{value@L0M34.PatrolTime}/{value@L0M34.MaxOBSPerSector}"/>
+              </do_when>
+              <do_otherwise>
+                <set_value name="L0M34.OBSDelay" exact="{value@L0M34.PatrolTime}/2"/>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+          <set_value name="L0M34.OBSTime" min="40+{player.age}" max="70+{player.age}"/>
+          <set_value name="L0M34.EnemyRace" exact="{param@EnemyRace}"/>
+          <set_value name="L0M34.Bonus" exact="1+({reward.money@average.XFXX}/125)"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="L0M34 B"/>
+        <cue name="L0M34 Check Time" delay="1s">
+          <condition>
+            <check_all>
+              <check_any>
+                <check_all>
+                  <check_value value="{value@L0M34.Duration}" min="1"/>
+                  <check_time value="{player.age}" min="{value@L0M34.Duration}"/>
+                </check_all>
+                <check_all>
+                  <check_value value="{value@L0M34.EndTime}" min="1"/>
+                  <check_time value="{player.age}" min="{value@L0M34.EndTime}"/>
+                </check_all>
+              </check_any>
+              <check_any>
+                <check_all>
+                  <check_value value="{param@IsPlot}" exact="1"/>
+                  <check_value value="{param@UseTimer}" exact="1"/>
+                </check_all>
+                <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+              </check_any>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="2"/>
+              <set_value name="{param@Step}" operation="add"/>
+              <cancel_cue cue="L0M34"/>
+            </do_all>
+          </action>
+        </cue>
+
+        <cue name="L0M34 Mission Aborted">
+          <condition>
+            <objective_cancelled cue="{param@Cue}"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="99"/>
+              <cancel_cue cue="L0M34"/>
+            </do_all>
+          </action>
+        </cue>
+        
+        <cue name="L0M34 Sector Reached" delay="5s">
+          <condition>
+            <check_value value="{player.sector}" exact="{sector@{param@PatrolSector}}"/>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{sector.route.exists@{param@FinalSector}}" exact="1">
+                <set_sector name="L0M34.NextSector" value="{sector.route.destination.sector@{param@FinalSector}}"/>
+              </do_if>
+              <set_value name="L0M34.Patrol Delay" exact="{player.age}+{param@PatrolTime}"/>
+              <do_if value="{player.sector}" exact="{sector@{param@FinalSector}}">
+                <do_if value="{param@PatrolDest}" exact="0">
+                  <set_value name="{param@FeedbackName}" exact="1"/>
+                  <set_value name="{param@Step}" operation="add"/>
+                  <cancel_cue cue="L0M34"/>
+                </do_if>
+              </do_if>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L0M34 Set Enemy Races" check="cancel">
+              <condition>
+                <check_value value="{value@L0M34.EnemyRace}" exact="0"/>
+              </condition>
+              <action>
+                <do_choose>
+                  <do_when value="{param@Use Offer Race Enemies}" exact="1">
+                    <set_value name="this.Race" exact="{param@OfferRace}"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="this.Race" exact="{sector.race@{param@PatrolSector}}"/>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+              <cues>
+                <cue ref="LUM13">
+                  <params>
+                    <param name="Race" value="{value@L0M34 Set Enemy Races.Race}" comment="The race to find the rivals to"/>
+                    <param name="ReturnName" value="L0M34.EnemyRace" comment="Where to save the rival race mask to"/>
+                    <param name="FeedbackName" value="L0M34 Set Enemy Races.LUM13 Result" comment="Where to save the feedback value to"/>
+                    <param name="Foe" value="0" comment="Return Foe"/>
+                    <param name="Hostile" value="1" comment="Return Hostile" />
+                    <param name="IncludeAlien" value="1" comment="Excluded Xenon and Kha'ak"/>
+                  </params>
+                </cue>
+                <cue name="L0M34 Enemy Race Check">
+                  <condition>
+                    <check_value value="{value@L0M34 Set Enemy Races.LUM13 Result}" exact="1"/>
+                  </condition>
+                  <action>
+                    <do_if value="{value@L0M34.EnemyRace}" exact="0">
+                      <set_value name="L0M34.EnemyRace" exact="{lookup.race.mask@aggressive}"/>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue ref="L0M34 B"/>
+            <cue name="L0M34 Update Rewards Wait">
+              <timing>
+                <time exact="1s"/>
+              </timing>
+              <cues>
+                <cue name="L0M34 Update Rewards Wait finished">
+                  <condition>
+                    <cue_completed cue="L0M34 Update Rewards Wait"/>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M34 Complete Rewards"/>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M34 Player Kills Object" instantiate="static">
+              <condition>
+                <player_killed_object/>
+              </condition>
+              <action>
+                <do_if value="{player.sector}" exact="{sector@{param@PatrolSector}}">
+                  <do_if value="{object.race.mask.{value@L0M34.EnemyRace}@{event.object}}" exact="1">
+                    <set_value name="this.GoodKill" exact="1"/>
+                  </do_if>
+                  <do_if value="{value@this.GoodKill}" exact="1">
+                    <set_value name="{param@KillCount Name}" operation="add"/>
+                    <set_value name="{param@KillScore Name}" operation="add" exact="{value@Constant {object.class@{event.object}} Points}"/>
+                    <!--add score to bonus-->
+                    <set_value name="this.increase" min="{value@Constant {object.class@{event.object}} Points}*{value@L0M34.Bonus}" max="{value@Constant {object.class@{event.object}} Points}*{value@L0M34.Bonus}+100"/>
+                    <do_if value="{value@this.increase}" exact="0">
+                      <set_value name="this.increase" min="{value@Constant {lookup.class@m4} Points}*{value@L0M34.Bonus}" max="{value@Constant {lookup.class@m4} Points}*{value@L0M34.Bonus}+100"/>
+                    </do_if>
+                    <set_value name="{param@Bonus}" operation="add" exact="{value@this.increase}"/>
+
+                    <do_if value="{param.exists@RewardCr}" exact="1">
+                      <!--THIS SET OBJECTIVE DISPLAYS ON SCREEN - "Payment: + (amount) Cr"-->
+                      <set_objective cue="{param@Cue}">
+                        <custom action="{35,1104065}" text="+ [o]{value@this.increase}[/o] Cr" icon="destroy"/>
+                      </set_objective>
+                    </do_if>
+
+                    <!--REAL OBJECTIVE NEEDS TO BE RE-SET WITH SILENT="1"-->
+                    <!--IS THIS CORRECT?-->
+                    <set_objective cue="{param@Cue}" silent="1">
+                      <custom action="{35,2052}" text="{sector.name@{param@PatrolSector}}" icon="destroy"/>
+                    </set_objective>
+                  </do_if>
+                </do_if>
+              </action>
+              <cues>
+                <cue ref="L0M34 Complete Rewards"/>
+              </cues>
+            </cue>
+            <cue name="L0M34 Complete Rewards" library="1">
+              <action>
+                <!--HAVE I ADDED AN EXTRA '+' HERE?-->
+                <do_if value="{param.exists@RewardCr}" exact="1">
+                  <do_choose>
+                    <do_when value="{param.exists@RewardFree}" exact="1">
+                      <create_briefing cue="{param@Cue}">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {param@RewardFree}"/>
+                      </create_briefing>
+                      <set_objective cue="{param@Cue}" silent="1">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {param@RewardFree}"/>
+                      </set_objective>
+                    </do_when>
+                    <do_when value="{object.exists@{param@RewardObj}}" exact="1">
+                      <create_briefing cue="{param@Cue}">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {object.name@{param@RewardObj}}"/>
+                      </create_briefing>
+                      <set_objective cue="{param@Cue}" silent="1">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {object.name@{param@RewardObj}}"/>
+                      </set_objective>
+                    </do_when>
+                    <do_when value="{param.exists@RewardWare}" exact="1">
+                      <create_briefing cue="{param@Cue}">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {lookup.type.name@{param@RewardWare}}"/>
+                      </create_briefing>
+                      <set_objective cue="{param@Cue}" silent="1">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {lookup.type.name@{param@RewardWare}}"/>
+                      </set_objective>
+                      <do_if value="{param.exists@RewardAmt}" exact="1">
+                        <create_briefing cue="{param@Cue}">
+                          <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {value@{param@RewardAmt}} x {lookup.type.name@{param@RewardWare}}"/>
+                        </create_briefing>
+                        <set_objective cue="{param@Cue}" silent="1">
+                          <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr + {value@{param@RewardAmt}} x {lookup.type.name@{param@RewardWare}}"/>
+                        </set_objective>
+                      </do_if>
+                    </do_when>
+                    <do_otherwise>
+                      <create_briefing cue="{param@Cue}">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                      </create_briefing>
+                      <set_objective cue="{param@Cue}" silent="1">
+                        <reward money="{value@{param@RewardCr}}" other="+ [o]{value@{param@Bonus}}[/o] Cr"/>
+                      </set_objective>
+                    </do_otherwise>
+                  </do_choose>
+                </do_if>
+              </action>
+            </cue>
+
+            <cue name="L0M34 Guidance Update" delay="8s" instantiate="static">
+              <condition>
+                <check_all>
+                  <check_value value="{value@L0M34.EnemyRace}" exact="0" negate="1"/>
+                  <check_value value="{player.sector}" exact="{sector@{param@PatrolSector}}"/>
+                  <check_any>
+                    <object_exists object="L0M34.GuidanceObject" negate="1"/>
+                    <object_is_docked object="L0M34.GuidanceObject"/>
+                    <count_ships race="{value@L0M34.EnemyRace}" min="1" enemy="1">
+                      <distance max="{object.distance@L0M34.GuidanceObject}-10m"/>
+                    </count_ships>
+                  </check_any>
+                  <count_ships race="{value@L0M34.EnemyRace}" min="1">
+                    <distance max="20km"/>
+                  </count_ships>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <reset_cue cue="L0M34 Sector Guidance"/>
+                  <reset_cue cue="L0M34 Guidance Update 2"/>
+                  <find_ship race="{value@L0M34.EnemyRace}" nearest="1" name="L0M34.GuidanceObject" enemy="1"/>
+                  <set_objective cue="{param@Cue}" silent="1">
+                    <briefing cue="{param@Cue}" step="{value@L0M34.Step}"/>
+                    <custom object="L0M34.GuidanceObject"/>
+                  </set_objective>
+                </do_all>
+              </action>
+            </cue>
+
+            <cue name="L0M34 Guidance Update 2" delay="5s">
+              <condition>
+                <check_all>
+                  <check_value value="{value@L0M34.EnemyRace}" exact="0" negate="1"/>
+                  <check_value value="{player.sector}" exact="{sector@{param@PatrolSector}}"/>
+                  <count_ships race="{value@L0M34.EnemyRace}" min="1" enemy="1" negate="1">
+                    <distance max="20km"/>
+                  </count_ships>
+                </check_all>
+              </condition>
+              <action>
+                <set_objective cue="{param@Cue}" silent="1">
+                  <briefing cue="{param@Cue}" step="{value@L0M34.Step}"/>
+                  <custom>
+                    <sector sector="{param@PatrolSector}"/>
+                  </custom>
+                </set_objective>
+              </action>
+            </cue>
+
+            <cue name="L0M34 Sector Guidance" delay="5s">
+              <condition>
+                <check_value value="{player.sector}" exact="{sector@{param@PatrolSector}}" negate="1"/>
+              </condition>
+              <action>
+                <set_objective cue="{param@Cue}" silent="1">
+                  <briefing cue="{param@Cue}" step="{value@L0M34.Step}"/>
+                  <flyto>
+                    <sector sector="{param@PatrolSector}"/>
+                  </flyto>
+                </set_objective>
+              </action>
+            </cue>
+
+            <cue name="L0M34 Guidance Object Captured" instantiate="static">
+              <condition>
+                <object_captured object="L0M34.GuidanceObject"/>
+              </condition>
+              <action>
+                <remove_object object="L0M34.GuidanceObject"/>
+              </action>
+            </cue>
+            
+            <cue name="L0M34 Patrol Timer" delay="5s">
+              <condition>
+                <check_all>
+                  <check_age min="{value@L0M34.Patrol Delay}"/>
+                  <check_value value="{player.sector}" exact="{sector@{param@PatrolSector}}"/>
+                  <check_any>
+                    <check_value value="{param.exists@Clear Enemies}*{param@Clear Enemies}" exact="0"/>
+                    <count_ships exact="0" race="{value@L0M34.EnemyRace}" enemy="1">
+                      <sector sector="{sector@{param@PatrolSector}}"/>
+                      <distance max="20km"/>
+                    </count_ships>
+                  </check_any>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{sector@{param@PatrolSector}}" exact="{sector@{param@FinalSector}}">
+                    <set_value name="{param@FeedbackName}" exact="1"/>
+                    <set_value name="{param@Step}" operation="add"/>
+                    <cancel_cue cue="L0M34"/>
+                  </do_if>
+                  <set_sector name="{param@PatrolSector}" value="{sector@L0M34.NextSector}"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="L0M34 B"/>
+                <cue name="L0M34 Update Rewards Wait 2">
+                  <timing>
+                    <time exact="500"/>
+                  </timing>
+                  <cues>
+                    <cue name="L0M34 Update Rewards Wait finished 2">
+                      <condition>
+                        <cue_completed cue="L0M34 Update Rewards Wait 2"/>
+                      </condition>
+                      <cues>
+                        <cue ref="L0M34 Complete Rewards"/>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L0M34 Reset Sector Reached">
+                  <condition>
+                    <cue_completed cue="L0M34 Patrol Timer"/>
+                  </condition>
+                  <timing>
+                    <time exact="1s"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="L0M34 Sector Reached"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L0M34 OBS" check="cancel">
+          <condition>
+            <check_value value="{param@OBS}" exact="1"/>
+          </condition>
+          <cues>
+            <cue name="L0M34 OBS Time" delay="5s">
+              <condition>
+                <check_age min="{value@L0M34.OBSTime}"/>
+              </condition>
+              <cues>
+                <cue name="L0M34 Check OBS Count" delay="1s">
+                  <condition>
+                    <check_any>
+                      <check_value value="{param@Max OBS Instances}" exact="0"/>
+                      <check_value value="{param@Max OBS Instances}-{value@{param@OBS Counter}}" min="1"/>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L0M34.OBSTime" exact="{value@L0M34.OBSDelay}+{player.age}"/>
+                      <do_choose>
+                        <do_when value="{value@L0M34.OBS Count {sector@{param@PatrolSector}}}" min="{value@L0M34.MaxOBSPerSector}">
+                          <do_choose>
+                            <do_when value="{value@L0M34.MaxOBSPerSector}" exact="0">
+                              <set_value name="this.RunOBS" exact="1"/>
+                            </do_when>
+                            <do_otherwise>
+                              <cancel_cue cue="L0M34 ref OBS"/>
+                              <cancel_cue cue="L0M34 OBS Set Command"/>
+                              <reset_cue cue="L0M34 OBS Time"/>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_when>
+                        <do_otherwise>
+                          <set_value name="this.RunOBS" exact="1"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <do_if value="{value@this.RunOBS}" exact="1">
+                        <set_value name="L0M34.OBS X" min="-30" max="30"/>
+                        <set_value name="L0M34.OBS Y" min="-10" max="10"/>
+                        <set_value name="L0M34.OBS Z" min="-30" max="30"/>
+                      </do_if>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L0M34 ref OBS">
+                      <cues>
+                        <cue ref="OBS">
+                          <params>
+                            <param name="OBS Cancel Cue" value="L0M34 ref OBS" comment="The cue which is canceled after the OBS finishes"/>
+                            <param name="OBS Fleet Group Name" value="Enemies" comment="The group name where all main ships are saved too"/>
+                            <param name="OBS Support Fleet Group Name" value="Enemy Support" comment="The group name where all support ships are saved too"/>
+                            <param name="OBS Mother Ship Group Name" value="Enemy Carriers" comment="The group name where all ships with owned ships are saved too"/>
+                            <param name="OBSPosition" value="35km" comment="how far away should the OBS ships be from FleetPositionObject"/>
+                            <param name="OBSSector" value="{sector@{param@PatrolSector}}" comment="The sector where the ships will spawn if OBSFleetPositionObject not set"/>
+                            <param name="OBS X" value="{value@L0M34.OBS X}"/>
+                            <param name="OBS Y" value="{value@L0M34.OBS Y}"/>
+                            <param name="OBS Z" value="{value@L0M34.OBS Z}"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L0M34 OBS Set Command">
+                      <condition>
+                        <cue_cancelled cue="L0M34 ref OBS"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_group_command group="{param@OBS Cue}.Enemies" command="killenemies"/>
+                          <remove_group group="{param@OBS Cue}.Enemies"/>
+                          <set_value name="L0M34.OBS Count {sector@{param@PatrolSector}}" operation="add"/>
+                          <set_value name="{param@OBS Counter}" operation="add"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L0M34 Reset OBS">
+                          <timing>
+                            <time exact="1s"/>
+                          </timing>
+                          <action>
+                            <reset_cue cue="L0M34 OBS Time"/>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L0M34 Cancel OBS" check="cancel">
+                  <condition>
+                    <check_all>
+                      <check_value value="{param@Max OBS Instances}*{param.exists@Max OBS Instances}" min="1"/>
+                      <check_value value="{param@Max OBS Instances}-{value@{param@OBS Counter}}" max="0"/>
+                    </check_all>
+                  </condition>
+                  <timing>
+                    <time exact="5s"/>
+                  </timing>
+                  <action>
+                    <cancel_cue cue="L0M34 OBS" instantiate="static"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>LMkn6wiDZN2UNBDMQx69/LJzYu5h4Knx4WqA3kCFqcjvrQe4ojr/lmxBH0RVFComTeSiU6q0NJNuUkPK3CcQejSl7oFPGBn/8E1vHKLMbJhkTL2rI02XjeCI5SwWpLRiqZYBW6j5nT/LvPz1E67xYvA6BjxvcfM4P3vjXB5ALlqrsz3AYm8+HXb4s8ZlNl0wSmhDGSW3Z134N/iRKklK081qKnfZ1VwFqYwgjRRmumjVLBW7Zxvg3vikTylfvPzOuHUfqKETMt5cYcIGk/LUioqlAxB5HQ6TVHwKjdRHGaJ0YianeG9uyRpZcCTplVRIwxh46ySZ0w0ZNUgXVsfTnw==</signature>
+</director>
+
+
+

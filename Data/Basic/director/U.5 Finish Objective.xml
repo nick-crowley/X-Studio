@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Library" name="Finish Objective" description="Add common factors to objective" />
+    <version number="0.5.2" date="03/03/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="LUM05" library="1">
+      <documentation>
+        <content name="LUM05 Finish Objective" type="utility"/>
+        <version number="0.5.2" date="03/03/08"/>
+        <params>
+          <param name="Discipline" type="text" compulsory="1" description="the mission discipline"/>
+          <param name="Difficulty" type="number" compulsory="1" description="the mission discipline"/>
+          <param name="StoryID" type="number" description="The textID for the Story title"/>
+          <param name="ChapterID" type="number" description="The textID for the Chapter title"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RewardFree" type="text" compulsory="0" description="Reward - free text"/>
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+        </params>
+        <history>
+          <change date="21/08/08" author="al_main" description="Added silent attributes to set_objective actions"/>
+          <change date="07/07/08" author="al_main" description="Improved timer code with param.exists"/>
+          <change date="15/04/08" author="al_main" description="Text page set to 3200"/>
+          <change date="03/03/08" author="al_main" description="Extra 'closing brace' removed"/>
+          <change date="23/02/08" author="al_main" description="Fixes with param.exists"/>
+          <change date="19/02/08" author="al_main" description="Fix to combine rewards, difficulty averageing added"/>
+          <change date="18/02/08" author="al_main" description="Timer params now names instead of values"/>
+          <change date="15/02/08" author="al_main" description="Structure improved for better performance, fix to NoReward setting 0 credits"/>
+          <change date="15/02/08" author="al_main" description="Rounding now only checked if reward is required"/>
+          <change date="15/02/08" author="al_main" description="RewardObj check changed to check object.exists, rewards changed to use param.exists"/>
+          <change date="14/02/08" author="al_main" description="Ability to automatically round rewards to nice numbers added"/>
+          <change date="14/02/08" author="al_main" description="Reward and time parameter system changed"/>
+          <change date="08/02/08" author="al_main" description="Removed 'Unknown' option and added 'Free Text' options"/>
+          <change date="08/02/08" author="al_main" description="Documentation added"/>
+        </history>
+        <todo>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <!--set discipline and level-->
+          <do_if value="{param.exists@Discipline}" exact="1">
+            <do_if value="{param.exists@Difficulty}" exact="1">
+              <do_if value="{param@Difficulty}" min="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <mission level="{param@Difficulty}" discipline="{param@Discipline}"/>
+                </set_objective>
+              </do_if>
+            </do_if>
+          </do_if>
+
+          <!--set reward type-->
+          <do_if value="{value@{param@RewardCr}}" exact="0">
+            <do_choose>
+              <do_when value="{param.exists@RewardFree}" exact="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <reward other="{param@RewardFree}"/>
+                </set_objective>
+              </do_when>
+              <do_when value="{object.exists@{param@RewardObj}}" exact="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <reward other="{object.name@{param@RewardObj}}"/>
+                </set_objective>
+              </do_when>
+              <do_when value="{param.exists@RewardWare}" exact="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <reward other="{lookup.type.name@{param@RewardWare}}"/>
+                </set_objective>
+                <do_if value="{param.exists@RewardAmt}" exact="1">
+                  <set_objective cue="{param@Cue}" silent="1">
+                    <reward other="{value@{param@RewardAmt}} x {lookup.type.name@{param@RewardWare}}"/>
+                  </set_objective>
+                </do_if>
+              </do_when>
+              <do_when value="{param.exists@RewardCr}" exact="1">
+                <set_value name="{param@RewardCr}" exact="{reward.money@{param@Difficulty}.{param@Discipline}}"/>
+              </do_when>
+            </do_choose>
+          </do_if>
+
+          <do_if value="{value@{param@RewardCr}}" min="1">
+            <do_if value="{param.exists@RoundReward}" exact="1">
+              <do_if value="{param@RoundReward}" min="1" max="100">
+                <do_choose>
+                  <do_when value="{value@{param@RewardCr}}" min="10000000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(25000*{param@RoundReward}))*(25000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="5000000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(10000*{param@RoundReward}))*(10000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="2500000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(5000*{param@RoundReward}))*(5000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="1000000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(2500*{param@RoundReward}))*(2500*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="500000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(1000*{param@RoundReward}))*(1000*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="250000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(500*{param@RoundReward}))*(500*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="100000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(250*{param@RoundReward}))*(250*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="25000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(100*{param@RoundReward}))*(100*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="10000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(50*{param@RoundReward}))*(50*{param@RoundReward})"/>
+                  </do_when>
+                  <do_when value="{value@{param@RewardCr}}" min="5000">
+                    <set_value name="{param@RewardCr}" exact="({value@{param@RewardCr}}/(25*{param@RoundReward}))*(25*{param@RoundReward})"/>
+                  </do_when>
+                </do_choose>
+              </do_if>
+            </do_if>
+            <do_choose>
+              <do_when value="{param.exists@RewardFree}" exact="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <reward money="{value@{param@RewardCr}}" other="{param@RewardFree}"/>
+                </set_objective>
+              </do_when>
+              <do_when value="{object.exists@{param@RewardObj}}" exact="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <reward money="{value@{param@RewardCr}}" other="{object.name@{param@RewardObj}}"/>
+                </set_objective>
+              </do_when>
+              <do_when value="{param.exists@RewardWare}" exact="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <reward money="{value@{param@RewardCr}}" other="{lookup.type.name@{param@RewardWare}}"/>
+                </set_objective>
+                <do_if value="{param.exists@RewardAmt}" exact="1">
+                  <set_objective cue="{param@Cue}" silent="1">
+                    <reward money="{value@{param@RewardCr}}" other="{value@{param@RewardAmt}} x {lookup.type.name@{param@RewardWare}}"/>
+                  </set_objective>
+                </do_if>
+              </do_when>
+              <do_otherwise>
+                <set_objective cue="{param@Cue}" silent="1">
+                  <reward money="{value@{param@RewardCr}}"/>
+                </set_objective>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+
+          <!--set story and chapter ID's-->
+          <do_if value="{param.exists@StoryID}" exact="1">
+            <set_objective cue="{param@Cue}" story="{3200,{param@StoryID}}" silent="1"/>
+            <do_if value="{param.exists@ChapterID}" exact="1">
+              <set_objective cue="{param@Cue}" story="{3200,{param@StoryID}}" chapter="{3200,{param@ChapterID}}" silent="1"/>
+            </do_if>
+          </do_if>
+
+          <!--check timer needed-->
+          <set_value name="this.setTimer" exact="1"/>
+          <do_if value="{param.exists@IsPlot}" exact="1">
+            <do_if value="{param@IsPlot}" exact="1">
+              <!--set no abort if plot mission-->
+              <set_objective cue="{param@Cue}" noabort="1" silent="1"/>
+              <set_value name="this.setTimer" exact="0"/>
+              <do_if value="{param.exists@UseTimer}" exact="1">
+                <do_if value="{param@UseTimer}" exact="1">
+                  <set_value name="this.setTimer" exact="1"/>
+                </do_if>
+              </do_if>
+            </do_if>
+          </do_if>
+          <!--set timer-->
+          <do_if value="{value@this.setTimer}" exact="1">
+            <do_if value="{param.exists@StartTime}" exact="1">
+              <do_if value="{value@{param@StartTime}}" min="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <timer start="{value@{param@StartTime}}"/>
+                </set_objective>
+              </do_if>
+            </do_if>
+            <do_if value="{param.exists@Duration}" exact="1">
+              <do_if value="{value@{param@Duration}}" min="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <timer duration="{value@{param@Duration}}"/>
+                </set_objective>
+              </do_if>
+            </do_if>
+            <do_if value="{param.exists@EndTime}" exact="1">
+              <do_if value="{value@{param@EndTime}}" min="1">
+                <set_objective cue="{param@Cue}" silent="1">
+                  <timer end="{value@{param@EndTime}}"/>
+                </set_objective>
+              </do_if>
+            </do_if>
+          </do_if>
+        </do_all>
+      </action>
+    </cue>
+  </cues>
+  <signature>sjeuJrmenNkGfX3FhEx804djWFddmC4ntmXmVJh45tkP/4DybwGGB3P/C3Hu1Or7pmKIRNXGJuA4AgrIBR0paL2Yrmq6aB5t12Ak2MAbKtafYaVbzjvTGkjU5gowrt/KzUWGYgkEXJuiW5Q4l0BoIcAJ8U2BgBryE/LhOFBx/H1PFiRXUv12nTLhq/0wVc8pCz84R56p/ttAC8ZVF5P9XsH2aodixgu5ITBaHqoTnjy2rssz0ibakQaFRiQDAUKJNgc2pMk3Hh+2+rXpCY3oMQ8kgiUbz2zJw/vHWaV818dRqQBqXaTJy9nD1Jaj3Pum1lS9fzoe+5ZEZe7j1RAbgw==</signature>
+</director>

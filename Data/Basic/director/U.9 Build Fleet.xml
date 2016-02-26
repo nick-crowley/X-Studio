@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="LUM09" name="Build Fleet" description="Slowly build race fleet" />
+    <version number="0.2" date="10/03/08" status="development"/>
+  </documentation>
+
+  <cues>
+    <cue name="LUM09" library="1">
+      <documentation>
+        <content reference="LUM09" name="Build Fleet" type="utility"/>
+        <version number="0.2" date="10/03/08" status="development"/>
+        <params>
+          <param name="Race" type="number" compulsory="1" description="Race of fleet race"/>
+          <param name="Sector" type="sectorname" compulsory="1" description="Race sector"/>
+          <param name="Fleet" type="groupname" compulsory="1" description="Fleet name"/>
+          <param name="FleetCue" type="cuename" compulsory="1" description="Cue where Fleet is localised"/>
+          <param name="BuildSpeed" type="number" compulsory="1" description="Build speed, seconds between ships"/>
+        </params>
+        <returns>
+        </returns>
+        <history>
+          <change date="08/07/08" author="al_main" description="Fixed debug message breaking adding to group"/>
+          <change date="12/03/08" author="al_main" description="Changed build speed to allow faster building if specified"/>
+          <change date="10/03/08" author="al_main" description="Simplified cue structure, fixed readtext"/>
+          <change date="07/03/08" author="al_main" description="Initial version"/>
+        </history>
+        <todo>
+          <item priority="low" description="change 'shipyard' class from eq to shipyard"/>
+          <item priority="medium" description="Add fighter wings to carriers"/>
+          <item priority="critical" description="Check jump range on shipyard search"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="this.Delay" exact="{param@BuildSpeed}"/>
+          <do_if value="{value@this.Delay}" max="0">
+            <set_value name="this.Delay" exact="60"/>
+          </do_if>
+          <set_value name="this.DelayMax" exact="({value@this.Delay}*13)/10"/>
+          <set_value name="this.Race" exact="{param@Race}"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="LUM09 Build">
+          <condition>
+            <cue_is_complete cue="LUM09"/>
+          </condition>
+          <timing>
+            <time min="{value@LUM09.Delay}s" max="{value@LUM09.DelayMax}s"/>
+          </timing>
+          <action>
+            <do_all>
+              <find_station name="LUM09 Build.Shipyard" class="equipment" race="{value@LUM09.Race}">
+                <sector sector="{param@Sector}"/>
+                <jumps min="0" max="5"/>
+              </find_station>
+              <do_if value="{object.exists@LUM09 Build.Shipyard}" exact="0">
+                <reset_cue cue="LUM09 Build"/>
+              </do_if>
+              <do_any>
+                <set_value name="this.Class" exact="{lookup.class@m1}"/>
+                <set_value name="this.Class" exact="{lookup.class@m2}"/>
+                <set_value name="this.Class" exact="{lookup.class@m3}"/>
+                <set_value name="this.Class" exact="{lookup.class@m4}"/>
+                <set_value name="this.Class" exact="{lookup.class@m5}"/>
+                <set_value name="this.Class" exact="{lookup.class@m6}"/>
+                <set_value name="this.Class" exact="{lookup.class@m7}"/>
+              </do_any>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="LUM09 Ship Built">
+              <condition>
+                <cue_completed cue="LUM09 Build"/>
+              </condition>
+              <cues>
+                <cue name="SRST Done"/>
+                <cue ref="SRST">
+                  <params>
+                    <param name="Race ID" value="{value@LUM09.Race}" comment="The maker race ID or the strings 'default' or 'pirategroup'"/>
+                    <param name="Class ID" value="{value@LUM09 Build.Class}" comment="The shipclass ID or the strings 'bigship', 'fighter' or 'freighter'"/>
+                    <param name="Cue" value="LUM09 Build" comment="The Cue that the shiptype is saved too"/>
+                    <param name="CancelCue" value="SRST Done"/>
+                    <param name="Shiptype Address" value="LUM09 Build.ShipType"/>
+                    <param name="Include M3P" value="1" comment="Include the M3Plus ships in the M3 search"/>
+                    <param name="Include M4P" value="1" comment="Include the M4Plus ships in the M4 search"/>
+                    <param name="Include M5P" value="1" comment="Include the M5Plus ships in the M5 search"/>
+                    <param name="Include M6M" value="1" comment="Include the M6M ships in the M6 search"/>
+                    <param name="Include M7M" value="1" comment="Include the M7M ships in the M7 search"/>
+                  </params>
+                </cue>
+                <cue name="LUM09 Create Ship">
+                  <condition>
+                    <cue_cancelled cue="SRST Done"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <create_ship group="{param@Fleet}" typename="{value@LUM09 Build.ShipType}" communicates="1" dockobject="LUM09 Build.Shipyard" race="{value@LUM09.Race}">
+                        <equipment loadout="maximum"/>
+                        <command command="killenemiesrange" distance="30000">
+                          <position x="0" y="0" z="0"/>
+                          <sector sector="{param@Sector}"/>
+                        </command>
+                        <pilot jobtextid="30003"/>
+                      </create_ship>
+                      <do_if value="{value@LUM09 Build.Class}" list="{lookup.class@m3}|{lookup.class@m4}|{lookup.class@m5}">
+                        <create_ship group="{param@Fleet}" typename="{value@LUM09 Build.ShipType}" communicates="1" dockobject="LUM09 Build.Shipyard" race="{value@LUM09.Race}">
+                          <equipment loadout="maximum"/>
+                          <command command="protect" commandobject="{param@FleetCue}.LU {param@Race} TempShip"/>
+                          <pilot jobtextid="30003"/>
+                        </create_ship>
+                        <create_ship group="{param@Fleet}" typename="{value@LUM09 Build.ShipType}" communicates="1" dockobject="LUM09 Build.Shipyard" race="{value@LUM09.Race}">
+                          <equipment loadout="maximum"/>
+                          <command command="protect" commandobject="{param@FleetCue}.LU {param@Race} TempShip"/>
+                          <pilot jobtextid="30003"/>
+                        </create_ship>
+                      </do_if>
+                      <reset_cue cue="LUM09 Build"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>W8UHQGr+4tq/lQ7f1Iz8aXGjAZ2zGBkjlVxrlbYCsbQT1fP68YsXmvR9FqevSZtpcW5JbWqT+gQ2OiagNbLFJxRAJ5i4fvcnORtXK03ZJIhAQsUSJqbwfD1tMrAh2QYZ6dG/R+mOm98xtnOTR9cLHwZHe/IM5yQ7drNdc1EHSEsYnMDlV+exZ0YHR9liHsKb+2S3yZg3lNH4o4X2zdE6ZNzRk1kB2tMfa3tLNUPNsozCuk98fIEJ32YWJk69uWsSRzRYFxBfe7P05Zf8mRohCa0U4PislTtw7GrEha2G5qOeBqdeqc0KA3e0Y+RcLOgSg6an3o+hrAvyoChEyWBTAQ==</signature>
+</director>

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Daniel Winsor" alias="AalaarDB" contact="aalaardb@gmail.com"/>
+    <content reference="COM02" name="Fly To Sector" description="Sends mission ships to a sector, or a position"/>
+    <version number="0.1" date="18/05/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="COM02" library="1">
+      <documentation>
+        <content name="Fly To Sector Command" reference="COM02" type="utility"/>
+        <version date="18/05/2008" number="0.1" status="testing"/>
+        <params>
+          <param name="GroupName" type="groupname" compulsory="1" description="The Address of the group moving to the sector"/>
+          <param name="SectorName" type="sectorname" compulsory="1" description="The address of the sector"/>
+          <param name="PositionX" type="number" compulsory="0" description="The position to fly to once in the sector, in m"/>
+          <param name="PositionY" type="number" compulsory="0" description="The position to fly to once in the sector, in m"/>
+          <param name="PositionZ" type="number" compulsory="0" description="The position to fly to once in the sector, in m"/>
+          <param name="Distance" type="number" compulsory="0" description="The distance to the position, in m, if one is specified"/>
+        </params>
+        <history>
+        </history>
+        <todo>
+          <item description="reset commands?" priority="medium"/>
+          <item description="better check distance?" priority="low"/>
+          <item description="set better command for IS ships that aren't leader?" priority="medium"/>
+          <item description="see about merging moveposition and movesector"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_if value="{group.object.count@{param@GroupName}}" exact="0">
+            <cancel_cue cue="COM02"/>
+          </do_if>
+
+          <do_all exact="{group.object.count@{param@GroupName}}" counter="iter">
+            <set_object value="{group.object.{counter@iter}@{param@GroupName}}" group="COM02.Group" name="COM02.1{counter@iter}"/>
+          </do_all>
+
+          <!-- the group needs a leader, always, it will be reset immediately if leader is destroyed-->
+          <set_group_leader group="COM02.Group" object="{group.slowest@COM02.Group}"/>
+          <set_object name="COM02.lastLeader" value="{group.leader@COM02.Group}"/>
+
+          <set_value name="COM02.positionExists" exact="{param.exists@PositionX} * {param.exists@PositionY} * {param.exists@PositionZ}"/>
+          <!-- if sector is not specified then we are going to the position param in the leader's sector-->
+          <do_choose>
+            <do_when value="{param.exists@SectorName} * {sector.exists@{param@SectorName}}" exact="1">
+              <set_sector name="COM02.Sector" value="{sector@{param@SectorName}}"/>
+            </do_when>
+            <do_otherwise>
+              <!-- no sector AND no position? exit-->
+              <do_if value="{value@COM02.positionExists}" exact="0">
+                <cancel_cue cue="COM02"/>
+              </do_if>
+              <set_sector name="COM02.Sector" value="{group.leader.sector@COM02.Group}"/>
+            </do_otherwise>
+          </do_choose>
+
+          <do_if value="{value@COM02.positionExists}" exact="1">
+            <do_if value="{param.exists@Distance}" exact="1">
+              <set_value name="COM02.distance" exact="{param@Distance}"/>
+            </do_if>
+            <do_if value="{value@COM02.distance}" min="5 * {object.size.m@{group.largest@COM02.Group}}" negate="1">
+              <set_value name="COM02.distance" exact="5 * {object.size.m@{group.largest@COM02.Group}}"/>
+            </do_if>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="COM02 Apply Command To Group"/>
+
+        <cue name="COM02 Apply Command To Group" library="1">
+          <action>
+            <copy_group group="COM02.Group" name="this.tempGroup"/>
+          </action>
+          <cues>
+            <cue name="COM02 Apply Command To Ship In Group">
+              <timing>
+                <count exact="{group.object.count@parent.tempGroup}"/>
+              </timing>
+              <action ref="COM02 Apply Command To Ship">
+                <params>
+                  <param name="ship" value="{group.object.{index@this}@parent.tempGroup}"/>
+                </params>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="COM02 Apply Command To Ship" library="1">
+          <documentation>
+            <params>
+              <param name="ship" type="objectid"/>
+            </params>
+          </documentation>
+          <action>
+            <do_all>
+              <do_if value="{object.exists@{param@ship}}" exact="1">
+                <set_object name="this.object" value="{param@ship}"/>
+                <do_choose>
+                  <do_when value="{object.sector@this.object}" exact="{sector@COM02.Sector}"
+                           comment="this ship is now in the correct sector">
+                    <add_object_to_group object="this.object" group="COM02.IS"/>
+                    <remove_object_from_group object="this.object" group="COM02.OOS"/>
+
+                    <do_choose>
+                      <do_when value="{value@COM02.positionExists}" exact="0"
+                                comment="when position does not exist, we are done!">
+                        <set_command object="this.object" command="stay"/>
+                        <remove_object_from_group object="this.object" group="COM02.Group"/>
+                        <remove_object_from_group object="this.object" group="COM02.IS"/>
+                        <do_if value="{group.object.count@COM02.Group}" exact="0">
+                          <cancel_cue cue="COM02"/>
+                        </do_if>
+                      </do_when>
+                      <do_otherwise>
+
+                        <do_choose comment="position exists, am I leader? if so I move there">
+                          <do_when value="{group.leader@COM02.Group}" exact="{object@this.object}">
+                            <set_command object="this.object" command="moveposition">
+                              <position x="{param@PositionX}" y="{param@PositionY}" z="{param@PositionZ}" min="{value@COM02.distance}"/>
+                            </set_command>
+                          </do_when>
+                          <do_otherwise comment="we are a follower, should i follow or move? depends if leader is IS or OOS">
+                            <do_choose>
+                              <do_when value="{group.leader.sector@COM02.Group}" exact="{sector@COM02.Sector}">
+                                <set_command object="this.object" command="follow" commandobject="{group.leader@COM02.Group}"/>
+                              </do_when>
+                              <do_otherwise>
+                                <set_command object="this.object" command="moveposition">
+                                  <position x="{param@PositionX}" y="{param@PositionY}" z="{param@PositionZ}" min="{value@COM02.distance}"/>
+                                </set_command>
+                              </do_otherwise>
+                            </do_choose>
+                          </do_otherwise>
+                        </do_choose>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_when>
+
+                  <do_otherwise comment="this ship is NOT in the correct sector
+                              either the command is just starting out and giving command for the first time, which is fine,
+                              or the ship moved out of the sector, wtf happened? move it back">
+                    <add_object_to_group object="this.object" group="COM02.OOS"/>
+                    <remove_object_from_group object="this.object" group="COM02.IS"/>
+
+                    <do_choose>
+                      <do_when value="{group.leader@COM02.Group}" exact="{object@this.object}">
+                        <set_command object="this.object" command="movesector" commandobject="{sector@COM02.Sector}"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_command object="this.object" command="follow" commandobject="{group.leader@COM02.Group}"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+            </do_all>
+          </action>
+        </cue>
+
+        <cue name="COM02 End" delay="10s">
+          <condition>
+            <check_value value="{group.object.count@COM02.Group}" exact="0"/>
+          </condition>
+          <action>
+            <cancel_cue cue="COM02"/>
+          </action>
+        </cue>
+
+        <cue name="COM02 Does Destination Position Exist">
+          <condition>
+            <check_value value="{value@COM02.positionExists}" exact="1"/>
+          </condition>
+          <cues>
+            <cue name="COM02 Close To Destination" delay="10s" instantiate="static">
+              <action>
+                <do_all>
+                  <!-- check distance, if close, then we are done!-->
+                  <do_all exact="{group.object.count@COM02.IS}" counter="iter">
+                    <do_if value="{object.position.x.m{group.object.{counter@iter}@COM02.IS}}"
+                           min="{param@PositionX} - {value@COM02.distance}"
+                           max="{param@PositionX} + {value@COM02.distance}">
+                      <do_if value="{object.position.y.m{group.object.{counter@iter}@COM02.IS}}"
+                             min="{param@PositionY} - {value@COM02.distance}"
+                             max="{param@PositionY} + {value@COM02.distance}">
+                        <do_if value="{object.position.z.m{group.object.{counter@iter}@COM02.IS}}"
+                               min="{param@PositionZ} - {value@COM02.distance}"
+                               max="{param@PositionZ} + {value@COM02.distance}">
+                          <set_object name="this.{counter@iter}" value="{group.object.{counter@iter}@COM02.IS}"/>
+                          <set_command object="this.{counter@iter}" command="stay"/>
+                          <add_object_to_group object="this.{counter@iter}" group="this.tempGroup"/>
+                          <remove_object_from_group object="this.{counter@iter}" group="COM02.Group"/>
+                        </do_if>
+                      </do_if>
+                    </do_if>
+                  </do_all>
+                  <do_all exact="{group.object.count@this.tempGroup}" counter="iter">
+                    <remove_object_from_group object="{group.object.{counter@iter}@this.tempGroup}" group="COM02.IS"/>
+                  </do_all>
+                  <do_if value="{group.object.count@COM02.Group}" exact="0">
+                    <cancel_cue cue="COM02"/>
+                  </do_if>
+                </do_all>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="COM02 Leader Changed" delay="10s" instantiate="static">
+          <condition>
+            <check_all>
+              <check_value value="{group.leader.exists@COM02.Group}" exact="1"/>
+              <check_any>
+                <check_value value="{object.exists@COM02.lastLeader}" exact="0"/>
+                <check_value value="{object@COM02.lastLeader}" exact="{group.leader@COM02.Group}" negate="1"/>
+              </check_any>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{object.exists@COM02.lastLeader}" exact="1">
+                <set_object name="this.lastLastLeader" value="{object@COM02.lastLeader}"/>
+              </do_if>
+              <set_object name="COM02.lastLeader" value="{group.leader@COM02.Group}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue ref="COM02 Apply Command To Ship">
+              <params>
+                <param name="ship" value="{group.leader@COM02.Group}"/>
+              </params>
+            </cue>
+            <cue ref="COM02 Apply Command To Ship">
+              <params>
+                <param name="ship" value="COM02 Leader Changed.lastLastLeader"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="COM02 Ship Entered Sector" instantiate="static">
+          <condition>
+            <check_all>
+              <any_object_changed_sector group="COM02.OOS" param="{sector@COM02.Sector}"/>
+            </check_all>
+          </condition>
+          <action ref="COM02 Apply Command To Ship">
+            <params>
+              <param name="ship" value="{event.object}"/>
+            </params>
+          </action>
+        </cue>
+
+        <cue name="COM02 Ship Left Sector" instantiate="static">
+          <condition>
+            <check_all>
+              <any_object_changed_sector group="COM02.IS" param="{sector@COM02.Sector}" negate="1"/>
+            </check_all>
+          </condition>
+          <action ref="COM02 Apply Command To Ship">
+            <params>
+              <param name="ship" value="{event.object}"/>
+            </params>
+          </action>
+        </cue>
+
+        <cue name="COM02 Remove Ship" instantiate="static">
+          <condition>
+            <check_any>
+              <any_object_captured group="COM02.Group"/>
+              <any_object_destroyed group="COM02.Group"/>
+              <any_object_destroyed_by_player group="COM02.Group"/>
+            </check_any>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{object.exists@{event.object}}" exact="1">
+                <remove_object_from_group object="{event.object}" group="COM02.Group"/>
+                <do_if value="{group.object.count@COM02.IS}" exact="0" negate="1">
+                  <remove_object_from_group object="{event.object}" group="COM02.IS"/>
+                </do_if>
+                <do_if value="{group.object.count@COM02.OOS}" exact="0" negate="1">
+                  <remove_object_from_group object="{event.object}" group="COM02.OOS"/>
+                </do_if>
+              </do_if>
+              <do_choose>
+                <do_when value="{group.object.count@COM02.Group}" exact="0">
+                  <cancel_cue cue="COM02"/>
+                </do_when>
+                <do_otherwise>
+                  <do_if value="{group.leader.exists@COM02.Group}" exact="0">
+                    <set_group_leader group="COM02.Group" object="{group.slowest@COM02.Group}"/>
+                  </do_if>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>1FoN7YOQLNk+OzFHsdgCjLL2i8J4s4kXjDnbWi019hcgGQ/AJlWHhHO2//rzmTGmE/3jQrOvVLqZ/Hg5NHmmfMrcyElwclsgkCv5BwaBPXp0FMjEl57yOJmNHq9+YYiMTqyBegOcCrdm9VleA6AsR2sVykyaRYHSTHyMAC/J4ZvSrWkAq5YPzjw1+kXKaE68ojxP7NseQgbU+DVjNB84H5jSEI21CUlDVzQAo9I1uAuwb5j94Dh1zoXjYzxvmhPmo0eUWytRvyO7vRwxTI7ut7xEd7VU6ClD46pLzfs8zsA84M8M6NPKnnIuHEYGFjRPbMtXFEhBrHPUxV2ktMDeZA==</signature>
+</director>

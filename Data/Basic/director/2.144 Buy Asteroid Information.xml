@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="Buy Asteroid Survey" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Chris" alias="XGamer" contact="EMail, Skype, ForumPM" />
+    <content reference="Station Missions" name="Buy Asteroid Survey" description="The Player may buy Asteroid Data Sheets from some NPCs" />
+    <version number="1.9" date="2008/06/11" status="testing" />
+  </documentation>
+  <cues>
+    <cue name="L2M144 Cleanup" library="1">
+      <condition>
+        <check_all>
+          <check_value value="{player.menu.dialog}" exact="0"/>
+          <check_value value="{player.menu.briefing}" exact="0"/>
+        </check_all>
+      </condition>
+      <action>
+        <do_all>
+          <destroy_actor actor="L2M144.Offerguy"/>
+          <do_if value="{object.isclass.station@L2M144.OfferStation}" exact="0">
+            <destroy_object object="L2M144.OfferStation" warp="1"/>
+          </do_if>
+          <cancel_cue cue="L2M144"/>
+        </do_all>
+      </action>
+    </cue>
+    
+    <cue name="L2M144" library="1" check="cancel" comment="Root Mission Cue / Holds all variables" >
+      <documentation>
+        <content name="Buy Asteroid Information" reference="L2M144" type="L2"/>
+        <history>
+          <change date="11/06/2008" author="XGamer" description="Changed Conversation, some more minor tweaks, Improved Ship Offer"/>
+          <change date="04/06/2008" author="XGamer" description="Fixed Scanned Hack, added Formatted Prices in Offer"/>
+          <change date="31/05/2008" author="XGamer" description="FIXed Station Destroyed Bug, FIXed Bug that Mission wont be offered if StationOffer was choosen, plus did some minor Code Cleanup"/>
+          <change date="21/05/2008" author="XGamer" description="Updated Code to use new MD Capabilities"/>
+          <change date="01/05/2008" author="XGamer" description="Unknown. / Initial Beta Release"/>
+        </history>
+      </documentation>
+      <condition>
+        <check_all>
+          <count_stations min="1" dockingallowed="1" race="default|pirategroup" friend="1" neutral="1">
+            <sector sector="{player.sector}"/>
+            <distance max="20km"/>
+          </count_stations>
+          <count_gates min="1" typename="SS_WG_EAST|SS_WG_WEST|SS_WG_NORTH|SS_WG_SOUTH">
+            <sector sector="{player.sector}"/>
+          </count_gates>
+          <count_asteroids min="5">
+            <position x="0" y="0" z="0"/>
+            <sector sector="{player.sector}"/>
+            <distance max="80km"/>
+          </count_asteroids>
+        </check_all>
+      </condition>
+      <action>
+        <do_all>
+          <do_any comment="All Different Offer Places / Systems goes here (I guess)">
+            <!-- Add different Offer Systems here -->
+            <find_station class="station" race="default" dockingallowed="1" name="this.OfferStation" friend="1" neutral="1">
+              <sector sector="{player.sector}"/>
+            </find_station>
+            <do_all>
+              <set_value name="this.Call SRST" exact="1"/>
+              <set_value name="this.SRST_Class" exact="{random.class@m3|m4|m5|ts|tp}"/>
+              <set_value name="this.SRST_Race" exact="{random.race@default}"/>
+            </do_all>
+          </do_any>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M144 SRST Check" check="cancel">
+          <condition>
+            <check_value value="{value@L2M144.Call SRST}" exact="1"/>
+          </condition>
+          <cues>
+            <cue ref="SRST">
+              <params>
+                <param name="Race ID" value="{value@L2M144.SRST_Race}"/>
+                <param name="Class ID" value="{value@L2M144.SRST_Class}"/>
+                <param name="Cue" value="L2M144"/>
+                <param name="Shiptype Address" value="L2M144.SRST"/>
+                <param name="Result" value="L2M144.SRSTResult"/>
+              </params>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M144 Setup" comment="And all of this just coz Typename mandatory / no Autoselect / InnerAction Ref Missing">
+          <condition>
+            <check_all>
+              <cue_is_complete cue="L2M144"/>
+              <check_any>
+                <check_value value="{value@L2M144.SRSTResult}" exact="1"/>
+                <check_value value="{value@L2M144.Call SRST}" exact="0"/>
+              </check_any>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <do_if value="{value@L2M144.Call SRST}" exact="1">
+                <!--
+                <create_ship typename="{value@L2M144.SRST}" capturable="0" name="L2M144.OfferStation" race="{value@L2M144.SRST_Race}">
+                  <position max="1km" profile="decreasing"/>
+                  <sector sector="{player.sector}"/>
+                  <equipment loadoutmask="shields|lasers|equipment" loadout="default"/>
+                  <command command="idle"/>
+                </create_ship>
+                -->
+                <find_station class="station" name="L2M144.DockStation" race="default|pirategroup" friend="1" neutral="1">
+                  <sector sector="{player.sector}"/>
+                  <distance max="30km"/>
+                </find_station>
+                <find_gate name="L2M144.Gate" typename="SS_WG_EAST|SS_WG_WEST|SS_WG_NORTH|SS_WG_SOUTH" nearest="1">
+                  <sector sector="{player.sector}"/>
+                </find_gate>
+                <do_choose>
+                  <do_when value="{object.exists@L2M144.DockStation}" exact="1">
+                    <create_ship typename="{value@L2M144.SRST}" capturable="0" name="L2M144.OfferStation" race="{value@L2M144.SRST_Race}" dockobject="L2M144.DockStation">
+                      <sector sector="{player.sector}"/>
+                      <equipment loadoutmask="shields|lasers|equipment" loadout="default"/>
+                      <command command="idle"/>
+                    </create_ship>
+                  </do_when>
+                  <do_otherwise>
+                    <do_choose>
+                      <do_when value="{object.exists@L2M144.Gate}" exact="1">
+                        <create_ship typename="{value@L2M144.SRST}" capturable="0" name="L2M144.OfferStation" race="{value@L2M144.SRST_Race}">
+                          <position max="1km" object="{object.destination@L2M144.Gate}"/>
+                          <sector sector="{object.destination.sector@L2M144.Gate}"/>
+                          <equipment loadoutmask="shields|lasers|equipment" loadout="default"/>
+                          <command command="movesector">
+                            <sector sector="{player.sector}"/>
+                          </command>
+                        </create_ship>
+                      </do_when>
+                      <do_otherwise>
+                        <cancel_cue cue="L2M144"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+              <do_choose>
+                <do_when value="{object.exists@L2M144.OfferStation}" exact="1">
+                  <set_value name="L2M144.OfferJobID" list="20036|20037"/>
+                  <set_pilot_data object="L2M144.OfferStation" jobtextid="{value@L2M144.OfferJobID}"/>
+                  <set_sector name="L2M144.Sector" value="{player.sector}"/> <!--value="{object.sector@L2M144.OfferStation}"/>-->
+                  <!-- Create Actor -->
+                  <do_any>
+                    <set_value name="L2M144.OfferRace" exact="{object.race@L2M144.OfferStation}" chance="30"/>
+                    <set_value name="L2M144.OfferRace" exact="{random.race@default}" chance="45"/>
+                  </do_any>
+                  <create_actor name="L2M144.Offerguy" race="{value@L2M144.OfferRace}" voiceflags="32" object="L2M144.OfferStation"/>
+                </do_when>
+                <do_otherwise>
+                  <cancel_cue cue="L2M144"/>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <!-- ALL Mission Specific Cues goes HERE -->
+            <cue name="L2M144 Find Roids">
+              <condition>
+                <check_all>
+                  <check_value value="{sector.exists@L2M144.Sector}" exact="1"/>
+                  <cue_is_complete cue="L2M144"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <!--<incoming_message author="XGamer Debug Services" text="Time Index: {player.age}\n Start Finding Roids. (L2M144)" silent="1"/>-->
+                  <find_asteroid group="L2M144.RoidsTMP" multiple="1" scanned="0">
+                    <position x="0" y="0" z="0"/>
+                    <sector sector="L2M144.Sector"/>
+                    <distance max="80km"/>
+                  </find_asteroid>
+                  <!--<incoming_message author="XGamer Debug Services" silent="1" text="Time Index: {player.age}\nFinished Roid Search. Found Roids: {group.object.count@L2M144.Roids}"/>-->
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M144 Finish Roids" comment="Preventing the MD to Loop before finding Stuff finished">
+                  <condition>
+                    <cue_completed cue="L2M144 Find Roids"/>
+                  </condition>
+                  <timing>
+                    <time exact="500"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <do_all exact="{group.object.count@L2M144.RoidsTMP}" counter="count" comment="HACK scanned=0">
+                        <do_if value="{group.object.{counter@count}.scanned@L2M144.RoidsTMP}" exact="0">
+                          <!--<add_object_to_group group="L2M144.Roids" object="L2M144.Roids TMP {group.object.{counter@count}@L2M144.RoidsTMP}"/>-->
+                          <set_object name="L2M144.TempRoid {counter@count}" group="L2M144.Roids" value="{group.object.{counter@count}@L2M144.RoidsTMP}"/>
+                        </do_if>
+                      </do_all>
+                      <!--<incoming_message author="XGamer Debug Services" text="{group.object.count@L2M144.RoidsTMP} Roids have been found\n{group.object.count@L2M144.Roids} Roids for the Final Work. (not scanned)"/>-->
+                      <remove_group group="L2M144.RoidsTMP"/>
+                      <!--<incoming_message author="XGamer Debug Services" text="Removed the TMP Group now.\n\n{group.object.count@L2M144.RoidsTMP} Roids have been found\n{group.object.count@L2M144.Roids} Roids for the Final Work. (not scanned)"/>-->
+                      <do_all exact="{group.object.count@L2M144.Roids}" counter="count" comment="Calculate the Sector Score...">
+                        <set_value name="L2M144.Score" operation="add" exact="10 + {group.object.{counter@count}.yield@L2M144.Roids}"/>
+                        <do_if value="{group.object.{counter@count}.yield@L2M144.Roids}" min="30">
+                          <!--<add_object_to_group group="L2M144.HighRoids" object="L2M144.Roids {group.object.{counter@count}@L2M144.Roids}"/>-->
+                          <set_object name="L2M144.HighRoid {counter@count}" group="L2M144.HighRoids" value="{group.object.{counter@count}@L2M144.Roids}"/>
+                        </do_if>
+                      </do_all>
+                      <!--<incoming_message author="XGamer Debug Services" text="Finding Roids is now done. We got a score of {value@L2M144.Score}"/>-->
+                      <set_value name="L2M144.PriceTop5" exact="{value@L2M144.Score} * 300"/>
+                      <set_value name="L2M144.Price100" exact="{value@L2M144.Score} * 400"/>
+                      <set_value name="L2M144.Price75" exact="{value@L2M144.Price100} / 4 * 3"/>
+                      <set_value name="L2M144.Price50" exact="{value@L2M144.Price100} / 2"/>
+                      <set_value name="L2M144.Price25" exact="{value@L2M144.Price100} / 4"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M144 Check" comment="Some Failsafe Checks to make Sure Mission can be run without Problems">
+              <condition>
+                <check_any>
+                  <check_all>
+                    <cue_is_complete cue="L2M144 Finish Roids"/>
+                    <check_value value="{group.object.count@L2M144.Roids}" min="1" negate="1"/>
+                  </check_all>
+                  <check_value value="{object.exists@L2M144.OfferStation}" exact="1" negate="1"/>
+                  <check_value value="{sector.exists@L2M144.Sector}" exact="1" negate="1"/>
+                  <check_value value="{actor.exists@L2M144.Offerguy}" exact="1" negate="1"/>
+                </check_any>
+              </condition>
+              <cues>
+                <cue ref="L2M144 Cleanup"/>
+              </cues>
+            </cue>
+            <cue name="L2M144 Offer Mission">
+              <condition>
+                <check_all>
+                  <cue_completed cue="L2M144 Finish Roids"/>
+                  <object_exists object="L2M144.OfferStation"/>
+                  <check_value value="{actor.exists@L2M144.Offerguy}" exact="1"/>
+                  <check_value value="{group.object.count@L2M144.Roids}" min="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <cancel_cue cue="L2M144 Check"/>
+                  <set_value name="L2M144.OfferTextID" min="1701" max="1705"/>
+                  <do_choose>
+                    <do_when value="{group.object.count@L2M144.HighRoids}" min="5" comment="We got High Yield Asteroids">
+                      <!--
+                      <create_offer actor="L2M144.Offerguy" conversation="L2BuyRoids_High" discipline="XXXT">
+                        <params>
+                          <param name="PriceTop5" value="{value.formatted@L2M144.PriceTop5}"/>
+                          <param name="Price100" value="{value.formatted@L2M144.Price100}"/>
+                          <param name="Price75" value="{value.formatted@L2M144.Price75}"/>
+                          <param name="Price50" value="{value.formatted@L2M144.Price50}"/>
+                          <param name="Price25" value="{value.formatted@L2M144.Price25}"/>
+                        </params>
+                      </create_offer>
+                      -->
+                      <create_offer actor="L2M144.Offerguy" conversation="L2OfferBuyCustom5" discipline="XXXT">
+                        <params>
+                          <param name="OfferText" value="{3800,{value@L2M144.OfferTextID}}"/>
+                          <param name="Option5" value="{3800,1706}"/>
+                          <param name="Price5" value="{value.formatted@L2M144.PriceTop5}"/>
+                          <param name="Option1" value="{3800,1707}"/>
+                          <param name="Price1" value="{value.formatted@L2M144.Price100}"/>
+                          <param name="Option2" value="{3800,1708}"/>
+                          <param name="Price2" value="{value.formatted@L2M144.Price75}"/>
+                          <param name="Option3" value="{3800,1709}"/>
+                          <param name="Price3" value="{value.formatted@L2M144.Price50}"/>
+                          <param name="Option4" value="{3800,1710}"/>
+                          <param name="Price4" value="{value.formatted@L2M144.Price25}"/>
+                        </params>
+                      </create_offer>
+                    </do_when>
+                    <do_otherwise comment="No High Yield Asteroids">
+                      <!--
+                      <create_offer actor="L2M144.Offerguy" conversation="L2BuyRoids" discipline="XXXT">
+                        <params>
+                          <param name="Price100" value="{value.formatted@L2M144.Price100}"/>
+                          <param name="Price75" value="{value.formatted@L2M144.Price75}"/>
+                          <param name="Price50" value="{value.formatted@L2M144.Price50}"/>
+                          <param name="Price25" value="{value.formatted@L2M144.Price25}"/>
+                        </params>
+                      </create_offer>
+                      -->
+                      <create_offer actor="L2M144.Offerguy" conversation="L2OfferBuyCustom4" discipline="XXXT">
+                        <params>
+                          <param name="OfferText" value="{3800,{value@L2M144.OfferTextID}}"/>
+                          <param name="Option1" value="{3800,1707}"/>
+                          <param name="Price1" value="{value.formatted@L2M144.Price100}"/>
+                          <param name="Option2" value="{3800,1708}"/>
+                          <param name="Price2" value="{value.formatted@L2M144.Price75}"/>
+                          <param name="Option3" value="{3800,1709}"/>
+                          <param name="Price3" value="{value.formatted@L2M144.Price50}"/>
+                          <param name="Option4" value="{3800,1710}"/>
+                          <param name="Price4" value="{value.formatted@L2M144.Price25}"/>
+                        </params>
+                      </create_offer>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M144 Buy Top5" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom5" answer="accept5"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{player.money}" min="{value@L2M144.PriceTop5}">
+                          <do_all exact="5" counter="cnt">
+                            <set_scanned object="{group.object.{counter@cnt}@L2M144.HighRoids}" scanned="1"/>
+                            <set_known object="{group.object.{counter@cnt}@L2M144.HighRoids}" known="1"/>
+                          </do_all>
+                          <reward_player>
+                            <money exact="-{value@L2M144.PriceTop5}"/>
+                          </reward_player>
+                          <play_text actor="L2M144.Offerguy" textid="825"/>
+                          <set_value name="L2M144.Finished" exact="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <play_text actor="L2M144.Offerguy" textid="126"/>
+                          <play_text pageid="13" textid="1254"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M144 Buy 100" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_any>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom4" answer="accept1"/>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom5" answer="accept1"/>
+                      </check_any>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{player.money}" min="{value@L2M144.Price100}">
+                          <set_group_scanned scanned="1" group="L2M144.Roids"/>
+                          <set_group_known known="1" group="L2M144.Roids"/>
+                          <reward_player>
+                            <money exact="-{value@L2M144.Price100}"/>
+                          </reward_player>
+                          <play_text actor="L2M144.Offerguy" textid="825"/>
+                          <set_value name="L2M144.Finished" exact="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <play_text actor="L2M144.Offerguy" textid="126"/>
+                          <play_text pageid="13" textid="1254"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M144 Buy 75" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_any>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom4" answer="accept2"/>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom5" answer="accept2"/>
+                      </check_any>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{player.money}" min="{value@L2M144.Price75}">
+                          <do_all exact="{group.object.count@L2M144.Roids} / 4 * 3" counter="cnt">
+                            <set_object name="L2M144.Scan" group="L2M144.CleanupRoid Group" value="{group.object.{counter@cnt}@L2M144.Roids}"/>
+                            <set_scanned scanned="1" object="L2M144.Scan"/>
+                            <set_known known="1" object="L2M144.Scan"/>
+                          </do_all>
+                          <reward_player>
+                            <money exact="-{value@L2M144.Price75}"/>
+                          </reward_player>
+                          <play_text actor="L2M144.Offerguy" textid="825"/>
+                          <set_value name="L2M144.Finished" exact="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <play_text actor="L2M144.Offerguy" textid="126"/>
+                          <play_text pageid="13" textid="1254"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M144 Buy 50" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_any>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom4" answer="accept3"/>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom5" answer="accept3"/>
+                      </check_any>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{player.money}" min="{value@L2M144.Price50}">
+                          <do_all exact="{group.object.count@L2M144.Roids} / 2" counter="cnt">
+                            <set_object name="L2M144.Scan" value="{group.object.{counter@cnt}@L2M144.Roids}"/>
+                            <set_scanned scanned="1" object="L2M144.Scan"/>
+                            <set_known known="1" object="L2M144.Scan"/>
+                          </do_all>
+                          <reward_player>
+                            <money exact="-{value@L2M144.Price50}"/>
+                          </reward_player>
+                          <play_text actor="L2M144.Offerguy" textid="825"/>
+                          <set_value name="L2M144.Finished" exact="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <play_text actor="L2M144.Offerguy" textid="126"/>
+                          <play_text pageid="13" textid="1254"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M144 Buy 25" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_any>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom4" answer="accept4"/>
+                        <conversation_completed actor="L2M144.Offerguy" conversation="L2OfferBuyCustom5" answer="accept4"/>
+                      </check_any>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <do_choose>
+                        <do_when value="{player.money}" min="{value@L2M144.Price25}">
+                          <do_all exact="{group.object.count@L2M144.Roids} / 4" counter="cnt">
+                            <set_object name="L2M144.Scan" value="{group.object.{counter@cnt}@L2M144.Roids}"/>
+                            <set_scanned scanned="1" object="L2M144.Scan"/>
+                            <set_known known="1" object="L2M144.Scan"/>
+                          </do_all>
+                          <reward_player>
+                            <money exact="-{value@L2M144.Price25}"/>
+                          </reward_player>
+                          <play_text actor="L2M144.Offerguy" textid="825"/>
+                          <set_value name="L2M144.Finished" exact="1"/>
+                        </do_when>
+                        <do_otherwise>
+                          <play_text actor="L2M144.Offerguy" textid="126"/>
+                          <play_text pageid="13" textid="1254"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M144 Denied" comment="Call Clean Up" delay="1s">
+                  <condition>
+                    <check_any>
+                      <object_exists object="L2M144.OfferStation" negate="1"/>
+                      <check_value value="{value@L2M144.Finished}" exact="1"/>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue ref="L2M144 Cleanup"/>
+                  </cues>
+                </cue>
+                <cue name="L2M144 Timeout">
+                  <condition>
+                    <object_relation object="L2M144.OfferStation">
+                      <relation relation="enemy"/>
+                    </object_relation>
+                  </condition>
+                  <cues>
+                    <cue ref="L2M144 Cleanup"/>
+                  </cues>
+                </cue>
+                <cue name="L2M144 Timeout">
+                  <timing>
+                    <time min="7m" max="9m"/>
+                  </timing>
+                  <cues>
+                    <cue ref="L2M144 Cleanup"/>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+          <!-- Mission Specific Cues END -->
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>EpqXtwPrK0Joqeb6tQLIerqdtRe6/SypnJ0NEVKAzpfgWXBV2ieFOqZJ3PctFKwU0uNTHsa7uCK9lCQBmlVPPGSFHBRVT39/fwTFgZR6+tCkX8qJ5YpQN2dJTnxj8PCKLfFAH61oMfr/tRq5QBzWeLcE7Ubj4XDFdoj/CnAn/qMOiZPhRjKR1mF/2x4LKa2rJGNdGFZAtw3gv2SAsJMvUUeLkcrBHdikpp/f1xQqYlkWDKFAj9eDXln9R9QRA3OONZDJh3Qq6LjWvnflrFKM/niukqasSfMXRkoHzdmQIciyBoFKWsI8CHF36S0ZECwm0ira423eyMEMDqR1kiPjYA==</signature>
+</director>

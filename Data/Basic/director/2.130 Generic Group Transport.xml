@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L0M04" name="Generic Group Transport" description="Passengers need to be transported to a station"/>
+    <version number="0.1" date="22/02/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M130" library="1" check="cancel">
+      <documentation>
+        <content name="Generic Group Transport" reference="L2M130" type="L2"/>
+        <version date="22/02/2008" number="0.1" status="release"/>
+      </documentation>
+      <condition>
+        <check_all>
+          <count_stations min="1" race="default|terran|goner" friend="1" neutral="1" dockingallowed="1">
+            <jumps min="1" max="2"/>
+          </count_stations>
+          <count_stations min="1" race="default|terran|goner" friend="1" neutral="1" dockingallowed="1">
+            <jumps exact="0"/>
+          </count_stations>
+        </check_all>
+      </condition>
+      <action>
+        <set_value name="L2M130.TimeOut" min="{player.age}+400" max="{player.age}+500"/>
+      </action>
+      <cues>
+        <cue name="L2M130 Setup">
+          <action>
+            <do_all>
+              <find_station name="L2M130.OfferStation" dockingallowed="1" friend="1" neutral="1" race="default|terran|goner">
+                <jumps exact="0"/>
+              </find_station>
+              <do_if value="{object.exists@L2M130.OfferStation}" exact="0">
+                <cancel_cue cue="L2M130"/>
+              </do_if>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M130 Transport Passengers">
+              <action>
+                <do_all>
+                  <set_value name="L2M130.PageID" exact="3330"/>
+                  <do_any>
+                    <do_all>
+                      <set_value name="L2M130.Variation" exact="0"/>
+                    </do_all>
+                    <do_all>
+                      <set_value name="L2M130.Variation" exact="1"/>
+                      <set_value name="L2M130.TextID Title P" exact="1001" comment="The briefing title ID"/>
+                      <set_value name="L2M130.TextID Text Multi P" exact="1002" comment="The briefing text ID for Multi"/>
+                      <set_value name="L2M130.TextID Text Singular P" exact="1003" comment="The briefing text ID for singular"/>
+                      <set_value name="L2M130.TextID MultiPassengers P" exact="1007" comment="The text ID for the multiple passengers objective"/>
+                      <set_value name="L2M130.TextID SinglePassenger P" exact="1008" comment="The text ID for a single passenger objective"/>
+                      <set_value name="L2M130.TextID Title" exact="1004" comment="The briefing title ID"/>
+                      <set_value name="L2M130.TextID Text Multi" exact="1005" comment="The briefing text ID for Multi"/>
+                      <set_value name="L2M130.TextID Text Singular" exact="1006" comment="The briefing text ID for singular"/>
+                      <set_value name="L2M130.TextID MultiPassengers" exact="1007" comment="The text ID for the multiple passengers objective"/>
+                      <set_value name="L2M130.TextID SinglePassenger" exact="1008" comment="The text ID for a single passenger objective"/>
+                    </do_all>
+                    <do_all>
+                      <set_value name="L2M130.Variation" exact="2"/>
+                      <set_value name="L2M130.TextID Title P" exact="2001" comment="The briefing title ID"/>
+                      <set_value name="L2M130.TextID Text Multi P" exact="2002" comment="The briefing text ID for Multi"/>
+                      <set_value name="L2M130.TextID Text Singular P" exact="2003" comment="The briefing text ID for singular"/>
+                      <set_value name="L2M130.TextID MultiPassengers P" exact="2007" comment="The text ID for the multiple passengers objective"/>
+                      <set_value name="L2M130.TextID SinglePassenger P" exact="2008" comment="The text ID for a single passenger objective"/>
+                      <set_value name="L2M130.TextID Title" exact="2004" comment="The briefing title ID"/>
+                      <set_value name="L2M130.TextID Text Multi" exact="2005" comment="The briefing text ID for Multi"/>
+                      <set_value name="L2M130.TextID Text Singular" exact="2006" comment="The briefing text ID for singular"/>
+                      <set_value name="L2M130.TextID MultiPassengers" exact="2007" comment="The text ID for the multiple passengers objective"/>
+                      <set_value name="L2M130.TextID SinglePassenger" exact="2008" comment="The text ID for a single passenger objective"/>
+                    </do_all>
+                  </do_any>
+                  <set_sector name="L2M130.StartSector" value="{object.sector@L2M130.OfferStation}"/>
+
+                  <do_any>
+                    <set_value chance="2" name="L2M130.OfferRace" exact="{random.race@default}"/>
+                    <set_value chance="3" name="L2M130.OfferRace" exact="{object.race@L2M130.OfferStation}"/>
+                  </do_any>
+                  <set_value name="L2M130.PassengerRaceMask" exact="{lookup.race.mask@argon}+{lookup.race.mask@boron}+{lookup.race.mask@split}+{lookup.race.mask@paranid}+{lookup.race.mask@teladi}"/>
+                  <do_if value="{object.race@L2M130.OfferStation}" exact="{lookup.race@terran}">
+                    <set_value name="L2M130.OfferRace" exact="{lookup.race@terran}"/>
+                    <set_value name="L2M130.PassengerRaceMask" exact="{lookup.race.mask@terran}"/>
+                  </do_if>
+                  
+                  <find_station name="L2M130 Transport Passengers.TempStation" race="{value@L2M130.PassengerRaceMask}" friend="1" neutral="1" dockingallowed="1">
+                    <jumps min="1" max="2"/>
+                  </find_station>
+                  <do_choose>
+                    <do_when value="{object.exists@L2M130 Transport Passengers.TempStation}" exact="1">
+                      <set_sector name="L2M130.Sector" value="{object.sector@L2M130 Transport Passengers.TempStation}"/>
+                      <set_value name="L2M130.Race" exact="{object.race@L2M130 Transport Passengers.TempStation}"/>
+                      <do_any>
+                        <set_object chance="5" name="L2M130 Transport Passengers.DestStation" value="{object@L2M130 Transport Passengers.TempStation}"/>
+                        <do_all chance="2">
+                          <set_value name="L2M130.UseSector" list="0|1"/>
+                          <set_value name="L2M130.UseRace" list="0|1"/>
+                        </do_all>
+                      </do_any>
+                      <set_value name="L2M130.DestVariation" exact="5"/>
+                      <do_choose>
+                        <do_when value="{value@L2M130.UseRace}" exact="1">
+                          <set_value name="L2M130.DestVariation" exact="1"/>
+                          <do_if value="{value@L2M130.UseSector}" exact="1">
+                            <set_value name="L2M130.DestVariation" exact="2"/>
+                          </do_if>
+                        </do_when>
+                        <do_otherwise>
+                          <do_if value="{value@L2M130.UseSector}" exact="1">
+                            <set_value name="L2M130.DestVariation" exact="3"/>
+                          </do_if>
+                        </do_otherwise>
+                      </do_choose>
+                      <do_if value="{object.exists@L2M130 Transport Passengers.DestStation}" exact="1">
+                        <set_value name="L2M130.DestVariation" exact="4"/>
+                      </do_if>
+                      <do_choose>
+                        <do_when value="{value@L2M130.DestVariation}" exact="5" comment="Dock at any station">
+                          <set_value name="L2M130.Cancel Mission" exact="1"/>
+                        </do_when>
+                        <do_when value="{value@L2M130.DestVariation}" exact="4" comment="Dock at Destination Station">
+                          <do_if value="{object@L2M130.OfferStation}" exact="{object@L2M130 Transport Passengers.DestStation}">
+                            <set_value name="L2M130.Cancel Mission" exact="1"/>
+                          </do_if>
+                        </do_when>
+                        <do_when value="{value@L2M130.DestVariation}" exact="3" comment="Dock at Station In Sector">
+                          <do_if value="{object.sector@L2M130.OfferStation}" exact="{sector@L2M130.Sector}">
+                            <set_value name="L2M130.Cancel Mission" exact="1"/>
+                          </do_if>
+                        </do_when>
+                        <do_when value="{value@L2M130.DestVariation}" exact="2" comment="Dock at Race Station In Sector">
+                          <do_if value="{object.race@L2M130.OfferStation}" exact="{value@L2M130.Race}">
+                            <do_if value="{object.sector@L2M130.OfferStation}" exact="{sector@L2M130.Sector}">
+                              <set_value name="L2M130.Cancel Mission" exact="1"/>
+                            </do_if>
+                          </do_if>
+                        </do_when>
+                        <do_when value="{value@L2M130.DestVariation}" exact="1" comment="Dock at Race Station">
+                          <do_if value="{object.race@L2M130.OfferStation}" exact="{value@L2M130.Race}">
+                            <set_value name="L2M130.Cancel Mission" exact="1"/>
+                          </do_if>
+                        </do_when>
+                      </do_choose>
+                      <do_choose>
+                        <do_when value="{value@L2M130.Cancel Mission}" exact="1">
+                          <cancel_cue cue="L2M130"/>
+                        </do_when>
+                        <do_otherwise>
+                          <do_choose>
+                            <do_when value="{value@L2M130.OfferRace}" exact="{lookup.race@goner}">
+                              <create_actor name="L2M130.OfferActor" race="argon" object="L2M130.OfferStation" location="crew" voiceflags="32"/>
+                            </do_when>
+                            <do_otherwise>
+                              <create_actor name="L2M130.OfferActor" race="{value@L2M130.OfferRace}" object="L2M130.OfferStation" location="crew" voiceflags="32"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <create_offer actor="L2M130.OfferActor" conversation="L2OfferTaxi" cue="L2M130 Transport Passengers" discipline="TXXX"/>
+                          <set_value name="L2M130 Transport Passengers.Difficulty" min="{lookup.level@veryeasy}" max="{lookup.level@veryhard}"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_when>
+                    <do_otherwise>
+                      <cancel_cue cue="L2M130"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M130 Transport Passengers Briefing">
+                  <condition>
+                    <conversation_completed actor="L2M130.OfferActor" answer="briefing" conversation="L2OfferTaxi"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <create_briefing cue="L2M130 Transport Passengers">
+                        <objectives>
+                          <objective step="1">
+                            <custom action="{35,2005}" text="{object.name@L2M130.OfferStation}" object="L2M130.OfferStation"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <set_value name="L2M130.TempStep" exact="2"/>
+                      <set_value name="L2M130.Passenger Count" min="2" max="15"/>
+                      <set_value name="L2M130.NeededSpace" exact="{value@L2M130.Passenger Count}*{lookup.type.cargospace@SS_WARE_PASSENGER}-1"/>
+                      <do_all exact="{value@L2M130.Passenger Count}" counter="Passenger Count">
+                        <create_actor name="L2M130.Passenger {counter@Passenger Count}" race="{random.race@{value@L2M130.PassengerRaceMask}}"/>
+                        <set_object name="L2M130.Passengers {actor@L2M130.Passenger {counter@Passenger Count}}" value="{actor@L2M130.Passenger {counter@Passenger Count}}" group="L2M130.Passengers"/>
+                      </do_all>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue ref="L0M30 B">
+                      <params>
+                        <param name="Cue" value="L2M130 Transport Passengers" comment="The cue where values will be localized"/>
+                        <param name="Step" value="L2M130.TempStep"/>
+                        <param name="Preview" value="1" comment="Is the briefing a preview"/>
+                        <param name="PageID" value="{value@L2M130.PageID}" comment="The PageID of the text"/>
+                        <param name="PassengersName" value="L2M130.Passengers"/>
+                        <param name="DestName" value="L2M130 Transport Passengers.DestStation"/>
+                        <param name="StationRace" value="{value@L2M130.Race}" comment="The race of the station"/>
+                        <param name="UseRace" value="{value@L2M130.UseRace}" comment="Compleation when docked at a station owned by 'StationRace'"/>
+                        <param name="StationSector" value="{sector@L2M130.Sector}" comment="The sector of the station"/>
+                        <param name="UseSector" value="{value@L2M130.UseSector}" comment="Compleation when docked at a station in 'StationSector'"/>
+                        <param name="SetObjective" value="0"/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="TextID Title" value="{value@L2M130.TextID Title P}" comment="The briefing title ID"/>
+                        <param name="TextID Text Multi" value="{value@L2M130.TextID Text Multi P}" comment="The briefing text ID for Multi"/>
+                        <param name="TextID Text Singular" value="{value@L2M130.TextID Text Singular P}" comment="The briefing text ID for singular"/>
+                        <param name="TextID MultiPassengers" value="{value@L2M130.TextID MultiPassengers P}" comment="The text ID for the multiple passengers objective"/>
+                        <param name="TextID SinglePassenger" value="{value@L2M130.TextID SinglePassenger P}" comment="The text ID for a single passenger objective"/>
+                        <param name="Difficulty" value="{value@L2M130 Transport Passengers.Difficulty}" comment="The value address for the difficulty"/>
+                        <param name="Duration" value="L2M130 Transport Passengers.Duration" comment="Mission Time"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RoundReward" value="1" comment="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+                        <param name="RewardCr" value="L2M130 Transport Passengers.RewardCr" comment="Reward - credits"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M130 Transport Passengers Accepted">
+                  <condition>
+                    <conversation_completed actor="L2M130.OfferActor" answer="accept" conversation="L2OfferTaxi"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M130 Check Offer"/>
+                      <set_value name="L2M130 Transport Passengers.Step" exact="1"/>
+                      <set_value name="L2M130.Start Time" exact="{player.age}"/>
+                      <create_briefing cue="L2M130 Transport Passengers">
+                        <mission discipline="XXXT" level="easy"/>
+                        <timer start="{player.age}" duration="{value@L2M130 Transport Passengers.Duration}"/>
+                        <objectives>
+                          <objective step="{value@L2M130 Transport Passengers.Step}">
+                            <custom action="{35,2005}" text="{object.name@L2M130.OfferStation}" object="L2M130.OfferStation"/>
+                          </objective>
+                        </objectives>
+                      </create_briefing>
+                      <do_choose>
+                        <do_when value="{group.object.count@L2M130.Passengers}" min="2">
+                          <set_objective cue="L2M130 Transport Passengers" title="{{value@L2M130.PageID},1001}" text="{{value@L2M130.PageID},{value@L2M130.TextID Text Multi}}">
+                            <briefing cue="L2M130 Transport Passengers" step="{value@L2M130 Transport Passengers.Step}"/>
+                            <mission discipline="XXXT" level="easy"/>
+                            <timer start="{player.age}" duration="{value@L2M130 Transport Passengers.Duration}"/>
+                            <custom action="{35,2005}" text="{object.name@L2M130.OfferStation}" object="L2M130.OfferStation"/>
+                          </set_objective>
+                        </do_when>
+                        <do_otherwise>
+                          <set_objective cue="L2M130 Transport Passengers" title="{{value@L2M130.PageID},1001}" text="{{value@L2M130.PageID},{value@L2M130.TextID Text Singular}}">
+                            <briefing cue="L2M130 Transport Passengers" step="{value@L2M130 Transport Passengers.Step}"/>
+                            <mission discipline="XXXT" level="easy"/>
+                            <timer start="{player.age}" duration="{value@L2M130 Transport Passengers.Duration}"/>
+                            <custom action="{35,2005}" text="{object.name@L2M130.OfferStation}" object="L2M130.OfferStation"/>
+                          </set_objective>
+                        </do_otherwise>
+                      </do_choose>
+                      <set_value name="L2M130 Transport Passengers.Step" exact="2"/>
+                      <increment_statistic statistic="5160"/>
+                      <remove_offer actor="L2M130.OfferActor" discipline="TXXX" conversation="L2OfferTaxi"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M130 Start Destroyed">
+                      <condition>
+                        <check_any>
+                          <object_destroyed object="L2M130.OfferStation"/>
+                          <object_destroyed_by_player object="L2M130.OfferStation"/>
+                        </check_any>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="L2M130 Transport Passengers.Feedback" exact="99"/>
+                          <cancel_cue cue="L2M130 Trans Passengers ref L0M30"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L2M130 Timeout">
+                      <timing>
+                        <time exact="{value@L2M130 Transport Passengers.Duration}s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <set_value name="L2M130 Transport Passengers.Feedback" exact="3"/>
+                          <cancel_cue cue="L2M130 Trans Passengers ref L0M30"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L2M130 Abort">
+                      <condition>
+                        <objective_cancelled cue="L2M130 Transport Passengers"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="L2M130 Transport Passengers.Feedback" exact="99"/>
+                          <cancel_cue cue="L2M130 Trans Passengers ref L0M30"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L2M130 Transport Passengers Check" delay="1s">
+                      <condition>
+                        <object_is_docked dockobject="L2M130.OfferStation"/>
+                      </condition>
+                      <action>
+                        <do_choose>
+                          <do_when value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="0">
+                            <play_text priority="99" actor="L2M130.OfferActor" textid="906"/>
+                            <show_help duration="10000" text="{3330,{value@L2M130.Variation}8}"/>
+                          </do_when>
+                          <do_otherwise>
+                            <do_if value="{player.ship.cargospace}" max="{value@L2M130.NeededSpace}-1">
+                              <play_text priority="99" actor="L2M130.OfferActor" textid="905"/>
+                              <show_help duration="10000" text="{3330,{value@L2M130.Variation}8}"/>
+                            </do_if>
+                          </do_otherwise>
+                        </do_choose>
+                      </action>
+                    </cue>
+                    <cue name="L2M130 Trans Passengers ref L0M30" delay="1s">
+                      <condition>
+                        <check_all>
+                          <object_is_docked dockobject="L2M130.OfferStation"/>
+                          <check_value value="{player.ship.cargospace}" min="{value@L2M130.NeededSpace}"/>
+                          <check_value value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <cancel_cue cue="L2M130 Timeout"/>
+                          <cancel_cue cue="L2M130 Start Destroyed"/>
+                          <cancel_cue cue="L2M130 Abort"/>
+                          <remove_objective cue="L2M130 Transport Passengers"/>
+                          <do_if value="{value@L2M130.DestVariation}" exact="4">
+                            <do_if value="{object.exists@L2M130 Transport Passengers.DestStation}" exact="0">
+                              <set_value name="this.DestLost" exact="1"/>
+                            </do_if>
+                          </do_if>
+                          <do_choose>
+                            <do_when value="{value@this.DestLost}" exact="1">
+                              <cancel_cue cue="L0M30"/>
+                              <set_value name="L2M130 Transport Passengers.Feedback" exact="7"/>
+                            </do_when>
+                            <do_otherwise>
+                              <set_value name="L2M130 Transport Passengers.Duration" exact="{value@L2M130 Transport Passengers.Duration}-({player.age}-{value@L2M130.Start Time})"/>
+                              <do_all exact="{group.object.count@L2M130.Passengers}" counter="Passenger Count">
+                                <set_actor_location object="{player.ship}" location="passenger" actor="{group.object.{counter@Passenger Count}@L2M130.Passengers}"/>
+                              </do_all>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M30">
+                          <params>
+                            <param name="Cue" value="L2M130 Transport Passengers" comment="The cue where values will be localized"/>
+                            <param name="Step" value="L2M130 Transport Passengers.Step" comment="The initial objective step"/>
+                            <param name="PageID" value="{value@L2M130.PageID}" comment="The PageID of the text"/>
+                            <param name="TextID Title" value="{value@L2M130.TextID Title}" comment="The briefing title ID"/>
+                            <param name="TextID Text Multi" value="{value@L2M130.TextID Text Multi}" comment="The briefing text ID for Multi"/>
+                            <param name="TextID Text Singular" value="{value@L2M130.TextID Text Singular}" comment="The briefing text ID for singular"/>
+                            <param name="TextID MultiPassengers" value="{value@L2M130.TextID MultiPassengers}" comment="The text ID for the multiple passengers objective"/>
+                            <param name="TextID SinglePassenger" value="{value@L2M130.TextID SinglePassenger}" comment="The text ID for a single passenger objective"/>
+                            <param name="DestName" value="L2M130 Transport Passengers.DestStation"/>
+                            <param name="StationRace" value="{value@L2M130.Race}" comment="The race of the station"/>
+                            <param name="UseRace" value="{value@L2M130.UseRace}" comment="Compleation when docked at a station owned by 'StationRace'"/>
+                            <param name="StationSector" value="{sector@L2M130.Sector}" comment="The sector of the station"/>
+                            <param name="UseSector" value="{value@L2M130.UseSector}" comment="Compleation when docked at a station in 'StationSector'"/>
+                            <param name="AllowLoss" value="1"/>
+                            <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                            <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                            <param name="IsPlot" value="0" comment="Is this a plot mission"/>
+                            <param name="UseTimer" value="0" comment="Override the plot signal and use a timer"/>
+                            <param name="Difficulty" value="{value@L2M130 Transport Passengers.Difficulty}" comment="The value address for the difficulty"/>
+                            <param name="Duration" value="L2M130 Transport Passengers.Duration" comment="Mission Time"/>
+                            <!--reward parameters (in priority order)-->
+                            <param name="RewardCr" value="L2M130 Transport Passengers.RewardCr" comment="Reward - credits"/>
+                            <param name="PassengersName" value="L2M130.Passengers" comment="The Address of the Passenger Object Group"/>
+                            <param name="Offer Actor" value="{actor@L2M130.OfferActor}" comment="The actor"/>
+                            <param name="InitPassengerCnt" value="{value@L2M130.Passenger Count}" comment="The initial number of passengers at the start of the mission"/>
+                            <param name="FeedbackName" value="L2M130 Transport Passengers.Feedback" comment="The address where the step value is stored"/>
+                            <param name="EndPassengers" value="L2M130.End Passengers"/>
+                          </params>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L2M130 Transport Passengers Ended" delay="2s">
+                      <condition>
+                        <check_value value="{value@L2M130 Transport Passengers.Feedback}" exact="0" negate="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <increment_statistic statistic="5180" exact="{group.object.count@L2M130.End Passengers}"/>
+                          <do_choose>
+                            <do_when value="{value@L2M130 Transport Passengers.Feedback}" list="1|2">
+                              <reward_player>
+                                <money exact="{value@L2M130 Transport Passengers.RewardCr}"/>
+                                <notoriety>
+                                  <relation race="{value@L2M130.OfferRace}" exact="{reward.notoriety.{value@L2M130.OfferRace}@{value@L2M130 Transport Passengers.Difficulty}}"/>
+                                </notoriety>
+                              </reward_player>
+                              <increment_statistic statistic="5170"/>
+                              <incoming_message author="{actor.name@L2M130.OfferActor}" text="{{value@L2M130.PageID},{value@L2M130.Variation}{value@L2M130 Transport Passengers.Feedback}}"/>
+                              <remove_objective cue="L2M130 Transport Passengers" status="complete"/>
+                            </do_when>
+                            <do_when value="{value@L2M130 Transport Passengers.Feedback}" exact="7">
+                              <remove_objective cue="L2M130 Transport Passengers" status="aborted"/>
+                              <incoming_message author="{actor.name@L2M130.OfferActor}" text="{{value@L2M130.PageID},{value@L2M130.Variation}{value@L2M130 Transport Passengers.Feedback}}"/>
+                            </do_when>
+                            <do_when value="{value@L2M130 Transport Passengers.Feedback}" exact="99">
+                              <remove_objective cue="L2M130 Transport Passengers" status="aborted"/>
+                            </do_when>
+                            <do_otherwise>
+                              <remove_objective cue="L2M130 Transport Passengers" status="failed"/>
+                              <incoming_message author="{actor.name@L2M130.OfferActor}" text="{{value@L2M130.PageID},{value@L2M130.Variation}{value@L2M130 Transport Passengers.Feedback}}"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <destroy_actor actor="L2M130.OfferActor"/>
+                          <remove_briefing cue="L2M130 Transport Passengers"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M130 All Passengers Gone" delay="2s">
+                          <condition>
+                            <check_value value="{group.object.count@L2M130.Passengers}" exact="0"/>
+                          </condition>
+                          <action>
+                            <cancel_cue cue="L2M130"/>
+                          </action>
+                        </cue>
+                        <cue name="L2M130 Remove Passengers" instantiate="static" delay="2s">
+                          <condition>
+                            <check_any exact="{group.object.count@L2M130.Passengers}" counter="Count">
+                              <check_any>
+                                <check_all>
+                                  <check_value value="{group.object.{counter@Count}.dockobject.exists@L2M130.Passengers}" exact="1"/>
+                                  <check_value value="{group.object.{counter@Count}.dockobject.dockobject.exists@L2M130.Passengers}" exact="1"/>
+                                </check_all>
+                                <object_exists object="{group.object.{counter@Count}.dockobject@L2M130.Passengers}" negate="1" comment="Ascended Actor"/>
+                              </check_any>
+                            </check_any>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <do_all exact="{group.object.count@L2M130.Passengers}" counter="Count">
+                                <do_choose>
+                                  <do_when value="{group.object.{counter@Count}.dockobject.exists@L2M130.Passengers}" exact="0">
+                                    <set_object group="this.Matched" name="this.Matched {group.object.{counter@Count}@L2M130.Passengers}" value="{group.object.{counter@Count}@L2M130.Passengers}"/>
+                                  </do_when>
+                                  <do_when value="{group.object.{counter@Count}.dockobject.dockobject.exists@L2M130.Passengers}" exact="1">
+                                    <set_object group="this.Matched" name="this.Matched {group.object.{counter@Count}@L2M130.Passengers}" value="{group.object.{counter@Count}@L2M130.Passengers}"/>
+                                  </do_when>
+                                </do_choose>
+                              </do_all>
+                              <destroy_group group="this.Matched"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M130 Check Offer">
+              <cues>
+                <cue name="L2M130 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age value="{player.age}" min="{value@L2M130.TimeOut}"/>
+                      <object_relation object="L2M130.OfferStation">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M130 Check Comms" delay="1s">
+                      <condition>
+                        <check_value value="{player.menu.dialog}" exact="0"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <destroy_actor actor="L2M130.OfferActor"/>
+                          <cancel_cue cue="L2M130"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M130 Sector Out" instantiate="static">
+                  <condition>
+                    <object_changed_sector/>
+                  </condition>
+                  <action>
+                    <do_if value="{player.sector}" exact="{actor.sector@L2M130.OfferActor}" negate="1">
+                      <set_value name="L2M130.SectorChanges" operation="add"/>
+                      <do_if value="{value@L2M130.SectorChanges}" min="2">
+                        <destroy_actor actor="L2M130.OfferActor"/>
+                        <cancel_cue cue="L2M130"/>
+                      </do_if>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>i8h2kEICkce1Ft/JqudVXkWA+LaEmM8QAdyRLq9wEyHocG2m7zrhG2lgMevrxgRZ5kdGlGBio865qFDxBbSJcKqmeV+ao+dIV6ISNj/OdkwMzabVbf9ngzsD6EWJDTvWIKk1kcs6ZraKj5EaS5yhuK9Ol8Edtf5fmQ0exBGbjEb4jMSXjwJ38NxeVoHDRCyxmEeVr0KqbraxjlHkfhP2hVE8ZmDVxEF+PIT1EP1fOljxwuQb61yvHNdZl2ZyHuvPnby6zbRv4E7+KOqmnbMWN7hI4KjM7S7mi3vgPslJ52K8RoZgj8drbEVjTqoZrw/YgxIKAXNZyw9ZuHYyfd95cw==</signature>
+</director>
+
+
+

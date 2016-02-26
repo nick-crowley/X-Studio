@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Level 0 Mission 4" name="Scout Sector" description="Mission to scout a sector"/>
+    <version number="0.1" date="01/07/08" status="development"/>
+  </documentation>
+
+  <cues>
+    <cue name="L0M18 B" library="1">
+      <documentation>
+        <content name="L0M18 Scout Sector" reference="XFXX" type="briefing" />
+        <version number="0.1" date="01/07/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission ID for dealing with mission chains"/>
+          <param name="OfferRace" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" compulsory="1" description="Page ID of mission description"/>
+          <param name="TextID" compulsory="1" description="Text ID of mission description"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward type" default="Standard credit reward"/>
+          <param name="StoryID" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="BriefingBackground" type="text" compulsory="0" description="Briefing Background to be used"/>
+          <param name="Difficulty" compulsory="1" description="The difficulty of the mission" default="trivial"/>
+          <param name="IsPlot" compulsory="0" description="If the mission is a plot mission or not" default="non-plot"/>
+          <param name="Step" type="number" compulsory="0" description="Step to begin the briefing on" default="Step 1"/>
+          <param name="Sector" type="sectorname" compulsory="1" description="Scouting Sector"/>
+          <param name="Object1" type="objectname" compulsory="1" description="Object to scan / interact with"/>
+          <param name="Difficulty1" type="number" compulsory="1" description="1-10 difficulty to scan"/>
+          <param name="Object2" type="objectname" compulsory="0" description="Object to scan / interact with"/>
+          <param name="Difficulty2" type="number" compulsory="1" description="1-10 difficulty to scan"/>
+          <param name="Object3" type="objectname" compulsory="0" description="Object to scan / interact with"/>
+          <param name="Difficulty3" type="number" compulsory="1" description="1-10 difficulty to scan"/>
+          <param name="Satellite" type="number" compulsory="0" description="1-100 % chance that needs to deploy a satelite"/>
+        </params>
+        <returns>
+          <return name="{param@Cue}.{param@ID} L0M18 Progress" type="number" description="1 - Mission Completed"/>
+          <return name="{param@Cue}.{param@ID} L0M18 Progress" type="number" description="2 - Out of time"/>
+        </returns>
+        <history>
+          <change date="26/08/08" author="al_main" description="Fixed to include price of satelite in reward if needed"/>
+          <change date="20/08/08" author="al_main" description="Fixed discipline from fight to think"/>
+          <change date="05/08/08" author="al_main" description="Fixed missing closing curley brackets"/>
+          <change date="01/07/08" author="al_main" description="Initial Version"/>
+        </history>
+        <todo>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_choose>
+            <do_when value="{param@Summary}" exact="1">
+              <create_briefing cue="{param@Cue}">
+                <objectives>
+                  <objective step="{param@Step}">
+                    <custom icon="flyto" action="{35,2076}" text="{sector.namne@{param@Sector}}"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <cancel_cue cue="L0M18 B"/>
+            </do_when>
+            <do_otherwise>
+              <!--set step-->
+              <set_value name="{param@Cue}.{param@ID} L0Step" exact="{param@Step}"/>
+              <do_if value="{value@{param@Cue}.{param@ID} L0Step}" min="1" negate="1">
+                <set_value name="{param@Cue}.{param@ID} L0Step" exact="1"/>
+              </do_if>
+              <set_value name="{param@Cue}.{param@ID} L0M18BriStep" exact="{value@{param@Cue}.{param@ID} L0Step}"/>
+              <do_if value="{param.exists@IsPlot}" exact="0">
+                <set_value name="{param@Cue}.{param@ID} L0Time" min="3500" max="7000"/>
+                <do_if value="{param.exists@Difficulty}" exact="1">
+                  <do_if value="{param@Difficulty}" min="1">
+                    <set_value name="{param@Cue}.{param@ID} L0Time" exact="{value@{param@Cue}.{param@ID} L0Time}/{param@Difficulty}"/>
+                  </do_if>
+                </do_if>
+              </do_if>
+              <!--set title-->
+              <set_value name="{param@Cue}.{param@ID} L0Title" min="1001" max="{3618,1000}" profile="decreasing"/>
+              <!--set sector and objects-->
+              <set_sector name="{param@Cue}.{param@ID} L0M18Sector" value="{sector@{param@Sector}}"/>
+              <do_if value="{param.exists@Object1}" exact="1">
+                <set_object name="{param@Cue}.{param@ID} L0M18Object1" value="{object@{param@Object1}}"/>
+                <do_if value="{param.exists@Difficulty1}" exact="1">
+                  <set_value name="{param@Cue}.{param@ID} L0M18Difficulty1" exact="{param@Difficulty1}"/>
+                </do_if>
+                <do_if value="{value@{param@Cue}.{param@ID} L0M18Difficulty1}" min="1" max="10">
+                  <set_value name="{param@Cue}.{param@ID} L0M18Difficulty1" exact="4"/>
+                </do_if>
+              </do_if>
+              <do_if value="{param.exists@Object2}" exact="1">
+                <set_object name="{param@Cue}.{param@ID} L0M18Object2" value="{object@{param@Object2}}"/>
+                <do_if value="{param.exists@Difficulty2}" exact="1">
+                  <set_value name="{param@Cue}.{param@ID} L0M18Difficulty2" exact="{param@Difficulty2}"/>
+                </do_if>
+                <do_if value="{value@{param@Cue}.{param@ID} L0M18Difficulty2}" min="1" max="10">
+                  <set_value name="{param@Cue}.{param@ID} L0M18Difficulty2" exact="4"/>
+                </do_if>
+              </do_if>
+              <do_if value="{param.exists@Object3}" exact="1">
+                <set_object name="{param@Cue}.{param@ID} L0M18Object3" value="{object@{param@Object3}}"/>
+                <do_if value="{param.exists@Difficulty1}" exact="1">
+                  <set_value name="{param@Cue}.{param@ID} L0M18Difficulty3" exact="{param@Difficulty3}"/>
+                </do_if>
+                <do_if value="{value@{param@Cue}.{param@ID} L0M18Difficulty3}" min="1" max="10">
+                  <set_value name="{param@Cue}.{param@ID} L0M18Difficulty3" exact="4"/>
+                </do_if>
+              </do_if>
+              <!--set satellite chance and objective to get satelite-->
+              <do_if value="{param.exists@Satellite}" exact="1">
+                <do_if value="{param@Satellite}" min="1" chance="{param@Satellite}">
+                  <set_value name="{param@Cue}.{param@ID} L0M18NeedSat" exact="1"/>
+                </do_if>
+              </do_if>
+              <do_if value="{value@{param@Cue}.{param@ID} L0M18NeedSat}" exact="1">
+                <find_object name="this.sat" class="stationary" typename="SS_SH_SAT2" race="{param@OfferRace}">
+                  <position x="0" y="0" z="0" exact="1"/>
+                  <sector sector="{sector@{param@Cue}.{param@ID} L0M18Sector}"/>
+                  <jumps exact="0"/>
+                  <distance max="2000m"/>
+                </find_object>
+                <!--set reward manually to include price of satelite-->
+                <set_value name="{param@RewardCr}" exact="{reward.money@{param@Difficulty}.XXXT}+{lookup.type.price@SS_WARE_SATELLITE2}"/>
+                <do_choose>
+                  <do_when value="{object.exists@this.sat}" exact="0">
+                    <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3618,{value@{param@Cue}.{param@ID} L0Title}}">
+                      <objectives>
+                        <objective step="{value@{param@Cue}.{param@ID} L0M18BriStep}">
+                          <!--<thumbnails>
+                            <thumbnail image="{lookup.type.image@SS_SH_SAT2}"/>
+                            <thumbnail image="{sector.image@{param@Cue}.{param@ID} L0M18Sector}"/>
+                            <thumbnail image="{lookup.race.image@{param@OfferRace}}"/>
+                          </thumbnails>-->
+                          <custom action="{35,2033}" text="{lookup.type.name@SS_SH_SAT2}"/>
+                        </objective>
+                      </objectives>
+                    </create_briefing>
+                    <set_value name="{param@Cue}.{param@ID} L0M18BriStep" operation="add"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="{param@Cue}.{param@ID} L0M18NeedSat" exact="0"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+              <!--set to fly to sector-->
+              <create_briefing cue="{param@Cue}" text="{{param@PageID},{param@TextID}}" title="{3618,{value@{param@Cue}.{param@ID} L0Title}}">
+                <!--<thumbnails>
+                  <thumbnail image="{lookup.class.image@m5}"/>
+                  <thumbnail image="{sector.image@{param@Cue}.{param@ID} L0M18Sector}"/>
+                  <thumbnail image="{lookup.race.image@{param@OfferRace}}"/>
+                </thumbnails>-->
+                <objectives>
+                  <objective step="{value@{param@Cue}.{param@ID} L0M18BriStep}">
+                    <flyto>
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{param@Cue}.{param@ID} L0M18Sector"/>
+                    </flyto>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_value name="{param@Cue}.{param@ID} L0M18BriStep" operation="add"/>
+              <!--add obj to drop satellite-->
+              <do_if value="{value@{param@Cue}.{param@ID} L0M18NeedSat}" exact="1">
+                <create_briefing cue="{param@Cue}">
+                  <objectives>
+                    <objective step="{value@{param@Cue}.{param@ID} L0M18BriStep}">
+                      <!--<thumbnails>
+                        <thumbnail image="{lookup.type.image@SS_SH_SAT2}"/>
+                        <thumbnail image="{sector.image@{param@Cue}.{param@ID} L0M18Sector}"/>
+                        <thumbnail image="{lookup.race.image@{param@OfferRace}}"/>
+                      </thumbnails>-->
+                      <custom action="{35,2035}" text="{3618,2001}" guidance="{param@Cue}.{param@ID} L0M18Sector"/>
+                    </objective>
+                  </objectives>
+                </create_briefing>
+                <set_value name="{param@Cue}.{param@ID} L0M18BriStep" operation="add"/>
+              </do_if>
+              <!--add obj to scan object 1-->
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0M18Object1}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} L0M18Object1 Existed" exact="1"/>
+                <create_briefing cue="{param@Cue}">
+                  <objectives>
+                    <objective step="{value@{param@Cue}.{param@ID} L0M18BriStep}">
+                      <!--<thumbnails>
+                        <thumbnail image="{lookup.type.image@{param@Cue}.{param@ID} L0M18Object1}"/>
+                        <thumbnail image="{sector.image@{param@Cue}.{param@ID} L0M18Sector}"/>
+                        <thumbnail image="{lookup.race.image@{param@OfferRace}}"/>
+                      </thumbnails>-->
+                      <custom action="{35,2026}" text="{object.name@{param@Cue}.{param@ID} L0M18Object1}" guidance="{object@{param@Cue}.{param@ID} L0M18Object1}"/>
+                    </objective>
+                  </objectives>
+                </create_briefing>
+                <set_value name="{param@Cue}.{param@ID} L0M18BriStep" operation="add"/>
+              </do_if>
+              <!--add obj to scan object 2-->
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0M18Object2}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} L0M18Object2 Existed" exact="1"/>
+                <create_briefing cue="{param@Cue}">
+                  <objectives>
+                    <objective step="{value@{param@Cue}.{param@ID} L0M18BriStep}">
+                      <!--<thumbnails>
+                        <thumbnail image="{lookup.type.image@{param@Cue}.{param@ID} L0M18Object2}"/>
+                        <thumbnail image="{sector.image@{param@Cue}.{param@ID} L0M18Sector}"/>
+                        <thumbnail image="{lookup.race.image@{param@OfferRace}}"/>
+                      </thumbnails>-->
+                      <custom action="{35,2026}" text="{object.name@{param@Cue}.{param@ID} L0M18Object2}" guidance="{object@{param@Cue}.{param@ID} L0M18Object1}"/>
+                    </objective>
+                  </objectives>
+                </create_briefing>
+                <set_value name="{param@Cue}.{param@ID} L0M18BriStep" operation="add"/>
+              </do_if>
+              <!--add obj to scan object 3-->
+              <do_if value="{object.exists@{param@Cue}.{param@ID} L0M18Object3}" exact="1">
+                <set_value name="{param@Cue}.{param@ID} L0M18Object3 Existed" exact="1"/>
+                <create_briefing cue="{param@Cue}">
+                  <objectives>
+                    <objective step="{value@{param@Cue}.{param@ID} L0M18BriStep}">
+                      <!--<thumbnails>
+                        <thumbnail image="{lookup.type.image@{param@Cue}.{param@ID} L0M18Object3}"/>
+                        <thumbnail image="{sector.image@{param@Cue}.{param@ID} L0M18Sector}"/>
+                        <thumbnail image="{lookup.race.image@{param@OfferRace}}"/>
+                      </thumbnails>-->
+                      <custom action="{35,2026}" text="{object.name@{param@Cue}.{param@ID} L0M18Object3}" guidance="{object@{param@Cue}.{param@ID} L0M18Object1}"/>
+                    </objective>
+                  </objectives>
+                </create_briefing>
+                <set_value name="{param@Cue}.{param@ID} L0M18BriStep" operation="add"/>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="LUM04">
+          <params>
+            <param name="Discipline" value="XXXT"/>
+            <param name="Duration" value="{param@Cue}.{param@ID} L0Time"/>
+          </params>
+        </cue>
+      </cues>
+    </cue>
+
+    <cue name="L0M18" library="1">
+      <documentation>
+        <content name="L0M18 Scout Sector" reference="XFXX" type="L0" />
+        <version number="0.1" date="01/07/08" status="development"/>
+        <params>
+          <param name="Cue" type="cuename" compulsory="1" description="The cue where the briefing and objectives are stored"/>
+          <param name="ID" type="number" compulsory="1" description="The mission Id for dealing with mission chains"/>
+          <param name="OfferRace" type="number" compulsory="1" description="Race offering the mission"/>
+          <param name="EnemyRace" type="number" compulsory="1" description="Race of the enemy"/>
+          <param name="Lv1Guide" type="actorname" compulsory="1" description="The person offering the mission"/>
+          <param name="PageID" type="number" compulsory="1" description="Page ID of mission description"/>
+          <param name="TextID" type="number" compulsory="1" description="Text ID of mission description"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward type" default="Standard credit reward"/>
+          <param name="StoryID" type="number" compulsory="0" description="Text ID of the Story title" default="No title"/>
+          <param name="ChapterID" type="number" compulsory="0" description="Text ID of the chapter title" default="No title"/>
+          <param name="Difficulty" type="number"  compulsory="1" description="The difficulty of the mission" default="trivial"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="If the mission is a plot mission or not" default="non-plot"/>
+          <param name="Step" type="number" compulsory="0" description="Step to begin the briefing on" default="Step 1"/>
+          <param name="NoStartMessage" type="boolean" compulsory="0" description="If param.exists no starting message sent"/>
+          <param name="AddText" type="boolean" compulsory="0" description="Whether to add the mission description to the incoming message"/>
+        </params>
+        <history>
+          <change date="26/08/08" author="al_main" description="Fixed issue with previously ejected satelite"/>
+          <change date="12/08/08" author="al_main" description="Fixed issue calling OBJ02"/>
+          <change date="05/08/08" author="al_main" description="Fixed extra closing curley brackets"/>
+          <change date="04/08/07" author="al_main" description="Increased distance in L0M18 Sat Deployed, fixed incorrect guidance"/>
+          <change date="23/07/08" author="al_main" description="Fixed cue_is_cancelled needed in object checking"/>
+          <change date="22/07/08" author="al_main" description="Fixed satelite ware name and incorrect guidance"/>
+          <change date="01/07/08" author="al_main" description="Initial Version"/>
+        </history>
+        <todo>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <do_if value="{param.exists@NoStartMessage}" exact="0">
+            <do_choose>
+              <do_when value="{param@AddText}" min="1">
+                <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{{param@PageID},{param@TextID}}\n\n{3624,101}"/>
+              </do_when>
+              <do_otherwise>
+                <incoming_message author="{actor.name@{param@Lv1Guide}}" text="{3624,101}"/>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+          <set_objective cue="{param@Cue}" title="{3618,{value@{param@Cue}.{param@ID} L0Title}}">
+            <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+            <mission level="{param@Difficulty}" discipline="XXXT"/>
+          </set_objective>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="LUM05"/>
+        <cue name="L0M18 Mission">
+          <cues>
+            <cue name="L0M18 Need Sat" check="cancel">
+              <condition>
+                <check_value value="{value@{param@Cue}.{param@ID} L0M18NeedSat}" exact="1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <find_station name="this.fac" resource="0" dockingallowed="1" visible="1">
+                    <jumps min="0" max="3"/>
+                    <ware typename="SS_WARE_SATELLITE2" min="1"/>
+                  </find_station>
+                  <do_if value="{object.exists@this.fac}" exact="0">
+                    <find_station name="this.fac" class="dock" resource="1" dockingallowed="1" visible="1">
+                      <jumps min="0" max="3"/>
+                      <ware typename="SS_WARE_SATELLITE2" min="1"/>
+                    </find_station>
+                  </do_if>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                    <custom action="{35,2033}" text="{lookup.type.name@SS_SH_SAT2}"/>
+                  </set_objective>
+                  <do_if value="{object.exists@this.fac}" exact="1">
+                    <!--if no nearby station we dont worry and let the player find his own-->
+                    <do_choose>
+                      <do_when value="{object.isclass.dock@this.fac}" exact="1">
+                        <do_if value="{object.resources.SS_WARE_SATELLITE2.exists@this.fac}" exact="1">
+                          <set_objective cue="{param@Cue}">
+                            <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                            <custom action="{35,2033}" text="{lookup.type.name@SS_SH_SAT2}" guidance="this.fac"/>
+                          </set_objective>
+                        </do_if>
+                      </do_when>
+                      <do_otherwise>
+                        <do_if value="{object.products.SS_WARE_SATELLITE2.exists@this.fac}" exact="1">
+                          <set_objective cue="{param@Cue}">
+                            <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                            <custom action="{35,2033}" text="{lookup.type.name@SS_SH_SAT2}" guidance="this.fac"/>
+                          </set_objective>
+                        </do_if>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_if>
+                  <set_value name="{param@Cue}.{param@ID} L0Step" operation="add"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L0M18 Has Sat" delay="1s">
+                  <condition>
+                    <object_has_cargo>
+                      <ware typename="SS_WARE_SATELLITE2" min="1"/>
+                    </object_has_cargo>
+                  </condition>
+                  <action>
+                    <cancel_cue cue="L0M18 Need Sat"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M18 Fly Sector">
+              <condition>
+                <cue_cancelled cue="L0M18 Need Sat"/>
+              </condition>
+              <timing>
+                <time min="100" max="200"/>
+              </timing>
+              <action>
+                <do_all>
+                  <set_objective cue="{param@Cue}">
+                    <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                    <flyto>
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{param@Cue}.{param@ID} L0M18Sector"/>
+                    </flyto>
+                  </set_objective>
+                  <set_value name="{param@Cue}.{param@ID} L0Step" operation="add"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L0M18 In Sector" delay="1s">
+                  <condition>
+                    <object_sector exact="0">
+                      <sector sector="{param@Cue}.{param@ID} L0M18Sector"/>
+                    </object_sector>
+                  </condition>
+                  <action>
+                    <cancel_cue cue="L0M18 Fly Sector"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M18 Sat">
+              <condition>
+                <cue_cancelled cue="L0M18 Fly Sector"/>
+              </condition>
+              <timing>
+                <time min="100" max="200"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{value@{param@Cue}.{param@ID} L0M18NeedSat}" exact="1">
+                    <set_objective cue="{param@Cue}">
+                      <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                      <custom action="{35,2035}" text="{3618,2001}" guidance="{param@Cue}.{param@ID} L0M18Sector"/>
+                    </set_objective>
+                    <set_value name="{param@Cue}.{param@ID} L0Step" operation="add"/>
+                  </do_when>
+                  <do_otherwise>
+                    <cancel_cue cue="L0M18 Sat"/>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+              <cues>
+                <cue name="L0M18 Sat Ejected" instantiate="static">
+                  <condition>
+                    <object_ejected/>
+                  </condition>
+                  <timing>
+                    <time min="250" max="300"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <do_if value="{object.exists@{event.param}}" exact="1">
+                        <do_if value="{object.type@{event.param}}" exact="{lookup.type@SS_SH_SAT2}">
+                          <do_if value="{object.sector@{event.param}}" exact="{sector@{param@Cue}.{param@ID} L0M18Sector}">
+                            <do_if value="{object.radialdistance.m@{event.param}}" max="7500">
+                              <set_owner object="this.sat" race="{param@OfferRace}"/>
+                              <cancel_cue cue="L0M18 Sat"/>
+                            </do_if>
+                          </do_if>
+                        </do_if>
+                      </do_if>
+                    </do_all>
+                  </action>
+                </cue>
+                <!--<cue name="L0M18 Sat Deployed">
+                  <condition>
+                    <count_objects class="stationary" typename="SS_SH_SAT2" race="player" min="1">
+                      <position x="0" y="0" z="0" exact="1"/>
+                      <sector sector="{param@Cue}.{param@ID} L0M18Sector"/>
+                      <jumps exact="0"/>
+                      <distance max="4000m"/>
+                    </count_objects>
+                  </condition>
+                  <timing>
+                    <time min="250" max="300"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <find_object name="this.sat" class="stationary" typename="SS_SH_SAT2" race="player">
+                        <position x="0" y="0" z="0" exact="1"/>
+                        <sector sector="{param@Cue}.{param@ID} L0M18Sector"/>
+                        <jumps exact="0"/>
+                        <distance max="4000m"/>
+                      </find_object>
+                      <set_owner object="this.sat" race="{param@OfferRace}"/>
+                      <cancel_cue cue="L0M18 Sat"/>
+                    </do_all>
+                  </action>
+                </cue>-->
+              </cues>
+            </cue>
+            <cue name="L0M18 Objects" delay="500">
+              <condition>
+                <cue_is_cancelled cue="L0M18 Sat"/>
+              </condition>
+              <action>
+                <set_value name="L0M18 Mission.Object Count" operation="add"/>
+              </action>
+              <cues>
+                <cue name="L0M18 Scan Object">
+                  <condition>
+                    <check_value value="{value@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count} Existed}" exact="1"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L0M18 No Object"/>
+                      <set_objective cue="{param@Cue}">
+                        <briefing cue="{param@Cue}" step="{value@{param@Cue}.{param@ID} L0Step}"/>
+                        <custom action="{35,2026}" text="{object.name@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}}" guidance="{object@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}}"/>
+                      </set_objective>
+                      <set_value name="{param@Cue}.{param@ID} L0Step" operation="add"/>
+                      <set_value name="L0M18 Scan Object.OBJ02 Progress" exact="0"/>
+                      <set_object name="L0M18 Scan Object.Object {value@L0M18 Mission.Object Count}" value="{object@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}}"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue ref="OBJ02">
+                      <params>
+                        <param name="Cue" value="L0M18 Scan Object"/>
+                        <param name="Object" value="L0M18 Scan Object.Object {value@L0M18 Mission.Object Count}"/>
+                        <param name="Length" value="5*{value@{param@Cue}.{param@ID} L0M18Difficulty{value@L0M18 Mission.Object Count}}"/>
+                        <param name="Text" value="{3300,1201}"/>
+                        <param name="MaxSpeed" value="125"/>
+                        <param name="ResetWhenInterrupted" value="1"/>
+                      </params>
+                    </cue>
+                    <cue name="L0M18 Scan Started" delay="500">
+                      <condition>
+                        <check_value value="{value@{param@Cue}.OBJ02 Scan Started}" min="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="this.createenemies" exact="0"/>
+                          <do_if value="{param@EnemyRace}" exact="{lookup.race@khaak}">
+                            <do_if value="{object.isclass.asteroid@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}}" exact="1" chance="40">
+                              <do_if value="{object.resource@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}}" exact="{lookup.type@SS_WARE_NIVIDIUM2}">
+                                <play_text pageid="13" textid="620" priority="99"/>
+                                <set_value name="this.createenemies" exact="1"/>
+                              </do_if>
+                            </do_if>
+                            <do_if value="{object.isclass.station@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}}" exact="1" chance="70">
+                              <set_value name="this.createenemies" exact="1"/>
+                            </do_if>
+                          </do_if>
+                          <do_if value="{param@EnemyRace}" exact="{lookup.race@xenon}">
+                            <do_if value="{object.isclass.station@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}}" exact="1" chance="50">
+                              <set_value name="this.createenemies" exact="1"/>
+                            </do_if>
+                          </do_if>
+                          <do_if value="{value@this.createenemies}" exact="0">
+                            <cancel_cue cue="L0M18 Create Enemies"/>
+                          </do_if>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L0M18 Create Enemies">
+                          <cues>
+                            <cue name="L0M18 OBS Finished"/>
+                            <cue ref="OBS">
+                              <params>
+                                <param name="OBS Cue" value="L0M18 Create Enemies"/>
+                                <param name="OBS Cancel Cue" value="L0M18 OBS Finished"/>
+                                <param name="OBS Fleet Group Name" value="EnemyShips"/>
+                                <param name="OBSFleetRace" value="{param@EnemyRace}"/>
+                                <param name="OBSFleetPilotsRace" value="{param@EnemyRace}"/>
+                                <param name="OBSMissionRank" value="{player.fightrank.rank}"/>
+                                <param name="OBSDifficultyRank" value="{param@Difficulty}"/>
+                                <param name="OBSFleetPositionObject" value="{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count}"/>
+                                <param name="OBSFleetCapturable" value="0"/>
+                                <param name="OBSFleetCommunicates" value="0"/>
+                                <param name="OBSFleetCovered" value="0"/>
+                                <param name="OBS Dock Support" value="1"/>
+                                <param name="OBS Support Overflow" value="0"/>
+                                <param name="OBSFleetRelation" value="-1"/>
+                                <param name="OBS PointsMin" value="4*{value@Constant {lookup.class@m5} Points}"/>
+                                <param name="OBS PointsMax" value="2*{value@Constant {lookup.class@m6} Points}-1"/>
+                              </params>
+                            </cue>
+                            <cue name="L0M18 Enemy Orders">
+                              <condition>
+                                <cue_cancelled cue="L0M18 OBS Finished"/>
+                              </condition>
+                              <action>
+                                <set_group_command group="L0M18 Create Enemies.EnemyShips" command="killenemies"/>
+                              </action>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                    <cue name="L0M18 Scan Completed" delay="500">
+                      <condition>
+                        <check_value value="{value@L0M18 Scan Object.OBJ02 Progress}" min="1"/>
+                      </condition>
+                      <action>
+                        <do_choose>
+                          <do_when value="{value@L0M18 Mission.Object Count}" min="3">
+                            <cancel_cue cue="L0M18 Objects"/>
+                          </do_when>
+                          <do_otherwise>
+                            <remove_object object="L0M18 Scan Object.Object {value@L0M18 Mission.Object Count}"/>
+                            <reset_cue cue="L0M18 Objects"/>
+                          </do_otherwise>
+                        </do_choose>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L0M18 No Object">
+                  <condition>
+                    <check_value value="{value@{param@Cue}.{param@ID} L0M18Object{value@L0M18 Mission.Object Count} Existed}" exact="1" negate="1"/>
+                  </condition>
+                  <action>
+                    <do_choose>
+                      <do_when value="{value@L0M18 Mission.Object Count}" min="3">
+                        <cancel_cue cue="L0M18 Objects"/>
+                      </do_when>
+                      <do_otherwise>
+                        <reset_cue cue="L0M18 Objects"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L0M18 End">
+              <condition>
+                <cue_cancelled cue="L0M18 Objects"/>
+              </condition>
+              <action>
+                <set_value name="{param@Cue}.{param@ID} L0M18 Progress" exact="1"/>
+              </action>
+            </cue>
+            <cue name="L0M18 Time Out" check="cancel">
+              <condition>
+                <check_value value="{value@{param@Cue}.{param@ID} L0Time}" min="1"/>
+              </condition>
+              <timing>
+                <time exact="{value@{param@Cue}.{param@ID} L0Time}s"/>
+              </timing>
+              <action>
+                <set_value name="{param@Cue}.{param@ID} L0M18 Progress" exact="2"/>
+              </action>
+            </cue>
+            <cue name="L0M18 Aborted">
+              <condition>
+                <objective_cancelled cue="{param@Cue}"/>
+              </condition>
+              <action>
+                <set_value name="{param@Cue}.{param@ID} L0M18 Progress" exact="99"/>
+              </action>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L0M18 Cleanup">
+          <condition>
+            <check_value value="{value@{param@Cue}.{param@ID} L0M18 Progress}" min="1"/>
+          </condition>
+          <action>
+            <cancel_cue cue="L0M18 Mission"/>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>p2UNmwwdYc9Bn0TPyXpJDEpRlPmNwODQyVtqzc2DLIhX+9XAH9QChQ1Aio65Q2oOx2wXL0nhYHsC8YJkVJXnygAGnOexH8Ih7FF4wMsjYPg5U7bX0DHDtZoCjp3DD6ICkapxfXFxnqGxjuI9fWtrdwR8ltUmVBCwE6wZskw9SqPhDjih9kVz4szvGxeovATJFcV6PUCLCVB8FKnbTvUDyDF56CRbxvdgWEoDT/4hwYhBYo8zU58vydRcS1hfTWSI8c4xLnqEc5g0UzYL2XOJqGo8Tqeugh6DP8KVyTCOFlicELHPznXlN71cQZO+CEgcpeQ70m9ZnOA/5WpauO3uKw==</signature>
+</director>

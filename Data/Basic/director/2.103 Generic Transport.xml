@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="L2M103" name="Transport 1" description="Mission to transport a passenger" />
+    <version number="0.7" date="05/06/08" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M103" library="1" check="cancel">
+      <documentation>
+        <content reference="L2M103" name="Generic Transport 1" type="L2"/>
+        <version number="0.7" date="05/06/08" status="release"/>
+        <history>
+          <change date="25/08/08" author="Owen Lake" description="Added Statistics. Set to release version"/>
+          <change date="10/08/08" author="al_main" description="Fixed goner job allocations and conversaion variations"/>
+          <change date="21/07/08" author="al_main" description="Added better chance for TP needed"/>
+          <change date="16/07/08" author="al_main" description="Added mission aborted and 1 notoriety point lost when not picked up"/>
+          <change date="15/07/08" author="al_main" description="Terran offers added"/>
+          <change date="10/07/08" author="al_main" description="Code setting this.OfferRace tidied up using {random.race@default}"/>
+          <change date="09/07/08" author="al_main" description="RC1 Version"/>
+          <change date="02/07/08" author="al_main" description="count_stations added to main cue to reduce debug spam"/>
+          <change date="25/06/08" author="al_main" description="Fixed extra 'actor@' in Lv1Guide param"/>
+          <change date="05/06/08" author="al_main" description="Fixed Unknown Object Offerer bug"/>
+          <change date="02/06/08" author="al_main" description="Fixed offer discipline from FIGHT to THINK"/>
+          <change date="30/05/08" author="al_main" description="Added new mission types and code supporting npc requesting a TP"/>
+          <change date="22/05/08" author="al_main" description="Fixed time out during briefing bug, cue_activated bug and added abort code to L2M103 End"/>
+          <change date="15/05/08" author="al_main" description="Added voiceflags support, added progress failed update"/>
+          <change date="05/05/08" author="al_main" description="Actor now removed on completion"/>
+          <change date="28/04/08" author="al_main" description="Minor structure correction"/>
+          <change date="24/04/08" author="al_main" description="Mission cancelling now checks for open comms"/>
+          <change date="22/04/08" author="al_main" description="Mission status updates added"/>
+          <change date="16/04/08" author="al_main" description="cue_completed checks addeed for safety"/>
+          <change date="09/04/08" author="al_main" description="ID now used as in L0 change for chain missions"/>
+          <change date="09/04/08" author="al_main" description="default|pirategroup|goner added to race mask for offer station"/>
+          <change date="17/03/08" author="al_main" description="Fixed cue name typo"/>
+          <change date="14/03/08" author="al_main" description="Fixed mission cancelled mid-mission bug"/>
+          <change date="13/03/08" author="al_main" description="Added sector out cue, fixed set notoriety typo"/>
+          <change date="29/02/08" author="al_main" description="Initial version"/>
+        </history>
+        <todo>
+          <item priority="medium" description="Improve race selections, add pirate/yaki, etc."/>
+          <item priority="low" description="Improve difficulty selection? Use random+bell curve?"/>
+          <item priority="low" description="Check offer length, currently 10-20min"/>
+        </todo>
+      </documentation>
+      <condition>
+        <count_stations min="1" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" race="default|pirategroup|goner|terran">
+          <sector sector="{player.sector}"/>
+          <jumps max="0"/>
+        </count_stations>
+      </condition>
+      <action>
+        <do_all>
+          <!--find station-->
+          <find_station name="this.station" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" race="default|pirategroup|goner|terran">
+            <sector sector="{player.sector}"/>
+            <jumps max="0"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@this.station}" exact="0">
+              <cancel_cue cue="L2M103"/>
+            </do_when>
+            <do_otherwise>
+              <!--select races-->
+              <do_any>
+                <set_value name="this.OfferRace" exact="{player.sector.race}" chance="25"/>
+                <set_value name="this.OfferRace" exact="{object.race@this.station}" chance="35"/>
+                <set_value name="this.OfferRace" exact="{random.race@default}" chance="40"/>
+              </do_any>
+              <do_if value="{lookup.race.mask.{value@Mission Races Mask}@{value@this.OfferRace}}" exact="0">
+                <set_value name="this.OfferRace" exact="{object.race@this.station}"/>
+              </do_if>
+              <do_if value="{object.sector.race@this.station}" list="{lookup.race@terran}|{lookup.race@atf}">
+                <set_value name="this.OfferRace" exact="{lookup.race@terran}"/>
+              </do_if>
+              <!--do we need enemy race?-->
+              <do_any>
+                <set_value name="this.EnemyRace" exact="{lookup.race@pirate}" chance="95"/>
+                <set_value name="this.EnemyRace" exact="{lookup.race@yaki}" chance="5"/>
+              </do_any>
+              <!--select offer length-->
+              <set_value name="this.TimeOut" min="{player.age}+600" max="{player.age}+1200"/>
+              <!--set notoriety gain-->
+              <set_value name="this.Difficulty" min="{lookup.level@veryeasy}" max="{lookup.level@veryhard}" profile="bell"/>
+              <set_value name="this.Notoriety" exact="{reward.notoriety.{value@this.OfferRace}@{value@this.Difficulty}}"/>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M103 Offer">
+          <condition>
+            <cue_completed cue="L2M103"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M103 Offer.SectorChanges" exact="0"/>
+              <do_choose>
+                <do_when value="{value@L2M103.OfferRace}" exact="{lookup.race@goner}">
+                  <do_any>
+                    <create_actor name="L2M103 Offer.1 L0Passenger" race="goner" voice="110" face="901" object="L2M103.station" location="crew"/>
+                    <create_actor name="L2M103 Offer.1 L0Passenger" race="goner" voice="111" face="901" object="L2M103.station" location="crew"/>
+                    <create_actor name="L2M103 Offer.1 L0Passenger" race="goner" voice="110" face="902" object="L2M103.station" location="crew"/>
+                    <create_actor name="L2M103 Offer.1 L0Passenger" race="goner" voice="111" face="902" object="L2M103.station" location="crew"/>
+                  </do_any>
+                </do_when>
+                <do_otherwise>
+                  <create_actor name="L2M103 Offer.1 L0Passenger" race="{value@L2M103.OfferRace}" voiceflags="32" object="L2M103.station" location="crew"/>
+                </do_otherwise>
+              </do_choose>
+              <do_choose comment="Create conversation offer">
+                <do_when value="{value@L2M103.Difficulty}" max="{lookup.level@veryeasy}">
+                  <create_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferRideEasy" discipline="XXXT" cue="L2M103 Offer"/>
+                  <set_value name="L2M103.Conversation" exact="2"/>
+                </do_when>
+                <do_when value="{value@L2M103.Difficulty}" exact="{lookup.level@easy}">
+                  <do_any>
+                    <do_all chance="65">
+                      <create_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferRideEasy" discipline="XXXT" cue="L2M103 Offer"/>
+                      <set_value name="L2M103.Conversation" exact="2"/>
+                    </do_all>
+                    <do_all chance="35">
+                      <create_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferRide" discipline="XXXT" cue="L2M103 Offer"/>
+                      <set_value name="L2M103.Conversation" exact="1"/>
+                    </do_all>
+                  </do_any>
+                </do_when>
+                <do_when value="{value@L2M103.Difficulty}" exact="{lookup.level@hard}">
+                  <do_any>
+                    <do_all chance="55">
+                      <create_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferRideHard" discipline="XXXT" cue="L2M103 Offer"/>
+                      <set_value name="L2M103.Conversation" exact="3"/>
+                    </do_all>
+                    <do_all chance="25">
+                      <create_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferRide" discipline="XXXT" cue="L2M103 Offer"/>
+                      <set_value name="L2M103.Conversation" exact="1"/>
+                    </do_all>
+                  </do_any>
+                </do_when>
+                <do_when value="{value@L2M103.Difficulty}" min="{lookup.level@veryhard}">
+                  <create_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferRideHard" discipline="XXXT" cue="L2M103 Offer"/>
+                  <set_value name="L2M103.Conversation" exact="3"/>
+                </do_when>
+                <do_otherwise>
+                  <create_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferRide" discipline="XXXT" cue="L2M103 Offer"/>
+                  <set_value name="L2M103.Conversation" exact="1"/>
+                </do_otherwise>
+              </do_choose>
+              <!--SET MISSION TYPE-->
+              <do_any>
+                <set_value name="L2M103.MisType" min="101" max="{3303,100}" chance="100-({value@L2M103.Difficulty}*10)"/>
+                <set_value name="L2M103.MisType" min="201" max="{3303,200}" chance="{value@L2M103.Difficulty}*10"/>
+              </do_any>
+              <set_value name="L2M103.TPNeeded" exact="0"/>
+              <do_if value="{value@L2M103.MisType}" min="200">
+                <set_value name="L2M103.TPNeeded" exact="100"/>
+              </do_if>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M103 Briefing">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="briefing" conversation="L2OfferRide" actor="L2M103 Offer.1 L0Passenger"/>
+                  <conversation_completed answer="briefing" conversation="L2OfferRideEasy" actor="L2M103 Offer.1 L0Passenger"/>
+                  <conversation_completed answer="briefing" conversation="L2OfferRideHard" actor="L2M103 Offer.1 L0Passenger"/>
+                </check_any>
+              </condition>
+              <cues>
+                <cue ref="L0M03 B">
+                  <params>
+                    <param name="Cue" value="L2M103 Offer"/>
+                    <param name="ID" value="1"/>
+                    <param name="EnemyRace" value="{value@L2M103.EnemyRace}"/>
+                    <param name="OfferRace" value="{value@L2M103.OfferRace}"/>
+                    <param name="Lv1Guide" value="L2M103 Offer.1 L0Passenger"/>
+                    <param name="PageID" value="3303"/>
+                    <param name="TextID" value="{value@L2M103.MisType}"/>
+                    <param name="AddText" value="1"/>
+                    <param name="Difficulty" value="{value@L2M103.Difficulty}"/>
+                    <param name="RewardCr" value="L2M103 Offer.RewardCr"/>
+                    <param name="Passenger" value="L2M103 Offer.1 L0Passenger"/>
+                    <param name="StartObject" value="L2M103.station"/>
+                    <param name="HideDest" value="0"/>
+                    <param name="RoundReward" value="1"/>
+                    <param name="TPNeeded" value="{value@L2M103.TPNeeded}"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M103 Accepted">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept" conversation="L2OfferRide" actor="L2M103 Offer.1 L0Passenger"/>
+                  <conversation_completed answer="accept" conversation="L2OfferRideEasy" actor="L2M103 Offer.1 L0Passenger"/>
+                  <conversation_completed answer="accept" conversation="L2OfferRideHard" actor="L2M103 Offer.1 L0Passenger"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{value@L2M103.Conversation}" exact="1">
+                      <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscort" discipline="XXXT"/>
+                    </do_when>
+                    <do_when value="{value@L2M103.Conversation}" exact="2">
+                      <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscortEasy" discipline="XXXT"/>
+                    </do_when>
+                    <do_when value="{value@L2M103.Conversation}" exact="3">
+                      <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscortHard" discipline="XXXT"/>
+                    </do_when>
+                  </do_choose>
+                  <increment_statistic statistic="5160"/>
+                  <cancel_cue cue="L2M103 Check Offer"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="L0M03" comment="Mission 0.3">
+                  <params>
+                    <param name="Cue" value="L2M103 Offer"/>
+                    <param name="ID" value="1"/>
+                    <param name="EnemyRace" value="{value@L2M103.EnemyRace}"/>
+                    <param name="OfferRace" value="{value@L2M103.OfferRace}"/>
+                    <param name="Lv1Guide" value="L2M103 Offer.1 L0Passenger"/>
+                    <param name="PageID" value="3303"/>
+                    <param name="TextID" value="{value@L2M103.MisType}"/>
+                    <param name="AddText" value="1"/>
+                    <param name="Difficulty" value="{value@L2M103.Difficulty}"/>
+                    <param name="RewardCr" value="L2M103 Offer.RewardCr"/>
+                  </params>
+                </cue>
+                <cue name="L2M103 End" delay="1s">
+                  <condition>
+                    <check_value value="{value@L2M103 Offer.1 L0M03 Progress}" min="1"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <remove_briefing cue="L2M103 Offer"/>
+                      <do_choose>
+                        <do_when value="{value@L2M103 Offer.1 L0M03 Progress}" exact="1">
+                          <remove_objective cue="L2M103 Offer" status="complete"/>
+                          <reward_player>
+                            <money exact="{value@L2M103 Offer.RewardCr}"/>
+                            <notoriety>
+                              <relation race="{value@L2M103.OfferRace}" exact="{value@L2M103.Notoriety}"/>
+                            </notoriety>
+                          </reward_player>
+                          <increment_statistic statistic="5170"/>
+                          <increment_statistic statistic="5180"/>
+                        </do_when>
+                        <do_when value="{value@L2M103 Offer.1 L0M03 Progress}" exact="2" comment="Time Out">
+                          <remove_objective cue="L2M103 Offer" status="failed"/>
+                          <reward_player>
+                            <notoriety>
+                              <relation race="{value@L2M103.OfferRace}" exact="-1"/>
+                            </notoriety>
+                          </reward_player>
+                        </do_when>
+                        <do_when value="{value@L2M103 Offer.1 L0M03 Progress}" exact="3" comment="Killed">
+                          <remove_objective cue="L2M103 Offer" status="failed"/>
+                          <reward_player>
+                            <notoriety>
+                              <relation race="{value@L2M103.OfferRace}" exact="-{value@L2M103.Notoriety}/4+1"/>
+                            </notoriety>
+                          </reward_player>
+                        </do_when>
+                        <do_when value="{value@L2M103 Offer.1 L0M03 Progress}" exact="92" comment="Out of time, not picked up">
+                          <remove_objective cue="L2M103 Offer" status="failed"/>
+                          <reward_player>
+                            <notoriety>
+                              <relation race="{value@L2M103.OfferRace}" exact="-1"/>
+                            </notoriety>
+                          </reward_player>
+                        </do_when>
+                        <do_otherwise comment="Must be 99, Aborted?">
+                          <remove_objective cue="L2M103 Offer" status="aborted"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M103 Check Offer">
+              <condition>
+                <cue_completed cue="L2M103 Offer"/>
+              </condition>
+              <cues>
+                <cue name="L2M103 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age value="{player.age}" min="{value@L2M103.TimeOut}"/>
+                      <object_relation object="L2M103.station">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M103 Check Comms" delay="500">
+                      <condition>
+                        <check_all>
+                          <check_value value="{player.menu.dialog}" exact="0"/>
+                          <check_value value="{player.menu.briefing}" exact="0"/>
+                          <cue_is_active cue="L2M103 Accepted" negate="1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <do_choose>
+                            <do_when value="{value@L2M103.Conversation}" exact="1">
+                              <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscort" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M103.Conversation}" exact="2">
+                              <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscortEasy" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M103.Conversation}" exact="3">
+                              <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscortHard" discipline="XXXT"/>
+                            </do_when>
+                          </do_choose>
+                          <remove_briefing cue="L2M103 Offer"/>
+                          <destroy_actor actor="L2M103 Offer.1 L0Passenger"/>
+                          <cancel_cue cue="L2M103"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M103 Sector Out" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <object_changed_sector/>
+                      <cue_is_active cue="L2M103 Accepted" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_if value="{player.sector}" exact="{actor.sector@L2M103 Offer.1 L0Passenger}" negate="1">
+                      <set_value name="L2M103 Offer.SectorChanges" exact="{value@L2M103 Offer.SectorChanges}+1"/>
+                      <do_if value="{value@L2M103 Offer.SectorChanges}" min="4">
+                        <do_choose>
+                          <do_when value="{value@L2M103.Conversation}" exact="1">
+                            <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscort" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M103.Conversation}" exact="2">
+                            <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscortEasy" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M103.Conversation}" exact="3">
+                            <remove_offer actor="L2M103 Offer.1 L0Passenger" conversation="L2OfferEscortHard" discipline="XXXT"/>
+                          </do_when>
+                        </do_choose> 
+                        <remove_briefing cue="L2M103 Offer"/>
+                        <destroy_actor actor="L2M103 Offer.1 L0Passenger"/>
+                        <cancel_cue cue="L2M103"/>
+                      </do_if>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>AwCw9Zz9MEnXTSsWi9uvMydtR4HD1BOyQHn+fP4K7P6wAxB+i9TE3BH2x6yvd2M7cpPBJmPWRwdFA/zeir/eGBCMA7mxQjw2QApYrCaeQDwMMog6iT4hzWSz4X+YNC0eeLshykAc++LJmKDT3Fh6vzJzfwarYwK/doaSTsmiFLy3eeRwsoTqLvKYKYvwJdDTKbnmYcQg6/lSdYtXWIp0R+YP7ghnG/KkBzAPXlA3+D3+2DJuiu+uiL8BBccfwLqaMTvjKcetV1gjV4ySUAf5tUuqPKYeQGe8K6hgTC5qSDEarJ0h38FoOhcgGGwgKAkEErS/pdpiMgh/TzC/YnNnlQ==</signature>
+</director>

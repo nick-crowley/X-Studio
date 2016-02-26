@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: owen@egosoft.com Skype: Owen Lake"/>
+    <content reference="COM01" name="Dock At Station" description="Sends mission ships to a station"/>
+    <version number="0.2" date="14/05/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="COM01" library="1">
+      <documentation>
+        <content name="Dock at Station Command" reference="COM01" type="utility"/>
+        <version date="14/05/2008" number="0.2" status="testing"/>
+        <params>
+          <param name="GroupName" type="groupname" description="The Address of the group moving to the station"/>
+          <param name="DestName" type="objectname" description="The Address of the destination station"/>
+          <param name="Follow Leader" type="boolean" description="Follow the leader of the group"/>
+          <param name="Cleanup Individuals" type="boolean" description="Clean up individual ships after they dock"/>
+          <param name="CleanupName" type="groupname" description="The Address of the cleanup group"/>
+          <!--<param name="Constant Update" description="Inturupt New Commands"/>-->
+        </params>
+        <history>
+          <change author="Owen Lake" date="21/08/2008" description="Fixed COM01 Destination Destroyed as it was balls"/>
+          <change author="al_main" date="03/07/2008" description="Ships now cleaned up by U.15, fixed param.exists checks to remove debug spam"/>
+          <change author="Daniel Winsor" date="09/06/2008" description="Changed Cue Structure.  Removed checks for performance.
+                  Implemented Follow Leader boolean.  Fixed some bugs, null destination, null leader"/>
+          <change author="Owen Lake" date="14/05/2008" description="Changed Cue Structure. Reduced debug output"/>
+        </history>
+      </documentation>
+      <action>
+        <do_all>
+          <do_if value="{group.object.count@{param@GroupName}}" exact="0">
+            <cancel_cue cue="COM01"/>
+          </do_if>
+          <do_if value="{object.exists@{param@DestName}}" exact="0">
+            <cancel_cue cue="COM01"/>
+          </do_if>
+          <set_object name="COM01.Destination" value="{object@{param@DestName}}"/>
+          <do_if value="{param.exists@CleanupName} * {param.exists@Cleanup Individuals}" exact="1">
+            <do_if value="{param@Cleanup Individuals}" exact="1">
+              <set_value name="COM01.ShouldCleanup" exact="1"/>
+            </do_if>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="COM01 End" delay="10s">
+          <condition>
+            <check_value value="{group.object.count@{param@GroupName}}+{group.object.count@{param@CleanupName}}" exact="0"/>
+          </condition>
+          <action>
+            <cancel_cue cue="COM01"/>
+          </action>
+        </cue>
+
+        <cue name="COM01 Follow Leader Disabled">
+          <condition>
+            <check_value value="{param@Follow Leader}" exact="1" negate="1"/>
+          </condition>
+          <action>
+            <do_all exact="{group.object.count@{param@GroupName}}" counter="Count">
+              <set_command object="{group.object.{counter@Count}@{param@GroupName}}" command="dock" commandobject="{param@DestName}"/>
+            </do_all>
+          </action>
+        </cue>
+
+        <cue name="COM01 Follow Leader Enabled">
+          <condition>
+            <check_value value="{param@Follow Leader}" exact="1"/>
+          </condition>
+          <cues>
+            <cue name="COM01 Create Distance Groups" library="1">
+              <action>
+                <do_all>
+                  <set_object name="COM01.Destination" value="{object@{param@DestName}}"/>
+                  <do_all exact="{group.object.count@{param@GroupName}}" counter="Count">
+                    <set_object name="COM01.Ship {group.object.{counter@Count}@{param@GroupName}}" value="{group.object.{counter@Count}@{param@GroupName}}" group="COM01.Distance Group {group.object.{counter@Count}@{param@GroupName}}"/>
+                    <add_object_to_group object="COM01.Destination" group="COM01.Distance Group {group.object.{counter@Count}@{param@GroupName}}"/>
+                  </do_all>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="COM01 Assign Leader"/>
+              </cues>
+            </cue>
+
+            <cue name="COM01 Assign Leader" library="1">
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{group.object.count@{param@GroupName}}" exact="1">
+                      <set_object name="this.TempLeader" value="{group.object.1@{param@GroupName}}"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_object name="this.TempStation" value="{object@{param@DestName}}" group="this.LeaderandDest"/>
+                      <do_all exact="{group.object.count@{param@GroupName}}" counter="Count">
+                        <set_object name="this.TempShip" value="{group.object.{counter@Count}@{param@GroupName}}" group="this.LeaderandDest"/>
+                        <do_if value="{group.distance.m@this.LeaderandDest}" min="1">
+                          <do_choose>
+                            <do_when value="{value@this.NearestDistance}" exact="0">
+                              <set_value name="this.NearestDistance" exact="{group.distance.m@this.LeaderandDest}"/>
+                              <set_object name="this.TempLeader" value="{group.object.{counter@Count}@{param@GroupName}}"/>
+                            </do_when>
+                            <do_otherwise>
+                              <do_if value="{group.distance.m@this.LeaderandDest}" max="{value@this.NearestDistance}">
+                                <set_value name="this.NearestDistance" exact="{group.distance.m@this.LeaderandDest}"/>
+                                <set_object name="this.TempLeader" value="{group.object.{counter@Count}@{param@GroupName}}"/>
+                              </do_if>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_if>
+                        <remove_object_from_group object="this.TempShip" group="this.LeaderandDest"/>
+                      </do_all>
+                    </do_otherwise>
+                  </do_choose>
+                  <do_if value="{object.exists@this.TempLeader}" exact="1">
+                    <set_group_leader group="{param@GroupName}" object="{param@GroupName} {object@this.TempLeader}"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="COM01 Set Commands"/>
+              </cues>
+            </cue>
+
+            <cue name="COM01 Set Commands" library="1">
+              <action>
+                <do_all>
+                  <do_all exact="{group.object.count@{param@GroupName}}" counter="Count">
+                    <do_choose>
+                      <do_when value="{group.leader@{param@GroupName}}" exact="{group.object.{counter@Count}@{param@GroupName}}">
+                        <!-- added check for leader dest existance-->
+                        <do_choose>
+                          <do_when value="{object.destination.exists@{group.object.{counter@Count}@{param@GroupName}}}" exact="0">
+                            <set_command object="{group.object.{counter@Count}@{param@GroupName}}" command="dock" commandobject="{param@DestName}"/>
+                          </do_when>
+                          <do_otherwise>
+                            <do_if value="{object.destination@{group.object.{counter@Count}@{param@GroupName}}}" exact="{object@{param@DestName}}" negate="1">
+                              <set_command object="{group.object.{counter@Count}@{param@GroupName}}" command="dock" commandobject="{param@DestName}"/>
+                            </do_if>
+                          </do_otherwise>
+                        </do_choose>
+                      </do_when>
+                      <do_otherwise>
+                        <do_choose>
+                          <!-- last leader existance should be true actually-->
+                          <do_when value="{object.destination.exists@{group.object.{counter@Count}@{param@GroupName}}}" exact="0">
+                            <set_command object="{group.object.{counter@Count}@{param@GroupName}}" command="follow" commandobject="{group.leader@{param@GroupName}}"/>
+                          </do_when>
+                          <do_when value="{object@COM01.LastLeader}" exact="{group.leader@{param@GroupName}}" negate="1">
+                            <set_command object="{group.object.{counter@Count}@{param@GroupName}}" command="follow" commandobject="{group.leader@{param@GroupName}}"/>
+                          </do_when>
+                        </do_choose>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_all>
+                  <set_object name="COM01.LastLeader" value="{group.leader@{param@GroupName}}"/>
+                </do_all>
+              </action>
+            </cue>
+
+            <!-- COM01 Starting Point-->
+            <cue ref="COM01 Create Distance Groups"/>
+            <cue name="COM01 Done With Starting Up">
+              <condition>
+                <cue_completed cue="COM01 Set Commands"/>
+              </condition>
+              <cues>
+                <cue name="COM01 Destination Changed" delay="5s" instantiate="static">
+                  <condition>
+                    <check_value value="{object@{param@DestName}}" exact="{object@COM01.Destination}" negate="1"/>
+                  </condition>
+                  <cues>
+                    <cue ref="COM01 Create Distance Groups"/>
+                  </cues>
+                </cue>
+
+                <cue name="COM01 Reset Leader" delay="5s" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_value value="{group.leader.exists@{param@GroupName}}" exact="0"/>
+                      <check_value value="{group.object.count@{param@GroupName}}" min="1"/>
+                    </check_all>
+                  </condition>
+                  <cues>
+                    <cue ref="COM01 Assign Leader"/>
+                  </cues>
+                </cue>
+
+                <cue name="COM01 Close To Destination" delay="10s" instantiate="static">
+                  <condition>
+                    <check_any exact="{group.object.count@{param@GroupName}}" counter="Count">
+                      <check_all>
+                        <check_any>
+                          <check_all>
+                            <check_value value="{group.object.{counter@Count}.destination.exists@{param@GroupName}}" exact="1"/>
+                            <check_value value="{group.object.{counter@Count}.destination@{param@GroupName}}" exact="{object@{param@DestName}}" negate="1"/>
+                          </check_all>
+                          <check_value value="{group.object.{counter@Count}.destination.exists@{param@GroupName}}" exact="0"/>
+                        </check_any>
+                        <check_value value="{group.distance.m@COM01.Distance Group {group.object.{counter@Count}@{param@GroupName}}}" max="10000"/>
+                      </check_all>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <do_all exact="{group.object.count@{param@GroupName}}" counter="Count">
+                      <do_choose>
+                        <do_when value="{group.object.{counter@Count}.destination@{param@GroupName}}" exact="{object@{param@DestName}}" negate="1">
+                          <do_if value="{group.distance.m@COM01.Distance Group {group.object.{counter@Count}@{param@GroupName}}}" max="10000">
+                            <set_command object="{group.object.{counter@Count}@{param@GroupName}}" command="dock" commandobject="{param@DestName}"/>
+                          </do_if>
+                        </do_when>
+                        <do_when value="{group.object.{counter@Count}.destination.exists@{param@GroupName}}" exact="0">
+                          <do_if value="{group.distance.m@COM01.Distance Group {group.object.{counter@Count}@{param@GroupName}}}" max="10000">
+                            <set_command object="{group.object.{counter@Count}@{param@GroupName}}" command="dock" commandobject="{param@DestName}"/>
+                          </do_if>
+                        </do_when>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+
+                <cue name="COM01 Follower Command Changed" delay="10s" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_value value="{group.leader.exists@{param@GroupName}}" exact="1"/>
+                      <check_any exact="{group.object.count@{param@GroupName}}" counter="Count">
+                        <check_all>
+                          <check_value value="{group.object.{counter@Count}@{param@GroupName}}" exact="{group.leader@{param@GroupName}}" negate="1"/>
+                          <check_value value="{group.object.{counter@Count}.destination.exists@{param@GroupName}}" exact="1"/>
+                          <check_value value="{group.object.{counter@Count}.destination@{param@GroupName}}" exact="{object@{param@DestName}}" negate="1"/>
+                        </check_all>
+                      </check_any>
+                    </check_all>
+                  </condition>
+                  <action ref="COM01 Set Commands"/>
+                </cue>
+
+                <cue name="COM01 Leader Changed" delay="15s" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_value value="{group.leader.exists@{param@GroupName}}" exact="1"/>
+                      <check_any>
+                        <check_value value="{object.exists@COM01.LastLeader}" exact="0"/>
+                        <check_value value="{object@COM01.LastLeader}" exact="{group.leader@{param@GroupName}}" negate="1"/>
+                      </check_any>
+                    </check_all>
+                  </condition>
+                  <action ref="COM01 Set Commands"/>
+                </cue>
+
+                <cue name="COM01 Set Leader Command" delay="7s" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <check_value value="{group.leader.exists@{param@GroupName}}" exact="1"/>
+                      <check_any>
+                        <check_value value="{group.leader.destination.exists@{param@GroupName}}" exact="0"/>
+                        <check_value value="{group.leader.destination@{param@GroupName}}" exact="{object@{param@DestName}}" negate="1"/>
+                      </check_any>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <set_command object="{group.leader@{param@GroupName}}" command="dock" commandobject="{param@DestName}"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="COM01 Destination Destroyed" delay="5s">
+          <condition>
+            <object_exists object="{param@DestName}" negate="1"/>
+          </condition>
+          <timing>
+            <time exact="1s"/>
+          </timing>
+          <action>
+            <do_choose>
+              <do_when value="{object.exists@{param@DestName}}" exact="1">
+                <reset_cue cue="COM01 Destination Destroyed"/>
+                <cancel_cue cue="COM01 Dest Destroyed Cleanup"/>
+              </do_when>
+              <do_otherwise>
+                <do_all exact="{group.object.count@{param@GroupName}}" counter="Counter">
+                  <set_object name="{param@CleanupName} {group.object.{counter@Counter}@{param@GroupName}}" value="{group.object.{counter@Counter}@{param@GroupName}}" group="{param@CleanupName}"/>
+                  <set_object name="COM01.TempClean {group.object.{counter@Counter}@{param@GroupName}}" value="{group.object.{counter@Counter}@{param@GroupName}}" group="COM01.TempClean"/>
+                </do_all>
+                <remove_group group="{param@GroupName}"/>
+                <set_value name="COM01 Destination Destroyed.Ship Count" exact="{group.object.count@COM01.TempClean}"/>
+              </do_otherwise>
+            </do_choose>
+          </action>
+          <cues>
+            <cue name="COM01 Dest Destroyed Cleanup" delay="1s" instantiate="static">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="COM01 Destination Destroyed"/>
+                  <check_value value="{value@COM01 Destination Destroyed.Ship Count}" min="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="COM01 Destination Destroyed.Ship Count" operation="subtract"/>
+                  <do_choose>
+                    <do_when value="{group.object.1.exists@COM01.TempClean}" exact="0">
+                      <cancel_cue cue="COM01 Dest Destroyed Cleanup"/>
+                    </do_when>
+                    <do_otherwise>
+                      <do_if value="{value@COM01.ShouldCleanup}" exact="1">
+                        <do_if value="{value@COM01.Cleaning Started {group.object.1@COM01.TempClean}}" exact="0">
+                          <set_value name="this.startCleanup" exact="1"/>
+                          <set_value name="COM01.Cleaning Started {group.object.1@COM01.TempClean}" exact="1"/>
+                          <set_object name="COM01 Dest Destroyed Cleanup.Ship" value="{group.object.1@COM01.TempClean}"/>
+                        </do_if>
+                        <do_if value="{value@this.startCleanup}" exact="0">
+                          <cancel_cue cue="COM01 Dest Destroyed Cleanup"/>
+                        </do_if>
+                      </do_if>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="LUM15">
+                  <params>
+                    <param name="RemoveShip" value="COM01 Dest Destroyed Cleanup.Ship"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="COM01 Destination Reached" instantiate="static">
+          <condition>
+            <any_object_docked group="{param@GroupName}" param="{object@{param@DestName}}"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_object name="COM01 Destination Reached.tempShip" value="{event.object}"/>
+              <set_object name="{param@CleanupName} {object@COM01 Destination Reached.tempShip}" value="{object@COM01 Destination Reached.tempShip}" group="{param@CleanupName}"/>
+              <remove_object_from_group object="{event.object}" group="{param@GroupName}"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="COM01 Wait After Destination Reached">
+              <timing>
+                <time exact="5s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <do_if value="{object.exists@COM01 Destination Reached.tempShip}" exact="1">
+                    <do_if value="{value@COM01.ShouldCleanup}" exact="1">
+                      <do_if value="{value@COM01.Cleaning Started {object@COM01 Destination Reached.tempShip}}" exact="0">
+                        <set_value name="this.startCleanup" exact="1"/>
+                        <set_value name="COM01.Cleaning Started {object@COM01 Destination Reached.tempShip}" exact="1"/>
+                        <set_object name="COM01 Wait After Destination Reached.Ship" value="{object@COM01 Destination Reached.tempShip}"/>
+                      </do_if>
+                    </do_if>
+                  </do_if>
+                  <do_if value="{value@this.startCleanup}" exact="0">
+                    <cancel_cue cue="LUM15"/>
+                  </do_if>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="LUM15">
+                  <params>
+                    <param name="RemoveShip" value="COM01 Destination Reached.tempShip"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        
+        <cue name="COM01 Remove Group Ship" instantiate="static">
+          <condition>
+            <any_object_captured group="{param@GroupName}"/>
+          </condition>
+          <action>
+            <remove_object object="{param@GroupName} {event.object}"/>
+          </action>
+        </cue>
+
+        <cue name="COM01 Remove Cleanup Ship" instantiate="static">
+          <condition>
+            <any_object_captured group="{param@CleanupName}"/>
+          </condition>
+          <action>
+            <remove_object object="{param@CleanupName} {event.object}"/>
+          </action>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>24hp1gmId67G11FrgC3IP4DG4zZATe7F0A3mvWZ8YWDiV2omT6oGTcFzviFk7jUJCbTeEO53CAVYkp/auolVs4AobonTHCT9q2Enhp3rYGHFROEXmPnzljsZ8agxLmTNxojx/izboY81RjI1C23TTA98+LTWoakijWnUkquGP58BoKWEso1Jv3sm0RGItBlxXcSxcyBR+yWTWlOKBuGV6J82H9y/AnCkJF777kMhxvjVpem03ed4kyDuIsOaSO3nB4qqclGVlLqiv7W9wSMFHDzA56s3169B3LCQYTpIR1ISn095HjktNpxIHVfzk4gE40t2PWCZtHvgrLIenkslrA==</signature>
+</director>
+
+
+

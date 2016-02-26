@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="yes" ?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl" ?>
+<script>
+<name>!ship.cmd.attacknearest.pl</name>
+<version>1</version>
+<engineversion>22</engineversion>
+<description>Ship Player COMMAND ATTACK NEAREST</description>
+<arguments>
+<argument index="1" name="target" type="Var/Ship owned by Player" desc="the target" />
+</arguments>
+<sourcetext>
+<line linenr="001" interruptable="@" indent=""><var>=&#160;</var><var>[THIS]&#160;-&gt;</var><text>&#160;call&#160;script&#160;</text><call>!ship.cmd.attacknearest.std</call><text>&#160;:&#160;</text><text>&#160;the&#160;target=</text><var>$target</var><text>&#160;</text><text>&#160;stop&#160;command&#160;if&#160;leader&#160;is&#160;docked=</text><var>null</var></line>
+<line linenr="002" indent=""><text>return&#160;</text><var>null</var></line>
+</sourcetext>
+<codearray>
+<sval type="array" size="10"><sval type="string" val="!ship.cmd.attacknearest.pl" /><sval type="int" val="22" /><sval type="string" val="Ship Player COMMAND ATTACK NEAREST" /><sval type="int" val="1" /><sval type="int" val="0" /><sval type="array" size="1"><sval type="string" val="target" /></sval><sval type="array" size="2"><sval type="array" size="10"><sval type="int" val="102" /><sval type="string" val="!ship.cmd.attacknearest.std" /><sval type="int" val="-2147483647" /><sval type="int" val="131075" /><sval type="int" val="65536" /><sval type="int" val="2" /><sval type="int" val="131074" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /></sval><sval type="array" size="3"><sval type="int" val="103" /><sval type="int" val="0" /><sval type="int" val="0" /></sval></sval><sval type="array" size="1"><sval type="array" size="2"><sval type="int" val="35" /><sval type="string" val="the target" /></sval></sval><sval type="int" val="0" /><sval type="int" val="2" /></sval>
+</codearray>
+</script>

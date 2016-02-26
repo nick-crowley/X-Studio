@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="http://tempuri.org/XMLSchema.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/XMLSchema.xsd"
+    xmlns:mstns="http://tempuri.org/XMLSchema.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+   <xs:element name="language">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="page" type="PageType" minOccurs="0" maxOccurs="unbounded" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:complexType name="PageType">
+      <xs:sequence>
+         <xs:element name="t" type="StringType" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:int" use="required" />
+      <xs:attribute name="title" type="xs:string" use="optional" />
+      <xs:attribute name="decr" type="xs:string" use="optional" />
+      <xs:attribute name="voice" type="xs:string" use="optional" />
+   </xs:complexType>
+
+   <xs:complexType name="StringType">
+      <xs:attribute name="id" type="xs:int" use="required"/>
+   </xs:complexType>
+
+   
+</xs:schema>

@@ -1,0 +1,1505 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M007" name="HUB Plot" description="L2 HUB Plot"/>
+    <version number="0.1" date="23/06/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M007" library="1">
+      <documentation>
+        <content name="HUB Plot" reference="L2M007" type="L2"/>
+        <version date="23/06/2008" number="0.2" status="release"/>
+      </documentation>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_sector name="L2M007.HUB Sector" x="13" y="8" exact="0"/>
+          <find_sector name="L2M007.G Exchange" x="19" y="7" exact="0"/>
+          <find_sector name="L2M007.X Core" x="21" y="6" exact="0"/>
+          <find_sector name="L2M007.X Sector" x="20" y="6" exact="0"/>
+          <find_sector name="L2M007.P Pity" x="3" y="6" exact="0"/>
+          <find_gate name="L2M007.Xenon Gate" gate="east">
+            <sector sector="L2M007.X Sector"/>
+          </find_gate>
+          <find_station name="L2M007.HUB" typename="SS_DOCK_HUB">
+            <sector sector="L2M007.HUB Sector"/>
+          </find_station>
+          <create_special typename="SS_SPECIAL_WRECKED_M2" name="L2M007.Wreck">
+            <position x="0" y="0" z="0" exact="3km" height="500m"/>
+            <rotation alpha="24" beta="64" gamma="5"/>
+            <sector sector="L2M007.HUB Sector"/>
+          </create_special>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M007 Create Mahe Ma" delay="20s">
+          <condition>
+            <check_all>
+              <check_value value="{player.notoriety.boron.rank}" min="8"/>
+              <match_sector sector="{player.sector}" race="boron"/>
+              <count_gates min="1"/>
+              <cue_is_complete cue="L2M007"/>
+              <object_exists object="L2M007.MaShip" negate="1"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <find_gate name="L2M007.MahiMa Gate" nearest="1">
+                <sector sector="{player.sector}"/>
+              </find_gate>
+              <create_ship capturable="0" name="L2M007.MaShip" race="boron" racelogic="0" typename="SS_SH_B_TS_ENH">
+                <position object="L2M007.MahiMa Gate"/>
+                <sector sector="{object.sector@L2M007.MahiMa Gate}"/>
+                <equipment loadout="default"/>
+              </create_ship>
+              <create_actor name="L2M007.Ma" character="{3895,30}" face="201" voice="3830" object="L2M007.MaShip" location="pilot" race="boron"/>
+              <set_object name="L2M007.MaObj {actor@L2M007.Ma}" value="{actor@L2M007.Ma}" group="L2M007.MaObj"/>
+              <create_offer actor="L2M007.Ma" conversation="L2M007 No1" cue="L2M007" discipline="XXXT"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M007 Ma Lost" delay="4s">
+              <condition>
+                <check_any>
+                  <object_exists object="L2M007.MaShip" negate="1"/>
+                  <check_value value="{player.sector}" exact="{object.sector@L2M007.MaShip}" negate="1"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{object.exists@L2M007.MaShip}" exact="1">
+                    <destroy_object object="L2M007.MaShip"/>
+                  </do_if>
+                  <cancel_cue cue="L2M007 Player Near"/>
+                  <cancel_cue cue="L2M007 HUB Started"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M007 Recreate Ma Wait">
+                  <timing>
+                    <time min="10m" max="30m"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="L2M007 Create Mahe Ma"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M007 Player Near" delay="5s">
+              <condition>
+                <object_position max="8km">
+                  <position object="L2M007.MaShip"/>
+                  <sector sector="{object.sector@L2M007.MaShip}"/>
+                </object_position>
+              </condition>
+              <action>
+                <do_all>
+                  <do_any>
+                    <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303101"/>
+                    <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303102"/>
+                  </do_any>
+                  <set_target object="L2M007.MaShip"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M007 Reset Player Near">
+                  <timing>
+                    <time min="100s" max="200s"/>
+                  </timing>
+                  <action>
+                    <reset_cue cue="L2M007 Player Near"/>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M007 HUB Started">
+              <condition>
+                <conversation_completed actor="L2M007.Ma" answer="ready" conversation="L2M007 No1"/>
+              </condition>
+              <action>
+                <do_all>
+                  <remove_offer actor="L2M007.Ma" conversation="L2M007 No1" discipline="XXXT"/>
+                  <set_invincible object="L2M007.MaShip" invincible="1"/>
+                  <set_actor_invincible actor="L2M007.Ma" invincible="1"/>
+                  <cancel_cue cue="L2M007 Ma Lost"/>
+                  <cancel_cue cue="L2M007 Player Near"/>
+                  <set_value name="L2M007.Step" exact="1"/>
+                  <create_briefing cue="L2M007" story="{3200,4}" chapter="{3200,401}" title="{3204,701}" text="{3204,711}" background="sector_xenon_sector_597.tga">
+                    <mission discipline="XXXT" level="hard"/>
+                    <objectives>
+                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                        <flyto>
+                          <sector sector="L2M007.X Core"/>
+                        </flyto>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M007" story="{3200,4}" chapter="{3200,401}" title="{3204,701}" text="{3204,711}" noabort="1">
+                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                    <mission discipline="XXXT" level="hard"/>
+                    <flyto>
+                      <sector sector="L2M007.X Core"/>
+                    </flyto>
+                  </set_objective>
+                  <set_value name="L2M007.Step" operation="add"/>
+                  <find_gate typename="SS_WG_HUB_INACTIVE_WEST" name="L2M007.HUB West">
+                    <sector sector="L2M007.HUB Sector"/>
+                  </find_gate>
+                  <realign_gate object="L2M007.HUB" gate="L2M007.HUB West" force="1">
+                    <destination gate="L2M007.Xenon Gate"/>
+                  </realign_gate>
+                  <!--<remove_object object="L2M007.HUB East"/>-->
+                  <remove_object object="L2M007.HUB West"/>
+                  <reward_player>
+                    <map>
+                      <sector sector="L2M007.X Core"/>
+                    </map>
+                  </reward_player>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M007 Enter HUB" delay="5s">
+                  <condition>
+                    <check_value value="{player.sector}" exact="{sector@L2M007.HUB Sector}"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <!--Play cutscene-->
+                      <set_value name="this.temp" exact="1"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M007 Enter HUB Wait">
+                      <condition>
+                        <cue_completed cue="L2M007 Enter HUB"/>
+                      </condition>
+                      <timing>
+                        <time exact="6s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                            <mission discipline="XXXT" level="average"/>
+                            <objectives>
+                              <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                <custom action="{35,2024}" text="{sector.name@L2M007.HUB Sector}">
+                                  <sector sector="L2M007.HUB Sector"/>
+                                </custom>
+                              </objective>
+                            </objectives>
+                          </create_briefing>
+                          <set_objective cue="L2M007" noabort="1">
+                            <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                            <mission discipline="XXXT" level="average"/>
+                            <custom action="{35,2024}" text="{sector.name@L2M007.HUB Sector}">
+                              <sector sector="L2M007.HUB Sector"/>
+                            </custom>
+                          </set_objective>
+                          <set_value name="L2M007.Step" operation="add"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M007 Wreck Found" delay="5s">
+                          <condition>
+                            <object_position max="1500m">
+                              <position object="L2M007.Wreck"/>
+                            </object_position>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <incoming_message author="{3895,32}" popup="1" text="{3895,323101}"/>
+                              <incoming_message author="{3895,32}" popup="1" text="{3895,323102}"/>
+                              <incoming_message author="{3895,32}" popup="1" text="{3895,323103}"/>
+                              <incoming_message author="{3895,32}" popup="1" text="{3895,323104}"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M007 Return to Mahi Ma">
+                              <condition>
+                                <cue_completed cue="L2M007 Wreck Found"/>
+                              </condition>
+                              <timing>
+                                <time exact="20s"/>
+                              </timing>
+                              <action>
+                                <do_all>
+                                  <create_offer actor="L2M007.Ma" conversation="L2M007 No2" cue="L2M007" discipline="XXXXP"/>
+                                  <create_briefing cue="L2M007" title="{3204,702}" text="{3204,712}" background="sector_xenon_sector_597.tga">
+                                    <mission discipline="XXXT" level="easy"/>
+                                    <objectives>
+                                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                        <talkto actor="L2M007.Ma"/>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <set_objective cue="L2M007" title="{3204,702}" text="{3204,712}" noabort="1">
+                                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                    <mission discipline="XXXT" level="easy"/>
+                                    <talkto actor="L2M007.Ma"/>
+                                  </set_objective>
+                                  <set_value name="L2M007.Step" operation="add"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M007 Pickup Ma">
+                                  <condition>
+                                    <conversation_completed actor="L2M007.Ma" answer="ready" conversation="L2M007 No2"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <remove_offer actor="L2M007.Ma" conversation="L2M007 No2" discipline="XXXXP"/><!--TODO Distance Check-->
+                                      <create_actor name="L2M007.TempMa" character="{3895,30}" face="201" voice="3930" race="boron"/>
+                                      <abandon_ship object="L2M007.MaShip" name="L2M007.Ma Suit" group="L2M007.Ma Suit Gro"/>
+                                      <set_racelogic object="L2M007.Ma Suit" racelogic="0"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue ref="L0M28">
+                                      <params>
+                                        <param name="Cue" value="L2M007" comment="The cue where values will be localized"/>
+                                        <param name="Step" value="L2M007.Step" comment="The initial objective step"/>
+                                        <param name="ActiveSteps" value="L2M007.L0M28 ActiveStep"/>
+                                        <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                                        <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                        <param name="Actors" value="L2M007.MaObj" comment="The group of actors to capture"/>
+                                        <param name="Astronauts" value="L2M007.Ma Suit Gro"/>
+                                        <param name="Astro Failsafe" value="1" comment="Create astronauts on location destruction?"/>
+                                        <param name="Invincible Astro" value="1" comment="Create invincible astronauts"/>
+                                        <param name="Catch Guidance" value="1" comment="Point to nearest actor during catch actor"/>
+                                        <param name="Pickup Guidance" value="1"  comment="Point to nearest actor during pickup actor"/>
+                                        <param name="Allow Loss" value="0" comment="A person can be killed, not by player."/>
+                                        <param name="Allow Loss By Player" value="0" comment="A person can be killed by player"/>
+                                        <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                        <param name="Difficulty" value="{lookup.level@hard}" comment="The value address for the difficulty"/>
+                                        <param name="FeedbackName" value="L2M007.L0M28 Feedback" comment="The address where the step value is stored"/>
+                                      </params>
+                                    </cue>
+                                    <cue name="L2M007 Transport Ma to HUB" delay="3s">
+                                      <condition>
+                                        <check_value value="{value@L2M007.L0M28 Feedback}" exact="0" negate="1"/>
+                                      </condition>
+                                      <action>
+                                        <do_all>
+                                          <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                            <mission discipline="XXXT" level="average"/>
+                                            <objectives>
+                                              <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                <custom action="{35,2025}" text="{actor.name@L2M007.Ma}">
+                                                  <sector sector="L2M007.HUB Sector"/>
+                                                </custom>
+                                              </objective>
+                                            </objectives>
+                                          </create_briefing>
+                                          <set_objective cue="L2M007" noabort="1">
+                                            <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                            <mission discipline="XXXT" level="average"/>
+                                            <custom action="{35,2025}" text="{actor.name@L2M007.Ma}">
+                                              <sector sector="L2M007.HUB Sector"/>
+                                            </custom>
+                                          </set_objective>
+                                          <set_value name="L2M007.Step" operation="add"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M007 Ma Start Line">
+                                          <timing>
+                                            <time exact="6s"/>
+                                          </timing>
+                                          <action>
+                                            <play_text priority="99" actor="L2M007.TempMa" pageid="3930" textid="303109"/>
+                                          </action>
+                                        </cue>
+                                        <cue name="L2M007 Ma X Sector Line" delay="5s">
+                                          <condition>
+                                            <check_all>
+                                              <check_value value="{player.sector}" exact="{sector@L2M007.X Sector}"/>
+                                              <check_value value="{actor.ship@L2M007.Ma}" exact="{player.sector}"/>
+                                            </check_all>
+                                          </condition>
+                                          <action>
+                                            <play_text priority="99" actor="L2M007.TempMa" pageid="3930" textid="303110"/>
+                                          </action>
+                                        </cue>
+                                        <cue name="L2M007 Transport Complete" delay="5s">
+                                          <condition>
+                                            <check_all>
+                                              <check_value value="{player.sector}" exact="{sector@L2M007.HUB Sector}"/>
+                                              <check_value value="{actor.ship@L2M007.Ma}" exact="{player.ship}"/>
+                                            </check_all>
+                                          </condition>
+                                          <action>
+                                            <play_text priority="99" actor="L2M007.TempMa" pageid="3930" textid="303111"/>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M007 Transport Complete Wait">
+                                              <timing>
+                                                <time exact="{text.duration@3930,303111}+2s"/>
+                                              </timing>
+                                              <cues>
+                                                <cue name="L2M007 Dock at HUB">
+                                                  <condition>
+                                                    <cue_completed cue="L2M007 Transport Complete Wait"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="10s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <do_all>
+                                                      <play_text priority="99" actor="L2M007.TempMa" pageid="3930" textid="303112"/>
+                                                      <set_owner object="L2M007.HUB" race="player" comment="TODO DEBUG. Was originally neutral. Keep updated"/>
+                                                      <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <objectives>
+                                                          <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                            <dockat object="L2M007.HUB"/>
+                                                          </objective>
+                                                        </objectives>
+                                                      </create_briefing>
+                                                      <set_objective cue="L2M007" noabort="1">
+                                                        <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                        <mission discipline="XXXT" level="easy"/>
+                                                        <dockat object="L2M007.HUB"/>
+                                                      </set_objective>
+                                                      <set_value name="L2M007.Step" operation="add"/>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M007 Docked at HUB" delay="5s">
+                                                      <condition>
+                                                        <check_all>
+                                                          <object_is_docked dockobject="L2M007.HUB"/>
+                                                          <object_is_docked object="{actor.ship@L2M007.Ma}" dockobject="L2M007.HUB"/>
+                                                          <cue_is_complete cue="L2M007 Dock at HUB"/>
+                                                        </check_all>
+                                                      </condition>
+                                                      <timing>
+                                                        <time exact="10s"/>
+                                                      </timing>
+                                                      <action>
+                                                        <do_all>
+                                                          <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303113"/>
+                                                          <set_actor_location actor="L2M007.Ma" object="L2M007.HUB" location="crew"/>
+                                                        </do_all>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M007 Docked at HUB Wait">
+                                                          <condition>
+                                                            <cue_completed cue="L2M007 Docked at HUB"/>
+                                                          </condition>
+                                                          <timing>
+                                                            <time exact="{text.duration@3830,303113}+2s"/>
+                                                          </timing>
+                                                          <action>
+                                                            <do_all>
+                                                              <create_briefing cue="L2M007" title="{3204,703}" text="{3204,713}" background="sector_xenon_sector_597.tga">
+                                                                <mission discipline="TXXX" level="easy"/>
+                                                                <objectives>
+                                                                  <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                                    <deliver object="L2M007.HUB">
+                                                                      <ware exact="400" typename="SS_WARE_TECH208"/>
+                                                                    </deliver>
+                                                                  </objective>
+                                                                </objectives>
+                                                              </create_briefing>
+                                                              <set_objective cue="L2M007" title="{3204,703}" text="{3204,713}" noabort="1">
+                                                                <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                <mission discipline="TXXX" level="easy"/>
+                                                                <deliver object="L2M007.HUB">
+                                                                  <ware exact="400" typename="SS_WARE_TECH208"/>
+                                                                </deliver>
+                                                              </set_objective>
+                                                            </do_all>
+                                                          </action>
+                                                          <cues>
+                                                            <cue name="L2M007 First Delivery Reminder">
+                                                              <timing>
+                                                                <time exact="5m"/>
+                                                              </timing>
+                                                              <action>
+                                                                <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303116"/>
+                                                              </action>
+                                                            </cue>
+                                                            <cue ref="OBJ05">
+                                                              <params>
+                                                                <param name="Cue" value="L2M007" comment="The cue"/>
+                                                                <param name="Step" value="L2M007.Step" comment="The step number"/>
+                                                                <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                                                                <param name="Ware" value="{lookup.type@SS_WARE_TECH208}" comment="Ware type code"/>
+                                                                <param name="Amount" value="400" comment="The amount of the ware needed"/>
+                                                                <param name="Feedback Name" value="L2M007.Component Feedback" comment="The value name for the feedback value"/>
+                                                              </params>
+                                                            </cue>
+                                                            <cue name="L2M007 Comupter Components Delivered" delay="4s">
+                                                              <condition>
+                                                                <check_value value="{value@L2M007.Component Feedback}" exact="1"/>
+                                                              </condition>
+                                                              <action>
+                                                                <do_all>
+                                                                  <cancel_cue cue="L2M007 First Delivery Reminder"/>
+                                                                  <set_value name="L2M007.Step" operation="add"/>
+                                                                  <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="911"/>
+                                                                  <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                                                    <mission discipline="TXXX" level="easy"/>
+                                                                    <objectives>
+                                                                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                                        <deliver object="L2M007.HUB">
+                                                                          <ware exact="500" typename="SS_WARE_TECH207"/>
+                                                                        </deliver>
+                                                                      </objective>
+                                                                    </objectives>
+                                                                  </create_briefing>
+                                                                  <set_objective cue="L2M007" noabort="1">
+                                                                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                    <mission discipline="TXXX" level="easy"/>
+                                                                    <deliver object="L2M007.HUB">
+                                                                      <ware exact="500" typename="SS_WARE_TECH207"/>
+                                                                    </deliver>
+                                                                  </set_objective>
+                                                                </do_all>
+                                                              </action>
+                                                              <cues>
+                                                                <cue ref="OBJ05">
+                                                                  <params>
+                                                                    <param name="Cue" value="L2M007" comment="The cue"/>
+                                                                    <param name="Step" value="L2M007.Step" comment="The step number"/>
+                                                                    <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                                                                    <param name="Ware" value="{lookup.type@SS_WARE_TECH207}" comment="Ware type code"/>
+                                                                    <param name="Amount" value="500" comment="The amount of the ware needed"/>
+                                                                    <param name="Feedback Name" value="L2M007.Chip Feedback" comment="The value name for the feedback value"/>
+                                                                  </params>
+                                                                </cue>
+                                                                <cue name="L2M007 Chips Delivered" delay="4s">
+                                                                  <condition>
+                                                                    <check_value value="{value@L2M007.Chip Feedback}" exact="1"/>
+                                                                  </condition>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <set_owner object="L2M007.HUB" race="player"/>
+                                                                      <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="910"/>
+                                                                      <set_value name="L2M007.Step" operation="add"/>
+                                                                    </do_all>
+                                                                  </action>
+                                                                  <cues>
+                                                                    <cue name="L2M007 Attempt Connection">
+                                                                      <condition>
+                                                                        <cue_completed cue="L2M007 Chips Delivered"/>
+                                                                      </condition>
+                                                                      <timing>
+                                                                        <time exact="{text.duration@3830,910}+2s"/>
+                                                                      </timing>
+                                                                      <action>
+                                                                        <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303117"/>
+                                                                      </action>
+                                                                      <cues>
+                                                                        <cue name="L2M007 Blow Capacitors">
+                                                                          <condition>
+                                                                            <cue_completed cue="L2M007 Attempt Connection"/>
+                                                                          </condition>
+                                                                          <timing>
+                                                                            <time exact="{text.duration@3830,303117}+3s"/>
+                                                                          </timing>
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <!--Cutscene-->
+                                                                              <!--TODO Shut Down Gate Set 1-->
+                                                                              <play_sound soundid="1154"/>
+                                                                              <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303118"/> 
+                                                                              <do_all exact="3">
+                                                                                <create_ship class="beacon" group="L2M007.Capacitors" typename="SS_SPECIAL_CRYO_TANK" textid="9001">
+                                                                                  <position x="0" y="0" z="0" exact="9000000" height="500m"/>
+                                                                                  <sector sector="L2M007.HUB Sector"/>
+                                                                                </create_ship>
+                                                                              </do_all>
+                                                                              <set_group_invincible group="L2M007.Capacitors" invincible="1"/>
+                                                                              <do_all exact="{group.object.count@L2M007.Capacitors}" counter="count">
+                                                                                <set_hull object="{group.object.{counter@count}@L2M007.Capacitors}" min="40" max="50"/>
+                                                                              </do_all>
+                                                                            </do_all>
+                                                                          </action>
+                                                                          <cues>
+                                                                            <cue name="L2M007 Reset Capacitor Location">
+                                                                              <condition>
+                                                                                <object_changed_sector/>
+                                                                              </condition>
+                                                                              <action>
+                                                                                <do_all exact="{group.object.count@L2M007.Capacitors}" counter="count">
+                                                                                  <warp_object object="{group.object.{counter@count}@L2M007.Capacitors}">
+                                                                                    <position x="0" y="0" z="0" exact="9000000" height="500m"/>
+                                                                                    <sector sector="L2M007.HUB Sector"/>
+                                                                                  </warp_object>
+                                                                                </do_all>
+                                                                              </action>
+                                                                            </cue>
+                                                                            <cue name="L2M007 Repair Capacitors">
+                                                                              <condition>
+                                                                                <cue_completed cue="L2M007 Blow Capacitors"/>
+                                                                              </condition>
+                                                                              <timing>
+                                                                                <time exact="{text.duration@3830,303118}+5s"/>
+                                                                              </timing>
+                                                                              <action>
+                                                                                <do_all>
+                                                                                  <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303119"/>
+                                                                                  <create_briefing cue="L2M007" title="{3204,704}" text="{3204,714}" background="sector_xenon_sector_597.tga">
+                                                                                    <mission discipline="XXXT" level="average"/>
+                                                                                    <objectives>
+                                                                                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                                                        <custom action="{35,2072}" text="{3204,741}" object="{group.nearest@L2M007.Capacitors}"/>
+                                                                                      </objective>
+                                                                                    </objectives>
+                                                                                  </create_briefing>
+                                                                                  <set_objective cue="L2M007" title="{3204,704}" text="{3204,714}" noabort="1">
+                                                                                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                                    <mission discipline="XXXT" level="average"/>
+                                                                                    <custom action="{35,2072}" text="{3204,741}" object="{group.nearest@L2M007.Capacitors}"/>
+                                                                                  </set_objective>
+                                                                                </do_all>
+                                                                              </action>
+                                                                              <cues>
+                                                                                <cue name="L2M007 Repair Capacitors Wait">
+                                                                                  <condition>
+                                                                                    <cue_completed cue="L2M007 Repair Capacitors"/>
+                                                                                  </condition>
+                                                                                  <timing>
+                                                                                    <time exact="{text.duration@3830,303119}+2s"/>
+                                                                                  </timing>
+                                                                                  <action>
+                                                                                    <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303120"/>
+                                                                                  </action>
+                                                                                  <cues>
+                                                                                    <cue name="L2M007 Capacitor Repaired" delay="2s" instantiate="static">
+                                                                                      <condition>
+                                                                                        <any_object_hull group="L2M007.Capacitors" exact="100"/>
+                                                                                      </condition>
+                                                                                      <action>
+                                                                                        <do_all>
+                                                                                          <do_all exact="{group.object.count@L2M007.Capacitors}" counter="count">
+                                                                                            <do_if value="{group.object.{counter@count}.hull@L2M007.Capacitors}" exact="100">
+                                                                                              <set_object name="this.Capacitor" value="{group.object.{counter@count}@L2M007.Capacitors}"/>
+                                                                                              <set_object name="L2M007.Done Capacitors {group.object.{counter@count}@L2M007.Capacitors}" group="L2M007.Done Capacitors" value="{group.object.{counter@count}@L2M007.Capacitors}"/>
+                                                                                            </do_if>
+                                                                                          </do_all>
+                                                                                          <remove_object_from_group object="{object@this.Capacitor}" group="L2M007.Capacitors"/>
+                                                                                          <do_if value="{group.object.count@L2M007.Capacitors}" min="1">
+                                                                                            <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                                                                              <mission discipline="XXXT" level="average"/>
+                                                                                              <objectives>
+                                                                                                <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                                                                  <custom action="{35,2072}" text="{3204,741}" object="{group.nearest@L2M007.Capacitors}"/>
+                                                                                                </objective>
+                                                                                              </objectives>
+                                                                                            </create_briefing>
+                                                                                            <set_objective cue="L2M007" noabort="1" silent="1">
+                                                                                              <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                                              <mission discipline="XXXT" level="average"/>
+                                                                                              <custom action="{35,2072}" text="{3204,741}" object="{group.nearest@L2M007.Capacitors}"/>
+                                                                                            </set_objective>
+                                                                                          </do_if>
+                                                                                        </do_all>
+                                                                                      </action>
+                                                                                    </cue>
+                                                                                    <cue name="L2M007 All Capacitors Repaired" delay="2s">
+                                                                                      <condition>
+                                                                                        <check_value value="{group.object.count@L2M007.Capacitors}" exact="0"/>
+                                                                                      </condition>
+                                                                                      <action>
+                                                                                        <do_all>
+                                                                                          <cancel_cue cue="L2M007 Capacitor Repaired"/>
+                                                                                          <cancel_cue cue="L2M007 Reset Capacitor Location"/>
+                                                                                          <set_value name="L2M007.Step" operation="add"/>
+                                                                                        </do_all>
+                                                                                      </action>
+                                                                                      <cues>
+                                                                                        <cue name="L2M007 All Capacitors Repaired Wait">
+                                                                                          <timing>
+                                                                                            <time exact="2s"/>
+                                                                                          </timing>
+                                                                                          <action>
+                                                                                            <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303121"/>
+                                                                                          </action>
+                                                                                          <cues>
+                                                                                            <cue name="L2M007 Gate Set One Wait">
+                                                                                              <condition>
+                                                                                                <cue_completed cue="L2M007 All Capacitors Repaired Wait"/>
+                                                                                              </condition>
+                                                                                              <timing>
+                                                                                                <time exact="{text.duration@3830,303121}+3s"/>
+                                                                                              </timing>
+                                                                                              <action>
+                                                                                                <play_text priority="99">
+                                                                                                  <line actor="L2M007.Ma" pageid="3830" textid="303122"/>
+                                                                                                  <line actor="L2M007.Ma" pageid="3830" textid="303123"/>
+                                                                                                </play_text>
+                                                                                              </action>
+                                                                                              <cues>
+                                                                                                <cue name="L2M007 Gate Set One Active">
+                                                                                                  <condition>
+                                                                                                    <cue_completed cue="L2M007 Gate Set One Wait"/>
+                                                                                                  </condition>
+                                                                                                  <timing>
+                                                                                                    <time min="30s" max="45s"/>
+                                                                                                  </timing>
+                                                                                                  <action>
+                                                                                                    <do_all>
+                                                                                                      <create_offer actor="L2M007.Ma" conversation="L2M007 No3" discipline="XXXXP"/>
+                                                                                                      <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                                                        <objectives>
+                                                                                                          <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                                                                            <talkto actor="L2M007.Ma"/>
+                                                                                                          </objective>
+                                                                                                        </objectives>
+                                                                                                      </create_briefing>
+                                                                                                      <set_objective cue="L2M007" noabort="1">
+                                                                                                        <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                                                        <talkto actor="L2M007.Ma"/>
+                                                                                                      </set_objective>
+                                                                                                      <set_value name="L2M007.Step" operation="add"/>
+                                                                                                    </do_all>
+                                                                                                  </action>
+                                                                                                  <cues>
+                                                                                                    <cue name="L2M007 Connect Gate Set One">
+                                                                                                      <condition>
+                                                                                                        <conversation_completed actor="L2M007.Ma" conversation="L2M007 No3" answer="ready"/>
+                                                                                                      </condition>
+                                                                                                      <action>
+                                                                                                        <remove_offer actor="L2M007.Ma" conversation="L2M007 No3" discipline="XXXXP"/>
+                                                                                                      </action>
+                                                                                                      <cues>
+                                                                                                        <cue name="L2M007 Connect Gate Set One Wait">
+                                                                                                          <timing>
+                                                                                                            <time exact="{text.duration@3830,303125}+10s"/>
+                                                                                                          </timing>
+                                                                                                          <action>
+                                                                                                            <do_all>
+                                                                                                              <set_state object="L2M007.HUB" gate="west" lock="0" realign="1"/>
+                                                                                                              <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303126"/>
+                                                                                                              <set_value name="L2M007.Step" exact="5"/>
+                                                                                                              <remove_briefing cue="L2M007"/>
+                                                                                                              <create_briefing cue="L2M007" title="{3204,705}" text="{3204,715}" background="sector_xenon_sector_597.tga">
+                                                                                                                <mission discipline="XXBX" level="hard"/>
+                                                                                                                <objectives>
+                                                                                                                  <objective step="1" background="sector_xenon_sector_597.tga">
+                                                                                                                    <custom action="{35,2024}" text="{sector.name@L2M007.HUB Sector}">
+                                                                                                                      <sector sector="L2M007.HUB Sector"/>
+                                                                                                                    </custom>
+                                                                                                                  </objective>
+                                                                                                                  <objective step="2" background="sector_xenon_sector_597.tga">
+                                                                                                                    <deliver object="L2M007.HUB">
+                                                                                                                      <ware exact="200" typename="SS_WARE_TECH208"/>
+                                                                                                                    </deliver>
+                                                                                                                  </objective>
+                                                                                                                  <objective step="3" background="sector_xenon_sector_597.tga">
+                                                                                                                    <deliver object="L2M007.HUB">
+                                                                                                                      <ware exact="300" typename="SS_WARE_TECH207"/>
+                                                                                                                    </deliver>
+                                                                                                                  </objective>
+                                                                                                                  <objective step="4" background="sector_xenon_sector_597.tga">
+                                                                                                                    <custom action="{35,2072}" text="{3204,741}"/>
+                                                                                                                  </objective>
+                                                                                                                  <objective step="5" background="sector_xenon_sector_597.tga">
+                                                                                                                    <custom action="{35,2073}" text="{3204,743}"/>
+                                                                                                                  </objective>
+                                                                                                                  <objective step="6" background="sector_xenon_sector_597.tga">
+                                                                                                                    <deliver object="L2M007.HUB">
+                                                                                                                      <ware exact="150000" typename="SS_WARE_R255"/>
+                                                                                                                    </deliver>
+                                                                                                                  </objective>
+                                                                                                                  <objective step="7" background="sector_xenon_sector_597.tga">
+                                                                                                                    <deliver object="L2M007.HUB">
+                                                                                                                      <ware exact="450000" typename="SS_WARE_ORE"/>
+                                                                                                                    </deliver>
+                                                                                                                  </objective>
+                                                                                                                </objectives>
+                                                                                                              </create_briefing>
+                                                                                                              <set_objective cue="L2M007" title="{3204,705}" text="{3204,715}" noabort="1">
+                                                                                                                <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                                                                <mission discipline="XXBX" level="hard"/>
+                                                                                                                <custom action="{35,2073}" text="{3204,743}" object="L2M007.HUB"/>
+                                                                                                              </set_objective>
+                                                                                                              <set_value name="L2M007.Step" operation="add"/>
+                                                                                                              <add_products object="L2M007.HUB">
+                                                                                                                <ware typename="SS_WARE_ENERGY" exact="10000"/>
+                                                                                                              </add_products>
+                                                                                                              <find_gate name="L2M007.HUB West" gate="west">
+                                                                                                                <sector sector="L2M007.HUB Sector"/>
+                                                                                                              </find_gate>
+                                                                                                              <set_object name="L2M007.HUB West Dest" value="{object.destination@L2M007.HUB West}"/>
+                                                                                                            </do_all>
+                                                                                                          </action>
+                                                                                                          <cues>
+                                                                                                            <cue name="L2M007 Gate Set One Connected" delay="2s">
+                                                                                                              <condition>
+                                                                                                                <check_all>
+                                                                                                                  <cue_is_complete cue="L2M007 Connect Gate Set One Wait"/>
+                                                                                                                  <check_value value="{object.destination@L2M007.HUB West}" exact="{object@L2M007.HUB West Dest}" negate="1"/>
+                                                                                                                </check_all>
+                                                                                                              </condition>
+                                                                                                              <action>
+                                                                                                                <do_all>
+                                                                                                                  <set_state object="L2M007.HUB" gate="west" lock="1"/>
+                                                                                                                  <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303126"/>
+                                                                                                                </do_all>
+                                                                                                              </action>
+                                                                                                              <cues>
+                                                                                                                <cue name="L2M007 Gate Set One Connected Wait">
+                                                                                                                  <condition>
+                                                                                                                    <cue_completed cue="L2M007 Gate Set One Connected"/>
+                                                                                                                  </condition>
+                                                                                                                  <timing>
+                                                                                                                    <time exact="{text.duration@3830,303126}+2s"/>
+                                                                                                                  </timing>
+                                                                                                                  <action>
+                                                                                                                    <do_all>
+                                                                                                                      <destroy_group group="L2M007.Done Capacitors"/>
+                                                                                                                      <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="806"/>
+                                                                                                                      <create_briefing cue="L2M007" title="{3204,706}" text="{3204,716}" background="sector_xenon_sector_597.tga">
+                                                                                                                        <mission discipline="TXXX" level="hard"/>
+                                                                                                                      </create_briefing>
+                                                                                                                      <set_objective cue="L2M007" title="{3204,706}" text="{3204,716}" noabort="1">
+                                                                                                                        <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                                                                        <mission discipline="TXXX" level="hard"/>
+                                                                                                                        <deliver object="L2M007.HUB">
+                                                                                                                          <ware exact="150000" typename="SS_WARE_R255"/>
+                                                                                                                        </deliver>
+                                                                                                                      </set_objective>
+                                                                                                                    </do_all>
+                                                                                                                  </action>
+                                                                                                                  <cues>
+                                                                                                                    <cue ref="OBJ05">
+                                                                                                                      <params>
+                                                                                                                        <param name="Cue" value="L2M007" comment="The cue"/>
+                                                                                                                        <param name="Step" value="L2M007.Step" comment="The step number"/>
+                                                                                                                        <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                                                                                                                        <param name="Ware" value="{lookup.type@SS_WARE_R255}" comment="Ware type code"/>
+                                                                                                                        <param name="Amount" value="150000" comment="The amount of the ware needed"/>
+                                                                                                                        <param name="Feedback Name" value="L2M007.Teladianium Feedback" comment="The value name for the feedback value"/>
+                                                                                                                      </params>
+                                                                                                                    </cue>
+                                                                                                                    <cue name="L2M007 Teladianium Delivered" delay="3s">
+                                                                                                                      <condition>
+                                                                                                                        <check_value value="{value@L2M007.Teladianium Feedback}" exact="1"/>
+                                                                                                                      </condition>
+                                                                                                                      <timing>
+                                                                                                                        <time exact="5s"/>
+                                                                                                                      </timing>
+                                                                                                                      <action>
+                                                                                                                        <do_all>
+                                                                                                                          <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="911"/>
+                                                                                                                          <set_value name="L2M007.Step" operation="add"/>
+                                                                                                                          <create_briefing cue="L2M007" title="{3204,706}" text="{3204,716}" background="sector_xenon_sector_597.tga">
+                                                                                                                            <mission discipline="TXXX" level="veryhard"/>
+                                                                                                                            <objectives>
+                                                                                                                              <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                                                                                                <deliver object="L2M007.HUB">
+                                                                                                                                  <ware exact="450000" typename="SS_WARE_ORE"/>
+                                                                                                                                </deliver>
+                                                                                                                              </objective>
+                                                                                                                            </objectives>
+                                                                                                                          </create_briefing>
+                                                                                                                          <set_objective cue="L2M007" title="{3204,706}" text="{3204,716}" noabort="1">
+                                                                                                                            <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                                                                            <mission discipline="TXXX" level="veryhard"/>
+                                                                                                                            <deliver object="L2M007.HUB">
+                                                                                                                              <ware exact="450000" typename="SS_WARE_ORE"/>
+                                                                                                                            </deliver>
+                                                                                                                          </set_objective>
+                                                                                                                        </do_all>
+                                                                                                                      </action>
+                                                                                                                      <cues>
+                                                                                                                        <cue name="L2M007 Teladianium Delivered Wait">
+                                                                                                                          <condition>
+                                                                                                                            <cue_completed cue="L2M007 Teladianium Delivered"/>
+                                                                                                                          </condition>
+                                                                                                                          <cues>
+                                                                                                                            <cue ref="OBJ05">
+                                                                                                                              <params>
+                                                                                                                                <param name="Cue" value="L2M007" comment="The cue"/>
+                                                                                                                                <param name="Step" value="L2M007.Step" comment="The step number"/>
+                                                                                                                                <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                                                                                                                                <param name="Ware" value="{lookup.type@SS_WARE_ORE}" comment="Ware type code"/>
+                                                                                                                                <param name="Amount" value="450000" comment="The amount of the ware needed"/>
+                                                                                                                                <param name="Feedback Name" value="L2M007.Ore Feedback" comment="The value name for the feedback value"/>
+                                                                                                                              </params>
+                                                                                                                            </cue>
+                                                                                                                            <cue name="L2M007 Ore Delivered" delay="3s">
+                                                                                                                              <condition>
+                                                                                                                                <check_value value="{value@L2M007.Ore Feedback}" exact="1"/>
+                                                                                                                              </condition>
+                                                                                                                              <timing>
+                                                                                                                                <time exact="5s"/>
+                                                                                                                              </timing>
+                                                                                                                              <action>
+                                                                                                                                <do_all>
+                                                                                                                                  <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303127"/>
+                                                                                                                                  <set_value name="L2M007.Step" operation="add"/>
+                                                                                                                                  <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                                                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                                                                    <objectives>
+                                                                                                                                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                                                                                                        <custom action="{35,2048}" text="{3204,746}" object="L2M007.HUB" comment="Wait for: HUB repair"/>
+                                                                                                                                      </objective>
+                                                                                                                                    </objectives>
+                                                                                                                                  </create_briefing>
+                                                                                                                                  <set_objective cue="L2M007" noabort="1">
+                                                                                                                                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                                                                                                    <mission discipline="XXXT" level="easy"/>
+                                                                                                                                    <custom action="{35,2048}" text="{3204,746}" object="L2M007.HUB" comment="Wait for: HUB repair"/>
+                                                                                                                                  </set_objective>
+                                                                                                                                </do_all>
+                                                                                                                              </action>
+                                                                                                                              <cues>
+                                                                                                                                <cue name="L2M007 End Scene 1">
+                                                                                                                                  <condition>
+                                                                                                                                    <cue_completed cue="L2M007 Ore Delivered"/>
+                                                                                                                                  </condition>
+                                                                                                                                  <timing>
+                                                                                                                                    <time exact="10m"/>
+                                                                                                                                  </timing>
+                                                                                                                                  <action>
+                                                                                                                                    <do_all>
+                                                                                                                                      <set_state object="L2M007.HUB" gate="west" lock="0" realign="1"/>
+                                                                                                                                      <remove_briefing cue="L2M007"/>
+                                                                                                                                      <remove_objective cue="L2M007"/>
+                                                                                                                                      <set_value name="L2M007.Scene 1 End" exact="1"/>
+                                                                                                                                      <cancel_cue cue="L2M007 Create Mahe Ma"/>
+                                                                                                                                    </do_all>
+                                                                                                                                  </action>
+                                                                                                                                </cue>
+                                                                                                                              </cues>
+                                                                                                                            </cue>
+                                                                                                                          </cues>
+                                                                                                                        </cue>
+                                                                                                                      </cues>
+                                                                                                                    </cue>
+                                                                                                                  </cues>
+                                                                                                                </cue>
+                                                                                                              </cues>
+                                                                                                            </cue>
+                                                                                                          </cues>
+                                                                                                        </cue>
+                                                                                                      </cues>
+                                                                                                    </cue>
+                                                                                                  </cues>
+                                                                                                </cue>
+                                                                                              </cues>
+                                                                                            </cue>
+                                                                                          </cues>
+                                                                                        </cue>
+                                                                                      </cues>
+                                                                                    </cue>
+                                                                                  </cues>
+                                                                                </cue>
+                                                                              </cues>
+                                                                            </cue>
+                                                                          </cues>
+                                                                        </cue>
+                                                                      </cues>
+                                                                    </cue>
+                                                                  </cues>
+                                                                </cue>
+                                                              </cues>
+                                                            </cue>
+                                                          </cues>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M007 HUB Scene 2" delay="5s">
+          <condition>
+            <check_value value="{value@L2M007.Scene 1 End}" exact="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <remove_briefing cue="L2M007"/>
+              <set_value name="L2M007.Step" exact="1"/>
+              <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303201"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M007 HUB Scene 2 Wait">
+              <condition>
+                <cue_completed cue="L2M007 HUB Scene 2"/>
+              </condition>
+              <timing>
+                <time exact="{text.duration@3830,303201}+2s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303202"/>
+                  <create_briefing cue="L2M007" story="{3200,4}" chapter="{3200,402}" title="{3204,706}" text="{3204,717}" background="sector_xenon_sector_597.tga">
+                    <mission discipline="TXXX" level="hard"/>
+                    <objectives>
+                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                        <deliver object="L2M007.HUB">
+                          <ware exact="500" typename="SS_WARE_NIVIDIUM2"/>
+                        </deliver>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M007" story="{3200,4}" chapter="{3200,402}" title="{3204,706}" text="{3204,717}" noabort="1">
+                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                    <mission discipline="TXXX" level="hard"/>
+                    <deliver object="L2M007.HUB">
+                      <ware exact="500" typename="SS_WARE_NIVIDIUM2"/>
+                    </deliver>
+                  </set_objective>
+                  <set_value name="L2M007.Step" operation="add"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue ref="OBJ05">
+                  <params>
+                    <param name="Cue" value="L2M007" comment="The cue"/>
+                    <param name="Step" value="L2M007.Step" comment="The step number"/>
+                    <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                    <param name="Ware" value="{lookup.type@SS_WARE_NIVIDIUM2}" comment="Ware type code"/>
+                    <param name="Amount" value="500" comment="The amount of the ware needed"/>
+                    <param name="Feedback Name" value="L2M007.Nividium Feedback" comment="The value name for the feedback value"/>
+                  </params>
+                </cue>
+                <cue name="L2M007 Nividium Delivered" delay="3s">
+                  <condition>
+                    <check_value value="{value@L2M007.Nividium Feedback}" exact="1"/>
+                  </condition>
+                  <timing>
+                    <time exact="5s"/>
+                  </timing>
+                  <action>
+                    <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="911"/>
+                  </action>
+                  <cues>
+                    <cue name="L2M007 Nividium Delivered Wait">
+                      <condition>
+                        <cue_completed cue="L2M007 Nividium Delivered"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <create_briefing title="{3204,707}" text="{3204,717}" background="sector_xenon_sector_597.tga">
+                            <mission discipline="TXXX" level="veryhard"/>
+                            <objectives>
+                              <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                <deliver object="L2M007.HUB">
+                                  <ware exact="750000" typename="SS_WARE_TECH205"/>
+                                </deliver>
+                              </objective>
+                            </objectives>
+                          </create_briefing>
+                          <set_objective cue="L2M007" title="{3204,707}" text="{3204,717}" noabort="1">
+                            <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                            <mission discipline="TXXX" level="veryhard"/>
+                            <deliver object="L2M007.HUB">
+                              <ware exact="750000" typename="SS_WARE_TECH205"/>
+                            </deliver>
+                          </set_objective>
+                          <set_value name="L2M007.Step" operation="add"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="OBJ05">
+                          <params>
+                            <param name="Cue" value="L2M007" comment="The cue"/>
+                            <param name="Step" value="L2M007.Step" comment="The step number"/>
+                            <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                            <param name="Ware" value="{lookup.type@SS_WARE_TECH205}" comment="Ware type code"/>
+                            <param name="Amount" value="750000" comment="The amount of the ware needed"/>
+                            <param name="Feedback Name" value="L2M007.Crystal Feedback" comment="The value name for the feedback value"/>
+                          </params>
+                        </cue>
+                        <cue name="L2M007 Crystal Delivered" delay="3s">
+                          <condition>
+                            <check_value value="{value@L2M007.Crystal Feedback}" exact="1"/>
+                          </condition>
+                          <timing>
+                            <time exact="5s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <set_state object="L2M007.HUB" gate="north" lock="0" realign="1"/>
+                              <set_value name="L2M007.Scene 2 End" exact="1"/>
+                              <cancel_cue cue="L2M007 HUB Scene 2"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M007 HUB Scene 3" delay="3s">
+          <condition>
+            <check_value value="{value@L2M007.Scene 2 End}" exact="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <remove_briefing cue="L2M007"/>
+              <set_value name="L2M007.Step" exact="1"/>
+              <find_station name="L2M007.P Station" race="paranid" class="dock">
+                <sector sector="L2M007.P Pity"/>
+              </find_station>
+              <do_if value="{object.exists@L2M007.P Station}" exact="0">
+                <find_station name="L2M007.P Station" race="paranid" class="factory">
+                  <sector sector="L2M007.P Pity"/>
+                </find_station>
+              </do_if>
+              <do_if value="{object.exists@L2M007.P Station}" exact="0">
+                <create_station name="L2M007.P Station" race="paranid" typename="SS_FAC_P_POWER">
+                  <position x="-2km" y="5km" z="2km"/>
+                  <sector sector="L2M007.P Pity"/>
+                  <equipment loadout="default"/>
+                </create_station>
+              </do_if>
+              <set_invincible object="L2M007.P Station" invincible="1"/>
+              <set_value name="L2M007.Chips Feedback" exact="0"/>
+              <create_actor name="L2M007.Paranid" character="{3895,31}" race="paranid" face="401" invincible="1" voice="410" object="L2M007.P Station"/>
+              <set_object group="L2M007.Paranid ObjGro" name="L2M007.Paranid ObjGro {actor@L2M007.Paranid}" value="{actor@L2M007.Paranid}"/>
+              <create_offer actor="L2M007.Paranid" conversation="L2M007 No4" discipline="XXXXP"/>
+              <create_briefing cue="L2M007" story="{3200,4}" chapter="{3200,403}" title="{3204,708}" text="{3204,718}" background="sector_xenon_sector_597.tga">
+                <mission discipline="XXXT" level="easy"/>
+                <objectives>
+                  <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                    <talkto actor="L2M007.Paranid"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="L2M007" story="{3200,4}" chapter="{3200,403}" title="{3204,708}" text="{3204,718}" noabort="1">
+                <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                <mission discipline="XXXT" level="easy"/>
+                <talkto actor="L2M007.Paranid"/>
+              </set_objective>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M007 Talk to Paranid">
+              <condition>
+                <conversation_completed actor="L2M007.Paranid" answer="ready" conversation="L2M007 No4"/>
+              </condition>
+              <action>
+                <do_all>
+                  <remove_offer actor="L2M007.Paranid" conversation="L2M007 No4" discipline="XXXXP"/>
+                  <set_value name="L2M007.Credits" exact="15000000"/>
+                  <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                    <mission discipline="TXXX" level="hard"/>
+                    <objectives>
+                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                        <custom action="{35,2074}" text="{3204,748}" actor="L2M007.Paranid" comment="Pay: Otmanckstras, {value@L2M007.Credits}"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M007" noabort="1">
+                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                    <mission discipline="TXXX" level="hard"/>
+                    <custom action="{35,2074}" text="{3204,748}" actor="L2M007.Paranid" comment="Pay: Otmanckstras, {value@L2M007.Credits}"/>
+                  </set_objective>
+                  <set_value name="L2M007.Step" operation="add"/>
+                  <create_offer actor="L2M007.Paranid" conversation="L2M007 No5" discipline="XXXXP"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M007 Pay Paranid">
+                  <condition>
+                    <conversation_completed actor="L2M007.Paranid" answer="ready" conversation="L2M007 No5"/>
+                  </condition>
+                  <action>
+                    <do_choose>
+                      <do_when value="{player.money}" min="{value@L2M007.Credits}">
+                        <reward_player>
+                          <money exact="-{value@L2M007.Credits}"/>
+                        </reward_player>
+                        <set_value name="L2M007.Credits" exact="0"/>
+                        <remove_offer actor="L2M007.Paranid" conversation="L2M007 No5" discipline="XXXXP"/>
+                      </do_when>
+                      <do_otherwise>
+                        <reset_cue cue="L2M007 Pay Paranid"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </action>
+                  <cues>
+                    <cue name="L2M007 Transport Paranid Check" delay="5s">
+                      <condition>
+                        <check_value value="{value@L2M007.Credits}" exact="0"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <do_choose>
+                            <do_when value="{player.ship.dockobject.exists}" exact="0">
+                              <set_value name="this.Notification" exact="1"/>
+                            </do_when>
+                            <do_otherwise>
+                              <do_if value="{player.ship.dockobject}" exact="{object@L2M007.P Station}" negate="1">
+                                <set_value name="this.Notification" exact="1"/>
+                              </do_if>
+                            </do_otherwise>
+                          </do_choose>
+                          <do_choose>
+                            <do_when value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="0">
+                              <play_text priority="99" actor="L2M007.Paranid" pageid="3821" textid="906"/>
+                              <set_value name="this.Notification" exact="1"/>
+                            </do_when>
+                            <do_otherwise>
+                              <do_if value="{player.ship.cargospace}" max="{lookup.type.cargospace@SS_WARE_PASSENGER}-1">
+                                <play_text priority="99" actor="L2M007.Paranid" pageid="3821" textid="905"/>
+                                <set_value name="this.Notification" exact="1"/>
+                              </do_if>
+                            </do_otherwise>
+                          </do_choose>
+                          <do_if value="{value@this.Notification}" exact="1">
+                            <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                              <mission discipline="XXXT" level="easy"/>
+                              <objectives>
+                                <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                  <custom action="{35,2043}" text="{actor.name@L2M007.Paranid}, {object.name@L2M007.P Station}" actor="L2M007.Paranid"/>
+                                </objective>
+                              </objectives>
+                            </create_briefing>
+                            <set_objective cue="L2M007" noabort="1">
+                              <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                              <mission discipline="XXXT" level="easy"/>
+                              <custom action="{35,2043}" text="{actor.name@L2M007.Paranid}, {object.name@L2M007.P Station}" actor="L2M007.Paranid"/>
+                            </set_objective>
+                          </do_if>
+                        </do_all>
+                      </action>
+                    </cue>
+                    <cue name="L2M007 Transport Paranid" delay="1s">
+                      <condition>
+                        <check_all>
+                          <object_is_docked dockobject="L2M007.P Station"/>
+                          <check_value value="{player.ship.cargospace}" min="{lookup.type.cargospace@SS_WARE_PASSENGER}"/>
+                          <check_value value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <cancel_cue cue="L2M007 Transport Paranid Check"/>
+                          <set_actor_location actor="L2M007.Paranid" object="{player.ship}" location="passenger"/>
+                          <play_text actor="L2M007.Paranid" textid="901"/>
+                          <set_invincible object="L2M007.P Station" invincible="0"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue ref="L0M30">
+                          <params>
+                            <param name="Cue" value="L2M007" comment="The cue where values will be localized"/>
+                            <param name="Step" value="L2M007.Step" comment="The initial objective step"/>
+                            <param name="ActiveSteps" value="L2M007.Active Step" comment="Value name to save the current number of active steps"/>
+                            <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                            <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                            <param name="DestName" value="L2M007.HUB" comment="The Address of the destination. Overrides all other criteria."/>
+                            <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                            <!--reward parameters (in priority order)-->
+                            <param name="PassengersName" value="L2M007.Paranid ObjGro" comment="The Address of the Passenger Object Group"/>
+                            <param name="InitPassengerCnt" value="{group.object.count@L2M007.Paranid ObjGro}" comment="The initial number of passengers at the start of the mission"/>
+                            <param name="FeedbackName" value="L2M007.L0M30 Feedback" comment="The address where the step value is stored"/>
+                            <param name="EndPassengers" value="L2M007.End Passengers"/>
+                          </params>
+                        </cue>
+                        <cue name="L2M007 Paranid Transported" delay="5s">
+                          <condition>
+                            <check_value value="{value@L2M007.L0M30 Feedback}" exact="1"/>
+                          </condition>
+                          <timing>
+                            <time exact="10s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303302"/>
+                              <set_actor_location actor="L2M007.Paranid" object="L2M007.HUB" location="crew"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M007 Deliver Silicon">
+                              <condition>
+                                <cue_completed cue="L2M007 Paranid Transported"/>
+                              </condition>
+                              <timing>
+                                <time exact="{text.duration@3830,303302}"/>
+                              </timing>
+                              <action>
+                                <do_all>
+                                  <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303303"/>
+                                  <!--TODO Timeing-->
+                                  <create_briefing cue="L2M007" title="{3204,709}" text="{3204,718}" background="sector_xenon_sector_597.tga">
+                                    <mission discipline="TXXX" level="veryhard"/>
+                                    <objectives>
+                                      <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                        <deliver object="L2M007.HUB">
+                                          <ware exact="400000" typename="SS_WARE_SILICON"/>
+                                        </deliver>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <set_objective cue="L2M007" title="{3204,709}" text="{3204,718}" noabort="1">
+                                    <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                    <mission discipline="TXXX" level="veryhard"/>
+                                    <deliver object="L2M007.HUB">
+                                      <ware exact="400000" typename="SS_WARE_SILICON"/>
+                                    </deliver>
+                                  </set_objective>
+                                  <set_value name="L2M007.Step" operation="add"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue ref="OBJ05">
+                                  <params>
+                                    <param name="Cue" value="L2M007" comment="The cue"/>
+                                    <param name="Step" value="L2M007.Step" comment="The step number"/>
+                                    <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                                    <param name="Ware" value="{lookup.type@SS_WARE_SILICON}" comment="Ware type code"/>
+                                    <param name="Amount" value="400000" comment="The amount of the ware needed"/>
+                                    <param name="Feedback Name" value="L2M007.Silicon Feedback" comment="The value name for the feedback value"/>
+                                  </params>
+                                </cue>
+                                <cue name="L2M007 Silicon Delivered" delay="4s">
+                                  <condition>
+                                    <check_value value="{value@L2M007.Silicon Feedback}" exact="1"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="911"/>
+                                      <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                        <mission discipline="TXXX" level="veryhard"/>
+                                        <objectives>
+                                          <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                            <deliver object="L2M007.HUB">
+                                              <ware exact="250000" typename="SS_WARE_TECH207"/>
+                                            </deliver>
+                                          </objective>
+                                        </objectives>
+                                      </create_briefing>
+                                      <set_objective cue="L2M007" noabort="1">
+                                        <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                        <mission discipline="TXXX" level="veryhard"/>
+                                        <deliver object="L2M007.HUB">
+                                          <ware exact="250000" typename="SS_WARE_TECH207"/>
+                                        </deliver>
+                                      </set_objective>
+                                      <set_value name="L2M007.Step" operation="add"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue ref="OBJ05">
+                                      <params>
+                                        <param name="Cue" value="L2M007" comment="The cue"/>
+                                        <param name="Step" value="L2M007.Step" comment="The step number"/>
+                                        <param name="Station" value="L2M007.HUB" comment="The station object id"/>
+                                        <param name="Ware" value="{lookup.type@SS_WARE_TECH207}" comment="Ware type code"/>
+                                        <param name="Amount" value="250000" comment="The amount of the ware needed"/>
+                                        <param name="Feedback Name" value="L2M007.Chips Feedback" comment="The value name for the feedback value"/>
+                                      </params>
+                                    </cue>
+                                    <cue name="L2M007 All Gates Active">
+                                      <condition>
+                                        <check_value value="{value@L2M007.Chips Feedback}" exact="1"/>
+                                      </condition>
+                                      <action>
+                                        <do_all>
+                                          <set_state object="L2M007.HUB" gate="up" lock="0" realign="1"/>
+                                          <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303304"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M007 All Gates Active Wait">
+                                          <condition>
+                                            <cue_completed cue="L2M007 All Gates Active"/>
+                                          </condition>
+                                          <timing>
+                                            <time exact="10s"/>
+                                          </timing>
+                                          <action>
+                                            <do_all>
+                                              <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303305"/>
+                                              <find_station class="dock" name="L2M007.KE Dock" race="boron">
+                                                <sector x="0" y="0"/>
+                                              </find_station>
+                                              <do_if value="{object.exists@L2M007.KE Dock}" exact="0">
+                                                <create_station typename="SS_FAC_B_POWER_1" name="L2M007.KE Dock" race="boron">
+                                                  <position max="20km" x="0" y="0" z="0"/>
+                                                  <sector x="0" y="0"/>
+                                                  <equipment loadout="default"/>
+                                                </create_station>
+                                              </do_if>
+                                              <set_invincible object="L2M007.KE Dock" invincible="1"/>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <!--TODO FIX Transport-->
+                                            <cue name="L2M007 Transport Ma to Kingdom End">
+                                              <condition>
+                                                <cue_completed cue="L2M007 All Gates Active Wait"/>
+                                              </condition>
+                                              <cues>
+                                                <cue name="L2M007 Transport Mahi Ma Check">
+                                                  <action>
+                                                    <do_all>
+                                                      <do_choose>
+                                                        <do_when value="{player.ship.dockobject.exists}" exact="0">
+                                                          <set_value name="this.Notification" exact="1"/>
+                                                        </do_when>
+                                                        <do_otherwise>
+                                                          <do_if value="{player.ship.dockobject}" exact="{object@L2M007.HUB}" negate="1">
+                                                            <set_value name="this.Notification" exact="1"/>
+                                                          </do_if>
+                                                        </do_otherwise>
+                                                      </do_choose>
+                                                      <do_choose>
+                                                        <do_when value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="0">
+                                                          <play_text priority="99" actor="L2M007.Ma" pageid="3821" textid="906"/>
+                                                          <set_value name="this.Notification" exact="1"/>
+                                                        </do_when>
+                                                        <do_otherwise>
+                                                          <do_if value="{player.ship.cargospace}" max="{lookup.type.cargospace@SS_WARE_PASSENGER}-1">
+                                                            <play_text priority="99" actor="L2M007.Ma" pageid="3821" textid="905"/>
+                                                            <set_value name="this.Notification" exact="1"/>
+                                                          </do_if>
+                                                        </do_otherwise>
+                                                      </do_choose>
+                                                      <do_if value="{value@this.Notification}" exact="1">
+                                                        <create_briefing cue="L2M007" background="sector_xenon_sector_597.tga">
+                                                          <mission discipline="XXXT" level="easy"/>
+                                                          <objectives>
+                                                            <objective step="{value@L2M007.Step}" background="sector_xenon_sector_597.tga">
+                                                              <custom action="{35,2043}" text="{actor.name@L2M007.Ma}, {object.name@L2M007.HUB}" actor="L2M007.Ma"/>
+                                                            </objective>
+                                                          </objectives>
+                                                        </create_briefing>
+                                                        <set_objective cue="L2M007" noabort="1">
+                                                          <briefing cue="L2M007" step="{value@L2M007.Step}"/>
+                                                          <mission discipline="XXXT" level="easy"/>
+                                                          <custom action="{35,2043}" text="{actor.name@L2M007.Ma}, {object.name@L2M007.HUB}" actor="L2M007.Ma"/>
+                                                        </set_objective>
+                                                      </do_if>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                                <cue name="L2M007 Transport Ma to KE" delay="1s">
+                                                  <condition>
+                                                    <check_all>
+                                                      <object_is_docked dockobject="L2M007.HUB"/>
+                                                      <check_value value="{player.ship.cargospace}" min="{lookup.type.cargospace@SS_WARE_PASSENGER}"/>
+                                                      <check_value value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="1"/>
+                                                    </check_all>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <cancel_cue cue="L2M007 Transport Mahi Ma Check"/>
+                                                      <set_actor_location actor="L2M007.Ma" object="{player.ship}" location="passenger"/>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue ref="L0M30">
+                                                      <params>
+                                                        <param name="Cue" value="L2M007" comment="The cue where values will be localized"/>
+                                                        <param name="Step" value="L2M007.Step" comment="The initial objective step"/>
+                                                        <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                                        <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                                        <param name="DestName" value="L2M007.KE Dock" comment="The Address of the destination. Overrides all other criteria."/>
+                                                        <param name="Difficulty" value="{lookup.level@easy}" comment="The value address for the difficulty"/>
+                                                        <!--reward parameters (in priority order)-->
+                                                        <param name="PassengersName" value="L2M007.MaObj" comment="The Address of the Passenger Object Group"/>
+                                                        <param name="InitPassengerCnt" value="{group.object.count@L2M007.MaObj}" comment="The initial number of passengers at the start of the mission"/>
+                                                        <param name="FeedbackName" value="L2M007.L0M30 Ma Feedback" comment="The address where the step value is stored"/>
+                                                        <param name="EndPassengers" value="L2M007.End Ma Passengers"/>
+                                                      </params>
+                                                    </cue>
+                                                    <cue name="L2M007 Ma Transported To KE">
+                                                      <condition>
+                                                        <check_value value="{value@L2M007.L0M30 Ma Feedback}" exact="1"/>
+                                                      </condition>
+                                                      <action>
+                                                        <play_movie movieid="8140"/>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M007 Ma Transported To KE Wait">
+                                                          <condition>
+                                                            <cue_completed cue="L2M007 Ma Transported To KE"/>
+                                                          </condition>
+                                                          <timing>
+                                                            <time exact="11s"/>
+                                                          </timing>
+                                                          <action>
+                                                            <do_all>
+                                                              <play_text priority="99" actor="L2M007.Ma" pageid="3830" textid="303306"/>
+                                                              <destroy_actor actor="L2M007.Ma"/>
+                                                              <destroy_actor actor="L2M007.Paranid"/>
+                                                              <set_invincible object="L2M007.KE Dock" invincible="0"/>
+                                                              <remove_briefing cue="L2M007"/>
+                                                              <remove_objective cue="L2M007" status="complete"/>
+                                                              <set_value name="HUB Ended" exact="1"/>
+                                                            </do_all>
+                                                          </action>
+                                                          <cues>
+                                                            <cue name="L2M007 Start HQ Plot">
+                                                              <timing>
+                                                                <time exact="360m"/>
+                                                              </timing>
+                                                              <action>
+                                                                <do_all>
+                                                                  <set_value name="HQ Start" exact="1"/>
+                                                                  <cancel_cue cue="L2M007"/>
+                                                                </do_all>
+                                                              </action>
+                                                            </cue>
+                                                          </cues>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>lG/JzAV3H9M8duhgVY+qwpMQGuiZ352USmvgY46K9UierpGmT3uhqvksDCLqrNqXAhLAkS3jPk6VSbWq68Bj9HzXHuJDk9HyUBWv0nJoQbBrSiWhY3+BKHNpICSyUs1bN2jicLLUpQwRiKFbwBfQG2pCRbyyziQ03BsGqPAWbKbVUCRrG5HLK9h3g/azK79PfN4IArPM74R9D8oqM0CYTZtJVpRtpTcLUHlYwWr6hgIqyVMFKtrePDe39jzsxwYBm685jgGZOjdj7oJli8ZXzyrCqWGK+lBM5jKStBMbn06e5FXsUozXMY1VfF7vM41FZjqFuWPchxYnQTLuL+ecdg==</signature>
+</director>

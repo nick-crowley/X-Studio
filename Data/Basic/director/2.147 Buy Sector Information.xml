@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Chris, Al" alias="XGamer, al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="L2M147" name="Buy Sector Data" description="Mission to Buy Sector Data"/>
+    <version number="1.0" date="07/07/08" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="L2M147" library="1" check="cancel">
+      <documentation>
+        <content reference="L2M147" name="Buy Sector Data" type="L2"/>
+        <version number="1.0" date="07/07/08" status="testing"/>
+        <history>
+          <change date="13/08/08" author="al_main" description="Fixed goner offers"/>
+          <change date="04/08/08" author="al_main" description="Changed textid from 26 to 21"/>
+          <change date="15/07/08" author="al_main" description="Fixed accepted instantiation and message format"/>
+          <change date="09/07/08" author="al_main" description="RC1 Version"/>
+          <change date="07/07/08" author="al_main" description="Initial reformatted version"/>
+          <change date="25/05/2008" author="XGamer" description="Original Version by XGamer - Recreation of the X3R BBS Offer"/>
+        </history>
+      </documentation>
+      <condition>
+        <check_all>
+          <count_stations min="1" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" class="station" race="default|pirategroup|goner">
+            <sector sector="{player.sector}"/>
+            <jumps max="0"/>
+          </count_stations>
+          <count_sectors race="default|goner|pirategroup" min="3">
+            <jumps min="1" max="3"/>
+          </count_sectors>
+        </check_all>
+      </condition>
+      <action>
+        <do_all>
+          <!--find station-->
+          <find_station name="this.station" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" class="station" race="default|pirategroup|goner">
+            <sector sector="{player.sector}"/>
+            <jumps max="0"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@this.station}" exact="0">
+              <cancel_cue cue="L2M147"/>
+            </do_when>
+            <do_otherwise>
+              <!--find sector info to sell-->
+              <set_value name="this.Sectorcount" operation="add"/>
+              <do_all min="4" max="5">
+                <set_value name="this.jumps" min="1" max="3" profile="decreasing"/>
+                <find_sector name="this.Sector {value@this.Sectorcount}" race="default|goner|pirategroup" exact="{value@this.jumps}"/>
+                <do_if value="{sector.exists@this.Sector {value@this.Sectorcount}}" exact="1">
+                  <do_if value="{value@this.Sector {sector@this.Sector {value@this.Sectorcount}} Saved}" exact="0">
+                    <set_value name="L2M147.Sector {sector@this.Sector {value@this.Sectorcount}} Saved" exact="1"/>
+                    <do_choose>
+                      <do_when value="{sector.core@this.Sector {value@this.Sectorcount}}" exact="1">
+                        <set_value name="L2M147.Sector {value@this.Sectorcount} Price" min="2500" max="5000" profile="bell"/>
+                        <set_value name="L2M147.Sector {value@this.Sectorcount} Chance" exact="{value@L2M147.Sector {value@this.Sectorcount} Price}/100"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_value name="L2M147.Sector {value@this.Sectorcount} Price" min="500" max="2500" profile="bell"/>
+                        <set_value name="L2M147.Sector {value@this.Sectorcount} Chance" exact="{value@L2M147.Sector {value@this.Sectorcount} Price}/50"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <set_value name="L2M147.Price" exact="{value@L2M147.Sector {value@this.Sectorcount} Price}" operation="add"/>
+                    <set_value name="L2M147.Sectorcount" operation="add"/>
+                  </do_if>
+                </do_if>
+              </do_all>
+              <set_value name="L2M147.Sectorcount" operation="subtract"/>
+              <set_value name="L2M147.Price" exact="({value@L2M147.Price}/100)*90"/>
+              <do_choose>
+                <do_when value="{value@L2M147.Sectorcount}" min="1" negate="1">
+                  <cancel_cue cue="L2M147"/>
+                </do_when>
+                <do_otherwise>
+                  <do_any>
+                    <set_value name="this.OfferRace" exact="{object.race@this.station}" chance="30"/>
+                    <set_value name="this.OfferRace" exact="{player.sector.race}" chance="20"/>
+                    <set_value name="this.OfferRace" exact="{random.race@default}" chance="50"/>
+                  </do_any>
+                  <do_if value="{value@this.OfferRace}" list="{lookup.race@xenon}|{lookup.race@khaak}|{lookup.race@player}|{lookup.race@enemy}|{lookup.race@neutral}|{lookup.race@friend}|{lookup.race@abandoned}|{lookup.race@other1}|{lookup.race@other2}">
+                    <set_value name="this.OfferRace" exact="{object.race@this.station}"/>
+                  </do_if>
+                  <!--select offer length-->
+                  <set_value name="this.TimeOut" min="{player.age}+600" max="{player.age}+1200"/>
+                </do_otherwise>
+              </do_choose>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M147 Offer">
+          <condition>
+            <cue_completed cue="L2M147"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M147 Offer.SectorChanges" exact="0"/>
+              <do_choose>
+                <do_when value="{value@L2M147.OfferRace}" exact="{lookup.race@goner}">
+                  <do_any>
+                    <create_actor name="L2M147 Offer.Guide" race="goner" voice="110" face="901" object="L2M147.station" location="crew"/>
+                    <create_actor name="L2M147 Offer.Guide" race="goner" voice="111" face="901" object="L2M147.station" location="crew"/>
+                    <create_actor name="L2M147 Offer.Guide" race="goner" voice="110" face="902" object="L2M147.station" location="crew"/>
+                    <create_actor name="L2M147 Offer.Guide" race="goner" voice="111" face="902" object="L2M147.station" location="crew"/>
+                  </do_any>
+                </do_when>
+                <do_otherwise>
+                  <create_actor name="L2M147 Offer.Guide" race="{value@L2M147.OfferRace}" voiceflags="32" object="L2M147.station" location="crew"/>
+                </do_otherwise>
+              </do_choose>
+              <set_value name="this.textid" min="1801" max="1807"/>
+              <set_value name="this.creditid" min="15" max="16"/>
+              <do_choose comment="create offer">
+                <do_when value="{value@L2M147.Sectorcount}" exact="5">
+                  <create_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT" cue="L2M147 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{3347,1}"/>
+                      <param name="Price1" value="{value.formatted@L2M147.Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{sector.name@L2M147.Sector 1}"/>
+                      <param name="Price2" value="{value.formatted@L2M147.Sector 1 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option3" value="{sector.name@L2M147.Sector 2}"/>
+                      <param name="Price3" value="{value.formatted@L2M147.Sector 2 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option4" value="{sector.name@L2M147.Sector 3}"/>
+                      <param name="Price4" value="{value.formatted@L2M147.Sector 3 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option5" value="{sector.name@L2M147.Sector 4}"/>
+                      <param name="Price5" value="{value.formatted@L2M147.Sector 4 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option6" value="{sector.name@L2M147.Sector 5}"/>
+                      <param name="Price6" value="{value.formatted@L2M147.Sector 5 Price} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                  <create_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT" cue="L2M147 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{3347,1}"/>
+                      <param name="Price1" value="{value.formatted@L2M147.Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{sector.name@L2M147.Sector 1}"/>
+                      <param name="Price2" value="{value.formatted@L2M147.Sector 1 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option3" value="{sector.name@L2M147.Sector 2}"/>
+                      <param name="Price3" value="{value.formatted@L2M147.Sector 2 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option4" value="{sector.name@L2M147.Sector 3}"/>
+                      <param name="Price4" value="{value.formatted@L2M147.Sector 3 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option5" value="{sector.name@L2M147.Sector 4}"/>
+                      <param name="Price5" value="{value.formatted@L2M147.Sector 4 Price} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_when value="{value@L2M147.Sectorcount}" exact="3">
+                  <create_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT" cue="L2M147 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{3347,1}"/>
+                      <param name="Price1" value="{value.formatted@L2M147.Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{sector.name@L2M147.Sector 1}"/>
+                      <param name="Price2" value="{value.formatted@L2M147.Sector 1 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option3" value="{sector.name@L2M147.Sector 2}"/>
+                      <param name="Price3" value="{value.formatted@L2M147.Sector 2 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option4" value="{sector.name@L2M147.Sector 3}"/>
+                      <param name="Price4" value="{value.formatted@L2M147.Sector 3 Price} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_when value="{value@L2M147.Sectorcount}" exact="2">
+                  <create_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT" cue="L2M147 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{3347,2}"/>
+                      <param name="Price1" value="{value.formatted@L2M147.Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{sector.name@L2M147.Sector 1}"/>
+                      <param name="Price2" value="{value.formatted@L2M147.Sector 1 Price} {3300,{value@this.creditid}}"/>
+                      <param name="Option3" value="{sector.name@L2M147.Sector 2}"/>
+                      <param name="Price3" value="{value.formatted@L2M147.Sector 2 Price} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_otherwise>
+                  <create_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT" cue="L2M147 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{sector.name@L2M147.Sector 1}"/>
+                      <param name="Price1" value="{value.formatted@L2M147.Price} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M147 Accepted 1" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom1" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom3" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom4" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom5" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom6" actor="L2M147 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M147.Price}">
+                    <reward_player>
+                      <money exact="-{value@L2M147.Price}"/>
+                    </reward_player>
+                    <play_text actor="L2M147.Offerguy" pageid="{actor.voice@L2M147.Offerguy}" textid="825" comment="Sending Data"/>
+                    <do_all exact="{value@L2M147.Sectorcount}" counter="count">
+                      <find_station class="station" group="L2M147.stations" multiple="1" max="99">
+                        <position x="0" y="0" z="0"/>
+                        <sector sector="{sector@L2M147.Sector {counter@count}}"/>
+                        <distance min="0" max="{sector.size@L2M147.Sector {counter@count}}"/>
+                      </find_station>
+                      <find_gate group="L2M147.Gates" multiple="1" max="6">
+                        <sector sector="{sector@L2M147.Sector {counter@count}}"/>
+                        <distance min="0" max="80km"/>
+                      </find_gate>
+                      <add_map>
+                        <sector sector="{sector@L2M147.Sector {counter@count}}"/>
+                      </add_map>
+                      <set_group_known known="1" group="L2M147.Gates"/>
+                      <do_all exact="{group.object.count@L2M147.stations}" counter="st">
+                        <set_known object="{group.object.{counter@st}@L2M147.stations}" known="1" chance="70-(2*{group.object.{counter@st}.radialdistance.km@L2M147.stations})+{value@L2M147.Sector {value@this.Sectorcount} Chance}"/>
+                      </do_all>
+                      <remove_group group="L2M147.stations"/>
+                      <remove_group group="L2M147.Gates"/>
+                    </do_all>
+                    <do_choose>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="1">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="2">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="3">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M147 Offer.Guide"/>
+                    <cancel_cue cue="L2M147"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M161 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M147 Accepted 2" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom3" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom4" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom5" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom6" actor="L2M147 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M147.Sector 1 Price}">
+                    <reward_player>
+                      <money exact="-{value@L2M147.Sector 1 Price}"/>
+                    </reward_player>
+                    <play_text actor="L2M147.Offerguy" pageid="{actor.voice@L2M147.Offerguy}" textid="825" comment="Sending Data"/>
+                    <find_station class="station" group="L2M147.stations" multiple="1" max="99" race="all">
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{sector@L2M147.Sector 1}"/>
+                      <distance min="0" max="{sector.size@L2M147.Sector 1}"/>
+                    </find_station>
+                    <find_gate group="L2M147.Gates" multiple="1" max="6">
+                      <sector sector="{sector@L2M147.Sector 1}"/>
+                      <distance min="0" max="80km"/>
+                    </find_gate>
+                    <add_map>
+                      <sector sector="{sector@L2M147.Sector 1}"/>
+                    </add_map>
+                    <set_group_known known="1" group="L2M147.Gates"/>
+                    <do_all exact="{group.object.count@L2M147.stations}" counter="st">
+                      <set_known object="{group.object.{counter@st}@L2M147.stations}" known="1" chance="70-{group.object.{counter@st}.radialdistance.km@L2M147.stations}+{value@L2M147.Sector {value@this.Sectorcount} Chance}"/>
+                    </do_all>
+                    <remove_group group="L2M147.stations"/>
+                    <remove_group group="L2M147.Gates"/>
+                    <do_choose>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="2">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="3">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M147 Offer.Guide"/>
+                    <cancel_cue cue="L2M147"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M161 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M147 Accepted 3" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept3" conversation="L2OfferBuyCustom3" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept3" conversation="L2OfferBuyCustom4" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept3" conversation="L2OfferBuyCustom5" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept3" conversation="L2OfferBuyCustom6" actor="L2M147 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M147.Sector 2 Price}">
+                    <reward_player>
+                      <money exact="-{value@L2M147.Sector 2 Price}"/>
+                    </reward_player>
+                    <play_text actor="L2M147.Offerguy" pageid="{actor.voice@L2M147.Offerguy}" textid="825" comment="Sending Data"/>
+                    <find_station class="station" group="L2M147.stations" multiple="1" max="99" race="all">
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{sector@L2M147.Sector 2}"/>
+                      <distance min="0" max="{sector.size@L2M147.Sector 2}"/>
+                    </find_station>
+                    <find_gate group="L2M147.Gates" multiple="1" max="6">
+                      <sector sector="{sector@L2M147.Sector 2}"/>
+                      <distance min="0" max="80km"/>
+                    </find_gate>
+                    <add_map>
+                      <sector sector="{sector@L2M147.Sector 2}"/>
+                    </add_map>
+                    <set_group_known known="1" group="L2M147.Gates"/>
+                    <do_all exact="{group.object.count@L2M147.stations}" counter="st">
+                      <set_known object="{group.object.{counter@st}@L2M147.stations}" known="1" chance="70-(2*{group.object.{counter@st}.radialdistance.km@L2M147.stations})+{value@L2M147.Sector {value@this.Sectorcount} Chance}"/>
+                    </do_all>
+                    <remove_group group="L2M147.stations"/>
+                    <remove_group group="L2M147.Gates"/>
+                    <do_choose>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="2">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="3">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M147 Offer.Guide"/>
+                    <cancel_cue cue="L2M147"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M161 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M147 Accepted 4" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept4" conversation="L2OfferBuyCustom4" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept4" conversation="L2OfferBuyCustom5" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept4" conversation="L2OfferBuyCustom6" actor="L2M147 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M147.Sector 3 Price}">
+                    <reward_player>
+                      <money exact="-{value@L2M147.Sector 3 Price}"/>
+                    </reward_player>
+                    <play_text actor="L2M147.Offerguy" pageid="{actor.voice@L2M147.Offerguy}" textid="825" comment="Sending Data"/>
+                    <find_station class="station" group="L2M147.stations" multiple="1" max="99" race="all">
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{sector@L2M147.Sector 3}"/>
+                      <distance min="0" max="{sector.size@L2M147.Sector 3}"/>
+                    </find_station>
+                    <find_gate group="L2M147.Gates" multiple="1" max="6">
+                      <sector sector="{sector@L2M147.Sector 3}"/>
+                      <distance min="0" max="80km"/>
+                    </find_gate>
+                    <add_map>
+                      <sector sector="{sector@L2M147.Sector 3}"/>
+                    </add_map>
+                    <set_group_known known="1" group="L2M147.Gates"/>
+                    <do_all exact="{group.object.count@L2M147.stations}" counter="st">
+                      <set_known object="{group.object.{counter@st}@L2M147.stations}" known="1" chance="70-(2*{group.object.{counter@st}.radialdistance.km@L2M147.stations})+{value@L2M147.Sector {value@this.Sectorcount} Chance}"/>
+                    </do_all>
+                    <remove_group group="L2M147.stations"/>
+                    <remove_group group="L2M147.Gates"/>
+                    <do_choose>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="3">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M147 Offer.Guide"/>
+                    <cancel_cue cue="L2M147"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M161 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M147 Accepted 5" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom5" actor="L2M147 Offer.Guide"/>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom6" actor="L2M147 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M147.Sector 4 Price}">
+                    <reward_player>
+                      <money exact="-{value@L2M147.Sector 4 Price}"/>
+                    </reward_player>
+                    <play_text actor="L2M147.Offerguy" pageid="{actor.voice@L2M147.Offerguy}" textid="825" priority="99" comment="Sending Data"/>
+                    <find_station class="station" group="L2M147.stations" multiple="1" max="99" race="all">
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{sector@L2M147.Sector 4}"/>
+                      <distance min="0" max="{sector.size@L2M147.Sector 4}"/>
+                    </find_station>
+                    <find_gate group="L2M147.Gates" multiple="1" max="6">
+                      <sector sector="{sector@L2M147.Sector 4}"/>
+                      <distance min="0" max="80km"/>
+                    </find_gate>
+                    <add_map>
+                      <sector sector="{sector@L2M147.Sector 4}"/>
+                    </add_map>
+                    <set_group_known known="1" group="L2M147.Gates"/>
+                    <do_all exact="{group.object.count@L2M147.stations}" counter="st">
+                      <set_known object="{group.object.{counter@st}@L2M147.stations}" known="1" chance="70-(2*{group.object.{counter@st}.radialdistance.km@L2M147.stations})+{value@L2M147.Sector {value@this.Sectorcount} Chance}"/>
+                    </do_all>
+                    <remove_group group="L2M147.stations"/>
+                    <remove_group group="L2M147.Gates"/>
+                    <do_choose>
+                      <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M147 Offer.Guide"/>
+                    <cancel_cue cue="L2M147"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M161 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M147 Accepted 6" instantiate="static">
+              <condition>
+                <conversation_completed answer="accept2" conversation="L2OfferBuyCustom6" actor="L2M147 Offer.Guide"/>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M147.Sector 5 Price}">
+                    <reward_player>
+                      <money exact="-{value@L2M147.Sector 5 Price}"/>
+                    </reward_player>
+                    <play_text actor="L2M147.Offerguy" pageid="{actor.voice@L2M147.Offerguy}" textid="825" comment="Sending Data"/>
+                    <find_station class="station" group="L2M147.stations" multiple="1" max="99" race="all">
+                      <position x="0" y="0" z="0"/>
+                      <sector sector="{sector@L2M147.Sector 5}"/>
+                      <distance min="0" max="{sector.size@L2M147.Sector 5}"/>
+                    </find_station>
+                    <find_gate group="L2M147.Gates" multiple="1" max="6">
+                      <sector sector="{sector@L2M147.Sector 5}"/>
+                      <distance min="0" max="80km"/>
+                    </find_gate>
+                    <add_map>
+                      <sector sector="{sector@L2M147.Sector 5}"/>
+                    </add_map>
+                    <set_group_known known="1" group="L2M147.Gates"/>
+                    <do_all exact="{group.object.count@L2M147.stations}" counter="st">
+                      <set_known object="{group.object.{counter@st}@L2M147.stations}" known="1" chance="70-(2*{group.object.{counter@st}.radialdistance.km@L2M147.stations})+{value@L2M147.Sector {value@this.Sectorcount} Chance}"/>
+                    </do_all>
+                    <remove_group group="L2M147.stations"/>
+                    <remove_group group="L2M147.Gates"/>
+                    <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                    <destroy_actor actor="L2M147 Offer.Guide"/>
+                    <cancel_cue cue="L2M147"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M161 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+
+            <cue name="L2M147 Check Offer">
+              <condition>
+                <cue_completed cue="L2M147 Offer"/>
+              </condition>
+              <cues>
+                <cue name="L2M147 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age value="{player.age}" min="{value@L2M147.TimeOut}"/>
+                      <object_relation object="L2M147.station">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M147 Check Comms" delay="500">
+                      <condition>
+                        <check_all>
+                          <check_value value="{player.menu.dialog}" exact="0"/>
+                          <check_value value="{player.menu.briefing}" exact="0"/>
+                          <cue_is_active cue="L2M147 Accepted 1" negate="1"/>
+                          <cue_is_active cue="L2M147 Accepted 2" negate="1"/>
+                          <cue_is_active cue="L2M147 Accepted 3" negate="1"/>
+                          <cue_is_active cue="L2M147 Accepted 4" negate="1"/>
+                          <cue_is_active cue="L2M147 Accepted 5" negate="1"/>
+                          <cue_is_active cue="L2M147 Accepted 6" negate="1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <do_choose>
+                            <do_when value="{value@L2M147.Sectorcount}" exact="1">
+                              <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M147.Sectorcount}" exact="2">
+                              <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M147.Sectorcount}" exact="3">
+                              <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                              <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                            </do_when>
+                            <do_otherwise>
+                              <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <destroy_actor actor="L2M147 Offer.Guide"/>
+                          <cancel_cue cue="L2M147"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M147 Sector Out" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <object_changed_sector/>
+                      <cue_is_active cue="L2M147 Accepted 1" negate="1"/>
+                      <cue_is_active cue="L2M147 Accepted 2" negate="1"/>
+                      <cue_is_active cue="L2M147 Accepted 3" negate="1"/>
+                      <cue_is_active cue="L2M147 Accepted 4" negate="1"/>
+                      <cue_is_active cue="L2M147 Accepted 5" negate="1"/>
+                      <cue_is_active cue="L2M147 Accepted 6" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_if value="{player.sector}" exact="{actor.sector@L2M147 Offer.Guide}" negate="1">
+                      <set_value name="L2M147 Offer.SectorChanges" exact="{value@L2M147 Offer.SectorChanges}+1"/>
+                      <do_if value="{value@L2M147 Offer.SectorChanges}" min="4">
+                        <do_choose>
+                          <do_when value="{value@L2M147.Sectorcount}" exact="1">
+                            <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M147.Sectorcount}" exact="2">
+                            <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M147.Sectorcount}" exact="3">
+                            <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M147.Sectorcount}" exact="4">
+                            <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                          </do_when>
+                          <do_otherwise>
+                            <remove_offer actor="L2M147 Offer.Guide" conversation="L2OfferBuyCustom6" discipline="XXXT"/>
+                          </do_otherwise>
+                        </do_choose>
+                        <destroy_actor actor="L2M147 Offer.Guide"/>
+                        <cancel_cue cue="L2M147"/>
+                      </do_if>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>L9h3LglDl2DPpBzBwPGIjCK2ucRRWSmZ9pX0JSA/+PSYvvXa12jguNd4n4+wFDirHjYYHJeVuKMuPMUcQCycV27pYZcMm/MkKSVJ0jt5pv5zZwGFp4QR3mBv9NA2ZY4SXCjgUC7X79NfDslNjxSZM4wsGil8DfRGhBdiogmPV91z0Y8yPpK/vTlFmwpasXOkpT6mIQjYU0KjTPeR+xRZvKkiSR9ULcr9eI8TnVkW7ljvlRUYZ0MvwZOgKEdwEp49J19Q9xw+5NINHHBQAvTq0Eg2q5vLsQ8avSO2SGaxpjNC8a/6BTnCci2uxA9/cewBfqpYDf2lVIHEbLOT+nKNfw==</signature>
+</director>

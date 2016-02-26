@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L0M30" name="Transport Passengers" description="Trasport A Group Of Passengers To A Station"/>
+    <version number="0.1" date="05/03/2008" status="testing"/>
+  </documentation>
+  <cues>
+    <cue name="L0M30 B" library="1">
+      <documentation>
+        <content name="Transport Passengers Briefing Dummy" reference="L0M30 B" type="utility"/>
+        <version date="05/03/2008" number="0.1" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="Preview" type="boolean" description="Is the briefing a preview"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="PassengersName" type="groupname" description="The passenger group name"/>
+          <param name="DestName" type="objectname" description="The Address of the destination. Overrides all other criteria."/>
+          <param name="StationRace" type="number" description="The race of the station"/>
+          <param name="StationSector" type="sectorid" description="The sector of the station"/>
+          <param name="UseRace" type="boolean" description="Compleation when docked at a station owned by 'StationRace'"/>
+          <param name="UseSector" type="boolean" description="Compleation when docked at a station in 'StationSector'"/>
+          <param name="Difficulty" type="valuename" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text Multi" type="number" description="The briefing text ID"/>
+          <param name="TextID Text Singular" type="number" description="The briefing text ID"/>
+          <param name="TextID MultiPassengers" type="number" description="The text ID for the multiple passengers objective"/>
+          <param name="TextID SinglePassenger" type="number" description="The text ID for a single passenger objective"/>
+          <param name="TextID Deliver To Text" type="number" description="The text ID for the deliver to station text. Omit for default."/>
+          <param name="SetObjective" type="boolean" description="Set the objectives and run the Objective library"/>
+          <param name="Complete Briefing" type="boolean" description="Run the briefing completion library"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+          <!--reward parameters (in priority order)-->
+          <param name="RoundReward" type="number" compulsory="0" description="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+          <param name="NoReward" type="boolean" compulsory="0" description="Do not add a reward"/>
+          <param name="RewardCr" type="valuename" compulsory="0" description="Reward - credits"/>
+          <param name="RewardFree" type="boolean" compulsory="0" description="Reward - use free text"/>
+          <param name="RewardText" type="text" compulsory="0" description="Free text for reward" />
+          <param name="RewardObj" type="objectname" compulsory="0" description="Reward - object"/>
+          <param name="RewardWare" type="valuename" compulsory="0" description="Reward - wares"/>
+          <param name="RewardAmt" type="valuename" compulsory="0" description="Reward - wares amount"/>
+        </params>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M30 B.Step" exact="{value@{param@Step}}"/>
+
+          <do_if value="{param.exists@Duration}" exact="1">
+            <do_if value="{value@{param@Duration}}" exact="0">
+              <set_value name="{param@Duration}" min="8000" max="8200"/>
+              <do_if value="{param@Difficulty}" min="1">
+                <set_value name="{param@Duration}" exact="{value@{param@Duration}}/{param@Difficulty}"/>
+              </do_if>
+            </do_if>
+          </do_if>
+          <do_choose>
+            <do_when value="{param.exists@StartTime}" exact="1">
+              <set_value name="L0M30 B.StartTime" exact="{param@StartTime}"/>
+            </do_when>
+            <do_otherwise>
+              <do_if value="{value@{param@Duration}}" min="1">
+                <do_choose>
+                  <do_when value="{param@Preview}" exact="1">
+                    <set_value name="L0M30 B.StartTime" exact="5000+{player.age}+{value@{param@Duration}}"/>
+                  </do_when>
+                  <do_otherwise>
+                    <set_value name="L0M30 B.StartTime" exact="{player.age}"/>
+                  </do_otherwise>
+                </do_choose>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+
+          <do_if value="{param.exists@RewardCr}" exact="1">
+            <do_choose>
+              <do_when value="{param@Difficulty}" exact="0">
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money@{param@Difficulty}.TXXX}"/>
+                </do_if>
+              </do_when>
+              <do_otherwise>
+                <do_if value="{value@{param@RewardCr}}" exact="0">
+                  <set_value name="{param@RewardCr}" exact="{reward.money}"/>
+                </do_if>
+              </do_otherwise>
+            </do_choose>
+          </do_if>
+
+          <set_value name="L0M30 B.Passenger PageID" exact="{param@PageID}"/>
+          <set_value name="L0M30 B.TextID MultiPassengers" exact="{param@TextID MultiPassengers}"/>
+          <set_value name="L0M30 B.TextID SinglePassenger" exact="{param@TextID SinglePassenger}"/>
+          <do_if value="{text.exists@{value@L0M30 B.Passenger PageID},{value@L0M30 B.TextID MultiPassengers}}" exact="0">
+            <set_value name="L0M30 B.TextID MultiPassengers" exact="1007"/>
+            <set_value name="L0M30 B.Passenger PageID" exact="3630"/>
+          </do_if>
+          <do_if value="{text.exists@{value@L0M30 B.Passenger PageID},{value@L0M30 B.TextID SinglePassenger}}" exact="0">
+            <set_value name="L0M30 B.TextID SinglePassenger" exact="1008"/>
+            <set_value name="L0M30 B.TextID MultiPassengers" exact="1007" comment="TEMP TODO DEBUG RC5"/>
+            <set_value name="L0M30 B.Passenger PageID" exact="3630"/>
+          </do_if>
+          <do_choose>
+            <do_when value="{group.object.count@{param@PassengersName}}" min="2">
+              <set_value name="L0M30 B.Passenger TextID" exact="{value@L0M30 B.TextID MultiPassengers}"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="L0M30 B.Passenger TextID" exact="{value@L0M30 B.TextID SinglePassenger}"/>
+            </do_otherwise>
+          </do_choose>
+
+          <set_value name="L0M30 B.B Title PageID" exact="{param@PageID}"/>
+          <set_value name="L0M30 B.B Title TextID" exact="{param@TextID Title}"/>
+          <do_if value="{text.exists@{value@L0M30 B.B Title PageID},{value@L0M30 B.B Title TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M30 B.B Title PageID" exact="3630"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <set_value name="L0M30 B.B Title TextID" exact="1001"/>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="L0M30 B.B Title TextID" exact="1004"/>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+
+          <set_value name="L0M30 B.B Text PageID" exact="{param@PageID}"/>
+          <do_choose>
+            <do_when value="{group.object.count@{param@PassengersName}}" min="2">
+              <set_value name="L0M30 B.B Text TextID" exact="{param@TextID Text Multi}"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="L0M30 B.B Text TextID" exact="{param@TextID Text Singular}"/>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{text.exists@{value@L0M30 B.B Text PageID},{value@L0M30 B.B Text TextID}}" exact="0">
+            <do_if value="{param@IsPlot}" exact="1" negate="1">
+              <set_value name="L0M30 B.B Text PageID" exact="3630"/>
+              <do_choose>
+                <do_when value="{param@Preview}" exact="1">
+                  <do_choose>
+                    <do_when value="{group.object.count@{param@PassengersName}}" min="2">
+                      <set_value name="L0M30 B.B Text TextID" exact="1002"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L0M30 B.B Text TextID" exact="1003"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_when>
+                <do_otherwise>
+                  <do_choose>
+                    <do_when value="{group.object.count@{param@PassengersName}}" min="2">
+                      <set_value name="L0M30 B.B Text TextID" exact="1005"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="L0M30 B.B Text TextID" exact="1006"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_otherwise>
+              </do_choose>
+            </do_if>
+          </do_if>
+
+          <set_value name="L0M30 B.Deliver To PageID" exact="{param@PageID}"/>
+          <set_value name="L0M30 B.Deliver To TextID" exact="{param@TextID Deliver To Text}"/>
+          <do_if value="{text.exists@{value@L0M30 B.Deliver To PageID},{value@L0M30 B.Deliver To TextID}}" exact="0">
+            <set_value name="L0M30 B.Deliver To PageID" exact="3630"/>
+            <do_if value="{param@UseSector}" exact="1">
+              <do_if value="{sector.exists@{param@StationSector}}" exact="1">
+                <set_value name="L0M30 B.UseSector" exact="1"/>
+              </do_if>
+            </do_if>
+            <do_if value="{param@UseRace}" exact="1">
+              <do_if value="{lookup.race@{param@StationRace}}" exact="0" negate="1">
+                <set_value name="L0M30 B.UseRace" exact="1"/>
+              </do_if>
+            </do_if>
+            <set_value name="L0M30 B.Deliver To TextID" exact="1013"/>
+            <do_choose>
+              <do_when value="{value@L0M30 B.UseRace}" exact="1">
+                <set_value name="L0M30 B.Deliver To TextID" exact="1009"/>
+                <do_if value="{value@L0M30 B.UseSector}" exact="1">
+                  <set_value name="L0M30 B.Deliver To TextID" exact="1010"/>
+                </do_if>
+              </do_when>
+              <do_otherwise>
+                <do_if value="{value@L0M30 B.UseSector}" exact="1">
+                  <set_value name="L0M30 B.Deliver To TextID" exact="1011"/>
+                </do_if>
+              </do_otherwise>
+            </do_choose>
+            <do_if value="{object.exists@{param@DestName}}" exact="1">
+              <set_value name="L0M30 B.Deliver To TextID" exact="1012"/>
+            </do_if>
+          </do_if>
+          
+
+          <create_briefing cue="{param@Cue}">
+            <objectives>
+              <objective step="{value@L0M30 B.Step}">
+                <custom action="{35,2025}" text="{{value@L0M30 B.Passenger PageID},{value@L0M30 B.Passenger TextID}} {{value@L0M30 B.Deliver To PageID},{value@L0M30 B.Deliver To TextID}}" icon="deliver"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+
+          <do_if value="{text.exists@{value@L0M30 B.B Title PageID},{value@L0M30 B.B Title TextID}}" exact="1">
+            <do_if value="{text.exists@{value@L0M30 B.B Text PageID},{value@L0M30 B.B Text TextID}}" exact="1">
+              <create_briefing cue="{param@Cue}" title="{{value@L0M30 B.B Title PageID},{value@L0M30 B.B Title TextID}}" text="{{value@L0M30 B.B Text PageID},{value@L0M30 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+          <do_if value="{param@SetObjective}" exact="1">
+            <do_if value="{text.exists@{value@L0M30 B.B Title PageID},{value@L0M30 B.B Title TextID}}" exact="1">
+              <do_if value="{text.exists@{value@L0M30 B.B Text PageID},{value@L0M30 B.B Text TextID}}" exact="1">
+                <set_value name="this.ObjectiveTitle" exact="1"/>
+              </do_if>
+            </do_if>
+            <do_choose>
+              <do_when value="{object.exists@{param@DestName}}" exact="1">
+                <set_objective cue="{param@Cue}">
+                  <briefing cue="{param@Cue}" step="{value@L0M30 B.Step}"/>
+                  <custom action="{35,2025}" text="{{value@L0M30 B.Passenger PageID},{value@L0M30 B.Passenger TextID}} {{value@L0M30 B.Deliver To PageID},{value@L0M30 B.Deliver To TextID}}" icon="deliver" object="{param@DestName}"/>
+                </set_objective>
+              </do_when>
+              <do_otherwise>
+                <set_objective cue="{param@Cue}">
+                  <briefing cue="{param@Cue}" step="{value@L0M30 B.Step}"/>
+                  <custom action="{35,2025}" text="{{value@L0M30 B.Passenger PageID},{value@L0M30 B.Passenger TextID}} {{value@L0M30 B.Deliver To PageID},{value@L0M30 B.Deliver To TextID}}" icon="deliver"/>
+                </set_objective>
+              </do_otherwise>
+            </do_choose>
+            <do_if value="{value@this.ObjectiveTitle}" exact="1">
+              <set_objective cue="{param@Cue}" title="{{value@L0M30 B.B Title PageID},{value@L0M30 B.B Title TextID}}" text="{{value@L0M30 B.B Text PageID},{value@L0M30 B.B Text TextID}}"/>
+            </do_if>
+          </do_if>
+          <set_value name="{param@Step}" exact="{value@L0M30 B.Step}"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L0M30 B Complete Briefing" check="cancel">
+          <condition>
+            <check_all>
+              <cue_completed cue="L0M30 B"/>
+              <check_value value="{param@Complete Briefing}" exact="1"/>
+            </check_all>
+          </condition>
+          <cues>
+            <cue ref="LUM04">
+              <params>
+                <param name="Discipline" value="XFXX" comment="The mission discipline"/>
+                <param name="StartTime" value="L0M30 B.StartTime"/>
+              </params>
+            </cue>
+            <cue name="L0M30 B Set Objectives" check="cancel">
+              <condition>
+                <check_value value="{param@SetObjective}" exact="1"/>
+              </condition>
+              <cues>
+                <cue ref="LUM05">
+                  <params>
+                    <param name="Discipline" value="XFXX" comment="The mission discipline"/>
+                    <param name="StartTime" value="L0M30 B.StartTime"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+    <cue name="L0M30" library="1">
+      <documentation>
+        <content name="Transport Passengers Mission" reference="L0M30" type="L0"/>
+        <version date="05/03/2008" number="0.1" status="testing"/>
+        <params>
+          <param name="Cue" type="cuename" description="The cue where the briefing will be localised"/>
+          <param name="CancelCue" type="cuename" description="The cue which will be canceled at the end of the mission"/>
+          <param name="Step" type="valuename" description="The initial objective step"/>
+          <param name="PageID" type="number" description="The PageID of the text"/>
+          <param name="TextID Title" type="number" description="The briefing title ID"/>
+          <param name="TextID Text Multi" type="number" description="The briefing text ID"/>
+          <param name="TextID Text Singular" type="number" description="The briefing text ID"/>
+          <param name="TextID MultiPassengers" type="number" description="The text ID for the multiple passengers objective"/>
+          <param name="TextID SinglePassenger" type="number" description="The text ID for a single passenger objective"/>
+          <param name="TextID Deliver To Text" type="number" description="The text ID for the deliver to station text"/>
+          <param name="Offer Actor" type="actorid" description="The actor"/>
+          <param name="DestName" type="objectname" description="The Address of the destination. Overrides all other criteria."/>
+          <param name="StationRace" type="number" description="The race of the station"/>
+          <param name="StationSector" type="sectorid" description="The sector of the station"/>
+          <param name="UseRace" type="boolean" description="0/1: Compleation when docked at a station owned by 'StationRace'"/>
+          <param name="UseSector" type="boolean" description="0/1: Compleation when docked at a station in 'StationSector'"/>
+          <param name="PassengersName" type="groupname" description="The Address of the Passenger Object Group"/>
+          <param name="ActorCue" type="cuename" description="The cue where the actors are localised"/>
+          <param name="InitPassengerCnt" type="number" description="The initial number of passengers at the start of the mission"/>
+          <param name="AllowLoss" type="boolean" description="Can a passenger be lost. Not killed by player."/>
+          <param name="Difficulty" type="valuename" description="The value address for the difficulty"/>
+          <param name="StoryID" type="number" description="The textID for the StoryID"/>
+          <param name="ChapterID" type="number" description="The textID for the ChapterID"/>
+          <param name="IsPlot" type="boolean" compulsory="0" description="Is this a plot mission"/>
+          <param name="UseTimer" type="boolean" compulsory="0" description="Override the plot signal and use a timer"/>
+          <param name="FeedbackName" type="valuename" description="The address where the step value is stored"/>
+          <param name="EndPassengers" type="valuename" description="The feedback address to the number of transported passengers"/>
+          <param name="Duration" type="valuename" compulsory="0" description="Mission Time"/>
+          <param name="StartTime" type="valuename" compulsory="0" description="Start Time"/>
+          <param name="EndTime" type="valuename" compulsory="0" description="End Time"/>
+        </params>
+        <returns>
+          <return name="{param@FeedbackName}" type="number" description="1 = "/>
+        </returns>
+        <todo>
+          <item date="22/02/2008" author="Owen Lake" priority="high"
+                description="Playership Parameter. Make sure that the passengers are only transported on the playership. What if the player ejects/passengers transported?"/>
+          <item date="22/02/2008" author="Owen Lake" priority="medium"
+                description="Illegal Passengers Parameter. Do not get scanned by the enemy race. You will be forced to dock or become an enemy"/>
+          <item date="22/02/2008" author="Owen Lake" priority="medium"
+                description="Add guidance to the nearest matching station. Not currently possible as the objective is displayed again"/>
+          <item date="22/02/2008" author="Owen Lake" priority="low"
+                description="Jumpdrive Parameter. Can the passengers be jumped"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <set_value name="L0M30.Initial Step" exact="{value@{param@Step}}"/>
+          <set_value name="L0M30.Step" exact="{value@{param@Step}}"/>
+          <set_value name="L0M30.Duration" exact="{value@{param@Duration}}+{player.age}"/>
+          <set_value name="L0M30.EndTime" exact="{value@{param@EndTime}}"/>
+          <do_if value="{param@UseSector}" exact="1">
+            <do_if value="{sector.exists@{param@StationSector}}" exact="1">
+              <set_value name="L0M30.UseSector" exact="1"/>
+            </do_if>
+          </do_if>
+          <do_if value="{param@UseRace}" exact="1">
+            <do_if value="{lookup.race@{param@StationRace}}" exact="0" negate="1">
+              <set_value name="L0M30.UseRace" exact="1"/>
+            </do_if>
+          </do_if>
+          <set_value name="L0M30.Variation" exact="5"/>
+          <do_choose>
+            <do_when value="{value@L0M30.UseRace}" exact="1">
+              <set_value name="L0M30.Variation" exact="1"/>
+              <do_if value="{value@L0M30.UseSector}" exact="1">
+                <set_value name="L0M30.Variation" exact="2"/>
+              </do_if>
+            </do_when>
+            <do_otherwise>
+              <do_if value="{value@L0M30.UseSector}" exact="1">
+                <set_value name="L0M30.Variation" exact="3"/>
+              </do_if>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{object.exists@{param@DestName}}" exact="1">
+            <set_value name="L0M30.Variation" exact="4"/>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="L0M30 B"/>
+        <cue name="L0M30 Passenger Lost" instantiate="static">
+          <condition>
+            <any_object_destroyed group="{param@PassengersName}"/>
+          </condition>
+          <timing>
+            <time exact="1s"/>
+          </timing>
+          <action>
+            <do_all>
+              <set_value name="L0M30.LostPassengers" exact="{value@L0M30.LostPassengers}+1"/>
+              <do_choose>
+                <do_when value="{param@AllowLoss}" exact="1">
+                  <set_value name="this.Rerun L0M30 B" exact="1"/>
+                  <do_if value="{group.object.count@{param@PassengersName}}" min="1" negate="1">
+                    <do_choose>
+                      <do_when value="{value@L0M30.PassengerMatchCount}" min="1">
+                        <set_value name="{param@FeedbackName}" exact="1"/>
+                        <set_value name="{param@Step}" exact="{value@L0M30.Step}+1"/>
+                        <set_value name="this.Rerun L0M30 B" exact="0"/>
+                        <cancel_cue cue="L0M30"/>
+                      </do_when>
+                      <do_otherwise>
+                        <set_value name="{param@FeedbackName}" exact="6"/>
+                        <set_value name="{param@Step}" exact="{value@L0M30.Step}+1"/>
+                        <set_value name="this.Rerun L0M30 B" exact="0"/>
+                        <cancel_cue cue="L0M30"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_if>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="{param@FeedbackName}" exact="5"/>
+                  <set_value name="{param@Step}" exact="{value@L0M30.Step}+1"/>
+                  <cancel_cue cue="L0M30"/>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L0M30 Passenger Lost Rerun L0M30 B" check="cancel">
+              <condition>
+                <check_all>
+                  <cue_completed cue="L0M30 Passenger Lost"/>
+                  <check_value value="{value@L0M30 Passenger Lost.Rerun L0M30 B}" exact="1"/>
+                </check_all>
+              </condition>
+              <cues>
+                <cue ref="L0M30 B">
+                  <params>
+                    <param name="Complete Briefing" value="0"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="L0M30 Passenger Lost By Player" instantiate="static">
+          <condition>
+            <any_object_destroyed_by_player group="{param@PassengersName}"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="4"/>
+              <set_value name="{param@Step}" exact="{value@L0M30.Step}+1"/>
+              <cancel_cue cue="L0M30"/>
+            </do_all>
+          </action>
+        </cue>
+
+        <cue name="L0M30 Dockobject Docked" delay="3s" instantiate="static">
+          <condition>
+            <check_any exact="{group.object.count@{param@PassengersName}}" counter="Count">
+              <check_value value="{group.object.{counter@Count}.dockobject.dockobject.exists@{param@PassengersName}}" exact="1"/>
+            </check_any>
+          </condition>
+          <action>
+            <do_all>
+              <do_all exact="{group.object.count@{param@PassengersName}}" counter="Count">
+                <do_if value="{group.object.{counter@Count}.dockobject.dockobject.exists@{param@PassengersName}}" exact="1">
+                  <do_if value="{group.object.{counter@Count}.dockobject.dockobject.isclass.station@{param@PassengersName}}" exact="1">
+                    <do_choose>
+                      <do_when value="{value@L0M30.Variation}" exact="5" comment="Dock at Station">
+                        <set_object name="L0M30.Matched {group.object.{counter@Count}@{param@PassengersName}}" group="L0M30.Matched" value="{group.object.{counter@Count}@{param@PassengersName}}"/>
+                      </do_when>
+                      <do_when value="{value@L0M30.Variation}" exact="4" comment="Dock at Destination Station">
+                        <do_if value="{group.object.{counter@Count}.dockobject.dockobject@{param@PassengersName}}" exact="{object@{param@DestName}}">
+                          <set_object name="L0M30.Matched {group.object.{counter@Count}@{param@PassengersName}}" group="L0M30.Matched" value="{group.object.{counter@Count}@{param@PassengersName}}"/>
+                        </do_if>
+                      </do_when>
+                      <do_when value="{value@L0M30.Variation}" exact="3" comment="Dock at Station In Sector">
+                        <do_if value="{group.object.{counter@Count}.dockobject.dockobject.sector@{param@PassengersName}}" exact="{param@StationSector}">
+                          <set_object name="L0M30.Matched {group.object.{counter@Count}@{param@PassengersName}}" group="L0M30.Matched" value="{group.object.{counter@Count}@{param@PassengersName}}"/>
+                        </do_if>
+                      </do_when>
+                      <do_when value="{value@L0M30.Variation}" exact="2" comment="Dock at Race Station In Sector">
+                        <do_if value="{group.object.{counter@Count}.dockobject.dockobject.race@{param@PassengersName}}" exact="{param@StationRace}">
+                          <do_if value="{group.object.{counter@Count}.dockobject.dockobject.sector@{param@PassengersName}}" exact="{param@StationSector}">
+                            <set_object name="L0M30.Matched {group.object.{counter@Count}@{param@PassengersName}}" group="L0M30.Matched" value="{group.object.{counter@Count}@{param@PassengersName}}"/>
+                          </do_if>
+                        </do_if>
+                      </do_when>
+                      <do_when value="{value@L0M30.Variation}" exact="1" comment="Dock at Race Station">
+                        <do_if value="{group.object.{counter@Count}.dockobject.dockobject.race@{param@PassengersName}}" exact="{param@StationRace}">
+                          <set_object name="L0M30.Matched {group.object.{counter@Count}@{param@PassengersName}}" group="L0M30.Matched" value="{group.object.{counter@Count}@{param@PassengersName}}"/>
+                        </do_if>
+                      </do_when>
+                    </do_choose>
+                  </do_if>
+                </do_if>
+              </do_all>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L0M30 Remove Landed Passengers" check="cancel">
+              <condition>
+                <check_all>
+                  <cue_completed cue="L0M30 Dockobject Docked"/>
+                  <check_value value="{group.object.count@L0M30.Matched}" min="1"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <set_value name="this.Rerun L0M30 B" exact="0"/>
+                  <do_all exact="{group.object.count@L0M30.Matched}" counter="Count">
+                    <remove_object_from_group object="{group.object.{counter@Count}@L0M30.Matched}" group="{param@PassengersName}"/>
+                  </do_all>
+                  <set_value name="{param@EndPassengers}" operation="add" exact="{group.object.count@L0M30.Matched}"/>
+                  <destroy_group group="L0M30.Matched"/>
+                  <do_choose>
+                    <do_when value="{group.object.count@{param@PassengersName}}" min="1">
+                      <set_value name="this.Rerun L0M30 B" exact="1"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="{param@FeedbackName}" exact="1"/>
+                      <set_value name="{param@Step}" exact="{value@L0M30.Step}+1"/>
+                      <cancel_cue cue="L0M30"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L0M30 Remove Passengers Rerun L0M30 B" check="cancel">
+                  <condition>
+                    <check_all>
+                      <cue_completed cue="L0M30 Remove Landed Passengers"/>
+                      <check_value value="{value@L0M30 Remove Landed Passengers.Rerun L0M30 B}" exact="1"/>
+                    </check_all>
+                  </condition>
+                  <cues>
+                    <cue ref="L0M30 B">
+                      <params>
+                        <param name="Complete Briefing" value="0"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="L0M30 Objective Canceled">
+          <condition>
+            <objective_cancelled cue="{param@Cue}"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="99"/>
+              <cancel_cue cue="L0M30"/>
+            </do_all>
+          </action>
+        </cue>
+
+        <cue name="L0M30 Check Time" delay="1s">
+          <condition>
+            <check_all>
+              <check_any>
+                <check_all>
+                  <check_value value="{value@L0M30.Duration}" min="1"/>
+                  <check_time value="{player.age}" min="{value@L0M30.Duration}"/>
+                </check_all>
+                <check_all>
+                  <check_value value="{value@L0M30.EndTime}" min="1"/>
+                  <check_time value="{player.age}" min="{value@L0M30.EndTime}"/>
+                </check_all>
+              </check_any>
+              <check_any>
+                <check_all>
+                  <check_value value="{param@IsPlot}" exact="1"/>
+                  <check_value value="{param@UseTimer}" exact="1"/>
+                </check_all>
+                <check_value value="{param@IsPlot}" exact="1" negate="1"/>
+              </check_any>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="{param@FeedbackName}" exact="3"/>
+              <do_if value="{value@{param@EndPassengers}}" min="1">
+                <set_value name="{param@FeedbackName}" exact="2"/>
+              </do_if>
+              <set_value name="{param@Step}" exact="{value@L0M30.Step}+1"/>
+              <cancel_cue cue="L0M30"/>
+            </do_all>
+          </action>
+        </cue>
+
+        <cue name="L0M30 Destination Destroyed" delay="2s">
+          <condition>
+            <object_exists object="{param@DestName}" negate="1"/>
+          </condition>
+          <timing>
+            <time exact="1s"/>
+          </timing>
+          <action>
+            <do_choose>
+              <do_when value="{object.exists@{param@DestName}}" exact="1">
+                <set_value name="this.Rerun L0M30 B" exact="1"/>
+                <reset_cue cue="L0M30 Destination Destroyed"/>
+              </do_when>
+              <do_otherwise>
+                <set_value name="{param@FeedbackName}" exact="7"/>
+                <cancel_cue cue="L0M30"/>
+              </do_otherwise>
+            </do_choose>
+          </action>
+          <cues>
+            <cue name="L0M30 Dest Destroyed Rerun L0M30 B" check="cancel">
+              <condition>
+                <check_all>
+                  <cue_completed cue="L0M30 Destination Destroyed"/>
+                  <check_value value="{value@L0M30 Destination Destroyed.Rerun L0M30 B}" exact="1"/>
+                </check_all>
+              </condition>
+              <cues>
+                <cue ref="L0M30 B">
+                  <params>
+                    <param name="Complete Briefing" value="0"/>
+                  </params>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>H4fDsvTEZfBxA5xVy5Ttz8keUOEbhTEfDXcwWcdEA5jmr1ooxAcxjj0qpqwny0ZoIe38izVvzyqCa7LQwG36awUwLsuFYtXjUkAwVfDpmCMBzwgMsDoqbtoQVCwsoQqh6Y56PR4ekN8uU9WaudegLe7zTA4Rw5ibqSGiX9/gYQCaDEovIbVVvIQCEh6YpNaYmTJzRZ5nn08UlW8cndi9b1QruSMROak2YcQKk++NewAfctViZm9Q87yWrDJo67yVYXkBGthzPRePxYd+LRlIxc8Ew2DkB8c3Gxth5h2nt4gVbC274gwAgMQXiBeCBOEgC45BwLLdJOsTj7uSDojRFQ==</signature>
+</director>
+
+

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="Level 1 Test" name="Buy Blueprints" description="Offer to buy blueprints"/>
+    <version number="0.1" date="20/06/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L2M161" library="1">
+      <documentation>
+        <content name="L2M161" reference="Buy Blueprints" type="L2"/>
+        <version number="0.1" date="20/06/08" status="development"/>
+        <history>
+          <change date="04/08/08" author="al_main" description="Changed textid from 26 to 21"/>
+          <change date="15/07/08" author="al_main" description="Fixed blueprint bought instantiation and message more vocal"/>
+          <change date="09/07/08" author="al_main" description="RC1 version"/>
+          <change date="02/07/08" author="al_main" description="count_stations added to main cue to reduce debug spam"/>
+          <change date="20/06/08" author="al_main" description="initial version"/>
+        </history>
+        <todo>
+          <item priority="low" description="check if player already has blueprints?"/>
+        </todo>
+      </documentation>
+      <condition>
+        <count_stations min="1" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" class="station" race="default|pirategroup">
+          <sector sector="{player.sector}"/>
+          <jumps max="0"/>
+        </count_stations>
+      </condition>
+      <action>
+        <do_all>
+          <!--find station-->
+          <find_station name="this.station" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" class="station" race="default|pirategroup">
+            <sector sector="{player.sector}"/>
+            <jumps max="0"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@this.station}" exact="0">
+              <cancel_cue cue="L2M161"/>
+            </do_when>
+            <do_otherwise>
+              <set_value name="L2M161.OfferRace" exact="{object.race@this.station}"/>
+              <set_value name="L2M161.TimeOut" min="{player.age}+600" max="{player.age}+1200"/>
+              <set_value name="L2M161.CheckValue" exact="{player.notoriety.{value@L2M161.OfferRace}}"/>
+              <do_if value="{value@L2M161.OfferRace}" exact="{lookup.race@pirate}|{lookup.race@yaki}">
+                <set_value name="L2M161.CheckValue" exact="{player.fightrank}"/>
+              </do_if>
+              <do_choose>
+                <do_when value="{value@L2M161.CheckValue}" min="1000">
+                  <do_any>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m6}" chance="15"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m3}" chance="35"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m4}" chance="25"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m5}" chance="10"/>
+                  </do_any>
+                  <do_if value="{value@L2M161.CheckValue}" min="3333">
+                    <set_value name="L2M161.Plus" exact="1"/>
+                  </do_if>
+                </do_when>
+                <do_when value="{value@L2M161.CheckValue}" min="333">
+                  <do_any>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m6}" chance="5"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m3}" chance="35"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m4}" chance="40"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m5}" chance="20"/>
+                  </do_any>
+                </do_when>
+                <do_otherwise>
+                  <do_any>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m6}" chance="1"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m3}" chance="15"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m4}" chance="35"/>
+                    <set_value name="L2M161.Class" exact="{lookup.class@m5}" chance="45"/>
+                  </do_any>
+                </do_otherwise>
+              </do_choose>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue ref="SRST">
+          <params>
+            <param name="Race ID" value="{value@L2M161.OfferRace}"/>
+            <param name="Class ID" value="{value@L2M161.Class}"/>
+            <param name="Cue" value="L2M161"/>
+            <param name="Result" value="L2M161.SRST Complete1"/>
+            <param name="Shiptype Address" value="L2M161.ShipType1"/>
+            <param name="Include M3P" value="{value@L2M161.Plus}"/>
+            <param name="Include M4P" value="{value@L2M161.Plus}"/>
+            <param name="Include M5P" value="{value@L2M161.Plus}"/>
+          </params>
+        </cue>
+        <cue name="L2M161 Offer" delay="25">
+          <condition>
+            <check_value value="{value@L2M161.SRST Complete1}" exact="1"/>
+          </condition>
+          <action>
+            <do_all>
+              <do_choose>
+                <do_when value="{value@L2M161.ShipType1}" exact="0" negate="1">
+                  <do_choose>
+                    <do_when value="{value@L2M161.ShipType1}" exact="{lookup.type@SS_SH_A_M4}" negate="1">
+                      <!--set raw price-->
+                      <set_value name="L2M161.tempPrice" min="({lookup.type.price@{value@L2M161.ShipType1}}/100)*85" max="({lookup.type.price@{value@L2M161.ShipType1}}/100)*115"/>
+                      <!--factor price by race rep if not pirate-->
+                      <do_if value="{value@L2M161.OfferRace}" list="{lookup.race@pirate}|{lookup.race@yaki}" negate="1">
+                        <set_value name="L2M161.tempPrice" exact="({value@L2M161.tempPrice}/100)*(100-{player.notoriety.{value@L2M161.OfferRace}.rank})"/>
+                      </do_if>
+                      <do_choose>
+                        <do_when value="{value@L2M161.tempPrice}" min="1000000">
+                          <set_value name="L2M161.Cost 1" exact="({value@L2M161.tempPrice}/50000)*50000"/>
+                        </do_when>
+                        <do_when value="{value@L2M161.tempPrice}" min="100000">
+                          <set_value name="L2M161.Cost 1" exact="({value@L2M161.tempPrice}/5000)*5000"/>
+                        </do_when>
+                        <do_otherwise>
+                          <set_value name="L2M161.Cost 1" exact="({value@L2M161.tempPrice}/250)*250"/>
+                        </do_otherwise>
+                      </do_choose>
+                      <set_value name="L2M161 Offer.SectorChanges" exact="0"/>
+                      <create_actor name="L2M161 Offer.Guide" race="{value@L2M161.OfferRace}" voiceflags="32" object="L2M161.station" location="crew"/>
+                      <set_value name="this.textid" min="2051" max="2056"/>
+                      <set_value name="this.creditid" min="15" max="16"/>
+                      <create_offer actor="L2M161 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT" cue="L2M161 Offer">
+                        <params>
+                          <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                          <param name="Option1" value="{3361,1}"/>
+                          <param name="Price1" value="{value.formatted@L2M161.Cost 1} {3300,{value@this.creditid}}"/>
+                        </params>
+                      </create_offer>
+                    </do_when>
+                    <do_otherwise>
+                      <cancel_cue cue="L2M161"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_when>
+                <do_otherwise>
+                  <cancel_cue cue="L2M161"/>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M161 Accepted 1" instantiate="static">
+              <condition>
+                <conversation_completed answer="accept1" conversation="L2OfferBuyCustom1" actor="L2M161 Offer.Guide"/>
+              </condition>
+              <action>
+                <do_choose>
+                  <!--check if player already has blueprints?
+                  <do_when value="{player.blueprints.{value@L2M161.ShipType1}}" exact="1">
+                    
+                  </do_when>-->
+                  <do_when value="{player.money}" min="{value@L2M161.Cost 1}">
+                    <set_value name="L2M161.Notoriety" exact="1"/>
+                    <do_if value="{value@L2M161.OfferRace}" list="{lookup.race@pirate}|{lookup.race@yaki}" negate="1">
+                      <set_value name="L2M161.HasNotoriety" exact="{player.notoriety.{value@L2M161.OfferRace}}-{lookup.type.minnotoriety@{value@L2M161.ShipType1}}"/>
+                    </do_if>
+                    <do_choose>
+                      <do_when value="{value@L2M161.HasNotoriety}" min="1">
+                        <reward_player>
+                          <money exact="-{value@L2M161.Cost 1}"/>
+                        </reward_player>
+                        <add_blueprints_to_headquarters typename="{value@L2M161.ShipType1}"/>
+                        <play_text priority="99">
+                          <line actor="L2M161 Offer.Guide" textid="825"/>
+                          <line pageid="13" textid="1332"/>
+                        </play_text>
+                        <remove_offer actor="L2M161 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                        <destroy_actor actor="L2M161 Offer.Guide"/>
+                        <cancel_cue cue="L2M161"/>
+                      </do_when>
+                      <do_otherwise>
+                        <play_text priority="99">
+                          <line pageid="13" textid="57"/>
+                          <line actor="L2M161 Offer.Guide" textid="21"/>
+                        </play_text>
+                      </do_otherwise>
+                    </do_choose>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M161 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M161 Check Offer">
+              <condition>
+                <cue_completed cue="L2M161 Offer"/>
+              </condition>
+              <cues>
+                <cue name="L2M161 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age value="{player.age}" min="{value@L2M161.TimeOut}"/>
+                      <object_relation object="L2M161.station">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M161 Check Comms" delay="500">
+                      <condition>
+                        <check_all>
+                          <check_value value="{player.menu.dialog}" exact="0"/>
+                          <check_value value="{player.menu.briefing}" exact="0"/>
+                          <cue_is_active cue="L2M161 Accepted 1" negate="1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <remove_offer actor="L2M161 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                          <destroy_actor actor="L2M161 Offer.Guide"/>
+                          <cancel_cue cue="L2M161"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M161 Sector Out" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <object_changed_sector/>
+                      <cue_is_active cue="L2M161 Accepted 1" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_if value="{player.sector}" exact="{actor.sector@L2M161 Offer.Guide}" negate="1">
+                      <set_value name="L2M161 Offer.SectorChanges" exact="{value@L2M161 Offer.SectorChanges}+1"/>
+                      <do_if value="{value@L2M161 Offer.SectorChanges}" min="4">
+                        <remove_offer actor="L2M161 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                        <destroy_actor actor="L2M161 Offer.Guide"/>
+                        <cancel_cue cue="L2M161"/>
+                      </do_if>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>2lMzqfYDQgaG3F6dZ2XiZmt7O+hjMHnc5y0ZKhb8zgqClc7ekkCdVy53wMVrotAB0NVnGZuIfYkx0pBZgZhM+6+zITkvOCoPQozxEO9KJWdQOyJsmrcMHjO043rZFYaZbofzOOZYuy20WTyo3hlh7E6QomuQV+wu3X2ptFYAXrLlzU4pDXTebwUVthUDfkjBFht3Z0o9u/SkQCb2Hg3uJ/6E8wvuOVe+ZoC6nkdr4SSuBcRq+hW2gGLvuGvTT575MWk9A6FRwZFf/zeIQ82WxmO5MVT7CJHPqEt091WUZUSCtXdsFH/BaifPPlVIO4Rqw0p/7Qk6Rvyeh/+kO1yoXA==</signature>
+</director>

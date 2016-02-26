@@ -1,0 +1,1297 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M005" name="Terran Plot Scene 5" description="L2 Terran Plot Scene 5, Aldrin"/>
+    <version number="0.1" date="21/06/2008" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L2M005" library="1">
+      <documentation>
+        <content name="Terran Plot Scene 1" reference="L2M005" type="L2"/>
+        <version date="21/06/2008" number="0.1" status="development"/>
+      </documentation>
+      <timing>
+        <time exact="2s"/>
+      </timing>
+      <action>
+        <do_all>
+          <find_sector name="L2M005.Aldrin" x="13" y="10" exact="0"/>
+          <find_sector name="L2M005.Mars" x="12" y="3" exact="0"/>
+          <find_sector name="L2M005.Venus" x="12" y="2" exact="0"/>
+          <find_sector name="L2M005.Moon" x="13" y="2" exact="0"/>
+          <find_sector name="L2M005.Earth" x="13" y="3" exact="0"/>
+          <find_station name="L2M005.MarsShipyard" class="shipyard" race="terran">
+            <sector sector="L2M005.Mars"/>
+          </find_station>
+          <find_station name="L2M005.Torus" typename="SS_DOCK_TORUS">
+            <sector sector="L2M005.Earth"/>
+          </find_station>
+          <do_if value="{object.exists@L2M005.MarsShipyard}" exact="0">
+            <create_station typename="SS_FAC_TR_SHIP" race="terran" name="L2M005.MarsShipyard">
+              <sector sector="L2M005.Mars"/>
+              <equipment loadout="default"/>
+            </create_station>
+          </do_if>
+          <set_invincible object="L2M005.MarsShipyard" invincible="1"/>
+          <create_actor name="L2M005.Ishiyama" character="{3895,19}" face="1135" voice="3819" race="terran" object="L2M005.MarsShipyard" location="crew"/>
+          <create_actor name="L2M005.Pearle" character="{3895,21}" face="1138" voice="3821" race="terran"/>
+          <set_value name="L2M005.Step" exact="1"/>
+          <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,511}" background="station_argon_space_fuel_distillery.tga">
+            <mission discipline="XXXT" level="easy"/>
+            <objectives>
+              <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                <dockat object="L2M005.MarsShipyard"/>
+              </objective>
+            </objectives>
+          </create_briefing>
+          <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,511}" noabort="1">
+            <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+            <mission discipline="XXXT" level="easy"/>
+            <dockat object="L2M005.MarsShipyard"/>
+          </set_objective>
+          <set_value name="L2M005.Step" operation="add"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M005 Remove Aldrin Terraformers" instantiate="static" delay="13s">
+          <condition>
+            <count_ships race="terran" typename="SS_SH_TERRAFORMER2|SS_SH_TERRAFORMER3|SS_SH_TERRAFORMER4" min="1">
+              <sector sector="L2M005.Aldrin"/>
+            </count_ships>
+          </condition>
+          <action>
+            <do_all>
+              <find_ship group="this.Terraformers" multiple="1" race="terran" typename="SS_SH_TERRAFORMER2|SS_SH_TERRAFORMER3|SS_SH_TERRAFORMER4">
+                <sector sector="L2M005.Aldrin"/>
+              </find_ship>
+              <destroy_group group="this.Terraformers"/>
+            </do_all>
+          </action>
+        </cue>
+        <cue name="L2M005 Contact Ishiyama">
+          <condition>
+            <object_docked param="{object@L2M005.MarsShipyard}"/>
+          </condition>
+          <timing>
+            <time exact="10s"/>
+          </timing>
+          <action>
+            <do_all>
+              <play_text priority="99">
+                <line actor="L2M005.Ishiyama" pageid="3819" textid="191501"/>
+                <line actor="L2M005.Pearle" pageid="3821" textid="211501"/>
+                <line actor="L2M005.Ishiyama" pageid="3819" textid="191502"/>
+                <line actor="L2M005.Pearle" pageid="3821" textid="211502"/>
+              </play_text>
+              <set_value name="L2M005.Contact Ishiyama Wait" exact="{player.age}+{text.duration.s@3819,191501}+{text.duration.s@3821,211501}+{text.duration.s@3819,191502}+{text.duration.s@3821,211502}+2"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M005 Create Boarding Stuff" delay="5s">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="L2M005 Contact Ishiyama"/>
+                  <check_age min="{value@L2M005.Contact Ishiyama Wait}"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <do_if value="{player.sector}" exact="{sector@L2M005.Mars}">
+                    <play_cutscene file="Terran Plot S5 C1"/>
+                    <play_sound soundid="1213" task="1"/>
+                    <set_object name="L2M005.MarsShipyardTemp" value="{object@L2M005.MarsShipyard}"/>
+                  </do_if>
+                  <play_text actor="L2M005.Pearle" pageid="3821" textid="211503" priority="99"/>
+                  <create_ship name="L2M005.PlayerM6" race="neutral" typename="SS_SH_TR_M6" communicates="0" racelogic="0" scanned="1">
+                    <position object="L2M005.MarsShipyard" exact="8km"/>
+                    <sector sector="L2M005.Mars"/>
+                    <equipment loadout="minimum" loadoutmask="equipment">
+                      <ware typename="SS_SHIELD_C" exact="1"/>
+                    </equipment>
+                  </create_ship>
+                  <create_ship race="player" typename="SS_SH_USC_TP">
+                    <position object="L2M005.PlayerM6" exact="1km"/>
+                    <sector sector="L2M005.Mars"/>
+                    <equipment loadout="default">
+                      <ware typename="SS_WARE_SW_FIGHT_1" exact="1"/>
+                      <ware typename="SS_WARE_SW_FIGHT_2" exact="1"/>
+                      <ware typename="SS_WARE_SOLDIER_2" exact="15"/>
+                    </equipment>
+                  </create_ship>
+                  
+                  <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,512}" background="station_argon_space_fuel_distillery.tga">
+                    <mission discipline="XFXX" level="easy"/>
+                    <objectives>
+                      <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                        <custom action="{35,2071}" text="{object.name@L2M005.PlayerM6}" object="L2M005.PlayerM6"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,512}" noabort="1">
+                    <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                    <mission discipline="XFXX" level="easy"/>
+                    <custom action="{35,2071}" text="{object.name@L2M005.PlayerM6}" object="L2M005.PlayerM6"/>
+                  </set_objective>
+                  <set_value name="L2M005.Step" operation="add"/>
+                  <set_value name="L2M005.BoardTimeout" exact="{player.age}+350"/>
+                  <set_value name="L2M005.Timeouts" operation="add"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M005 M6 Destroyed">
+                  <condition>
+                    <check_any>
+                      <object_destroyed object="L2M005.PlayerM6"/>
+                      <object_destroyed_by_player object="L2M005.PlayerM6"/>
+                    </check_any>
+                  </condition>
+                  <action>
+                    <cancel_cue cue="L2M005 M6 Claimed"/>
+                  </action>
+                </cue>
+                <cue name="L2M005 Board Tutorial Timeout" delay="5s">
+                  <condition>
+                    <check_all>
+                      <check_age min="{value@L2M005.BoardTimeout}"/>
+                      <check_value value="{object.boarding@L2M005.PlayerM6}" exact="0"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_choose>
+                      <do_when value="{value@L2M005.Timeouts}" exact="1">
+                        <play_text actor="L2M005.Pearle" pageid="3821" textid="211504" priority="99"/>
+                        <set_value name="L2M005.BoardTimeout" exact="{player.age}+350"/>
+                        <set_value name="L2M005.Timeouts" operation="add"/>
+                        <reset_cue cue="L2M005 Board Tutorial Timeout"/>
+                      </do_when>
+                      <do_otherwise>
+                        <play_text actor="L2M005.Pearle" pageid="3821" textid="211505" priority="99"/>
+                        <cancel_cue cue="L2M005 M6 Claimed"/>
+                      </do_otherwise>
+                    </do_choose>
+                  </action>
+                </cue>
+                <cue name="L2M005 M6 Claimed">
+                  <condition>
+                    <object_claimed object="L2M005.PlayerM6"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <play_text actor="L2M005.Pearle" pageid="3821" textid="211506" priority="99"/>
+                      <cancel_cue cue="L2M005 Board Tutorial Timeout"/>
+                      <cancel_cue cue="L2M005 M6 Claimed"/>
+                    </do_all>
+                  </action>
+                </cue>
+                <cue name="L2M005 Tutorial Over">
+                  <condition>
+                    <cue_cancelled cue="L2M005 M6 Claimed"/>
+                  </condition>
+                  <timing>
+                    <time exact="5s"/>
+                  </timing>
+                  <action>
+                    <play_text actor="L2M005.Pearle" pageid="3821" textid="211507" priority="99"/>
+                  </action>
+                  <cues>
+                    <cue name="L2M005 Tutorial Over Wait">
+                      <condition>
+                        <cue_completed cue="L2M005 Tutorial Over"/>
+                      </condition>
+                      <timing>
+                        <time exact="5s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <cancel_cue cue="L2M005 M6 Destroyed"/>
+                          <cancel_cue cue="L2M005 M6 Claimed"/>
+                          <cancel_cue cue="L2M005 Board Tutorial Timeout"/>
+                          <set_owner object="L2M005.PlayerM6" race="player"/>
+                          <remove_object object="L2M005.PlayerM6"/>
+                          <destroy_actor actor="L2M005.Pearle"/>
+                          <create_ship name="L2M005.JacksonShip" group="L2M005.Wave3" leader="1" boardable="0" invincible="1" race="terran" racelogic="0" typename="SS_SH_TR_M2">
+                            <position x="0" y="0" z="0" max="5km"/>
+                            <sector sector="L2M005.Moon"/>
+                            <equipment loadout="maximum">
+                              <ware typename="SS_WARE_TECH213" exact="6"/>
+                            </equipment>
+                          </create_ship>
+                          <create_actor name="L2M005.Jackson" character="{3895,20}" face="1136" voice="3820" race="terran" object="L2M005.JacksonShip" location="crew"/>
+                          <create_offer actor="L2M005.Jackson" conversation="L2M005 No1" cue="L2M005" discipline="XXXXP"/>
+                          <do_all exact="3">
+                            <create_ship group="L2M005.TPs" race="terran" typename="SS_SH_USC_TP" capturable="0" racelogic="0" invincible="1">
+                              <position object="L2M005.JacksonShip" exact="3km"/>
+                              <sector sector="L2M005.Moon"/>
+                              <equipment loadout="default">
+                                <ware typename="SS_WARE_SW_FIGHT_1" exact="1"/>
+                                <ware typename="SS_WARE_SW_FIGHT_2" exact="1"/>
+                                <ware typename="SS_WARE_SOLDIER_2" exact="15"/>
+                              </equipment>
+                            </create_ship>
+                          </do_all>
+
+                          <!--Setup Wave 1 - ATF-->
+                          <create_ship name="L2M005.Wave1 Leader" typename="SS_SH_TR_M7M" group="L2M005.Wave1" leader="1" invincible="1" race="terran" capturable="0" racelogic="0">
+                            <position object="L2M005.JacksonShip" exact="5km"/>
+                            <sector sector="L2M005.Moon"/>
+                            <equipment loadout="maximum">
+                              <ware typename="SS_WARE_TECH213" exact="20"/>
+                            </equipment>
+                          </create_ship>
+                          <create_ship group="L2M005.Wave1" race="terran" typename="SS_SH_TR_M6M" boardable="0" capturable="0" racelogic="0">
+                            <position object="L2M005.Wave1 Leader" exact="1km"/>
+                            <sector sector="L2M005.Moon"/>
+                            <equipment loadout="default"/>
+                          </create_ship>
+                          <do_all min="9" max="11">
+                            <create_ship group="L2M005.Wave1" race="terran" typename="{random.type@SS_SH_TR_M3H|SS_SH_TR_M3|SS_SH_TR_M4}" capturable="0" racelogic="0">
+                              <position object="L2M005.Wave1 Leader" exact="1km"/>
+                              <sector sector="L2M005.Moon"/>
+                              <equipment loadout="default"/>
+                            </create_ship>
+                          </do_all>
+                          <!--Setup Wave 2 - USC-->
+                          <create_ship name="L2M005.BerghmanShip" typename="SS_SH_USC_M7" group="L2M005.Wave2" leader="1" invincible="1" race="terran" capturable="0" racelogic="0">
+                            <position object="L2M005.JacksonShip" exact="5km"/>
+                            <sector sector="L2M005.Moon"/>
+                            <equipment loadout="maximum"/>
+                          </create_ship>
+                          <create_actor name="L2M005.Berghman" character="{3895,15}" face="1133" voice="3815" race="terran" object="L2M005.BerghmanShip"/>
+                          <create_ship name="L2M005.UtashiShip" typename="SS_SH_USC_M3P" group="L2M005.Wave2" invincible="1" race="terran" capturable="0" racelogic="0">
+                            <position object="L2M005.BerghmanShip" exact="1km"/>
+                            <sector sector="L2M005.Moon"/>
+                            <equipment loadout="maximum"/>
+                          </create_ship>
+                          <create_actor name="L2M005.Utashi" character="{3895,17}" face="1134" voice="3817" race="terran" object="L2M005.UtashiShip"/>
+                          <do_all min="9" max="11">
+                            <create_ship group="L2M005.Wave2" race="terran" typename="{random.type@SS_SH_USC_M3|SS_SH_USC_M4|SS_SH_USC_M5}" capturable="0" racelogic="0">
+                              <position object="L2M005.BerghmanShip" exact="1km"/>
+                              <sector sector="L2M005.Moon"/>
+                              <equipment loadout="default"/>
+                            </create_ship>
+                          </do_all>
+                          <!--Setup Wave 3 - Mixed-->
+                          <create_ship group="L2M005.Wave3" race="terran" typename="SS_SH_TR_M6" boardable="0" capturable="0" racelogic="0">
+                            <position object="L2M005.JacksonShip" exact="3km"/>
+                            <sector sector="L2M005.Moon"/>
+                            <equipment loadout="default"/>
+                          </create_ship>
+                          <do_all min="6" max="8">
+                            <create_ship group="L2M005.Wave3" race="terran" typename="{random.type@SS_SH_TR_M3H|SS_SH_TR_M3|SS_SH_TR_M4}" capturable="0" racelogic="0">
+                              <position object="L2M005.JacksonShip" exact="3km"/>
+                              <sector sector="L2M005.Moon"/>
+                              <equipment loadout="default"/>
+                            </create_ship>
+                          </do_all>
+                          <do_all min="6" max="8">
+                            <create_ship group="L2M005.Wave3" race="terran" typename="{random.type@SS_SH_USC_M3|SS_SH_USC_M4|SS_SH_USC_M5}" capturable="0" racelogic="0">
+                              <position object="L2M005.JacksonShip" exact="3km"/>
+                              <sector sector="L2M005.Moon"/>
+                              <equipment loadout="default"/>
+                            </create_ship>
+                          </do_all>
+
+                          <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,513}" background="station_argon_space_fuel_distillery.tga">
+                            <mission discipline="XXXT" level="easy"/>
+                            <objectives>
+                              <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                                <talkto actor="L2M005.Jackson"/>
+                              </objective>
+                            </objectives>
+                          </create_briefing>
+                          <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,513}" noabort="1">
+                            <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                            <mission discipline="XXXT" level="easy"/>
+                            <talkto actor="L2M005.Jackson"/>
+                          </set_objective>
+                          <set_actor_location actor="L2M005.Ishiyama" object="L2M005.Torus" location="crew"/>
+                          <set_value name="L2M005.Step" operation="add"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M005 Player Enters Moon" delay="5s">
+                          <condition>
+                            <check_value value="{player.sector}" exact="{sector@L2M005.Moon}"/>
+                          </condition>
+                          <timing>
+                            <time exact="3s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <play_cutscene file="Terran Plot S5 C2"/>
+                              <play_sound soundid="1213" task="1"/>
+                              <set_object name="L2M005.JacksonShipTemp" value="{object@L2M005.JacksonShip}"/>
+                            </do_all>
+                          </action>
+                        </cue>
+                        <cue name="L2M005 Talked to Jackson">
+                          <condition>
+                            <conversation_completed actor="L2M005.Jackson" answer="ready" conversation="L2M005 No1"/>
+                          </condition>
+                          <action>
+                            <do_all>
+                              <cancel_cue cue="L2M005 Player Enters Moon"/>
+                              <remove_offer actor="L2M005.Jackson" conversation="L2M005 No1" discipline="XXXXP"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M005 Talk to Jackson Wait">
+                              <condition>
+                                <cue_completed cue="L2M005 Talked to Jackson"/>
+                              </condition>
+                              <timing>
+                                <time exact="{text.duration@3820,201501}"/>
+                              </timing>
+                              <action>
+                                <play_text actor="L2M005.Jackson" pageid="3820" textid="201502" priority="99"/>
+                              </action>
+                              <cues>
+                                <cue name="L2M005 Jump Wave 1">
+                                  <condition>
+                                    <cue_completed cue="L2M005 Talk to Jackson Wait"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <create_object name="this.TempObject" typename="SS_SH_BEACON">
+                                        <position x="0" y="0" z="0"/>
+                                        <sector sector="L2M005.Aldrin"/>
+                                      </create_object>
+                                      <find_station name="L2M005.Aldrin Station" nearest="1" findobject="this.TempObject">
+                                        <sector sector="L2M005.Aldrin"/>
+                                      </find_station>
+                                      <destroy_object object="this.TempObject"/>
+                                      <create_object typename="SS_SH_JUMP_BEACON" name="L2M005.Beacon">
+                                        <position object="L2M005.Aldrin Station" x="10km" y="-10km"/>
+                                        <sector sector="L2M005.Aldrin"/>
+                                      </create_object>
+                                      <do_all exact="{group.object.count@L2M005.Wave1}/2" counter="count">
+                                        <set_hull object="{group.object.{counter@count}@L2M005.Wave1}" min="87" max="98"/>
+                                      </do_all>
+                                      <warp_group group="L2M005.Wave1">
+                                        <position object="L2M005.Beacon"/>
+                                        <sector sector="L2M005.Aldrin"/>
+                                      </warp_group>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M005 Jump Wave 1 Wait">
+                                      <condition>
+                                        <cue_completed cue="L2M005 Jump Wave 1"/>
+                                      </condition>
+                                      <timing>
+                                        <time exact="6s"/>
+                                      </timing>
+                                      <action>
+                                        <play_text actor="L2M005.Jackson" pageid="3820" textid="201503" priority="99"/>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M005 Jump Wave 2">
+                                          <condition>
+                                            <cue_completed cue="L2M005 Jump Wave 1 Wait"/>
+                                          </condition>
+                                          <action>
+                                            <do_all>
+                                              <set_hull object="L2M005.BerghmanShip" min="80" max="90"/>
+                                              <do_all exact="{group.object.count@L2M005.Wave2}/2">
+                                                <set_hull object="{group.object.random@L2M005.Wave2}" min="85" max="98"/>
+                                              </do_all>
+                                              <warp_group group="L2M005.Wave2">
+                                                <position object="L2M005.Beacon"/>
+                                                <sector sector="L2M005.Aldrin"/>
+                                              </warp_group>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M005 Jump Wave 2 Wait">
+                                              <condition>
+                                                <cue_completed cue="L2M005 Jump Wave 2"/>
+                                              </condition>
+                                              <timing>
+                                                <time exact="6s"/>
+                                              </timing>
+                                              <action>
+                                                <play_text actor="L2M005.Jackson" pageid="3820" textid="201504" priority="99"/>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M005 Jump Wave 3">
+                                                  <condition>
+                                                    <cue_completed cue="L2M005 Jump Wave 2 Wait"/>
+                                                  </condition>
+                                                  <action>
+                                                    <do_all>
+                                                      <do_all exact="{group.object.count@L2M005.Wave3}/2">
+                                                        <set_hull object="{group.object.random@L2M005.Wave3}" min="85" max="98"/>
+                                                      </do_all>
+                                                      <warp_group group="L2M005.Wave3">
+                                                        <position object="L2M005.Beacon"/>
+                                                        <sector sector="L2M005.Aldrin"/>
+                                                      </warp_group>
+                                                      <warp_group group="L2M005.TPs">
+                                                        <position object="L2M005.Beacon"/>
+                                                        <sector sector="L2M005.Aldrin"/>
+                                                      </warp_group>
+                                                      <set_value name="L2M005.GoToAldrin" exact="1"/>
+                                                      <reward_player>
+                                                        <map>
+                                                          <sector sector="L2M005.Aldrin"/>
+                                                        </map>
+                                                      </reward_player>
+                                                      <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,513}" background="station_argon_space_fuel_distillery.tga">
+                                                        <mission discipline="XXXT" level="hard"/>
+                                                        <objectives>
+                                                          <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                            <flyto>
+                                                              <sector sector="L2M005.Aldrin"/>
+                                                            </flyto>
+                                                          </objective>
+                                                        </objectives>
+                                                      </create_briefing>
+                                                      <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,501}" text="{3201,513}" noabort="1">
+                                                        <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                                                        <mission discipline="XXXT" level="hard"/>
+                                                        <flyto>
+                                                          <sector sector="L2M005.Aldrin"/>
+                                                        </flyto>
+                                                      </set_objective>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M005 Enter Aldrin">
+          <condition>
+            <check_all>
+              <object_changed_sector/>
+              <check_value value="{player.sector}" exact="{sector@L2M005.Aldrin}"/>
+              <check_value value="{value@L2M005.GoToAldrin}" exact="1"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <warp_player>
+                <position object="L2M005.Beacon"/>
+                <sector sector="L2M005.Aldrin"/>
+              </warp_player>
+              <cancel_cue cue="L2M005 Contact Ishiyama"/>
+              <find_station name="L2M005.Aldrin Station" nearest="1">
+                <position object="L2M005.Beacon"/>
+                <sector sector="L2M005.Aldrin"/>
+              </find_station>
+              <set_invincible object="L2M005.Aldrin Station" invincible="1"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M005 Enter Aldrin Wait">
+              <timing>
+                <time exact="5s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <play_text actor="L2M005.Jackson" pageid="3820" textid="201505" priority="99"/>
+                  <set_group_command group="L2M005.TPs" command="follow" commandobject="L2M005.JacksonShip"/>
+                  <set_group_command group="L2M005.Wave1" command="protect" commandobject="L2M005.Beacon"/>
+                  <set_group_command group="L2M005.Wave2" command="protect" commandobject="{group.leader@L2M005.Wave2}"/>
+                  <set_group_command group="L2M005.Wave3" command="protect" commandobject="{group.leader@L2M005.Wave3}"/>
+                  <set_command object="{group.leader@L2M005.Wave2}" command="idle"/>
+                  <set_command object="{group.leader@L2M005.Wave3}" command="idle"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M005 Berghman Damage Report">
+                  <condition>
+                    <cue_completed cue="L2M005 Enter Aldrin Wait"/>
+                  </condition>
+                  <timing>
+                    <time exact="{text.duration@3820,201505}+2s"/>
+                  </timing>
+                  <action>
+                    <play_text actor="L2M005.Berghman" pageid="3815" textid="151501" priority="99"/>
+                  </action>
+                  <cues>
+                    <cue name="L2M005 Jackson Any Contacts">
+                      <condition>
+                        <cue_completed cue="L2M005 Berghman Damage Report"/>
+                      </condition>
+                      <timing>
+                        <time exact="{text.duration@3815,151501}"/>
+                      </timing>
+                      <action>
+                        <play_text priority="99">
+                          <line actor="L2M005.Jackson" pageid="3820" textid="201506"/>
+                          <line actor="L2M005.Utashi" pageid="3817" textid="171501"/>
+                          <line actor="L2M005.Jackson" pageid="3820" textid="201507"/>
+                        </play_text>
+                      </action>
+                      <cues>
+                        <cue name="L2M005 Move Out">
+                          <condition>
+                            <cue_completed cue="L2M005 Jackson Any Contacts"/>
+                          </condition>
+                          <timing>
+                            <time exact="{text.duration@3820,201506}+{text.duration@3817,171501}+{text.duration@3820,201507}+2s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <set_command object="{group.leader@L2M005.Wave2}" command="moveposition" commandobject="L2M005.Aldrin Station"/>
+                              <set_command object="{group.leader@L2M005.Wave3}" command="moveposition" commandobject="L2M005.Aldrin Station"/>
+                              <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,502}" text="{3201,514}" background="station_argon_space_fuel_distillery.tga">
+                                <mission discipline="XXXT" level="easy"/>
+                                <objectives>
+                                  <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                                    <custom action="{35,2024}" text="{3201,543}" object="L2M005.Aldrin Station"/>
+                                  </objective>
+                                </objectives>
+                              </create_briefing>
+                              <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,502}" text="{3201,514}" noabort="1">
+                                <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                                <mission discipline="XXXT" level="easy"/>
+                                <custom action="{35,2024}" text="{3201,543}" object="L2M005.Aldrin Station"/>
+                              </set_objective>
+                              <set_value name="L2M005.Step" operation="add"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M005 Station Approached" delay="5s">
+                              <condition>
+                                <object_position max="5km">
+                                  <position object="L2M005.Aldrin Station"/>
+                                  <sector sector="L2M005.Aldrin"/>
+                                </object_position>
+                              </condition>
+                              <action>
+                                <do_all>
+                                  <set_command object="L2M005.JacksonShip" command="none"/>
+                                  <warp_object object="L2M005.JacksonShip">
+                                    <position object="{player.ship}"/>
+                                  </warp_object>
+                                  <set_command object="L2M005.JacksonShip" command="moveposition" commandobject="L2M005.Aldrin Station"/>
+                                  <create_ship name="L2M005.TakioShip" typename="SS_SH_LOST_M6H" race="neutral" communicates="0" capturable="0" dockobject="L2M005.Aldrin Station" highlight="1" invincible="1" racelogic="0">
+                                    <equipment loadout="default"/>
+                                    <command command="follow" commandobject="L2M005.JacksonShip"/>
+                                  </create_ship>
+                                  <create_actor name="L2M005.Takio" character="{35,4413}" face="107" race="neutral" voice="3825" object="L2M005.TakioShip"/>
+                                  <play_text priority="99">
+                                    <line actor="L2M005.Jackson" pageid="3820" textid="201508"/>
+                                    <line actor="L2M005.Utashi" pageid="3817" textid="171502"/>
+                                    <line actor="L2M005.Jackson" pageid="3820" textid="201509"/>
+                                  </play_text>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M005 Takio Stopped" delay="5s">
+                                  <condition>
+                                    <check_any>
+                                      <any_object_position group="L2M005.Wave2" max="3km">
+                                        <position object="L2M005.TakioShip"/>
+                                        <sector sector="L2M005.Aldrin"/>
+                                      </any_object_position>
+                                      <any_object_position group="L2M005.Wave3" max="3km">
+                                        <position object="L2M005.TakioShip"/>
+                                        <sector sector="L2M005.Aldrin"/>
+                                      </any_object_position>
+                                    </check_any>
+                                  </condition>
+                                  <timing>
+                                    <time exact="5s"/>
+                                  </timing>
+                                  <action>
+                                    <do_all>
+                                      <set_command object="L2M005.TakioShip" command="stay"/>
+                                      <play_text actor="L2M005.Berghman" pageid="3815" textid="151502"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M005 Takio Communication">
+                                      <condition>
+                                        <cue_completed cue="L2M005 Takio Stopped"/>
+                                      </condition>
+                                      <timing>
+                                        <time exact="{text.duration@3815,151502}+2s"/>
+                                      </timing>
+                                      <action>
+                                        <play_text priority="99">
+                                          <line actor="L2M005.Takio" pageid="3825" textid="251501"/>
+                                          <line actor="L2M005.Jackson" pageid="3820" textid="201510"/>
+                                          <line actor="L2M005.Takio" pageid="3825" textid="251502"/>
+                                        </play_text>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M005 Takio Communication 2">
+                                          <condition>
+                                            <cue_completed cue="L2M005 Takio Communication"/>
+                                          </condition>
+                                          <timing>
+                                            <time exact="{text.duration@3825,251501}+{text.duration@3820,201510}+{text.duration@3825,251502}+2s"/>
+                                          </timing>
+                                          <action>
+                                            <do_all>
+                                              <destroy_actor actor="L2M005.Takio"/>
+                                              <create_actor name="L2M005.Takio" character="{3895,25}" face="107" race="terran" voice="3825" object="L2M005.TakioShip"/>
+                                              <play_text priority="99">
+                                                <line actor="L2M005.Jackson" pageid="3820" textid="201511"/>
+                                                <line actor="L2M005.Takio" pageid="3825" textid="251503"/>
+                                                <line actor="L2M005.Jackson" pageid="3820" textid="201512"/>
+                                                <line actor="L2M005.Takio" pageid="3825" textid="251504"/>
+                                                <line actor="L2M005.Jackson" pageid="3820" textid="201513"/>
+                                                <line actor="L2M005.Takio" pageid="3825" textid="251505"/>
+                                                <line actor="L2M005.Jackson" pageid="3820" textid="201514"/>
+                                                <line actor="L2M005.Takio" pageid="3825" textid="251506"/>
+                                                <line actor="L2M005.Jackson" pageid="3820" textid="201515"/>
+                                              </play_text>
+                                              <set_value name="this.WaitTime Jackson" exact="{text.duration@3820,201511}+{text.duration@3820,201512}+{text.duration@3820,201513}+{text.duration@3820,201514}+{text.duration@3820,201515}"/>
+                                              <set_value name="this.WaitTime Takio" exact="{text.duration@3825,251503}+{text.duration@3825,251504}+{text.duration@3825,251505}+{text.duration@3825,251506}"/>
+                                              <set_value name="this.WaitTime" exact="{value@this.WaitTime Jackson}+{value@this.WaitTime Takio}"/>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M005 Takio Communication 3">
+                                              <condition>
+                                                <cue_completed cue="L2M005 Takio Communication 2"/>
+                                              </condition>
+                                              <timing>
+                                                <time exact="{value@L2M005 Takio Communication 2.WaitTime}+2s"/>
+                                              </timing>
+                                              <action>
+                                                <do_all>
+                                                  <set_value name="L2M005.Takio Contact" exact="1"/>
+                                                  <cancel_cue cue="L2M005 Enter Aldrin"/>
+                                                </do_all>
+                                              </action>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="L2M005 Aldrin Allies" delay="5s">
+          <condition>
+            <check_value value="{value@L2M005.Takio Contact}" exact="1"/>
+          </condition>
+          <timing>
+            <time exact="10s"/>
+          </timing>
+          <action>
+            <play_text actor="L2M005.Jackson" pageid="3820" textid="201516" priority="99"/>
+          </action>
+          <cues>
+            <cue name="L2M005 AGI Captured" instantiate="static">
+              <condition>
+                <check_any>
+                  <any_object_captured group="L2M005.Xenon"/>
+                  <any_object_captured group="L2M005.Terraformers"/>
+                </check_any>
+              </condition>
+              <action>
+                <do_all>
+                  <remove_object object="L2M005.Xenon {event.object}"/>
+                  <remove_object object="L2M005.Terraformers {event.object}"/>
+                </do_all>
+              </action>
+            </cue>
+            <cue name="L2M005 Aldrin Allies Wait">
+              <condition>
+                <cue_completed cue="L2M005 Aldrin Allies"/>
+              </condition>
+              <timing>
+                <time exact="15s"/>
+              </timing>
+              <action>
+                <do_all>
+                  <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,502}" text="{3201,515}" background="station_argon_space_fuel_distillery.tga">
+                    <mission discipline="XFXX" level="average"/>
+                    <objectives>
+                      <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                        <custom action="{35,2036}" text="{1000,124} {35,1102457}" object="L2M005.Aldrin Station" comment="Defend: Aldrin Stations"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,502}" text="{3201,515}" noabort="1">
+                    <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                    <mission discipline="XFXX" level="average"/>
+                    <custom action="{35,2036}" text="{1000,124} {35,1102457}" object="L2M005.Aldrin Station" comment="Defend: Aldrin Stations"/>
+                  </set_objective>
+                  <set_value name="L2M005.Step" operation="add"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M005 AGI Approach">
+                  <condition>
+                    <cue_completed cue="L2M005 Aldrin Allies Wait"/>
+                  </condition>
+                  <timing>
+                    <time min="45s" max="75s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <play_text actor="L2M005.Utashi" pageid="3817" textid="171503" priority="99"/>
+                      <create_ship group="L2M005.Xenon" leader="1" race="xenon" typename="SS_SH_X_M3P">
+                        <position object="L2M005.Aldrin Station" x="6km" y="5km" z="-2km"/>
+                        <sector sector="L2M005.Aldrin"/>
+                        <equipment loadout="default"/>
+                        <command command="attack" commandobject="L2M005.JacksonShip"/>
+                      </create_ship>
+                      <do_all exact="6">
+                        <create_ship group="L2M005.Xenon" race="xenon" typename="{random.type@SS_SH_X_M3|SS_SH_X_M4}">
+                          <position object="{group.leader@L2M005.Xenon}"/>
+                          <sector sector="L2M005.Aldrin"/>
+                          <equipment loadout="default"/>
+                          <command command="protect" commandobject="{group.leader@L2M005.Xenon}"/>
+                        </create_ship>
+                      </do_all>
+                      <create_ship group="L2M005.Terraformers" leader="1" race="enemy" typename="SS_SH_TERRAFORMER2">
+                        <position object="{group.leader@L2M005.Xenon}"/>
+                        <sector sector="L2M005.Aldrin"/>
+                        <equipment loadout="default"/>
+                        <command command="attack" commandobject="L2M005.JacksonShip"/>
+                      </create_ship>
+                      <do_all exact="6">
+                        <create_ship group="L2M005.Terraformers" race="enemy" typename="{random.type@SS_SH_TERRAFORMER3|SS_SH_TERRAFORMER4}">
+                          <position object="{group.leader@L2M005.Terraformers}"/>
+                          <sector sector="L2M005.Aldrin"/>
+                          <equipment loadout="default"/>
+                          <command command="protect" commandobject="{group.leader@L2M005.Terraformers}"/>
+                        </create_ship>
+                        <set_group_command group="L2M005.Wave2" command="killenemies"/>
+                        <set_group_command group="L2M005.Wave3" command="killenemies"/>
+                      </do_all>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M005 Start Xenon Attack">
+                      <condition>
+                        <check_any>
+                          <any_object_attacked group="L2M005.Xenon"/>
+                          <any_object_attacked_by_player group="L2M005.Xenon"/>
+                          <any_object_attacked group="L2M005.Terraformers"/>
+                          <any_object_attacked_by_player group="L2M005.Terraformers"/>
+                        </check_any>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_group_command group="L2M005.Xenon" command="killenemies"/>
+                          <set_group_command group="L2M005.Terraformers" command="killenemies"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M005 Move to CPU Ship">
+                          <timing>
+                            <time min="140s" max="160s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <play_text actor="L2M005.Jackson" pageid="3820" textid="201517" priority="99"/>
+                              <do_all exact="4">
+                                <create_ship group="L2M005.AldrinShips" capturable="0" race="terran" racelogic="0" typename="SS_SH_LOST_M3H">
+                                  <position object="L2M005.Aldrin Station"/>
+                                  <sector sector="L2M005.Aldrin"/>
+                                  <command command="protect" commandobject="L2M005.JacksonShip"/>
+                                </create_ship>
+                              </do_all>
+                              <do_all exact="4">
+                                <create_ship group="L2M005.AldrinShips" capturable="0" race="terran" racelogic="0" typename="SS_SH_LOST_M3H">
+                                  <position exact="10km"/>
+                                  <sector sector="L2M005.Aldrin"/>
+                                  <command command="protect" commandobject="L2M005.JacksonShip"/>
+                                </create_ship>
+                              </do_all>
+                              <create_ship name="L2M005.CPU" boardable="0" communicates="0" invincible="1" race="enemy" racelogic="0" typename="SS_SH_TERRAFORMER1">
+                                <position object="L2M005.Aldrin Station" x="49km" y="8km" z="-4km"/>
+                                <sector sector="L2M005.Aldrin"/>
+                                <equipment loadout="default"/>
+                              </create_ship>
+                              <set_group_command group="L2M005.Wave2" command="protect" commandobject="L2M005.JacksonShip"/>
+                              <set_group_command group="L2M005.Wave3" command="protect" commandobject="L2M005.JacksonShip"/>
+                              <set_command object="L2M005.TakioShip" command="protect" commandobject="L2M005.JacksonShip"/>
+                              <set_command object="L2M005.JacksonShip" command="moveposition">
+                                <position object="L2M005.CPU"/>
+                              </set_command>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M005 Boarding Crew Given">
+                              <condition>
+                                <cue_completed cue="L2M005 Move to CPU Ship"/>
+                              </condition>
+                              <timing>
+                                <time exact="{text.duration@3820,201517}+3s"/>
+                              </timing>
+                              <action>
+                                <do_all>
+                                  <play_text actor="L2M005.Jackson" pageid="3820" textid="201518" priority="99"/>
+                                  <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,503}" text="{3201,516}" background="station_argon_space_fuel_distillery.tga">
+                                    <mission discipline="XFXX" level="average"/>
+                                    <objectives>
+                                      <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                                        <protect object="L2M005.JacksonShip"/>
+                                      </objective>
+                                    </objectives>
+                                  </create_briefing>
+                                  <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,503}" text="{3201,516}" noabort="1">
+                                    <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                                    <mission discipline="XFXX" level="average"/>
+                                    <protect object="L2M005.JacksonShip"/>
+                                  </set_objective>
+                                  <set_value name="L2M005.Step" operation="add"/>
+                                  <set_object name="L2M005.Players TP" value="{group.strongest@L2M005.TPs}"/>
+                                  <set_owner object="L2M005.Players TP" race="player"/>
+                                  <set_invincible object="L2M005.Players TP" invincible="0"/>
+                                  <set_command object="L2M005.Players TP" command="follow" commandobject="{player.ship}"/>
+                                  <remove_object object="L2M005.TPs {object@L2M005.Players TP}"/>
+                                  <remove_object object="L2M005.Players TP"/>
+                                </do_all>
+                              </action>
+                              <cues>
+                                <cue name="L2M005 Found CPU Ship" delay="5s">
+                                  <condition>
+                                    <check_all>
+                                      <check_any>
+                                        <object_position object="L2M005.JacksonShip" max="10km">
+                                          <position object="L2M005.CPU"/>
+                                        </object_position>
+                                        <object_position max="10km">
+                                          <position object="L2M005.CPU"/>
+                                        </object_position>
+                                      </check_any>
+                                      <cue_is_complete cue="L2M005 Boarding Crew Given"/>
+                                    </check_all>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <play_text actor="L2M005.Jackson" pageid="3820" textid="201519" priority="99"/>
+                                      <set_boardable object="L2M005.CPU" boardable="1"/>
+                                      <set_group_command group="L2M005.Wave2" command="killenemies"/>
+                                      <set_group_command group="L2M005.Wave3" command="killenemies"/>
+                                      <set_group_command group="L2M005.TPs" command="follow" commandobject="L2M005.CPU"/>
+                                      <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" background="station_argon_space_fuel_distillery.tga">
+                                        <mission discipline="XXXT" level="easy"/>
+                                        <objectives>
+                                          <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                                            <custom action="{35,2010}" text="{35,2155}" object="{group.nearest@L2M005.TPs}"/>
+                                          </objective>
+                                        </objectives>
+                                      </create_briefing>
+                                      <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" noabort="1">
+                                        <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                                        <mission discipline="XXXT" level="easy"/>
+                                        <custom action="{35,2010}" text="{35,2155}" object="{group.nearest@L2M005.TPs}"/>
+                                      </set_objective>
+                                      <set_value name="L2M005.Step" operation="add"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M005 Jackson Boarding Reminder">
+                                      <condition>
+                                        <cue_completed cue="L2M005 Found CPU Ship"/>
+                                      </condition>
+                                      <timing>
+                                        <time min="40s" max="70s"/>
+                                      </timing>
+                                      <action>
+                                        <do_if value="{object.race@L2M005.CPU}" exact="{lookup.race@terran}" negate="1">
+                                          <play_text actor="L2M005.Jackson" pageid="3820" textid="201520" priority="99"/>
+                                        </do_if>
+                                      </action>
+                                    </cue>
+                                    <cue name="L2M005 Terrans Boarding" delay="5s">
+                                      <condition>
+                                        <check_all>
+                                          <any_object_position group="L2M005.TPs" max="4km">
+                                            <position object="L2M005.CPU"/>
+                                          </any_object_position>
+                                          <check_value value="{object.boarding@L2M005.CPU}" exact="0"/>
+                                        </check_all>
+                                      </condition>
+                                      <action>
+                                        <do_all>
+                                          <set_owner object="L2M005.CPU" race="terran"/>
+                                          <set_relation object="L2M005.CPU">
+                                            <relation object="{player.ship}" relation="neutral"/>
+                                          </set_relation>
+                                        </do_all>
+                                      </action>
+                                    </cue>
+                                    <cue name="L2M005 CPU Boarded" delay="1s">
+                                      <condition>
+                                        <check_value value="{object.race@L2M005.CPU}" exact="{lookup.race@player}"/>
+                                      </condition>
+                                      <action>
+                                        <set_owner object="L2M005.CPU" race="terran"/>
+                                      </action>
+                                    </cue>
+                                    <cue name="L2M005 CPU Terran" delay="5s">
+                                      <condition>
+                                        <check_value value="{object.race@L2M005.CPU}" exact="{lookup.race@terran}"/>
+                                      </condition>
+                                      <timing>
+                                        <time exact="3s"/>
+                                      </timing>
+                                      <action>
+                                        <do_all>
+                                          <set_relation object="L2M005.CPU">
+                                            <relation object="{player.ship}" relation="neutral" mutual="1"/>
+                                          </set_relation>
+                                          <cancel_cue cue="L2M005 Jackson Boarding Reminder"/>
+                                          <cancel_cue cue="L2M005 Terrans Boarding"/>
+                                          <cancel_cue cue="L2M005 CPU Boarded"/>
+                                          <set_boardable object="L2M005.CPU" boardable="0"/>
+                                          <set_command object="L2M005.CPU" command="killenemies"/>
+                                          <set_group_owner group="L2M005.Terraformers" race="terran"/>
+                                          <set_group_command group="L2M005.Terraformers" command="protect" commandobject="L2M005.CPU"/>
+                                          <set_group_homebase group="L2M005.Terraformers" homebase="L2M005.CPU"/>
+                                          <create_actor name="L2M005.Ban Marine" character="{3895,26}" face="1139" race="terran" voice="3826"/>
+                                          <play_text actor="L2M005.Ban Marine" pageid="3826" textid="261501" priority="99"/>
+                                        </do_all>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M005 Create Winters">
+                                          <condition>
+                                            <cue_completed cue="L2M005 CPU Terran"/>
+                                          </condition>
+                                          <timing>
+                                            <time exact="{text.duration@3826,261501}"/>
+                                          </timing>
+                                          <action>
+                                            <do_all>
+                                              <play_text actor="L2M005.Jackson" pageid="3820" textid="201521" priority="99"/>
+                                              <create_ship name="L2M005.WintersShip" capturable="0" communicates="0" invincible="1" race="terran" racelogic="0" typename="SS_SH_A_M3">
+                                                <position object="L2M005.CPU"/>
+                                                <sector sector="L2M005.Aldrin"/>
+                                                <equipment loadout="default"/>
+                                                <command command="idle"/>
+                                                <pilot name="{3895,42}"/>
+                                              </create_ship>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M005 Winters Jumps">
+                                              <condition>
+                                                <cue_completed cue="L2M005 Create Winters"/>
+                                              </condition>
+                                              <timing>
+                                                <time exact="{text.duration@3820,201521}+5s"/>
+                                              </timing>
+                                              <action>
+                                                <destroy_object object="L2M005.WintersShip" warp="1"/>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M005 Clear Xenon">
+                                                  <condition>
+                                                    <cue_completed cue="L2M005 Winters Jumps"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="3s"/>
+                                                  </timing>
+                                                  <action>
+                                                    <do_all>
+                                                      <play_text actor="L2M005.Jackson" pageid="3820" textid="201522" priority="99"/>
+                                                      <cancel_cue cue="L2M005 Remove Aldrin Terraformers"/>
+                                                      <do_all exact="6">
+                                                        <create_ship group="L2M005.Xenon" race="xenon" warp="1" typename="{random.type@SS_SH_X_M3|SS_SH_X_M4}">
+                                                          <position max="6km"/>
+                                                          <sector sector="L2M005.Aldrin"/>
+                                                          <equipment loadout="default"/>
+                                                          <command command="killenemies"/>
+                                                        </create_ship>
+                                                      </do_all>
+                                                      <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" background="station_argon_space_fuel_distillery.tga">
+                                                        <mission discipline="XFXX" level="average"/>
+                                                        <objectives>
+                                                          <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                            <custom action="{35,2004}" text="{1000,106} {35,2110}" object="{group.nearest@L2M005.Xenon}"/>
+                                                          </objective>
+                                                        </objectives>
+                                                      </create_briefing>
+                                                      <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" noabort="1">
+                                                        <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                                                        <mission discipline="XFXX" level="average"/>
+                                                        <custom action="{35,2004}" text="{1000,106} {35,2110}" object="{group.nearest@L2M005.Xenon}"/>
+                                                      </set_objective>
+                                                      <set_value name="L2M005.Step" operation="add"/>
+                                                    </do_all>
+                                                  </action>
+                                                  <cues>
+                                                    <cue name="L2M005 Xenon Destroyed" delay="5s">
+                                                      <condition>
+                                                        <count_ships race="xenon" exact="0">
+                                                          <position object="L2M005.CPU"/>
+                                                          <distance max="15km"/>
+                                                        </count_ships>
+                                                      </condition>
+                                                      <action>
+                                                        <play_text actor="L2M005.Takio" pageid="3825" textid="251507" priority="99"/>
+                                                      </action>
+                                                      <cues>
+                                                        <cue name="L2M005 Xenon Destroyed Wait">
+                                                          <condition>
+                                                            <cue_completed cue="L2M005 Xenon Destroyed"/>
+                                                          </condition>
+                                                          <timing>
+                                                            <time exact="{text.duration@3825,251507}+2s"/>
+                                                          </timing>
+                                                          <action>
+                                                            <play_text actor="L2M005.Jackson" pageid="3820" textid="201523" priority="99"/>
+                                                          </action>
+                                                          <cues>
+                                                            <cue name="L2M005 Transport Takio">
+                                                              <condition>
+                                                                <cue_completed cue="L2M005 Xenon Destroyed Wait"/>
+                                                              </condition>
+                                                              <timing>
+                                                                <time exact="{text.duration@3820,201523}+2s"/>
+                                                              </timing>
+                                                              <action>
+                                                                <play_text actor="L2M005.Takio" pageid="3825" textid="251508" priority="99"/>
+                                                              </action>
+                                                              <cues>
+                                                                <cue name="L2M005 Transport Takio Wait">
+                                                                  <condition>
+                                                                    <cue_completed cue="L2M005 Transport Takio"/>
+                                                                  </condition>
+                                                                  <timing>
+                                                                    <time exact="{text.duration@3825,251508}"/>
+                                                                  </timing>
+                                                                  <action>
+                                                                    <do_all>
+                                                                      <create_briefing cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,503}" text="{3201,517}" background="station_argon_space_fuel_distillery.tga">
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <objectives>
+                                                                          <objective step="{value@L2M005.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                                            <custom action="{35,2043}" text="{3201,540}" object="L2M005.Aldrin Station"/>
+                                                                          </objective>
+                                                                        </objectives>
+                                                                      </create_briefing>
+                                                                      <set_objective cue="L2M005" story="{3200,1}" chapter="{3200,105}" title="{3201,503}" text="{3201,517}" noabort="1">
+                                                                        <briefing cue="L2M005" step="{value@L2M005.Step}"/>
+                                                                        <mission discipline="XXXT" level="easy"/>
+                                                                        <custom action="{35,2043}" text="{3201,540}" object="L2M005.Aldrin Station"/>
+                                                                      </set_objective>
+                                                                      <set_value name="L2M005.Step" operation="add"/>
+                                                                      <set_value name="L2M005.PassengerCount" exact="3"/>
+                                                                      <set_value name="L2M005.NeededSpace" exact="({value@L2M005.PassengerCount}+1)*{lookup.type.cargospace@SS_WARE_PASSENGER}"/>
+                                                                    </do_all>
+                                                                  </action>
+                                                                  <cues>
+                                                                    <cue name="L2M005 Cant Pickup Passengers" delay="3s">
+                                                                      <condition>
+                                                                        <check_all>
+                                                                          <object_is_docked dockobject="L2M005.Aldrin Station"/>
+                                                                          <check_any>
+                                                                            <check_value value="{player.ship.cargospace}" max="{value@L2M005.NeededSpace}-1" negate="1"/>
+                                                                            <check_value value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="1" negate="1"/>
+                                                                          </check_any>
+                                                                        </check_all>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <show_help text="{3201,542}"/>
+                                                                      </action>
+                                                                    </cue>
+                                                                    <cue name="L2M005 Pickup Passengers" delay="3s">
+                                                                      <condition>
+                                                                        <check_all>
+                                                                          <object_is_docked dockobject="L2M005.Aldrin Station"/>
+                                                                          <check_value value="{player.ship.cargospace}" min="{value@L2M005.NeededSpace}"/>
+                                                                          <check_value value="{player.ship.equipment.SS_WARE_LIFESUPPORT.exists}" exact="1"/>
+                                                                        </check_all>
+                                                                      </condition>
+                                                                      <action>
+                                                                        <do_all>
+                                                                          <cancel_cue cue="L2M005 Cant Pickup Passengers"/>
+                                                                          <set_invincible object="L2M005.Aldrin Station" invincible="0"/>
+                                                                          <do_all exact="{value@L2M005.PassengerCount}">
+                                                                            <create_actor race="terran" name="L2M005.Temp Actor" object="{player.ship}" location="passenger"/>
+                                                                            <set_object name="L2M005.Passengers {actor@L2M005.Temp Actor}" group="L2M005.Passengers" value="{actor@L2M005.Temp Actor}"/>
+                                                                          </do_all>
+                                                                          <destroy_actor actor="L2M005.Takio"/>
+                                                                          <create_actor name="L2M005.Takio" character="{3895,25}" face="107" race="terran" voice="3925" object="{player.ship}" location="passenger"/>
+                                                                          <set_object name="L2M005.Passengers {actor@L2M005.Takio}" group="L2M005.Passengers" value="{actor@L2M005.Takio}"/>
+                                                                          <do_if value="{player.notoriety.atf}" max="{lookup.notoriety@notop7}-1">
+                                                                            <reward_player>
+                                                                              <notoriety>
+                                                                                <relation race="atf" operation="set" exact="{lookup.notoriety@notop7}"/>
+                                                                              </notoriety>
+                                                                            </reward_player>
+                                                                            <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop7}"/>
+                                                                          </do_if>
+                                                                        </do_all>
+                                                                      </action>
+                                                                      <cues>
+                                                                        <cue ref="L0M30">
+                                                                          <params>
+                                                                            <param name="Cue" value="L2M005" comment="The cue where values will be localized"/>
+                                                                            <param name="Step" value="L2M005.Step" comment="The initial objective step"/>
+                                                                            <param name="ActiveSteps" value="L2M005.Active Step" comment="Value name to save the current number of active steps"/>
+                                                                            <param name="PageID" value="3201" comment="The PageID of the text"/>
+                                                                            <param name="TextID MultiPassengers" value="540" comment="The text ID for the multiple passengers objective"/>
+                                                                            <param name="TextID SinglePassenger" value="541" comment="The text ID for a single passenger objective"/>
+                                                                            <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                                                                            <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                                                                            <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                                                            <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                                                            <param name="DestName" value="L2M005.Torus" comment="The Address of the destination. Overrides all other criteria."/>
+                                                                            <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                                                                            <!--reward parameters (in priority order)-->
+                                                                            <param name="PassengersName" value="L2M005.Passengers" comment="The Address of the Passenger Object Group"/>
+                                                                            <param name="InitPassengerCnt" value="{group.object.count@L2M005.Passengers}" comment="The initial number of passengers at the start of the mission"/>
+                                                                            <param name="FeedbackName" value="L2M005.L0M30 Feedback" comment="The address where the step value is stored"/>
+                                                                            <param name="EndPassengers" value="L2M005.End Passengers"/>
+                                                                          </params>
+                                                                        </cue>
+                                                                        <cue name="L2M005 Takio Mars Line" delay="6s">
+                                                                          <condition>
+                                                                            <check_all>
+                                                                              <check_value value="{player.sector}" exact="{sector@L2M005.Mars}"/>
+                                                                              <check_value value="{actor.ship@L2M005.Takio}" exact="{player.ship}"/>
+                                                                            </check_all>
+                                                                          </condition>
+                                                                          <timing>
+                                                                            <time exact="6s"/>
+                                                                          </timing>
+                                                                          <action>
+                                                                            <play_text actor="L2M005.Takio" pageid="3925" textid="251510" priority="99"/>
+                                                                          </action>
+                                                                        </cue>
+                                                                        <cue name="L2M005 Takio Venus Line" delay="6s">
+                                                                          <condition>
+                                                                            <check_all>
+                                                                              <check_value value="{player.sector}" exact="{sector@L2M005.Venus}"/>
+                                                                              <check_value value="{actor.ship@L2M005.Takio}" exact="{player.ship}"/>
+                                                                            </check_all>
+                                                                          </condition>
+                                                                          <timing>
+                                                                            <time exact="6s"/>
+                                                                          </timing>
+                                                                          <action>
+                                                                            <play_text actor="L2M005.Takio" pageid="3925" textid="251511" priority="99"/>
+                                                                          </action>
+                                                                        </cue>
+                                                                        <cue name="L2M005 Takio Moon Line" delay="6s">
+                                                                          <condition>
+                                                                            <check_all>
+                                                                              <check_value value="{player.sector}" exact="{sector@L2M005.Moon}"/>
+                                                                              <check_value value="{actor.ship@L2M005.Takio}" exact="{player.ship}"/>
+                                                                            </check_all>
+                                                                          </condition>
+                                                                          <timing>
+                                                                            <time exact="6s"/>
+                                                                          </timing>
+                                                                          <action>
+                                                                            <play_text actor="L2M005.Takio" pageid="3925" textid="251512" priority="99"/>
+                                                                          </action>
+                                                                        </cue>
+                                                                        <cue name="L2M005 Welcome to Earth">
+                                                                          <condition>
+                                                                            <check_value value="{player.sector}" exact="{sector@L2M005.Earth}"/>
+                                                                          </condition>
+                                                                          <timing>
+                                                                            <time exact="10s"/>
+                                                                          </timing>
+                                                                          <action>
+                                                                            <play_movie movieid="8120"/>
+                                                                          </action>
+                                                                          <cues>
+                                                                            <cue name="L2M005 Welcome to Earth Wait">
+                                                                              <condition>
+                                                                                <cue_completed cue="L2M005 Welcome to Earth"/>
+                                                                              </condition>
+                                                                              <action>
+                                                                                <play_text actor="L2M005.Ishiyama" pageid="3819" textid="191503" priority="99"/>
+                                                                              </action>
+                                                                            </cue>
+                                                                          </cues>
+                                                                        </cue>
+                                                                        <cue name="L2M005 Scene 5 End" delay="3s">
+                                                                          <condition>
+                                                                            <check_value value="{value@L2M005.L0M30 Feedback}" exact="0" negate="1"/>
+                                                                          </condition>
+                                                                          <timing>
+                                                                            <time exact="10s"/>
+                                                                          </timing>
+                                                                          <action>
+                                                                            <do_all>
+                                                                              <destroy_actor actor="L2M005.Ishiyama"/>
+                                                                              <create_actor name="L2M005.Ishiyama" character="{3895,19}" face="1135" voice="3919" race="terran" object="L2M005.Torus" location="crew"/>
+                                                                              <play_text actor="L2M005.Ishiyama" textid="191504" priority="99"/>
+                                                                              <create_ship typename="SS_SH_USC_M8" dockobject="L2M005.Torus" race="player">
+                                                                                <equipment loadout="maximum"/>
+                                                                              </create_ship>
+                                                                              <destroy_group group="L2M005.Passengers"/>
+                                                                              <destroy_actor actor="L2M005.Ishiyama"/>
+                                                                              <remove_briefing cue="L2M005"/>
+                                                                              <remove_objective cue="L2M005" status="complete"/>
+                                                                              <set_invincible object="L2M005.MarsShipyard" invincible="0"/>
+                                                                              <set_value name="Terran Plot Complete" exact="1"/>
+                                                                              <enable_gamestart requirements="2"/>
+                                                                              <cancel_cue cue="L2M005"/>
+                                                                            </do_all>
+                                                                          </action>
+                                                                        </cue>
+                                                                      </cues>
+                                                                    </cue>
+                                                                  </cues>
+                                                                </cue>
+                                                              </cues>
+                                                            </cue>
+                                                          </cues>
+                                                        </cue>
+                                                      </cues>
+                                                    </cue>
+                                                  </cues>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>u+9LLQ9Gg1ab/tIX2nmECTOn+XB7y0zGDCwTyeuWhgohOsdUNnKDu+Ma1Y90xAHx4bKvG7iclUV3V6ci3YCKqvdEHnpJbvBhh8h+nWVTrxAjEPaSWBrY+UFlV+PArxHQaUPWf3cHYnNg+VP85753XAOiIFI+jFWuZRD3d86onPW1aYmnkxAz2QdTT1qgrde/82LO8bztGo8KxotervRi3XaETg+yMgVXelSimIHYKCcyZNlGxfc3tJazcgh64mqQGWe0i4Kxai7uzmmdzLoZ/RVbR225lKfg6lcwtYhqA8xdPcqKUvEagVPYziVNmI7cSBQV/ZdyhwnK697GgE1wkQ==</signature>
+</director>

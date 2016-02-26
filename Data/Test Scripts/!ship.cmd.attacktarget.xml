@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes" ?>
+<?xml-stylesheet href="x2script.xsl" type="text/xsl" ?>
+<script>
+<name>!ship.cmd.attacktarget.pl</name>
+<version>1</version>
+<engineversion>22</engineversion>
+<description>Ship Standard COMMAND ATTACK TARGET</description>
+<arguments>
+</arguments>
+<sourcetext>
+<line linenr="001" indent=""><var>[THIS]&#160;-&gt;</var><text>&#160;set&#160;command:&#160;</text><var>COMMAND_ATTACK_TARGET</var><text>&#160;&#160;target=</text><var>[PLAYERSHIP]</var><text>&#160;target2=</text><var>null</var><text>&#160;par1=</text><var>null</var><text>&#160;par2=</text><var>null</var></line>
+<line linenr="002" indent=""></line>
+<line linenr="003" interruptable="@" indent=""><var>=&#160;</var><var>[THIS]&#160;-&gt;</var><text>&#160;call&#160;script&#160;</text><call>!move.follow.template</call><text>&#160;:&#160;</text><text>&#160;target&#160;ship=</text><var>[PLAYERSHIP]</var><text>&#160;</text><text>&#160;protect&#160;the&#160;ship=</text><var>[TRUE]</var><text>&#160;</text><text>&#160;attack&#160;same&#160;target=</text><var>[TRUE]</var><text>&#160;</text><text>&#160;attack&#160;nearest&#160;enemy=</text><var>null</var><text>&#160;</text><text>&#160;stop&#160;if&#160;leader&#160;is&#160;docked&#160;at&#160;same=</text><var>null</var></line>
+<line linenr="004" indent=""><text>return&#160;</text><var>null</var></line>
+</sourcetext>
+<codearray>
+<sval type="array" size="10"><sval type="string" val="!ship.cmd.attacktarget.pl" /><sval type="int" val="22" /><sval type="string" val="Ship Standard COMMAND ATTACK TARGET" /><sval type="int" val="1" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="array" size="3"><sval type="array" size="13"><sval type="int" val="538" /><sval type="int" val="131075" /><sval type="int" val="65536" /><sval type="int" val="18" /><sval type="int" val="3" /><sval type="int" val="131075" /><sval type="int" val="65539" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /></sval><sval type="array" size="16"><sval type="int" val="102" /><sval type="string" val="!move.follow.template" /><sval type="int" val="-2147483647" /><sval type="int" val="131075" /><sval type="int" val="65536" /><sval type="int" val="5" /><sval type="int" val="131075" /><sval type="int" val="65539" /><sval type="int" val="131075" /><sval type="int" val="10" /><sval type="int" val="131075" /><sval type="int" val="10" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /><sval type="int" val="0" /></sval><sval type="array" size="3"><sval type="int" val="103" /><sval type="int" val="0" /><sval type="int" val="0" /></sval></sval><sval type="int" val="0" /><sval type="array" size="1"><sval type="array" size="2"><sval type="int" val="1" /><sval type="int" val="2" /></sval></sval><sval type="int" val="3" /></sval>
+</codearray>
+</script>

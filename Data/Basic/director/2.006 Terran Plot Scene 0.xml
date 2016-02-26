@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M006" name="Terran Link Mission" description="L2 Terran Plot Scene 0, Link Mission"/>
+    <version number="0.1" date="19/06/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M006" library="1" check="cancel">
+      <documentation>
+        <content name="Terran Link Mission" reference="L2M006" type="L2"/>
+        <version date="19/06/2008" number="0.1" status="release"/>
+      </documentation>
+      <condition>
+        <count_stations race="argon" dockingallowed="1" min="1">
+          <sector x="13" y="6"/>
+        </count_stations>
+      </condition>
+      <action>
+        <do_all>
+          <set_value name="L3M02.Reset Link" exact="0"/>
+          <find_sector name="L2M006.Omicron" x="13" y="6" exact="0"/>
+          <find_sector name="L2M006.Labour" x="13" y="5" exact="0"/>
+          <find_sector name="L2M006.HE" x="13" y="4" exact="0"/>
+          <find_station name="L2M006.Omicron Station" category="dock" race="argon" dockingallowed="1">
+            <sector sector="L2M006.Omicron"/>
+          </find_station>
+          <do_if value="{object.exists@L2M006.Omicron Station}" exact="0">
+            <find_station name="L2M006.Omicron Station" race="argon" dockingallowed="1">
+              <sector sector="L2M006.Omicron"/>
+            </find_station>
+          </do_if>
+          <set_invincible object="L2M006.Omicron Station" invincible="1"/>
+          <find_station class="dock" name="L2M006.HE Station" race="terrangroup">
+            <sector sector="L2M006.HE"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@L2M006.HE Station}" exact="0">
+              <create_station name="L2M006.HE Station" race="terran" typename="SS_DOCK_TR_MILITARY_3" invincible="1">
+                <position x="2km"/>
+                <sector sector="L2M006.HE"/>
+                <equipment loadout="default"/>
+              </create_station>
+            </do_when>
+            <do_otherwise>
+              <set_invincible object="L2M006.HE Station" invincible="1"/>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{object.exists@L2M006.HE Station}" exact="1">
+            <do_if value="{object.exists@L2M006.Omicron Station}" exact="1">
+              <set_value name="L2M006.Offer" exact="1"/>
+            </do_if>
+          </do_if>
+          <do_if value="{value@L2M006.Offer}" exact="0">
+            <set_invincible object="L2M006.Omicron Station" invincible="0"/>
+            <set_invincible object="L2M006.HE Station" invincible="0"/>
+            <set_value name="L3M02.Reset Link" exact="1"/>
+            <cancel_cue cue="L2M006"/>
+          </do_if>
+          <set_value name="L2M006.Timeout" min="{player.age}+800" max="{player.age}+900"/>
+          <set_value name="L2M006.Reward" exact="5000"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M006 Offer" delay="2s">
+          <condition>
+            <check_all>
+              <cue_is_complete cue="L2M006"/>
+              <check_value value="{value@L2M006.Offer}" exact="1"/>
+              <check_any>
+                <object_exists object="TutorialShip" negate="1"/>
+                <check_value value="{player.target}" exact="{object@TutorialShip}" negate="1"/>
+              </check_any>
+              <check_value value="{player.menu.dialog}" exact="0"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <create_actor name="L2M006.Darel" character="{3895,12}" object="L2M006.Omicron Station" location="crew" voice="3812" race="argon" face="102"/>
+              <create_offer actor="L2M006.Darel" conversation="L2M006 No1" discipline="XXXXP"/>
+              <play_text actor="L2M006.Darel" pageid="3812" textid="121001" priority="99"/>
+              <set_value name="L2M006.Step" exact="1"/>
+              <create_briefing cue="L2M006" title="{3201,601}" text="{3201,602}" background="station_argon_space_fuel_distillery.tga">
+                <mission discipline="XXXT" level="easy"/>
+                <reward money="{value@L2M006.Reward}"/>
+                <objectives>
+                  <objective step="{value@L2M006.Step}" background="station_argon_space_fuel_distillery.tga">
+                    <talkto actor="L2M006.Darel"/>
+                  </objective>
+                  <objective step="{value@L2M006.Step}+1">
+                    <custom action="{35,2027}" text="{1266,18} {2006,2004}"/>
+                  </objective>
+                </objectives>
+              </create_briefing>
+              <set_objective cue="L2M006" title="{3201,601}" text="{3201,602}" noabort="1">
+                <briefing cue="L2M006" step="{value@L2M006.Step}"/>
+                <mission discipline="XXXT" level="easy"/>
+                <talkto actor="L2M006.Darel"/>
+              </set_objective>
+              <set_value name="L2M006.Step" operation="add"/>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M006 LMB Gametip">
+              <condition>
+                <cue_completed cue="L2M006 Offer"/>
+              </condition>
+              <timing>
+                <time exact="{text.duration@3812,121001}+1s"/>
+              </timing>
+              <action>
+                <show_help textid="20"/>
+              </action>
+            </cue>
+            <cue name="L2M006 Accepted">
+              <condition>
+                <conversation_completed actor="L2M006.Darel" conversation="L2M006 No1" answer="ready"/>
+              </condition>
+              <action>
+                <do_all>
+                  <remove_offer actor="L2M006.Darel" conversation="L2M006 No1" discipline="XXXXP"/>
+                  <create_ship name="L2M006.GelletShip" group="L2M006.TerranEscort" dockobject="L2M006.Omicron Station" capturable="0" invincible="1" leader="1" race="argon" racelogic="0" typename="SS_SH_A_M3P">
+                    <equipment loadout="maximum">
+                      <ware typename="SS_WARE_TECH213" exact="10"/>
+                    </equipment>
+                    <command command="idle"/>
+                  </create_ship>
+                  <create_actor name="L2M006.Gellet" character="{3895,13}" face="103" object="L2M006.GelletShip" location="pilot" race="argon" voice="111"/>
+                  <do_all exact="2">
+                    <create_ship group="L2M006.TerranEscort" dockobject="L2M006.Omicron Station" capturable="0" invincible="1" race="argon" racelogic="0" typename="{random.type@SS_SH_A_M4|SS_SH_A_M4_1|SS_SH_A_M4_2}">
+                      <equipment loadout="maximum">
+                        <ware typename="SS_WARE_TECH213" exact="3"/>
+                      </equipment>
+                      <command command="protect" commandobject="L2M006.GelletShip"/>
+                    </create_ship>
+                  </do_all>
+                  <create_ship name="L2M006.IovisShip" group="L2M006.Terran" capturable="0" invincible="1" race="terran" racelogic="0" typename="SS_SH_USC_TP">
+                    <position object="L2M006.GelletShip" exact="15km"/>
+                    <sector sector="L2M006.Omicron"/>
+                    <equipment loadout="maximum" loadoutmask="shields|lasers">
+                      <ware typename="SS_WARE_LIFESUPPORT" exact="1"/>
+                      <ware typename="SS_WARE_TECH213" exact="5"/>
+                      <ware typename="SS_WARE_TECH251" exact="20"/>
+                    </equipment>
+                    <command command="follow" commandobject="L2M006.GelletShip"/>
+                    <relations>
+                      <relation object="L2M006.GelletShip" relation="friend" mutual="1"/>
+                    </relations>
+                  </create_ship>
+                  <create_actor name="L2M006.Iovis" character="{3895,14}" face="1140" object="L2M006.IovisShip" location="pilot" race="terran" voice="113"/>
+                  <do_all exact="3">
+                    <create_actor object="L2M006.IovisShip" location="passenger" race="terran"/>
+                  </do_all>
+                  <create_briefing cue="L2M006" title="{3201,603}" text="{3201,604}" background="station_argon_space_fuel_distillery.tga">
+                    <mission discipline="XFXX" level="easy"/>
+                    <objectives>
+                      <objective step="{value@L2M006.Step}" background="station_argon_space_fuel_distillery.tga">
+                        <follow object="L2M006.GelletShip"/>
+                      </objective>
+                    </objectives>
+                  </create_briefing>
+                  <set_objective cue="L2M006" title="{3201,603}" text="{3201,604}" noabort="1">
+                    <briefing cue="L2M006" step="{value@L2M006.Step}"/>
+                    <mission discipline="XFXX" level="easy"/>
+                    <follow object="L2M006.GelletShip"/>
+                  </set_objective>
+                  <set_value name="L2M006.Step" operation="add"/>
+                  <set_value name="L2M006.Move Delay" exact="{player.age}+60"/>
+                  <set_value name="L2M006.Timeout" min="{player.age}+800" max="{player.age}+900"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M006 Save Gametip">
+                  <timing>
+                    <time exact="25s"/>
+                  </timing>
+                  <action>
+                    <show_help textid="14"/>
+                  </action>
+                </cue>
+                <cue name="L2M006 Stop Gellet Idle" delay="1s">
+                  <condition>
+                    <cue_is_complete cue="L2M006 Accepted"/>
+                  </condition>
+                  <timing>
+                    <time exact="50s"/>
+                  </timing>
+                  <action>
+                    <set_command object="L2M006.GelletShip" command="stay"/>
+                  </action>
+                  <cues>
+                    <cue name="L2M006 Restart Gellet Idle">
+                      <condition>
+                        <cue_completed cue="L2M006 Stop Gellet Idle"/>
+                      </condition>
+                      <timing>
+                        <time exact="50s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <set_command object="L2M006.GelletShip" command="idle"/>
+                          <reset_cue cue="L2M006 Stop Gellet Idle"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M006 Form Up" delay="5s">
+                  <condition>
+                    <check_all>
+                      <object_position max="3km">
+                        <position object="L2M006.GelletShip"/>
+                      </object_position>
+                      <check_age min="{value@L2M006.Move Delay}"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M006 Timeout"/>
+                      <play_text actor="L2M006.Gellet" pageid="111" textid="131001" priority="99"/>
+                      <cancel_cue cue="L2M006 Stop Gellet Idle"/>
+                      <set_value name="this.LineDuraton" exact="{player.age}+{text.duration.s@111,131001}"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="L2M006 Load Guidance" delay="5s">
+                      <condition>
+                        <check_all>
+                          <object_position max="4km">
+                            <position object="L2M006.GelletShip"/>
+                          </object_position>
+                          <object_position object="L2M006.IovisShip" max="5km">
+                            <position object="L2M006.GelletShip"/>
+                          </object_position>
+                          <cue_is_complete cue="L2M006 Form Up"/>
+                          <check_age min="{value@L2M006 Form Up.LineDuraton}+1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <play_text actor="L2M006.Gellet" pageid="111" textid="131002"/>
+                          <create_briefing cue="L2M006" background="station_argon_space_fuel_distillery.tga">
+                            <mission discipline="XFXX" level="average"/>
+                            <objectives>
+                              <objective step="{value@L2M006.Step}" background="station_argon_space_fuel_distillery.tga">
+                                <protect object="L2M006.IovisShip"/>
+                              </objective>
+                            </objectives>
+                          </create_briefing>
+                          <set_objective cue="L2M006" title="{3201,601}" text="{3201,602}" noabort="1">
+                            <briefing cue="L2M006" step="{value@L2M006.Step}"/>
+                            <mission discipline="XFXX" level="average"/>
+                            <protect object="L2M006.IovisShip"/>
+                          </set_objective>
+                          <set_value name="L2M006.Step" operation="add"/>
+                        </do_all>
+                      </action>
+                      <cues>
+                        <cue name="L2M006 Start Escort">
+                          <condition>
+                            <cue_completed cue="L2M006 Load Guidance"/>
+                          </condition>
+                          <timing>
+                            <time exact="{text.duration@111,131002}+2s"/>
+                          </timing>
+                          <action>
+                            <do_all>
+                              <play_text>
+                                <line actor="L2M006.Iovis" pageid="113" textid="141001"/>
+                                <line actor="L2M006.Gellet" pageid="111" textid="131003"/>
+                                <line actor="L2M006.Iovis" pageid="113" textid="141002"/>
+                                <line actor="L2M006.Gellet" pageid="111" textid="131004"/>
+                              </play_text>
+                              <set_group_command group="L2M006.TerranEscort" command="protect" commandobject="L2M006.IovisShip"/>
+                              <set_command object="L2M006.IovisShip" command="dock" commandobject="L2M006.HE Station"/>
+                              <set_sector name="L2M006.DestSector" value="{sector@L2M006.HE}"/>
+                              <reward_player>
+                                <notoriety>
+                                  <relation race="atf" operation="set" exact="{lookup.notoriety@notop1}"/>
+                                </notoriety>
+                              </reward_player>
+                              <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop1}"/>
+                            </do_all>
+                          </action>
+                          <cues>
+                            <cue name="L2M006 Start Escort Wait">
+                              <condition>
+                                <cue_completed cue="L2M006 Start Escort"/>
+                              </condition>
+                              <cues>
+                                <cue ref="L0M19">
+                                  <params>
+                                    <param name="Cue" value="L2M006" comment="The cue where the briefing will be localised"/>
+                                    <param name="Step" value="L2M006.Step" comment="The initial objective step"/>
+                                    <param name="DestName" value="L2M006.HE Station" comment="The Address of the destination"/>
+                                    <param name="DestSector" value="L2M006.DestSector" comment="The Address of the destination sector"/>
+                                    <param name="GroupName" value="L2M006.Terran" comment="The Address of the Convoy Group"/>
+                                    <param name="FeedbackName" value="L2M006.L0M19 Feedback"/>
+                                    <param name="AllowLoss" value="1" comment="0/1: Can the mission continue after a ship has been destroyed"/>
+                                    <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                                    <param name="UnhighlightAtDock" value="1" comment="0/1: Unhightlight the ships when they dock"/>
+                                    <param name="Difficulty" value="{lookup.level@average}" comment="The value address for the difficulty"/>
+                                    <param name="IsPlot" value="1" comment="Is this a plot mission"/>
+                                    <param name="OBS" value="0" comment="Activate the OBS"/>
+                                  </params>
+                                </cue>
+                                <cue name="L2M006 Xenon Report" delay="10s">
+                                  <condition>
+                                    <check_all>
+                                      <check_value value="{object.sector@L2M006.IovisShip}" exact="{sector@L2M006.Labour}"/>
+                                      <check_value value="{player.sector}" exact="{sector@L2M006.Labour}"/>
+                                    </check_all>
+                                  </condition>
+                                  <timing>
+                                    <time exact="20s"/>
+                                  </timing>
+                                  <action>
+                                    <do_all>
+                                      <play_text>
+                                        <line actor="L2M006.Gellet" pageid="111" textid="131005"/>
+                                        <line actor="L2M006.Iovis" pageid="113" textid="141003"/>
+                                        <line actor="L2M006.Gellet" pageid="111" textid="131006"/>
+                                      </play_text>
+                                      <set_value name="L2M006.CoL Attack Delay" exact="{player.age}+{text.duration.s@111,131005}+{text.duration.s@113,141003}+{text.duration.s@111,131006}+20"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M006 CoL Attack" delay="5s">
+                                      <condition>
+                                        <check_all>
+                                          <cue_is_complete cue="L2M006 Xenon Report"/>
+                                          <check_age min="{value@L2M006.CoL Attack Delay}"/>
+                                          <check_value value="{object.sector@L2M006.IovisShip}" exact="{sector@L2M006.Labour}"/>
+                                        </check_all>
+                                      </condition>
+                                      <action>
+                                        <do_all>
+                                          <create_ship race="pirate" covered="0" typename="SS_SH_A_M4_P">
+                                            <position exact="6km"/>
+                                            <equipment loadout="minimum" loadoutmask="shields|lasers|equipment"/>
+                                            <command command="attack" commandobject="L2M006.IovisShip"/>
+                                          </create_ship>
+                                          <create_ship race="pirate" covered="0" typename="SS_SH_T_M5_P">
+                                            <position exact="6km"/>
+                                            <equipment loadout="minimum" loadoutmask="shields|lasers|equipment"/>
+                                            <command command="attack" commandobject="{group.object.random@L2M006.TerranEscort}"/>
+                                          </create_ship>
+                                          <play_text>
+                                            <line actor="L2M006.Iovis" pageid="113" textid="932"/>
+                                            <line actor="L2M006.Iovis" pageid="113" textid="934"/>
+                                            <line actor="L2M006.Gellet" pageid="111" textid="500"/>
+                                          </play_text>
+                                        </do_all>
+                                      </action>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                                <cue name="L2M006 Enter HE" delay="10s">
+                                  <condition>
+                                    <check_all>
+                                      <check_value value="{object.sector@L2M006.IovisShip}" exact="{sector@L2M006.HE}"/>
+                                      <check_value value="{player.sector}" exact="{sector@L2M006.HE}"/>
+                                      <check_value value="{value@L2M006.L0M19 Feedback}" exact="0"/>
+                                    </check_all>
+                                  </condition>
+                                  <timing>
+                                    <time exact="10s"/>
+                                  </timing>
+                                  <action>
+                                    <do_all>
+                                      <cancel_cue cue="L2M006 Xenon Report"/>
+                                      <play_text>
+                                        <line actor="L2M006.Gellet" pageid="111" textid="932"/>
+                                        <line actor="L2M006.Gellet" pageid="111" textid="934"/>
+                                      </play_text>
+                                      <create_ship group="L2M006.Xenon" race="xenon" typename="{random.type@SS_SH_X_M5|SS_SH_X_M5|SS_SH_X_M4}">
+                                        <position exact="8km" object="L2M006.IovisShip"/>
+                                        <sector sector="L2M006.HE"/>
+                                        <equipment loadout="default"/>
+                                        <command command="attack" commandobject="L2M006.IovisShip"/>
+                                      </create_ship>
+                                      <do_all exact="3">
+                                        <create_ship group="L2M006.Xenon" race="xenon" typename="{random.type@SS_SH_X_M5|SS_SH_X_M5|SS_SH_X_M4}">
+                                          <position object="{group.object.1@L2M006.Xenon}"/>
+                                          <sector sector="L2M006.HE"/>
+                                          <equipment loadout="default"/>
+                                          <command command="attack" commandobject="L2M006.IovisShip"/>
+                                        </create_ship>
+                                      </do_all>
+                                      <set_command object="{group.object.random@L2M006.Xenon}" command="killenemies"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M006 Enter HE Wait">
+                                      <condition>
+                                        <cue_completed cue="L2M006 Enter HE"/>
+                                      </condition>
+                                      <cues>
+                                        <cue name="L2M006 Xenon Captured">
+                                          <condition>
+                                            <any_object_captured group="L2M006.Xenon"/>
+                                          </condition>
+                                          <action>
+                                            <remove_object object="L2M006.Xenon {event.object}"/>
+                                          </action>
+                                        </cue>
+                                        <cue name="L2M006 Xenon Confirmation">
+                                          <timing>
+                                            <time exact="10s"/>
+                                          </timing>
+                                          <action>
+                                            <play_text actor="L2M006.Iovis" pageid="113" textid="141004"/>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M006 Xenon Destroyed" delay="5s">
+                                              <condition>
+                                                <check_all>
+                                                  <count_ships race="xenon" exact="0">
+                                                    <position object="L2M006.IovisShip"/>
+                                                    <distance max="10km"/>
+                                                  </count_ships>
+                                                  <object_is_docked object="L2M006.IovisShip" negate="1"/>
+                                                </check_all>
+                                              </condition>
+                                              <action>
+                                                <play_text actor="L2M006.Iovis" pageid="113" textid="141005"/>
+                                              </action>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                                <cue name="L2M006 Escort Complete" delay="5s">
+                                  <condition>
+                                    <check_value value="{value@L2M006.L0M19 Feedback}" exact="1"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <cancel_cue cue="L2M006 Enter HE Wait"/>
+                                      <cancel_cue cue="L2M006 Escort Failed"/>
+                                      <set_actor_location actor="L2M006.Iovis" object="L2M006.HE Station" location="crew"/>
+                                      <play_text priority="99">
+                                        <line actor="L2M006.Iovis" pageid="113" textid="141006"/>
+                                        <line actor="L2M006.Gellet" pageid="111" textid="131007"/>
+                                        <line actor="L2M006.Gellet" pageid="111" textid="131008"/>
+                                      </play_text>
+                                      <reward_player>
+                                        <money exact="{value@L2M006.Reward}"/>
+                                      </reward_player>
+                                      <set_value name="L2M006.Escort Complete Wait" exact="{text.duration@133,141006}+{text.duration@111,131007}+{text.duration@111,131008}"/>
+                                    </do_all>
+                                  </action>
+                                  <cues>
+                                    <cue name="L2M006 Terran Offer">
+                                      <condition>
+                                        <cue_completed cue="L2M006 Escort Complete"/>
+                                      </condition>
+                                      <timing>
+                                        <time exact="{value@L2M006.Escort Complete Wait}"/>
+                                      </timing>
+                                      <action>
+                                        <play_text actor="L2M006.Iovis" pageid="113" textid="141007"/>
+                                      </action>
+                                      <cues>
+                                        <cue name="L2M006 Terran Offer Wait">
+                                          <condition>
+                                            <cue_completed cue="L2M006 Terran Offer"/>
+                                          </condition>
+                                          <timing>
+                                            <time exact="{text.duration@113,141007}"/>
+                                          </timing>
+                                          <action>
+                                            <do_all>
+                                              <create_offer actor="L2M006.Iovis" conversation="L2M006 No2" discipline="XXXXP"/>
+                                              <create_briefing cue="L2M006" title="{3201,603}" text="{3201,605}" background="station_argon_space_fuel_distillery.tga">
+                                                <mission discipline="XXXT" level="easy"/>
+                                                <objectives>
+                                                  <objective step="{value@L2M006.Step}" background="station_argon_space_fuel_distillery.tga">
+                                                    <talkto actor="L2M006.Iovis"/>
+                                                  </objective>
+                                                </objectives>
+                                              </create_briefing>
+                                              <set_objective cue="L2M006" title="{3201,603}" text="{3201,605}" noabort="1">
+                                                <briefing cue="L2M006" step="{value@L2M006.Step}"/>
+                                                <mission discipline="XXXT" level="easy"/>
+                                                <talkto actor="L2M006.Iovis"/>
+                                              </set_objective>
+                                              <set_value name="L2M006.Step" operation="add"/>
+                                            </do_all>
+                                          </action>
+                                          <cues>
+                                            <cue name="L2M006 Terran Offer Accepted">
+                                              <condition>
+                                                <conversation_completed actor="L2M006.Iovis" answer="ready" conversation="L2M006 No2"/>
+                                              </condition>
+                                              <action>
+                                                <do_all>
+                                                  <reward_player>
+                                                    <notoriety>
+                                                      <relation race="atf" operation="set" exact="{lookup.notoriety@notop2}"/>
+                                                    </notoriety>
+                                                  </reward_player>
+                                                  <set_value name="ATF Notoriety" exact="{lookup.notoriety@notop2}"/>
+                                                  <set_invincible object="L2M006.Omicron Station" invincible="0"/>
+                                                  <set_invincible object="L2M006.HE Station" invincible="0"/>
+                                                  <set_group_command group="L2M006.Xenon" command="killenemies"/>
+                                                  <remove_group group="L2M006.Xenon"/>
+                                                  <remove_offer actor="L2M006.Iovis" conversation="L2M006 No2" discipline="XXXXP"/>
+                                                  <remove_briefing cue="L2M006"/>
+                                                  <remove_objective cue="L2M006" status="complete"/>
+                                                  <destroy_actor actor="L2M006.Iovis"/>
+                                                  <destroy_object object="L2M006.IovisShip"/>
+                                                  <destroy_group group="L2M006.Terran"/>
+                                                  <destroy_group group="L2M006.TerranEscort" warp="1" task="1"/>
+                                                </do_all>
+                                              </action>
+                                              <cues>
+                                                <cue name="L2M006 Terran Offer Accepted Wait">
+                                                  <condition>
+                                                    <cue_completed cue="L2M006 Terran Offer Accepted"/>
+                                                  </condition>
+                                                  <timing>
+                                                    <time exact="1m"/>
+                                                  </timing>
+                                                  <action>
+                                                    <do_all>
+                                                      <set_value name="L3M02.Start Link Scene 1" exact="1"/>
+                                                      <cancel_cue cue="L2M006"/>
+                                                    </do_all>
+                                                  </action>
+                                                </cue>
+                                              </cues>
+                                            </cue>
+                                          </cues>
+                                        </cue>
+                                      </cues>
+                                    </cue>
+                                  </cues>
+                                </cue>
+                                <cue name="L2M006 Escort Failed" delay="5s">
+                                  <condition>
+                                    <check_value value="{value@L2M006.L0M19 Feedback}" list="0|1" negate="1"/>
+                                  </condition>
+                                  <action>
+                                    <do_all>
+                                      <set_invincible object="L2M006.Omicron Station" invincible="0"/>
+                                      <set_invincible object="L2M006.HE Station" invincible="0"/>
+                                      <set_group_command group="L2M006.Xenon" command="killenemies"/>
+                                      <remove_group group="L2M006.Xenon"/>
+                                      <remove_briefing cue="L2M006"/>
+                                      <remove_objective cue="L2M006"/>
+                                      <destroy_actor actor="L2M006.Darel"/>
+                                      <destroy_group group="L2M006.TerranEscort" warp="1" task="1"/>
+                                      <destroy_object object="L2M006.IovisShip"/>
+                                      <destroy_group group="L2M006.Terran"/>
+                                      <set_value name="L3M02.Reset Link" exact="1"/>
+                                      <cancel_cue cue="L2M006"/>
+                                    </do_all>
+                                  </action>
+                                </cue>
+                              </cues>
+                            </cue>
+                          </cues>
+                        </cue>
+                      </cues>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M006 Timeout" delay="5s">
+              <condition>
+                <check_all>
+                  <cue_is_complete cue="L2M006"/>
+                  <check_age min="{value@L2M006.Timeout}"/>
+                </check_all>
+              </condition>
+              <action>
+                <do_all>
+                  <do_choose>
+                    <do_when value="{player.sector}" exact="{sector@L2M006.Omicron}">
+                      <play_text actor="L2M006.Darel" pageid="3812" textid="121002"/>
+                    </do_when>
+                    <do_otherwise>
+                      <incoming_message author="{actor.name@L2M006.Darel}" text="{3812,121002}"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <remove_briefing cue="L2M006"/>
+                  <remove_objective cue="L2M006"/>
+                  <remove_offer actor="L2M006.Darel" conversation="L2M006 No1" discipline="XXXXP"/>
+                  <set_invincible object="L2M006.Omicron Station" invincible="0"/>
+                  <set_invincible object="L2M006.HE Station" invincible="0"/>
+                  <cancel_cue cue="L2M006 Accepted"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M006 Reset Link">
+                  <timing>
+                    <time exact="20s"/>
+                  </timing>
+                  <action>
+                    <do_all>
+                      <destroy_actor actor="L2M006.Darel"/>
+                      <destroy_group group="L2M006.TerranEscort" warp="1" task="1"/>
+                      <destroy_group group="L2M006.Terran" warp="1"/>
+                      <set_value name="L3M02.Reset Link" exact="1"/>
+                      <cancel_cue cue="L2M006"/>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>/8rQ+HzV+e1ubsAeHpsZ4clNI0DuCyoZLR36FUqeRXm/3cHe0yn7mR5c0GuCoxZZVWxGmZUibcSgB0U4qPJZGbuZZ/apViUaGVzarGGGlI5XNEVQW/SyYXJoRBKGxXXqB0/kbFdvaGhFzmAFU+NndTTXfSo2LWShwFnaZP0PRKsKuO43gQk6EflRZ476QNkVTdd7DAq9TDavjAUVk6qt1kwxelAgqWRz7Gj8HBQ8wD4TWPKCwcqPQNvC6ebbpCXmRGPI6hBr9UTSbDGYYOcNm/UzhpPi9TiFI4Cxbv0lvD5tDQgGELNK458tOExFDl7ivh/lTnCBKnfMhMMTbj+Pdg==</signature>
+</director>

@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Al" alias="al_main" contact="e-mail: al_main@hotmail.com"/>
+    <content reference="L2M136" name="L2 Notoriety Hack" description="Hack the notoriety of a station"/>
+    <version number="0.5.1" date="05/06/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="L2M136" library="1" check="cancel">
+      <documentation>
+        <content name="L2M136" reference="Notoriety Hack" type="L2"/>
+        <version number="0.5.1" date="05/06/08" status="development"/>
+        <history>
+          <change date="26/08/08" author="al_main" description="Added exception to allow hacking of khaak plot base if needed"/>
+          <change date="04/08/08" author="al_main" description="Changed textid from 26 to 21"/>
+          <change date="15/07/08" author="al_main" description="Fixed accepted instantiation and message format"/>
+          <change date="09/07/08" author="al_main" description="RC1 Version"/>
+          <change date="02/07/08" author="al_main" description="count_stations added to main cue to reduce debug spam"/>
+          <change date="17/06/08" author="al_main" description="initial version"/>
+        </history>
+      </documentation>
+      <condition>
+        <check_all>
+          <count_stations min="1" findobject="{player.ship}" enemy="1" race="default|pirategroup|goner|terran">
+            <jumps max="3"/>
+          </count_stations>
+          <count_stations min="1" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" race="teladi|pirategroup">
+            <jumps max="0"/>
+          </count_stations>
+        </check_all>
+      </condition>
+      <action>
+        <do_all>
+          <!--find station-->
+          <find_station name="this.station" dockingallowed="1" findobject="{player.ship}" enemy="0" race="pirategroup|teladi">
+            <jumps max="0"/>
+          </find_station>
+          <!--exception to allow hacking of khaak plot base if needed as red-->
+          <do_if value="{player.sector.x}" min="15" max="16">
+            <do_if value="{player.sector.x}" min="6" max="7">
+              <find_station name="this.station" dockingallowed="1" findobject="{player.ship}" friend="1" neutral="1" race="argon|pirategroup|teladi">
+                <jumps max="0"/>
+              </find_station>
+            </do_if>
+          </do_if>
+          <do_choose>
+            <do_when value="{object.exists@this.station}" exact="0">
+              <cancel_cue cue="L2M136"/>
+            </do_when>
+            <do_otherwise>
+              <!--Check the Teladi Chance-->
+              <do_choose>
+                <do_when value="{player.sector.race}" exact="{lookup.race@teladi}">
+                  <do_choose>
+                    <do_when value="{object.race@this.station}" exact="{lookup.race@teladi}">
+                      <set_value name="this.offermission" exact="1" chance="25"/>
+                    </do_when>
+                    <do_otherwise>
+                      <set_value name="this.offermission" exact="1"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_when>
+                <do_otherwise>
+                  <set_value name="this.offermission" exact="1"/>
+                </do_otherwise>
+              </do_choose>
+              <do_choose>
+                <do_when value="{value@this.offermission}" exact="0">
+                  <cancel_cue cue="L2M136"/>
+                </do_when>
+                <do_otherwise>
+                  <!--find stations to hack-->
+                  <find_station group="L2M136.tempStations" findobject="{player.ship}" enemy="1" class="station" race="default|pirategroup|goner|terran" multiple="1" max="5">
+                    <sector sector="{player.sector}"/>
+                    <jumps max="3"/>
+                  </find_station>
+                  <set_value name="this.basic" min="15000" max="30000"/>
+                  <do_all exact="{group.object.count@L2M136.tempStations}" counter="num">
+                    <do_if value="{value@L2 Station {group.object.{counter@num}@L2M136.tempStations} No Access}" exact="1" negate="1">
+                      <set_value name="L2M136.StationCount" operation="add"/>
+                      <set_object name="L2M136.Station {value@L2M136.StationCount}" value="{group.object.{counter@num}@L2M136.tempStations}" group="L2M136.EnemyStations"/>
+                      <do_choose comment="Get station cost">
+                        <do_when value="{object.isclass.shipyard@{group.object.{counter@num}@L2M136.tempStations}}" exact="1">
+                          <set_value name="L2M136.Cost {value@L2M136.StationCount}" min="{value@this.basic}*10" max="{value@this.basic}*14"/>
+                        </do_when>
+                        <do_when value="{object.isclass.piratebase@{group.object.{counter@num}@L2M136.tempStations}}" exact="1">
+                          <set_value name="L2M136.Cost {value@L2M136.StationCount}" min="{value@this.basic}*4" max="{value@this.basic}*9"/>
+                        </do_when>
+                        <do_when value="{object.isclass.equipment@{group.object.{counter@num}@L2M136.tempStations}}" exact="1">
+                          <set_value name="L2M136.Cost {value@L2M136.StationCount}" min="{value@this.basic}*6" max="{value@this.basic}*9"/>
+                        </do_when>
+                        <do_when value="{object.isclass.dock@{group.object.{counter@num}@L2M136.tempStations}}" exact="1">
+                          <set_value name="L2M136.Cost {value@L2M136.StationCount}" min="{value@this.basic}*5" max="{value@this.basic}*7"/>
+                        </do_when>
+                        <do_otherwise>
+                          <do_choose>
+                            <do_when value="{lookup.type.category@{object.products.random@{group.object.{counter@num}@L2M136.tempStations}}}" list="{lookup.category@laser}|{lookup.category@missile}">
+                              <set_value name="L2M136.Cost {value@L2M136.StationCount}" min="{value@this.basic}*7" max="{value@this.basic}*10"/>
+                            </do_when>
+                            <do_when value="{lookup.type.category@{object.products.random@{group.object.{counter@num}@L2M136.tempStations}}}" list="{lookup.category@shield}|{lookup.category@tech}">
+                              <set_value name="L2M136.Cost {value@L2M136.StationCount}" min="{value@this.basic}*6" max="{value@this.basic}*9"/>
+                            </do_when>
+                            <do_when value="{lookup.type.category@{object.products.random@{group.object.{counter@num}@L2M136.tempStations}}}" exact="{lookup.category@mineral}">
+                              <set_value name="L2M136.Cost {value@L2M136.StationCount}" exact="{value@this.basic}"/>
+                            </do_when>
+                            <do_otherwise>
+                              <set_value name="L2M136.Cost {value@L2M136.StationCount}" exact="{value@this.basic}*2"/>
+                            </do_otherwise>
+                          </do_choose>
+                        </do_otherwise>
+                      </do_choose>
+                      <set_value name="L2M136.Cost {value@L2M136.StationCount}" exact="({value@L2M136.Cost {value@L2M136.StationCount}}/500)*500"/>
+                    </do_if>
+                  </do_all>
+                  <do_choose>
+                    <do_when value="{value@L2M136.StationCount}" min="1" negate="1">
+                      <cancel_cue cue="L2M136"/>
+                    </do_when>
+                    <do_otherwise>
+                      <do_any>
+                        <set_value name="this.OfferRace" exact="{object.race@this.station}" chance="20"/>
+                        <set_value name="this.OfferRace" list="{lookup.race@pirate}|{lookup.race@yaki}" chance="75"/>
+                        <set_value name="this.OfferRace" exact="{lookup.race@teladi}" chance="5"/>
+                      </do_any>
+                      <!--select offer length-->
+                      <set_value name="this.TimeOut" min="{player.age}+600" max="{player.age}+1200"/>
+                    </do_otherwise>
+                  </do_choose>
+                </do_otherwise>
+              </do_choose>
+            </do_otherwise>
+          </do_choose>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M136 Offer">
+          <condition>
+            <cue_completed cue="L2M136"/>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M136 Offer.SectorChanges" exact="0"/>
+              <create_actor name="L2M136 Offer.Guide" race="{value@L2M136.OfferRace}" voiceflags="32" object="L2M136.station" location="crew"/>
+              <set_value name="this.textid" min="1601" max="1605"/>
+              <set_value name="this.creditid" min="15" max="16"/>
+              <do_choose comment="create offer">
+                <do_when value="{value@L2M136.StationCount}" exact="5">
+                  <create_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT" cue="L2M136 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{object.name@L2M136.Station 1}"/>
+                      <param name="Price1" value="{value.formatted@L2M136.Cost 1} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{object.name@L2M136.Station 2}"/>
+                      <param name="Price2" value="{value.formatted@L2M136.Cost 2} {3300,{value@this.creditid}}"/>
+                      <param name="Option3" value="{object.name@L2M136.Station 3}"/>
+                      <param name="Price3" value="{value.formatted@L2M136.Cost 3} {3300,{value@this.creditid}}"/>
+                      <param name="Option4" value="{object.name@L2M136.Station 4}"/>
+                      <param name="Price4" value="{value.formatted@L2M136.Cost 4} {3300,{value@this.creditid}}"/>
+                      <param name="Option5" value="{object.name@L2M136.Station 5}"/>
+                      <param name="Price5" value="{value.formatted@L2M136.Cost 5} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_when value="{value@L2M136.StationCount}" exact="4">
+                  <create_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT" cue="L2M136 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{object.name@L2M136.Station 1}"/>
+                      <param name="Price1" value="{value.formatted@L2M136.Cost 1} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{object.name@L2M136.Station 2}"/>
+                      <param name="Price2" value="{value.formatted@L2M136.Cost 2} {3300,{value@this.creditid}}"/>
+                      <param name="Option3" value="{object.name@L2M136.Station 3}"/>
+                      <param name="Price3" value="{value.formatted@L2M136.Cost 3} {3300,{value@this.creditid}}"/>
+                      <param name="Option4" value="{object.name@L2M136.Station 4}"/>
+                      <param name="Price4" value="{value.formatted@L2M136.Cost 4} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_when value="{value@L2M136.StationCount}" exact="3">
+                  <create_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT" cue="L2M136 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{object.name@L2M136.Station 1}"/>
+                      <param name="Price1" value="{value.formatted@L2M136.Cost 1} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{object.name@L2M136.Station 2}"/>
+                      <param name="Price2" value="{value.formatted@L2M136.Cost 2} {3300,{value@this.creditid}}"/>
+                      <param name="Option3" value="{object.name@L2M136.Station 3}"/>
+                      <param name="Price3" value="{value.formatted@L2M136.Cost 3} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_when value="{value@L2M136.StationCount}" exact="2">
+                  <create_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom2" discipline="XXXT" cue="L2M136 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{object.name@L2M136.Station 1}"/>
+                      <param name="Price1" value="{value.formatted@L2M136.Cost 1} {3300,{value@this.creditid}}"/>
+                      <param name="Option2" value="{object.name@L2M136.Station 2}"/>
+                      <param name="Price2" value="{value.formatted@L2M136.Cost 2} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_when>
+                <do_otherwise>
+                  <create_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT" cue="L2M136 Offer">
+                    <params>
+                      <param name="OfferText" value="{3800,{value@this.textid}}"/>
+                      <param name="Option1" value="{object.name@L2M136.Station 1}"/>
+                      <param name="Price1" value="{value.formatted@L2M136.Cost 1} {3300,{value@this.creditid}}"/>
+                    </params>
+                  </create_offer>
+                </do_otherwise>
+              </do_choose>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M136 Accepted 1" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom1" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom2" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom3" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom4" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept1" conversation="L2OfferBuyCustom5" actor="L2M136 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M136.Cost 1}">
+                    <reward_player>
+                      <money exact="-{value@L2M136.Cost 1}"/>
+                    </reward_player>
+                    <set_relation object="L2M136.Station 1">
+                      <relation mutual="0" relation="friend"/>
+                    </set_relation>
+                    <do_choose>
+                      <do_when value="{value@L2M136.StationCount}" exact="1">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M136.StationCount}" exact="2">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom2" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M136.StationCount}" exact="3">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M136.StationCount}" exact="4">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M136 Offer.Guide"/>
+                    <cancel_cue cue="L2M136"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M136 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M136 Accepted 2" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom2" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom3" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom4" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept2" conversation="L2OfferBuyCustom5" actor="L2M136 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M136.Cost 2}">
+                    <reward_player>
+                      <money exact="-{value@L2M136.Cost 2}"/>
+                    </reward_player>
+                    <set_relation object="L2M136.Station 2">
+                      <relation mutual="0" relation="friend"/>
+                    </set_relation>
+                    <do_choose>
+                      <do_when value="{value@L2M136.StationCount}" exact="2">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom2" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M136.StationCount}" exact="3">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M136.StationCount}" exact="4">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M136 Offer.Guide"/>
+                    <cancel_cue cue="L2M136"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M136 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M136 Accepted 3" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept3" conversation="L2OfferBuyCustom3" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept3" conversation="L2OfferBuyCustom4" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept3" conversation="L2OfferBuyCustom5" actor="L2M136 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M136.Cost 3}">
+                    <reward_player>
+                      <money exact="-{value@L2M136.Cost 3}"/>
+                    </reward_player>
+                    <set_relation object="L2M136.Station 3">
+                      <relation mutual="0" relation="friend"/>
+                    </set_relation>
+                    <do_choose>
+                      <do_when value="{value@L2M136.StationCount}" exact="3">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                      </do_when>
+                      <do_when value="{value@L2M136.StationCount}" exact="4">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M136 Offer.Guide"/>
+                    <cancel_cue cue="L2M136"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M136 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M136 Accepted 4" instantiate="static">
+              <condition>
+                <check_any>
+                  <conversation_completed answer="accept4" conversation="L2OfferBuyCustom4" actor="L2M136 Offer.Guide"/>
+                  <conversation_completed answer="accept4" conversation="L2OfferBuyCustom5" actor="L2M136 Offer.Guide"/>
+                </check_any>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M136.Cost 4}">
+                    <reward_player>
+                      <money exact="-{value@L2M136.Cost 4}"/>
+                    </reward_player>
+                    <set_relation object="L2M136.Station 4">
+                      <relation mutual="0" relation="friend"/>
+                    </set_relation>
+                    <do_choose>
+                      <do_when value="{value@L2M136.StationCount}" exact="4">
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                      </do_when>
+                      <do_otherwise>
+                        <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                      </do_otherwise>
+                    </do_choose>
+                    <destroy_actor actor="L2M136 Offer.Guide"/>
+                    <cancel_cue cue="L2M136"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M136 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M136 Accepted 5" instantiate="static">
+              <condition>
+                <conversation_completed answer="accept5" conversation="L2OfferBuyCustom5" actor="L2M136 Offer.Guide"/>
+              </condition>
+              <timing>
+                <time min="250" max="350"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{player.money}" min="{value@L2M136.Cost 5}">
+                    <reward_player>
+                      <money exact="-{value@L2M136.Cost 5}"/>
+                    </reward_player>
+                    <set_relation object="L2M136.Station 5">
+                      <relation mutual="0" relation="friend"/>
+                    </set_relation>
+                    <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                    <destroy_actor actor="L2M136 Offer.Guide"/>
+                    <cancel_cue cue="L2M136"/>
+                  </do_when>
+                  <do_otherwise>
+                    <play_text priority="99">
+                      <line pageid="13" textid="1254"/>
+                      <line actor="L2M136 Offer.Guide" textid="21"/>
+                    </play_text>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+            </cue>
+            <cue name="L2M136 Check Offer">
+              <condition>
+                <cue_completed cue="L2M136 Offer"/>
+              </condition>
+              <cues>
+                <cue name="L2M136 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age value="{player.age}" min="{value@L2M136.TimeOut}"/>
+                      <object_relation object="L2M136.station">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M136 Check Comms" delay="500">
+                      <condition>
+                        <check_all>
+                          <check_value value="{player.menu.dialog}" exact="0"/>
+                          <check_value value="{player.menu.briefing}" exact="0"/>
+                          <cue_is_active cue="L2M136 Accepted 1" negate="1"/>
+                          <cue_is_active cue="L2M136 Accepted 2" negate="1"/>
+                          <cue_is_active cue="L2M136 Accepted 3" negate="1"/>
+                          <cue_is_active cue="L2M136 Accepted 4" negate="1"/>
+                          <cue_is_active cue="L2M136 Accepted 5" negate="1"/>
+                        </check_all>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <do_choose>
+                            <do_when value="{value@L2M136.StationCount}" exact="1">
+                              <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M136.StationCount}" exact="2">
+                              <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom2" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M136.StationCount}" exact="3">
+                              <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                            </do_when>
+                            <do_when value="{value@L2M136.StationCount}" exact="4">
+                              <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                            </do_when>
+                            <do_otherwise>
+                              <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <destroy_actor actor="L2M136 Offer.Guide"/>
+                          <cancel_cue cue="L2M136"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M136 Sector Out" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <object_changed_sector/>
+                      <cue_is_active cue="L2M136 Accepted 1" negate="1"/>
+                      <cue_is_active cue="L2M136 Accepted 2" negate="1"/>
+                      <cue_is_active cue="L2M136 Accepted 3" negate="1"/>
+                      <cue_is_active cue="L2M136 Accepted 4" negate="1"/>
+                      <cue_is_active cue="L2M136 Accepted 5" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_if value="{player.sector}" exact="{actor.sector@L2M136 Offer.Guide}" negate="1">
+                      <set_value name="L2M136 Offer.SectorChanges" exact="{value@L2M136 Offer.SectorChanges}+1"/>
+                      <do_if value="{value@L2M136 Offer.SectorChanges}" min="4">
+                        <do_choose>
+                          <do_when value="{value@L2M136.StationCount}" exact="1">
+                            <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom1" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M136.StationCount}" exact="2">
+                            <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom2" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M136.StationCount}" exact="3">
+                            <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom3" discipline="XXXT"/>
+                          </do_when>
+                          <do_when value="{value@L2M136.StationCount}" exact="4">
+                            <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom4" discipline="XXXT"/>
+                          </do_when>
+                          <do_otherwise>
+                            <remove_offer actor="L2M136 Offer.Guide" conversation="L2OfferBuyCustom5" discipline="XXXT"/>
+                          </do_otherwise>
+                        </do_choose>
+                        <destroy_actor actor="L2M136 Offer.Guide"/>
+                        <cancel_cue cue="L2M136"/>
+                      </do_if>
+                    </do_if>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>M3LqasB92d74RUrl3IR+qhjKxkSMJ9dTTfkFLRla8lqvi7mhk+1tlxTen8JW0oMmDL324RWqT2nJhgZRynsKk7a6W4SCzcCO4g+IifOakIZg1Z4uw8xQYFz+K+pPa5fRPxMty02nTmUu12+gQZZbUCkW49Zog33DKk83hP7q61kVXBT9VCKeiCZy3NYO1e0ycqU581DjjVcIwFrhbCTkAaexEick1Jdz9Azg0Ry6jFhCbtTbHT33VZ6AApTHNRax9gz7N9WvH3r3im/3/ujhtVDEsyupcHJ/TmruKeQjeEL6T1PYyK7uqOjODnzEH3Hc7Ao/uhoLpsQgVN28GMiKOA==</signature>
+</director>

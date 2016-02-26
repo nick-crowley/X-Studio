@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="Owen Lake" alias="Xenon_Slayer" contact="E-Mail: Owen@egosoft.com Skype: Owen Lake" />
+    <content reference="L2M134" name="Generic Patrol" description="Move through several sectors, attacking enemies"/>
+    <version number="0.1" date="13/05/2008" status="release"/>
+  </documentation>
+  <cues>
+    <cue name="L2M134" library="1" check="cancel">
+      <documentation>
+        <content name="Generic Patrol" reference="L2M134" type="L2"/>
+        <version date="13/05/2008" number="0.1" status="release"/>
+      </documentation>
+      <condition>
+        <count_stations min="1" dockingallowed="1" friend="1" neutral="1" race="default">
+          <jumps exact="0"/>
+        </count_stations>
+      </condition>
+      <action>
+        <do_all>
+          <set_value name="L2M134.Jumps" min="2" max="3"/>
+          <find_station name="L2M134.OfferStation" friend="1" neutral="1" dockingallowed="1" race="default">
+            <jumps exact="0"/>
+          </find_station>
+          <do_choose>
+            <do_when value="{object.exists@L2M134.OfferStation}" exact="0">
+              <cancel_cue cue="L2M134"/>
+            </do_when>
+            <do_otherwise>
+              <set_sector name="L2M134.OfferSector" value="{object.sector@L2M134.OfferStation}"/>
+              <find_sector name="L2M134.DestSector" sector="L2M134.OfferSector" exact="{value@L2M134.Jumps}" race="default"/>
+            </do_otherwise>
+          </do_choose>
+          <do_if value="{sector.exists@L2M134.DestSector}" exact="0">
+            <cancel_cue cue="L2M134"/>
+          </do_if>
+          <set_value name="L2M134.TimeOut" min="{player.age}+700" max="{player.age}+800"/>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="L2M134 Start Mission">
+          <condition>
+            <check_all>
+              <cue_completed cue="L2M134"/>
+              <object_exists object="L2M134.OfferStation"/>
+              <check_value value="{sector.exists@L2M134.DestSector}" exact="1"/>
+            </check_all>
+          </condition>
+          <action>
+            <do_all>
+              <set_value name="L2M134.PageID" exact="3334"/>
+              <set_value name="L2M134.Step" exact="1"/>
+              <do_any>
+                <do_all>
+                  <set_value name="L2M134.Variation" exact="0"/>
+                  <set_value name="L2M134.Difficulty" min="{lookup.level@easy}" max="{lookup.level@veryhard}"/>
+                  <set_value name="L2M134.OBSEnemyRace" exact="{random.race@aggressive}"/>
+                  <set_value name="L2M134.OBSEnemyMaker" exact="{value@L2M134.OBSEnemyRace}"/>
+                  <set_value name="L2M134.PatrolDest" list="0|1"/>
+                  <set_value name="L2M134.PatrolTime" min="70*{value@L2M134.Difficulty}" max="90*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.Max OBS Instances" min="1*{value@L2M134.Difficulty}" max="3*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.OBS Instances Per Sector" exact="{value@L2M134.Max OBS Instances}/{value@L2M134.Jumps}"/>
+                </do_all>
+                <do_all>
+                  <set_value name="L2M134.Variation" exact="1"/>
+                  <set_value name="L2M134.B Title ID P" exact="1001"/>
+                  <set_value name="L2M134.B Text ID P" exact="1002"/>
+                  <set_value name="L2M134.B Title ID" exact="1003"/>
+                  <set_value name="L2M134.B Text ID" exact="1004"/>
+                  <set_value name="L2M134.Difficulty" min="{lookup.level@easy}" max="{lookup.level@veryhard}"/>
+                  <set_value name="L2M134.OBSEnemyRace" exact="{random.race@aggressive}"/>
+                  <set_value name="L2M134.OBSEnemyMaker" exact="{value@L2M134.OBSEnemyRace}"/>
+                  <set_value name="L2M134.PatrolDest" list="0|1"/>
+                  <set_value name="L2M134.PatrolTime" min="70*{value@L2M134.Difficulty}" max="100*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.Max OBS Instances" min="1*{value@L2M134.Difficulty}" max="3*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.OBS Instances Per Sector" exact="{value@L2M134.Max OBS Instances}/{value@L2M134.Jumps}"/>
+                </do_all>
+                <do_all>
+                  <set_value name="L2M134.Variation" exact="2"/>
+                  <set_sector name="L2M134.DestSector" value="{sector@L2M134.OfferSector}"/>
+                  <set_value name="L2M134.B Title ID P" exact="2001"/>
+                  <set_value name="L2M134.B Text ID P" exact="2002"/>
+                  <set_value name="L2M134.B Title ID" exact="2003"/>
+                  <set_value name="L2M134.B Text ID" exact="2004"/>
+                  <set_value name="L2M134.Difficulty" min="{lookup.level@easy}" max="{lookup.level@veryhard}"/>
+                  <set_value name="L2M134.OBSEnemyRace" exact="{lookup.race.mask@pirate}+{lookup.race.mask@yaki}"/>
+                  <set_value name="L2M134.OBSEnemyMaker" exact="{value@L2M134.OBSEnemyRace}"/>
+                  <set_value name="L2M134.PatrolDest" exact="1"/>
+                  <set_value name="L2M134.PatrolTime" min="120*{value@L2M134.Difficulty}" max="150*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.Max OBS Instances" min="1*{value@L2M134.Difficulty}" max="3*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.OBS Instances Per Sector" exact="{value@L2M134.Max OBS Instances}"/>
+                </do_all>
+                <do_all>
+                  <set_value name="L2M134.Variation" exact="3" comment="Xenon invasion"/>
+                  <set_sector name="L2M134.DestSector" value="{sector@L2M134.OfferSector}"/>
+                  <set_value name="L2M134.B Title ID P" exact="3001"/>
+                  <set_value name="L2M134.B Text ID P" exact="3002"/>
+                  <set_value name="L2M134.B Title ID" exact="3003"/>
+                  <set_value name="L2M134.B Text ID" exact="3004"/>
+                  <set_value name="L2M134.Difficulty" min="{lookup.level@average}" max="{lookup.level@veryhard}"/>
+                  <set_value name="L2M134.EnemyRace" exact="{lookup.race@xenon}"/>
+                  <set_value name="L2M134.OBSEnemyRace" exact="{lookup.race@xenon}"/>
+                  <set_value name="L2M134.OBSEnemyMaker" exact="{value@L2M134.OBSEnemyRace}"/>
+                  <set_value name="L2M134.PatrolDest" exact="1"/>
+                  <set_value name="L2M134.PatrolTime" min="120*{value@L2M134.Difficulty}" max="150*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.Max OBS Instances" min="1*{value@L2M134.Difficulty}" max="4*{value@L2M134.Difficulty}"/>
+                  <set_value name="L2M134.OBS Instances Per Sector" exact="{value@L2M134.Max OBS Instances}"/>
+                </do_all>
+              </do_any>
+            </do_all>
+          </action>
+          <cues>
+            <cue name="L2M134 Patrol">
+              <action>
+                <do_all>
+                  <set_value name="L2M134.OfferRace" exact="{object.race@L2M134.OfferStation}"/>
+                  <do_choose>
+                    <do_when value="{value@L2M134.OfferRace}" exact="{lookup.race@goner}">
+                      <create_actor name="L2M134.OfferActor" race="argon" object="L2M134.OfferStation" location="crew" voiceflags="32"/>
+                    </do_when>
+                    <do_otherwise>
+                      <create_actor name="L2M134.OfferActor" race="{value@L2M134.OfferRace}" object="L2M134.OfferStation" location="crew" voiceflags="32"/>
+                    </do_otherwise>
+                  </do_choose>
+                  <create_offer actor="L2M134.OfferActor" conversation="L2OfferCombat" cue="L2M134 Patrol" discipline="XFXX"/>
+                </do_all>
+              </action>
+              <cues>
+                <cue name="L2M134 Patrol Briefing">
+                  <condition>
+                    <conversation_completed actor="L2M134.OfferActor" answer="briefing" conversation="L2OfferCombat"/>
+                  </condition>
+                  <action>
+                    <set_value name="L2M134.TempStep" exact="1"/>
+                  </action>
+                  <cues>
+                    <cue ref="L0M34 B">
+                      <params>
+                        <param name="Cue" value="L2M134 Patrol" comment="The cue where values will be localized"/>
+                        <param name="Step" value="L2M134.TempStep"/>
+                        <param name="PageID" value="{value@L2M134.PageID}" comment="The PageID of the text"/>
+                        <param name="Preview" value="1"/>
+                        <param name="SetObjective" value="0"/>
+                        <param name="FinalSector" value="L2M134.DestSector" comment="The Address of the destination. Overrides all other criteria."/>
+                        <param name="PatrolSector" value="L2M134.OfferSector" comment="The next sector on the way to the destination"/>
+                        <param name="TextID Title" value="{value@L2M134.B Title ID P}" comment="The briefing title ID"/>
+                        <param name="TextID Text" value="{value@L2M134.B Text ID P}" comment="The briefing text ID"/>
+                        <param name="PatrolSector" value="L2M134.OfferSector" comment="The next sector on the way to the destination"/>
+                        <param name="EnemyRace" value="{value@L2M134.EnemyRace}" comment="Race id or mask"/>
+                        <param name="OfferRace" value="{value@L2M134.OfferRace}" comment="Name of the offer race"/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="Difficulty" value="{value@L2M134.Difficulty}" comment="The value address for the difficulty"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RoundReward" value="1" comment="Round the reward to a reasonable value? Factor to round by - 1, 2, 4 or 5 are sensible."/>
+                        <param name="RewardCr" value="L2M134.Reward" comment="Reward - credits"/>
+                      </params>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M134 Patrol Accepted">
+                  <condition>
+                    <conversation_completed actor="L2M134.OfferActor" answer="accept" conversation="L2OfferCombat"/>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <cancel_cue cue="L2M134 Check Offer"/>
+                      <increment_statistic statistic="5160"/>
+                      <set_value name="L2M134 Patrol.Step" exact="1"/>
+                      <remove_offer actor="L2M134.OfferActor" discipline="XFXX" conversation="L2OfferCombat"/>
+                      <clear_actor_location actor="L2M134.OfferActor"/>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue ref="L0M34">
+                      <params>
+                        <param name="Cue" value="L2M134 Patrol" comment="The cue where values will be localized"/>
+                        <param name="Step" value="L2M134 Patrol.Step" comment="The initial objective step"/>
+                        <param name="PageID" value="{value@L2M134.PageID}" comment="The PageID of the text"/>
+                        <param name="FinalSector" value="L2M134.DestSector" comment="The Address of the destination. Overrides all other criteria."/>
+                        <param name="PatrolSector" value="L2M134.OfferSector" comment="The next sector on the way to the destination"/>
+                        <param name="TextID Title" value="{value@L2M134.B Title ID}" comment="The briefing title ID"/>
+                        <param name="TextID Text" value="{value@L2M134.B Text ID}" comment="The briefing text ID"/>
+                        <param name="Preview" value="0" comment="Is the briefing a preview"/>
+                        <param name="SetObjective" value="1" comment="Set the objectives and run the Objective library"/>
+                        <param name="IsPlot" value="0" comment="Is this a plot mission"/>
+                        <param name="EnemyRace" value="{value@L2M134.EnemyRace}" comment="Race id or mask"/>
+                        <param name="OfferRace" value="{value@L2M134.OfferRace}" comment="Name of the offer race"/>
+                        <param name="Complete Briefing" value="1" comment="Run the briefing completion library"/>
+                        <param name="UseTimer" value="0" comment="Override the plot signal and use a timer"/>
+                        <param name="Difficulty" value="{value@L2M134.Difficulty}" comment="The value address for the difficulty"/>
+                        <!--reward parameters (in priority order)-->
+                        <param name="RewardCr" value="L2M134.Reward" comment="Reward - credits"/>
+                        <param name="Bonus" value="L2M134.Bonus"/>
+                        <param name="FeedbackName" value="L2M134 Patrol.Feedback" comment="The address where the step value is stored"/>
+                        <param name="PatrolDest" value="{value@L2M134.PatrolDest}" comment="Patrol the destination sector"/>
+                        <param name="PatrolTime" value="{value@L2M134.PatrolTime}" comment="Duration of patrol per sector in seconds"/>
+                        <param name="KillScore Name" value="L2M134.KillScore"/>
+                        <param name="KillCount Name" value="L2M134.TotalShips"/>
+
+                        <param name="OBS" value="1" comment="Activate the OBS"/>
+                        <param name="Max OBS Instances" value="{value@L2M134.Max OBS Instances}" comment="The maximum OBS spawns. 0=Infinate"/>
+                        <param name="MaxOBSPerSector" value="{value@L2M134.OBS Instances Per Sector}"/>
+                        <param name="OBS Counter" value="L2M134.OBS Count" comment="The name of the OBS counter"/>
+                        <param name="OBS Cue" value="L2M134" comment="The cue name where the ship groups are saved too"/>
+                        <param name="OBSFleetRace" value="{value@L2M134.OBSEnemyMaker}" comment="The maker race ID of the ships or the racemask 'default' or 'pirategroup'"/>
+                        <param name="OBSFleetPilotsRace" value="{value@L2M134.OBSEnemyRace}" comment="The race ID of the pilots"/>
+                        <param name="OBSMissionRank" value="{player.fightrank.rank}" comment="A 0-30 scale preferably based on the players fight rank"/>
+                        <param name="OBSDifficultyRank" value="{value@L2M134.Difficulty}" comment="A 1-8 scale of difficulty"/>
+                        <param name="OBSFleetCovered" value="0" comment="0/1 Sets if created pirate ships are covered"/>
+                        <param name="OBS Dock Support" value="1" comment="0/1 Sets if the created support ships are docked with their homebase"/>
+                        <param name="OBS Support Overflow" value="0" comment="0/1 Sets if additional support ships are created outside when the homebase is full"/>
+                        <param name="OBSFleetRelation" value="-1" comment="-1,0,1 OBS fleet relation to the player"/>
+                      </params>
+                    </cue>
+                    <cue name="L2M134 Patrol Ended" delay="2s">
+                      <condition>
+                        <check_value value="{value@L2M134 Patrol.Feedback}" exact="0" negate="1"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <set_value name="L2M134.Reward" exact="{value@L2M134.Reward}+{value@L2M134.Bonus}"/>
+                          <do_choose>
+                            <do_when value="{value@L2M134 Patrol.Feedback}" exact="1">
+                              <do_choose>
+                                <do_when value="{value@L2M134.TotalShips}" exact="0">
+                                  <incoming_message author="{actor.name@L2M134.OfferActor}" text="{{value@L2M134.PageID},{value@L2M134.Variation}1}"/>
+                                  <set_value name="L2M134.Reward" operation="divide" exact="4"/>
+                                </do_when>
+                                <do_when value="{value@L2M134.TotalShips}" exact="1">
+                                  <incoming_message author="{actor.name@L2M134.OfferActor}" text="{{value@L2M134.PageID},{value@L2M134.Variation}2}"/>
+                                </do_when>
+                                <do_otherwise>
+                                  <incoming_message author="{actor.name@L2M134.OfferActor}" text="{{value@L2M134.PageID},{value@L2M134.Variation}3}"/>
+                                </do_otherwise>
+                              </do_choose>
+                              <reward_player>
+                                <money exact="{value@L2M134.Reward}"/>
+                                <notoriety>
+                                  <relation race="{value@L2M134.OfferRace}" exact="{reward.notoriety.{value@L2M134.OfferRace}@{value@L2M134.Difficulty}}"/>
+                                </notoriety>
+                              </reward_player>
+                              <increment_statistic statistic="5170"/>
+                              <remove_objective cue="L2M134 Patrol" status="complete"/>
+                            </do_when>
+                            <do_when value="{value@L2M134 Patrol.Feedback}" exact="99">
+                              <remove_objective cue="L2M134 Patrol" status="aborted"/>
+                            </do_when>
+                            <do_otherwise>
+                              <remove_objective cue="L2M134 Patrol" status="failed"/>
+                              <incoming_message author="{actor.name@L2M134.OfferActor}" text="{{value@L2M134.PageID},{value@L2M134.Variation}4}"/>
+                            </do_otherwise>
+                          </do_choose>
+                          <remove_briefing cue="L2M134 Patrol"/>
+                          <destroy_actor actor="L2M134.OfferActor"/>
+                          <cancel_cue cue="L2M134"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+              </cues>
+            </cue>
+            <cue name="L2M134 Check Offer">
+              <cues>
+                <cue name="L2M134 Time Out" delay="30s">
+                  <condition>
+                    <check_any>
+                      <check_age min="{value@L2M134.TimeOut}"/>
+                      <object_relation object="L2M134.OfferStation">
+                        <relation relation="enemy"/>
+                      </object_relation>
+                    </check_any>
+                  </condition>
+                  <cues>
+                    <cue name="L2M134 Check Comms" delay="1s">
+                      <condition>
+                        <check_value value="{player.menu.dialog}" exact="0"/>
+                      </condition>
+                      <action>
+                        <do_all>
+                          <destroy_actor actor="L2M134.OfferActor"/>
+                          <cancel_cue cue="L2M134"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="L2M134 Sector Out" instantiate="static">
+                  <condition>
+                    <check_all>
+                      <object_changed_sector/>
+                      <check_value value="{player.sector}" exact="{actor.sector@L2M134.OfferActor}" negate="1"/>
+                    </check_all>
+                  </condition>
+                  <action>
+                    <do_all>
+                      <set_value name="L2M134.SectorChanges" operation="add"/>
+                      <do_if value="{value@L2M134.SectorChanges}" min="2">
+                        <destroy_actor actor="L2M134.OfferActor"/>
+                        <cancel_cue cue="L2M134"/>
+                      </do_if>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>1XMNjG5oFylxnrXRt4g1Om2UPWCiJfTdbG2I/GCiREq4TVFGddETmlFRdLlHgf56WuBxOR6YVlVFg+kTvpEa7tCl69g6/vBwNB6x8V/FZlMqXeleUx+lU6QVSmelAlgYsIlk6binxO3j9etO8CJQIBoUzpnCfwiz91kO0n7OrliP/w1YF1rhas5A37X5QP61zq39FntA8Ci30ShAd7RahhlXdRqitPCM5y91Vy1eHG5EqdimC2VNcUwVCW3cbIGobj+RdjoeFlAeGBlfN/nKrz7buTrTnX6TQCoXehz68ZDncxo3vCcOmzVaqJoBtjjsrVBlCXfUFRGC2XEm/bMJKA==</signature>
+</director>
+
+
+

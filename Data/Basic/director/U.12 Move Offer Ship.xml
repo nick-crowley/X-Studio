@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet href="director.xsl" type="text/xsl" ?>
+<director name="test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="director.xsd">
+  <documentation>
+    <author name="al_main" alias="al_main" contact="E-Mail: al_main@hotmail.com"/>
+    <content reference="LUM12" name="Move Offer Ship" description="Safely moves a ship about the sector"/>
+    <version number="0.1" date="28/05/08" status="development"/>
+  </documentation>
+  <cues>
+    <cue name="LUM12" library="1">
+      <documentation>
+        <content name="Move Offer Ship" reference="LUM12" type="utility"/>
+        <version number="0.1" date="28/05/08" status="development"/>
+        <params>
+          <param name="Ship" type="objectname" compulsory="1" description="The Offer Ship to Move"/>
+          <param name="Dock" type="boolean" compulsory="1" description="Ship is allowed to dock" default="Yes"/>
+          <param name="Sector" type="sectorname" compulsory="0" description="Sector to move in" default="{player.sector}"/>
+          <param name="ChangeSector" type="boolean" compulsory="0" description="If the Ship should change sector" default="no"/>
+        </params>
+        <history>
+          <change date="28/05/2008" author="al_main" description="Initial Version"/>
+        </history>
+        <todo>
+          <item priority="critical" description="Check quota removal from offers when changing sector"/>
+        </todo>
+      </documentation>
+      <action>
+        <do_all>
+          <!--set sector for ship to move in-->
+          <do_choose>
+            <do_when value="{param.exists@Sector}" exact="1">
+              <set_sector name="LUM12.Sector" value="{sector@{param@Sector}}"/>
+              <set_sector name="LUM12.OriginalSector" value="{sector@{param@Sector}}"/>
+            </do_when>
+            <do_otherwise>
+              <set_sector name="LUM12.Sector" value="{player.sector}"/>
+              <set_sector name="LUM12.OriginalSector" value="{player.sector}"/>
+            </do_otherwise>
+          </do_choose>
+          <!--move ship-->
+          <set_command object="{param@Ship}" command="moveposition">
+            <position x="0" y="0" z="0" min="500m" max="3km"/>
+            <sector sector="LUM12.Sector"/>
+          </set_command>
+          <!--set idle delay-->
+          <set_value name="LUM12.Delay" min="4" max="8"/>
+          <!--set options-->
+          <set_value name="LUM12.Dock" exact="1"/>
+          <do_if value="{param.exists@Dock}" exact="1">
+            <set_value name="LUM12.Dock" exact="{param@Dock}"/>
+          </do_if>
+          <set_value name="LUM12.ChangeSector" exact="1"/>
+          <do_if value="{param.exists@ChangeSector}" exact="1">
+            <set_value name="LUM12.ChangeSector" exact="{param@ChangeSector}"/>
+          </do_if>
+          <set_value name="LUM12.RandomMove" exact="{value@LUM12.ChangeSector}+{value@LUM12.Dock}"/>
+          <do_if value="{value@LUM12.RandomMove}" exact="0">
+            <cancel_cue cue="LUM12 Movement Event"/>
+          </do_if>
+        </do_all>
+      </action>
+      <cues>
+        <cue name="LUM12 Reached Sector">
+          <condition>
+            <object_position object="{param@Ship}">
+              <position x="0" y="0" z="0" max="8000m"/>
+              <sector sector="LUM12.Sector"/>
+            </object_position>
+          </condition>
+          <action>
+            <set_command object="{param@Ship}" command="idle"/>
+          </action>
+          <cues>
+            <cue name="LUM12 Movement Event">
+              <timing>
+                <time min="4m" max="6m"/>
+              </timing>
+              <action>
+                <do_choose>
+                  <do_when value="{value@LUM12.RandomMove}" exact="2">
+                    <do_any>
+                      <cancel_cue cue="LUM12 Dock"/>
+                      <cancel_cue cue="LUM12 Change Sector"/>
+                    </do_any>
+                  </do_when>
+                  <do_when value="{value@LUM12.ChangeSector}" exact="1">
+                    <do_any>
+                      <cancel_cue cue="LUM12 Dock"/>
+                    </do_any>
+                  </do_when>
+                  <do_when value="{value@LUM12.Dock}" exact="1">
+                    <do_any>
+                      <cancel_cue cue="LUM12 Change Sector"/>
+                    </do_any>
+                  </do_when>
+                  <do_otherwise>
+                    <cancel_cue cue="LUM12 Dock"/>
+                    <cancel_cue cue="LUM12 Change Sector"/>
+                  </do_otherwise>
+                </do_choose>
+              </action>
+              <cues>
+                <cue name="LUM12 Dock">
+                  <action>
+                    <do_all>
+                      <find_station name="LUM12 Dock.Station" findobject="{param@Ship}" class="station" dockingallowed="1">
+                        <sector sector="{object.sector@{param@Ship}}"/>
+                        <jumps exact="0"/>
+                      </find_station>
+                      <do_choose>
+                        <do_when value="{object.exists@LUM12 Dock.Station}" exact="0">
+                          <reset_cue cue="LUM12 Movement Event"/>
+                        </do_when>
+                        <do_otherwise>
+                          <set_command object="{param@Ship}" command="dock" commandobject="LUM12 Dock.Station"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                  <cues>
+                    <cue name="LUM12 Undock">
+                      <condition>
+                        <object_docked object="{param@Ship}"/>
+                      </condition>
+                      <timing>
+                        <time min="90s" max="180s"/>
+                      </timing>
+                      <action>
+                        <do_all>
+                          <set_command object="{param@Ship}" command="idle"/>
+                          <reset_cue cue="LUM12 Movement Event"/>
+                        </do_all>
+                      </action>
+                    </cue>
+                  </cues>
+                </cue>
+                <cue name="LUM12 Change Sector">
+                  <action>
+                    <do_all>
+                      <find_sector name="LUM12.NewSector" sector="LUM12.OriginalSector" race="{object.sector.race@{param@Ship}}" exact="1"/>
+                      <do_choose>
+                        <do_when value="{sector.exists@LUM12.NewSector}" exact="0">
+                          <reset_cue cue="LUM12 Movement Event"/>
+                        </do_when>
+                        <do_otherwise>
+                          <set_sector name="LUM12.Sector" value="{sector@LUM12.NewSector}"/>
+                          <set_command object="{param@Ship}" command="moveposition">
+                            <position x="0" y="0" z="0" min="500m" max="3km"/>
+                            <sector sector="LUM12.Sector"/>
+                          </set_command>
+                          <reset_cue cue="LUM12 Reached Sector"/>
+                        </do_otherwise>
+                      </do_choose>
+                    </do_all>
+                  </action>
+                </cue>
+              </cues>
+            </cue>
+          </cues>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+  <signature>IoiJldOBj0RpotcrroACCPIgMSxlRkz6yQ8VZpVxhcpr9Eioogx6BqrsGIQCFaioVK7WrdkbWKgcZjY5BGh4l5GGVNfTmWzmWnWYJ+sL/WLINOzMFEwvrnKNxfQounAiYUsFGm8/V6ByViZmVnkjAjQoV4Dt4wipgr4hzcBJkvrr4iJnWb4Bjgqdf99DtDnJMfNPS5DhBQEPeLRO8DJe7VBAmZWx3gI0DK0g+D3+GR98eu01lh12KZxffW9gRbcKTO7CilnPOe2pJ1WxLGn8QfVv6n5BGgjIpVnxbu0pZM5YTjWCz1wN5xJNDjcUveMmVmBrwaxF2AzVkGsJrhSfgQ==</signature>
+</director>
