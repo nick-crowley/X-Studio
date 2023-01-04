@@ -279,8 +279,9 @@
     <ClCompile Include="Tutorial Dialog.cpp" />
     <ClCompile Include="Update Dialog.cpp" />
     <ClCompile Include="XZip.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">
-      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
