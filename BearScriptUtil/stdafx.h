@@ -39,6 +39,6 @@
 #include "BearScript Util.h"
 
 // Visual Leak Detector Library
-#include "vld.h"
+//#include "vld.h"
 
 

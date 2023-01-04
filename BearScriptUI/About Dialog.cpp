@@ -342,11 +342,11 @@ BOOL  onCreditsDialog_Destroy(HWND  hDialog)
    HICON   hIcon;
 
    // Destroy 'Exscriptor' icon
-   hIcon = Static_GetIcon(GetControl(hDialog, IDC_ABOUT_EXSCRIPTOR_ICON));
+   hIcon = Static_GetIcon(GetControl(hDialog, IDC_ABOUT_EXSCRIPTOR_ICON), ignored);
    DestroyIcon(hIcon);
 
    // Destroy 'DoubleShow' icon
-   hIcon = Static_GetIcon(GetControl(hDialog, IDC_ABOUT_DOUBLESHADOW_ICON));
+   hIcon = Static_GetIcon(GetControl(hDialog, IDC_ABOUT_DOUBLESHADOW_ICON), ignored);
    DestroyIcon(hIcon);
 
    // Return TRUE
