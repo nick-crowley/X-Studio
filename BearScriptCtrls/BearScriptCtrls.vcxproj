@@ -84,6 +84,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>StdCall</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;Msimg32.lib;uxtheme.lib;shlwapi.lib;$(TargetDir)X-Studio.Logic.lib;$(TargetDir)X-Studio.Utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -105,6 +106,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
       <CallingConvention>StdCall</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;Msimg32.lib;uxtheme.lib;shlwapi.lib;$(TargetDir)X-Studio.Logic.lib;$(TargetDir)X-Studio.Utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -129,6 +131,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CallingConvention>StdCall</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;Msimg32.lib;uxtheme.lib;shlwapi.lib;$(TargetDir)X-Studio.Logic.lib;$(TargetDir)X-Studio.Utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -142,39 +145,39 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CodeEdit Control (Advanced).cpp" />
-    <ClCompile Include="CodeEdit Control (Base).cpp" />
-    <ClCompile Include="CodeEdit Control (Data).cpp" />
-    <ClCompile Include="CodeEdit Control (Indentation).cpp" />
-    <ClCompile Include="CodeEdit Control (Iterator).cpp" />
-    <ClCompile Include="CodeEdit Control (Suggestions).cpp" />
-    <ClCompile Include="CodeEdit Control (Text).cpp" />
-    <ClCompile Include="CodeEdit Control (Undo).cpp" />
-    <ClCompile Include="CodeEdit Control (Window).cpp" />
-    <ClCompile Include="CommentRatio Control.cpp" />
-    <ClCompile Include="Custom Button.cpp" />
-    <ClCompile Include="Custom ComboBox.cpp" />
-    <ClCompile Include="Custom Drawing.cpp" />
-    <ClCompile Include="Custom Edit.cpp" />
-    <ClCompile Include="Custom ListView.cpp">
+    <ClCompile Include="CodeEdit Control (Advanced).c" />
+    <ClCompile Include="CodeEdit Control (Base).c" />
+    <ClCompile Include="CodeEdit Control (Data).c" />
+    <ClCompile Include="CodeEdit Control (Indentation).c" />
+    <ClCompile Include="CodeEdit Control (Iterator).c" />
+    <ClCompile Include="CodeEdit Control (Suggestions).c" />
+    <ClCompile Include="CodeEdit Control (Text).c" />
+    <ClCompile Include="CodeEdit Control (Undo).c" />
+    <ClCompile Include="CodeEdit Control (Window).c" />
+    <ClCompile Include="CommentRatio Control.c" />
+    <ClCompile Include="Custom Button.c" />
+    <ClCompile Include="Custom ComboBox.c" />
+    <ClCompile Include="Custom Drawing.c" />
+    <ClCompile Include="Custom Edit.c" />
+    <ClCompile Include="Custom ListView.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Custom Menus.cpp" />
-    <ClCompile Include="Custom RichEdit.cpp" />
-    <ClCompile Include="Custom Static.cpp" />
-    <ClCompile Include="Custom Tooltips.cpp" />
-    <ClCompile Include="Debugging.cpp" />
-    <ClCompile Include="Grouped ListView Control.cpp" />
-    <ClCompile Include="MainCtrls.cpp" />
+    <ClCompile Include="Custom Menus.c" />
+    <ClCompile Include="Custom RichEdit.c" />
+    <ClCompile Include="Custom Static.c" />
+    <ClCompile Include="Custom Tooltips.c" />
+    <ClCompile Include="Debugging.c" />
+    <ClCompile Include="Grouped ListView Control.c" />
+    <ClCompile Include="MainCtrls.c" />
     <ClCompile Include="Rich Edit OLE.cpp" />
-    <ClCompile Include="Rich Text (Drawing).cpp" />
-    <ClCompile Include="Scribble Pad.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Rich Text (Drawing).c" />
+    <ClCompile Include="Scribble Pad.c" />
+    <ClCompile Include="stdafx.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Workspace.cpp" />
+    <ClCompile Include="Workspace.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Build Rules.h" />
