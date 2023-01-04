@@ -13,7 +13,8 @@ namespace Utils
    void  Printf(const TCHAR*  szFormat, ...)
    {
       StringBufferW  szOutput(512);
-      va_list        pArguments = va_start(pArguments, szFormat);
+      va_list        pArguments;
+      va_start(pArguments, szFormat);
 
       // Format and print
       StringCchVPrintf(szOutput, 512, szFormat, pArguments);

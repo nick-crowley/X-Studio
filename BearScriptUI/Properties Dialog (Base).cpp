@@ -92,7 +92,7 @@ HWND   createPropertiesDialog(MAIN_WINDOW_DATA*  pWindowData)
    ERROR_CHECK("creating document properties PropertySheet", pDialogData->hSheetDlg);
 
    // Sub-class PropertySheet
-   pDialogData->dlgprocSheetBase = SubclassDialog(pDialogData->hSheetDlg, dlgprocPropertiesSheet); 
+   pDialogData->dlgprocSheetBase = (DLGPROC)SubclassDialog(pDialogData->hSheetDlg, dlgprocPropertiesSheet); 
 
    // Position according to Preferences
    pWindowRect = getAppPreferencesWindowRect(AW_PROPERTIES);
