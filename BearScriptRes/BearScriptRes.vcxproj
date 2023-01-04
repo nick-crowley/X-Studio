@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release (Symbols)|Win32">
+      <Configuration>Release (Symbols)</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{A1006564-B58C-47F8-B146-4115DAAC9FD8}</ProjectGuid>
+    <RootNamespace>BearScriptRes</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.32819.101</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;BEARSCRIPTRES_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)X-Studio.Resources.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <NoEntryPoint>true</NoEntryPoint>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BEARSCRIPTRES_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)X-Studio.Resources.dll</OutputFile>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <NoEntryPoint>true</NoEntryPoint>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BEARSCRIPTRES_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)X-Studio.Resources.dll</OutputFile>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration />
+      <NoEntryPoint>true</NoEntryPoint>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="BearScript Res.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="English.rc2" />
+    <None Include="German.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Bitmaps\About - Bullwinkle.bmp" />
+    <Image Include="Bitmaps\About - Illuminatus.bmp" />
+    <Image Include="Bitmaps\About - Inras.bmp" />
+    <Image Include="Bitmaps\About - Jack08.bmp" />
+    <Image Include="Bitmaps\About - Jack775544.bmp" />
+    <Image Include="Bitmaps\About - Ketraar.bmp" />
+    <Image Include="Bitmaps\About - LitCube.bmp" />
+    <Image Include="Bitmaps\About - MarkCondren.bmp" />
+    <Image Include="Bitmaps\About - RedEclipse.bmp" />
+    <Image Include="Bitmaps\About - s9ilent.bmp" />
+    <Image Include="Bitmaps\About - Unknown.bmp" />
+    <Image Include="Bitmaps\Button - Default.bmp" />
+    <Image Include="Bitmaps\Button - Hot.bmp" />
+    <Image Include="Bitmaps\CodeEdit - Squiggle.bmp" />
+    <Image Include="Bitmaps\Comment - Mask.bmp" />
+    <Image Include="Bitmaps\Dialog - Export Project.bmp" />
+    <Image Include="Bitmaps\Dialog - File Options.bmp" />
+    <Image Include="Bitmaps\Player - Background.bmp" />
+    <Image Include="Bitmaps\Player - Highlight.bmp" />
+    <Image Include="Bitmaps\Special - License.bmp" />
+    <Image Include="Bitmaps\Special - Panda.bmp" />
+    <Image Include="Bitmaps\Special - Splash.bmp" />
+    <Image Include="Bitmaps\Special - X-Universe.bmp" />
+    <Image Include="Bitmaps\Toolbar - File Dialog.bmp" />
+    <Image Include="Bitmaps\Toolbar - Main (Small).bmp" />
+    <Image Include="Bitmaps\Toolbar - Main.bmp" />
+    <Image Include="Bitmaps\Toolbar - Message Dialog.bmp" />
+    <Image Include="Bitmaps\Toolbar - Richtext Dialog.bmp" />
+    <Image Include="Bitmaps\Tutorial - File Options.bmp" />
+    <Image Include="Bitmaps\Tutorial - Game Data.bmp" />
+    <Image Include="Bitmaps\Tutorial - Game Objects.bmp" />
+    <Image Include="Bitmaps\Tutorial - Open File.bmp" />
+    <Image Include="Bitmaps\Tutorial - Projects.bmp" />
+    <Image Include="Bitmaps\Tutorial - Script Commands.bmp" />
+    <Image Include="Bitmaps\Tutorial - Script Editor.bmp" />
+    <Image Include="Bitmaps\Tutorial - Script Objects.bmp" />
+    <Image Include="Icons\Colour - Black.ico" />
+    <Image Include="Icons\Colour - Blue.ico" />
+    <Image Include="Icons\Colour - Cyan.ico" />
+    <Image Include="Icons\Colour - Dark Green.ico" />
+    <Image Include="Icons\Colour - Dark Grey.ico" />
+    <Image Include="Icons\Colour - Dark Orange.ico" />
+    <Image Include="Icons\Colour - Dark Red.ico" />
+    <Image Include="Icons\Colour - Dark Yellow.ico" />
+    <Image Include="Icons\Colour - Green.ico" />
+    <Image Include="Icons\Colour - Grey.ico" />
+    <Image Include="Icons\Colour - Orange.ico" />
+    <Image Include="Icons\Colour - Pink.ico" />
+    <Image Include="Icons\Colour - Purple.ico" />
+    <Image Include="Icons\Colour - Red.ico" />
+    <Image Include="Icons\Colour - White.ico" />
+    <Image Include="Icons\Colour - Yellow.ico" />
+    <Image Include="Icons\General - Add.ico" />
+    <Image Include="Icons\General - All Files.ico" />
+    <Image Include="Icons\General - Argument.ico" />
+    <Image Include="Icons\General - Error.ico" />
+    <Image Include="Icons\General - Folder.ico" />
+    <Image Include="Icons\General - Function.ico" />
+    <Image Include="Icons\General - Information.ico" />
+    <Image Include="Icons\General - Invalid.ico" />
+    <Image Include="Icons\General - Language Folder.ico" />
+    <Image Include="Icons\General - Less Detail.ico" />
+    <Image Include="Icons\General - Mission Folder.ico" />
+    <Image Include="Icons\General - Next.ico" />
+    <Image Include="Icons\General - Not Voiced.ico" />
+    <Image Include="Icons\General - One Column.ico" />
+    <Image Include="Icons\General - Parent Folder.ico" />
+    <Image Include="Icons\General - Pause.ico" />
+    <Image Include="Icons\General - Play.ico" />
+    <Image Include="Icons\General - Question.ico" />
+    <Image Include="Icons\General - Refresh.ico" />
+    <Image Include="Icons\General - Remove.ico" />
+    <Image Include="Icons\General - Script Caller.ico" />
+    <Image Include="Icons\General - Script Folder.ico" />
+    <Image Include="Icons\General - Signed.ico" />
+    <Image Include="Icons\General - Sound Effect.ico" />
+    <Image Include="Icons\General - Syntax.ico" />
+    <Image Include="Icons\General - Three Columns.ico" />
+    <Image Include="Icons\General - Two Columns.ico" />
+    <Image Include="Icons\General - Valid.ico" />
+    <Image Include="Icons\General - Variable Dependency.ico" />
+    <Image Include="Icons\General - Variable.ico" />
+    <Image Include="Icons\General - Video clip.ico" />
+    <Image Include="Icons\General - Voiced.ico" />
+    <Image Include="Icons\General - Warning.ico" />
+    <Image Include="Icons\Language - English.ico" />
+    <Image Include="Icons\Language - French.ico" />
+    <Image Include="Icons\Language - German.ico" />
+    <Image Include="Icons\Language - Italian.ico" />
+    <Image Include="Icons\Language - Polish.ico" />
+    <Image Include="Icons\Language - Russian.ico" />
+    <Image Include="Icons\Language - Spanish.ico" />
+    <Image Include="Icons\Menu - About.ico" />
+    <Image Include="Icons\Menu - Add Variable.ico" />
+    <Image Include="Icons\Menu - Appearance.ico" />
+    <Image Include="Icons\Menu - Attachment.ico" />
+    <Image Include="Icons\Menu - Close All Documents.ico" />
+    <Image Include="Icons\Menu - Close Document.ico" />
+    <Image Include="Icons\Menu - Close Other Documents.ico" />
+    <Image Include="Icons\Menu - Close Project.ico" />
+    <Image Include="Icons\Menu - Command List.ico" />
+    <Image Include="Icons\Menu - Comment.ico" />
+    <Image Include="Icons\Menu - Copy.ico" />
+    <Image Include="Icons\Menu - Cut.ico" />
+    <Image Include="Icons\Menu - Delete Page.ico" />
+    <Image Include="Icons\Menu - Delete.ico" />
+    <Image Include="Icons\Menu - Edit Formatting.ico" />
+    <Image Include="Icons\Menu - Edit Page.ico" />
+    <Image Include="Icons\Menu - Find Text.ico" />
+    <Image Include="Icons\Menu - Find.ico" />
+    <Image Include="Icons\Menu - Formatting Error.ico" />
+    <Image Include="Icons\Menu - Forums.ico" />
+    <Image Include="Icons\Menu - Game Object.ico" />
+    <Image Include="Icons\Menu - Help.ico" />
+    <Image Include="Icons\Menu - Insert Page.ico" />
+    <Image Include="Icons\Menu - Insert Project File.ico" />
+    <Image Include="Icons\Menu - Insert Result.ico" />
+    <Image Include="Icons\Menu - Missing.ico" />
+    <Image Include="Icons\Menu - New File.ico" />
+    <Image Include="Icons\Menu - New Language File.ico" />
+    <Image Include="Icons\Menu - New Mission File.ico" />
+    <Image Include="Icons\Menu - New Project File.ico" />
+    <Image Include="Icons\Menu - New Script File.ico" />
+    <Image Include="Icons\Menu - Open File.ico" />
+    <Image Include="Icons\Menu - Open Samples.ico" />
+    <Image Include="Icons\Menu - Open VFS.ico" />
+    <Image Include="Icons\Menu - Output Window.ico" />
+    <Image Include="Icons\Menu - Paste.ico" />
+    <Image Include="Icons\Menu - Preferences.ico" />
+    <Image Include="Icons\Menu - Project Explorer.ico" />
+    <Image Include="Icons\Menu - Properties.ico" />
+    <Image Include="Icons\Menu - Quit.ico" />
+    <Image Include="Icons\Menu - Redo.ico" />
+    <Image Include="Icons\Menu - Remove Project File.ico" />
+    <Image Include="Icons\Menu - Remove Variable.ico" />
+    <Image Include="Icons\Menu - Save All Files.ico" />
+    <Image Include="Icons\Menu - Save File As.ico" />
+    <Image Include="Icons\Menu - Save File.ico" />
+    <Image Include="Icons\Menu - Save Project.ico" />
+    <Image Include="Icons\Menu - Script Dependency.ico" />
+    <Image Include="Icons\Menu - Script Object.ico" />
+    <Image Include="Icons\Menu - Select All.ico" />
+    <Image Include="Icons\Menu - Submit Report.ico" />
+    <Image Include="Icons\Menu - Tutorial.ico" />
+    <Image Include="Icons\Menu - Undo.ico" />
+    <Image Include="Icons\Menu - Update.ico" />
+    <Image Include="Icons\Overlay - Description.ico" />
+    <Image Include="Icons\Overlay - Invalid.ico" />
+    <Image Include="Icons\Program - Doubleshadow.ico" />
+    <Image Include="Icons\Program - ExScriptor.ico" />
+    <Image Include="Icons\Program - Visual Studio.ico" />
+    <Image Include="Icons\Program - X-Studio.ico" />
+    <Image Include="Icons\Program - X2 - The Threat.ico" />
+    <Image Include="Icons\Program - X3 - Albion Prelude.ico" />
+    <Image Include="Icons\Program - X3 - Reunion.ico" />
+    <Image Include="Icons\Program - X3 - Terran Conflict (new).ico" />
+    <Image Include="Icons\Validation - Albion Prelude.ico" />
+    <Image Include="Icons\Validation - Reunion.ico" />
+    <Image Include="Icons\Validation - Terran Conflict.ico" />
+    <Image Include="Icons\Validation - Threat.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Data\Command Syntax.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Data\Description Variables.xml" />
+    <Xml Include="Data\Object Descriptions.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Data\Segoe UI Bold.ttf" />
+    <Font Include="Data\Segoe UI Light.ttf" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
