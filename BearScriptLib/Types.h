@@ -2664,7 +2664,7 @@ enum AVL_TREE_PROPERTY_TYPE { AP_INTEGER, AP_STRING, AP_STRING_CASE  };
 enum AVL_TREE_TRAVERSAL { ATT_PREORDER, ATT_INORDER, ATT_POSTORDER };
 
 // Defines the types of sorting available
-enum AVL_TREE_ORDERING { AO_ASCENDING, AO_DESCENDING, AO_NONE };     // NONE is used for the lack of a secondary key
+enum AVL_TREE_ORDERING { AO_ASCENDING, AO_DESCENDING };
 
 // Identifies the type of linkage of a node to it's parent
 //
