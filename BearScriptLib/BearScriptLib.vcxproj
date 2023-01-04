@@ -84,6 +84,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CallingConvention>StdCall</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;$(TargetDir)X-Studio.Utils.lib;zdll.lib;htmlhelp.lib;Wininet.lib;comctl32.lib;DbgHelp.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -106,6 +107,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
       <CallingConvention>StdCall</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;$(TargetDir)X-Studio.Utils.lib;zdll.lib;htmlhelp.lib;Wininet.lib;comctl32.lib;DbgHelp.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -130,6 +132,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CallingConvention>StdCall</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;$(TargetDir)X-Studio.Utils.lib;zdll.lib;htmlhelp.lib;Wininet.lib;comctl32.lib;DbgHelp.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -143,269 +146,269 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp">
+    <ClCompile Include="Application.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Automatic Update.cpp" />
-    <ClCompile Include="Binary Tree Functors.cpp">
+    <ClCompile Include="Automatic Update.c" />
+    <ClCompile Include="Binary Tree Functors.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Binary Tree Operations.cpp">
+    <ClCompile Include="Binary Tree Operations.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Bug Reports.cpp">
+    <ClCompile Include="Bug Reports.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Call Stacks.cpp">
+    <ClCompile Include="Call Stacks.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Code Objects.cpp">
+    <ClCompile Include="Code Objects.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Colour Schemes.cpp">
+    <ClCompile Include="Colour Schemes.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Command Parameter Array.cpp">
+    <ClCompile Include="Command Parameter Array.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Command Parameters.cpp">
+    <ClCompile Include="Command Parameters.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Command Syntax.cpp">
+    <ClCompile Include="Command Syntax.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Commands (Macros).cpp">
+    <ClCompile Include="Commands (Macros).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Commands.cpp">
+    <ClCompile Include="Commands.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Console.cpp">
+    <ClCompile Include="Console.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Debugging.cpp">
+    <ClCompile Include="Debugging.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Error Messages.cpp">
+    <ClCompile Include="Error Messages.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Error Queues.cpp">
+    <ClCompile Include="Error Queues.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Error Stacks.cpp">
+    <ClCompile Include="Error Stacks.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Game Data.cpp">
+    <ClCompile Include="Game Data.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Game Files.cpp">
+    <ClCompile Include="Game Files.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Game Object Properties.cpp">
+    <ClCompile Include="Game Object Properties.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Game Objects.cpp">
+    <ClCompile Include="Game Objects.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Game String Trees.cpp">
+    <ClCompile Include="Game String Trees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Game Strings.cpp">
+    <ClCompile Include="Game Strings.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ImageTree.cpp">
+    <ClCompile Include="ImageTree.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Language Button Tree.cpp">
+    <ClCompile Include="Language Button Tree.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Language Files.cpp">
+    <ClCompile Include="Language Files.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="MainLib.cpp">
+    <ClCompile Include="MainLib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Media Items.cpp">
+    <ClCompile Include="Media Items.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Object Descriptions.cpp">
+    <ClCompile Include="Object Descriptions.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Operation Data.cpp">
+    <ClCompile Include="Operation Data.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Operation Progress.cpp">
+    <ClCompile Include="Operation Progress.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Operators.cpp">
+    <ClCompile Include="Operators.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Preferences.cpp">
+    <ClCompile Include="Preferences.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Project File.cpp">
+    <ClCompile Include="Project File.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Project Variables Tree.cpp">
+    <ClCompile Include="Project Variables Tree.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Return Objects.cpp">
+    <ClCompile Include="Return Objects.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Rich Text (Types).cpp">
+    <ClCompile Include="Rich Text (Types).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Rich Text.cpp">
+    <ClCompile Include="Rich Text.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Scratch Pad.cpp">
+    <ClCompile Include="Scratch Pad.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Arguments.cpp">
+    <ClCompile Include="Script Arguments.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Conversion.cpp">
+    <ClCompile Include="Script Conversion.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Dependency Tree.cpp">
+    <ClCompile Include="Script Dependency Tree.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Files.cpp">
+    <ClCompile Include="Script Files.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Generation (Base).cpp">
+    <ClCompile Include="Script Generation (Base).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Generation (Jumps).cpp">
+    <ClCompile Include="Script Generation (Jumps).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Generation (XML).cpp">
+    <ClCompile Include="Script Generation (XML).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Generation.cpp">
+    <ClCompile Include="Script Generation.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Objects.cpp">
+    <ClCompile Include="Script Objects.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Translation (Base).cpp">
+    <ClCompile Include="Script Translation (Base).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Translation (XML).cpp">
+    <ClCompile Include="Script Translation (XML).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Translation.cpp">
+    <ClCompile Include="Script Translation.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Script Validation.cpp">
+    <ClCompile Include="Script Validation.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="stdafx.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="String Conversion (old).cpp">
+    <ClCompile Include="String Conversion (old).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="String Conversion.cpp">
+    <ClCompile Include="String Conversion.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="String Dependency Tree.cpp">
+    <ClCompile Include="String Dependency Tree.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Text Stream.cpp">
+    <ClCompile Include="Text Stream.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Trees (Advanced).cpp">
+    <ClCompile Include="Trees (Advanced).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Trees.cpp">
+    <ClCompile Include="Trees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Variable Dependency Tree.cpp">
+    <ClCompile Include="Variable Dependency Tree.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Variable Names Tree.cpp">
+    <ClCompile Include="Variable Names Tree.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Virtual File System (Base).cpp">
+    <ClCompile Include="Virtual File System (Base).c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Virtual File System.cpp">
+    <ClCompile Include="Virtual File System.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Virtual Files.cpp">
+    <ClCompile Include="Virtual Files.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="XML Generator.cpp">
+    <ClCompile Include="XML Generator.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="XML Parser.cpp">
+    <ClCompile Include="XML Parser.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release (Symbols)|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
